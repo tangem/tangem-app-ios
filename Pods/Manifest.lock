@@ -1,0 +1,27 @@
+PODS:
+  - Alamofire (4.6.0)
+  - BigInt (3.0.1):
+    - SipHash (~> 1.2)
+  - CryptoSwift (0.8.2)
+  - QRCode (2.0)
+  - SipHash (1.2.0)
+  - SwiftyJSON (3.0.0)
+
+DEPENDENCIES:
+  - Alamofire (~> 4.0)
+  - BigInt (~> 3.0)
+  - CryptoSwift
+  - QRCode
+  - SwiftyJSON (= 3.0.0)
+
+SPEC CHECKSUMS:
+  Alamofire: f41a599bd63041760b26d393ec1069d9d7b917f4
+  BigInt: 8e8a52161c745cd3ab78e3dc346a9fbee51e6cf6
+  CryptoSwift: 6b90cb3227de5ad1b034a0156f5c027399aea60c
+  QRCode: f98a1886c8f37523704a7512a4c0cd45b34c18a4
+  SipHash: c6e9e43e9c531b5bc6602545130c26194a6d31ce
+  SwiftyJSON: f57b2b44bc166617372d1c70773591fe9f0f5fd4
+
+PODFILE CHECKSUM: 268722be3c80b8607aa7f48c7a4c7596deef1e8f
+
+COCOAPODS: 1.4.0
