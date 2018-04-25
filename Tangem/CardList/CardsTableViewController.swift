@@ -17,7 +17,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.separatorColor = UIColor.clear
-        navigationItem.title = "Crad List"
+        navigationItem.title = "Card List"
     
         if cardList.count == 0 {
              emptyView.isHidden = false
