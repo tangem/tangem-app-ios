@@ -13,7 +13,10 @@ Digital assets supported:
 * Bitcoin Testnet
 * Ethereum Rinkeby
 
+[<img src="https://upload.wikimedia.org/wikipedia/commons/0/0f/Available_on_the_App_Store_%28black%29_SVG.svg">](https://itunes.apple.com/app/tangem-lite/id1354868448)
+
 Android version here:
+[Github](https://github.com/TangemCash/tangem-access) (coming), 
 [Play Store](https://play.google.com/store/apps/details?id=com.tangem.wallet)
 and
 [APK](https://tangem.com/apk)
