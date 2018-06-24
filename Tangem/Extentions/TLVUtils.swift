@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 
@@ -124,7 +125,14 @@ func sha256(_ str: String) -> String? {
 }
 
 func randomNode()->String{
-    let nodes = ["vps.hsmiths.com: 8080","arihancckjge66iv.onion: 8080", "electrumx.bot.nu: 50001", "btc.asis.io: 50001", "e-x.not.fyi: 50001","electrum.backplanedns.org: 50001", "helicarrier.bauerj.eu: 50001"]
+    let nodes = ["vps.hsmiths.com: 8080","tardis.bauerj.eu:50001", "electrumx.bot.nu: 50001", "electrumx.hopto.org:50001", "e-x.not.fyi: 50001","electrum.backplanedns.org: 50001", "helicarrier.bauerj.eu: 50001"]
+    
+    let rundomNumber = randRange(lower: 0, upper: nodes.count - 1)
+    return nodes[rundomNumber]
+}
+
+func randomTestNode()->String{
+    let nodes = ["testnet.hsmiths.com:53011","testnet.qtornado.com:51001", "testnet1.bauerj.eu:50001"]
     
     let rundomNumber = randRange(lower: 0, upper: nodes.count - 1)
     return nodes[rundomNumber]
@@ -133,3 +141,59 @@ func randomNode()->String{
 func randRange (lower: Int , upper: Int) -> Int {
     return lower + Int(arc4random_uniform(UInt32(upper - lower + 1)))
 }
+
+func hexStringToUIColor (hex:String,alpha: Float = 1.0) -> UIColor {
+    var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+    
+    if (cString.hasPrefix("#")) {
+        cString.remove(at: cString.startIndex)
+    }
+    
+    if ((cString.count) != 6) {
+        return UIColor.gray
+    }
+    
+    var rgbValue:UInt32 = 0
+    Scanner(string: cString).scanHexInt32(&rgbValue)
+    
+    return UIColor(
+        red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+        green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+        blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+        alpha: CGFloat(1.0)
+    )
+}
+
+func checkRibbonCase(_ card:Card) -> Int{
+    
+    let firmware = card.Firmware
+    let hashed = card.SignedHashes
+    let floatConst:Float = 1.19
+    
+    if firmware == "Not available" { return 0 }
+    
+    if firmware.containsIgnoringCase(find: "d"){
+        print("RIBBON CASE ONE")
+        return 1
+    }
+    if firmware.containsIgnoringCase(find: "r") && hashed == "" {
+        print("RIBBON CASE TWO")
+        return 2
+    }
+    if firmware.containsIgnoringCase(find: "r") && hashed != "" {
+        print("RIBBON CASE THREE")
+        return 3
+    }
+    
+    if firmware.count > 3 {
+        let floatString = firmware.prefix(4)
+        let floatValue = (floatString as NSString).floatValue
+        if floatValue < floatConst {
+            print("RIBBON CASE FOUR")
+            return 4
+        }
+    }
+    
+    return 0
+}
+
