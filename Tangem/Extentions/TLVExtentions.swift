@@ -196,4 +196,22 @@ extension Data {
     }
 }
 
+extension Double {
+    func fiveRound() -> String{
+        
+        var result = String(format: "%.5f", (self * 100000.0).rounded()/100000.0)
+        for _ in 0...5 {
+            print(result.suffix(1))
+            if result.suffix(1) == "0" || result.suffix(1) == "." {
+                result.removeLast()
+            } else {
+                break
+            }
+        }
+        
+       
+        return result
+    }
+}
+
 
