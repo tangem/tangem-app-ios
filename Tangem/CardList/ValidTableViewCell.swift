@@ -9,6 +9,12 @@
 import UIKit
 
 class ValidTableViewCell: UITableViewCell {
+    
+    //MARK: - UI for Ribbon Cases
+    @IBOutlet weak var netImage: UIImageView!
+    @IBOutlet weak var voidImage: UIImageView!
+    @IBOutlet weak var ribbonLabel: UILabel!
+    
     @IBOutlet weak var backView: UIView!
     
     @IBOutlet weak var cardIDLabel: UILabel!
@@ -38,6 +44,7 @@ class ValidTableViewCell: UITableViewCell {
         backView.layer.shadowRadius = 5
         //backView.layer.shouldRasterize = true
         backView.layer.cornerRadius = 5
+        ribbonLabel.transform = CGAffineTransform(rotationAngle: -CGFloat.pi / 2)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
