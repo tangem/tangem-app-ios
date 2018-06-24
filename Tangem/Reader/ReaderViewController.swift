@@ -59,6 +59,7 @@ class ReaderViewController: UIViewController,RemoveCardsDelegate,DidSignCheckDel
         
         
         
+        
     }
     
     func onNFCResult(success: Bool, msg: String) {
@@ -125,6 +126,9 @@ class ReaderViewController: UIViewController,RemoveCardsDelegate,DidSignCheckDel
                 if tmp.name == "Challenge" {
                     tmpCard.Challenge = tmp.valueHex.lowercased()
                 }
+                if tmp.name == "SignedHashes" {
+                    tmpCard.SignedHashes = tmp.valueHex
+                }
                 
             } catch TLVError.wrongTLV {
                 let validationAlert = UIAlertController(title: "Failed to parse data received from the banknote", message: "", preferredStyle: .alert)
@@ -159,6 +163,9 @@ class ReaderViewController: UIViewController,RemoveCardsDelegate,DidSignCheckDel
                     if tmp.name == "Manufacture_Date_Time" {
                         tmpCard.Manufacture_Date_Time = tmp.readyValue
                     }
+                    if tmp.name == "SignedHashes" {
+                        tmpCard.SignedHashes = tmp.valueHex
+                    }
                     
                 } catch TLVError.wrongTLV {
                     let validationAlert = UIAlertController(title: "Failed to parse data received from the banknote", message: "", preferredStyle: .alert)
@@ -169,6 +176,8 @@ class ReaderViewController: UIViewController,RemoveCardsDelegate,DidSignCheckDel
                 }
                 
             }
+            //Ribbon Check
+            tmpCard.ribbonCase = checkRibbonCase(tmpCard)
             
             let Blockchain = tmpCard.BlockchainName
             
@@ -176,12 +185,12 @@ class ReaderViewController: UIViewController,RemoveCardsDelegate,DidSignCheckDel
                 //We think that card is BTC
                 tmpCard.type = "btc"
                 tmpCard.test = "0"
-                tmpCard.Blockchain = "Bitcoin Main"
+                tmpCard.Blockchain = "Bitcoin"
                 tmpCard.Node = randomNode()
                 if Blockchain.containsIgnoringCase(find: "test"){
                     tmpCard.test = "1"
                     tmpCard.Blockchain = "Bitcoin TestNet"
-                    tmpCard.Node = "testnetnode.arihanc.com:51001"
+                    tmpCard.Node = randomTestNode()
                 }
                 if let addr = getAddress(tmpCard.hexPublicKey) {
                     tmpCard.BtcAddressMain = addr[0]
@@ -203,11 +212,11 @@ class ReaderViewController: UIViewController,RemoveCardsDelegate,DidSignCheckDel
                 //We think that card is ETC
                 tmpCard.type = "eth"
                 tmpCard.test = "0"
-                tmpCard.Blockchain = "Ethereum MainNet"
+                tmpCard.Blockchain = "Ethereum"
                 tmpCard.Node = "mainnet.infura.io"
                 if Blockchain.containsIgnoringCase(find: "test"){
                     tmpCard.test = "1"
-                    tmpCard.Blockchain = "Ethereum TestNet"
+                    tmpCard.Blockchain = "Ethereum Rinkeby"
                     tmpCard.Node = "rinkeby.infura.io"
                 }
                 tmpCard.EthAddress = getEthAddress(tmpCard.hexPublicKey)
@@ -226,6 +235,9 @@ class ReaderViewController: UIViewController,RemoveCardsDelegate,DidSignCheckDel
             
             
         } else {
+            //Ribbon Check
+            tmpCard.ribbonCase = checkRibbonCase(tmpCard)
+            
             addCardNoWallet(tmpCard)
         }
     }
@@ -421,6 +433,7 @@ class ReaderViewController: UIViewController,RemoveCardsDelegate,DidSignCheckDel
         var i = 0
         for elem in cardList{
             if elem.CardID == card.CardID {
+                cardList[i] = card
                 cardList[i].checkedBalance = false
                 new = false
             }
