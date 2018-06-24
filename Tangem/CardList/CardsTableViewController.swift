@@ -11,6 +11,7 @@ import UIKit
 class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
     var cardList = [Card]()
     @IBOutlet weak var emptyView: UIView!
+    @IBOutlet weak var scanAgainView: UIView!
     weak var delegate: RemoveCardsDelegate?
     weak var signDelegate: DidSignCheckDelegate?
     
@@ -21,8 +22,10 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
     
         if cardList.count == 0 {
              emptyView.isHidden = false
+             scanAgainView.isHidden = true
         } else {
             emptyView.isHidden = true
+            scanAgainView.isHidden = false
         }
     }
 
@@ -46,7 +49,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
+        let grayColor = hexStringToUIColor(hex: "#bbbbcb")
         let validCellIdentifier = "ValidTableViewCell"
         let invalidCellIdentifier = "InvalidTableViewCell"
         // Configure the cell...
@@ -56,7 +59,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
             cell = (tableView.dequeueReusableCell(withIdentifier: validCellIdentifier,for: indexPath) as? ValidTableViewCell)!
             
             if tmpCard.CardID != "" {
-                (cell as! ValidTableViewCell).backView.backgroundColor = UIColor(red:0.3921,green:0.3921,blue:0.3921,alpha:1) //gray
+                (cell as! ValidTableViewCell).backView.backgroundColor = grayColor // UIColor(red:0.3921,green:0.3921,blue:0.3921,alpha:1) //gray
                 (cell as! ValidTableViewCell).cardIDLabel.text = tmpCard.CardID
                 (cell as! ValidTableViewCell).blockchainLabel.text = tmpCard.Blockchain
                 let address = tmpCard.Address
@@ -70,7 +73,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                     (cell as! ValidTableViewCell).backView.backgroundColor = UIColor(red:0.66737,green:0.83461,blue:0.64394,alpha:1) //green
                 }
                 if priceString.containsIgnoringCase(find: "0.00") && tmpCard.error == 0 {
-                    (cell as! ValidTableViewCell).backView.backgroundColor = UIColor(red:0.6836,green:0.8383228,blue:0.90123188,alpha:1) //blue
+                    let blueColor = hexStringToUIColor(hex: "#bcd9e5")
+                    (cell as! ValidTableViewCell).backView.backgroundColor = blueColor//UIColor(red:0.6836,green:0.8383228,blue:0.90123188,alpha:1) //blue
                     
                 }
                 }
@@ -80,7 +84,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                     wilBalanceThread(tmpCard,indexPath)
                 }
                 if tmpCard.error == 1 {
-                    (cell as! ValidTableViewCell).backView.backgroundColor = UIColor(red:0.3921,green:0.3921,blue:0.3921,alpha:1) //gray
+                    (cell as! ValidTableViewCell).backView.backgroundColor = grayColor //UIColor(red:0.3921,green:0.3921,blue:0.3921,alpha:1) //gray
                     tmpCard.WalletValue = "-"
                     tmpCard.USDWalletValue = "-"
                     tmpCard.Node = ""
@@ -92,14 +96,55 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                 if tmpCard.type == "eth" {
                     (cell as! ValidTableViewCell).logoIcon.image = UIImage(named: "Ethereum")
                 }
+                if tmpCard.type == "btc" &&  tmpCard.test == "0" {
+                    (cell as! ValidTableViewCell).logoIcon.image = UIImage(named: "Bitcoin-org")
+                }
+                //MARK: - UI for Ribbon Cases
+                switch tmpCard.ribbonCase {
+                case 1:
+                    (cell as! ValidTableViewCell).ribbonLabel.text = "DEVELOPER KIT"
+                    (cell as! ValidTableViewCell).voidImage.isHidden = true
+                case 2:
+                    (cell as! ValidTableViewCell).ribbonLabel.backgroundColor = .white
+                    (cell as! ValidTableViewCell).voidImage.isHidden = true
+                case 3:
+                    (cell as! ValidTableViewCell).ribbonLabel.backgroundColor = .red
+                case 4:
+                    (cell as! ValidTableViewCell).voidImage.isHidden = true
+                default:
+                    //Default
+                    (cell as! ValidTableViewCell).ribbonLabel.isHidden = true
+                    (cell as! ValidTableViewCell).voidImage.isHidden = true
+                    
+                }
                 
             }
         } else {
            cell = (tableView.dequeueReusableCell(withIdentifier: invalidCellIdentifier,for: indexPath) as? InvalidTableViewCell)!
             if tmpCard.CardID != "" {
                 (cell as! InvalidTableViewCell).cardIDLabel.text = tmpCard.CardID
+                //MARK: - UI for Ribbon Cases
+                switch tmpCard.ribbonCase {
+                case 1:
+                    (cell as! InvalidTableViewCell).ribbonLabel.text = "DEVELOPER KIT"
+                    (cell as! InvalidTableViewCell).voidImage.isHidden = true
+                case 2:
+                    (cell as! InvalidTableViewCell).ribbonLabel.backgroundColor = .white
+                    (cell as! InvalidTableViewCell).voidImage.isHidden = true
+                case 3:
+                    (cell as! InvalidTableViewCell).ribbonLabel.backgroundColor = .red
+                case 4:
+                    (cell as! InvalidTableViewCell).voidImage.isHidden = true
+                default:
+                    //Default
+                    (cell as! InvalidTableViewCell).ribbonLabel.isHidden = true
+                    (cell as! InvalidTableViewCell).voidImage.isHidden = true
+                    
+                }
             }
         }
+        
+        
         
         cell.separatorInset = UIEdgeInsets.zero
         cell.layoutMargins = UIEdgeInsets.zero
@@ -169,7 +214,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             let price_usd:Double = (tmpCard.mult as NSString).doubleValue
                             let wei = Double(tmpCard.valueUInt64)
                             let first = wei/1000000000000000000.0
-                            tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
+                            tmpCard.WalletValue = first.fiveRound()
+                            //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
                             let second = price_usd
                             let value = first*second
                             tmpCard.USDWalletValue = String(format: "%.2f", round(value*100)/100)
@@ -204,7 +250,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             let price_usd:Double = (tmpCard.mult as NSString).doubleValue
                             let wei = Double(tmpCard.valueUInt64)
                             let first = wei/1000000000000000000.0
-                            tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
+                            tmpCard.WalletValue = first.fiveRound()
+                            //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
                             let second = price_usd
                             let value = first*second
                             tmpCard.USDWalletValue = String(format: "%.2f", round(value*100)/100)
@@ -278,9 +325,11 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             let price_usd:Double = (tmpCard.mult as NSString).doubleValue
                             let satoshi = Double(tmpCard.value)
                             let first = satoshi/100000.0
-                            tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
+                            tmpCard.WalletValue = first.fiveRound()
+                            //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
                             let second = price_usd/1000.0
                             let value = first*second
+                            //tmpCard.USDWalletValue = value.fiveRound()
                             tmpCard.USDWalletValue = String(format: "%.2f", round(value*100)/100)
                             if(tmpCard.mult == "0"){
                                 tmpCard.USDWalletValue = ""
@@ -312,7 +361,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             let price_usd:Double = (tmpCard.mult as NSString).doubleValue
                             let satoshi = Double(tmpCard.value)
                             let first = satoshi/100000.0
-                            tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
+                            tmpCard.WalletValue = first.fiveRound()
+                            //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
                             let second = price_usd/1000.0
                             let value = first*second
                             tmpCard.USDWalletValue = String(format: "%.2f", round(value*100)/100)
@@ -424,6 +474,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
         cardList.removeAll()
         tableView.reloadData()
         emptyView.isHidden = false
+        scanAgainView.isHidden = true
         if let delegate = delegate {
             delegate.didRemoveCards()
         }
