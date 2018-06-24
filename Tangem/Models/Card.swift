@@ -19,7 +19,6 @@ struct Card {
     var Blockchain:String = ""
     var BlockchainName:String = ""
     var Issuer:String = ""
-    var Firmware:String = ""
     var Manufacture_Date_Time:String = ""
     var RemainingSignatures: String = ""
     var type = ""
@@ -41,6 +40,18 @@ struct Card {
     var checkedResult:Bool = true
     var checkedBalance:Bool = false
     
+    //Ribbons vars
+    var SignedHashes: String = ""
+    var Firmware:String = "Not available"
+    
+    //Default value
+    var ribbonCase:Int = 0
+    /*
+     1 - Firmware conteins simbol 'd'
+     2 - Firmware conteins simbol 'r' and SignedHashes == ""
+     3 - Firmware conteins simbol 'r' and SignedHashes <> ""
+     4 - Virsion < 1.19 (Format firmware -  x.xx + любое кол-во других символов)
+     */
     
     
     
