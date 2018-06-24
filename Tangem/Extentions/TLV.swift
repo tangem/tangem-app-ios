@@ -59,6 +59,7 @@ public class TLV : NSObject {
             self.readyValue = getRemainingSignatures()
         }
         
+        
         offset = end
     }
     
@@ -190,6 +191,8 @@ public class TLV : NSObject {
             name = "RemainingSignatures"
         case 0x61:
             name = "Wallet_Signature"
+        case 0x63:
+            name = "SignedHashes"
         default:
             name = ""
         }
@@ -212,7 +215,6 @@ public class TLV : NSObject {
                 return true
             }
             if(twoFirstBytes == checkPIN){
-                print("HEREREE")
                 return nil
             }
         }
