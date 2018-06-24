@@ -20,6 +20,12 @@ class CardViewController: UIViewController {
             UIApplication.shared.open(url,options: [:])
         }
     }
+    //MARK: UI Ribbon Cases
+    @IBOutlet weak var ribbonOne: UILabel!    
+    @IBOutlet weak var ribbonTwo: UILabel!
+    @IBOutlet weak var heightRibbonOne: NSLayoutConstraint!
+    @IBOutlet weak var heightRibbonTwo: NSLayoutConstraint!
+    @IBOutlet weak var scrollView: UIScrollView!
     
     @IBOutlet weak var salt: UILabel!
     @IBOutlet weak var qrCode: UIImageView!
@@ -53,6 +59,31 @@ class CardViewController: UIViewController {
 
         // Do any additional setup after loading the view.
         if let cardDetails = cardDetails{
+            //MARK: - UI for Ribbon Cases
+            switch cardDetails.ribbonCase {
+            case 1:
+                ribbonOne.text = "DEVELOPER KIT"
+                ribbonTwo.text = "DO NOT ACCEPT"
+            case 2:
+                ribbonOne.text = "BANKNOTE"
+                ribbonTwo.isHidden = true
+                heightRibbonTwo.constant = 0
+                scrollView.layoutIfNeeded()
+            case 3:
+                ribbonOne.text = "NON-TRANSFERABLE BANKNOTE"
+                ribbonTwo.text = "DO NOT ACCEPT"
+            case 4:
+                ribbonOne.text = "NON-TRANSFERABLE BANKNOTE"
+                ribbonTwo.text = "DO NOT ACCEPT - CHECK ELSEWHERE"
+            default:
+                //Default
+                heightRibbonOne.constant = 0
+                heightRibbonTwo.constant = 0
+                scrollView.layoutIfNeeded()
+            }
+
+            
+            
             blockcainLabel.text = cardDetails.Blockchain
             addressLabel.text = cardDetails.Address
             var label = "bitcoin:"
@@ -83,6 +114,9 @@ class CardViewController: UIViewController {
             usdWallet.text = "USD " + cardDetails.USDWalletValue
             if cardDetails.type == "eth" {
                 logoIcon.image = UIImage(named: "Ethereum")
+            }
+            if cardDetails.type == "btc" && cardDetails.test == "0"  {
+                logoIcon.image = UIImage(named: "Bitcoin-org")
             }
             serverLabel.text = cardDetails.Node
             serverLabel.textContainer.lineBreakMode = .byCharWrapping
@@ -165,5 +199,18 @@ class CardViewController: UIViewController {
         
         return nil
     }
-
+    //MARK: Action for Clipboard
+    @IBAction func copyTapped(_ sender: UIButton) {
+        //Copy a string to the pasteboard.
+        let pasteboard = UIPasteboard.general
+        pasteboard.string = cardDetails?.Address
+        
+        //Alert
+        print("Copyed string \(String(describing: pasteboard.string))")
+        let alertMsg:String = "Wallet address is copied to pasteboard!"
+        let alertController = UIAlertController(title:  alertMsg, message: "", preferredStyle: UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+        present(alertController, animated: true, completion: nil)
+    }
+    
 }
