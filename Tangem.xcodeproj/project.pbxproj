@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		26675107C61982247E6CE0C8 /* Pods_TangemTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */; };
+		803A86F220FB7CA400E19427 /* CardParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParser.swift */; };
 		8D0360FC20223EEF00F13A39 /* Cards.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D0360FB20223EEF00F13A39 /* Cards.storyboard */; };
 		8D0360FE20223F3D00F13A39 /* CardsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D0360FD20223F3D00F13A39 /* CardsTableViewController.swift */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
@@ -140,6 +141,7 @@
 		4F16D29E05DA5A490FD1E224 /* Pods-Tangem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.release.xcconfig"; sourceTree = "<group>"; };
 		679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		803A86F120FB7CA400E19427 /* CardParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParser.swift; sourceTree = "<group>"; };
 		8D0360FB20223EEF00F13A39 /* Cards.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Cards.storyboard; sourceTree = "<group>"; };
 		8D0360FD20223F3D00F13A39 /* CardsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsTableViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -443,6 +445,7 @@
 			isa = PBXGroup;
 			children = (
 				8D946D8A2018DA92006C73D9 /* ReaderViewController.swift */,
+				803A86F120FB7CA400E19427 /* CardParser.swift */,
 				8D946D8C2018DA92006C73D9 /* Reader.storyboard */,
 				8D4B4A37205FA2300094E712 /* TestData.swift */,
 			);
@@ -743,6 +746,7 @@
 				8D4B4A38205FA2300094E712 /* TestData.swift in Sources */,
 				8D2B2C0320850AA600E0AFA9 /* gen_context.swift in Sources */,
 				8D2B2C1B20850ADA00E0AFA9 /* ecmult_gen.swift in Sources */,
+				803A86F220FB7CA400E19427 /* CardParser.swift in Sources */,
 				8D4C72542069081C00235E82 /* EthAddress.swift in Sources */,
 				8D4B4A31205F8AD00094E712 /* RIPEMD160.swift in Sources */,
 				8D2B2BF720850A8B00E0AFA9 /* hash.swift in Sources */,
