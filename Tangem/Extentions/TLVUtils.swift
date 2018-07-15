@@ -166,8 +166,8 @@ func hexStringToUIColor (hex:String,alpha: Float = 1.0) -> UIColor {
 
 func checkRibbonCase(_ card:Card) -> Int{
     
-    let firmware = card.Firmware
-    let hashed = card.SignedHashes
+    let firmware = card.firmware
+    let hashed = card.signedHashes
     let floatConst:Float = 1.19
     
     if firmware == "Not available" { return 0 }
