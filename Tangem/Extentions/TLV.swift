@@ -9,33 +9,38 @@
 import Foundation
 
 enum TLVError: Error{
+    
     case wrongTLV
     
 }
 
 
 public class TLV : NSObject {
+    
     public var name = ""
-    public var tagTLV:UInt8 = 0x00
+    public var tagTLV: UInt8 = 0x00
     public var lengthTLV: UInt16 = 0
-    public var valueTLV:[UInt8] = [UInt8]()
+    public var valueTLV = [UInt8]()
     public var tagTLVHex = ""
     public var readyValue = ""
     public var valueHex = ""
     
-    public init(data:[UInt8], _ offset: inout Int) throws {
+    public init(data: [UInt8], _ offset: inout Int) throws {
         super.init()
-        self.name = self.getTagName(data,&offset)
-        guard  let lenTLV = self.getTagLength(data,&offset) else {
+        
+        self.name = self.getTagName(data, &offset)
+        
+        guard let lenTLV = self.getTagLength(data, &offset) else {
             throw TLVError.wrongTLV
         }
-        self.lengthTLV = lenTLV
         
+        self.lengthTLV = lenTLV
         
         let end = offset + Int(lenTLV)
         guard end <= data.count else {
             throw TLVError.wrongTLV
         }
+        
         self.valueTLV = Array(data[offset...end-1])
         self.valueHex = valueToHex()
         if self.name == "CardID" {
@@ -49,7 +54,7 @@ public class TLV : NSObject {
             self.readyValue = getManufactureDate()
         }
         if self.name == "Batch_ID" {
-            self.readyValue = getBanchID()
+            self.readyValue = getBatchID()
         }
         if self.name == "Name_85" {
             self.readyValue = valueToUTF8()
@@ -67,7 +72,7 @@ public class TLV : NSObject {
         return "\(UInt32(strtoul(self.valueHex, nil, 16)))"
     }
     
-    private func getBanchID()->String{
+    private func getBatchID()->String{
         return "\(UInt64(strtoul(self.valueHex, nil, 16)))"
     }
     
@@ -135,10 +140,16 @@ public class TLV : NSObject {
     }
     
     private func getTagLength(_ data:[UInt8], _ offset: inout Int) -> UInt16?{
-        var tagArray:[UInt8] = [UInt8]()
-        if offset >= data.count - 1 { return nil}
-        if(data[offset] == 0xFF){
-            if offset >= data.count - 1 { return nil}
+        var tagArray: [UInt8] = [UInt8]()
+        if offset >= data.count - 1 {
+            return nil
+        }
+        
+        if (data[offset] == 0xFF) {
+            if offset >= data.count - 1 {
+                return nil
+            }
+            
             offset += 1
             tagArray.append(data[offset])
             offset += 1
@@ -210,11 +221,11 @@ public class TLV : NSObject {
         print(tagArray)
         if let twoFirstBytes:UInt16 = arrayToUInt16(tagArray){
             print(twoFirstBytes)
-            if(twoFirstBytes == checkOK){
+            if (twoFirstBytes == checkOK) {
                 print("Первые два байта равны 0x9000")
                 return true
             }
-            if(twoFirstBytes == checkPIN){
+            if (twoFirstBytes == checkPIN) {
                 return nil
             }
         }
