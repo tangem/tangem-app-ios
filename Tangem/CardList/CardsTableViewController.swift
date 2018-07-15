@@ -58,16 +58,16 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
         if tmpCard.isWallet {
             cell = (tableView.dequeueReusableCell(withIdentifier: validCellIdentifier,for: indexPath) as? ValidTableViewCell)!
             
-            if tmpCard.CardID != "" {
+            if tmpCard.cardID != "" {
                 (cell as! ValidTableViewCell).backView.backgroundColor = grayColor // UIColor(red:0.3921,green:0.3921,blue:0.3921,alpha:1) //gray
-                (cell as! ValidTableViewCell).cardIDLabel.text = tmpCard.CardID
-                (cell as! ValidTableViewCell).blockchainLabel.text = tmpCard.Blockchain
-                let address = tmpCard.Address
+                (cell as! ValidTableViewCell).cardIDLabel.text = tmpCard.cardID
+                (cell as! ValidTableViewCell).blockchainLabel.text = tmpCard.blockchain
+                let address = tmpCard.address
                 let start = String(address.prefix(6))
                 let end = String(address[address.index(address.endIndex,offsetBy:-6)...])
                 
                 (cell as! ValidTableViewCell).addressLabel.text = start + "......" + end
-                let priceString = tmpCard.WalletValue
+                let priceString = tmpCard.walletValue
                 if tmpCard.checkedBalance {
                 if !priceString.containsIgnoringCase(find: "0.00") && tmpCard.error == 0 {
                     (cell as! ValidTableViewCell).backView.backgroundColor = UIColor(red:0.66737,green:0.83461,blue:0.64394,alpha:1) //green
@@ -79,24 +79,24 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                 }
                 }
                 if !tmpCard.checkedBalance {
-                    tmpCard.WalletValue = "     "
-                    tmpCard.USDWalletValue = "     "
+                    tmpCard.walletValue = "     "
+                    tmpCard.usdWalletValue = "     "
                     wilBalanceThread(tmpCard,indexPath)
                 }
                 if tmpCard.error == 1 {
                     (cell as! ValidTableViewCell).backView.backgroundColor = grayColor //UIColor(red:0.3921,green:0.3921,blue:0.3921,alpha:1) //gray
-                    tmpCard.WalletValue = "-"
-                    tmpCard.USDWalletValue = "-"
-                    tmpCard.Node = ""
+                    tmpCard.walletValue = "-"
+                    tmpCard.usdWalletValue = "-"
+                    tmpCard.node = ""
                 }
                 
-                (cell as! ValidTableViewCell).walletValue.text = tmpCard.WalletValue + " " + tmpCard.WalletUnits
-                (cell as! ValidTableViewCell).usdWallet.text = "USD " + tmpCard.USDWalletValue
-                (cell as! ValidTableViewCell).link = tmpCard.Link
-                if tmpCard.type == "eth" {
+                (cell as! ValidTableViewCell).walletValue.text = tmpCard.walletValue + " " + tmpCard.walletUnits
+                (cell as! ValidTableViewCell).usdWallet.text = "USD " + tmpCard.usdWalletValue
+                (cell as! ValidTableViewCell).link = tmpCard.link
+                if tmpCard.type == .eth {
                     (cell as! ValidTableViewCell).logoIcon.image = UIImage(named: "Ethereum")
                 }
-                if tmpCard.type == "btc" &&  tmpCard.test == "0" {
+                if tmpCard.type == .btc && !tmpCard.isTestNet {
                     (cell as! ValidTableViewCell).logoIcon.image = UIImage(named: "Bitcoin-org")
                 }
                 //MARK: - UI for Ribbon Cases
@@ -121,8 +121,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
             }
         } else {
            cell = (tableView.dequeueReusableCell(withIdentifier: invalidCellIdentifier,for: indexPath) as? InvalidTableViewCell)!
-            if tmpCard.CardID != "" {
-                (cell as! InvalidTableViewCell).cardIDLabel.text = tmpCard.CardID
+            if tmpCard.cardID != "" {
+                (cell as! InvalidTableViewCell).cardIDLabel.text = tmpCard.cardID
                 //MARK: - UI for Ribbon Cases
                 switch tmpCard.ribbonCase {
                 case 1:
@@ -175,7 +175,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
         //Thread for balande getting
         DispatchQueue.global(qos: .background).async {
             
-            if card.type == "eth"{
+            if card.type == .eth {
                 var tmpCard = card
                 BalanceService.sharedInstance.getCoinMarketInfo("ethereum") { success, error in
                     if let success = success {
@@ -193,34 +193,34 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                         DispatchQueue.main.async {
                             //In main thread
                             print("\(tmpCard.mult)")
-                            print("\(tmpCard.WalletValue)")
-                            print("\(tmpCard.USDWalletValue)")
+                            print("\(tmpCard.walletValue)")
+                            print("\(tmpCard.usdWalletValue)")
                             print("\(tmpCard.error)")
                             self.didReturnInMainThread(tmpCard,indexPath)
                         }
                     }
                     
                     if tmpCard.error == 0 {
-                    if card.test == "1" {
-                       BalanceService.sharedInstance.getEthereumTestNet(card.EthAddress) { success, error in
+                    if card.isTestNet {
+                       BalanceService.sharedInstance.getEthereumTestNet(card.ethAddress) { success, error in
                             if let success = success {
                                 tmpCard.valueUInt64 = success
                             }
                             if let _ = error {
-                                tmpCard.WalletValue = ""
-                                tmpCard.USDWalletValue = ""
+                                tmpCard.walletValue = ""
+                                tmpCard.usdWalletValue = ""
                                 tmpCard.error = 1
                             }
                             let price_usd:Double = (tmpCard.mult as NSString).doubleValue
                             let wei = Double(tmpCard.valueUInt64)
                             let first = wei/1000000000000000000.0
-                            tmpCard.WalletValue = first.fiveRound()
+                            tmpCard.walletValue = first.fiveRound()
                             //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
                             let second = price_usd
                             let value = first*second
-                            tmpCard.USDWalletValue = String(format: "%.2f", round(value*100)/100)
+                            tmpCard.usdWalletValue = String(format: "%.2f", round(value*100)/100)
                             if(tmpCard.mult == "0"){
-                                tmpCard.USDWalletValue = ""
+                                tmpCard.usdWalletValue = ""
                             }
                             tmpCard.checkedBalance = true
                             print("Card ETH: \(tmpCard)")
@@ -229,8 +229,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             DispatchQueue.main.async {
                                 //In main thread
                                 print("\(tmpCard.mult)")
-                                print("\(tmpCard.WalletValue)")
-                                print("\(tmpCard.USDWalletValue)")
+                                print("\(tmpCard.walletValue)")
+                                print("\(tmpCard.usdWalletValue)")
                                 print("\(tmpCard.error)")
                                 self.didReturnInMainThread(tmpCard,indexPath)
                             }
@@ -238,25 +238,25 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                         }
                     } else {
                         
-                        BalanceService.sharedInstance.getEthereumMainNet(card.EthAddress) { success, error in
+                        BalanceService.sharedInstance.getEthereumMainNet(card.ethAddress) { success, error in
                             if let success = success {
                                 tmpCard.valueUInt64 = success
                             }
                             if let _ = error {
-                                tmpCard.WalletValue = ""
-                                tmpCard.USDWalletValue = ""
+                                tmpCard.walletValue = ""
+                                tmpCard.usdWalletValue = ""
                                 tmpCard.error = 1
                             }
                             let price_usd:Double = (tmpCard.mult as NSString).doubleValue
                             let wei = Double(tmpCard.valueUInt64)
                             let first = wei/1000000000000000000.0
-                            tmpCard.WalletValue = first.fiveRound()
+                            tmpCard.walletValue = first.fiveRound()
                             //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
                             let second = price_usd
                             let value = first*second
-                            tmpCard.USDWalletValue = String(format: "%.2f", round(value*100)/100)
+                            tmpCard.usdWalletValue = String(format: "%.2f", round(value*100)/100)
                             if(tmpCard.mult == "0"){
-                                tmpCard.USDWalletValue = ""
+                                tmpCard.usdWalletValue = ""
                             }
                             tmpCard.checkedBalance = true
                             print("Card ETH: \(tmpCard)")
@@ -264,8 +264,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             DispatchQueue.main.async {
                                 //In main thread
                                 print("\(tmpCard.mult)")
-                                print("\(tmpCard.WalletValue)")
-                                print("\(tmpCard.USDWalletValue)")
+                                print("\(tmpCard.walletValue)")
+                                print("\(tmpCard.usdWalletValue)")
                                 print("\(tmpCard.error)")
                                 self.didReturnInMainThread(tmpCard,indexPath)
                             }
@@ -283,7 +283,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                 
             }
             //End of the eth logic
-            if card.type == "btc"{
+            if card.type == .btc {
                 var tmpCard = card
                 BalanceService.sharedInstance.getCoinMarketInfo("bitcoin") { success, error in
                     if let success = success {
@@ -301,8 +301,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                         DispatchQueue.main.async {
                             //In main thread
                             print("\(tmpCard.mult)")
-                            print("\(tmpCard.WalletValue)")
-                            print("\(tmpCard.USDWalletValue)")
+                            print("\(tmpCard.walletValue)")
+                            print("\(tmpCard.usdWalletValue)")
                             print("\(tmpCard.error)")
                             self.didReturnInMainThread(tmpCard,indexPath)
                         }
@@ -310,14 +310,14 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                     
                    if tmpCard.error == 0 {
                     //Place for getting balance
-                    if card.test == "1" {
-                        BalanceService.sharedInstance.getBitcoinTestNet(card.BtcAddressTest) { success, error in
+                    if card.isTestNet {
+                        BalanceService.sharedInstance.getBitcoinTestNet(card.btcAddressTest) { success, error in
                             if let success = success {
                                 tmpCard.value = success
                             }
                             if let _ = error {
-                                tmpCard.WalletValue = ""
-                                tmpCard.USDWalletValue = ""
+                                tmpCard.walletValue = ""
+                                tmpCard.usdWalletValue = ""
                                 tmpCard.error = 1
                             }
                             //Place for calculation
@@ -325,14 +325,14 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             let price_usd:Double = (tmpCard.mult as NSString).doubleValue
                             let satoshi = Double(tmpCard.value)
                             let first = satoshi/100000.0
-                            tmpCard.WalletValue = first.fiveRound()
+                            tmpCard.walletValue = first.fiveRound()
                             //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
                             let second = price_usd/1000.0
                             let value = first*second
                             //tmpCard.USDWalletValue = value.fiveRound()
-                            tmpCard.USDWalletValue = String(format: "%.2f", round(value*100)/100)
+                            tmpCard.usdWalletValue = String(format: "%.2f", round(value*100)/100)
                             if(tmpCard.mult == "0"){
-                                tmpCard.USDWalletValue = ""
+                                tmpCard.usdWalletValue = ""
                             }
                             tmpCard.checkedBalance = true
                             print("Card BTC \(tmpCard)")
@@ -340,20 +340,20 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             DispatchQueue.main.async {
                                 //In main thread
                                 print("\(tmpCard.mult)")
-                                print("\(tmpCard.WalletValue)")
-                                print("\(tmpCard.USDWalletValue)")
+                                print("\(tmpCard.walletValue)")
+                                print("\(tmpCard.usdWalletValue)")
                                 print("\(tmpCard.error)")
                                 self.didReturnInMainThread(tmpCard,indexPath)
                             }
                         }
                     } else {
-                        BalanceService.sharedInstance.getBitcoinMain(card.BtcAddressMain) { success, error in
+                        BalanceService.sharedInstance.getBitcoinMain(card.btcAddressMain) { success, error in
                             if let success = success {
                                 tmpCard.value = success
                             }
                             if let _ = error {
-                                tmpCard.WalletValue = ""
-                                tmpCard.USDWalletValue = ""
+                                tmpCard.walletValue = ""
+                                tmpCard.usdWalletValue = ""
                                 tmpCard.error = 1
                             }
                             
@@ -361,13 +361,13 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             let price_usd:Double = (tmpCard.mult as NSString).doubleValue
                             let satoshi = Double(tmpCard.value)
                             let first = satoshi/100000.0
-                            tmpCard.WalletValue = first.fiveRound()
+                            tmpCard.walletValue = first.fiveRound()
                             //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
                             let second = price_usd/1000.0
                             let value = first*second
-                            tmpCard.USDWalletValue = String(format: "%.2f", round(value*100)/100)
+                            tmpCard.usdWalletValue = String(format: "%.2f", round(value*100)/100)
                             if(tmpCard.mult == "0"){
-                                tmpCard.USDWalletValue = ""
+                                tmpCard.usdWalletValue = ""
                             }
                             tmpCard.checkedBalance = true
                             print("Card BTC \(tmpCard)")
@@ -376,8 +376,8 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                             DispatchQueue.main.async {
                                 //In main thread
                                 print("\(tmpCard.mult)")
-                                print("\(tmpCard.WalletValue)")
-                                print("\(tmpCard.USDWalletValue)")
+                                print("\(tmpCard.walletValue)")
+                                print("\(tmpCard.usdWalletValue)")
                                 print("\(tmpCard.error)")
                                 self.didReturnInMainThread(tmpCard,indexPath)
                             }
@@ -415,62 +415,10 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
         }
     }
     
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
     //MARK: actions
     
     @IBAction func cleanList(_ sender: UIBarButtonItem) {
-//        for  _ in 0..<cardList.count{
-//            //delayWithSeconds(1) {
-//                self.cardList.remove(at: 0)
-//                let indexPath = IndexPath(item: 0, section: 0)
-//                self.tableView.deleteRows(at: [indexPath], with: .fade)
-//            //}
-//        }
-        
+
         cardList.removeAll()
         tableView.reloadData()
         emptyView.isHidden = false
@@ -482,11 +430,6 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
     
     //MARK: private methods
     
-//    func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
-//            completion()
-//        }
-//    }
     
     func didCheck(cardRow:Int, checkResult:Bool){
         cardList[cardRow].checked = true
@@ -499,6 +442,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
     func didBalance(cardRow:Int,_ card:Card){
         //Only for delegate implementation
     }
+    
     func updateCard(){
         
     }
