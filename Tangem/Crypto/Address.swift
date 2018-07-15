@@ -13,7 +13,8 @@ func getAddress(_ hexWalletPublicKey:String) -> [String]?{
     
     //let hexPublicKeyTest = "0450863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B23522CD470243453A299FA9E77237716103ABC11A1DF38855ED6F2EE187E9C582BA6"
     //let hexPublicKeyTest = "0406BEB82D849049C87B7A3625A8DBAAF4B73A4DE13CF98D6B20F6B684DC9FE3F618C125D73BD4127CDFB809BB411255C5BB4E15217C0D7E0517CC3AFF7F0E428B"
-    let  hexPublicKey = hexWalletPublicKey
+    
+    let hexPublicKey = hexWalletPublicKey
     //Hex String to Binary Data
     let binaryPublicKey = dataWithHexString(hex: hexPublicKey)
     
