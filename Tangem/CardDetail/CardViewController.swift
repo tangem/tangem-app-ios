@@ -16,7 +16,7 @@ protocol DidSignCheckDelegate: class{
 }
 class CardViewController: UIViewController {
     @IBAction func openLinkTapped(_ sender: UIButton) {
-        if let link = self.cardDetails?.Link, let url = URL(string: link) {
+        if let link = self.cardDetails?.link, let url = URL(string: link) {
             UIApplication.shared.open(url,options: [:])
         }
     }
@@ -84,44 +84,44 @@ class CardViewController: UIViewController {
 
             
             
-            blockcainLabel.text = cardDetails.Blockchain
-            addressLabel.text = cardDetails.Address
+            blockcainLabel.text = cardDetails.blockchain
+            addressLabel.text = cardDetails.address
             var label = "bitcoin:"
-            if cardDetails.type == "eth" {
+            if cardDetails.type == .eth {
                 label = "ethereum:"
             }
-            let qrCodePhoto =  generateQRCode(from:label+cardDetails.Address)    //UIImage(named: "Bitcoin")
+            let qrCodePhoto =  generateQRCode(from:label+cardDetails.address)    //UIImage(named: "Bitcoin")
             //qrCode.image = qrCodePhoto
             
-            var qrCodeResult = QRCode(label+cardDetails.Address)
+            var qrCodeResult = QRCode(label+cardDetails.address)
             qrCodeResult?.size = CGSize(width:500,height:500)
             qrCode.image = qrCodeResult?.image
             
-            issuerLabel.text = cardDetails.Issuer
+            issuerLabel.text = cardDetails.issuer
             
-            if cardDetails.Blockchain == "BTC"{
+            if cardDetails.blockchain == "BTC"{
                 serverLabel.text = "Bitcoin, hsmiths.changeip.net:8080"
             }
-            cardIDLabel.text = cardDetails.CardID
-            issuer2Label.text = cardDetails.Issuer
-            blockcain2Label.text = cardDetails.Blockchain
-            remainingLabel.text = cardDetails.RemainingSignatures
-            isuuer3Label.text = cardDetails.Issuer
-            firmwareLabel.text = cardDetails.Firmware
+            cardIDLabel.text = cardDetails.cardID
+            issuer2Label.text = cardDetails.issuer
+            blockcain2Label.text = cardDetails.blockchain
+            remainingLabel.text = cardDetails.remainingSignatures
+            isuuer3Label.text = cardDetails.issuer
+            firmwareLabel.text = cardDetails.firmware
             
-            registrationDateLabel.text = cardDetails.Manufacture_Date_Time
-            walletValue.text = cardDetails.WalletValue + " " + cardDetails.WalletUnits
-            usdWallet.text = "USD " + cardDetails.USDWalletValue
-            if cardDetails.type == "eth" {
+            registrationDateLabel.text = cardDetails.manufactureDateTime
+            walletValue.text = cardDetails.walletValue + " " + cardDetails.walletUnits
+            usdWallet.text = "USD " + cardDetails.usdWalletValue
+            if cardDetails.type == .eth {
                 logoIcon.image = UIImage(named: "Ethereum")
             }
-            if cardDetails.type == "btc" && cardDetails.test == "0"  {
+            if cardDetails.type == .btc && !cardDetails.isTestNet {
                 logoIcon.image = UIImage(named: "Bitcoin-org")
             }
-            serverLabel.text = cardDetails.Node
+            serverLabel.text = cardDetails.node
             serverLabel.textContainer.lineBreakMode = .byCharWrapping
-            let challenge  = cardDetails.Challenge
-            let saltValue  = cardDetails.Salt
+            let challenge  = cardDetails.challenge
+            let saltValue  = cardDetails.salt
             let cardChallenge1 = String(challenge.prefix(3))
             let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
             let cardChallenge3 = String(saltValue.prefix(3))
@@ -149,7 +149,7 @@ class CardViewController: UIViewController {
                         
                         
                         
-                        let result = verify(saltHex:cardDetails.Salt, challengeHex:cardDetails.Challenge, signatureArr:cardDetails.signArr, publicKeyArr:cardDetails.pubArr)
+                        let result = verify(saltHex:cardDetails.salt, challengeHex:cardDetails.challenge, signatureArr:cardDetails.signArr, publicKeyArr:cardDetails.pubArr)
                         
                         DispatchQueue.main.async {
                             if let delegate = self.delegate{
@@ -203,7 +203,7 @@ class CardViewController: UIViewController {
     @IBAction func copyTapped(_ sender: UIButton) {
         //Copy a string to the pasteboard.
         let pasteboard = UIPasteboard.general
-        pasteboard.string = cardDetails?.Address
+        pasteboard.string = cardDetails?.address
         
         //Alert
         print("Copyed string \(String(describing: pasteboard.string))")
