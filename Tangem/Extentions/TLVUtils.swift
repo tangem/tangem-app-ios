@@ -9,9 +9,6 @@
 import Foundation
 import UIKit
 
-
-
-
 func bytesUsed(_ value:UInt64) -> UInt8{
     let array = value.toByteArray()
     var count:UInt8 = 0
@@ -54,16 +51,16 @@ func arrayToUInt64(_ data:[UInt8]) -> UInt64?{
     return value
 }
 
-func arrayToUInt16(_ data:[UInt8]) -> UInt32?{
- if(data.count > 4){
- return nil;
- }
- let temp = NSData(bytes: data.reversed(), length: data.count)
- let rawPointer = UnsafeRawPointer(temp.bytes)
- let pointer = rawPointer.assumingMemoryBound(to: UInt32.self)
- let value = pointer.pointee
- return value
- }
+func arrayToUInt32(_ data:[UInt8]) -> UInt32?{
+    if(data.count > 4){
+        return nil;
+    }
+    let temp = NSData(bytes: data.reversed(), length: data.count)
+    let rawPointer = UnsafeRawPointer(temp.bytes)
+    let pointer = rawPointer.assumingMemoryBound(to: UInt32.self)
+    let value = pointer.pointee
+    return value
+}
 
 func cleanHex(hexStr:String) -> String{
     //return hexStr.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<> ")).stringByReplacingOccurrencesOfString(" ", withString: "")
@@ -98,11 +95,12 @@ public func dataWithHexString(hex: String) -> Data {
 //FOR TLV
 
 func arrayToUInt16(_ data:[UInt8]) -> UInt16?{
-    if(data.count > 2){
-        return nil;
+    if (data.count > 2) {
+        return nil
     }
-    let temp = NSData(bytes: data.reversed(), length: data.count)
-    let rawPointer = UnsafeRawPointer(temp.bytes)
+    
+    let data = NSData(bytes: data.reversed(), length: data.count)
+    let rawPointer = UnsafeRawPointer(data.bytes)
     let pointer = rawPointer.assumingMemoryBound(to: UInt16.self)
     let value = pointer.pointee
     
