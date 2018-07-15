@@ -16,7 +16,10 @@ class ReaderViewController: UIViewController, RemoveCardsDelegate, DidSignCheckD
     
     var cardList = [Card]()
     let helper = NFCHelper()
-    let cardParser = CardParser()
+    
+    lazy var cardParser: CardParser = {
+       return CardParser(delegate: self)
+    }()
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -54,13 +57,7 @@ class ReaderViewController: UIViewController, RemoveCardsDelegate, DidSignCheckD
         helper.restartSession()
         
         //For Simulator testing
-        self.cardParser.parse(payload: TestData.btcWallet.rawValue, onCardLocked: {
-            
-        }, onWrongTLV: {
-            
-        }, onSuccess: { (_) in
-            
-        })
+        self.cardParser.parse(payload: TestData.btcWallet.rawValue)
     }
     
     func onNFCResult(success: Bool, msg: String) {
@@ -70,25 +67,7 @@ class ReaderViewController: UIViewController, RemoveCardsDelegate, DidSignCheckD
                 return
             }
             
-            self.cardParser.parse(payload: msg, onCardLocked: {
-                print("Card is locked, two first bytes are equel 0x6A86")
-                let validationAlert = UIAlertController(title: "This app can’t read protected Tangem banknotes", message: "", preferredStyle: .alert)
-                validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                self.present(validationAlert, animated: true, completion: nil)
-            }, onWrongTLV: {
-                let validationAlert = UIAlertController(title: "Failed to parse data received from the banknote", message: "", preferredStyle: .alert)
-                validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                self.present(validationAlert, animated: true, completion: nil)
-            }, onSuccess: { (card) in
-                switch card.type {
-                case .btc:
-                    self.addCardWallet(card)
-                case .eth:
-                    self.addCardWallet(card)
-                default:
-                    self.addCardNoWallet(card)
-                }
-            })
+            self.cardParser.parse(payload: msg)
         }
     }
     
@@ -533,5 +512,32 @@ class ReaderViewController: UIViewController, RemoveCardsDelegate, DidSignCheckD
     
    
 
+}
+
+extension ReaderViewController: CardParserDelegate {
+    
+    func cardParserWrongTLV(_ parser: CardParser) {
+        let validationAlert = UIAlertController(title: "Failed to parse data received from the banknote", message: "", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(validationAlert, animated: true, completion: nil)
+    }
+    
+    func cardParserLockedCard(_ parser: CardParser) {
+        print("Card is locked, two first bytes are equel 0x6A86")
+        let validationAlert = UIAlertController(title: "This app can’t read protected Tangem banknotes", message: "", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(validationAlert, animated: true, completion: nil)
+    }
+    
+    func cardParser(_ parser: CardParser, didFinishWith card: Card) {
+        switch card.type {
+        case .btc:
+            self.addCardWallet(card)
+        case .eth:
+            self.addCardWallet(card)
+        default:
+            self.addCardNoWallet(card)
+        }
+    }
 }
 
