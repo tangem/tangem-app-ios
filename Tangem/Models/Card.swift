@@ -7,55 +7,64 @@
 //
 
 import Foundation
+
+enum WalletType {
+    case btc
+    case eth
+    case seed
+    case empty
+}
+
 struct Card {
-    var CardID:String = ""
-    var isWallet:Bool = false
-    var Address:String = ""
-    var BtcAddressTest:String = ""
-    var BtcAddressMain:String = ""
-    var EthAddress:String = ""
-    var binaryAddress:String = ""
-    var hexPublicKey:String = ""
-    var Blockchain:String = ""
-    var BlockchainName:String = ""
-    var Issuer:String = ""
-    var Manufacture_Date_Time:String = ""
-    var RemainingSignatures: String = ""
-    var type = ""
-    var test = ""
+    
+    var cardID: String = ""
+    var isWallet: Bool = false
+    
+    var address: String = ""
+    var btcAddressTest: String = ""
+    var btcAddressMain: String = ""
+    var ethAddress: String = ""
+    var binaryAddress: String = ""
+    var hexPublicKey: String = ""
+    
+    var blockchain: String = ""
+    var blockchainName: String = ""
+    var issuer: String = ""
+    var manufactureDateTime: String = ""
+    var remainingSignatures:  String = ""
+    var type: WalletType = .empty
+    var isTestNet = false
     var mult = ""
-    var WalletValue = "0.00"
-    var WalletUnits = ""
-    var USDWalletValue = ""
-    var value:Int = 0
-    var valueUInt64:UInt64 = 0
-    var Link:String = ""
-    var error:Int = 0
-    var Node:String = ""
-    var Salt:String = ""
-    var Challenge:String = ""
-    var signArr:[UInt8] = [UInt8]()
-    var pubArr:[UInt8] = [UInt8]()
-    var checked:Bool = false
-    var checkedResult:Bool = true
-    var checkedBalance:Bool = false
     
-    //Ribbons vars
-    var SignedHashes: String = ""
-    var Firmware:String = "Not available"
+    var walletValue = "0.00"
+    var walletUnits = ""
+    var usdWalletValue = ""
+    var value: Int = 0
+    var valueUInt64: UInt64 = 0
+    var link: String = ""
+    var error: Int = 0
+    var node: String = ""
+    var salt: String = ""
+    var challenge: String = ""
+    var signArr: [UInt8] = [UInt8]()
+    var pubArr: [UInt8] = [UInt8]()
+    var checked: Bool = false
+    var checkedResult: Bool = true
+    var checkedBalance: Bool = false
     
-    //Default value
-    var ribbonCase:Int = 0
+    // Ribbons vars
+    var signedHashes:  String = ""
+    var firmware: String = "Not available"
+    
+    // Default value
+    var ribbonCase: Int = 0
+    
     /*
-     1 - Firmware conteins simbol 'd'
-     2 - Firmware conteins simbol 'r' and SignedHashes == ""
-     3 - Firmware conteins simbol 'r' and SignedHashes <> ""
-     4 - Virsion < 1.19 (Format firmware -  x.xx + любое кол-во других символов)
+     1 - Firmware contains simbol 'd'
+     2 - Firmware contains simbol 'r' and SignedHashes == ""
+     3 - Firmware contains simbol 'r' and SignedHashes <> ""
+     4 - Version < 1.19 (Format firmware -  x.xx + любое кол-во других символов)
      */
-    
-    
-    
-    init() {}
 }
 
 struct Links {
