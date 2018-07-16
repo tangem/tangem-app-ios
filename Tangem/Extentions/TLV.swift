@@ -56,7 +56,7 @@ public class TLV : NSObject {
         tags.append(TLVTag(name: "Token_Symbol", address: 0xA0, isString: true))
         tags.append(TLVTag(name: "Token_Contract_Address", address: 0xA1, isString: true))
         tags.append(TLVTag(name: "Token_Decimal", address: 0xA2, length: 1))
-        tags.append(TLVTag(name: "Manufacturer_Signature", address: 0x20, length: 64))
+        tags.append(TLVTag(name: "Manufacturer_Signature", address: 0x86, length: 64))
         tags.append(TLVTag(name: "Card_PublicKey", address: 0x03, length: 65))
         tags.append(TLVTag(name: "Wallet_PublicKey", address: 0x60, length: 65))
         tags.append(TLVTag(name: "MaxSignatures", address: 0x08, length: 4))
@@ -66,7 +66,6 @@ public class TLV : NSObject {
         tags.append(TLVTag(name: "Salt", address: 0x17, length: 16))
         tags.append(TLVTag(name: "Wallet_Signature", address: 0x61, length: 64))
         tags.append(TLVTag(name: "Health", address: 0x0F, length: 1))
-        tags.append(TLVTag(name: "Name_85", address: 0x85, isString: true))
         
         return tags
     }()
