@@ -57,7 +57,7 @@ class ReaderViewController: UIViewController, RemoveCardsDelegate, DidSignCheckD
         helper.restartSession()
         
         //For Simulator testing
-        self.cardParser.parse(payload: TestData.btcWallet.rawValue)
+        self.cardParser.parse(payload: TestData.ethWallet.rawValue)
     }
     
     func onNFCResult(success: Bool, msg: String) {
@@ -509,8 +509,6 @@ class ReaderViewController: UIViewController, RemoveCardsDelegate, DidSignCheckD
         cardList[cardRow] = card
         
     }
-    
-   
 
 }
 
@@ -531,12 +529,10 @@ extension ReaderViewController: CardParserDelegate {
     
     func cardParser(_ parser: CardParser, didFinishWith card: Card) {
         switch card.type {
-        case .btc:
-            self.addCardWallet(card)
-        case .eth:
-            self.addCardWallet(card)
-        default:
+        case .empty:
             self.addCardNoWallet(card)
+        default:
+            self.addCardWallet(card)
         }
     }
 }
