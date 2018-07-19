@@ -173,7 +173,7 @@ public class TLV : NSObject {
     
     private func valueToHex() -> String{
         var valueStr = ""
-        for byte in self.hexBinaryValues{
+        for byte in self.hexBinaryValues {
             valueStr += byte.toAsciiHex()
         }
         return valueStr

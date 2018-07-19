@@ -39,7 +39,7 @@ func getLengthData(_ length:Int) -> [UInt8]{
 }
 
 func arrayToUInt64(_ data:[UInt8]) -> UInt64?{
-    if(data.count > 8){
+    if (data.count > 8){
         return nil;
     }
     let temp = NSData(bytes: data.reversed(), length: data.count)
@@ -49,6 +49,18 @@ func arrayToUInt64(_ data:[UInt8]) -> UInt64?{
     let value = pointer.pointee
     //print("TLV check 5: \(value)")
     return value
+}
+
+func arrayToDecimalNumber(_ data:[UInt8]) -> NSDecimalNumber? {
+    let reversed = data.reversed()
+    var number = NSDecimalNumber(value: 0)
+
+    reversed.enumerated().forEach { (arg) in
+        let (offset, value) = arg
+        number = number.adding(NSDecimalNumber(value: value).multiplying(by: NSDecimalNumber(value: 256).raising(toPower: offset)))
+    }
+    
+    return number
 }
 
 func arrayToUInt32(_ data:[UInt8]) -> UInt32?{
