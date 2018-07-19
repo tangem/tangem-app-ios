@@ -559,6 +559,19 @@
                                     <constraint firstAttribute="trailing" secondItem="f3F-dp-y2F" secondAttribute="trailing" id="xa2-bA-EZG"/>
                                 </constraints>
                             </scrollView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dj8-J7-pUW">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="970"/>
+                                <subviews>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="SP3-BM-gXT">
+                                        <rect key="frame" x="177" y="475" width="20" height="20"/>
+                                    </activityIndicatorView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="SP3-BM-gXT" firstAttribute="centerX" secondItem="dj8-J7-pUW" secondAttribute="centerX" id="uSv-Sn-gyv"/>
+                                    <constraint firstItem="SP3-BM-gXT" firstAttribute="centerY" secondItem="dj8-J7-pUW" secondAttribute="centerY" id="zR3-Q9-gYR"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -569,7 +582,11 @@
                             <constraint firstAttribute="bottom" secondItem="Tmq-ca-EyQ" secondAttribute="bottom" constant="-20" id="S0m-hp-uVX"/>
                             <constraint firstItem="Tmq-ca-EyQ" firstAttribute="trailing" secondItem="rh0-ld-iFR" secondAttribute="trailing" id="UxS-1Q-D91"/>
                             <constraint firstItem="Tmq-ca-EyQ" firstAttribute="bottom" secondItem="rh0-ld-iFR" secondAttribute="bottom" constant="20" id="X5j-mX-KMB"/>
+                            <constraint firstItem="dj8-J7-pUW" firstAttribute="leading" secondItem="rh0-ld-iFR" secondAttribute="leading" id="duw-xZ-gI9"/>
+                            <constraint firstAttribute="bottom" secondItem="dj8-J7-pUW" secondAttribute="bottom" id="gUY-Hf-pSf"/>
                             <constraint firstItem="rh0-ld-iFR" firstAttribute="bottom" secondItem="Tmq-ca-EyQ" secondAttribute="bottom" constant="-20" id="mr6-Dk-dWU"/>
+                            <constraint firstItem="dj8-J7-pUW" firstAttribute="top" secondItem="s2M-xl-lxw" secondAttribute="top" id="sBP-PU-WHc"/>
+                            <constraint firstItem="rh0-ld-iFR" firstAttribute="trailing" secondItem="dj8-J7-pUW" secondAttribute="trailing" id="vvj-ge-z4Y"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="rh0-ld-iFR"/>
                     </view>
@@ -586,6 +603,7 @@
                         <outlet property="issuer2Label" destination="hvR-X8-f2D" id="X2J-ig-dod"/>
                         <outlet property="issuerLabel" destination="F4e-qM-Igy" id="XZi-jP-txn"/>
                         <outlet property="isuuer3Label" destination="Haj-fC-auj" id="wFB-7i-ZYz"/>
+                        <outlet property="loadingView" destination="dj8-J7-pUW" id="Abu-vV-mIs"/>
                         <outlet property="logoIcon" destination="8y1-7e-D3e" id="iu6-22-eQG"/>
                         <outlet property="okLabel" destination="YIk-xv-lFY" id="Ikp-Em-6m7"/>
                         <outlet property="qrCode" destination="5Qq-Ny-TNz" id="1Vz-4e-ErN"/>
