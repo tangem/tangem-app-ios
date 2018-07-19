@@ -71,18 +71,9 @@ extension String{
     public func asciiHexToData() -> [UInt8]?{
         //let trimmedString = self.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<> ")).stringByReplacingOccurrencesOfString(" ", withString: "")
         let trimmedString = self.trimmingCharacters(in: NSCharacterSet(charactersIn: "<> ") as CharacterSet).replacingOccurrences(of: " ", with: "")
-        //print("Check 1")
-        //print(trimmedString)
-        
         
         if isValidHex(trimmedString) {
             var data = [UInt8]()
-            //Comments for migration from swift 2 to swift 4
-            //            for var index = trimmedString.startIndex; index < trimmedString.endIndex; index = index.successor().successor() {
-            //                let byteString = trimmedString.substringWithRange(Range<String.Index>(start: index, end: index.successor().successor()))
-            //                let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
-            //                data.append(num)
-            //            }
             var fromIndex = trimmedString.startIndex
             while let toIndex = trimmedString.index(fromIndex, offsetBy: 2, limitedBy: trimmedString.endIndex) {
                 
