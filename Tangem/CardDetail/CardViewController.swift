@@ -10,18 +10,16 @@ import UIKit
 import QRCode
 
 protocol DidSignCheckDelegate: class{
-    func didCheck(cardRow:Int,checkResult:Bool)
-    func didBalance(cardRow:Int,_ card:Card)
+    
+    func didCheck(cardRow: Int, checkResult: Bool)
+    func didBalance(cardRow: Int, card: Card)
     
 }
 class CardViewController: UIViewController {
-    @IBAction func openLinkTapped(_ sender: UIButton) {
-        if let link = self.cardDetails?.link, let url = URL(string: link) {
-            UIApplication.shared.open(url,options: [:])
-        }
-    }
-    //MARK: UI Ribbon Cases
-    @IBOutlet weak var ribbonOne: UILabel!    
+    
+    @IBOutlet weak var loadingView: UIView!
+    
+    @IBOutlet weak var ribbonOne: UILabel!
     @IBOutlet weak var ribbonTwo: UILabel!
     @IBOutlet weak var heightRibbonOne: NSLayoutConstraint!
     @IBOutlet weak var heightRibbonTwo: NSLayoutConstraint!
@@ -54,137 +52,122 @@ class CardViewController: UIViewController {
     
     @IBOutlet weak var incorrectLabel: UILabel!
     @IBOutlet weak var okLabel: UILabel!
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
-        if let cardDetails = cardDetails{
-            //MARK: - UI for Ribbon Cases
-            switch cardDetails.ribbonCase {
-            case 1:
-                ribbonOne.text = "DEVELOPER KIT"
-                ribbonTwo.text = "DO NOT ACCEPT"
-            case 2:
-                ribbonOne.text = "BANKNOTE"
-                ribbonTwo.isHidden = true
-                heightRibbonTwo.constant = 0
-                scrollView.layoutIfNeeded()
-            case 3:
-                ribbonOne.text = "NON-TRANSFERABLE BANKNOTE"
-                ribbonTwo.text = "DO NOT ACCEPT"
-            case 4:
-                ribbonOne.text = "NON-TRANSFERABLE BANKNOTE"
-                ribbonTwo.text = "DO NOT ACCEPT - CHECK ELSEWHERE"
-            default:
-                //Default
-                heightRibbonOne.constant = 0
-                heightRibbonTwo.constant = 0
-                scrollView.layoutIfNeeded()
-            }
-
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.getBalance()
+    }
+    
+    func setupUI() {
+        guard let cardDetails = cardDetails else {
+            return
+        }
+        
             
-            
-            blockcainLabel.text = cardDetails.blockchain
-            addressLabel.text = cardDetails.address
-            var label = "bitcoin:"
-            if cardDetails.type == .eth {
-                label = "ethereum:"
-            }
-            let qrCodePhoto =  generateQRCode(from:label+cardDetails.address)    //UIImage(named: "Bitcoin")
-            //qrCode.image = qrCodePhoto
-            
-            var qrCodeResult = QRCode(label+cardDetails.address)
-            qrCodeResult?.size = CGSize(width:500,height:500)
-            qrCode.image = qrCodeResult?.image
-            
-            issuerLabel.text = cardDetails.issuer
-            
-            if cardDetails.blockchain == "BTC"{
-                serverLabel.text = "Bitcoin, hsmiths.changeip.net:8080"
-            }
-            cardIDLabel.text = cardDetails.cardID
-            issuer2Label.text = cardDetails.issuer
-            blockcain2Label.text = cardDetails.blockchain
-            remainingLabel.text = cardDetails.remainingSignatures
-            isuuer3Label.text = cardDetails.issuer
-            firmwareLabel.text = cardDetails.firmware
-            
-            registrationDateLabel.text = cardDetails.manufactureDateTime
-            walletValue.text = cardDetails.walletValue + " " + cardDetails.walletUnits
-            usdWallet.text = "USD " + cardDetails.usdWalletValue
-            if cardDetails.type == .eth {
-                logoIcon.image = UIImage(named: "Ethereum")
-            }
-            if cardDetails.type == .btc && !cardDetails.isTestNet {
-                logoIcon.image = UIImage(named: "Bitcoin-org")
-            }
-            serverLabel.text = cardDetails.node
-            serverLabel.textContainer.lineBreakMode = .byCharWrapping
-            let challenge  = cardDetails.challenge
-            let saltValue  = cardDetails.salt
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            let cardChallenge = cardChallenge1 + "..." + cardChallenge2 + "..." + cardChallenge3 + "..." + cardChallenge4
-            salt.text = cardChallenge
-            
-            if(cardDetails.checked){
-                if cardDetails.checkedResult {
-                    okLabel.text = "OK"
-                } else {
-                    incorrectLabel.text = "Incorrect"
-                }
-                
+        switch cardDetails.ribbonCase {
+        case 1:
+            ribbonOne.text = "DEVELOPER KIT"
+            ribbonTwo.text = "DO NOT ACCEPT"
+        case 2:
+            ribbonOne.text = "BANKNOTE"
+            ribbonTwo.isHidden = true
+            heightRibbonTwo.constant = 0
+            scrollView.layoutIfNeeded()
+        case 3:
+            ribbonOne.text = "NON-TRANSFERABLE BANKNOTE"
+            ribbonTwo.text = "DO NOT ACCEPT"
+        case 4:
+            ribbonOne.text = "NON-TRANSFERABLE BANKNOTE"
+            ribbonTwo.text = "DO NOT ACCEPT - CHECK ELSEWHERE"
+        default:
+            heightRibbonOne.constant = 0
+            heightRibbonTwo.constant = 0
+            scrollView.layoutIfNeeded()
+        }
+        
+        blockcainLabel.text = cardDetails.blockchain
+        addressLabel.text = cardDetails.address
+        
+        var label = "bitcoin:"
+        if cardDetails.type == .eth {
+            label = "ethereum:"
+        }
+        
+        var qrCodeResult = QRCode(label+cardDetails.address)
+        qrCodeResult?.size = CGSize(width: 500, height: 500)
+        qrCode.image = qrCodeResult?.image
+        
+        issuerLabel.text = cardDetails.issuer
+        
+        if cardDetails.blockchain == "BTC"{
+            serverLabel.text = "Bitcoin, hsmiths.changeip.net:8080"
+        }
+        cardIDLabel.text = cardDetails.cardID
+        issuer2Label.text = cardDetails.issuer
+        blockcain2Label.text = cardDetails.blockchain
+        remainingLabel.text = cardDetails.remainingSignatures
+        isuuer3Label.text = cardDetails.issuer
+        firmwareLabel.text = cardDetails.firmware
+        
+        registrationDateLabel.text = cardDetails.manufactureDateTime
+        walletValue.text = cardDetails.walletValue + " " + cardDetails.walletUnits
+        usdWallet.text = "USD " + cardDetails.usdWalletValue
+        if cardDetails.type == .eth {
+            logoIcon.image = UIImage(named: "Ethereum")
+        }
+        if cardDetails.type == .btc && !cardDetails.isTestNet {
+            logoIcon.image = UIImage(named: "Bitcoin-org")
+        }
+        serverLabel.text = cardDetails.node
+        serverLabel.textContainer.lineBreakMode = .byCharWrapping
+        let challenge = cardDetails.challenge
+        let saltValue = cardDetails.salt
+        let cardChallenge1 = String(challenge.prefix(3))
+        let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+        let cardChallenge3 = String(saltValue.prefix(3))
+        let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+        let cardChallenge = cardChallenge1 + "..." + cardChallenge2 + "..." + cardChallenge3 + "..." + cardChallenge4
+        salt.text = cardChallenge
+        
+        if (cardDetails.checked) {
+            if cardDetails.checkedResult {
+                okLabel.text = "OK"
             } else {
-                    let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
-                    self.okLabel.addSubview(activityIndicator)
-                    activityIndicator.frame = self.okLabel.bounds
-                    activityIndicator.startAnimating()
-                
-                
-                    DispatchQueue.global(qos: .background).async {
-                       
-                        
-                        
-                        
-                        
-                        let result = verify(saltHex:cardDetails.salt, challengeHex:cardDetails.challenge, signatureArr:cardDetails.signArr, publicKeyArr:cardDetails.pubArr)
-                        
-                        DispatchQueue.main.async {
-                            if let delegate = self.delegate{
-                                delegate.didCheck(cardRow: self.cardRow!,checkResult:result)
-                            }
-                            activityIndicator.removeFromSuperview()
-                            if result {
-                                self.okLabel.text = "OK"
-                            } else {
-                                self.incorrectLabel.text = "Incorrect"
-                            }
-                            
-                        }
-                    }
+                incorrectLabel.text = "Incorrect"
             }
-           
+            
+        } else {
+            let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+            self.okLabel.addSubview(activityIndicator)
+            activityIndicator.frame = self.okLabel.bounds
+            activityIndicator.startAnimating()
+            
+            
+            DispatchQueue.global(qos: .background).async {
+                
+                let result = verify(saltHex:cardDetails.salt, challengeHex:cardDetails.challenge, signatureArr:cardDetails.signArr, publicKeyArr:cardDetails.pubArr)
+                
+                DispatchQueue.main.async {
+                    if let delegate = self.delegate{
+                        delegate.didCheck(cardRow: self.cardRow!,checkResult:result)
+                    }
+                    activityIndicator.removeFromSuperview()
+                    if result {
+                        self.okLabel.text = "OK"
+                    } else {
+                        self.incorrectLabel.text = "Incorrect"
+                    }
+                }
+            }
         }
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    // MARK: - QRCode
     func generateQRCode(from string: String) -> UIImage? {
         let data = string.data(using: String.Encoding.ascii)
         
@@ -199,18 +182,54 @@ class CardViewController: UIViewController {
         
         return nil
     }
-    //MARK: Action for Clipboard
+    
+    func getBalance() {
+        self.loadingView.isHidden = false
+        
+        let onResult = { (card: Card) in
+            self.loadingView.isHidden = true
+            
+            self.cardDetails = card
+            self.walletValue.text = card.walletValue + " " + card.walletUnits
+            self.usdWallet.text = "USD " + card.usdWalletValue
+            self.setupUI()
+        }
+        
+        DispatchQueue.global(qos: .background).async {
+            guard let card = self.cardDetails else {
+                return
+            }
+            
+            switch card.type {
+            case .btc:
+                BalanceService.sharedInstance.getBalanceBTC(card, onResult: onResult)
+            case .eth:
+                BalanceService.sharedInstance.getBalanceETH(card, onResult: onResult)
+            case .seed:
+                BalanceService.sharedInstance.getBalanceToken(card, onResult: onResult)
+            default:
+                break
+            }
+        }
+    }
+    
+    //MARK: Actions
+    
     @IBAction func copyTapped(_ sender: UIButton) {
-        //Copy a string to the pasteboard.
         let pasteboard = UIPasteboard.general
         pasteboard.string = cardDetails?.address
         
-        //Alert
         print("Copyed string \(String(describing: pasteboard.string))")
         let alertMsg:String = "Wallet address is copied to pasteboard!"
         let alertController = UIAlertController(title:  alertMsg, message: "", preferredStyle: UIAlertControllerStyle.alert)
         alertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
         present(alertController, animated: true, completion: nil)
+    }
+    
+    @IBAction func openLinkTapped(_ sender: UIButton) {
+        if let link = self.cardDetails?.link, let url = URL(string: link) {
+            UIApplication.shared.open(url,options: [:])
+        }
     }
     
 }
