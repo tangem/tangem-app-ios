@@ -9,6 +9,7 @@
 import UIKit
 
 class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
+    
     var cardList = [Card]()
     @IBOutlet weak var emptyView: UIView!
     @IBOutlet weak var scanAgainView: UIView!
@@ -81,7 +82,7 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
                 if !tmpCard.checkedBalance {
                     tmpCard.walletValue = "     "
                     tmpCard.usdWalletValue = "     "
-                    wilBalanceThread(tmpCard,indexPath)
+                    getBalanceInThread(tmpCard, indexPath)
                 }
                 if tmpCard.error == 1 {
                     (cell as! ValidTableViewCell).backView.backgroundColor = grayColor //UIColor(red:0.3921,green:0.3921,blue:0.3921,alpha:1) //gray
@@ -171,238 +172,24 @@ class CardsTableViewController: UITableViewController,DidSignCheckDelegate {
         
     }
     
-    func wilBalanceThread(_ card:Card,_ indexPath:IndexPath){
-        //Thread for balande getting
+    
+    
+    func getBalanceInThread(_ card: Card, _ indexPath:IndexPath){
         DispatchQueue.global(qos: .background).async {
-            
-            if card.type == .eth {
-                var tmpCard = card
-                BalanceService.sharedInstance.getCoinMarketInfo("ethereum") { success, error in
-                    if let success = success {
-                        tmpCard.mult = success
-                    }
-                    if let _ = error {
-                        tmpCard.mult = "0"
-                        tmpCard.error = 1
-                    }
-                    
-                    if tmpCard.error == 1 {
-                        tmpCard.checkedBalance = true
-                        
-                        //To main thread
-                        DispatchQueue.main.async {
-                            //In main thread
-                            print("\(tmpCard.mult)")
-                            print("\(tmpCard.walletValue)")
-                            print("\(tmpCard.usdWalletValue)")
-                            print("\(tmpCard.error)")
-                            self.didReturnInMainThread(tmpCard,indexPath)
-                        }
-                    }
-                    
-                    if tmpCard.error == 0 {
-                    if card.isTestNet {
-                       BalanceService.sharedInstance.getEthereumTestNet(card.ethAddress) { success, error in
-                            if let success = success {
-                                tmpCard.valueUInt64 = success
-                            }
-                            if let _ = error {
-                                tmpCard.walletValue = ""
-                                tmpCard.usdWalletValue = ""
-                                tmpCard.error = 1
-                            }
-                            let price_usd:Double = (tmpCard.mult as NSString).doubleValue
-                            let wei = Double(tmpCard.valueUInt64)
-                            let first = wei/1000000000000000000.0
-                            tmpCard.walletValue = first.fiveRound()
-                            //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
-                            let second = price_usd
-                            let value = first*second
-                            tmpCard.usdWalletValue = String(format: "%.2f", round(value*100)/100)
-                            if(tmpCard.mult == "0"){
-                                tmpCard.usdWalletValue = ""
-                            }
-                            tmpCard.checkedBalance = true
-                            print("Card ETH: \(tmpCard)")
-                            
-                            //To main thread
-                            DispatchQueue.main.async {
-                                //In main thread
-                                print("\(tmpCard.mult)")
-                                print("\(tmpCard.walletValue)")
-                                print("\(tmpCard.usdWalletValue)")
-                                print("\(tmpCard.error)")
-                                self.didReturnInMainThread(tmpCard,indexPath)
-                            }
-                            
-                        }
-                    } else {
-                        
-                        BalanceService.sharedInstance.getEthereumMainNet(card.ethAddress) { success, error in
-                            if let success = success {
-                                tmpCard.valueUInt64 = success
-                            }
-                            if let _ = error {
-                                tmpCard.walletValue = ""
-                                tmpCard.usdWalletValue = ""
-                                tmpCard.error = 1
-                            }
-                            let price_usd:Double = (tmpCard.mult as NSString).doubleValue
-                            let wei = Double(tmpCard.valueUInt64)
-                            let first = wei/1000000000000000000.0
-                            tmpCard.walletValue = first.fiveRound()
-                            //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
-                            let second = price_usd
-                            let value = first*second
-                            tmpCard.usdWalletValue = String(format: "%.2f", round(value*100)/100)
-                            if(tmpCard.mult == "0"){
-                                tmpCard.usdWalletValue = ""
-                            }
-                            tmpCard.checkedBalance = true
-                            print("Card ETH: \(tmpCard)")
-                            //To main thread
-                            DispatchQueue.main.async {
-                                //In main thread
-                                print("\(tmpCard.mult)")
-                                print("\(tmpCard.walletValue)")
-                                print("\(tmpCard.usdWalletValue)")
-                                print("\(tmpCard.error)")
-                                self.didReturnInMainThread(tmpCard,indexPath)
-                            }
-                            
-                            
-                        }
-                    }
-                }
-                    
-                    
-                }
-                
-                
-                
-                
+            switch card.type {
+            case .btc:
+                self.getBalanceBTC(card, indexPath)
+            case .eth:
+                self.getBalanceETH(card, indexPath)
+            case .seed:
+                self.getTokenBalance(card, indexPath)
+            default:
+                break
             }
-            //End of the eth logic
-            if card.type == .btc {
-                var tmpCard = card
-                BalanceService.sharedInstance.getCoinMarketInfo("bitcoin") { success, error in
-                    if let success = success {
-                        tmpCard.mult = success
-                    }
-                    if let _ = error {
-                        tmpCard.mult = "0"
-                        tmpCard.error = 1
-                    }
-                    
-                    if tmpCard.error == 1 {
-                        tmpCard.checkedBalance = true
-                       
-                        //To main thread
-                        DispatchQueue.main.async {
-                            //In main thread
-                            print("\(tmpCard.mult)")
-                            print("\(tmpCard.walletValue)")
-                            print("\(tmpCard.usdWalletValue)")
-                            print("\(tmpCard.error)")
-                            self.didReturnInMainThread(tmpCard,indexPath)
-                        }
-                    }
-                    
-                   if tmpCard.error == 0 {
-                    //Place for getting balance
-                    if card.isTestNet {
-                        BalanceService.sharedInstance.getBitcoinTestNet(card.btcAddressTest) { success, error in
-                            if let success = success {
-                                tmpCard.value = success
-                            }
-                            if let _ = error {
-                                tmpCard.walletValue = ""
-                                tmpCard.usdWalletValue = ""
-                                tmpCard.error = 1
-                            }
-                            //Place for calculation
-                            print("Finished all balance requests.")
-                            let price_usd:Double = (tmpCard.mult as NSString).doubleValue
-                            let satoshi = Double(tmpCard.value)
-                            let first = satoshi/100000.0
-                            tmpCard.walletValue = first.fiveRound()
-                            //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
-                            let second = price_usd/1000.0
-                            let value = first*second
-                            //tmpCard.USDWalletValue = value.fiveRound()
-                            tmpCard.usdWalletValue = String(format: "%.2f", round(value*100)/100)
-                            if(tmpCard.mult == "0"){
-                                tmpCard.usdWalletValue = ""
-                            }
-                            tmpCard.checkedBalance = true
-                            print("Card BTC \(tmpCard)")
-                            //To main thread
-                            DispatchQueue.main.async {
-                                //In main thread
-                                print("\(tmpCard.mult)")
-                                print("\(tmpCard.walletValue)")
-                                print("\(tmpCard.usdWalletValue)")
-                                print("\(tmpCard.error)")
-                                self.didReturnInMainThread(tmpCard,indexPath)
-                            }
-                        }
-                    } else {
-                        BalanceService.sharedInstance.getBitcoinMain(card.btcAddressMain) { success, error in
-                            if let success = success {
-                                tmpCard.value = success
-                            }
-                            if let _ = error {
-                                tmpCard.walletValue = ""
-                                tmpCard.usdWalletValue = ""
-                                tmpCard.error = 1
-                            }
-                            
-                            print("Finished all balance requests.")
-                            let price_usd:Double = (tmpCard.mult as NSString).doubleValue
-                            let satoshi = Double(tmpCard.value)
-                            let first = satoshi/100000.0
-                            tmpCard.walletValue = first.fiveRound()
-                            //tmpCard.WalletValue = String(format: "%.2f", round(first*100)/100)
-                            let second = price_usd/1000.0
-                            let value = first*second
-                            tmpCard.usdWalletValue = String(format: "%.2f", round(value*100)/100)
-                            if(tmpCard.mult == "0"){
-                                tmpCard.usdWalletValue = ""
-                            }
-                            tmpCard.checkedBalance = true
-                            print("Card BTC \(tmpCard)")
-                            //Place for calculation
-                            //To main thread
-                            DispatchQueue.main.async {
-                                //In main thread
-                                print("\(tmpCard.mult)")
-                                print("\(tmpCard.walletValue)")
-                                print("\(tmpCard.usdWalletValue)")
-                                print("\(tmpCard.error)")
-                                self.didReturnInMainThread(tmpCard,indexPath)
-                            }
-                            
-                        }
-                    }
-                    
-                }
-            }
-                
-                
-            }
-            //End of the btc logic
-            
-            
-            
-            
         }
-        //End of the thread
-
-        
     }
     
     func didReturnInMainThread(_ card:Card,_ indexPath:IndexPath){
-        print("Thread is finished")
         cardList[indexPath.row] = card
         tableView.reloadData()
         if(card.error == 1){
