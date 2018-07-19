@@ -11,8 +11,9 @@ import Alamofire
 import SwiftyJSON
 
 class BalanceService{
+    
     static let sharedInstance = BalanceService()
-    init(){}
+    
     struct Constants {
         static let coinMarket = "https://api.coinmarketcap.com/v1/ticker/?convert=USD&lmit=10"
         static let ethereumMainNet = "https://mainnet.infura.io/AfWg0tmYEX5Kukn2UkKV"
@@ -30,45 +31,30 @@ class BalanceService{
         static let btcMainNet_6 = "helicarrier.bauerj.eu: 50001"
     }
     
-    func getCoinMarketInfo(_ name:String, completionHandler: @escaping (String?, String?) -> ()){
-        Alamofire.request(Constants.coinMarket, method:.get).responseJSON{
-            response in
-            
+    func getCoinMarketInfo(_ name: String, completionHandler: @escaping (String?, String?) -> ()) {
+        Alamofire.request(Constants.coinMarket, method:.get).responseJSON { response in
             switch response.result {
             case .success(let value):
-                var price_usd:String?
-               if let json = try? JSON(value) {
-                    for item in json.arrayValue {
-                        let id = item["id"].stringValue
-                        if id == name {
-                            price_usd = item["price_usd"].stringValue
-                            break
-                         }
-                    }
-                    completionHandler(price_usd,nil)
-                    //completionHandler(nil,"test")
-               }
+                var price_usd: String?
+                let json = JSON(value)
+                for item in json.arrayValue {
+                    let id = item["id"].stringValue
+                    if id == name {
+                        price_usd = item["price_usd"].stringValue
+                        break
+                     }
+                }
+                completionHandler(price_usd, nil)
                 
-            case.failure(let error):
+            case .failure(let error):
                 completionHandler(nil,String(describing: error))
-//                if let err = error as? URLError, err.code == .notConnectedToInternet {
-//                    completionHandler(nil, "Check your internet connection")
-//                } else {
-//                    if let data = response.data {
-//                        let errorInfo = String(data: data, encoding: .utf8)
-//                        print("Market Info error: \( String(describing: errorInfo))");
-//                        completionHandler(nil, errorInfo)
-//                    }
-//                }
             }
             
         }
     }
     
-    func getBitcoinMain(_ address:String, completionHandler: @escaping (Int?, String?) -> ()){
-        Alamofire.request("https://blockchain.info/balance?active="+address, method:.get).responseJSON{
-            response in
-            
+    func getBitcoinMain(_ address:String, completionHandler: @escaping (Int?, String?) -> ()) {
+        Alamofire.request("https://blockchain.info/balance?active="+address, method:.get).responseJSON { response in
             switch response.result {
             case .success(let value):
                 
@@ -76,7 +62,7 @@ class BalanceService{
                 let result:Int? = balanceInfo[address]["final_balance"].intValue 
                 
                 completionHandler(result, nil)
-                //completionHandler(nil,"test")
+
             case.failure(let error):
                 completionHandler(nil,String(describing: error))
                 if let err = error as? URLError, err.code == .notConnectedToInternet {
@@ -93,9 +79,8 @@ class BalanceService{
         }
     }
     
-    func getBitcoinTestNet(_ address:String, completionHandler: @escaping (Int?, String?) -> ()){
-        Alamofire.request("https://testnet.blockchain.info/balance?active="+address, method:.get).responseJSON{
-            response in
+    func getBitcoinTestNet(_ address:String, completionHandler: @escaping (Int?, String?) -> ()) {
+        Alamofire.request("https://testnet.blockchain.info/balance?active="+address, method:.get).responseJSON { response in
             
             switch response.result {
             case .success(let value):
@@ -121,9 +106,9 @@ class BalanceService{
         }
     }
     
-    func getEthereumMainNet(_ address:String, completionHandler: @escaping (UInt64?, String?) -> ()){
+    func getEthereumMainNet(_ address: String, completionHandler: @escaping (UInt64?, String?) -> ()) {
         let url = URL(string: "https://mainnet.infura.io")!
-        let jsonDict = ["jsonrpc": "2.0", "method": "eth_getBalance", "params":[address,"latest"] ,"id":03] as [String : Any]
+        let jsonDict = ["jsonrpc":  "2.0", "method": "eth_getBalance", "params": [address, "latest"], "id": 03] as [String : Any]
         let jsonData = try! JSONSerialization.data(withJSONObject: jsonDict, options: [])
         
         var request = URLRequest(url: url)
@@ -133,29 +118,32 @@ class BalanceService{
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard  let data = data else {
-                completionHandler(nil,"error")
+                completionHandler(nil, "error")
                 return
-                
             }
             
             do {
-                
-                guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else { return }
-                //print("RESULT \(json)")
-                let check = json["result"] as? String
-                guard let checkStr = check  else {
+                guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
                     return
                 }
+                //print("RESULT \(json)")
+                let check = json["result"] as? String
+                guard let checkStr = check else {
+                    return
+                }
+                
                 if checkStr == "0x0" {
                     completionHandler(0,nil)
                 }
-                let  checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex,offsetBy:2)...])
+                let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex,offsetBy:2)...])
                 print("RESULT \(checkStr)")
+                
                 let checkArray = checkWithoutTwoFirstLetters.asciiHexToData()
                 guard let checkArrayUInt8 = checkArray else {
                     return
                 }
                 let checkInt64 = arrayToUInt64(checkArrayUInt8)
+                
                 completionHandler(checkInt64,nil)
             } catch {
                 print("error:", error)
@@ -185,28 +173,30 @@ class BalanceService{
             }
             
             do {
-                
-                guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else { return }
-                let check = json["result"] as? String
-                guard let checkStr = check  else {
+                guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
                     return
                 }
-                if checkStr == "0x0" {
-                    completionHandler(0,nil)
+                
+                let check = json["result"] as? String
+                guard let checkStr = check else {
+                    return
                 }
-                let  checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex,offsetBy:2)...])
+                
+                if checkStr == "0x0" {
+                    completionHandler(0, nil)
+                }
+                let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex,offsetBy:2)...])
                 let checkArray = checkWithoutTwoFirstLetters.asciiHexToData()
                 guard let checkArrayUInt8 = checkArray else {
                     return
                 }
                 let checkInt64 = arrayToUInt64(checkArrayUInt8)
                 
-                
                 print("json: \(json)")
-                completionHandler(checkInt64,nil)
+                completionHandler(checkInt64, nil)
             } catch {
                 print("error:", error)
-                completionHandler(nil,String(describing: error))
+                completionHandler(nil, String(describing: error))
             }
         }
         
@@ -214,35 +204,46 @@ class BalanceService{
         
     }
     
-    func getBtcTestNet(_ testAddress:String, completionHandler: @escaping (String?, String?) -> ()){
-        //Address for tests "mj6rrLQGJBKwuPenWxraiG4xvxeh6x2ofF"
-        let url = URL(string: "http:"+Constants.btcTestNet)!
+    func getTokenBalance(_ address: String, contract: String, completionHandler: @escaping (NSDecimalNumber?, String?) -> ()) {
+        let url = URL(string: "https://mainnet.infura.io")!
         
         
+        let index = address.index(address.startIndex, offsetBy: 2)
+        let dataValue = ["data": "0x70a08231000000000000000000000000\(address[index...])", "to": contract.replacingOccurrences(of: "\n", with: "")]
         
-        let jsonDict = ["id": 1 , "method": "blockchain.address.get_balance", "params":[testAddress]] as [String : Any]
+        let jsonDict = ["method": "eth_call", "params": [dataValue, "latest"], "id": 03] as [String : Any]
         let jsonData = try! JSONSerialization.data(withJSONObject: jsonDict, options: [])
         
         var request = URLRequest(url: url)
         request.httpMethod = "post"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = jsonData
-        
+
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-            
-            guard  let data = data else {
-                completionHandler(nil,"error")
+            guard let data = data else {
+                completionHandler(nil, "error")
                 return
-                
             }
             
             do {
-              
-                guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else { return }
+                guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
+                    return
+                }
+                print("RESULT \(json)")
+                let check = json["result"] as? String
+                guard let checkStr = check else {
+                    return
+                }
                 
-              
-                print("json: \(json)")
-                completionHandler("ok",nil)
+                if checkStr == "0x0" {
+                    completionHandler(0, nil)
+                }
+                let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex, offsetBy: 2)...])
+                print("RESULT \(checkStr)")
+                
+                let decimalNumber = arrayToDecimalNumber(checkWithoutTwoFirstLetters.asciiHexToData()!)
+                
+                completionHandler(decimalNumber, nil)
             } catch {
                 print("error:", error)
                 completionHandler(nil,String(describing: error))
@@ -250,9 +251,168 @@ class BalanceService{
         }
         
         task.resume()
-        
     }
     
+}
+
+extension BalanceService {
+    
+    func getBalanceBTC(_ card: Card, onResult: @escaping (Card) -> Void) {
+        
+        var card = card
+        BalanceService.sharedInstance.getCoinMarketInfo("bitcoin") { success, error in
+            if let success = success {
+                card.mult = success
+            }
+            if let _ = error {
+                card.mult = "0"
+                card.error = 1
+            }
+            
+            let onCompletion = { (balanceValue: Int?, error: String?) in
+                if let balanceValue = balanceValue {
+                    card.value = balanceValue
+                }
+                if let _ = error {
+                    card.walletValue = ""
+                    card.usdWalletValue = ""
+                    card.error = 1
+                }
+                
+                let price_usd = (card.mult as NSString).doubleValue
+                let satoshi = Double(card.value)
+                let first = satoshi / 100000.0
+                card.walletValue = String(format: "%.2f", round(first*100)/100)
+                let second = price_usd / 1000.0
+                let value = first*second
+                card.usdWalletValue = String(format: "%.2f", round(value*100)/100)
+                if(card.mult == "0"){
+                    card.usdWalletValue = ""
+                }
+                card.checkedBalance = true
+                print("Card BTC \(card)")
+                
+                DispatchQueue.main.async {
+                    onResult(card)
+                }
+            }
+            
+            if card.isTestNet {
+                BalanceService.sharedInstance.getBitcoinTestNet(card.btcAddressTest) { success, error in
+                    onCompletion(success, error)
+                }
+            } else {
+                BalanceService.sharedInstance.getBitcoinMain(card.btcAddressMain) { success, error in
+                    onCompletion(success, error)
+                }
+            }
+        }
+    }
+    
+    func getBalanceETH(_ card: Card, onResult: @escaping (Card) -> Void) {
+        
+        var card = card
+        BalanceService.sharedInstance.getCoinMarketInfo("ethereum") { success, error in
+            if let success = success {
+                card.mult = success
+            }
+            
+            if let _ = error {
+                card.mult = "0"
+                card.error = 1
+            }
+            
+            let onCompletion = { (balanceValue: UInt64?, error: String?) in
+                if let balanceValue = balanceValue {
+                    card.valueUInt64 = balanceValue
+                }
+                if error != nil {
+                    card.walletValue = ""
+                    card.usdWalletValue = ""
+                    card.error = 1
+                }
+                let price_usd = (card.mult as NSString).doubleValue
+                let wei = Double(card.valueUInt64)
+                let first = wei / 1000000000000000000.0
+                card.walletValue = String(format: "%.2f", round(first * 100)/100)
+                
+                let second = price_usd
+                let value = first*second
+                card.usdWalletValue = String(format: "%.2f", round(value * 100)/100)
+                
+                if (card.mult == "0"){
+                    card.usdWalletValue = ""
+                }
+                card.checkedBalance = true
+                print("Card ETH: \(card)")
+                
+                DispatchQueue.main.async {
+                    onResult(card)
+                }
+            }
+            
+            if card.isTestNet {
+                BalanceService.sharedInstance.getEthereumTestNet(card.ethAddress) { balanceValue, error in
+                    onCompletion(balanceValue, error)
+                }
+            } else {
+                BalanceService.sharedInstance.getEthereumMainNet(card.ethAddress) { balanceValue, error in
+                    onCompletion(balanceValue, error)
+                }
+            }
+        }
+    }
+    
+    
+    
+    func getBalanceToken(_ card: Card, onResult: @escaping (Card) -> Void) {
+        
+        var card = card
+        BalanceService.sharedInstance.getCoinMarketInfo("ethereum") { success, error in
+            
+            if let success = success {
+//                card.mult = success
+                card.mult = "0"
+            }
+            
+            if let _ = error {
+                card.mult = "0"
+                card.error = 1
+            }
+            
+            let onCompletion = { (balanceValue: NSDecimalNumber?, error: String?) in
+                if let balanceValue = balanceValue {
+                    card.valueUInt64 = balanceValue.uint64Value
+                }
+                if error != nil {
+                    card.walletValue = ""
+                    card.usdWalletValue = ""
+                    card.error = 1
+                }
+                
+                guard let normalisedValue = balanceValue?.dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Int16(card.tokenDecimal))) else {
+                    return
+                }
+                card.walletValue = String(format: "%.2f", round(normalisedValue.doubleValue * 100)/100)
+                
+                let price_usd = Double(card.mult)!
+                let value = normalisedValue.doubleValue * price_usd
+                card.usdWalletValue = String(format: "%.2f", round(value * 100)/100)
+                
+                card.checkedBalance = true
+                print("Card Token: \(card)")
+                
+                DispatchQueue.main.async {
+                    onResult(card)
+                }
+            }
+            
+            
+            BalanceService.sharedInstance.getTokenBalance(card.ethAddress, contract: card.tokenContractAddress) { balanceValue, error in
+                onCompletion(balanceValue, error)
+            }
+        }
+    }
     
 }
 
