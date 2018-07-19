@@ -36,6 +36,10 @@ struct Card {
     var isTestNet = false
     var mult = ""
     
+    var tokenSymbol: String = ""
+    var tokenContractAddress: String = ""
+    var tokenDecimal: Int = 0
+    
     var walletValue = "0.00"
     var walletUnits = ""
     var usdWalletValue = ""
