@@ -118,6 +118,15 @@ class CardParser: Any {
             if tlv.tagName == "SignedHashes" {
                 card.signedHashes = tlv.hexStringValue
             }
+            if tlv.tagName == "Token_Symbol" {
+                card.tokenSymbol = tlv.stringValue
+            }
+            if tlv.tagName == "Token_Contract_Address" {
+                card.tokenContractAddress = tlv.stringValue
+            }
+            if tlv.tagName == "Token_Decimal" {
+                card.tokenDecimal =  Int(tlv.hexStringValue, radix: 16)!
+            }
             
         }
         //Ribbon Check
@@ -154,7 +163,7 @@ class CardParser: Any {
         
         if blockchainName.containsIgnoringCase(find: "eth") {
             //We think that card is ETC
-            card.type = .eth
+            card.type = .seed
             card.blockchain = "Ethereum"
             card.node = "mainnet.infura.io"
             if blockchainName.containsIgnoringCase(find: "test"){
@@ -163,7 +172,7 @@ class CardParser: Any {
                 card.node = "rinkeby.infura.io"
             }
             card.ethAddress = getEthAddress(card.hexPublicKey)
-            card.walletUnits = "ETH"
+            card.walletUnits = card.tokenSymbol.isEmpty ? "ETH" : card.tokenSymbol
             card.address = card.ethAddress
             if !card.isTestNet {
                 card.link = Links.ethereumMainLink + card.address
