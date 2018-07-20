@@ -63,7 +63,7 @@ func getAddress(_ hexWalletPublicKey:String) -> [String]?{
     //Шаг 6    D61967F63C7DD183914A4AE452C9F6AD5D462CE3D277798075B107615C1A8A30
     //print("Шаг 6 \(binaryTwoShaToHex.uppercased())")
     
-    let checkHex = binaryTwoShaToHex.substring(to: binaryTwoShaToHex.index(binaryTwoShaToHex.startIndex, offsetBy: 8))
+    let checkHex = String(binaryTwoShaToHex[..<binaryTwoShaToHex.index(binaryTwoShaToHex.startIndex, offsetBy: 8)])
     //Шаг 7    D61967F6
     //print("Шаг 7  \(checkHex)")
     
@@ -86,7 +86,7 @@ func getAddress(_ hexWalletPublicKey:String) -> [String]?{
         return nil
     }
     let binaryTwoShaToHex1 = binaryTwoSha1.hexEncodedString()
-    let checkHex1 = binaryTwoShaToHex1.substring(to: binaryTwoShaToHex1.index(binaryTwoShaToHex1.startIndex, offsetBy: 8))
+    let checkHex1 = String(binaryTwoShaToHex1[..<binaryTwoShaToHex1.index(binaryTwoShaToHex1.startIndex, offsetBy: 8)])
     let addCheckToRipemd1 = hexRipend1601 + checkHex1 //binary Address
     let binaryForBase581 = dataWithHexString(hex: addCheckToRipemd1)
     let address1 = String(base58Encoding: binaryForBase581) //Address
