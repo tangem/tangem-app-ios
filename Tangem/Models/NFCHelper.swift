@@ -25,7 +25,6 @@ class NFCHelper: NSObject, NFCNDEFReaderSessionDelegate {
         onNFCResult(false, error.localizedDescription)
     }
     
-    
     func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
         guard let onNFCResult = onNFCResult else { return }
         for message in messages {
