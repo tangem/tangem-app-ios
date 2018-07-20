@@ -13,6 +13,13 @@ import SwiftyJSON
 class BalanceService{
     
     static let sharedInstance = BalanceService()
+    let balanceFormatter: NumberFormatter = {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.minimumIntegerDigits = 1
+        numberFormatter.maximumFractionDigits = 8
+        numberFormatter.minimumFractionDigits = 2
+        return numberFormatter
+    }()
     
     struct Constants {
         static let coinMarket = "https://api.coinmarketcap.com/v1/ticker/?convert=USD&lmit=10"
@@ -124,11 +131,13 @@ class BalanceService{
             
             do {
                 guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
+                    completionHandler(nil, "error")
                     return
                 }
-                //print("RESULT \(json)")
+                
                 let check = json["result"] as? String
                 guard let checkStr = check else {
+                    completionHandler(nil, "error")
                     return
                 }
                 
@@ -169,16 +178,17 @@ class BalanceService{
             guard  let data = data else {
                 completionHandler(nil,"error")
                 return
-                
             }
             
             do {
                 guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
+                    completionHandler(nil, "error")
                     return
                 }
                 
                 let check = json["result"] as? String
                 guard let checkStr = check else {
+                    completionHandler(nil, "error")
                     return
                 }
                 
@@ -227,11 +237,13 @@ class BalanceService{
             
             do {
                 guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
+                    completionHandler(nil, "error")
                     return
                 }
                 print("RESULT \(json)")
                 let check = json["result"] as? String
                 guard let checkStr = check else {
+                    completionHandler(nil, "error")
                     return
                 }
                 
@@ -264,29 +276,38 @@ extension BalanceService {
             if let success = success {
                 card.mult = success
             }
-            if let _ = error {
+            
+            guard error == nil else {
                 card.mult = "0"
                 card.error = 1
+                onResult(card)
+                return
             }
             
             let onCompletion = { (balanceValue: Int?, error: String?) in
                 if let balanceValue = balanceValue {
                     card.value = balanceValue
                 }
-                if let _ = error {
+                guard error == nil else {
                     card.walletValue = ""
                     card.usdWalletValue = ""
                     card.error = 1
+                    DispatchQueue.main.async {
+                        onResult(card)
+                    }
+                    return
                 }
                 
                 let price_usd = (card.mult as NSString).doubleValue
                 let satoshi = Double(card.value)
+                
                 let first = satoshi / 100000.0
-                card.walletValue = String(format: "%.2f", round(first*100)/100)
+                card.walletValue = self.balanceFormatter.string(from: NSNumber(value: first))!
+                
                 let second = price_usd / 1000.0
-                let value = first*second
-                card.usdWalletValue = String(format: "%.2f", round(value*100)/100)
-                if(card.mult == "0"){
+                let value = first * second
+                card.usdWalletValue = self.balanceFormatter.string(from: NSNumber(value: value))!
+                if (card.mult == "0") {
                     card.usdWalletValue = ""
                 }
                 card.checkedBalance = true
@@ -317,28 +338,33 @@ extension BalanceService {
                 card.mult = success
             }
             
-            if let _ = error {
+            guard error == nil else {
                 card.mult = "0"
                 card.error = 1
+                onResult(card)
+                return
             }
             
             let onCompletion = { (balanceValue: UInt64?, error: String?) in
                 if let balanceValue = balanceValue {
                     card.valueUInt64 = balanceValue
                 }
-                if error != nil {
+                guard error == nil else {
                     card.walletValue = ""
                     card.usdWalletValue = ""
                     card.error = 1
+                    DispatchQueue.main.async {
+                        onResult(card)
+                    }
+                    return
                 }
                 let price_usd = (card.mult as NSString).doubleValue
                 let wei = Double(card.valueUInt64)
                 let first = wei / 1000000000000000000.0
-                card.walletValue = String(format: "%.2f", round(first * 100)/100)
+                card.walletValue = self.balanceFormatter.string(from: NSNumber(value: first))!
                 
-                let second = price_usd
-                let value = first*second
-                card.usdWalletValue = String(format: "%.2f", round(value * 100)/100)
+                let value = first * price_usd
+                card.usdWalletValue = self.balanceFormatter.string(from: NSNumber(value: value))!
                 
                 if (card.mult == "0"){
                     card.usdWalletValue = ""
@@ -375,29 +401,39 @@ extension BalanceService {
                 card.mult = "0"
             }
             
-            if let _ = error {
+            guard error == nil else {
                 card.mult = "0"
                 card.error = 1
+                onResult(card)
+                return
             }
             
             let onCompletion = { (balanceValue: NSDecimalNumber?, error: String?) in
                 if let balanceValue = balanceValue {
                     card.valueUInt64 = balanceValue.uint64Value
                 }
-                if error != nil {
+                guard error == nil else {
                     card.walletValue = ""
                     card.usdWalletValue = ""
                     card.error = 1
+                    DispatchQueue.main.async {
+                        onResult(card)
+                    }
+                    return
                 }
                 
                 guard let normalisedValue = balanceValue?.dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Int16(card.tokenDecimal))) else {
+                    card.error = 1
+                    DispatchQueue.main.async {
+                        onResult(card)
+                    }
                     return
                 }
-                card.walletValue = String(format: "%.2f", round(normalisedValue.doubleValue * 100)/100)
+                card.walletValue = self.balanceFormatter.string(from: NSNumber(value: normalisedValue.doubleValue))!
                 
                 let price_usd = Double(card.mult)!
                 let value = normalisedValue.doubleValue * price_usd
-                card.usdWalletValue = String(format: "%.2f", round(value * 100)/100)
+                card.usdWalletValue = self.balanceFormatter.string(from: NSNumber(value: value))!
                 
                 card.checkedBalance = true
                 print("Card Token: \(card)")
