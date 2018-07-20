@@ -78,7 +78,7 @@ extension String{
             while let toIndex = trimmedString.index(fromIndex, offsetBy: 2, limitedBy: trimmedString.endIndex) {
                 
                 // Extract hex code at position fromIndex ..< toIndex:
-                let byteString = trimmedString.substring(with: fromIndex..<toIndex)
+                let byteString = String(trimmedString[fromIndex..<toIndex])
                 //print(byteString)
                 let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
                 data.append(num)
