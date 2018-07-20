@@ -163,7 +163,12 @@ class CardParser: Any {
         
         if blockchainName.containsIgnoringCase(find: "eth") {
             //We think that card is ETC
-            card.type = .seed
+            if card.tokenSymbol == "SEED" {
+                card.type = .seed
+            } else {
+                card.type = .eth
+            }
+
             card.blockchain = "Ethereum"
             card.node = "mainnet.infura.io"
             if blockchainName.containsIgnoringCase(find: "test"){
