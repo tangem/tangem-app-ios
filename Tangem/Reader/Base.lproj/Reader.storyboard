@@ -10,7 +10,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Scanning-->
+        <!--Reader View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ReaderViewController" customModule="Tangem" customModuleProvider="target" sceneMemberID="viewController">
@@ -41,8 +41,13 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Scanning" largeTitleDisplayMode="never" id="uRJ-bA-NfR">
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="uRJ-bA-NfR">
                         <barButtonItem key="backBarButtonItem" title="  " id="uZG-WF-Rie"/>
+                        <barButtonItem key="leftBarButtonItem" title="Scan" id="2LJ-4g-hlv">
+                            <connections>
+                                <action selector="readNFC:" destination="BYZ-38-t0r" id="KLQ-dd-kQ0"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
