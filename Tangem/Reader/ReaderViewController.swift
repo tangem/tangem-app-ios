@@ -30,11 +30,11 @@ class ReaderViewController: UIViewController {
         helper.restartSession()
     }
     
-    @IBAction func readNFC(_ sender: UIButton) {
+    @IBAction func readNFC(_ sender: Any) {
         helper.onNFCResult = onNFCResult(success:msg:)
         helper.restartSession()
         
-        self.cardParser.parse(payload: TestData.seed.rawValue)
+//        self.cardParser.parse(payload: TestData.seed.rawValue)
 //        self.cardParser.parse(payload: TestData.ethWallet.rawValue)
 //        self.cardParser.parse(payload: TestData.ert.rawValue)
     }
