@@ -52,11 +52,6 @@ class CardViewController: UIViewController {
     
     @IBOutlet weak var incorrectLabel: UILabel!
     @IBOutlet weak var okLabel: UILabel!
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -69,7 +64,6 @@ class CardViewController: UIViewController {
             return
         }
         
-            
         switch cardDetails.ribbonCase {
         case 1:
             ribbonOne.text = "DEVELOPER KIT"
@@ -149,14 +143,12 @@ class CardViewController: UIViewController {
             activityIndicator.startAnimating()
             
             
+            // [REDACTED_TODO_COMMENT]
             DispatchQueue.global(qos: .background).async {
                 
                 let result = verify(saltHex:cardDetails.salt, challengeHex:cardDetails.challenge, signatureArr:cardDetails.signArr, publicKeyArr:cardDetails.pubArr)
                 
                 DispatchQueue.main.async {
-                    if let delegate = self.delegate{
-                        delegate.didCheck(cardRow: self.cardRow!,checkResult:result)
-                    }
                     activityIndicator.removeFromSuperview()
                     if result {
                         self.okLabel.text = "OK"
@@ -187,6 +179,15 @@ class CardViewController: UIViewController {
         self.loadingView.isHidden = false
         
         let onResult = { (card: Card) in
+            guard card.error == 0 else {
+                let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
+                validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                    self.navigationController?.popViewController(animated: true)
+                }))
+                self.present(validationAlert, animated: true, completion: nil)
+                return
+            }
+            
             self.loadingView.isHidden = true
             
             self.cardDetails = card
