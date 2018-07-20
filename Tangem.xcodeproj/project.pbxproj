@@ -111,7 +111,6 @@
 		8D4C72542069081C00235E82 /* EthAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4C72532069081B00235E82 /* EthAddress.swift */; };
 		8D899FBF202476DF006131E0 /* Card.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D899FBE202476DF006131E0 /* Card.storyboard */; };
 		8D899FC120247799006131E0 /* CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D899FC020247799006131E0 /* CardViewController.swift */; };
-		8D8E3FC5203AF762002E6266 /* Raleway-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8D8E3FC4203AF762002E6266 /* Raleway-BoldItalic.ttf */; };
 		8D8E408020469DAF002E6266 /* NFCHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E407F20469DAF002E6266 /* NFCHelper.swift */; };
 		8D8E40852046C7B2002E6266 /* TLVExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40842046C7B2002E6266 /* TLVExtentions.swift */; };
 		8D8E40872046C8F7002E6266 /* TLVUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40862046C8F7002E6266 /* TLVUtils.swift */; };
@@ -522,7 +521,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "dns user";
 				TargetAttributes = {
 					8D946D842018DA92006C73D9 = {
@@ -582,7 +581,6 @@
 				8D2D4F342090BF3200C97D7E /* Raleway-BoldItalic.ttf in Resources */,
 				8D2D4F392090BF3200C97D7E /* MontserratAlternates-Medium.otf in Resources */,
 				8D2D4F222090BF3200C97D7E /* Montserrat-Medium.otf in Resources */,
-				8D8E3FC5203AF762002E6266 /* Raleway-BoldItalic.ttf in Resources */,
 				8D2D4F312090BF3200C97D7E /* Montserrat-SemiBold.otf in Resources */,
 				8D2D4F212090BF3200C97D7E /* MontserratAlternates-Regular.otf in Resources */,
 				8D2D4F2A2090BF3200C97D7E /* Raleway-Black.ttf in Resources */,
@@ -861,6 +859,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -868,6 +867,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -918,6 +918,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -925,6 +926,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
