@@ -87,7 +87,7 @@ class CardParser: Any {
             return
         }
         
-        var cardArrSize = cardArr.count
+        let cardArrSize = cardArr.count
         var cardOffset: Int = 0
         while (cardOffset < cardArrSize){
             var tlv: TLV!
