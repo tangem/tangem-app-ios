@@ -963,6 +963,7 @@
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				INFOPLIST_FILE = Tangem/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -974,6 +975,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Tangem-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
@@ -985,6 +987,7 @@
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				INFOPLIST_FILE = Tangem/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -996,6 +999,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Tangem-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
