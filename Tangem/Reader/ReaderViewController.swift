@@ -25,6 +25,10 @@ class ReaderViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.navigationController?.navigationBar.barTintColor = UIColor(red:0.0074375583790242672, green: 0.24186742305755615, blue: 0.4968341588973999, alpha: 1)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
         helper.onNFCResult = onNFCResult(success:msg:)
         helper.restartSession()
@@ -34,9 +38,11 @@ class ReaderViewController: UIViewController {
         helper.onNFCResult = onNFCResult(success:msg:)
         helper.restartSession()
         
-//        self.cardParser.parse(payload: TestData.seed.rawValue)
-//        self.cardParser.parse(payload: TestData.ethWallet.rawValue)
-//        self.cardParser.parse(payload: TestData.ert.rawValue)
+        #if targetEnvironment(simulator)
+//            self.cardParser.parse(payload: TestData.seed.rawValue)
+            self.cardParser.parse(payload: TestData.ethWallet.rawValue)
+//            self.cardParser.parse(payload: TestData.ert.rawValue)
+        #endif
     }
     
     func onNFCResult(success: Bool, msg: String) {
