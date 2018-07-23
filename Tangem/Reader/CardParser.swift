@@ -9,18 +9,16 @@
 import UIKit
 
 protocol CardParserDelegate: class {
+    
     func cardParserLockedCard(_ parser: CardParser)
     func cardParserWrongTLV(_ parser: CardParser)
     func cardParser(_ parser: CardParser, didFinishWith card: Card)
+    
 }
 
 class CardParser: Any {
     
     weak var delegate: CardParserDelegate?
-    
-    init(delegate: CardParserDelegate) {
-        self.delegate = delegate
-    }
     
     func parse(payload: String) {
         
