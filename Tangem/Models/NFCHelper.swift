@@ -9,9 +9,18 @@
 import Foundation
 import CoreNFC
 
+protocol NFCHelperDelegate {
+    
+    func nfcHelper(_ helper: NFCHelper, didInvalidateWith error: Error)
+    func nfcHelper(_ helper: NFCHelper, didDetectCardWith hexPayload: String)
+    
+}
+
 class NFCHelper: NSObject, NFCNDEFReaderSessionDelegate {
-    var onNFCResult: ((Bool, String) -> ())?
+    
+    var delegate: NFCHelperDelegate?
     var session: NFCReaderSession?
+    
     func restartSession() {
         self.session = NFCNDEFReaderSession(delegate: self,
                                            queue: nil,
@@ -20,32 +29,28 @@ class NFCHelper: NSObject, NFCNDEFReaderSessionDelegate {
     }
     
     // MARK: NFCNDEFReaderSessionDelegate
+    
     func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
-        guard let onNFCResult = onNFCResult else { return }
-        onNFCResult(false, error.localizedDescription)
+        self.delegate?.nfcHelper(self, didInvalidateWith: error)
     }
     
     func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
-        guard let onNFCResult = onNFCResult else { return }
         for message in messages {
             var recordsCounter = 0
+            
             for record in message.records {
                 recordsCounter += 1
                 print("Payload: \(record.payload)")
-                let paylod = record.payload
+                
                 var hexPayload = ""
                 
-                for byte in paylod{
+                for byte in record.payload{
                     hexPayload += byte.toAsciiHex()
                 }
+                
                 if recordsCounter == 3 {
-                    onNFCResult(true, hexPayload)
-                    
+                    self.delegate?.nfcHelper(self, didDetectCardWith: hexPayload)
                 }
-//                print("Hex Payload: \(hexPayload)")
-//                if let resultString = String(data: record.payload, encoding: .utf8) {
-//                    onNFCResult(true, resultString)
-//                }
             }
         }
     }
