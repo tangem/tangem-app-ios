@@ -118,6 +118,9 @@ class CardViewController: UIViewController {
         if cardDetails.type == .btc && !cardDetails.isTestNet {
             logoIcon.image = UIImage(named: "Bitcoin-org")
         }
+        if cardDetails.type == .seed {
+            logoIcon.image = UIImage(named: "logo-seed")
+        }
         serverLabel.text = cardDetails.node
         serverLabel.textContainer.lineBreakMode = .byCharWrapping
         let challenge = cardDetails.challenge
