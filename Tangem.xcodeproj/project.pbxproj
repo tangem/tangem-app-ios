@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		26675107C61982247E6CE0C8 /* Pods_TangemTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */; };
+		8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000364321069C8E00C151E8 /* FontsExtensions.swift */; };
 		803A86F220FB7CA400E19427 /* CardParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParser.swift */; };
+		80C5257C2106923100754961 /* CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardViewController.swift */; };
 		8D0360FC20223EEF00F13A39 /* Cards.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D0360FB20223EEF00F13A39 /* Cards.storyboard */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
 		8D0361032023042000F13A39 /* ValidTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D0361022023042000F13A39 /* ValidTableViewCell.swift */; };
@@ -110,7 +112,7 @@
 		8D4B4A3A20614EB00094E712 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A3920614EB00094E712 /* BalanceService.swift */; };
 		8D4C72542069081C00235E82 /* EthAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4C72532069081B00235E82 /* EthAddress.swift */; };
 		8D899FBF202476DF006131E0 /* Card.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D899FBE202476DF006131E0 /* Card.storyboard */; };
-		8D899FC120247799006131E0 /* CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D899FC020247799006131E0 /* CardViewController.swift */; };
+		8D899FC120247799006131E0 /* OldCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D899FC020247799006131E0 /* OldCardViewController.swift */; };
 		8D8E408020469DAF002E6266 /* NFCHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E407F20469DAF002E6266 /* NFCHelper.swift */; };
 		8D8E40852046C7B2002E6266 /* TLVExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40842046C7B2002E6266 /* TLVExtentions.swift */; };
 		8D8E40872046C8F7002E6266 /* TLVUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40862046C8F7002E6266 /* TLVUtils.swift */; };
@@ -139,7 +141,9 @@
 		4F16D29E05DA5A490FD1E224 /* Pods-Tangem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.release.xcconfig"; sourceTree = "<group>"; };
 		679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8000364321069C8E00C151E8 /* FontsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontsExtensions.swift; sourceTree = "<group>"; };
 		803A86F120FB7CA400E19427 /* CardParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParser.swift; sourceTree = "<group>"; };
+		80C5257B2106923100754961 /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
 		8D0360FB20223EEF00F13A39 /* Cards.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Cards.storyboard; sourceTree = "<group>"; };
 		8D0360FD20223F3D00F13A39 /* CardsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsTableViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -219,7 +223,7 @@
 		8D4B4A3920614EB00094E712 /* BalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceService.swift; sourceTree = "<group>"; };
 		8D4C72532069081B00235E82 /* EthAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthAddress.swift; sourceTree = "<group>"; };
 		8D899FBE202476DF006131E0 /* Card.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Card.storyboard; sourceTree = "<group>"; };
-		8D899FC020247799006131E0 /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
+		8D899FC020247799006131E0 /* OldCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldCardViewController.swift; sourceTree = "<group>"; };
 		8D8E3FC4203AF762002E6266 /* Raleway-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Raleway-BoldItalic.ttf"; path = "Tangem/fonts/Raleway-BoldItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		8D8E407F20469DAF002E6266 /* NFCHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCHelper.swift; sourceTree = "<group>"; };
 		8D8E40832046B971002E6266 /* Tangem.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Tangem.entitlements; sourceTree = "<group>"; };
@@ -330,7 +334,8 @@
 		8D899FBD20244BAC006131E0 /* CardDetail */ = {
 			isa = PBXGroup;
 			children = (
-				8D899FC020247799006131E0 /* CardViewController.swift */,
+				8D899FC020247799006131E0 /* OldCardViewController.swift */,
+				80C5257B2106923100754961 /* CardViewController.swift */,
 				8D899FBE202476DF006131E0 /* Card.storyboard */,
 			);
 			path = CardDetail;
@@ -435,6 +440,7 @@
 				8D8E40842046C7B2002E6266 /* TLVExtentions.swift */,
 				8D8E40862046C8F7002E6266 /* TLVUtils.swift */,
 				8D4B4A35205FA0130094E712 /* TLV.swift */,
+				8000364321069C8E00C151E8 /* FontsExtensions.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -754,16 +760,18 @@
 				8D2B2BE220850A5300E0AFA9 /* recovery.swift in Sources */,
 				8D2B2C1220850AC300E0AFA9 /* ecmult.swift in Sources */,
 				8D4B4A2F205F8A790094E712 /* Base58.swift in Sources */,
-				8D899FC120247799006131E0 /* CardViewController.swift in Sources */,
+				8D899FC120247799006131E0 /* OldCardViewController.swift in Sources */,
 				8D2B2BDC20850A4400E0AFA9 /* scalar_8x32.swift in Sources */,
 				8D2B2BFA20850A9300E0AFA9 /* hash_impl.swift in Sources */,
 				8D2B2BDF20850A4A00E0AFA9 /* scalar_8x32_impl.swift in Sources */,
 				8D03610520230D4C00F13A39 /* InvalidTableViewCell.swift in Sources */,
+				80C5257C2106923100754961 /* CardViewController.swift in Sources */,
 				8D2B2C0920850AB000E0AFA9 /* field_10x26.swift in Sources */,
 				8D2B2C1820850AD400E0AFA9 /* ecmult_impl.swift in Sources */,
 				8D2B2BFD20850A9900E0AFA9 /* group.swift in Sources */,
 				8D0361032023042000F13A39 /* ValidTableViewCell.swift in Sources */,
 				8D2B2C2420850AEB00E0AFA9 /* eckey_impl.swift in Sources */,
+				8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */,
 				8D2D4EAF209098B400C97D7E /* util.swift in Sources */,
 				8D2B2C0F20850ABC00E0AFA9 /* field_10x26_impl.swift in Sources */,
 				8D8E40852046C7B2002E6266 /* TLVExtentions.swift in Sources */,
