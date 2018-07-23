@@ -9,34 +9,35 @@
 import UIKit
 
 class ReaderViewController: UIViewController {
+
+    @IBOutlet weak var techImageView: UIImageView! {
+        didSet {
+            techImageView.layer.cornerRadius = techImageView.frame.width / 2.0
+        }
+    }
     
-    var cardList = [Card]()
+    @IBOutlet weak var scanImageView: UIImageView! {
+        didSet {
+            scanImageView.layer.cornerRadius = scanImageView.frame.width / 2.0
+        }
+    }
+    
     let helper = NFCHelper()
-    
-    lazy var cardParser: CardParser = {
-       return CardParser(delegate: self)
-    }()
+    let cardParser = CardParser()
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
-        self.navigationController?.navigationBar.barTintColor = UIColor(red:0.0074375583790242672, green: 0.24186742305755615, blue: 0.4968341588973999, alpha: 1)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        helper.onNFCResult = onNFCResult(success:msg:)
-        helper.restartSession()
+        self.cardParser.delegate = self
+        self.helper.delegate = self
     }
     
     @IBAction func readNFC(_ sender: Any) {
-        helper.onNFCResult = onNFCResult(success:msg:)
-        helper.restartSession()
+        
         
         #if targetEnvironment(simulator)
 //            self.cardParser.parse(payload: TestData.seed.rawValue)
@@ -46,14 +47,7 @@ class ReaderViewController: UIViewController {
     }
     
     func onNFCResult(success: Bool, msg: String) {
-        DispatchQueue.main.async {
-            guard success else {
-                print("\(msg)")
-                return
-            }
-            
-            self.cardParser.parse(payload: msg)
-        }
+        
     }
 
     func showCardDetailsWith(card: Card) {
@@ -65,20 +59,44 @@ class ReaderViewController: UIViewController {
         nextViewController.cardDetails = card
         self.navigationController?.pushViewController(nextViewController, animated: true)
     }
+    
+    // MARK: Actions
+    
+    @IBAction func scanButtonPressed(_ sender: Any) {
+        self.helper.restartSession()
+    }
+    
+    @IBAction func techButtonPressed(_ sender: Any) {
+        
+    }
+    
+}
 
+extension ReaderViewController: NFCHelperDelegate {
+    
+    func nfcHelper(_ helper: NFCHelper, didInvalidateWith error: Error) {
+        print("\(error.localizedDescription)")
+    }
+    
+    func nfcHelper(_ helper: NFCHelper, didDetectCardWith hexPayload: String) {
+        DispatchQueue.main.async {
+            self.cardParser.parse(payload: hexPayload)
+        }
+    }
+    
 }
 
 extension ReaderViewController: CardParserDelegate {
     
     func cardParserWrongTLV(_ parser: CardParser) {
-        let validationAlert = UIAlertController(title: "Failed to parse data received from the banknote", message: "", preferredStyle: .alert)
+        let validationAlert = UIAlertController(title: "Error", message: "Failed to parse data received from the banknote", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
     
     func cardParserLockedCard(_ parser: CardParser) {
-        print("Card is locked, two first bytes are equel 0x6A86")
-        let validationAlert = UIAlertController(title: "This app can’t read protected Tangem banknotes", message: "", preferredStyle: .alert)
+        print("Card is locked, two first bytes are equal 0x6A86")
+        let validationAlert = UIAlertController(title: "Info", message: "This app can’t read protected Tangem banknotes", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
