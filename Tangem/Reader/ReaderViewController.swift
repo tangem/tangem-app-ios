@@ -40,7 +40,7 @@ class ReaderViewController: UIViewController {
         
         #if targetEnvironment(simulator)
 //            self.cardParser.parse(payload: TestData.seed.rawValue)
-            self.cardParser.parse(payload: TestData.ethWallet.rawValue)
+            self.cardParser.parse(payload: TestData.seed.rawValue)
 //            self.cardParser.parse(payload: TestData.ert.rawValue)
         #endif
     }
