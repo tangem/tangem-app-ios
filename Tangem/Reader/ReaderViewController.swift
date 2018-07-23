@@ -39,11 +39,7 @@ class ReaderViewController: UIViewController {
     @IBAction func readNFC(_ sender: Any) {
         
         
-        #if targetEnvironment(simulator)
-//            self.cardParser.parse(payload: TestData.seed.rawValue)
-            self.cardParser.parse(payload: TestData.seed.rawValue)
-//            self.cardParser.parse(payload: TestData.ert.rawValue)
-        #endif
+        
     }
     
     func onNFCResult(success: Bool, msg: String) {
@@ -63,7 +59,29 @@ class ReaderViewController: UIViewController {
     // MARK: Actions
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        #if targetEnvironment(simulator)
+        self.showSimulationSheet()
+        #else
         self.helper.restartSession()
+        #endif
+    }
+    
+    func showSimulationSheet() {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let seedAction = UIAlertAction(title: "SEED", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.seed.rawValue)
+        }
+        let ethAction = UIAlertAction(title: "ETH", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.ethWallet.rawValue)
+        }
+        let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.ert.rawValue)
+        }
+        alertController.addAction(seedAction)
+        alertController.addAction(ethAction)
+        alertController.addAction(ertAction)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
     
     @IBAction func techButtonPressed(_ sender: Any) {
