@@ -301,7 +301,7 @@ extension BalanceService {
                 let price_usd = (card.mult as NSString).doubleValue
                 let satoshi = Double(card.value)
                 
-                let first = satoshi / 100000.0
+                let first = satoshi / 100000000.0
                 card.walletValue = self.balanceFormatter.string(from: NSNumber(value: first))!
                 
                 let second = price_usd / 1000.0
