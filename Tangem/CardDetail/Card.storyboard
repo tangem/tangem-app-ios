@@ -54,7 +54,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8h0-va-gdg" userLabel="Card Title">
-                                        <rect key="frame" x="0.0" y="65" width="375" height="84"/>
+                                        <rect key="frame" x="0.0" y="65" width="375" height="54"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Balance" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hSh-hj-lAs">
                                                 <rect key="frame" x="7" y="18" width="82.5" height="26"/>
@@ -75,14 +75,14 @@
                                                     <constraint firstAttribute="width" constant="43" id="T7l-hJ-BiH"/>
                                                 </constraints>
                                             </imageView>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="≈" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="szw-Gr-cEx">
+                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="≈" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="szw-Gr-cEx">
                                                 <rect key="frame" x="104" y="49" width="14" height="21"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="USD 128,76" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r5S-qc-dK3">
+                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="USD 128,76" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r5S-qc-dK3">
                                                 <rect key="frame" x="120" y="50" width="190" height="21"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="17"/>
@@ -95,7 +95,7 @@
                                             <constraint firstItem="Ham-p7-LCe" firstAttribute="leading" secondItem="8h0-va-gdg" secondAttribute="leading" constant="100" id="HyU-t9-XF8"/>
                                             <constraint firstAttribute="trailing" secondItem="8y1-7e-D3e" secondAttribute="trailing" constant="10" id="Mby-lc-arD"/>
                                             <constraint firstAttribute="trailing" secondItem="Ham-p7-LCe" secondAttribute="trailing" constant="20" id="Rtj-48-DhD"/>
-                                            <constraint firstAttribute="height" constant="84" id="VgZ-8C-eb1"/>
+                                            <constraint firstAttribute="height" constant="54" id="VgZ-8C-eb1"/>
                                             <constraint firstItem="8y1-7e-D3e" firstAttribute="top" secondItem="8h0-va-gdg" secondAttribute="top" constant="10" id="ZZy-O7-KY5"/>
                                             <constraint firstItem="hSh-hj-lAs" firstAttribute="top" secondItem="8h0-va-gdg" secondAttribute="top" constant="18" id="cN8-Di-GyL"/>
                                             <constraint firstItem="Ham-p7-LCe" firstAttribute="top" secondItem="8h0-va-gdg" secondAttribute="top" constant="16" id="eaC-uM-ffs"/>
@@ -103,9 +103,9 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rY7-X0-qdb" userLabel="Blockchain">
-                                        <rect key="frame" x="0.0" y="149" width="375" height="35"/>
+                                        <rect key="frame" x="0.0" y="119" width="375" height="35"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Bockchain" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4SB-nT-Rjz">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Blockchain" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4SB-nT-Rjz">
                                                 <rect key="frame" x="7" y="5" width="85" height="21"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <fontDescription key="fontDescription" name="Raleway-Regular" family="Raleway" pointSize="15"/>
@@ -126,7 +126,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fQn-8O-58z" userLabel="Wallet">
-                                        <rect key="frame" x="0.0" y="184" width="375" height="31"/>
+                                        <rect key="frame" x="0.0" y="154" width="375" height="31"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="mtvuFVeN3HdvKSna8gCdyo78RfqY51HAmp" textAlignment="center" lineBreakMode="characterWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bH0-6Z-TEq">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="31"/>
@@ -158,7 +158,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="H4W-UK-0Vl" userLabel="QR Code">
-                                        <rect key="frame" x="0.0" y="215" width="375" height="220"/>
+                                        <rect key="frame" x="0.0" y="185" width="375" height="220"/>
                                         <subviews>
                                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5Qq-Ny-TNz">
                                                 <rect key="frame" x="92.5" y="13" width="190" height="190"/>
@@ -198,7 +198,7 @@
                                         </constraints>
                                     </view>
                                     <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qbk-ie-oCB" userLabel="Card Info">
-                                        <rect key="frame" x="0.0" y="455" width="375" height="150"/>
+                                        <rect key="frame" x="0.0" y="425" width="375" height="150"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Issuer" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZTn-A5-oo7">
                                                 <rect key="frame" x="7" y="0.0" width="105" height="21"/>
@@ -291,7 +291,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vqh-cZ-7E0" userLabel="CardID">
-                                        <rect key="frame" x="0.0" y="605" width="375" height="31"/>
+                                        <rect key="frame" x="0.0" y="575" width="375" height="31"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Card Information" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="t0d-it-mZL">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="31"/>
@@ -310,7 +310,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sUo-eX-JJF" userLabel="Card Number">
-                                        <rect key="frame" x="0.0" y="646" width="375" height="45"/>
+                                        <rect key="frame" x="0.0" y="616" width="375" height="45"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BB00 0172 9171 9236" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pee-u9-pWb">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="24.5"/>
@@ -328,7 +328,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nCX-Qx-HdP" userLabel="Issuer">
-                                        <rect key="frame" x="0.0" y="706" width="375" height="80"/>
+                                        <rect key="frame" x="0.0" y="676" width="375" height="80"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9vw-Jf-w3h" userLabel="Issuer Title">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="31"/>
@@ -421,7 +421,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZRb-sf-KBz" userLabel="Manufacturer">
-                                        <rect key="frame" x="0.0" y="816" width="375" height="110"/>
+                                        <rect key="frame" x="0.0" y="786" width="375" height="110"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fPe-0W-G7e" userLabel="Manufacturer Title">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="31"/>
