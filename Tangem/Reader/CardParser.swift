@@ -148,7 +148,7 @@ class CardParser: Any {
                 card.btcAddressMain = addr[0]
                 card.btcAddressTest = addr[1]
             }
-            card.walletUnits = "mBTC"
+            card.walletUnits = "BTC"
             if !card.isTestNet {
                 card.address = card.btcAddressMain
                 card.link = Links.bitcoinMainLink + card.address
