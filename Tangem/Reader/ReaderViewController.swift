@@ -48,7 +48,7 @@ class ReaderViewController: UIViewController {
 
     func showCardDetailsWith(card: Card) {
         let storyBoard = UIStoryboard(name: "Card", bundle: nil)
-        guard let nextViewController = storyBoard.instantiateViewController(withIdentifier: "CardViewController") as? CardViewController else {
+        guard let nextViewController = storyBoard.instantiateViewController(withIdentifier: "CardDetailsViewController") as? CardDetailsViewController else {
             return
         }
         
