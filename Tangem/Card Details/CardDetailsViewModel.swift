@@ -10,7 +10,13 @@ import UIKit
 
 class CardDetailsViewModel: NSObject {
     
+    // MARK: Image Views
+    
+    @IBOutlet weak var qrCodeImageView: UIImageView!
+    @IBOutlet weak var balanceVefificationIconImageView: UIImageView!
     @IBOutlet weak var cardImageView: UIImageView!
+    
+    // MARK: Labels
     
     @IBOutlet weak var balanceLabel: UILabel! {
         didSet {
@@ -35,13 +41,13 @@ class CardDetailsViewModel: NSObject {
         }
     }
     
-    @IBOutlet weak var qrCodeImageView: UIImageView!
-    
     @IBOutlet weak var walletAddressLabel: UILabel! {
         didSet {
             walletAddressLabel.font = UIFont.tgm_maaxFontWith(size: 14, weight: .medium)
         }
     }
+    
+    // MARK: Buttons
     
     @IBOutlet weak var loadButton: UIButton! {
         didSet {
@@ -80,5 +86,9 @@ class CardDetailsViewModel: NSObject {
             copyButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
         }
     }
+    
+    // MARK: Other
+    
+    @IBOutlet weak var balanceVerificationActivityIndicator: UIActivityIndicatorView!
     
 }
