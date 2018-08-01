@@ -54,13 +54,27 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="VAO-g0-gA5">
+                                                <rect key="frame" x="147" y="37" width="20" height="20"/>
+                                            </activityIndicatorView>
+                                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vfM-lN-4Pr">
+                                                <rect key="frame" x="164" y="-5" width="25" height="25"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="25" id="2YR-YP-QMB"/>
+                                                    <constraint firstAttribute="width" constant="25" id="MDL-m6-x8X"/>
+                                                </constraints>
+                                            </imageView>
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
+                                            <constraint firstItem="OXE-6A-lHc" firstAttribute="trailing" secondItem="vfM-lN-4Pr" secondAttribute="trailing" constant="-30" id="D7v-2Y-yEp"/>
                                             <constraint firstAttribute="bottom" secondItem="FF6-9W-3kh" secondAttribute="bottom" id="NO2-ac-80k"/>
                                             <constraint firstItem="OXE-6A-lHc" firstAttribute="leading" secondItem="oFz-2Y-wgy" secondAttribute="trailing" constant="14" id="QFY-2Q-ZhC"/>
+                                            <constraint firstItem="VAO-g0-gA5" firstAttribute="centerY" secondItem="FF6-9W-3kh" secondAttribute="centerY" id="YJR-c9-smJ"/>
                                             <constraint firstItem="oFz-2Y-wgy" firstAttribute="leading" secondItem="uei-9H-Dqj" secondAttribute="leading" id="YXe-YN-oc9"/>
                                             <constraint firstItem="OXE-6A-lHc" firstAttribute="bottom" secondItem="oFz-2Y-wgy" secondAttribute="bottom" constant="-2" id="gTt-Ip-K5g"/>
+                                            <constraint firstItem="vfM-lN-4Pr" firstAttribute="top" secondItem="uei-9H-Dqj" secondAttribute="top" constant="-5" id="jKg-4l-sYN"/>
+                                            <constraint firstItem="VAO-g0-gA5" firstAttribute="leading" secondItem="FF6-9W-3kh" secondAttribute="trailing" constant="5" id="kOo-Tm-3mu"/>
                                             <constraint firstAttribute="trailing" secondItem="OXE-6A-lHc" secondAttribute="trailing" id="q8u-79-97a"/>
                                             <constraint firstItem="FF6-9W-3kh" firstAttribute="centerX" secondItem="uei-9H-Dqj" secondAttribute="centerX" id="qcf-bk-c9T"/>
                                             <constraint firstItem="oFz-2Y-wgy" firstAttribute="top" secondItem="uei-9H-Dqj" secondAttribute="top" id="rXu-tE-aol"/>
@@ -268,6 +282,8 @@
                 <customObject id="IUA-TQ-Kd3" customClass="CardDetailsViewModel" customModule="Tangem" customModuleProvider="target">
                     <connections>
                         <outlet property="balanceLabel" destination="oFz-2Y-wgy" id="968-c4-anA"/>
+                        <outlet property="balanceVefificationIconImageView" destination="vfM-lN-4Pr" id="10f-WZ-giW"/>
+                        <outlet property="balanceVerificationActivityIndicator" destination="VAO-g0-gA5" id="xc3-Kq-PfF"/>
                         <outlet property="balanceVerificationLabel" destination="FF6-9W-3kh" id="jFM-Pz-bhv"/>
                         <outlet property="cardImageView" destination="vgg-PE-syF" id="Qrf-L7-UJp"/>
                         <outlet property="copyButton" destination="jVZ-aM-qHX" id="8w0-Jg-1lX"/>
