@@ -27,14 +27,14 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="card_btc001_s" translatesAutoresizingMaskIntoConstraints="NO" id="vgg-PE-syF">
-                                        <rect key="frame" x="37" y="74" width="300" height="160"/>
+                                        <rect key="frame" x="37" y="40" width="300" height="160"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="300" id="Ftw-AS-4Xb"/>
                                             <constraint firstAttribute="height" constant="160" id="vw2-fC-e9K"/>
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uei-9H-Dqj">
-                                        <rect key="frame" x="108" y="287" width="159" height="55"/>
+                                        <rect key="frame" x="108" y="253" width="159" height="55"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bitcoin" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OXE-6A-lHc">
                                                 <rect key="frame" x="113" y="10" width="46" height="17"/>
@@ -82,13 +82,13 @@
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="45% safe. Potential unsent transactions. Extract immediately if accepting from someone else." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8IG-kE-RVU">
-                                        <rect key="frame" x="22" y="372" width="331" height="29"/>
+                                        <rect key="frame" x="22" y="338" width="331" height="29"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="urx-lf-qZ1">
-                                        <rect key="frame" x="54.5" y="467" width="265" height="89"/>
+                                        <rect key="frame" x="54.5" y="433" width="265" height="89"/>
                                         <subviews>
                                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9Eu-SO-21M">
                                                 <rect key="frame" x="0.0" y="0.0" width="89" height="89"/>
@@ -176,13 +176,13 @@
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="16t433L6C9g7AHmopPkrmjLEhLyGJF26G9" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Yp-7Z-uw0">
-                                        <rect key="frame" x="73" y="585" width="229" height="33.5"/>
+                                        <rect key="frame" x="73" y="551" width="229" height="33.5"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="5pd-nS-j4U">
-                                        <rect key="frame" x="20" y="663" width="335" height="60"/>
+                                        <rect key="frame" x="20" y="629" width="335" height="60"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="y7C-IT-DFE">
                                                 <rect key="frame" x="0.0" y="0.0" width="160" height="60"/>
@@ -212,22 +212,22 @@
                                         </constraints>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="yPP-d2-WIV">
-                                        <rect key="frame" x="40" y="743" width="295" height="30"/>
+                                        <rect key="frame" x="40" y="709" width="295" height="30"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VFt-01-uLn">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VFt-01-uLn">
                                                 <rect key="frame" x="0.0" y="0.0" width="147.5" height="30"/>
-                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
-                                                <state key="normal" title="Scan">
+                                                <inset key="imageEdgeInsets" minX="-10" minY="0.0" maxX="10" maxY="0.0"/>
+                                                <state key="normal" title="Scan" image="icon-scan-small">
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
                                                     <action selector="scanButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="RZS-EJ-MZL"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QGc-T8-9vn">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QGc-T8-9vn">
                                                 <rect key="frame" x="147.5" y="0.0" width="147.5" height="30"/>
-                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
-                                                <state key="normal" title="Settings">
+                                                <inset key="imageEdgeInsets" minX="-10" minY="0.0" maxX="10" maxY="0.0"/>
+                                                <state key="normal" title="Settings" image="icon-tech-small">
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
@@ -257,7 +257,7 @@
                                     <constraint firstItem="5pd-nS-j4U" firstAttribute="top" secondItem="0Yp-7Z-uw0" secondAttribute="bottom" constant="45" id="alR-e8-p8U"/>
                                     <constraint firstItem="yPP-d2-WIV" firstAttribute="leading" secondItem="Avd-ez-2CK" secondAttribute="leading" constant="40" id="b0H-su-uYa"/>
                                     <constraint firstItem="uei-9H-Dqj" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="dXg-tv-JKl"/>
-                                    <constraint firstItem="vgg-PE-syF" firstAttribute="top" secondItem="Avd-ez-2CK" secondAttribute="top" constant="74" id="eo1-FC-u5I"/>
+                                    <constraint firstItem="vgg-PE-syF" firstAttribute="top" secondItem="Avd-ez-2CK" secondAttribute="top" constant="40" id="eo1-FC-u5I"/>
                                     <constraint firstItem="0Yp-7Z-uw0" firstAttribute="leading" secondItem="Avd-ez-2CK" secondAttribute="leading" constant="73" id="hnO-6Y-u62"/>
                                     <constraint firstAttribute="trailing" secondItem="8IG-kE-RVU" secondAttribute="trailing" constant="22" id="m2X-1m-2g8"/>
                                     <constraint firstItem="yPP-d2-WIV" firstAttribute="top" secondItem="5pd-nS-j4U" secondAttribute="bottom" constant="20" id="x6E-Zj-PZs"/>
@@ -437,5 +437,7 @@
         <image name="card_btc001_s" width="362" height="202"/>
         <image name="icon-copy" width="22" height="29"/>
         <image name="icon-explore" width="28" height="28"/>
+        <image name="icon-scan-small" width="15" height="22"/>
+        <image name="icon-tech-small" width="20" height="20"/>
     </resources>
 </document>

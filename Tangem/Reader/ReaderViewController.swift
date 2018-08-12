@@ -22,6 +22,18 @@ class ReaderViewController: UIViewController {
         }
     }
     
+    @IBOutlet weak var scanLabel: UILabel! {
+        didSet {
+            scanLabel.font = UIFont.tgm_maaxFontWith(size: 16.0, weight: .medium)
+        }
+    }
+    
+    @IBOutlet weak var techLabel: UILabel! {
+        didSet {
+            techLabel.font = UIFont.tgm_maaxFontWith(size: 16.0, weight: .medium)
+        }
+    }
+    
     let helper = NFCHelper()
     let cardParser = CardParser()
     
@@ -34,16 +46,6 @@ class ReaderViewController: UIViewController {
         
         self.cardParser.delegate = self
         self.helper.delegate = self
-    }
-    
-    @IBAction func readNFC(_ sender: Any) {
-        
-        
-        
-    }
-    
-    func onNFCResult(success: Bool, msg: String) {
-        
     }
 
     func showCardDetailsWith(card: Card) {
