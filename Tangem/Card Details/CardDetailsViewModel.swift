@@ -53,6 +53,11 @@ class CardDetailsViewModel: NSObject {
         didSet {
             loadButton.layer.cornerRadius = 30.0
             loadButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
+            
+            loadButton.layer.shadowRadius = 5.0
+            loadButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+            loadButton.layer.shadowColor = UIColor.black.cgColor
+            loadButton.layer.shadowOpacity = 0.3
         }
     }
     
@@ -60,6 +65,11 @@ class CardDetailsViewModel: NSObject {
         didSet {
             extractButton.layer.cornerRadius = 30.0
             extractButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
+            
+            extractButton.layer.shadowRadius = 5.0
+            extractButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+            extractButton.layer.shadowColor = UIColor.black.cgColor
+            extractButton.layer.shadowOpacity = 0.3
         }
     }
     
