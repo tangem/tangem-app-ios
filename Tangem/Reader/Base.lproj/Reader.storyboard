@@ -114,7 +114,9 @@
                     </navigationItem>
                     <connections>
                         <outlet property="scanImageView" destination="PSC-JF-t1r" id="rJ4-gZ-FwL"/>
+                        <outlet property="scanLabel" destination="wWg-Kl-I61" id="5zk-ha-xwN"/>
                         <outlet property="techImageView" destination="0Hl-jL-XF7" id="oGm-iZ-vU7"/>
+                        <outlet property="techLabel" destination="ham-ee-5Xa" id="5so-I4-Kq5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
