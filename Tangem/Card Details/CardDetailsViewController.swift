@@ -17,9 +17,25 @@ class CardDetailsViewController: UIViewController {
     
     var customPresentationController: CustomPresentationController?
     
+    let operationQueue = OperationQueue()
+    
+    let helper = NFCHelper()
+    let cardParser = CardParser()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.cardParser.delegate = self
+        self.helper.delegate = self
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        setupWithCardDetails()
+    }
+    
+    func setupWithCardDetails() {
         setupUI()
         getBalance()
         setupBalanceVerified(false)
@@ -52,16 +68,14 @@ class CardDetailsViewController: UIViewController {
             return
         }
         
-        // [REDACTED_TODO_COMMENT]
-        DispatchQueue.global(qos: .background).async {
-            
-            let result = verify(saltHex: cardDetails.salt, challengeHex: cardDetails.challenge, signatureArr: cardDetails.signArr, publicKeyArr: cardDetails.pubArr)
-            
-            DispatchQueue.main.async {
-                self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
-                self.setupBalanceVerified(result)
-            }
+        self.viewModel.balanceVerificationActivityIndicator.startAnimating()
+        
+        let balanceVerificationOperation = BalanceVerificationOperation(saltHex: cardDetails.salt, challengeHex: cardDetails.challenge, signatureArr: cardDetails.signArr, publicKeyArr: cardDetails.pubArr) { (result) in
+            self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
+            self.setupBalanceVerified(result)
         }
+        
+        self.operationQueue.addOperation(balanceVerificationOperation)
     }
     
     func setupBalanceVerified(_ verified: Bool) {
@@ -86,6 +100,8 @@ class CardDetailsViewController: UIViewController {
             }
             
             self.cardDetails = card
+            self.viewModel.balanceLabel.text = card.walletValue + " " + card.walletUnits
+            
             self.verifyBalance()
         }
         
@@ -129,19 +145,75 @@ class CardDetailsViewController: UIViewController {
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
         viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: self.view.frame.height - 200)
-        //        viewController.delegate = self
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
-        
-        
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
-        
+        #if targetEnvironment(simulator)
+        self.showSimulationSheet()
+        #else
+        self.helper.restartSession()
+        #endif
     }
     
     @IBAction func settingsButtonPressed(_ sender: Any) {
         
     }
     
+    func showSimulationSheet() {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let seedAction = UIAlertAction(title: "SEED", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.seed.rawValue)
+        }
+        let ethAction = UIAlertAction(title: "ETH", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.ethWallet.rawValue)
+        }
+        let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.ert.rawValue)
+        }
+        alertController.addAction(seedAction)
+        alertController.addAction(ethAction)
+        alertController.addAction(ertAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+}
+
+extension CardDetailsViewController: NFCHelperDelegate {
+    
+    func nfcHelper(_ helper: NFCHelper, didInvalidateWith error: Error) {
+        print("\(error.localizedDescription)")
+    }
+    
+    func nfcHelper(_ helper: NFCHelper, didDetectCardWith hexPayload: String) {
+        DispatchQueue.main.async {
+            self.cardParser.parse(payload: hexPayload)
+        }
+    }
+    
+}
+
+extension CardDetailsViewController: CardParserDelegate {
+    
+    func cardParserWrongTLV(_ parser: CardParser) {
+        let validationAlert = UIAlertController(title: "Error", message: "Failed to parse data received from the banknote", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(validationAlert, animated: true, completion: nil)
+    }
+    
+    func cardParserLockedCard(_ parser: CardParser) {
+        print("Card is locked, two first bytes are equal 0x6A86")
+        let validationAlert = UIAlertController(title: "Info", message: "This app can’t read protected Tangem banknotes", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(validationAlert, animated: true, completion: nil)
+    }
+    
+    func cardParser(_ parser: CardParser, didFinishWith card: Card) {
+        operationQueue.cancelAllOperations()
+        
+        cardDetails = card
+        setupWithCardDetails()
+    }
 }
