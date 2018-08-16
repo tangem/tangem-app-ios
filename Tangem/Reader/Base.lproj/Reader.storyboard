@@ -18,6 +18,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="reader-background" translatesAutoresizingMaskIntoConstraints="NO" id="KFz-P9-Itw">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="625"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="KFz-P9-Itw" secondAttribute="height" multiplier="6:10" id="6LT-Yb-2rH"/>
+                                </constraints>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BcO-0h-fMV">
+                                <rect key="frame" x="0.0" y="321" width="375" height="304"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="304" id="yLc-Hf-GSR"/>
+                                </constraints>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cBZ-jy-jb6">
                                 <rect key="frame" x="73.5" y="446" width="227" height="125"/>
                                 <subviews>
@@ -100,7 +113,13 @@
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="cBZ-jy-jb6" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="52l-Bq-B09"/>
+                            <constraint firstItem="KFz-P9-Itw" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="GXL-Lu-LNm"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="cBZ-jy-jb6" secondAttribute="bottom" constant="96" id="QHH-q0-x6w"/>
+                            <constraint firstItem="BcO-0h-fMV" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="Yxb-dP-zuj"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="KFz-P9-Itw" secondAttribute="trailing" id="dGG-Sd-v4c"/>
+                            <constraint firstItem="BcO-0h-fMV" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="nZU-zG-rgV"/>
+                            <constraint firstItem="BcO-0h-fMV" firstAttribute="bottom" secondItem="KFz-P9-Itw" secondAttribute="bottom" id="s2j-E4-BR7"/>
+                            <constraint firstItem="KFz-P9-Itw" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="wGH-UG-FgH"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -113,6 +132,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="gradientView" destination="BcO-0h-fMV" id="ReC-FN-uzC"/>
                         <outlet property="scanImageView" destination="PSC-JF-t1r" id="rJ4-gZ-FwL"/>
                         <outlet property="scanLabel" destination="wWg-Kl-I61" id="5zk-ha-xwN"/>
                         <outlet property="techImageView" destination="0Hl-jL-XF7" id="oGm-iZ-vU7"/>
@@ -144,5 +164,6 @@
     <resources>
         <image name="icon-scan" width="22" height="33"/>
         <image name="icon-tech" width="25" height="26"/>
+        <image name="reader-background" width="1125" height="1866"/>
     </resources>
 </document>
