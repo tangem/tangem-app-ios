@@ -34,6 +34,18 @@ class ReaderViewController: UIViewController {
         }
     }
     
+    @IBOutlet weak var gradientView: UIView! {
+        didSet {
+            let gradientLayer = CAGradientLayer()
+            gradientLayer.frame = gradientView.frame
+            gradientLayer.startPoint = CGPoint(x: 0.5, y: 1)
+            gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
+            gradientLayer.colors = [UIColor.black.cgColor, UIColor.clear.cgColor]
+            
+            gradientView.layer.addSublayer(gradientLayer)
+        }
+    }
+    
     let helper = NFCHelper()
     let cardParser = CardParser()
     
@@ -46,6 +58,12 @@ class ReaderViewController: UIViewController {
         
         self.cardParser.delegate = self
         self.helper.delegate = self
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        gradientView.layer.sublayers?.forEach({ $0.frame = gradientView.bounds })
     }
 
     func showCardDetailsWith(card: Card) {
