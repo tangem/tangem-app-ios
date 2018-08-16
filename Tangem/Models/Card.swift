@@ -31,6 +31,7 @@ struct Card {
     var blockchainName: String = ""
     var issuer: String = ""
     var manufactureDateTime: String = ""
+    var batchId: Int = 0x0
     var remainingSignatures:  String = ""
     var type: WalletType = .empty
     var isTestNet = false
@@ -62,6 +63,23 @@ struct Card {
     
     // Default value
     var ribbonCase: Int = 0
+    
+    var imageName: String {
+        switch batchId {
+        case 0x0004:
+            return "card-btc001"
+        case 0x0010:
+            return "card-btc005"
+        case 0x0012:
+            return "card-seed"
+        case 0x0017:
+            return "card-qlean"
+        case 0x0019:
+            return "card-cyclebit"
+        default:
+            return "card-btc001"
+        }
+    }
     
     /*
      1 - Firmware contains simbol 'd'
