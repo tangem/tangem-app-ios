@@ -48,7 +48,7 @@ class CardDetailsViewController: UIViewController {
         }
         
         self.viewModel.walletBlockchainLabel.text = cardDetails.blockchain
-        self.viewModel.walletAddressLabel.text = cardDetails.address
+        self.viewModel.updateWalletAddress(cardDetails.address) 
         
         var blockchainName = String()
         if cardDetails.type == .btc {
@@ -62,6 +62,8 @@ class CardDetailsViewController: UIViewController {
         self.viewModel.qrCodeImageView.image = qrCodeResult?.image
         
         self.viewModel.cardImageView.image = UIImage(named: cardDetails.imageName)
+        
+        self.viewModel.updateNetworkSafetyDescription(self.viewModel.networkSafetyDescriptionLabel.text!)
     }
     
     func verifyBalance() {
