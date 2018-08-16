@@ -60,6 +60,8 @@ class CardDetailsViewController: UIViewController {
         var qrCodeResult = QRCode(blockchainName + cardDetails.address)
         qrCodeResult?.size = self.viewModel.qrCodeImageView.frame.size
         self.viewModel.qrCodeImageView.image = qrCodeResult?.image
+        
+        self.viewModel.cardImageView.image = UIImage(named: cardDetails.imageName)
     }
     
     func verifyBalance() {
@@ -163,6 +165,9 @@ class CardDetailsViewController: UIViewController {
     
     func showSimulationSheet() {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let btcAction = UIAlertAction(title: "BTC", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.btcWallet.rawValue)
+        }
         let seedAction = UIAlertAction(title: "SEED", style: .default) { (_) in
             self.cardParser.parse(payload: TestData.seed.rawValue)
         }
@@ -172,6 +177,7 @@ class CardDetailsViewController: UIViewController {
         let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
             self.cardParser.parse(payload: TestData.ert.rawValue)
         }
+        alertController.addAction(btcAction)
         alertController.addAction(seedAction)
         alertController.addAction(ethAction)
         alertController.addAction(ertAction)

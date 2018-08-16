@@ -113,6 +113,9 @@ class CardParser: Any {
             if tlv.tagName == "Manufacture_Date_Time" {
                 card.manufactureDateTime = tlv.stringValue
             }
+            if tlv.tagName == "Batch_ID" {
+                card.batchId = Int(tlv.hexStringValue, radix: 16)!
+            }
             if tlv.tagName == "SignedHashes" {
                 card.signedHashes = tlv.hexStringValue
             }
