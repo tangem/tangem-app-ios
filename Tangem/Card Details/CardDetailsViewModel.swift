@@ -102,3 +102,28 @@ class CardDetailsViewModel: NSObject {
     @IBOutlet weak var balanceVerificationActivityIndicator: UIActivityIndicatorView!
     
 }
+
+extension CardDetailsViewModel {
+    
+    func updateNetworkSafetyDescription(_ text: String) {
+        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 8.0)
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
+                                                                           NSAttributedStringKey.kern : 0.75])
+        networkSafetyDescriptionLabel.attributedText = attributedText
+    }
+    
+    func updateWalletAddress(_ text: String) {
+        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 5.0)
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
+                                                                           NSAttributedStringKey.kern : 0.88])
+        walletAddressLabel.attributedText = attributedText
+    }
+    
+    private func paragraphStyleWith(lineSpacingChange: CGFloat, alignment: NSTextAlignment = .center) -> NSParagraphStyle {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing += lineSpacingChange
+        paragraphStyle.alignment = alignment
+        
+        return paragraphStyle
+    }
+}
