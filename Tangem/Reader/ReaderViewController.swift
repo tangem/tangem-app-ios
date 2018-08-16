@@ -70,6 +70,9 @@ class ReaderViewController: UIViewController {
     
     func showSimulationSheet() {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let btcAction = UIAlertAction(title: "BTC", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.btcWallet.rawValue)
+        }
         let seedAction = UIAlertAction(title: "SEED", style: .default) { (_) in
             self.cardParser.parse(payload: TestData.seed.rawValue)
         }
@@ -79,6 +82,7 @@ class ReaderViewController: UIViewController {
         let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
             self.cardParser.parse(payload: TestData.ert.rawValue)
         }
+        alertController.addAction(btcAction)
         alertController.addAction(seedAction)
         alertController.addAction(ethAction)
         alertController.addAction(ertAction)
