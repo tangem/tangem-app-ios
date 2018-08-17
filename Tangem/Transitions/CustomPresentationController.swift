@@ -46,7 +46,7 @@ class CustomPresentationController: UIPresentationController {
         self.presentationWrappingView = presentationWrapperView
         
         let dimmingView = UIImageView(frame: containerView.bounds)
-        dimmingView.image = self.presentingViewController.view.snapshotImage()?.applyLightEffect()
+        dimmingView.image = self.presentingViewController.view.snapshotImage()?.applyDarkEffect()
         dimmingView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         dimmingView.alpha = 0
         self.dimmingView = dimmingView
@@ -74,11 +74,6 @@ class CustomPresentationController: UIPresentationController {
         presentationRoundedCornerView.addSubview(presentedViewControllerWrapperView)
         
         presentationWrapperView.addSubview(presentationRoundedCornerView)
-        
-        if let dragView = ModalViewControllerDragView.gb_loadFromDefaultNib() {
-            dragView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            self.dragView = dragView
-        }
     }
     
     override func size(forChildContentContainer container: UIContentContainer, withParentContainerSize parentSize: CGSize) -> CGSize {
