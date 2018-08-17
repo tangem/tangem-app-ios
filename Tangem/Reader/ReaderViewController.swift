@@ -100,10 +100,13 @@ class ReaderViewController: UIViewController {
         let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
             self.cardParser.parse(payload: TestData.ert.rawValue)
         }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
         alertController.addAction(btcAction)
         alertController.addAction(seedAction)
         alertController.addAction(ethAction)
         alertController.addAction(ertAction)
+        alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
     }
