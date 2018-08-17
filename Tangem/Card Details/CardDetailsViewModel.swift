@@ -49,6 +49,8 @@ class CardDetailsViewModel: NSObject {
     
     // MARK: Buttons
     
+    @IBOutlet weak var buttonsAvailabilityView: UIView!
+    
     @IBOutlet weak var loadButton: UIButton! {
         didSet {
             loadButton.layer.cornerRadius = 30.0
@@ -57,7 +59,7 @@ class CardDetailsViewModel: NSObject {
             loadButton.layer.shadowRadius = 5.0
             loadButton.layer.shadowOffset = CGSize(width: 0, height: 5)
             loadButton.layer.shadowColor = UIColor.black.cgColor
-            loadButton.layer.shadowOpacity = 0.3
+            loadButton.layer.shadowOpacity = 0.08
         }
     }
     
@@ -69,7 +71,7 @@ class CardDetailsViewModel: NSObject {
             extractButton.layer.shadowRadius = 5.0
             extractButton.layer.shadowOffset = CGSize(width: 0, height: 5)
             extractButton.layer.shadowColor = UIColor.black.cgColor
-            extractButton.layer.shadowOpacity = 0.3
+            extractButton.layer.shadowOpacity = 0.08
         }
     }
     
@@ -117,6 +119,23 @@ extension CardDetailsViewModel {
         let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
                                                                            NSAttributedStringKey.kern : 0.88])
         walletAddressLabel.attributedText = attributedText
+    }
+    
+    func updateWalletBalanceVerification(_ verified: Bool) {
+        let text = verified ? "Verified balance" : "Unverified balance"
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88,
+                                                                           NSAttributedStringKey.foregroundColor : verified ? UIColor.tgm_green() : UIColor.tgm_red()])
+        balanceVerificationLabel.attributedText = attributedText
+    }
+    
+    func updateWalletBalance(_ text: String) {
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.3])
+        balanceLabel.attributedText = attributedText
+    }
+    
+    func updateBlockchainName(_ text: String) {
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88])
+        walletBlockchainLabel.attributedText = attributedText
     }
     
     private func paragraphStyleWith(lineSpacingChange: CGFloat, alignment: NSTextAlignment = .center) -> NSParagraphStyle {
