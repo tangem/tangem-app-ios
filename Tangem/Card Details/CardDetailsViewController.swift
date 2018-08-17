@@ -47,8 +47,8 @@ class CardDetailsViewController: UIViewController {
             return
         }
         
-        self.viewModel.walletBlockchainLabel.text = cardDetails.blockchain
-        self.viewModel.updateWalletAddress(cardDetails.address) 
+        self.viewModel.updateBlockchainName(cardDetails.blockchain)
+        self.viewModel.updateWalletAddress(cardDetails.address)
         
         var blockchainName = String()
         if cardDetails.type == .btc {
@@ -83,8 +83,10 @@ class CardDetailsViewController: UIViewController {
     }
     
     func setupBalanceVerified(_ verified: Bool) {
-        self.viewModel.balanceVerificationLabel.text = verified ? "Verified balance" : "Unverified balance"
-        self.viewModel.balanceVerificationLabel.textColor = verified ? UIColor.green : UIColor.red
+        self.viewModel.updateWalletBalanceVerification(verified)
+        self.viewModel.loadButton.isEnabled = verified
+        self.viewModel.extractButton.isEnabled = verified
+        self.viewModel.buttonsAvailabilityView.isHidden = verified
         let verificationIconName = verified ? "icon-verified" : "icon-unverified"
         self.viewModel.balanceVefificationIconImageView.image = UIImage(named: verificationIconName)
     }
@@ -104,7 +106,7 @@ class CardDetailsViewController: UIViewController {
             }
             
             self.cardDetails = card
-            self.viewModel.balanceLabel.text = card.walletValue + " " + card.walletUnits
+            self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
             
             self.verifyBalance()
         }
@@ -138,19 +140,43 @@ class CardDetailsViewController: UIViewController {
     }
     
     @IBAction func loadButtonPressed(_ sender: Any) {
-        
-    }
-    
-    @IBAction func extractButtonPressed(_ sender: Any) {
-        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: String(describing: ModalActionViewController.self)) else {
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "LoadActionViewController") else {
             return
         }
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: self.view.frame.height - 200)
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(478, self.view.frame.height - 200))
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
+    }
+    
+    @IBAction func extractButtonPressed(_ sender: Any) {
+        let alertController = UIAlertController(title: "Unsupported", message: "Your device does not yet support value extraction from Tangem Notes. For a list of devices please check Tangem compatibility list", preferredStyle: .alert)
+        let compatibilityListAction = UIAlertAction(title: "Compatibility List", style: .default) { (_) in
+            guard let url = URL(string: "https://tangem.com/") else {
+                return
+            }
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alertController.addAction(compatibilityListAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+        
+        /*
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ExtractActionViewController") else {
+            return
+        }
+        
+        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        self.customPresentationController = presentationController
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(536, self.view.frame.height - 200))
+        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
+        */
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
@@ -179,10 +205,12 @@ class CardDetailsViewController: UIViewController {
         let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
             self.cardParser.parse(payload: TestData.ert.rawValue)
         }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         alertController.addAction(btcAction)
         alertController.addAction(seedAction)
         alertController.addAction(ethAction)
         alertController.addAction(ertAction)
+        alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
     }
