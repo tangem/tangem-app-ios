@@ -163,7 +163,7 @@
     </scenes>
     <resources>
         <image name="icon-scan" width="22" height="33"/>
-        <image name="icon-tech" width="25" height="26"/>
+        <image name="icon-tech" width="25" height="25"/>
         <image name="reader-background" width="1125" height="1866"/>
     </resources>
 </document>
