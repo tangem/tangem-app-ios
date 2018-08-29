@@ -128,6 +128,12 @@ extension CardDetailsViewModel {
         balanceVerificationLabel.attributedText = attributedText
     }
     
+    func updateWalletBalanceNoWallet() {
+        let attributedText = NSAttributedString(string: "No wallet", attributes: [NSAttributedStringKey.kern : 0.88,
+                                                                                  NSAttributedStringKey.foregroundColor : UIColor.tgm_red()])
+        balanceVerificationLabel.attributedText = attributedText
+    }
+    
     func updateWalletBalance(_ text: String) {
         let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.3])
         balanceLabel.attributedText = attributedText
