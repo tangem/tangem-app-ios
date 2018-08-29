@@ -91,6 +91,17 @@ class CardDetailsViewController: UIViewController {
         self.viewModel.balanceVefificationIconImageView.image = UIImage(named: verificationIconName)
     }
     
+    func setupBalanceNoWallet() {
+        self.viewModel.updateWalletBalance("--")
+        
+        self.viewModel.updateWalletBalanceNoWallet()
+        self.viewModel.loadButton.isEnabled = false
+        self.viewModel.extractButton.isEnabled = false
+        self.viewModel.buttonsAvailabilityView.isHidden = false
+        
+        self.viewModel.balanceVefificationIconImageView.isHidden = true
+    }
+    
     func getBalance() {
 
         let onResult = { (card: Card) in
@@ -124,6 +135,9 @@ class CardDetailsViewController: UIViewController {
             case .seed:
                 BalanceService.sharedInstance.getBalanceToken(card, onResult: onResult)
             default:
+                DispatchQueue.main.async {
+                    self.setupBalanceNoWallet()
+                }
                 break
             }
         }
@@ -205,11 +219,16 @@ class CardDetailsViewController: UIViewController {
         let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
             self.cardParser.parse(payload: TestData.ert.rawValue)
         }
+        let noWallerAction = UIAlertAction(title: "No wallet", style: .default) { (_) in
+            self.cardParser.parse(payload: TestData.noWallet.rawValue)
+        }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
         alertController.addAction(btcAction)
         alertController.addAction(seedAction)
         alertController.addAction(ethAction)
         alertController.addAction(ertAction)
+        alertController.addAction(noWallerAction)
         alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
