@@ -77,7 +77,7 @@ struct Card {
         case 0x0019:
             return "card-cyclebit"
         default:
-            return "card-btc001"
+            return "card-default"
         }
     }
     
