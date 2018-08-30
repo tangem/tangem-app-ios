@@ -83,23 +83,29 @@ class CardDetailsViewController: UIViewController {
     }
     
     func setupBalanceVerified(_ verified: Bool) {
-        self.viewModel.updateWalletBalanceVerification(verified)
-        self.viewModel.loadButton.isEnabled = verified
-        self.viewModel.extractButton.isEnabled = verified
-        self.viewModel.buttonsAvailabilityView.isHidden = verified
+        viewModel.updateWalletBalanceVerification(verified)
+        viewModel.loadButton.isEnabled = verified
+        viewModel.extractButton.isEnabled = verified
+        viewModel.buttonsAvailabilityView.isHidden = verified
         let verificationIconName = verified ? "icon-verified" : "icon-unverified"
-        self.viewModel.balanceVefificationIconImageView.image = UIImage(named: verificationIconName)
+        viewModel.balanceVefificationIconImageView.image = UIImage(named: verificationIconName)
+        
+        viewModel.exploreButton.isEnabled = true
+        viewModel.copyButton.isEnabled = true
     }
     
     func setupBalanceNoWallet() {
-        self.viewModel.updateWalletBalance("--")
+        viewModel.updateWalletBalance("--")
         
-        self.viewModel.updateWalletBalanceNoWallet()
-        self.viewModel.loadButton.isEnabled = false
-        self.viewModel.extractButton.isEnabled = false
-        self.viewModel.buttonsAvailabilityView.isHidden = false
+        viewModel.updateWalletBalanceNoWallet()
+        viewModel.loadButton.isEnabled = false
+        viewModel.extractButton.isEnabled = false
+        viewModel.buttonsAvailabilityView.isHidden = false
         
-        self.viewModel.balanceVefificationIconImageView.isHidden = true
+        viewModel.balanceVefificationIconImageView.isHidden = true
+        
+        viewModel.exploreButton.isEnabled = false
+        viewModel.copyButton.isEnabled = false
     }
     
     func getBalance() {
@@ -146,11 +152,38 @@ class CardDetailsViewController: UIViewController {
     // MARK: Actions
     
     @IBAction func exploreButtonPressed(_ sender: Any) {
-        
+        if let link = cardDetails?.link, let url = URL(string: link) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
     }
     
+    var dispatchWorkItem: DispatchWorkItem?
+    
     @IBAction func copyButtonPressed(_ sender: Any) {
+        UIPasteboard.general.string = cardDetails?.address
         
+        dispatchWorkItem?.cancel()
+        
+        updateCopyButtonTitleForState(copied: true)
+        dispatchWorkItem = DispatchWorkItem(block: {
+            self.updateCopyButtonTitleForState(copied: false)
+        })
+        
+        guard let dispatchWorkItem = dispatchWorkItem else {
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: dispatchWorkItem)
+    }
+    
+    func updateCopyButtonTitleForState(copied: Bool) {
+        let title = copied ? "Copied!" : "Copy"
+        let color = copied ? UIColor.tgm_green() : UIColor.black
+        
+        UIView.transition(with: viewModel.copyButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
+            self.viewModel.copyButton.setTitle(title.uppercased(), for: .normal)
+            self.viewModel.copyButton.setTitleColor(color, for: .normal)
+        }, completion: nil)
     }
     
     @IBAction func loadButtonPressed(_ sender: Any) {
@@ -272,3 +305,4 @@ extension CardDetailsViewController: CardParserDelegate {
         setupWithCardDetails()
     }
 }
+
