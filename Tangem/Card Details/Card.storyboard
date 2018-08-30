@@ -91,7 +91,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="urx-lf-qZ1">
-                                        <rect key="frame" x="54.5" y="413" width="265" height="89"/>
+                                        <rect key="frame" x="49" y="413" width="276" height="89"/>
                                         <subviews>
                                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9Eu-SO-21M">
                                                 <rect key="frame" x="0.0" y="0.0" width="89" height="89"/>
@@ -101,22 +101,16 @@
                                                 </constraints>
                                             </imageView>
                                             <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="749" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Cy9-QF-q9R">
-                                                <rect key="frame" x="127" y="0.0" width="138" height="89"/>
+                                                <rect key="frame" x="127" y="0.0" width="149" height="89"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tWS-SI-Qqb">
-                                                        <rect key="frame" x="0.0" y="0.0" width="138" height="44.5"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="149" height="44.5"/>
                                                         <subviews>
-                                                            <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-explore" translatesAutoresizingMaskIntoConstraints="NO" id="4YR-ZX-0cJ">
-                                                                <rect key="frame" x="0.0" y="8.5" width="28" height="28"/>
-                                                                <constraints>
-                                                                    <constraint firstAttribute="width" secondItem="4YR-ZX-0cJ" secondAttribute="height" multiplier="1:1" id="DqC-O0-ejX"/>
-                                                                    <constraint firstAttribute="width" constant="28" id="Q1S-Wh-4D3"/>
-                                                                </constraints>
-                                                            </imageView>
-                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XaP-jA-mxL">
-                                                                <rect key="frame" x="43" y="4" width="95" height="36"/>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XaP-jA-mxL">
+                                                                <rect key="frame" x="0.0" y="8" width="149" height="28"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
-                                                                <state key="normal" title="EXPLORE">
+                                                                <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="-10" maxY="0.0"/>
+                                                                <state key="normal" title="EXPLORE" image="icon-explore">
                                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 </state>
                                                                 <connections>
@@ -128,25 +122,17 @@
                                                         <constraints>
                                                             <constraint firstItem="XaP-jA-mxL" firstAttribute="centerY" secondItem="tWS-SI-Qqb" secondAttribute="centerY" id="AKM-bi-ooz"/>
                                                             <constraint firstAttribute="trailing" secondItem="XaP-jA-mxL" secondAttribute="trailing" id="Htj-2d-ZKC"/>
-                                                            <constraint firstItem="XaP-jA-mxL" firstAttribute="leading" secondItem="4YR-ZX-0cJ" secondAttribute="trailing" constant="15" id="Q8o-Fs-9uf"/>
-                                                            <constraint firstItem="4YR-ZX-0cJ" firstAttribute="centerY" secondItem="tWS-SI-Qqb" secondAttribute="centerY" id="ktp-oy-VaM"/>
-                                                            <constraint firstItem="4YR-ZX-0cJ" firstAttribute="leading" secondItem="tWS-SI-Qqb" secondAttribute="leading" id="tNX-bj-s8n"/>
+                                                            <constraint firstItem="XaP-jA-mxL" firstAttribute="leading" secondItem="tWS-SI-Qqb" secondAttribute="leading" id="wsi-bq-uFc"/>
                                                         </constraints>
                                                     </view>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zLY-26-DI3">
-                                                        <rect key="frame" x="0.0" y="44.5" width="138" height="44.5"/>
+                                                        <rect key="frame" x="0.0" y="44.5" width="149" height="44.5"/>
                                                         <subviews>
-                                                            <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-copy" translatesAutoresizingMaskIntoConstraints="NO" id="4kb-SR-6zK">
-                                                                <rect key="frame" x="0.0" y="8.5" width="28" height="28"/>
-                                                                <constraints>
-                                                                    <constraint firstAttribute="width" constant="28" id="I0c-FK-ICK"/>
-                                                                    <constraint firstAttribute="width" secondItem="4kb-SR-6zK" secondAttribute="height" multiplier="1:1" id="KeZ-gI-TK2"/>
-                                                                </constraints>
-                                                            </imageView>
-                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jVZ-aM-qHX">
-                                                                <rect key="frame" x="43" y="4" width="56" height="36"/>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jVZ-aM-qHX">
+                                                                <rect key="frame" x="0.0" y="8" width="149" height="29"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
-                                                                <state key="normal" title="COPY">
+                                                                <inset key="titleEdgeInsets" minX="16" minY="0.0" maxX="-16" maxY="0.0"/>
+                                                                <state key="normal" title="COPY" image="icon-copy">
                                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 </state>
                                                                 <connections>
@@ -156,9 +142,8 @@
                                                         </subviews>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <constraints>
+                                                            <constraint firstAttribute="trailing" secondItem="jVZ-aM-qHX" secondAttribute="trailing" id="YKm-fv-A0f"/>
                                                             <constraint firstItem="jVZ-aM-qHX" firstAttribute="centerY" secondItem="zLY-26-DI3" secondAttribute="centerY" id="Z3Y-gM-UCb"/>
-                                                            <constraint firstItem="4kb-SR-6zK" firstAttribute="centerY" secondItem="zLY-26-DI3" secondAttribute="centerY" id="kSQ-JH-uin"/>
-                                                            <constraint firstItem="4kb-SR-6zK" firstAttribute="leading" secondItem="zLY-26-DI3" secondAttribute="leading" id="wvO-5F-jZo"/>
                                                         </constraints>
                                                     </view>
                                                 </subviews>
@@ -231,7 +216,7 @@
                                                     <action selector="scanButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="RZS-EJ-MZL"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QGc-T8-9vn">
+                                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QGc-T8-9vn">
                                                 <rect key="frame" x="147.5" y="0.0" width="147.5" height="30"/>
                                                 <inset key="imageEdgeInsets" minX="-10" minY="0.0" maxX="10" maxY="0.0"/>
                                                 <state key="normal" title="Tech" image="icon-tech-small">
