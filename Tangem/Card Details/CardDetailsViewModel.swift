@@ -84,18 +84,21 @@ class CardDetailsViewModel: NSObject {
     @IBOutlet weak var settingsButton: UIButton! {
         didSet {
             settingsButton.titleLabel?.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
+            settingsButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
     @IBOutlet weak var exploreButton: UIButton! {
         didSet {
             exploreButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
+            exploreButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
     @IBOutlet weak var copyButton: UIButton! {
         didSet {
             copyButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
+            copyButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
