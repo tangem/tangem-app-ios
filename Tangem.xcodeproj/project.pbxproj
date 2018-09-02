@@ -41,6 +41,7 @@
 		80003683213C6AAF00C151E8 /* ReaderMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */; };
 		80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003684213C73B500C151E8 /* ExtractViewController.swift */; };
 		80003687213C73BC00C151E8 /* LoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003686213C73BC00C151E8 /* LoadViewController.swift */; };
+		8000368B213C9BFC00C151E8 /* QRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */; };
 		803A86F220FB7CA400E19427 /* CardParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParser.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
@@ -166,6 +167,7 @@
 		80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderMoreViewController.swift; sourceTree = "<group>"; };
 		80003684213C73B500C151E8 /* ExtractViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractViewController.swift; sourceTree = "<group>"; };
 		80003686213C73BC00C151E8 /* LoadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadViewController.swift; sourceTree = "<group>"; };
+		8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeViewController.swift; sourceTree = "<group>"; };
 		803A86F120FB7CA400E19427 /* CardParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParser.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 				80003684213C73B500C151E8 /* ExtractViewController.swift */,
 				80003686213C73BC00C151E8 /* LoadViewController.swift */,
 				800036682111060900C151E8 /* ModalActionViewController.swift */,
+				8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */,
 			);
 			path = "Action View Controllers";
 			sourceTree = "<group>";
@@ -742,6 +745,7 @@
 				8D2B2BFA20850A9300E0AFA9 /* hash_impl.swift in Sources */,
 				8D2B2BDF20850A4A00E0AFA9 /* scalar_8x32_impl.swift in Sources */,
 				80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */,
+				8000368B213C9BFC00C151E8 /* QRCodeViewController.swift in Sources */,
 				8000367F2127671700C151E8 /* UIColorExtensions.swift in Sources */,
 				8D2B2C0920850AB000E0AFA9 /* field_10x26.swift in Sources */,
 				8D2B2C1820850AD400E0AFA9 /* ecmult_impl.swift in Sources */,
