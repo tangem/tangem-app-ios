@@ -9,6 +9,8 @@
 import UIKit
 
 class ReaderViewController: UIViewController {
+    
+    var customPresentationController: CustomPresentationController?
 
     @IBOutlet weak var techImageView: UIImageView! {
         didSet {
@@ -115,8 +117,18 @@ class ReaderViewController: UIViewController {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    @IBAction func techButtonPressed(_ sender: Any) {
+    @IBAction func moreButtonPressed(_ sender: Any) {
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ReaderMoreViewController") as? ReaderMoreViewController else {
+            return
+        }
         
+        viewController.contentText = "Tangem for iOS\nVersion \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")!)"
+        
+        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        self.customPresentationController = presentationController
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
+        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
     }
     
 }
