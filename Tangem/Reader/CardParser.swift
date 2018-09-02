@@ -75,6 +75,9 @@ class CardParser: Any {
             if tlv.tagName == "SignedHashes" {
                 card.signedHashes = tlv.hexStringValue
             }
+            if tlv.tagName == "Firmware" {
+                card.firmware = tlv.stringValue
+            }
         }
         
         guard card.isWallet else {
@@ -107,9 +110,6 @@ class CardParser: Any {
             if tlv.tagName == "Issuer_Name" {
                 card.issuer = tlv.stringValue
             }
-            if tlv.tagName == "Firmware" {
-                card.firmware = tlv.stringValue
-            }
             if tlv.tagName == "Manufacture_Date_Time" {
                 card.manufactureDateTime = tlv.stringValue
             }
@@ -126,7 +126,10 @@ class CardParser: Any {
                 card.tokenContractAddress = tlv.stringValue
             }
             if tlv.tagName == "Token_Decimal" {
-                card.tokenDecimal =  Int(tlv.hexStringValue, radix: 16)!
+                card.tokenDecimal = Int(tlv.hexStringValue, radix: 16)!
+            }
+            if tlv.tagName == "Manufacturer_Signature" {
+                card.manufactureSignature = tlv.hexStringValue
             }
             
         }
