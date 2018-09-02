@@ -14,6 +14,7 @@ class CardDetailsViewController: UIViewController {
     @IBOutlet var viewModel: CardDetailsViewModel!
     
     var cardDetails: Card?
+    var isBalanceVerified = false
     
     var customPresentationController: CustomPresentationController?
     
@@ -63,7 +64,7 @@ class CardDetailsViewController: UIViewController {
         
         self.viewModel.cardImageView.image = UIImage(named: cardDetails.imageName)
         
-        self.viewModel.updateNetworkSafetyDescription(self.viewModel.networkSafetyDescriptionLabel.text!)
+//        self.viewModel.updateNetworkSafetyDescription(self.viewModel.networkSafetyDescriptionLabel.text!)
     }
     
     func verifyBalance() {
@@ -83,6 +84,8 @@ class CardDetailsViewController: UIViewController {
     }
     
     func setupBalanceVerified(_ verified: Bool) {
+        isBalanceVerified = verified
+        
         viewModel.updateWalletBalanceVerification(verified)
         viewModel.loadButton.isEnabled = verified
         viewModel.extractButton.isEnabled = verified
@@ -95,6 +98,8 @@ class CardDetailsViewController: UIViewController {
     }
     
     func setupBalanceNoWallet() {
+        isBalanceVerified = false
+        
         viewModel.updateWalletBalance("--")
         
         viewModel.updateWalletBalanceNoWallet()
@@ -187,43 +192,31 @@ class CardDetailsViewController: UIViewController {
     }
     
     @IBAction func loadButtonPressed(_ sender: Any) {
-        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "LoadActionViewController") else {
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "LoadViewController") as? LoadViewController else {
             return
         }
         
+        viewController.cardDetails = cardDetails
+        
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(478, self.view.frame.height - 200))
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
     }
     
     @IBAction func extractButtonPressed(_ sender: Any) {
-        let alertController = UIAlertController(title: "Unsupported", message: "Your device does not yet support value extraction from Tangem Notes. For a list of devices please check Tangem compatibility list", preferredStyle: .alert)
-        let compatibilityListAction = UIAlertAction(title: "Compatibility List", style: .default) { (_) in
-            guard let url = URL(string: "https://tangem.com/") else {
-                return
-            }
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        
-        alertController.addAction(compatibilityListAction)
-        alertController.addAction(cancelAction)
-        
-        self.present(alertController, animated: true, completion: nil)
-        
-        /*
-        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ExtractActionViewController") else {
+
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ExtractViewController") else {
             return
         }
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(536, self.view.frame.height - 200))
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
-        */
+
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
@@ -234,8 +227,28 @@ class CardDetailsViewController: UIViewController {
         #endif
     }
     
-    @IBAction func settingsButtonPressed(_ sender: Any) {
+    @IBAction func moreButtonPressed(_ sender: Any) {
+        guard let cardDetails = cardDetails, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+            return
+        }
         
+        let strings = ["Issuer: \(cardDetails.issuer)",
+            "Manufacturer: \(cardDetails.issuer)",
+            "API node: \(cardDetails.node)",
+            "Challenge: \(cardDetails.challenge)",
+            "Signature: \(isBalanceVerified ? "passed" : "not passed")",
+            "Authenticity: attested",
+            "Firmware: \(cardDetails.firmware)",
+            "Registration date: \(cardDetails.manufactureDateTime)",
+            "Serial: \(cardDetails.cardID)",
+            "Remaining signarures: \(cardDetails.remainingSignatures)"]
+        viewController.contentText = strings.joined(separator: "\n")
+        
+        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        self.customPresentationController = presentationController
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(478, self.view.frame.height - 200))
+        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
     }
     
     func showSimulationSheet() {
