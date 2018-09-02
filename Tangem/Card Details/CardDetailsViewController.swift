@@ -197,6 +197,7 @@ class CardDetailsViewController: UIViewController {
         }
         
         viewController.cardDetails = cardDetails
+        viewController.delegate = self
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
@@ -232,10 +233,18 @@ class CardDetailsViewController: UIViewController {
             return
         }
         
+        let challenge = cardDetails.challenge
+        let saltValue = cardDetails.salt
+        let cardChallenge1 = String(challenge.prefix(3))
+        let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+        let cardChallenge3 = String(saltValue.prefix(3))
+        let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+        let cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+        
         let strings = ["Issuer: \(cardDetails.issuer)",
             "Manufacturer: \(cardDetails.issuer)",
             "API node: \(cardDetails.node)",
-            "Challenge: \(cardDetails.challenge)",
+            "Challenge: \(cardChallenge)",
             "Signature: \(isBalanceVerified ? "passed" : "not passed")",
             "Authenticity: attested",
             "Firmware: \(cardDetails.firmware)",
@@ -317,5 +326,25 @@ extension CardDetailsViewController: CardParserDelegate {
         cardDetails = card
         setupWithCardDetails()
     }
+}
+
+extension CardDetailsViewController: LoadViewControllerDelegate {
+    
+    func loadViewControllerDidCallShowQRCode(_ controller: LoadViewController) {
+        self.dismiss(animated: true) {
+            guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "QRCodeViewController") as? QRCodeViewController else {
+                return
+            }
+            
+            viewController.cardDetails = self.cardDetails
+            
+            let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+            self.customPresentationController = presentationController
+            viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 441)
+            viewController.transitioningDelegate = presentationController
+            self.present(viewController, animated: true, completion: nil)
+        }
+    }
+    
 }
 
