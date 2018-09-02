@@ -31,6 +31,7 @@ struct Card {
     var blockchainName: String = ""
     var issuer: String = ""
     var manufactureDateTime: String = ""
+    var manufactureSignature: String = ""
     var batchId: Int = 0x0
     var remainingSignatures:  String = ""
     var type: WalletType = .empty
@@ -58,7 +59,7 @@ struct Card {
     var checkedBalance: Bool = false
     
     // Ribbons vars
-    var signedHashes:  String = ""
+    var signedHashes: String = ""
     var firmware: String = "Not available"
     
     // Default value

@@ -35,11 +35,11 @@ class CardDetailsViewModel: NSObject {
         }
     }
     
-    @IBOutlet weak var networkSafetyDescriptionLabel: UILabel! {
-        didSet {
-            networkSafetyDescriptionLabel.font = UIFont.tgm_maaxFontWith(size: 12)
-        }
-    }
+//    [REDACTED_USERNAME] weak var networkSafetyDescriptionLabel: UILabel! {
+//        didSet {
+//            networkSafetyDescriptionLabel.font = UIFont.tgm_maaxFontWith(size: 12)
+//        }
+//    }
     
     @IBOutlet weak var walletAddressLabel: UILabel! {
         didSet {
@@ -81,10 +81,10 @@ class CardDetailsViewModel: NSObject {
         }
     }
     
-    @IBOutlet weak var settingsButton: UIButton! {
+    @IBOutlet weak var moreButton: UIButton! {
         didSet {
-            settingsButton.titleLabel?.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
-            settingsButton.setTitleColor(UIColor.lightGray, for: .disabled)
+            moreButton.titleLabel?.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
+            moreButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
@@ -111,10 +111,10 @@ class CardDetailsViewModel: NSObject {
 extension CardDetailsViewModel {
     
     func updateNetworkSafetyDescription(_ text: String) {
-        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 8.0)
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
-                                                                           NSAttributedStringKey.kern : 0.75])
-        networkSafetyDescriptionLabel.attributedText = attributedText
+//        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 8.0)
+//        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
+//                                                                           NSAttributedStringKey.kern : 0.75])
+//        networkSafetyDescriptionLabel.attributedText = attributedText
     }
     
     func updateWalletAddress(_ text: String) {
