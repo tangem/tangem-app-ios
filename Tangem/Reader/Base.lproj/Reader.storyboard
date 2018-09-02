@@ -9,6 +9,14 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="SairaCondensed-Bold.ttf">
+            <string>SairaCondensed-Bold</string>
+        </array>
+        <array key="maaxmedium.otf">
+            <string>Maax-Medium</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--Reader View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -66,11 +74,11 @@
                                             <action selector="scanButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="OaO-sV-e5f"/>
                                         </connections>
                                     </view>
-                                    <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bQ5-mB-xr4" customClass="UIControl">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bQ5-mB-xr4" customClass="UIControl">
                                         <rect key="frame" x="147" y="0.0" width="80" height="125"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tech" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ham-ee-5Xa">
-                                                <rect key="frame" x="21" y="104" width="38" height="21"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="More" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ham-ee-5Xa">
+                                                <rect key="frame" x="20" y="104" width="40.5" height="21"/>
                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
@@ -94,7 +102,7 @@
                                             <constraint firstAttribute="width" constant="80" id="zrt-r3-umk"/>
                                         </constraints>
                                         <connections>
-                                            <action selector="techButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VgV-Fv-OFQ"/>
+                                            <action selector="moreButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Auv-GA-Wa7"/>
                                         </connections>
                                     </view>
                                 </subviews>
@@ -160,8 +168,83 @@
             </objects>
             <point key="canvasLocation" x="-255" y="124"/>
         </scene>
+        <!--Reader More View Controller-->
+        <scene sceneID="Fx8-5b-YSE">
+            <objects>
+                <viewController storyboardIdentifier="ReaderMoreViewController" id="SNJ-QI-Icz" customClass="ReaderMoreViewController" customModule="Tangem" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="hTg-23-MFt">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="86V-J4-bCd">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="0Ia-iC-QBj">
+                                        <rect key="frame" x="0.0" y="10" width="375" height="40"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZW5-u7-phw">
+                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" secondItem="ZW5-u7-phw" secondAttribute="height" multiplier="1:1" id="1qi-CJ-DuM"/>
+                                                </constraints>
+                                                <state key="normal" image="icon-help-small"/>
+                                            </button>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MORE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MG2-g2-7Mt">
+                                                <rect key="frame" x="166.5" y="4.5" width="42.5" height="32"/>
+                                                <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="MG2-g2-7Mt" firstAttribute="top" secondItem="0Ia-iC-QBj" secondAttribute="top" constant="4.5" id="37h-W4-3rL"/>
+                                            <constraint firstAttribute="bottom" secondItem="ZW5-u7-phw" secondAttribute="bottom" id="XyY-N1-IIH"/>
+                                            <constraint firstItem="MG2-g2-7Mt" firstAttribute="centerX" secondItem="0Ia-iC-QBj" secondAttribute="centerX" id="fj9-hD-2xw"/>
+                                            <constraint firstAttribute="bottom" secondItem="MG2-g2-7Mt" secondAttribute="bottom" constant="4" id="mua-eN-7mS"/>
+                                            <constraint firstAttribute="trailing" secondItem="ZW5-u7-phw" secondAttribute="trailing" constant="8" id="rHT-P2-xaz"/>
+                                            <constraint firstItem="ZW5-u7-phw" firstAttribute="top" secondItem="0Ia-iC-QBj" secondAttribute="top" id="tRV-ay-xdT"/>
+                                        </constraints>
+                                    </view>
+                                    <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999998807907104" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tangem for iOS Version 2.1.3" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="40L-Ak-ZMR">
+                                        <rect key="frame" x="30" y="117" width="315" height="36"/>
+                                        <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="18"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="0Ia-iC-QBj" secondAttribute="trailing" id="3zs-6Z-khH"/>
+                                    <constraint firstAttribute="trailing" secondItem="40L-Ak-ZMR" secondAttribute="trailing" constant="30" id="B18-Wn-X8M"/>
+                                    <constraint firstItem="0Ia-iC-QBj" firstAttribute="top" secondItem="86V-J4-bCd" secondAttribute="top" constant="10" id="PWW-N3-7lZ"/>
+                                    <constraint firstItem="40L-Ak-ZMR" firstAttribute="leading" secondItem="86V-J4-bCd" secondAttribute="leading" constant="30" id="ThN-X0-aDE"/>
+                                    <constraint firstAttribute="bottom" secondItem="40L-Ak-ZMR" secondAttribute="bottom" constant="67" id="jVt-he-Y0Z"/>
+                                    <constraint firstItem="0Ia-iC-QBj" firstAttribute="leading" secondItem="86V-J4-bCd" secondAttribute="leading" id="vcn-we-Yis"/>
+                                    <constraint firstItem="40L-Ak-ZMR" firstAttribute="top" secondItem="0Ia-iC-QBj" secondAttribute="bottom" constant="67" id="xeM-qC-sFB"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="q8k-9U-p4F" firstAttribute="bottom" secondItem="86V-J4-bCd" secondAttribute="bottom" id="EmS-df-Vm9"/>
+                            <constraint firstItem="86V-J4-bCd" firstAttribute="top" secondItem="q8k-9U-p4F" secondAttribute="top" id="HwW-27-r8h"/>
+                            <constraint firstItem="0Ia-iC-QBj" firstAttribute="width" secondItem="hTg-23-MFt" secondAttribute="width" id="aFh-wn-DnX"/>
+                            <constraint firstItem="86V-J4-bCd" firstAttribute="leading" secondItem="q8k-9U-p4F" secondAttribute="leading" id="hI8-Hh-sdA"/>
+                            <constraint firstItem="q8k-9U-p4F" firstAttribute="trailing" secondItem="86V-J4-bCd" secondAttribute="trailing" id="tUU-2H-HuX"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="q8k-9U-p4F"/>
+                    </view>
+                    <connections>
+                        <outlet property="contentLabel" destination="40L-Ak-ZMR" id="9ct-PV-9cH"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="EbH-AJ-jYu" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1230" y="124"/>
+        </scene>
     </scenes>
     <resources>
+        <image name="icon-help-small" width="21" height="21"/>
         <image name="icon-scan" width="22" height="33"/>
         <image name="icon-tech" width="25" height="25"/>
         <image name="reader-background" width="1125" height="1866"/>
