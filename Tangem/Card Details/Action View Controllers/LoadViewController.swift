@@ -8,9 +8,15 @@
 
 import Foundation
 
+protocol LoadViewControllerDelegate: class {
+    func loadViewControllerDidCallShowQRCode(_ controller: LoadViewController)
+}
+
 class LoadViewController: ModalActionViewController {
     
     var cardDetails: Card?
+    
+    weak var delegate: LoadViewControllerDelegate?
     
     @IBOutlet weak var copyAddressButton: UIButton!
     @IBOutlet weak var showQRButton: UIButton!
@@ -35,17 +41,15 @@ class LoadViewController: ModalActionViewController {
     }
     
     func updateCopyButtonTitleForState(copied: Bool) {
-        let title = copied ? "Copied!" : "Copy Address"
-        let color = copied ? UIColor.tgm_green() : UIColor.black
+        let title = copied ? "Address Copied" : "Copy Address"
         
         UIView.transition(with: copyAddressButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
             self.copyAddressButton.setTitle(title, for: .normal)
-            self.copyAddressButton.setTitleColor(color, for: .normal)
         }, completion: nil)
     }
     
     @IBAction func showQRButtonPressed(_ sender: Any) {
-        
+        delegate?.loadViewControllerDidCallShowQRCode(self)
     }
     
     
