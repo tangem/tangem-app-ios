@@ -37,6 +37,10 @@
 		800036792111097700C151E8 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800036782111097700C151E8 /* UIViewExtensions.swift */; };
 		8000367B2113A89900C151E8 /* BalanceVerificationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000367A2113A89800C151E8 /* BalanceVerificationOperation.swift */; };
 		8000367F2127671700C151E8 /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000367E2127671700C151E8 /* UIColorExtensions.swift */; };
+		80003681213C68DB00C151E8 /* CardMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003680213C68DB00C151E8 /* CardMoreViewController.swift */; };
+		80003683213C6AAF00C151E8 /* ReaderMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */; };
+		80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003684213C73B500C151E8 /* ExtractViewController.swift */; };
+		80003687213C73BC00C151E8 /* LoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003686213C73BC00C151E8 /* LoadViewController.swift */; };
 		803A86F220FB7CA400E19427 /* CardParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParser.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
@@ -158,6 +162,10 @@
 		800036782111097700C151E8 /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
 		8000367A2113A89800C151E8 /* BalanceVerificationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceVerificationOperation.swift; sourceTree = "<group>"; };
 		8000367E2127671700C151E8 /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
+		80003680213C68DB00C151E8 /* CardMoreViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardMoreViewController.swift; sourceTree = "<group>"; };
+		80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderMoreViewController.swift; sourceTree = "<group>"; };
+		80003684213C73B500C151E8 /* ExtractViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractViewController.swift; sourceTree = "<group>"; };
+		80003686213C73BC00C151E8 /* LoadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadViewController.swift; sourceTree = "<group>"; };
 		803A86F120FB7CA400E19427 /* CardParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParser.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -249,6 +257,25 @@
 			path = Transitions;
 			sourceTree = "<group>";
 		};
+		80003688213C74D600C151E8 /* View Models */ = {
+			isa = PBXGroup;
+			children = (
+				800036662111054900C151E8 /* CardDetailsViewModel.swift */,
+			);
+			path = "View Models";
+			sourceTree = "<group>";
+		};
+		80003689213C74E400C151E8 /* Action View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				80003680213C68DB00C151E8 /* CardMoreViewController.swift */,
+				80003684213C73B500C151E8 /* ExtractViewController.swift */,
+				80003686213C73BC00C151E8 /* LoadViewController.swift */,
+				800036682111060900C151E8 /* ModalActionViewController.swift */,
+			);
+			path = "Action View Controllers";
+			sourceTree = "<group>";
+		};
 		8D0360FF20225BF500F13A39 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -311,11 +338,11 @@
 		8D899FBD20244BAC006131E0 /* Card Details */ = {
 			isa = PBXGroup;
 			children = (
-				8D899FC020247799006131E0 /* OldCardViewController.swift */,
-				80C5257B2106923100754961 /* CardDetailsViewController.swift */,
-				800036662111054900C151E8 /* CardDetailsViewModel.swift */,
+				80003689213C74E400C151E8 /* Action View Controllers */,
+				80003688213C74D600C151E8 /* View Models */,
 				8D899FBE202476DF006131E0 /* Card.storyboard */,
-				800036682111060900C151E8 /* ModalActionViewController.swift */,
+				80C5257B2106923100754961 /* CardDetailsViewController.swift */,
+				8D899FC020247799006131E0 /* OldCardViewController.swift */,
 			);
 			path = "Card Details";
 			sourceTree = "<group>";
@@ -416,6 +443,7 @@
 				803A86F120FB7CA400E19427 /* CardParser.swift */,
 				8D946D8C2018DA92006C73D9 /* Reader.storyboard */,
 				8D4B4A37205FA2300094E712 /* TestData.swift */,
+				80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */,
 			);
 			path = Reader;
 			sourceTree = "<group>";
@@ -701,6 +729,7 @@
 				8D2B2BF720850A8B00E0AFA9 /* hash.swift in Sources */,
 				8D4B4A36205FA0130094E712 /* TLV.swift in Sources */,
 				8D2B2C2720850B0200E0AFA9 /* ecdsa_impl.swift in Sources */,
+				80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */,
 				8D2B2BE520850A5A00E0AFA9 /* PBInt.swift in Sources */,
 				8D4B4A3A20614EB00094E712 /* BalanceService.swift in Sources */,
 				80003671211108A800C151E8 /* ViewControllerInteractiveTransition.swift in Sources */,
@@ -717,6 +746,7 @@
 				8D2B2C0920850AB000E0AFA9 /* field_10x26.swift in Sources */,
 				8D2B2C1820850AD400E0AFA9 /* ecmult_impl.swift in Sources */,
 				8D2B2BFD20850A9900E0AFA9 /* group.swift in Sources */,
+				80003687213C73BC00C151E8 /* LoadViewController.swift in Sources */,
 				8000367B2113A89900C151E8 /* BalanceVerificationOperation.swift in Sources */,
 				8D2B2C2420850AEB00E0AFA9 /* eckey_impl.swift in Sources */,
 				8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */,
@@ -730,6 +760,7 @@
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
 				8D2D4EAD209098A700C97D7E /* secp256k1.swift in Sources */,
 				800036672111054900C151E8 /* CardDetailsViewModel.swift in Sources */,
+				80003681213C68DB00C151E8 /* CardMoreViewController.swift in Sources */,
 				800036792111097700C151E8 /* UIViewExtensions.swift in Sources */,
 				8D2B2BE820850A6100E0AFA9 /* PBHex.swift in Sources */,
 				8D2B2BD920850A3E00E0AFA9 /* scalar_impl.swift in Sources */,
@@ -739,6 +770,7 @@
 				8D8E40872046C8F7002E6266 /* TLVUtils.swift in Sources */,
 				8D2B2BCA2085097900E0AFA9 /* Verify.swift in Sources */,
 				8D03610120225C1400F13A39 /* Card.swift in Sources */,
+				80003683213C6AAF00C151E8 /* ReaderMoreViewController.swift in Sources */,
 				800036772111090F00C151E8 /* UIImage+ImageEffects.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
