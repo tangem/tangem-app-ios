@@ -37,31 +37,31 @@
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uei-9H-Dqj">
-                                        <rect key="frame" x="108" y="253" width="159" height="55"/>
+                                        <rect key="frame" x="146.5" y="253" width="82" height="55"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bitcoin" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OXE-6A-lHc">
-                                                <rect key="frame" x="113" y="10" width="46" height="17"/>
+                                                <rect key="frame" x="36" y="10" width="46" height="17"/>
                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Unverified balance" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FF6-9W-3kh" customClass="DefaultKernLabel" customModule="Tangem" customModuleProvider="target">
-                                                <rect key="frame" x="18.5" y="38" width="123.5" height="17"/>
+                                                <rect key="frame" x="-20" y="38" width="123.5" height="17"/>
                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.01 BTC" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oFz-2Y-wgy">
-                                                <rect key="frame" x="0.0" y="0.0" width="99" height="29"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oFz-2Y-wgy">
+                                                <rect key="frame" x="0.0" y="0.0" width="22" height="29"/>
                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="24"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="VAO-g0-gA5">
-                                                <rect key="frame" x="147" y="37" width="20" height="20"/>
+                                                <rect key="frame" x="108.5" y="37" width="20" height="20"/>
                                             </activityIndicatorView>
                                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vfM-lN-4Pr">
-                                                <rect key="frame" x="164" y="-5" width="25" height="25"/>
+                                                <rect key="frame" x="87" y="-5" width="25" height="25"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="25" id="2YR-YP-QMB"/>
                                                     <constraint firstAttribute="width" constant="25" id="MDL-m6-x8X"/>
