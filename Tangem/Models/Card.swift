@@ -50,8 +50,8 @@ struct Card {
     var link: String = ""
     var error: Int = 0
     var node: String = ""
-    var salt: String = ""
-    var challenge: String = ""
+    var salt: String?
+    var challenge: String?
     var signArr: [UInt8] = [UInt8]()
     var pubArr: [UInt8] = [UInt8]()
     var checked: Bool = false
