@@ -117,6 +117,8 @@ class CardDetailsViewController: UIViewController {
 
         let onResult = { (card: Card) in
             guard card.error == 0 else {
+                self.viewModel.updateWalletBalance("--")
+                
                 let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
                 validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
                     self.navigationController?.popViewController(animated: true)
