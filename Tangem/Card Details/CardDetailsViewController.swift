@@ -68,14 +68,14 @@ class CardDetailsViewController: UIViewController {
     }
     
     func verifyBalance() {
-        guard let cardDetails = cardDetails else {
+        guard let cardDetails = cardDetails, let challenge = cardDetails.challenge, let salt = cardDetails.salt else {
             assertionFailure()
             return
         }
         
         self.viewModel.balanceVerificationActivityIndicator.startAnimating()
         
-        let balanceVerificationOperation = BalanceVerificationOperation(saltHex: cardDetails.salt, challengeHex: cardDetails.challenge, signatureArr: cardDetails.signArr, publicKeyArr: cardDetails.pubArr) { (result) in
+        let balanceVerificationOperation = BalanceVerificationOperation(saltHex: salt, challengeHex: challenge, signatureArr: cardDetails.signArr, publicKeyArr: cardDetails.pubArr) { (result) in
             self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
             self.setupBalanceVerified(result)
         }
@@ -145,11 +145,10 @@ class CardDetailsViewController: UIViewController {
                 BalanceService.sharedInstance.getBalanceETH(card, onResult: onResult)
             case .seed:
                 BalanceService.sharedInstance.getBalanceToken(card, onResult: onResult)
-            default:
+            case .empty:
                 DispatchQueue.main.async {
                     self.setupBalanceNoWallet()
                 }
-                break
             }
         }
     }
@@ -233,18 +232,19 @@ class CardDetailsViewController: UIViewController {
             return
         }
         
-        let challenge = cardDetails.challenge
-        let saltValue = cardDetails.salt
-        let cardChallenge1 = String(challenge.prefix(3))
-        let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-        let cardChallenge3 = String(saltValue.prefix(3))
-        let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-        let cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+        var cardChallenge: String? = nil
+        if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
+            let cardChallenge1 = String(challenge.prefix(3))
+            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+            let cardChallenge3 = String(saltValue.prefix(3))
+            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+            cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+        }
         
         let strings = ["Issuer: \(cardDetails.issuer)",
             "Manufacturer: \(cardDetails.issuer)",
             "API node: \(cardDetails.node)",
-            "Challenge: \(cardChallenge)",
+            "Challenge: \(cardChallenge ?? "N\\A")",
             "Signature: \(isBalanceVerified ? "passed" : "not passed")",
             "Authenticity: attested",
             "Firmware: \(cardDetails.firmware)",
