@@ -105,7 +105,6 @@
 		8D4B4A38205FA2300094E712 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
 		8D4B4A3A20614EB00094E712 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A3920614EB00094E712 /* BalanceService.swift */; };
 		8D4C72542069081C00235E82 /* EthAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4C72532069081B00235E82 /* EthAddress.swift */; };
-		8D899FC120247799006131E0 /* OldCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D899FC020247799006131E0 /* OldCardViewController.swift */; };
 		8D8E408020469DAF002E6266 /* NFCHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E407F20469DAF002E6266 /* NFCHelper.swift */; };
 		8D8E40852046C7B2002E6266 /* TLVExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40842046C7B2002E6266 /* TLVExtentions.swift */; };
 		8D8E40872046C8F7002E6266 /* TLVUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40862046C8F7002E6266 /* TLVUtils.swift */; };
@@ -740,7 +739,6 @@
 				8D2B2C1220850AC300E0AFA9 /* ecmult.swift in Sources */,
 				80003670211108A400C151E8 /* ModalViewControllerDragView.swift in Sources */,
 				8D4B4A2F205F8A790094E712 /* Base58.swift in Sources */,
-				8D899FC120247799006131E0 /* OldCardViewController.swift in Sources */,
 				8D2B2BDC20850A4400E0AFA9 /* scalar_8x32.swift in Sources */,
 				8D2B2BFA20850A9300E0AFA9 /* hash_impl.swift in Sources */,
 				8D2B2BDF20850A4A00E0AFA9 /* scalar_8x32_impl.swift in Sources */,
