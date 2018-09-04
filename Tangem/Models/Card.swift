@@ -73,10 +73,22 @@ struct Card {
             return "card-btc005"
         case 0x0012:
             return "card-seed"
+        case 0x0013:
+            return "0013"
+        case 0x0014:
+            return "card-btc001"
+        case 0x0015:
+            return "0015"
+        case 0x0016:
+            return "0016"
         case 0x0017:
             return "card-qlean"
         case 0x0019:
             return "card-cyclebit"
+        case 0x001A:
+            return "001A"
+        case 0x001B:
+            return "001B"
         default:
             return "card-default"
         }
