@@ -177,7 +177,7 @@
                                                     <action selector="loadButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="zIT-1u-rRB"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z0H-I6-hUI">
+                                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z0H-I6-hUI">
                                                 <rect key="frame" x="175" y="0.0" width="160" height="60"/>
                                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
@@ -193,6 +193,13 @@
                                             <constraint firstAttribute="height" constant="60" id="7cx-xn-5vX"/>
                                         </constraints>
                                     </stackView>
+                                    <view alpha="0.69999998807907104" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zW1-Im-0SA">
+                                        <rect key="frame" x="178" y="535" width="197" height="90"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="197" id="Iwu-gR-KQN"/>
+                                        </constraints>
+                                    </view>
                                     <view alpha="0.69999999999999996" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6Wr-gR-Lzf">
                                         <rect key="frame" x="0.0" y="535" width="375" height="90"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -247,6 +254,9 @@
                                     <constraint firstItem="6Wr-gR-Lzf" firstAttribute="width" secondItem="5pd-nS-j4U" secondAttribute="width" constant="40" id="ePc-Q4-PJG"/>
                                     <constraint firstItem="vgg-PE-syF" firstAttribute="top" secondItem="Avd-ez-2CK" secondAttribute="top" constant="40" id="eo1-FC-u5I"/>
                                     <constraint firstItem="0Yp-7Z-uw0" firstAttribute="leading" secondItem="Avd-ez-2CK" secondAttribute="leading" constant="73" id="hnO-6Y-u62"/>
+                                    <constraint firstItem="6Wr-gR-Lzf" firstAttribute="top" secondItem="zW1-Im-0SA" secondAttribute="top" id="mXc-KI-bgq"/>
+                                    <constraint firstItem="6Wr-gR-Lzf" firstAttribute="trailing" secondItem="zW1-Im-0SA" secondAttribute="trailing" id="mxL-2k-9Tw"/>
+                                    <constraint firstItem="6Wr-gR-Lzf" firstAttribute="bottom" secondItem="zW1-Im-0SA" secondAttribute="bottom" id="vw1-IU-kMi"/>
                                     <constraint firstItem="yPP-d2-WIV" firstAttribute="top" secondItem="5pd-nS-j4U" secondAttribute="bottom" constant="20" id="x6E-Zj-PZs"/>
                                 </constraints>
                             </scrollView>
