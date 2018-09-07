@@ -39,7 +39,18 @@ struct Card {
     var mult = ""
     
     var tokenSymbol: String = ""
-    var tokenContractAddress: String = ""
+    private var tokenContractAddressPrivate: String = ""
+    var tokenContractAddress: String {
+        set {
+            tokenContractAddressPrivate = newValue
+        }
+        get {
+            if batchId == 0x0019 { // CLE
+                return "0x0c056b0cda0763cc14b8b2d6c02465c91e33ec72"
+            }
+            return tokenContractAddressPrivate
+        }
+    }
     var tokenDecimal: Int = 0
     
     var walletValue = "0.00"
@@ -69,7 +80,27 @@ struct Card {
         switch batchId {
         case 0x0004:
             return "card-btc001"
+        case 0x0005:
+            return "card-btc005"
+        case 0x0006:
+            return "card-btc001"
+        case 0x0007:
+            return "card-btc005"
+        case 0x0008, 0x0009:
+            let index = cardID.index(cardID.endIndex, offsetBy: -4)
+            guard let lastIndexDigits = Int(cardID[index...]) else {
+                assertionFailure()
+                return "card-default"
+            }
+            
+            if lastIndexDigits < 5000 {
+                return "card-btc001"
+            } else {
+                return "card-btc005"
+            }
         case 0x0010:
+            return "card-btc001"
+        case 0x0011:
             return "card-btc005"
         case 0x0012:
             return "card-seed"
