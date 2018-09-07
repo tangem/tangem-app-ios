@@ -88,7 +88,7 @@ class CardDetailsViewController: UIViewController {
         
         viewModel.updateWalletBalanceVerification(verified)
         viewModel.loadButton.isEnabled = verified
-        viewModel.extractButton.isEnabled = verified
+        viewModel.extractButton.isEnabled = false
         viewModel.buttonsAvailabilityView.isHidden = verified
         let verificationIconName = verified ? "icon-verified" : "icon-unverified"
         viewModel.balanceVefificationIconImageView.image = UIImage(named: verificationIconName)
