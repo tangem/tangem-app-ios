@@ -47,6 +47,8 @@ struct Card {
         get {
             if batchId == 0x0019 { // CLE
                 return "0x0c056b0cda0763cc14b8b2d6c02465c91e33ec72"
+            } else if batchId == 0x0017 { // Qlean
+                return "0x9Eef75bA8e81340da9D8d1fd06B2f313DB88839c"
             }
             return tokenContractAddressPrivate
         }
