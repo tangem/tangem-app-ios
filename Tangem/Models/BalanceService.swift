@@ -443,8 +443,14 @@ extension BalanceService {
                 }
             }
             
+            guard let tokenContractAddress = card.tokenContractAddress else {
+                DispatchQueue.main.async {
+                    onResult(card)
+                }
+                return
+            }
             
-            BalanceService.sharedInstance.getTokenBalance(card.ethAddress, contract: card.tokenContractAddress) { balanceValue, error in
+            BalanceService.sharedInstance.getTokenBalance(card.ethAddress, contract: tokenContractAddress) { balanceValue, error in
                 onCompletion(balanceValue, error)
             }
         }
