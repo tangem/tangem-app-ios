@@ -89,30 +89,9 @@ class ReaderViewController: UIViewController {
     }
     
     func showSimulationSheet() {
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let btcAction = UIAlertAction(title: "BTC", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.btcWallet.rawValue)
+        let alertController = UIAlertController.testDataAlertController { (testData) in
+            self.cardParser.parse(payload: testData.rawValue)
         }
-        let seedAction = UIAlertAction(title: "SEED", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.seed.rawValue)
-        }
-        let ethAction = UIAlertAction(title: "ETH", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.ethWallet.rawValue)
-        }
-        let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.ert.rawValue)
-        }
-        let noWallerAction = UIAlertAction(title: "No wallet", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.noWallet.rawValue)
-        }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        
-        alertController.addAction(btcAction)
-        alertController.addAction(seedAction)
-        alertController.addAction(ethAction)
-        alertController.addAction(ertAction)
-        alertController.addAction(noWallerAction)
-        alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
     }
