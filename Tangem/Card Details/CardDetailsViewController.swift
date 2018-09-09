@@ -145,13 +145,14 @@ class CardDetailsViewController: UIViewController {
                 BalanceService.sharedInstance.getBalanceBTC(card, onResult: onResult)
             case .eth:
                 BalanceService.sharedInstance.getBalanceETH(card, onResult: onResult)
-            case .seed:
-                BalanceService.sharedInstance.getBalanceToken(card, onResult: onResult)
             case .empty:
                 DispatchQueue.main.async {
                     self.setupBalanceNoWallet()
                 }
+            default:
+                BalanceService.sharedInstance.getBalanceToken(card, onResult: onResult)
             }
+            
         }
     }
     
@@ -252,7 +253,7 @@ class CardDetailsViewController: UIViewController {
             "Firmware: \(cardDetails.firmware)",
             "Registration date: \(cardDetails.manufactureDateTime)",
             "Serial: \(cardDetails.cardID)",
-            "Remaining signarures: \(cardDetails.remainingSignatures)"]
+            "Remaining signatures: \(cardDetails.remainingSignatures)"]
         viewController.contentText = strings.joined(separator: "\n")
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
@@ -263,30 +264,9 @@ class CardDetailsViewController: UIViewController {
     }
     
     func showSimulationSheet() {
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let btcAction = UIAlertAction(title: "BTC", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.btcWallet.rawValue)
+        let alertController = UIAlertController.testDataAlertController { (testData) in
+            self.cardParser.parse(payload: testData.rawValue)
         }
-        let seedAction = UIAlertAction(title: "SEED", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.seed.rawValue)
-        }
-        let ethAction = UIAlertAction(title: "ETH", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.ethWallet.rawValue)
-        }
-        let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.ert.rawValue)
-        }
-        let noWallerAction = UIAlertAction(title: "No wallet", style: .default) { (_) in
-            self.cardParser.parse(payload: TestData.noWallet.rawValue)
-        }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        
-        alertController.addAction(btcAction)
-        alertController.addAction(seedAction)
-        alertController.addAction(ethAction)
-        alertController.addAction(ertAction)
-        alertController.addAction(noWallerAction)
-        alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
     }
