@@ -12,6 +12,9 @@ enum WalletType {
     case btc
     case eth
     case seed
+    case cle
+    case qlear
+    case ert
     case empty
 }
 
@@ -34,20 +37,41 @@ struct Card {
     var manufactureSignature: String = ""
     var batchId: Int = 0x0
     var remainingSignatures:  String = ""
-    var type: WalletType = .empty
+    var type: WalletType {
+        if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
+            return .btc
+        }
+        
+        if blockchainName.containsIgnoringCase(find: "eth") {
+            switch tokenSymbol {
+            case "SEED":
+                return .seed
+            case "QLEAR":
+                return .qlear
+            case "CLE":
+                return .cle
+            case "ERT":
+                return .ert
+            default:
+                return .eth
+            }
+        }
+        
+        return .empty
+    }
     var isTestNet = false
     var mult = ""
     
     var tokenSymbol: String = ""
-    private var tokenContractAddressPrivate: String = ""
-    var tokenContractAddress: String {
+    private var tokenContractAddressPrivate: String?
+    var tokenContractAddress: String? {
         set {
             tokenContractAddressPrivate = newValue
         }
         get {
             if batchId == 0x0019 { // CLE
                 return "0x0c056b0cda0763cc14b8b2d6c02465c91e33ec72"
-            } else if batchId == 0x0017 { // Qlean
+            } else if batchId == 0x0017 { // Qlear
                 return "0x9Eef75bA8e81340da9D8d1fd06B2f313DB88839c"
             }
             return tokenContractAddressPrivate
@@ -107,21 +131,21 @@ struct Card {
         case 0x0012:
             return "card-seed"
         case 0x0013:
-            return "0013"
+            return "card-bitcoinhk"
         case 0x0014:
             return "card-btc001"
         case 0x0015:
-            return "0015"
+            return "card-btc000-silver"
         case 0x0016:
-            return "0016"
+            return "card-eth000-silver"
         case 0x0017:
-            return "card-qlean"
+            return "card-qlear"
         case 0x0019:
             return "card-cyclebit"
         case 0x001A:
-            return "001A"
+            return "card-btc000"
         case 0x001B:
-            return "001B"
+            return "card-eth000"
         default:
             return "card-default"
         }
