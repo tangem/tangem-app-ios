@@ -31,7 +31,7 @@ class CardParser: Any {
         var offset: Int = 0
         
         //Check if Card is locked
-        guard let _ = TLV.checkPIN(payloadArr,&offset) else {
+        guard let _ = TLV.checkPIN(payloadArr, &offset) else {
             self.delegate?.cardParserLockedCard(self)
             return
         }
@@ -81,7 +81,6 @@ class CardParser: Any {
         }
         
         guard card.isWallet else {
-            //Ribbon Check
             card.ribbonCase = checkRibbonCase(card)
             
             self.delegate?.cardParser(self, didFinishWith: card)
@@ -133,14 +132,12 @@ class CardParser: Any {
             }
             
         }
-        //Ribbon Check
+        
         card.ribbonCase = checkRibbonCase(card)
         
         let blockchainName = card.blockchainName
         
-        if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
-            //We think that card is BTC
-            card.type = .btc
+        if card.type == .btc {
             card.blockchain = "Bitcoin"
             card.node = randomNode()
             if blockchainName.containsIgnoringCase(find: "test"){
@@ -163,16 +160,7 @@ class CardParser: Any {
             card.checkedBalance = false
             
             self.delegate?.cardParser(self, didFinishWith: card)
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "eth") {
-            //We think that card is ETC
-            if card.tokenSymbol == "SEED" {
-                card.type = .seed
-            } else {
-                card.type = .eth
-            }
-
+        } else {
             card.blockchain = "Ethereum"
             card.node = "mainnet.infura.io"
             if blockchainName.containsIgnoringCase(find: "test"){
@@ -191,7 +179,6 @@ class CardParser: Any {
             
             card.checkedBalance = false
             self.delegate?.cardParser(self, didFinishWith: card)
-
         }
     }
     
