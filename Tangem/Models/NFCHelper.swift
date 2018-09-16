@@ -18,6 +18,8 @@ protocol NFCHelperDelegate {
 
 class NFCHelper: NSObject, NFCNDEFReaderSessionDelegate {
     
+    static let tangemWalletRecordType = "tangem.com:wallet"
+    
     var delegate: NFCHelperDelegate?
     var session: NFCReaderSession?
     
@@ -28,6 +30,28 @@ class NFCHelper: NSObject, NFCNDEFReaderSessionDelegate {
         self.session?.begin()
     }
     
+    func handleMessage(_ message: NFCNDEFMessage) {
+        let payloads = message.records.filter { (record) -> Bool in
+            guard let recordType = String(data: record.type, encoding: String.Encoding.utf8) else {
+                return false
+            }
+            
+            return recordType == NFCHelper.tangemWalletRecordType
+        }
+        
+        guard !payloads.isEmpty else {
+            return
+        }
+        
+        for record in payloads {
+            let hexPayload = record.payload.reduce("") { (result, byte) -> String in
+                return result + byte.toAsciiHex()
+            }
+            
+            self.delegate?.nfcHelper(self, didDetectCardWith: hexPayload)
+        }
+    }
+    
     // MARK: NFCNDEFReaderSessionDelegate
     
     func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
@@ -35,24 +59,7 @@ class NFCHelper: NSObject, NFCNDEFReaderSessionDelegate {
     }
     
     func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
-        for message in messages {
-            var recordsCounter = 0
-            
-            for record in message.records {
-                recordsCounter += 1
-                print("Payload: \(record.payload)")
-                
-                var hexPayload = ""
-                
-                for byte in record.payload{
-                    hexPayload += byte.toAsciiHex()
-                }
-                
-                if recordsCounter == 3 {
-                    self.delegate?.nfcHelper(self, didDetectCardWith: hexPayload)
-                }
-            }
-        }
+        messages.forEach({ self.handleMessage($0) })
     }
 }
 
