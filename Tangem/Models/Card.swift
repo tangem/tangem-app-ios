@@ -146,6 +146,10 @@ struct Card {
             return "card-btc000"
         case 0x001B:
             return "card-eth000"
+        case 0x001C:
+            return "card-coldlar-btc"
+        case 0x001D:
+            return "card-coldlar-eth"
         default:
             return "card-default"
         }
