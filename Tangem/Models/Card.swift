@@ -125,6 +125,13 @@ struct Card {
                 return "card-btc005"
             }
         case 0x0010:
+            let cardIdWithoutSpaces = cardID.replacingOccurrences(of: " ", with: "")
+
+            let index = cardIdWithoutSpaces.index(cardIdWithoutSpaces.endIndex, offsetBy: -5)
+            if let lastIndexDigits = Int(cardIdWithoutSpaces[index...]), lastIndexDigits >= 25000, lastIndexDigits < 50000 {
+                return "card-btc005"
+            }
+
             return "card-btc001"
         case 0x0011:
             return "card-btc005"
