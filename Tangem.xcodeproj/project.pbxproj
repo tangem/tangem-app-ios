@@ -64,7 +64,6 @@
 		8D2B2BEC20850A6700E0AFA9 /* lax_der_privatekey_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BEA20850A6700E0AFA9 /* lax_der_privatekey_parsing.swift */; };
 		8D2B2BF120850A7F00E0AFA9 /* lax_der_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF020850A7E00E0AFA9 /* lax_der_parsing.swift */; };
 		8D2B2BF220850A7F00E0AFA9 /* lax_der_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF020850A7E00E0AFA9 /* lax_der_parsing.swift */; };
-		8D2B2BF520850A8500E0AFA9 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF320850A8500E0AFA9 /* Info.plist */; };
 		8D2B2BF720850A8B00E0AFA9 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF620850A8B00E0AFA9 /* hash.swift */; };
 		8D2B2BF820850A8B00E0AFA9 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF620850A8B00E0AFA9 /* hash.swift */; };
 		8D2B2BFA20850A9300E0AFA9 /* hash_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF920850A9200E0AFA9 /* hash_impl.swift */; };
@@ -314,6 +313,7 @@
 		8D0360FF20225BF500F13A39 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8D4B4A37205FA2300094E712 /* TestData.swift */,
 				8D03610020225C1400F13A39 /* Card.swift */,
 				8D8E407F20469DAF002E6266 /* NFCHelper.swift */,
 				8D4B4A3920614EB00094E712 /* BalanceService.swift */,
@@ -473,7 +473,6 @@
 			children = (
 				8D946D8A2018DA92006C73D9 /* ReaderViewController.swift */,
 				8D946D8C2018DA92006C73D9 /* Reader.storyboard */,
-				8D4B4A37205FA2300094E712 /* TestData.swift */,
 				80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */,
 			);
 			path = Reader;
@@ -624,7 +623,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D2B2BF520850A8500E0AFA9 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
