@@ -8,9 +8,11 @@
 
 import UIKit
 
-class ReaderViewController: UIViewController {
+class ReaderViewController: UIViewController, TestCardParsingCapable {
     
     var customPresentationController: CustomPresentationController?
+    
+    let operationQueue = OperationQueue()
 
     @IBOutlet weak var techImageView: UIImageView! {
         didSet {
@@ -49,7 +51,6 @@ class ReaderViewController: UIViewController {
     }
     
     let helper = NFCHelper()
-    let cardParser = CardParser()
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -58,7 +59,6 @@ class ReaderViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.cardParser.delegate = self
         self.helper.delegate = self
     }
     
@@ -66,16 +66,6 @@ class ReaderViewController: UIViewController {
         super.viewDidLayoutSubviews()
         
         gradientView.layer.sublayers?.forEach({ $0.frame = gradientView.bounds })
-    }
-
-    func showCardDetailsWith(card: Card) {
-        let storyBoard = UIStoryboard(name: "Card", bundle: nil)
-        guard let nextViewController = storyBoard.instantiateViewController(withIdentifier: "CardDetailsViewController") as? CardDetailsViewController else {
-            return
-        }
-        
-        nextViewController.cardDetails = card
-        self.navigationController?.pushViewController(nextViewController, animated: true)
     }
     
     // MARK: Actions
@@ -86,14 +76,6 @@ class ReaderViewController: UIViewController {
         #else
         self.helper.restartSession()
         #endif
-    }
-    
-    func showSimulationSheet() {
-        let alertController = UIAlertController.testDataAlertController { (testData) in
-            self.cardParser.parse(payload: testData.rawValue)
-        }
-        
-        self.present(alertController, animated: true, completion: nil)
     }
     
     @IBAction func moreButtonPressed(_ sender: Any) {
@@ -110,6 +92,22 @@ class ReaderViewController: UIViewController {
         self.present(viewController, animated: true, completion: nil)
     }
     
+    func launchParsingOperationWith(payload: Data) {
+        operationQueue.cancelAllOperations()
+        
+        let operation = CardParsingOperation(payload: payload) { (result) in
+            switch result {
+            case .success(let card):
+                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+            case .locked:
+                self.handleCardParserLockedCard()
+            case .tlvError:
+                self.handleCardParserWrongTLV()
+            }
+        }
+        operationQueue.addOperation(operation)
+    }
+    
 }
 
 extension ReaderViewController: NFCHelperDelegate {
@@ -118,31 +116,26 @@ extension ReaderViewController: NFCHelperDelegate {
         print("\(error.localizedDescription)")
     }
     
-    func nfcHelper(_ helper: NFCHelper, didDetectCardWith hexPayload: String) {
-        DispatchQueue.main.async {
-            self.cardParser.parse(payload: hexPayload)
-        }
+    func nfcHelper(_ helper: NFCHelper, didDetectCardWith payload: Data) {
+        launchParsingOperationWith(payload: payload)
     }
     
 }
 
-extension ReaderViewController: CardParserDelegate {
+extension ReaderViewController {
     
-    func cardParserWrongTLV(_ parser: CardParser) {
+    func handleCardParserWrongTLV() {
         let validationAlert = UIAlertController(title: "Error", message: "Failed to parse data received from the banknote", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
     
-    func cardParserLockedCard(_ parser: CardParser) {
+    func handleCardParserLockedCard() {
         print("Card is locked, two first bytes are equal 0x6A86")
         let validationAlert = UIAlertController(title: "Info", message: "This app can’t read protected Tangem banknotes", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
-    
-    func cardParser(_ parser: CardParser, didFinishWith card: Card) {
-        self.showCardDetailsWith(card: card)
-    }
+
 }
 
