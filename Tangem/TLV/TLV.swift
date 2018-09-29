@@ -16,12 +16,12 @@ enum TLVError: Error{
 
 struct TLVTag {
     
-    let name: String
+    let name: TLVTagName
     let address: UInt8
     let length: Int
     let isString: Bool
     
-    init(name: String, address: UInt8, length: Int = 0, isString: Bool = false) {
+    init(name: TLVTagName, address: UInt8, length: Int = 0, isString: Bool = false) {
         self.name = name
         self.address = address
         self.length = length
@@ -30,9 +30,36 @@ struct TLVTag {
     
 }
 
-public class TLV : NSObject {
+public enum TLVTagName: String {
     
-    public var tagName = ""
+    case undefined = ""
+    case cardId = "CardID"
+    case firmware = "Firmware"
+    case settingsMask = "SettingsMask"
+    case cardData = "Card_Data"
+    case batchId = "Batch_ID"
+    case manufacturerDateTime = "Manufacture_Date_Time"
+    case issuerName = "Issuer_Name"
+    case blockchainName = "Blockchain_Name"
+    case tokenSymbol = "Token_Symbol"
+    case tokenContractAddress = "Token_Contract_Address"
+    case tokenDecimal = "Token_Decimal"
+    case manufacturerSignature = "Manufacturer_Signature"
+    case cardPublicKey = "Card_PublicKey"
+    case walletPublicKey = "Wallet_PublicKey"
+    case maxSignature = "MaxSignatures"
+    case remainingSignatures = "RemainingSignatures"
+    case signedHashes = "SignedHashes"
+    case challenge = "Challenge"
+    case salt = "Salt"
+    case walletSignature = "Wallet_Signature"
+    case health = "Health"
+
+}
+
+public class TLV {
+    
+    public var tagName: TLVTagName = .undefined
     public var tagCode: UInt8 = 0x00
     public var tagHexStringCode = ""
     
@@ -42,37 +69,35 @@ public class TLV : NSObject {
     public var hexStringValue = ""
     public var stringValue = ""
     
-    let tagsInfo: [TLVTag] = {
+    static let tagsInfo: [TLVTag] = {
         var tags = [TLVTag]()
         
-        tags.append(TLVTag(name: "CardID", address: 0x01, length: 8))
-        tags.append(TLVTag(name: "Firmware", address: 0x80, isString: true))
-        tags.append(TLVTag(name: "SettingsMask", address: 0x0A, length: 2))
-        tags.append(TLVTag(name: "Card_Data", address: 0x0C, length: 512))
-        tags.append(TLVTag(name: "Batch_ID", address: 0x81, length: 2))
-        tags.append(TLVTag(name: "Manufacture_Date_Time", address: 0x82, length: 4))
-        tags.append(TLVTag(name: "Issuer_Name", address: 0x83, isString: true))
-        tags.append(TLVTag(name: "Blockchain_Name", address: 0x84, isString: true))
-        tags.append(TLVTag(name: "Token_Symbol", address: 0xA0, isString: true))
-        tags.append(TLVTag(name: "Token_Contract_Address", address: 0xA1, isString: true))
-        tags.append(TLVTag(name: "Token_Decimal", address: 0xA2, length: 1))
-        tags.append(TLVTag(name: "Manufacturer_Signature", address: 0x86, length: 64))
-        tags.append(TLVTag(name: "Card_PublicKey", address: 0x03, length: 65))
-        tags.append(TLVTag(name: "Wallet_PublicKey", address: 0x60, length: 65))
-        tags.append(TLVTag(name: "MaxSignatures", address: 0x08, length: 4))
-        tags.append(TLVTag(name: "RemainingSignatures", address: 0x62, length: 4))
-        tags.append(TLVTag(name: "SignedHashes", address: 0x63, length: 4))
-        tags.append(TLVTag(name: "Challenge", address: 0x16, length: 16))
-        tags.append(TLVTag(name: "Salt", address: 0x17, length: 16))
-        tags.append(TLVTag(name: "Wallet_Signature", address: 0x61, length: 64))
-        tags.append(TLVTag(name: "Health", address: 0x0F, length: 1))
+        tags.append(TLVTag(name: .cardId, address: 0x01, length: 8))
+        tags.append(TLVTag(name: .firmware, address: 0x80, isString: true))
+        tags.append(TLVTag(name: .settingsMask, address: 0x0A, length: 2))
+        tags.append(TLVTag(name: .cardData, address: 0x0C, length: 512))
+        tags.append(TLVTag(name: .batchId, address: 0x81, length: 2))
+        tags.append(TLVTag(name: .manufacturerDateTime, address: 0x82, length: 4))
+        tags.append(TLVTag(name: .issuerName, address: 0x83, isString: true))
+        tags.append(TLVTag(name: .blockchainName, address: 0x84, isString: true))
+        tags.append(TLVTag(name: .tokenSymbol, address: 0xA0, isString: true))
+        tags.append(TLVTag(name: .tokenContractAddress, address: 0xA1, isString: true))
+        tags.append(TLVTag(name: .tokenDecimal, address: 0xA2, length: 1))
+        tags.append(TLVTag(name: .manufacturerSignature, address: 0x86, length: 64))
+        tags.append(TLVTag(name: .cardPublicKey, address: 0x03, length: 65))
+        tags.append(TLVTag(name: .walletPublicKey, address: 0x60, length: 65))
+        tags.append(TLVTag(name: .maxSignature, address: 0x08, length: 4))
+        tags.append(TLVTag(name: .remainingSignatures, address: 0x62, length: 4))
+        tags.append(TLVTag(name: .signedHashes, address: 0x63, length: 4))
+        tags.append(TLVTag(name: .challenge, address: 0x16, length: 16))
+        tags.append(TLVTag(name: .salt, address: 0x17, length: 16))
+        tags.append(TLVTag(name: .walletSignature, address: 0x61, length: 64))
+        tags.append(TLVTag(name: .health, address: 0x0F, length: 1))
         
         return tags
     }()
     
     public init(data: [UInt8], _ offset: inout Int) throws {
-        super.init()
-        
         guard let ltvTag = self.getTLVTagInfo(data, &offset) else {
             assertionFailure("Didn't found a tag with code \(self.tagHexStringCode)")
             return
@@ -99,19 +124,19 @@ public class TLV : NSObject {
             self.stringValue = valueToUTF8()
         }
         
-        if self.tagName == "CardID" {
+        if self.tagName == .cardId {
             self.stringValue = getCardID()
         }
         
-        if self.tagName == "Manufacture_Date_Time" {
+        if self.tagName == .manufacturerDateTime {
             self.stringValue = getManufactureDate()
         }
         
-        if self.tagName == "Batch_ID" {
+        if self.tagName == .batchId {
             self.stringValue = getBatchID()
         }
         
-        if self.tagName == "RemainingSignatures" {
+        if self.tagName == .remainingSignatures {
             self.stringValue = getRemainingSignatures()
         }
         
@@ -124,7 +149,7 @@ public class TLV : NSObject {
         self.tagHexStringCode = tagCode.toAsciiHex()
         offset += 1
         
-        return self.tagsInfo.first(where: { (tag) -> Bool in
+        return TLV.tagsInfo.first(where: { (tag) -> Bool in
             return tag.address == tagCode
         })
     }
@@ -223,24 +248,25 @@ public class TLV : NSObject {
         return arrayToUInt16(tagArray);
     }
     
-    public static func checkPIN(_ data:[UInt8], _ offset: inout Int) -> Bool? {
+    public static func isLockedPIN(_ data:[UInt8], _ offset: inout Int) -> Bool {
         var tagArray:[UInt8] = [UInt8]()
-        let checkOK: UInt16 = 0x9000
-        let checkPIN: UInt16 = 0x6A86
+        let unlockedValue: UInt16 = 0x9000
+        let lockedValue: UInt16 = 0x6A86
         
         tagArray.append(data[offset])
         offset += 1
         tagArray.append(data[offset])
         offset += 1
         
-        if let twoFirstBytes = arrayToUInt16(tagArray){
-            if (twoFirstBytes == checkOK) {
+        if let twoFirstBytes = arrayToUInt16(tagArray) {
+            if (twoFirstBytes == unlockedValue) {
+                return false
+            }
+            if (twoFirstBytes == lockedValue) {
                 return true
             }
-            if (twoFirstBytes == checkPIN) {
-                return nil
-            }
         }
-        return nil
+        
+        return true
     }
 }
