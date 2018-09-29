@@ -42,7 +42,9 @@
 		80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003684213C73B500C151E8 /* ExtractViewController.swift */; };
 		80003687213C73BC00C151E8 /* LoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003686213C73BC00C151E8 /* LoadViewController.swift */; };
 		8000368B213C9BFC00C151E8 /* QRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */; };
-		803A86F220FB7CA400E19427 /* CardParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParser.swift */; };
+		80205B83215FCAFF0091618F /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B82215FCAFF0091618F /* NavigationManager.swift */; };
+		80205B85215FDF390091618F /* TestCardParsingCapable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B84215FDF390091618F /* TestCardParsingCapable.swift */; };
+		803A86F220FB7CA400E19427 /* CardParsingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParsingOperation.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
 		8D2B2BCA2085097900E0AFA9 /* Verify.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BC92085097900E0AFA9 /* Verify.swift */; };
@@ -62,7 +64,6 @@
 		8D2B2BEC20850A6700E0AFA9 /* lax_der_privatekey_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BEA20850A6700E0AFA9 /* lax_der_privatekey_parsing.swift */; };
 		8D2B2BF120850A7F00E0AFA9 /* lax_der_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF020850A7E00E0AFA9 /* lax_der_parsing.swift */; };
 		8D2B2BF220850A7F00E0AFA9 /* lax_der_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF020850A7E00E0AFA9 /* lax_der_parsing.swift */; };
-		8D2B2BF420850A8500E0AFA9 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF320850A8500E0AFA9 /* Info.plist */; };
 		8D2B2BF520850A8500E0AFA9 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF320850A8500E0AFA9 /* Info.plist */; };
 		8D2B2BF720850A8B00E0AFA9 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF620850A8B00E0AFA9 /* hash.swift */; };
 		8D2B2BF820850A8B00E0AFA9 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2B2BF620850A8B00E0AFA9 /* hash.swift */; };
@@ -167,7 +168,9 @@
 		80003684213C73B500C151E8 /* ExtractViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractViewController.swift; sourceTree = "<group>"; };
 		80003686213C73BC00C151E8 /* LoadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadViewController.swift; sourceTree = "<group>"; };
 		8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeViewController.swift; sourceTree = "<group>"; };
-		803A86F120FB7CA400E19427 /* CardParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParser.swift; sourceTree = "<group>"; };
+		80205B82215FCAFF0091618F /* NavigationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationManager.swift; sourceTree = "<group>"; };
+		80205B84215FDF390091618F /* TestCardParsingCapable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCardParsingCapable.swift; sourceTree = "<group>"; };
+		803A86F120FB7CA400E19427 /* CardParsingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParsingOperation.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		8D2B2BC92085097900E0AFA9 /* Verify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Verify.swift; sourceTree = "<group>"; };
@@ -278,6 +281,36 @@
 			path = "Action View Controllers";
 			sourceTree = "<group>";
 		};
+		80205B86215FDF800091618F /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				8000367A2113A89800C151E8 /* BalanceVerificationOperation.swift */,
+				803A86F120FB7CA400E19427 /* CardParsingOperation.swift */,
+			);
+			path = Operations;
+			sourceTree = "<group>";
+		};
+		80205B87215FDFA40091618F /* TLV */ = {
+			isa = PBXGroup;
+			children = (
+				8D8E40842046C7B2002E6266 /* TLVExtentions.swift */,
+				8D8E40862046C8F7002E6266 /* TLVUtils.swift */,
+				8D4B4A35205FA0130094E712 /* TLV.swift */,
+			);
+			path = TLV;
+			sourceTree = "<group>";
+		};
+		80205B88215FDFC00091618F /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				80205B82215FCAFF0091618F /* NavigationManager.swift */,
+				8000366A2111062C00C151E8 /* Transitions */,
+				8DD6947A2021EA0E00BF3FBD /* Reader */,
+				8D899FBD20244BAC006131E0 /* Card Details */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
 		8D0360FF20225BF500F13A39 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -332,7 +365,6 @@
 				8D4B4A32205F8AE20094E712 /* Address.swift */,
 				8D4C72532069081B00235E82 /* EthAddress.swift */,
 				8D2B2BC92085097900E0AFA9 /* Verify.swift */,
-				8000367A2113A89800C151E8 /* BalanceVerificationOperation.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -398,11 +430,11 @@
 			children = (
 				8D8E40832046B971002E6266 /* Tangem.entitlements */,
 				8D4B4A2D205F8A4C0094E712 /* Crypto */,
-				8D0360FF20225BF500F13A39 /* Models */,
 				8DD694792021E9EB00BF3FBD /* Extentions */,
-				8000366A2111062C00C151E8 /* Transitions */,
-				8DD6947A2021EA0E00BF3FBD /* Reader */,
-				8D899FBD20244BAC006131E0 /* Card Details */,
+				8D0360FF20225BF500F13A39 /* Models */,
+				80205B86215FDF800091618F /* Operations */,
+				80205B87215FDFA40091618F /* TLV */,
+				80205B88215FDFC00091618F /* View Controllers */,
 				8D946D882018DA92006C73D9 /* AppDelegate.swift */,
 				8D946D8F2018DA92006C73D9 /* Assets.xcassets */,
 				8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */,
@@ -425,15 +457,13 @@
 		8DD694792021E9EB00BF3FBD /* Extentions */ = {
 			isa = PBXGroup;
 			children = (
-				8D8E40842046C7B2002E6266 /* TLVExtentions.swift */,
-				8D8E40862046C8F7002E6266 /* TLVUtils.swift */,
-				8D4B4A35205FA0130094E712 /* TLV.swift */,
 				8000364321069C8E00C151E8 /* FontsExtensions.swift */,
 				80003673211108F000C151E8 /* UIImage+Additions.swift */,
 				800036762111090F00C151E8 /* UIImage+ImageEffects.h */,
 				800036752111090F00C151E8 /* UIImage+ImageEffects.m */,
 				800036782111097700C151E8 /* UIViewExtensions.swift */,
 				8000367E2127671700C151E8 /* UIColorExtensions.swift */,
+				80205B84215FDF390091618F /* TestCardParsingCapable.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -442,7 +472,6 @@
 			isa = PBXGroup;
 			children = (
 				8D946D8A2018DA92006C73D9 /* ReaderViewController.swift */,
-				803A86F120FB7CA400E19427 /* CardParser.swift */,
 				8D946D8C2018DA92006C73D9 /* Reader.storyboard */,
 				8D4B4A37205FA2300094E712 /* TestData.swift */,
 				80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */,
@@ -531,6 +560,9 @@
 							com.apple.NearFieldCommunicationTagReading = {
 								enabled = 1;
 							};
+							com.apple.SafariKeychain = {
+								enabled = 1;
+							};
 						};
 					};
 					8D946D982018DA93006C73D9 = {
@@ -570,7 +602,6 @@
 				800036642110F87700C151E8 /* maax.otf in Resources */,
 				800036612110F87700C151E8 /* maaxbold.otf in Resources */,
 				800036652110FA6E00C151E8 /* Card.storyboard in Resources */,
-				8D2B2BF420850A8500E0AFA9 /* Info.plist in Resources */,
 				800036622110F87700C151E8 /* maaxbolditalic.otf in Resources */,
 				800036632110F87700C151E8 /* maaxitalic.otf in Resources */,
 				8D946D932018DA92006C73D9 /* LaunchScreen.storyboard in Resources */,
@@ -723,7 +754,7 @@
 				8D4B4A38205FA2300094E712 /* TestData.swift in Sources */,
 				8D2B2C0320850AA600E0AFA9 /* gen_context.swift in Sources */,
 				8D2B2C1B20850ADA00E0AFA9 /* ecmult_gen.swift in Sources */,
-				803A86F220FB7CA400E19427 /* CardParser.swift in Sources */,
+				803A86F220FB7CA400E19427 /* CardParsingOperation.swift in Sources */,
 				8D4C72542069081C00235E82 /* EthAddress.swift in Sources */,
 				8D4B4A31205F8AD00094E712 /* RIPEMD160.swift in Sources */,
 				800036692111060900C151E8 /* ModalActionViewController.swift in Sources */,
@@ -766,12 +797,14 @@
 				800036792111097700C151E8 /* UIViewExtensions.swift in Sources */,
 				8D2B2BE820850A6100E0AFA9 /* PBHex.swift in Sources */,
 				8D2B2BD920850A3E00E0AFA9 /* scalar_impl.swift in Sources */,
+				80205B83215FCAFF0091618F /* NavigationManager.swift in Sources */,
 				8D2B2BEB20850A6700E0AFA9 /* lax_der_privatekey_parsing.swift in Sources */,
 				8D2B2BF120850A7F00E0AFA9 /* lax_der_parsing.swift in Sources */,
 				8D2B2C0620850AAB00E0AFA9 /* field_impl.swift in Sources */,
 				8D8E40872046C8F7002E6266 /* TLVUtils.swift in Sources */,
 				8D2B2BCA2085097900E0AFA9 /* Verify.swift in Sources */,
 				8D03610120225C1400F13A39 /* Card.swift in Sources */,
+				80205B85215FDF390091618F /* TestCardParsingCapable.swift in Sources */,
 				80003683213C6AAF00C151E8 /* ReaderMoreViewController.swift in Sources */,
 				800036772111090F00C151E8 /* UIImage+ImageEffects.m in Sources */,
 			);
