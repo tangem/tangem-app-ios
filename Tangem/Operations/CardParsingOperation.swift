@@ -32,122 +32,128 @@ class CardParsingOperation: Operation {
         }
         
         guard let payloadArr = hexPayload.asciiHexToData() else {
-            DispatchQueue.main.async {
-                self.completion(CardParsingResult.tlvError)
-            }
+            completeOperationWith(result: CardParsingResult.tlvError)
             return
         }
         
-        let payloadSize = payloadArr.count
         var offset: Int = 0
         
-        guard let _ = TLV.checkPIN(payloadArr, &offset) else {
-            DispatchQueue.main.async {
-                self.completion(CardParsingResult.locked)
-            }
+        guard !TLV.isLockedPIN(payloadArr, &offset) else {
+            completeOperationWith(result: CardParsingResult.locked)
             return
         }
         
         var card = Card()
+        var cardDataArray = [UInt8]()
         
-        var cardArr = [UInt8]()
+        processCardGeneralInfo(&offset, payloadArr, &cardDataArray, &card)
+        card.ribbonCase = checkRibbonCase(card)
+        
+        guard card.isWallet else {
+            completeOperationWith(result: CardParsingResult.success(card))
+            return
+        }
+        
+        processCardDataArray(cardDataArray, &card)
+        assignCardType(&card)
+        
+        completeOperationWith(result: CardParsingResult.success(card))
+    }
+    
+    func completeOperationWith(result: CardParsingResult) {
+        DispatchQueue.main.async {
+            self.completion(result)
+        }
+    }
+    
+    func processCardGeneralInfo(_ offset: inout Int, _ payloadArr: [UInt8], _ cardDataArray: inout [UInt8], _ card: inout Card) {
+        let payloadSize = payloadArr.count
         while (offset < payloadSize) {
             var tlv: TLV!
             do {
                 tlv = try TLV(data: payloadArr, &offset)
             } catch {
-                DispatchQueue.main.async {
-                    self.completion(CardParsingResult.tlvError)
-                }
+                completeOperationWith(result: CardParsingResult.tlvError)
             }
             
-            if tlv.tagName == "Card_Data" {
-                cardArr = tlv.hexBinaryValues
+            if tlv.tagName == .cardData {
+                cardDataArray = tlv.hexBinaryValues
             }
-            if tlv.tagName == "CardID" {
+            if tlv.tagName == .cardId {
                 card.cardID = tlv.stringValue
             }
-            if tlv.tagName == "RemainingSignatures" {
+            if tlv.tagName == .remainingSignatures {
                 card.remainingSignatures = tlv.stringValue
             }
-            if tlv.tagName == "Wallet_PublicKey" {
+            if tlv.tagName == .walletPublicKey {
                 card.isWallet = true
                 card.hexPublicKey = tlv.hexStringValue
                 card.pubArr = tlv.hexBinaryValues
             }
-            if tlv.tagName == "Wallet_Signature"{
+            if tlv.tagName == .walletSignature{
                 card.signArr = tlv.hexBinaryValues
             }
-            if tlv.tagName == "Salt" {
+            if tlv.tagName == .salt {
                 card.salt = tlv.hexStringValue.lowercased()
             }
-            if tlv.tagName == "Challenge" {
+            if tlv.tagName == .challenge {
                 card.challenge = tlv.hexStringValue.lowercased()
             }
-            if tlv.tagName == "SignedHashes" {
+            if tlv.tagName == .signedHashes {
                 card.signedHashes = tlv.hexStringValue
             }
-            if tlv.tagName == "Firmware" {
+            if tlv.tagName == .firmware {
                 card.firmware = tlv.stringValue
             }
         }
-        
-        guard card.isWallet else {
-            card.ribbonCase = checkRibbonCase(card)
-            DispatchQueue.main.async {
-                self.completion(CardParsingResult.success(card))
-            }
-            return
-        }
-        
-        let cardArrSize = cardArr.count
+    }
+    
+    func processCardDataArray(_ cardDataArray: [UInt8], _ card: inout Card) {
+        let cardArrSize = cardDataArray.count
         var cardOffset: Int = 0
         while (cardOffset < cardArrSize){
             var tlv: TLV!
             do {
-                tlv = try TLV(data: cardArr, &cardOffset)
+                tlv = try TLV(data: cardDataArray, &cardOffset)
             } catch {
-                DispatchQueue.main.async {
-                    self.completion(CardParsingResult.tlvError)
-                }
+                completeOperationWith(result: CardParsingResult.tlvError)
             }
             
             guard tlv != nil else {
                 continue
             }
             
-            if tlv.tagName == "Blockchain_Name" {
+            if tlv.tagName == .blockchainName {
                 card.blockchainName = tlv.stringValue
             }
-            if tlv.tagName == "Issuer_Name" {
+            if tlv.tagName == .issuerName {
                 card.issuer = tlv.stringValue
             }
-            if tlv.tagName == "Manufacture_Date_Time" {
+            if tlv.tagName == .manufacturerDateTime {
                 card.manufactureDateTime = tlv.stringValue
             }
-            if tlv.tagName == "Batch_ID" {
+            if tlv.tagName == .batchId {
                 card.batchId = Int(tlv.hexStringValue, radix: 16)!
             }
-            if tlv.tagName == "SignedHashes" {
+            if tlv.tagName == .signedHashes {
                 card.signedHashes = tlv.hexStringValue
             }
-            if tlv.tagName == "Token_Symbol" {
+            if tlv.tagName == .tokenSymbol {
                 card.tokenSymbol = tlv.stringValue
             }
-            if tlv.tagName == "Token_Contract_Address" {
+            if tlv.tagName == .tokenContractAddress {
                 card.tokenContractAddress = tlv.stringValue
             }
-            if tlv.tagName == "Token_Decimal" {
+            if tlv.tagName == .tokenDecimal {
                 card.tokenDecimal = Int(tlv.hexStringValue, radix: 16)!
             }
-            if tlv.tagName == "Manufacturer_Signature" {
+            if tlv.tagName == .manufacturerSignature {
                 card.manufactureSignature = tlv.hexStringValue
-            }
-            
+            }   
         }
-        
-        card.ribbonCase = checkRibbonCase(card)
-        
+    }
+    
+    func assignCardType(_ card: inout Card) {
         let blockchainName = card.blockchainName
         
         if card.type == .btc {
@@ -170,11 +176,7 @@ class CardParsingOperation: Operation {
                 card.address = card.btcAddressTest
                 card.link = Links.bitcoinTestLink + card.address
             }
-            card.checkedBalance = false
             
-            DispatchQueue.main.async {
-                self.completion(CardParsingResult.success(card))
-            }
         } else {
             card.blockchain = "Ethereum"
             card.node = "mainnet.infura.io"
@@ -191,13 +193,7 @@ class CardParsingOperation: Operation {
             } else {
                 card.link = Links.ethereumTestLink + card.address
             }
-            
-            card.checkedBalance = false
-            DispatchQueue.main.async {
-                self.completion(CardParsingResult.success(card))
-            }
         }
-        
     }
     
 }
