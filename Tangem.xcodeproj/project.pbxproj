@@ -550,7 +550,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
 				LastUpgradeCheck = 0940;
-				ORGANIZATIONNAME = "dns user";
+				ORGANIZATIONNAME = "Smart Cash AG";
 				TargetAttributes = {
 					8D946D842018DA92006C73D9 = {
 						CreatedOnToolsVersion = 9.2;
