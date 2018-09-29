@@ -60,22 +60,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         if #available(iOS 12, *) {
-            return checkUserActivityForBacgroundNFC(userActivity)
+            return checkUserActivityForBackgroundNFC(userActivity)
         }
         
         return true
     }
     
     @available(iOS 12.0, *)
-    func checkUserActivityForBacgroundNFC(_ userActivity: NSUserActivity) -> Bool {
+    func checkUserActivityForBackgroundNFC(_ userActivity: NSUserActivity) -> Bool {
         
         let ndefMessage = userActivity.ndefMessagePayload
         guard ndefMessage.records.count > 0,
             ndefMessage.records[0].typeNameFormat != .empty else {
                 return false
         }
-        
-        
         
         return true
     }
