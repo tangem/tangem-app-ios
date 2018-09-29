@@ -56,7 +56,7 @@ extension UInt64 {
 }
 
 extension UInt8 {
-    public func toAsciiHex() -> String{
+    public func toAsciiHex() -> String {
         let temp = self;
         return String(format: "%02X", temp);
     }
@@ -95,13 +95,13 @@ extension String{
     }
     
     
-        func contains(find: String) -> Bool{
-            return self.range(of: find) != nil
-        }
+    func contains(find: String) -> Bool{
+        return self.range(of: find) != nil
+    }
     
-        func containsIgnoringCase(find: String) -> Bool{
-            return self.range(of: find, options: .caseInsensitive) != nil
-        }
+    func containsIgnoringCase(find: String) -> Bool{
+        return self.range(of: find, options: .caseInsensitive) != nil
+    }
 
 }
 
