@@ -8,6 +8,13 @@
 
 import Foundation
 
+struct Links {
+    static let bitcoinMainLink = "https://blockchain.info/address/"
+    static let bitcoinTestLink = "https://testnet.blockchain.info/address/"
+    static let ethereumMainLink = "https://etherscan.io/address/"
+    static let ethereumTestLink = "https://rinkeby.etherscan.io/address/"
+}
+
 enum WalletType {
     case btc
     case eth
@@ -61,12 +68,19 @@ struct Card {
     var checkedResult = true
     var checkedBalance = false
     
-    // Ribbons vars
+    var maxSignatures: String?
+    
     var signedHashes: String = ""
     var firmware: String = "Not available"
     
-    // Default value
     var ribbonCase: Int = 0
+    
+    /*
+     1 - Firmware contains simbol 'd'
+     2 - Firmware contains simbol 'r' and SignedHashes == ""
+     3 - Firmware contains simbol 'r' and SignedHashes <> ""
+     4 - Version < 1.19 (Format firmware -  x.xx + любое кол-во других символов)
+     */
     
     var type: WalletType {
         if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
@@ -166,17 +180,107 @@ struct Card {
         }
     }
     
-    /*
-     1 - Firmware contains simbol 'd'
-     2 - Firmware contains simbol 'r' and SignedHashes == ""
-     3 - Firmware contains simbol 'r' and SignedHashes <> ""
-     4 - Version < 1.19 (Format firmware -  x.xx + любое кол-во других символов)
-     */
-}
+    init() {
+        self.init(tags: [TLV]())
+    }
+    
+    init(tags: [TLV]) {
+        tags.forEach({
+            switch $0.tagName {
+            case .cardId:
+                cardID = $0.stringValue
+            case .firmware:
+                firmware = $0.stringValue
+            case .batchId:
+                batchId = Int($0.hexStringValue, radix: 16)!
+            case .manufacturerDateTime:
+                manufactureDateTime = $0.stringValue
+            case .issuerName:
+                issuer = $0.stringValue
+            case .blockchainName:
+                blockchainName = $0.stringValue
+            case .tokenSymbol:
+                tokenSymbol = $0.stringValue
+            case .tokenContractAddress:
+                tokenContractAddress = $0.stringValue
+            case .tokenDecimal:
+                tokenDecimal = Int($0.hexStringValue, radix: 16)!
+            case .manufacturerSignature:
+                manufactureSignature = $0.hexStringValue
+            case .walletPublicKey:
+                isWallet = true
+                hexPublicKey = $0.hexStringValue
+                pubArr = $0.hexBinaryValues
+            case .maxSignatures:
+                maxSignatures = $0.stringValue
+            case .remainingSignatures:
+                remainingSignatures = $0.stringValue
+            case .signedHashes:
+                signedHashes = $0.hexStringValue
+            case .challenge:
+                challenge = $0.hexStringValue.lowercased()
+            case .salt:
+                salt = $0.hexStringValue.lowercased()
+            case .walletSignature:
+                signArr = $0.hexBinaryValues
 
-struct Links {
-    static let bitcoinMainLink = "https://blockchain.info/address/"
-    static let bitcoinTestLink = "https://testnet.blockchain.info/address/"
-    static let ethereumMainLink = "https://etherscan.io/address/"
-    static let ethereumTestLink = "https://rinkeby.etherscan.io/address/"
+            case .health, .cardPublicKey, .settingsMask:
+                break
+                
+            default:
+                assertionFailure("Tag \($0) doesn't have a handler")
+            }
+        })
+        
+        setupAddress()
+    }
+    
+    mutating func setupAddress() {
+        if type == .btc {
+            setupBTCAddress()
+        } else {
+            setupETHAddress()
+        }
+    }
+    
+    mutating func setupBTCAddress() {
+        blockchain = "Bitcoin"
+        node = randomNode()
+        if blockchainName.containsIgnoringCase(find: "test"){
+            isTestNet = true
+            blockchain = "Bitcoin TestNet"
+            node = randomTestNode()
+        }
+        if let addr = getAddress(hexPublicKey) {
+            btcAddressMain = addr[0]
+            btcAddressTest = addr[1]
+        }
+        walletUnits = "BTC"
+        if !isTestNet {
+            address = btcAddressMain
+            link = Links.bitcoinMainLink + address
+        } else {
+            address = btcAddressTest
+            link = Links.bitcoinTestLink + address
+        }
+    }
+    
+    mutating func setupETHAddress() {
+        blockchain = "Ethereum"
+        node = "mainnet.infura.io"
+        if blockchainName.containsIgnoringCase(find: "test"){
+            isTestNet = true
+            blockchain = "Ethereum Rinkeby"
+            node = "rinkeby.infura.io"
+        }
+        ethAddress = getEthAddress(hexPublicKey)
+        walletUnits = tokenSymbol.isEmpty ? "ETH" : tokenSymbol
+        address = ethAddress
+        if !isTestNet {
+            link = Links.ethereumMainLink + address
+        } else {
+            link = Links.ethereumTestLink + address
+        }
+    }
+    
 }
