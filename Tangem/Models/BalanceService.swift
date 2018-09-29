@@ -10,7 +10,7 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
-class BalanceService{
+class BalanceService {
     
     static let sharedInstance = BalanceService()
     let balanceFormatter: NumberFormatter = {
@@ -61,7 +61,7 @@ class BalanceService{
     }
     
     func getBitcoinMain(_ address:String, completionHandler: @escaping (Int?, String?) -> ()) {
-        Alamofire.request("https://blockchain.info/balance?active="+address, method:.get).responseJSON { response in
+        Alamofire.request("https://blockchain.info/balance?active="+address, method: .get).responseJSON { response in
             switch response.result {
             case .success(let value):
                 
@@ -124,7 +124,7 @@ class BalanceService{
         request.httpBody = jsonData
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-            guard  let data = data else {
+            guard let data = data else {
                 completionHandler(nil, "error")
                 return
             }
@@ -142,21 +142,22 @@ class BalanceService{
                 }
                 
                 if checkStr == "0x0" {
-                    completionHandler(0,nil)
+                    completionHandler(0, nil)
                 }
-                let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex,offsetBy:2)...])
+                let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex,offsetBy: 2)...])
                 print("RESULT \(checkStr)")
                 
                 let checkArray = checkWithoutTwoFirstLetters.asciiHexToData()
                 guard let checkArrayUInt8 = checkArray else {
+                    completionHandler(nil, "error")
                     return
                 }
                 let checkInt64 = arrayToUInt64(checkArrayUInt8)
                 
-                completionHandler(checkInt64,nil)
+                completionHandler(checkInt64, nil)
             } catch {
                 print("error:", error)
-                completionHandler(nil,String(describing: error))
+                completionHandler(nil, String(describing: error))
             }
         }
         
