@@ -47,7 +47,7 @@ public enum TLVTagName: String {
     case manufacturerSignature = "Manufacturer_Signature"
     case cardPublicKey = "Card_PublicKey"
     case walletPublicKey = "Wallet_PublicKey"
-    case maxSignature = "MaxSignatures"
+    case maxSignatures = "MaxSignatures"
     case remainingSignatures = "RemainingSignatures"
     case signedHashes = "SignedHashes"
     case challenge = "Challenge"
@@ -86,7 +86,7 @@ public class TLV {
         tags.append(TLVTag(name: .manufacturerSignature, address: 0x86, length: 64))
         tags.append(TLVTag(name: .cardPublicKey, address: 0x03, length: 65))
         tags.append(TLVTag(name: .walletPublicKey, address: 0x60, length: 65))
-        tags.append(TLVTag(name: .maxSignature, address: 0x08, length: 4))
+        tags.append(TLVTag(name: .maxSignatures, address: 0x08, length: 4))
         tags.append(TLVTag(name: .remainingSignatures, address: 0x62, length: 4))
         tags.append(TLVTag(name: .signedHashes, address: 0x63, length: 4))
         tags.append(TLVTag(name: .challenge, address: 0x16, length: 16))
