@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum TLVError: Error{
+enum TLVError: Error {
     
     case wrongTLV
     
