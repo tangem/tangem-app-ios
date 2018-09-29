@@ -12,103 +12,100 @@ import CommonCrypto
 class TangemTests: XCTestCase {
     
     func testSEEDTokenCard() {
-        let payload = TestData.seed.rawValue.asciiHexToData()!
-        
-        let expectation = XCTestExpectation(description: "Card values parsing check")
-        
-        let operation = CardParsingOperation(payload: Data(payload)) { (result) in
-            guard case .success(let card) = result else {
-                XCTFail()
-                return
-            }
-            
+        validateCardWith(payload: Data(TestData.seed.rawValue.asciiHexToData()!)) { (card) in
             self.validateSEEDCard(card)
-            expectation.fulfill()
         }
-        operation.start()
-        
-        self.wait(for: [expectation], timeout: 5)
-        
     }
     
     func testBTCCard() {
-        let payload = TestData.btcWallet.rawValue.asciiHexToData()!
-        
-        let expectation = XCTestExpectation(description: "Card values parsing check")
-        
-        let operation = CardParsingOperation(payload: Data(payload)) { (result) in
-            guard case .success(let card) = result else {
-                XCTFail()
-                return
-            }
-            
+        validateCardWith(payload: Data(TestData.btcWallet.rawValue.asciiHexToData()!)) { (card) in
             self.validateBTCCard(card)
-            expectation.fulfill()
         }
-        operation.start()
-        
-        self.wait(for: [expectation], timeout: 5)
-        
     }
     
     func testTokenContractAddress() {
-        var card = Card()
-        card.tokenContractAddress = "0x4E7Bd88E3996f48E2a24D15E37cA4C02B4D134d2"
-        
-        card.batchId = 0x0019
-        XCTAssertEqual(card.tokenContractAddress, "0x0c056b0cda0763cc14b8b2d6c02465c91e33ec72")
-        
-        card.batchId = 0x0017
-        XCTAssertEqual(card.tokenContractAddress, "0x9Eef75bA8e81340da9D8d1fd06B2f313DB88839c")
-        
-        card.batchId = 0x0012
-        XCTAssertEqual(card.tokenContractAddress, "0x4E7Bd88E3996f48E2a24D15E37cA4C02B4D134d2")
+        validateCardWith(payload: Data(TestData.seed.rawValue.asciiHexToData()!)) { (card) in
+            var mutableCard = card
+            
+            mutableCard.tokenContractAddress = "0x4E7Bd88E3996f48E2a24D15E37cA4C02B4D134d2"
+            
+            mutableCard.batchId = 0x0019
+            XCTAssertEqual(mutableCard.tokenContractAddress, "0x0c056b0cda0763cc14b8b2d6c02465c91e33ec72")
+            
+            mutableCard.batchId = 0x0017
+            XCTAssertEqual(mutableCard.tokenContractAddress, "0x9Eef75bA8e81340da9D8d1fd06B2f313DB88839c")
+            
+            mutableCard.batchId = 0x0012
+            XCTAssertEqual(mutableCard.tokenContractAddress, "0x4E7Bd88E3996f48E2a24D15E37cA4C02B4D134d2")
+        }
     }
     
     func testCardImageNames() {
         
-        let btc001ImageName = "card-btc001"
-        let btc005ImageName = "card-btc005"
+        validateCardWith(payload: Data(TestData.btcWallet.rawValue.asciiHexToData()!)) { (card) in
+            var mutableCard = card
+            
+            let btc001ImageName = "card-btc001"
+            let btc005ImageName = "card-btc005"
+            
+            mutableCard.batchId = 0x0010
+            mutableCard.cardID = "CB02 0000 0000 0000"
+            XCTAssertEqual(mutableCard.imageName, btc001ImageName)
+            mutableCard.cardID = "CB02 0000 0002 4990"
+            XCTAssertEqual(mutableCard.imageName, btc001ImageName)
+            
+            mutableCard.cardID = "CB02 0000 0002 5000"
+            XCTAssertEqual(mutableCard.imageName, btc005ImageName)
+            mutableCard.cardID = "CB02 0000 0004 9990"
+            XCTAssertEqual(mutableCard.imageName, btc005ImageName)
+            
+            mutableCard.cardID = "CB05 0000 1000 0000"
+            XCTAssertEqual(mutableCard.imageName, btc001ImageName)
+            
+            mutableCard.batchId = 0x0008
+            mutableCard.cardID = "AE01 0000 0000 0000"
+            XCTAssertEqual(mutableCard.imageName, btc001ImageName)
+            
+            mutableCard.cardID = "AE01 0000 0000 4990"
+            XCTAssertEqual(mutableCard.imageName, btc001ImageName)
+            
+            mutableCard.cardID = "AE01 0000 0000 5000"
+            XCTAssertEqual(mutableCard.imageName, btc005ImageName)
+            
+            mutableCard.cardID = "AA01 0000 0000 0000"
+            XCTAssertEqual(mutableCard.imageName, btc001ImageName)
+            
+            mutableCard.cardID = "AA01 0000 0000 4990"
+            XCTAssertEqual(mutableCard.imageName, btc001ImageName)
+            
+            mutableCard.cardID = "AA01 0000 0000 5000"
+            XCTAssertEqual(mutableCard.imageName, btc005ImageName)
+        }
         
-        var card = Card()
-        
-        card.batchId = 0x0010
-        card.cardID = "CB02 0000 0000 0000"
-        XCTAssertEqual(card.imageName, btc001ImageName)
-        card.cardID = "CB02 0000 0002 4990"
-        XCTAssertEqual(card.imageName, btc001ImageName)
-        
-        card.cardID = "CB02 0000 0002 5000"
-        XCTAssertEqual(card.imageName, btc005ImageName)
-        card.cardID = "CB02 0000 0004 9990"
-        XCTAssertEqual(card.imageName, btc005ImageName)
-        
-        card.cardID = "CB05 0000 1000 0000"
-        XCTAssertEqual(card.imageName, btc001ImageName)
-        
-        card.batchId = 0x0008
-        card.cardID = "AE01 0000 0000 0000"
-        XCTAssertEqual(card.imageName, btc001ImageName)
-        
-        card.cardID = "AE01 0000 0000 4990"
-        XCTAssertEqual(card.imageName, btc001ImageName)
-        
-        card.cardID = "AE01 0000 0000 5000"
-        XCTAssertEqual(card.imageName, btc005ImageName)
-        
-        card.cardID = "AA01 0000 0000 0000"
-        XCTAssertEqual(card.imageName, btc001ImageName)
-        
-        card.cardID = "AA01 0000 0000 4990"
-        XCTAssertEqual(card.imageName, btc001ImageName)
-        
-        card.cardID = "AA01 0000 0000 5000"
-        XCTAssertEqual(card.imageName, btc005ImageName)
     }
+    
+    
 
 }
 
 extension TangemTests {
+    
+    func validateCardWith(payload: Data, validationBlock: @escaping (Card) -> Void) {
+        let expectation = XCTestExpectation(description: "Card values parsing check")
+        
+        let operation = CardParsingOperation(payload: Data(payload)) { (result) in
+            guard case .success(let card) = result else {
+                XCTFail()
+                return
+            }
+            
+            validationBlock(card)
+            expectation.fulfill()
+        }
+        operation.start()
+        
+        self.wait(for: [expectation], timeout: 5)
+    }
     
     func validateSEEDCard(_ card: Card) {
         XCTAssertEqual(card.cardID, "CB03 0000 0000 0002")
