@@ -21,7 +21,7 @@ enum WalletType {
 struct Card {
     
     var cardID: String = ""
-    var isWallet: Bool = false
+    var isWallet = false
     
     var address: String = ""
     var btcAddressTest: String = ""
@@ -57,9 +57,9 @@ struct Card {
     var challenge: String?
     var signArr: [UInt8] = [UInt8]()
     var pubArr: [UInt8] = [UInt8]()
-    var checked: Bool = false
-    var checkedResult: Bool = true
-    var checkedBalance: Bool = false
+    var checked = false
+    var checkedResult = true
+    var checkedBalance = false
     
     // Ribbons vars
     var signedHashes: String = ""
