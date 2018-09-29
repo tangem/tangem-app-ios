@@ -4,7 +4,8 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>tangem.com</string>
+		<string>activitycontinuation:www.tangem.com</string>
+		<string>applinks:example.com</string>
 	</array>
 	<key>com.apple.developer.nfc.readersession.formats</key>
 	<array>
