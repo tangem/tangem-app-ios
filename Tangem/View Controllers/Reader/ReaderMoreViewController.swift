@@ -3,7 +3,7 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2018 dns user. All rights reserved.
+//  Copyright © 2018 Smart Cash AG. All rights reserved.
 //
 
 import Foundation
