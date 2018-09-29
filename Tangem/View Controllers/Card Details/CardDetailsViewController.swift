@@ -9,7 +9,7 @@
 import UIKit
 import QRCode
 
-class CardDetailsViewController: UIViewController {
+class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     
     @IBOutlet var viewModel: CardDetailsViewModel!
     
@@ -21,12 +21,10 @@ class CardDetailsViewController: UIViewController {
     let operationQueue = OperationQueue()
     
     let helper = NFCHelper()
-    let cardParser = CardParser()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.cardParser.delegate = self
+
         self.helper.delegate = self
     }
     
@@ -263,12 +261,21 @@ class CardDetailsViewController: UIViewController {
         self.present(viewController, animated: true, completion: nil)
     }
     
-    func showSimulationSheet() {
-        let alertController = UIAlertController.testDataAlertController { (testData) in
-            self.cardParser.parse(payload: testData.rawValue)
-        }
+    func launchParsingOperationWith(payload: Data) {
+        operationQueue.cancelAllOperations()
         
-        self.present(alertController, animated: true, completion: nil)
+        let operation = CardParsingOperation(payload: payload) { (result) in
+            switch result {
+            case .success(let card):
+                self.cardDetails = card
+                self.setupWithCardDetails()
+            case .locked:
+                self.handleCardParserLockedCard()
+            case .tlvError:
+                self.handleCardParserWrongTLV()
+            }
+        }
+        operationQueue.addOperation(operation)
     }
     
 }
@@ -279,35 +286,27 @@ extension CardDetailsViewController: NFCHelperDelegate {
         print("\(error.localizedDescription)")
     }
     
-    func nfcHelper(_ helper: NFCHelper, didDetectCardWith hexPayload: String) {
-        DispatchQueue.main.async {
-            self.cardParser.parse(payload: hexPayload)
-        }
+    func nfcHelper(_ helper: NFCHelper, didDetectCardWith payload: Data) {
+        launchParsingOperationWith(payload: payload)
     }
     
 }
 
-extension CardDetailsViewController: CardParserDelegate {
+extension CardDetailsViewController {
     
-    func cardParserWrongTLV(_ parser: CardParser) {
+    func handleCardParserWrongTLV() {
         let validationAlert = UIAlertController(title: "Error", message: "Failed to parse data received from the banknote", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
     
-    func cardParserLockedCard(_ parser: CardParser) {
+    func handleCardParserLockedCard() {
         print("Card is locked, two first bytes are equal 0x6A86")
         let validationAlert = UIAlertController(title: "Info", message: "This app can’t read protected Tangem banknotes", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
-    
-    func cardParser(_ parser: CardParser, didFinishWith card: Card) {
-        operationQueue.cancelAllOperations()
-        
-        cardDetails = card
-        setupWithCardDetails()
-    }
+
 }
 
 extension CardDetailsViewController: LoadViewControllerDelegate {
