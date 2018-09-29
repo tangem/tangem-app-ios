@@ -37,46 +37,12 @@ struct Card {
     var manufactureSignature: String = ""
     var batchId: Int = 0x0
     var remainingSignatures:  String = ""
-    var type: WalletType {
-        if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
-            return .btc
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "eth") {
-            switch tokenSymbol {
-            case "SEED":
-                return .seed
-            case "QLEAR":
-                return .qlear
-            case "CLE":
-                return .cle
-            case "ERT":
-                return .ert
-            default:
-                return .eth
-            }
-        }
-        
-        return .empty
-    }
+    
     var isTestNet = false
     var mult = ""
     
     var tokenSymbol: String = ""
-    private var tokenContractAddressPrivate: String?
-    var tokenContractAddress: String? {
-        set {
-            tokenContractAddressPrivate = newValue
-        }
-        get {
-            if batchId == 0x0019 { // CLE
-                return "0x0c056b0cda0763cc14b8b2d6c02465c91e33ec72"
-            } else if batchId == 0x0017 { // Qlear
-                return "0x9Eef75bA8e81340da9D8d1fd06B2f313DB88839c"
-            }
-            return tokenContractAddressPrivate
-        }
-    }
+    
     var tokenDecimal: Int = 0
     
     var walletValue = "0.00"
@@ -101,6 +67,44 @@ struct Card {
     
     // Default value
     var ribbonCase: Int = 0
+    
+    var type: WalletType {
+        if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
+            return .btc
+        }
+        
+        if blockchainName.containsIgnoringCase(find: "eth") {
+            switch tokenSymbol {
+            case "SEED":
+                return .seed
+            case "QLEAR":
+                return .qlear
+            case "CLE":
+                return .cle
+            case "ERT":
+                return .ert
+            default:
+                return .eth
+            }
+        }
+        
+        return .empty
+    }
+    
+    private var tokenContractAddressPrivate: String?
+    var tokenContractAddress: String? {
+        set {
+            tokenContractAddressPrivate = newValue
+        }
+        get {
+            if batchId == 0x0019 { // CLE
+                return "0x0c056b0cda0763cc14b8b2d6c02465c91e33ec72"
+            } else if batchId == 0x0017 { // Qlear
+                return "0x9Eef75bA8e81340da9D8d1fd06B2f313DB88839c"
+            }
+            return tokenContractAddressPrivate
+        }
+    }
     
     var imageName: String {
         switch batchId {
