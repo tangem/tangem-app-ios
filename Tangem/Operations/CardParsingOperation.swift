@@ -7,46 +7,58 @@
 //
 
 import UIKit
+import CoreNFC
 
-protocol CardParserDelegate: class {
+class CardParsingOperation: Operation {
     
-    func cardParserLockedCard(_ parser: CardParser)
-    func cardParserWrongTLV(_ parser: CardParser)
-    func cardParser(_ parser: CardParser, didFinishWith card: Card)
+    enum CardParsingResult {
+        case success(Card)
+        case tlvError
+        case locked
+    }
     
-}
-
-class CardParser: Any {
+    var payload: Data
+    var completion: (CardParsingResult) -> Void
     
-    weak var delegate: CardParserDelegate?
+    init(payload: Data, completion: @escaping (CardParsingResult) -> Void) {
+        self.payload = payload
+        self.completion = completion
+    }
     
-    func parse(payload: String) {
+    override func main() {
         
-        guard let payloadArr = payload.asciiHexToData()else {
-            print("Error of payload")
+        let hexPayload = payload.reduce("") {
+            return $0 + $1.toAsciiHex()
+        }
+        
+        guard let payloadArr = hexPayload.asciiHexToData() else {
+            DispatchQueue.main.async {
+                self.completion(CardParsingResult.tlvError)
+            }
             return
         }
         
         let payloadSize = payloadArr.count
         var offset: Int = 0
         
-        //Check if Card is locked
         guard let _ = TLV.checkPIN(payloadArr, &offset) else {
-            self.delegate?.cardParserLockedCard(self)
+            DispatchQueue.main.async {
+                self.completion(CardParsingResult.locked)
+            }
             return
         }
         
         var card = Card()
         
         var cardArr = [UInt8]()
-        while (offset < payloadSize){
+        while (offset < payloadSize) {
             var tlv: TLV!
             do {
                 tlv = try TLV(data: payloadArr, &offset)
-            } catch TLVError.wrongTLV {
-                self.delegate?.cardParserWrongTLV(self)
             } catch {
-                
+                DispatchQueue.main.async {
+                    self.completion(CardParsingResult.tlvError)
+                }
             }
             
             if tlv.tagName == "Card_Data" {
@@ -82,8 +94,9 @@ class CardParser: Any {
         
         guard card.isWallet else {
             card.ribbonCase = checkRibbonCase(card)
-            
-            self.delegate?.cardParser(self, didFinishWith: card)
+            DispatchQueue.main.async {
+                self.completion(CardParsingResult.success(card))
+            }
             return
         }
         
@@ -93,10 +106,10 @@ class CardParser: Any {
             var tlv: TLV!
             do {
                 tlv = try TLV(data: cardArr, &cardOffset)
-            } catch TLVError.wrongTLV {
-                self.delegate?.cardParserWrongTLV(self)
             } catch {
-                
+                DispatchQueue.main.async {
+                    self.completion(CardParsingResult.tlvError)
+                }
             }
             
             guard tlv != nil else {
@@ -159,7 +172,9 @@ class CardParser: Any {
             }
             card.checkedBalance = false
             
-            self.delegate?.cardParser(self, didFinishWith: card)
+            DispatchQueue.main.async {
+                self.completion(CardParsingResult.success(card))
+            }
         } else {
             card.blockchain = "Ethereum"
             card.node = "mainnet.infura.io"
@@ -178,8 +193,11 @@ class CardParser: Any {
             }
             
             card.checkedBalance = false
-            self.delegate?.cardParser(self, didFinishWith: card)
+            DispatchQueue.main.async {
+                self.completion(CardParsingResult.success(card))
+            }
         }
+        
     }
     
 }
