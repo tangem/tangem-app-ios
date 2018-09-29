@@ -106,9 +106,18 @@ class CardDetailsViewModel: NSObject {
     
     @IBOutlet weak var balanceVerificationActivityIndicator: UIActivityIndicatorView!
     
+    @IBOutlet weak var cardWalletInfoView: UIView!
+    @IBOutlet weak var cardWalletInfoLoadingView: UIView!
 }
 
 extension CardDetailsViewModel {
+    
+    func setWalletInfoLoading(_ loading: Bool) {
+        UIView.animate(withDuration: 0.1) {
+            self.cardWalletInfoView.isHidden = loading
+            self.cardWalletInfoLoadingView.isHidden = !loading
+        }
+    }
     
     func updateNetworkSafetyDescription(_ text: String) {
 //        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 8.0)
