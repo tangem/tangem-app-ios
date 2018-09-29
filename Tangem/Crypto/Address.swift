@@ -8,7 +8,7 @@
 
 import Foundation
 
-func getAddress(_ hexWalletPublicKey:String) -> [String]?{
+func getAddress(_ hexWalletPublicKey: String) -> [String]? {
     var Addresses = [String]() // Addresses[0] Bitcoin Main; Addresses[1] Bitcoin TestNet
     
     //let hexPublicKeyTest = "0450863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B23522CD470243453A299FA9E77237716103ABC11A1DF38855ED6F2EE187E9C582BA6"
@@ -76,22 +76,22 @@ func getAddress(_ hexWalletPublicKey:String) -> [String]?{
     let address = String(base58Encoding: binaryForBase58) //Address
     //Шаг 9    16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM
     
-    
     let hexRipend1601 = "6F" + binaryRipemd160.hexEncodedString()
     let binaryExtendedRipemd1 = dataWithHexString(hex: hexRipend1601)
+    
     guard let binaryOneSha1 = sha256(binaryExtendedRipemd1) else {
         return nil
     }
+    
     guard let binaryTwoSha1 = sha256(binaryOneSha1) else {
         return nil
     }
+    
     let binaryTwoShaToHex1 = binaryTwoSha1.hexEncodedString()
     let checkHex1 = String(binaryTwoShaToHex1[..<binaryTwoShaToHex1.index(binaryTwoShaToHex1.startIndex, offsetBy: 8)])
     let addCheckToRipemd1 = hexRipend1601 + checkHex1 //binary Address
     let binaryForBase581 = dataWithHexString(hex: addCheckToRipemd1)
     let address1 = String(base58Encoding: binaryForBase581) //Address
-    
-    
     
     Addresses.append(address)
     Addresses.append(address1)
