@@ -114,6 +114,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     func getBalance() {
 
         let onResult = { (card: Card) in
+            self.viewModel.setWalletInfoLoading(false)
+            
             guard card.error == 0 else {
                 self.viewModel.updateWalletBalance("--")
                 
@@ -263,6 +265,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     
     func launchParsingOperationWith(payload: Data) {
         operationQueue.cancelAllOperations()
+        viewModel.setWalletInfoLoading(true)
         
         let operation = CardParsingOperation(payload: payload) { (result) in
             switch result {
