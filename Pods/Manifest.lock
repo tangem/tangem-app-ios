@@ -14,6 +14,15 @@ DEPENDENCIES:
   - QRCode
   - SwiftyJSON (= 3.0.0)
 
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Alamofire
+    - BigInt
+    - CryptoSwift
+    - QRCode
+    - SipHash
+    - SwiftyJSON
+
 SPEC CHECKSUMS:
   Alamofire: f41a599bd63041760b26d393ec1069d9d7b917f4
   BigInt: 8e8a52161c745cd3ab78e3dc346a9fbee51e6cf6
@@ -22,6 +31,6 @@ SPEC CHECKSUMS:
   SipHash: c6e9e43e9c531b5bc6602545130c26194a6d31ce
   SwiftyJSON: f57b2b44bc166617372d1c70773591fe9f0f5fd4
 
-PODFILE CHECKSUM: 268722be3c80b8607aa7f48c7a4c7596deef1e8f
+PODFILE CHECKSUM: 69a9571d8bac2128d497f355c8629bc3a693ad4c
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.0
