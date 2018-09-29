@@ -8,7 +8,6 @@
 
 #ifndef Tangem_Bridging_Header_h
 #define Tangem_Bridging_Header_h
-    #import <CommonCrypto/CommonHMAC.h>
     #import <UIKit/UIKit.h>
     #import "UIImage+ImageEffects.h"
 
