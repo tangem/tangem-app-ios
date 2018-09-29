@@ -12,7 +12,7 @@ import CoreNFC
 protocol NFCHelperDelegate {
     
     func nfcHelper(_ helper: NFCHelper, didInvalidateWith error: Error)
-    func nfcHelper(_ helper: NFCHelper, didDetectCardWith hexPayload: String)
+    func nfcHelper(_ helper: NFCHelper, didDetectCardWith payload: Data)
     
 }
 
@@ -44,11 +44,7 @@ class NFCHelper: NSObject, NFCNDEFReaderSessionDelegate {
         }
         
         for record in payloads {
-            let hexPayload = record.payload.reduce("") { (result, byte) -> String in
-                return result + byte.toAsciiHex()
-            }
-            
-            self.delegate?.nfcHelper(self, didDetectCardWith: hexPayload)
+            self.delegate?.nfcHelper(self, didDetectCardWith: record.payload)
         }
     }
     
