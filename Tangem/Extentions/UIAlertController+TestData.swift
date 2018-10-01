@@ -27,6 +27,10 @@ extension UIAlertController {
         let qlearAction = UIAlertAction(title: "Qlear", style: .default) { (_) in
             handler(TestData.qlear)
         }
+        let whirlAction = UIAlertAction(title: "Whirl", style: .default) { (_) in
+            handler(TestData.whirl)
+        }
+        
         let noWalletAction = UIAlertAction(title: "No wallet", style: .default) { (_) in
             handler(TestData.noWallet)
         }
@@ -37,6 +41,7 @@ extension UIAlertController {
         alertController.addAction(ertAction)
         alertController.addAction(seedAction)
         alertController.addAction(qlearAction)
+        alertController.addAction(whirlAction)
         alertController.addAction(noWalletAction)
         alertController.addAction(cancelAction)
         
