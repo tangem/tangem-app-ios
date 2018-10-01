@@ -102,7 +102,7 @@ public class TLV {
             assertionFailure("Didn't found a tag with code \(self.tagHexStringCode)")
             return
         }
-        print("0x\(ltvTag.address.toAsciiHex()): \(ltvTag.name)")
+        // print("0x\(ltvTag.address.toAsciiHex()): \(ltvTag.name)")
         
         self.tagName = ltvTag.name
         
@@ -111,6 +111,10 @@ public class TLV {
         }
         
         self.tagLength = tagLength
+        
+        guard tagLength > 0 else {
+            return
+        }
         
         let end = offset + Int(tagLength)
         guard end <= data.count else {
