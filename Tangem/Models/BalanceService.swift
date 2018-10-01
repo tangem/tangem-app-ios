@@ -125,31 +125,30 @@ class BalanceService {
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard let data = data else {
-                completionHandler(nil, "error")
+                completionHandler(nil, "ETH Main – No balance response data")
                 return
             }
             
             do {
                 guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
-                    completionHandler(nil, "error")
+                    completionHandler(nil, "ETH Main – JSON serialization error")
                     return
                 }
                 
                 let check = json["result"] as? String
                 guard let checkStr = check else {
-                    completionHandler(nil, "error")
+                    completionHandler(nil, "ETH Main – Missing check string")
                     return
                 }
                 
                 if checkStr == "0x0" {
                     completionHandler(0, nil)
                 }
+                
                 let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex,offsetBy: 2)...])
-                print("RESULT \(checkStr)")
                 
                 let checkArray = checkWithoutTwoFirstLetters.asciiHexToData()
                 guard let checkArrayUInt8 = checkArray else {
-                    completionHandler(nil, "error")
                     return
                 }
                 let checkInt64 = arrayToUInt64(checkArrayUInt8)
@@ -177,19 +176,19 @@ class BalanceService {
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard  let data = data else {
-                completionHandler(nil,"error")
+                completionHandler(nil,"ETH Test – No balance response data")
                 return
             }
             
             do {
                 guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
-                    completionHandler(nil, "error")
+                    completionHandler(nil, "ETH Test – JSON serialization error")
                     return
                 }
                 
                 let check = json["result"] as? String
                 guard let checkStr = check else {
-                    completionHandler(nil, "error")
+                    completionHandler(nil, "ETH Test – Missing check string")
                     return
                 }
                 
@@ -203,7 +202,6 @@ class BalanceService {
                 }
                 let checkInt64 = arrayToUInt64(checkArrayUInt8)
                 
-                print("json: \(json)")
                 completionHandler(checkInt64, nil)
             } catch {
                 print("error:", error)
@@ -232,19 +230,18 @@ class BalanceService {
 
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard let data = data else {
-                completionHandler(nil, "error")
+                completionHandler(nil, "Token – No balance response data")
                 return
             }
             
             do {
                 guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else {
-                    completionHandler(nil, "error")
+                    completionHandler(nil, "Token – JSON serialization error")
                     return
                 }
-                print("RESULT \(json)")
                 let check = json["result"] as? String
                 guard let checkStr = check else {
-                    completionHandler(nil, "error")
+                    completionHandler(nil, "Token – Missing check string")
                     return
                 }
                 
@@ -252,8 +249,7 @@ class BalanceService {
                     completionHandler(0, nil)
                 }
                 let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex, offsetBy: 2)...])
-                print("RESULT \(checkStr)")
-                
+
                 let decimalNumber = arrayToDecimalNumber(checkWithoutTwoFirstLetters.asciiHexToData()!)
                 
                 completionHandler(decimalNumber, nil)
@@ -312,7 +308,6 @@ extension BalanceService {
                     card.usdWalletValue = ""
                 }
                 card.checkedBalance = true
-                print("Card BTC \(card)")
                 
                 DispatchQueue.main.async {
                     onResult(card)
@@ -371,7 +366,6 @@ extension BalanceService {
                     card.usdWalletValue = ""
                 }
                 card.checkedBalance = true
-                print("Card ETH: \(card)")
                 
                 DispatchQueue.main.async {
                     onResult(card)
@@ -437,7 +431,6 @@ extension BalanceService {
                 card.usdWalletValue = self.balanceFormatter.string(from: NSNumber(value: value))!
                 
                 card.checkedBalance = true
-                print("Card Token: \(card)")
                 
                 DispatchQueue.main.async {
                     onResult(card)
