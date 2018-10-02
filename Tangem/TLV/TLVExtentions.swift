@@ -66,32 +66,31 @@ extension UInt8 {
     }
 }
 
-extension String{
+extension String {
     
-    public func asciiHexToData() -> [UInt8]?{
-        //let trimmedString = self.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<> ")).stringByReplacingOccurrencesOfString(" ", withString: "")
-        let trimmedString = self.trimmingCharacters(in: NSCharacterSet(charactersIn: "<> ") as CharacterSet).replacingOccurrences(of: " ", with: "")
+    public func asciiHexToData() -> [UInt8]? {
         
-        if isValidHex(trimmedString) {
-            var data = [UInt8]()
-            var fromIndex = trimmedString.startIndex
-            while let toIndex = trimmedString.index(fromIndex, offsetBy: 2, limitedBy: trimmedString.endIndex) {
-                
-                // Extract hex code at position fromIndex ..< toIndex:
-                let byteString = String(trimmedString[fromIndex..<toIndex])
-                //print(byteString)
-                let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
-                data.append(num)
-                
-                // Advance to next position:
-                fromIndex = toIndex
-            }
-            
-            
-            return data
-        } else {
+        var trimmedString = self.trimmingCharacters(in: NSCharacterSet(charactersIn: "<> ") as CharacterSet).replacingOccurrences(of: " ", with: "")
+        if trimmedString.count % 2 != 0 {
+            trimmedString = "0" + trimmedString
+        }
+        
+        guard isValidHex(trimmedString) else {
             return nil
         }
+        
+        var data = [UInt8]()
+        var fromIndex = trimmedString.startIndex
+        while let toIndex = trimmedString.index(fromIndex, offsetBy: 2, limitedBy: trimmedString.endIndex) {
+            
+            let byteString = String(trimmedString[fromIndex..<toIndex])
+            let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
+            data.append(num)
+            
+            fromIndex = toIndex
+        }
+        
+        return data
     }
     
     
@@ -107,24 +106,20 @@ extension String{
 
 extension Data {
     
-    var hex: String {
-        var string = ""
-        
-        #if swift(>=3.1)
-            enumerateBytes { pointer, index, _ in
-                for i in index..<pointer.count {
-                    string += String(format: "%02x", pointer[i])
-                }
+    init?(hexString: String) {
+        let len = hexString.count / 2
+        var data = Data(capacity: len)
+        for i in 0..<len {
+            let j = hexString.index(hexString.startIndex, offsetBy: i*2)
+            let k = hexString.index(j, offsetBy: 2)
+            let bytes = hexString[j..<k]
+            if var num = UInt8(bytes, radix: 16) {
+                data.append(&num, count: 1)
+            } else {
+                return nil
             }
-        #else
-            enumerateBytes { pointer, count, _ in
-            for i in 0..<count {
-            string += String(format: "%02x", pointer[i])
-            }
-            }
-        #endif
-        
-        return string
+        }
+        self = data
     }
     
     init?(fromHexEncodedString string: String) {
@@ -161,31 +156,23 @@ extension Data {
         guard even else { return nil }
     }
     
-    
-}
-
-extension Data {
-    init?(hexString: String) {
-        let len = hexString.count / 2
-        var data = Data(capacity: len)
-        for i in 0..<len {
-            let j = hexString.index(hexString.startIndex, offsetBy: i*2)
-            let k = hexString.index(j, offsetBy: 2)
-            let bytes = hexString[j..<k]
-            if var num = UInt8(bytes, radix: 16) {
-                data.append(&num, count: 1)
-            } else {
-                return nil
-            }
-        }
-        self = data
-    }
-}
-
-extension Data {
     func hexEncodedString() -> String {
         return map { String(format: "%02hhx", $0) }.joined()
     }
+    
+    var hex: String {
+        var string = ""
+        
+        enumerateBytes { pointer, index, _ in
+            for i in index..<pointer.count {
+                string += String(format: "%02x", pointer[i])
+            }
+        }
+        
+        return string
+    }
+    
+    
 }
 
 extension Double {
