@@ -36,8 +36,19 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     
     func setupWithCardDetails() {
         setupUI()
-        getBalance()
-        setupBalanceVerified(false)
+        
+        guard let cardDetails = cardDetails else {
+            assertionFailure()
+            return
+        }
+        
+        if cardDetails.isWallet {
+            getBalance()
+            setupBalanceVerified(false)
+        } else {
+            viewModel.setWalletInfoLoading(false)
+            setupBalanceNoWallet()
+        }
     }
     
     func setupUI() {
