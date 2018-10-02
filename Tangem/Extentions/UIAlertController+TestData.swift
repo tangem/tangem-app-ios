@@ -15,14 +15,17 @@ extension UIAlertController {
         let btcAction = UIAlertAction(title: "BTC", style: .default) { (_) in
             handler(TestData.btcWallet)
         }
+        let btcNoWalletAction = UIAlertAction(title: "BTC No Wallet", style: .default) { (_) in
+            handler(TestData.btcNoWallet)
+        }
         let seedAction = UIAlertAction(title: "SEED", style: .default) { (_) in
             handler(TestData.seed)
         }
         let ethAction = UIAlertAction(title: "ETH", style: .default) { (_) in
             handler(TestData.ethWallet)
         }
-        let ertAction = UIAlertAction(title: "ERT", style: .default) { (_) in
-            handler(TestData.ert)
+        let ethLoadedAction = UIAlertAction(title: "ETH Loaded", style: .default) { (_) in
+            handler(TestData.ethLoaded)
         }
         let qlearAction = UIAlertAction(title: "Qlear", style: .default) { (_) in
             handler(TestData.qlear)
@@ -30,19 +33,15 @@ extension UIAlertController {
         let whirlAction = UIAlertAction(title: "Whirl", style: .default) { (_) in
             handler(TestData.whirl)
         }
-        
-        let noWalletAction = UIAlertAction(title: "No wallet", style: .default) { (_) in
-            handler(TestData.noWallet)
-        }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
         alertController.addAction(btcAction)
+        alertController.addAction(btcNoWalletAction)
         alertController.addAction(ethAction)
-        alertController.addAction(ertAction)
+        alertController.addAction(ethLoadedAction)
         alertController.addAction(seedAction)
         alertController.addAction(qlearAction)
         alertController.addAction(whirlAction)
-        alertController.addAction(noWalletAction)
         alertController.addAction(cancelAction)
         
         return alertController
