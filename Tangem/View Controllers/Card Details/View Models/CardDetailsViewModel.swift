@@ -108,6 +108,7 @@ class CardDetailsViewModel: NSObject {
     
     @IBOutlet weak var cardWalletInfoView: UIView!
     @IBOutlet weak var cardWalletInfoLoadingView: UIView!
+    @IBOutlet weak var qrCodeContainerView: UIView!
 }
 
 extension CardDetailsViewModel {
