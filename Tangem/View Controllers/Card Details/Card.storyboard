@@ -311,6 +311,7 @@
                         <outlet property="extractButton" destination="Z0H-I6-hUI" id="tc7-I2-e4r"/>
                         <outlet property="loadButton" destination="y7C-IT-DFE" id="80o-fw-KSN"/>
                         <outlet property="moreButton" destination="QGc-T8-9vn" id="BZk-HS-dfs"/>
+                        <outlet property="qrCodeContainerView" destination="urx-lf-qZ1" id="LRj-fm-J1a"/>
                         <outlet property="qrCodeImageView" destination="9Eu-SO-21M" id="RS0-RT-PXX"/>
                         <outlet property="scanButton" destination="VFt-01-uLn" id="5Bo-YH-U07"/>
                         <outlet property="walletAddressLabel" destination="0Yp-7Z-uw0" id="mZy-Hs-1lL"/>
