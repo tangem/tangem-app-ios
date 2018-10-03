@@ -118,8 +118,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         
         viewModel.balanceVefificationIconImageView.isHidden = true
         
-        viewModel.exploreButton.isEnabled = false
-        viewModel.copyButton.isEnabled = false
+        viewModel.qrCodeContainerView.isHidden = true
+        viewModel.walletAddressLabel.isHidden = true
     }
     
     func getBalance() {
