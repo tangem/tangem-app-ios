@@ -46,27 +46,25 @@ struct Card {
     var remainingSignatures:  String = ""
     
     var isTestNet = false
-    var mult = ""
+    var mult: Double = 0
     
     var tokenSymbol: String = ""
     
     var tokenDecimal: Int = 0
     
-    var walletValue = "0.00"
     var walletUnits = ""
-    var usdWalletValue = ""
+    var walletValue = "0.00" // [REDACTED_TODO_COMMENT]
+    var usdWalletValue = "" // [REDACTED_TODO_COMMENT]
+
     var value: Int = 0
     var valueUInt64: UInt64 = 0
     var link: String = ""
-    var error: Int = 0
+
     var node: String = ""
     var salt: String?
     var challenge: String?
     var signArr: [UInt8] = [UInt8]()
     var pubArr: [UInt8] = [UInt8]()
-    var checked = false
-    var checkedResult = true
-    var checkedBalance = false
     
     var maxSignatures: String?
     
