@@ -55,6 +55,15 @@
 		80205BA0215FF3820091618F /* RIPEMD160.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A30205F8AD00094E712 /* RIPEMD160.swift */; };
 		80205BA1215FF3950091618F /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A2E205F8A790094E712 /* Base58.swift */; };
 		80205BA2215FF3F70091618F /* EthAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4C72532069081B00235E82 /* EthAddress.swift */; };
+		80205BA62164C5730091618F /* AsynchronousOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BA52164C5730091618F /* AsynchronousOperation.swift */; };
+		80205BA82164C5A10091618F /* CoinMarketOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BA72164C5A10091618F /* CoinMarketOperation.swift */; };
+		80205BAA2164D35A0091618F /* EthereumNetworkBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BA92164D35A0091618F /* EthereumNetworkBalanceOperation.swift */; };
+		80205BAC2164D4150091618F /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BAB2164D4150091618F /* StringExtensions.swift */; };
+		80205BAE2166969F0091618F /* BitcoinNetworkBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BAD2166969F0091618F /* BitcoinNetworkBalanceOperation.swift */; };
+		80205BB0216698ED0091618F /* TokenNetworkBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BAF216698ED0091618F /* TokenNetworkBalanceOperation.swift */; };
+		80205BB221669D470091618F /* BTCCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BB121669D470091618F /* BTCCardBalanceOperation.swift */; };
+		80205BB42166A4470091618F /* ETHCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BB32166A4470091618F /* ETHCardBalanceOperation.swift */; };
+		80205BB62166A4FE0091618F /* TokenCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BB52166A4FE0091618F /* TokenCardBalanceOperation.swift */; };
 		803A86F220FB7CA400E19427 /* CardParsingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParsingOperation.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
@@ -90,7 +99,6 @@
 		8D4B4A33205F8AE20094E712 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A32205F8AE20094E712 /* Address.swift */; };
 		8D4B4A36205FA0130094E712 /* TLV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A35205FA0130094E712 /* TLV.swift */; };
 		8D4B4A38205FA2300094E712 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
-		8D4B4A3A20614EB00094E712 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A3920614EB00094E712 /* BalanceService.swift */; };
 		8D4C72542069081C00235E82 /* EthAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4C72532069081B00235E82 /* EthAddress.swift */; };
 		8D8E408020469DAF002E6266 /* NFCHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E407F20469DAF002E6266 /* NFCHelper.swift */; };
 		8D8E40852046C7B2002E6266 /* TLVExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40842046C7B2002E6266 /* TLVExtentions.swift */; };
@@ -160,6 +168,15 @@
 		80205B8F215FF0460091618F /* TangemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemTests.swift; sourceTree = "<group>"; };
 		80205B91215FF0460091618F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		80205B9C215FF3280091618F /* UIAlertController+TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+TestData.swift"; sourceTree = "<group>"; };
+		80205BA52164C5730091618F /* AsynchronousOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsynchronousOperation.swift; sourceTree = "<group>"; };
+		80205BA72164C5A10091618F /* CoinMarketOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinMarketOperation.swift; sourceTree = "<group>"; };
+		80205BA92164D35A0091618F /* EthereumNetworkBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkBalanceOperation.swift; sourceTree = "<group>"; };
+		80205BAB2164D4150091618F /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
+		80205BAD2166969F0091618F /* BitcoinNetworkBalanceOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinNetworkBalanceOperation.swift; sourceTree = "<group>"; };
+		80205BAF216698ED0091618F /* TokenNetworkBalanceOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenNetworkBalanceOperation.swift; sourceTree = "<group>"; };
+		80205BB121669D470091618F /* BTCCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTCCardBalanceOperation.swift; sourceTree = "<group>"; };
+		80205BB32166A4470091618F /* ETHCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETHCardBalanceOperation.swift; sourceTree = "<group>"; };
+		80205BB52166A4FE0091618F /* TokenCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardBalanceOperation.swift; sourceTree = "<group>"; };
 		803A86F120FB7CA400E19427 /* CardParsingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParsingOperation.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -270,8 +287,11 @@
 		80205B86215FDF800091618F /* Operations */ = {
 			isa = PBXGroup;
 			children = (
+				80205BB82166A5F30091618F /* Network Operations */,
+				80205BB72166A5E50091618F /* Card Balance */,
 				8000367A2113A89800C151E8 /* BalanceVerificationOperation.swift */,
 				803A86F120FB7CA400E19427 /* CardParsingOperation.swift */,
+				80205BA52164C5730091618F /* AsynchronousOperation.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -304,6 +324,27 @@
 				80205B91215FF0460091618F /* Info.plist */,
 			);
 			path = TangemTests;
+			sourceTree = "<group>";
+		};
+		80205BB72166A5E50091618F /* Card Balance */ = {
+			isa = PBXGroup;
+			children = (
+				80205BB121669D470091618F /* BTCCardBalanceOperation.swift */,
+				80205BB32166A4470091618F /* ETHCardBalanceOperation.swift */,
+				80205BB52166A4FE0091618F /* TokenCardBalanceOperation.swift */,
+			);
+			path = "Card Balance";
+			sourceTree = "<group>";
+		};
+		80205BB82166A5F30091618F /* Network Operations */ = {
+			isa = PBXGroup;
+			children = (
+				80205BA72164C5A10091618F /* CoinMarketOperation.swift */,
+				80205BA92164D35A0091618F /* EthereumNetworkBalanceOperation.swift */,
+				80205BAD2166969F0091618F /* BitcoinNetworkBalanceOperation.swift */,
+				80205BAF216698ED0091618F /* TokenNetworkBalanceOperation.swift */,
+			);
+			path = "Network Operations";
 			sourceTree = "<group>";
 		};
 		8D0360FF20225BF500F13A39 /* Models */ = {
@@ -451,6 +492,7 @@
 				8000367E2127671700C151E8 /* UIColorExtensions.swift */,
 				80205B84215FDF390091618F /* TestCardParsingCapable.swift */,
 				80205B9C215FF3280091618F /* UIAlertController+TestData.swift */,
+				80205BAB2164D4150091618F /* StringExtensions.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -732,6 +774,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80205BAA2164D35A0091618F /* EthereumNetworkBalanceOperation.swift in Sources */,
 				8D946D8B2018DA92006C73D9 /* ReaderViewController.swift in Sources */,
 				8D8E408020469DAF002E6266 /* NFCHelper.swift in Sources */,
 				8D4B4A33205F8AE20094E712 /* Address.swift in Sources */,
@@ -743,13 +786,13 @@
 				8D4C72542069081C00235E82 /* EthAddress.swift in Sources */,
 				8D4B4A31205F8AD00094E712 /* RIPEMD160.swift in Sources */,
 				800036692111060900C151E8 /* ModalActionViewController.swift in Sources */,
+				80205BB221669D470091618F /* BTCCardBalanceOperation.swift in Sources */,
 				8000366F211108A200C151E8 /* CustomPresentationController.swift in Sources */,
 				8D2B2BF720850A8B00E0AFA9 /* hash.swift in Sources */,
 				8D4B4A36205FA0130094E712 /* TLV.swift in Sources */,
 				8D2B2C2720850B0200E0AFA9 /* ecdsa_impl.swift in Sources */,
 				80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */,
 				8D2B2BE520850A5A00E0AFA9 /* PBInt.swift in Sources */,
-				8D4B4A3A20614EB00094E712 /* BalanceService.swift in Sources */,
 				80003671211108A800C151E8 /* ViewControllerInteractiveTransition.swift in Sources */,
 				80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */,
 				8D2B2BE220850A5300E0AFA9 /* recovery.swift in Sources */,
@@ -766,12 +809,15 @@
 				8D2B2C1820850AD400E0AFA9 /* ecmult_impl.swift in Sources */,
 				8D2B2BFD20850A9900E0AFA9 /* group.swift in Sources */,
 				80003687213C73BC00C151E8 /* LoadViewController.swift in Sources */,
+				80205BA62164C5730091618F /* AsynchronousOperation.swift in Sources */,
 				8000367B2113A89900C151E8 /* BalanceVerificationOperation.swift in Sources */,
+				80205BAC2164D4150091618F /* StringExtensions.swift in Sources */,
 				8D2B2C2420850AEB00E0AFA9 /* eckey_impl.swift in Sources */,
 				8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */,
 				8D2D4EAF209098B400C97D7E /* util.swift in Sources */,
 				8D2B2C0F20850ABC00E0AFA9 /* field_10x26_impl.swift in Sources */,
 				8D8E40852046C7B2002E6266 /* TLVExtentions.swift in Sources */,
+				80205BB0216698ED0091618F /* TokenNetworkBalanceOperation.swift in Sources */,
 				8D2B2C1520850ACB00E0AFA9 /* ecmult_static_context.swift in Sources */,
 				8D2B2C2120850AE500E0AFA9 /* ecmult_const_impl.swift in Sources */,
 				8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */,
@@ -779,14 +825,18 @@
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
 				8D2D4EAD209098A700C97D7E /* secp256k1.swift in Sources */,
 				800036672111054900C151E8 /* CardDetailsViewModel.swift in Sources */,
+				80205BB62166A4FE0091618F /* TokenCardBalanceOperation.swift in Sources */,
 				80003681213C68DB00C151E8 /* CardMoreViewController.swift in Sources */,
 				800036792111097700C151E8 /* UIViewExtensions.swift in Sources */,
+				80205BAE2166969F0091618F /* BitcoinNetworkBalanceOperation.swift in Sources */,
+				80205BB42166A4470091618F /* ETHCardBalanceOperation.swift in Sources */,
 				8D2B2BE820850A6100E0AFA9 /* PBHex.swift in Sources */,
 				8D2B2BD920850A3E00E0AFA9 /* scalar_impl.swift in Sources */,
 				80205B83215FCAFF0091618F /* NavigationManager.swift in Sources */,
 				8D2B2BEB20850A6700E0AFA9 /* lax_der_privatekey_parsing.swift in Sources */,
 				8D2B2BF120850A7F00E0AFA9 /* lax_der_parsing.swift in Sources */,
 				8D2B2C0620850AAB00E0AFA9 /* field_impl.swift in Sources */,
+				80205BA82164C5A10091618F /* CoinMarketOperation.swift in Sources */,
 				8D8E40872046C8F7002E6266 /* TLVUtils.swift in Sources */,
 				8D2B2BCA2085097900E0AFA9 /* Verify.swift in Sources */,
 				8D03610120225C1400F13A39 /* Card.swift in Sources */,
