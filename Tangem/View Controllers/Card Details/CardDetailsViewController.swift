@@ -26,8 +26,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         super.viewDidLoad()
 
         nfcHelper.delegate = self
-        
-        operationQueue.maxConcurrentOperationCount = 1
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -59,8 +57,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
             return
         }
         
-        self.viewModel.updateBlockchainName(cardDetails.blockchain)
-        self.viewModel.updateWalletAddress(cardDetails.address)
+        viewModel.updateBlockchainName(cardDetails.blockchain)
+        viewModel.updateWalletAddress(cardDetails.address)
         
         var blockchainName = String()
         if cardDetails.type == .btc {
@@ -70,10 +68,12 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         }
         
         var qrCodeResult = QRCode(blockchainName + cardDetails.address)
-        qrCodeResult?.size = self.viewModel.qrCodeImageView.frame.size
-        self.viewModel.qrCodeImageView.image = qrCodeResult?.image
+        qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
+        viewModel.qrCodeImageView.image = qrCodeResult?.image
         
-        self.viewModel.cardImageView.image = UIImage(named: cardDetails.imageName)
+        viewModel.cardImageView.image = UIImage(named: cardDetails.imageName)
+        
+        viewModel.balanceVerificationActivityIndicator.stopAnimating()
         
 //        self.viewModel.updateNetworkSafetyDescription(self.viewModel.networkSafetyDescriptionLabel.text!)
     }
