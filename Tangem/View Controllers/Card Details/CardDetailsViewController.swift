@@ -238,7 +238,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         #if targetEnvironment(simulator)
         self.showSimulationSheet()
         #else
-        self.helper.restartSession()
+        self.nfcHelper.restartSession()
         #endif
     }
     
