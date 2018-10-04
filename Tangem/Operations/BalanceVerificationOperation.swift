@@ -51,6 +51,10 @@ class BalanceVerificationOperation: Operation {
         
         secp256k1_context_destroy(&vrfy);
         
+        guard !isCancelled else {
+            return
+        }
+        
         DispatchQueue.main.async {
             self.completion(result)
         }
