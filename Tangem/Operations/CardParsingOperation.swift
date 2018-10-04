@@ -76,11 +76,6 @@ class CardParsingOperation: Operation {
         var card = Card(tags: tlvArray)
         card.ribbonCase = checkRibbonCase(card)
         
-        guard card.isWallet else {
-            completeOperationWith(result: CardParsingResult.success(card))
-            return
-        }
-        
         completeOperationWith(result: CardParsingResult.success(card))
     }
     
