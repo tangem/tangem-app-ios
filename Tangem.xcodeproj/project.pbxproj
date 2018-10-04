@@ -64,6 +64,7 @@
 		80205BB221669D470091618F /* BTCCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BB121669D470091618F /* BTCCardBalanceOperation.swift */; };
 		80205BB42166A4470091618F /* ETHCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BB32166A4470091618F /* ETHCardBalanceOperation.swift */; };
 		80205BB62166A4FE0091618F /* TokenCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BB52166A4FE0091618F /* TokenCardBalanceOperation.swift */; };
+		80205BBE2166B0B00091618F /* CardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BBD2166B0B00091618F /* CardBalanceOperation.swift */; };
 		803A86F220FB7CA400E19427 /* CardParsingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParsingOperation.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
@@ -177,6 +178,7 @@
 		80205BB121669D470091618F /* BTCCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTCCardBalanceOperation.swift; sourceTree = "<group>"; };
 		80205BB32166A4470091618F /* ETHCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETHCardBalanceOperation.swift; sourceTree = "<group>"; };
 		80205BB52166A4FE0091618F /* TokenCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardBalanceOperation.swift; sourceTree = "<group>"; };
+		80205BBD2166B0B00091618F /* CardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardBalanceOperation.swift; sourceTree = "<group>"; };
 		803A86F120FB7CA400E19427 /* CardParsingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParsingOperation.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -332,6 +334,7 @@
 				80205BB121669D470091618F /* BTCCardBalanceOperation.swift */,
 				80205BB32166A4470091618F /* ETHCardBalanceOperation.swift */,
 				80205BB52166A4FE0091618F /* TokenCardBalanceOperation.swift */,
+				80205BBD2166B0B00091618F /* CardBalanceOperation.swift */,
 			);
 			path = "Card Balance";
 			sourceTree = "<group>";
@@ -796,6 +799,7 @@
 				80003671211108A800C151E8 /* ViewControllerInteractiveTransition.swift in Sources */,
 				80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */,
 				8D2B2BE220850A5300E0AFA9 /* recovery.swift in Sources */,
+				80205BBE2166B0B00091618F /* CardBalanceOperation.swift in Sources */,
 				8D2B2C1220850AC300E0AFA9 /* ecmult.swift in Sources */,
 				80003670211108A400C151E8 /* ModalViewControllerDragView.swift in Sources */,
 				8D4B4A2F205F8A790094E712 /* Base58.swift in Sources */,
