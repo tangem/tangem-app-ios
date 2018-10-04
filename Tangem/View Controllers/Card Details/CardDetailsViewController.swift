@@ -20,12 +20,14 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     
     let operationQueue = OperationQueue()
     
-    let helper = NFCHelper()
+    let nfcHelper = NFCHelper()
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.helper.delegate = self
+        nfcHelper.delegate = self
+        
+        operationQueue.maxConcurrentOperationCount = 1
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -82,18 +84,21 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
             return
         }
         
-        self.viewModel.balanceVerificationActivityIndicator.startAnimating()
+        viewModel.balanceVerificationActivityIndicator.startAnimating()
         
         let balanceVerificationOperation = BalanceVerificationOperation(saltHex: salt, challengeHex: challenge, signatureArr: cardDetails.signArr, publicKeyArr: cardDetails.pubArr) { (result) in
             self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
             self.setupBalanceVerified(result)
         }
         
-        self.operationQueue.addOperation(balanceVerificationOperation)
+        operationQueue.addOperation(balanceVerificationOperation)
     }
     
     func setupBalanceVerified(_ verified: Bool) {
         isBalanceVerified = verified
+        
+        viewModel.qrCodeContainerView.isHidden = false
+        viewModel.walletAddressLabel.isHidden = false
         
         viewModel.updateWalletBalanceVerification(verified)
         viewModel.loadButton.isEnabled = verified
@@ -124,10 +129,16 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     
     func getBalance() {
 
-        let onResult = { (card: Card) in
+        let onResult = { (result: Result<Card>) in
             self.viewModel.setWalletInfoLoading(false)
             
-            guard card.error == 0 else {
+            switch result {
+            case .success(let card):
+                self.cardDetails = card
+                self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
+                
+                self.verifyBalance()
+            case .failure:
                 self.viewModel.updateWalletBalance("--")
                 
                 let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
@@ -136,35 +147,25 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
                 }))
                 self.present(validationAlert, animated: true, completion: nil)
                 self.setupBalanceVerified(false)
-                
-                return
             }
-            
-            self.cardDetails = card
-            self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
-            
-            self.verifyBalance()
         }
         
-        DispatchQueue.global(qos: .background).async {
-            guard let card = self.cardDetails else {
-                return
-            }
-            
-            switch card.type {
-            case .btc:
-                BalanceService.sharedInstance.getBalanceBTC(card, onResult: onResult)
-            case .eth:
-                BalanceService.sharedInstance.getBalanceETH(card, onResult: onResult)
-            case .empty:
-                DispatchQueue.main.async {
-                    self.setupBalanceNoWallet()
-                }
-            default:
-                BalanceService.sharedInstance.getBalanceToken(card, onResult: onResult)
-            }
-            
+        guard let card = self.cardDetails else {
+            return
         }
+        
+        var operation: Operation
+        
+        switch card.type {
+        case .btc:
+            operation = BTCCardBalanceOperation(card: card, completion: onResult)
+        case .eth:
+            operation = ETHCardBalanceOperation(card: card, completion: onResult)
+        default:
+            operation = TokenCardBalanceOperation(card: card, completion: onResult)
+        }
+        
+        operationQueue.addOperation(operation)
     }
     
     // MARK: Actions
