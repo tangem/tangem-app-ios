@@ -23,19 +23,6 @@ class BalanceService {
     
     struct Constants {
         static let coinMarket = "https://api.coinmarketcap.com/v1/ticker/?convert=USD&lmit=10"
-        static let ethereumMainNet = "https://mainnet.infura.io/AfWg0tmYEX5Kukn2UkKV"
-        static let ethereumTestNet = "https://ropsten.infura.io/"
-        static let btcTestNet = "testnetnode.arihanc.com:51001"
-        static let btcTestNet_0 = "testnet.hsmiths.com:53011"
-        static let btcTestNet_1 = "testnetnode.arihanc.com:51001"
-        static let btcTestNet_2 = "testnet1.bauerj.eu:50001"
-        static let btcMainNet_0 = "vps.hsmiths.com: 8080"
-        static let btcMainNet_1 = "tardis.bauerj.eu:50001"
-        static let btcMainNet_2 = "electrumx.bot.nu: 50001"
-        static let btcMainNet_3 = "electrumx.hopto.org:50001"
-        static let btcMainNet_4 = "e-x.not.fyi: 50001"
-        static let btcMainNet_5 = "electrum.backplanedns.org: 50001"
-        static let btcMainNet_6 = "helicarrier.bauerj.eu: 50001"
     }
     
     func getCoinMarketInfo(_ name: String, completionHandler: @escaping (String?, String?) -> ()) {
