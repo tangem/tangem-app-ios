@@ -65,6 +65,9 @@
 		80205BB42166A4470091618F /* ETHCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BB32166A4470091618F /* ETHCardBalanceOperation.swift */; };
 		80205BB62166A4FE0091618F /* TokenCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BB52166A4FE0091618F /* TokenCardBalanceOperation.swift */; };
 		80205BBE2166B0B00091618F /* CardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205BBD2166B0B00091618F /* CardBalanceOperation.swift */; };
+		8026BC492177C26B00DC6255 /* CardVerificationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8026BC482177C26B00DC6255 /* CardVerificationOperation.swift */; };
+		8026BC4B2177CBA100DC6255 /* CardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8026BC4A2177CBA100DC6255 /* CardScanner.swift */; };
+		8026BC4C2177CDAC00DC6255 /* CardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8026BC4A2177CBA100DC6255 /* CardScanner.swift */; };
 		803A86F220FB7CA400E19427 /* CardParsingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParsingOperation.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
@@ -101,7 +104,6 @@
 		8D4B4A36205FA0130094E712 /* TLV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A35205FA0130094E712 /* TLV.swift */; };
 		8D4B4A38205FA2300094E712 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
 		8D4C72542069081C00235E82 /* EthAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4C72532069081B00235E82 /* EthAddress.swift */; };
-		8D8E408020469DAF002E6266 /* NFCHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E407F20469DAF002E6266 /* NFCHelper.swift */; };
 		8D8E40852046C7B2002E6266 /* TLVExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40842046C7B2002E6266 /* TLVExtentions.swift */; };
 		8D8E40872046C8F7002E6266 /* TLVUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E40862046C8F7002E6266 /* TLVUtils.swift */; };
 		8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D882018DA92006C73D9 /* AppDelegate.swift */; };
@@ -179,6 +181,8 @@
 		80205BB32166A4470091618F /* ETHCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETHCardBalanceOperation.swift; sourceTree = "<group>"; };
 		80205BB52166A4FE0091618F /* TokenCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardBalanceOperation.swift; sourceTree = "<group>"; };
 		80205BBD2166B0B00091618F /* CardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardBalanceOperation.swift; sourceTree = "<group>"; };
+		8026BC482177C26B00DC6255 /* CardVerificationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardVerificationOperation.swift; sourceTree = "<group>"; };
+		8026BC4A2177CBA100DC6255 /* CardScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScanner.swift; sourceTree = "<group>"; };
 		803A86F120FB7CA400E19427 /* CardParsingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParsingOperation.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -221,7 +225,6 @@
 		8D4C72532069081B00235E82 /* EthAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthAddress.swift; sourceTree = "<group>"; };
 		8D899FBE202476DF006131E0 /* Card.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Card.storyboard; sourceTree = "<group>"; };
 		8D899FC020247799006131E0 /* OldCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldCardViewController.swift; sourceTree = "<group>"; };
-		8D8E407F20469DAF002E6266 /* NFCHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCHelper.swift; sourceTree = "<group>"; };
 		8D8E40832046B971002E6266 /* Tangem.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Tangem.entitlements; sourceTree = "<group>"; };
 		8D8E40842046C7B2002E6266 /* TLVExtentions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLVExtentions.swift; sourceTree = "<group>"; };
 		8D8E40862046C8F7002E6266 /* TLVUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLVUtils.swift; sourceTree = "<group>"; };
@@ -294,6 +297,7 @@
 				8000367A2113A89800C151E8 /* BalanceVerificationOperation.swift */,
 				803A86F120FB7CA400E19427 /* CardParsingOperation.swift */,
 				80205BA52164C5730091618F /* AsynchronousOperation.swift */,
+				8026BC482177C26B00DC6255 /* CardVerificationOperation.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -355,8 +359,8 @@
 			children = (
 				8D4B4A37205FA2300094E712 /* TestData.swift */,
 				8D03610020225C1400F13A39 /* Card.swift */,
-				8D8E407F20469DAF002E6266 /* NFCHelper.swift */,
 				8D4B4A3920614EB00094E712 /* BalanceService.swift */,
+				8026BC4A2177CBA100DC6255 /* CardScanner.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -763,6 +767,7 @@
 				80205BA2215FF3F70091618F /* EthAddress.swift in Sources */,
 				80205B90215FF0460091618F /* TangemTests.swift in Sources */,
 				80205B9B215FF24D0091618F /* CardParsingOperation.swift in Sources */,
+				8026BC4C2177CDAC00DC6255 /* CardScanner.swift in Sources */,
 				80205BA1215FF3950091618F /* Base58.swift in Sources */,
 				80205B97215FF0770091618F /* Card.swift in Sources */,
 				80205B9E215FF3440091618F /* TLV.swift in Sources */,
@@ -779,7 +784,6 @@
 			files = (
 				80205BAA2164D35A0091618F /* EthereumNetworkBalanceOperation.swift in Sources */,
 				8D946D8B2018DA92006C73D9 /* ReaderViewController.swift in Sources */,
-				8D8E408020469DAF002E6266 /* NFCHelper.swift in Sources */,
 				8D4B4A33205F8AE20094E712 /* Address.swift in Sources */,
 				8D2B2C1E20850ADE00E0AFA9 /* ecmult_gen_impl.swift in Sources */,
 				8D4B4A38205FA2300094E712 /* TestData.swift in Sources */,
@@ -795,6 +799,7 @@
 				8D4B4A36205FA0130094E712 /* TLV.swift in Sources */,
 				8D2B2C2720850B0200E0AFA9 /* ecdsa_impl.swift in Sources */,
 				80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */,
+				8026BC4B2177CBA100DC6255 /* CardScanner.swift in Sources */,
 				8D2B2BE520850A5A00E0AFA9 /* PBInt.swift in Sources */,
 				80003671211108A800C151E8 /* ViewControllerInteractiveTransition.swift in Sources */,
 				80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */,
@@ -823,6 +828,7 @@
 				8D8E40852046C7B2002E6266 /* TLVExtentions.swift in Sources */,
 				80205BB0216698ED0091618F /* TokenNetworkBalanceOperation.swift in Sources */,
 				8D2B2C1520850ACB00E0AFA9 /* ecmult_static_context.swift in Sources */,
+				8026BC492177C26B00DC6255 /* CardVerificationOperation.swift in Sources */,
 				8D2B2C2120850AE500E0AFA9 /* ecmult_const_impl.swift in Sources */,
 				8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */,
 				8D2B2C0020850AA000E0AFA9 /* group_impl.swift in Sources */,
