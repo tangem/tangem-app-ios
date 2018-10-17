@@ -13,69 +13,67 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
     var customPresentationController: CustomPresentationController?
     
     let operationQueue = OperationQueue()
-
-    @IBOutlet weak var techImageView: UIImageView! {
+    var scanner: CardScanner?
+    
+    private struct Constants {
+        static let hintLabelDefaultText = "Press Scan and touch banknote with your iPhone as shown above"
+        static let hintLabelScanningText = "Hold the card close to the reader"
+    }
+    
+    @IBOutlet weak var hintLabel: UILabel! {
         didSet {
-            techImageView.layer.cornerRadius = techImageView.frame.width / 2.0
+            hintLabel.font = UIFont.tgm_maaxFontWith(size: 16.0, weight: .medium)
         }
     }
     
-    @IBOutlet weak var scanImageView: UIImageView! {
+    @IBOutlet weak var scanButton: UIButton! {
         didSet {
-            scanImageView.layer.cornerRadius = scanImageView.frame.width / 2.0
-        }
-    }
-    
-    @IBOutlet weak var scanLabel: UILabel! {
-        didSet {
-            scanLabel.font = UIFont.tgm_maaxFontWith(size: 16.0, weight: .medium)
-        }
-    }
-    
-    @IBOutlet weak var techLabel: UILabel! {
-        didSet {
-            techLabel.font = UIFont.tgm_maaxFontWith(size: 16.0, weight: .medium)
-        }
-    }
-    
-    @IBOutlet weak var gradientView: UIView! {
-        didSet {
-            let gradientLayer = CAGradientLayer()
-            gradientLayer.frame = gradientView.frame
-            gradientLayer.startPoint = CGPoint(x: 0.5, y: 1)
-            gradientLayer.endPoint = CGPoint(x: 0.5, y: 0)
-            gradientLayer.colors = [UIColor.black.cgColor, UIColor.clear.cgColor]
+            scanButton.layer.cornerRadius = 30.0
+            scanButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
             
-            gradientView.layer.addSublayer(gradientLayer)
+            scanButton.layer.shadowRadius = 5.0
+            scanButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+            scanButton.layer.shadowColor = UIColor.black.cgColor
+            scanButton.layer.shadowOpacity = 0.08
         }
     }
     
-    let helper = NFCHelper()
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        self.helper.delegate = self
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-        gradientView.layer.sublayers?.forEach({ $0.frame = gradientView.bounds })
+        DispatchQueue.main.async {
+            self.hintLabel.text = Constants.hintLabelDefaultText
+        }
     }
     
     // MARK: Actions
     
     @IBAction func scanButtonPressed(_ sender: Any) {
         #if targetEnvironment(simulator)
-        self.showSimulationSheet()
+        showSimulationSheet()
         #else
-        self.helper.restartSession()
+        initiateScan()
         #endif
+    }
+    
+    func initiateScan() {
+        scanner = CardScanner { (result) in
+            switch result {
+            case .success(let card):
+                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+            case .readerSessionError(let error):
+                print("\(error.localizedDescription)")
+            case .locked:
+                self.handleCardParserLockedCard()
+            case .tlvError:
+                self.handleCardParserWrongTLV()
+            case .nonGenuineCard:
+                self.handleNonGenuineTangemCard()
+            }
+        }
+        
+        scanner?.initiateScan()
+        hintLabel.text = Constants.hintLabelScanningText
     }
     
     @IBAction func moreButtonPressed(_ sender: Any) {
@@ -92,7 +90,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
         self.present(viewController, animated: true, completion: nil)
     }
     
-    func launchParsingOperationWith(payload: Data) {
+    func launchSimulationParsingOperationWith(payload: Data) {
         operationQueue.cancelAllOperations()
         
         let operation = CardParsingOperation(payload: payload) { (result) in
@@ -110,24 +108,16 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
     
 }
 
-extension ReaderViewController: NFCHelperDelegate {
-    
-    func nfcHelper(_ helper: NFCHelper, didInvalidateWith error: Error) {
-        print("\(error.localizedDescription)")
-    }
-    
-    func nfcHelper(_ helper: NFCHelper, didDetectCardWith payload: Data) {
-        launchParsingOperationWith(payload: payload)
-    }
-    
-}
-
 extension ReaderViewController {
     
     func handleCardParserWrongTLV() {
         let validationAlert = UIAlertController(title: "Error", message: "Failed to parse data received from the banknote", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
+        
+        DispatchQueue.main.async {
+            self.hintLabel.text = Constants.hintLabelDefaultText
+        }
     }
     
     func handleCardParserLockedCard() {
@@ -135,6 +125,20 @@ extension ReaderViewController {
         let validationAlert = UIAlertController(title: "Info", message: "This app can’t read protected Tangem banknotes", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
+        
+        DispatchQueue.main.async {
+            self.hintLabel.text = Constants.hintLabelDefaultText
+        }
+    }
+    
+    func handleNonGenuineTangemCard() {
+        let validationAlert = UIAlertController(title: "Error", message: "Not a genuine Tangem card", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(validationAlert, animated: true, completion: nil)
+        
+        DispatchQueue.main.async {
+            self.hintLabel.text = Constants.hintLabelDefaultText
+        }
     }
 
 }
