@@ -35,7 +35,12 @@ class CardDetailsViewModel: NSObject {
         }
     }
     
-//    [REDACTED_USERNAME] weak var networkSafetyDescriptionLabel: UILabel! {
+    @IBOutlet weak var doubleScanHintLabel: UILabel! {
+        didSet {
+            doubleScanHintLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
+        }
+    }
+    //    [REDACTED_USERNAME] weak var networkSafetyDescriptionLabel: UILabel! {
 //        didSet {
 //            networkSafetyDescriptionLabel.font = UIFont.tgm_maaxFontWith(size: 12)
 //        }
