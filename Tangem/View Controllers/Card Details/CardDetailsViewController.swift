@@ -20,13 +20,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     
     let operationQueue = OperationQueue()
     
-    let nfcHelper = NFCHelper()
+    var scanner: CardScanner?
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        nfcHelper.delegate = self
-    }
+    var numberOfScans = 0
+    var savedChallenge: String?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -43,6 +40,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         }
         
         if cardDetails.isWallet {
+            verifyCard()
             getBalance()
             setupBalanceVerified(false)
         } else {
@@ -56,6 +54,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
             assertionFailure()
             return
         }
+        
+        viewModel.doubleScanHintLabel.isHidden = true
         
         viewModel.updateBlockchainName(cardDetails.blockchain)
         viewModel.updateWalletAddress(cardDetails.address)
@@ -74,8 +74,62 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         viewModel.cardImageView.image = UIImage(named: cardDetails.imageName)
         
         viewModel.balanceVerificationActivityIndicator.stopAnimating()
+    }
+    
+    func verifyCard() {
+        guard let cardDetails = cardDetails, let salt = cardDetails.salt, let challenge = cardDetails.challenge else {
+            assertionFailure()
+            return
+        }
         
-//        self.viewModel.updateNetworkSafetyDescription(self.viewModel.networkSafetyDescriptionLabel.text!)
+        let operation = CardVerificationOperation(saltHex: salt, challengeHex: challenge, signatureArr: cardDetails.signArr, publicKeyArr: cardDetails.pubArr) { (isGenuineCard) in
+            if !isGenuineCard {
+                self.handleNonGenuineTangemCard()
+            }
+        }
+        
+        operationQueue.addOperation(operation)
+    }
+    
+    func getBalance() {
+        
+        let onResult = { (result: Result<Card>) in
+            self.viewModel.setWalletInfoLoading(false)
+            
+            switch result {
+            case .success(let card):
+                self.cardDetails = card
+                self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
+                
+                self.verifyBalance()
+            case .failure:
+                self.viewModel.updateWalletBalance("--")
+                
+                let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
+                validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                    self.navigationController?.popViewController(animated: true)
+                }))
+                self.present(validationAlert, animated: true, completion: nil)
+                self.setupBalanceVerified(false)
+            }
+        }
+        
+        guard let card = self.cardDetails else {
+            return
+        }
+        
+        var operation: Operation
+        
+        switch card.type {
+        case .btc:
+            operation = BTCCardBalanceOperation(card: card, completion: onResult)
+        case .eth:
+            operation = ETHCardBalanceOperation(card: card, completion: onResult)
+        default:
+            operation = TokenCardBalanceOperation(card: card, completion: onResult)
+        }
+        
+        operationQueue.addOperation(operation)
     }
     
     func verifyBalance() {
@@ -127,45 +181,30 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         viewModel.walletAddressLabel.isHidden = true
     }
     
-    func getBalance() {
-
-        let onResult = { (result: Result<Card>) in
-            self.viewModel.setWalletInfoLoading(false)
-            
-            switch result {
-            case .success(let card):
-                self.cardDetails = card
-                self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
-                
-                self.verifyBalance()
-            case .failure:
-                self.viewModel.updateWalletBalance("--")
-                
-                let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
-                validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-                    self.navigationController?.popViewController(animated: true)
-                }))
-                self.present(validationAlert, animated: true, completion: nil)
-                self.setupBalanceVerified(false)
+    // MARK: Simulator parsing Operation
+    
+    func launchSimulationParsingOperationWith(payload: Data) {
+        operationQueue.cancelAllOperations()
+        viewModel.setWalletInfoLoading(true)
+        
+        let operation = CardParsingOperation(payload: payload) { (result) in
+            DispatchQueue.main.async {
+                self.handleOperationFinishedSimulatorWith(result: result)
             }
         }
-        
-        guard let card = self.cardDetails else {
-            return
-        }
-        
-        var operation: Operation
-        
-        switch card.type {
-        case .btc:
-            operation = BTCCardBalanceOperation(card: card, completion: onResult)
-        case .eth:
-            operation = ETHCardBalanceOperation(card: card, completion: onResult)
-        default:
-            operation = TokenCardBalanceOperation(card: card, completion: onResult)
-        }
-        
         operationQueue.addOperation(operation)
+    }
+    
+    func handleOperationFinishedSimulatorWith(result: CardParsingOperation.CardParsingResult) {
+        switch result {
+        case .success(let card):
+            cardDetails = card
+            setupWithCardDetails()
+        case .locked:
+            handleCardParserLockedCard()
+        case .tlvError:
+            handleCardParserWrongTLV()
+        }
     }
     
     // MARK: Actions
@@ -235,10 +274,28 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        viewModel.setWalletInfoLoading(true)
+        viewModel.doubleScanHintLabel.isHidden = false
         #if targetEnvironment(simulator)
-        self.showSimulationSheet()
+        showSimulationSheet()
         #else
-        self.nfcHelper.restartSession()
+        scanner = CardScanner { (result) in
+            switch result {
+            case .success(let card):
+                self.cardDetails = card
+                self.setupWithCardDetails()
+            case .readerSessionError(let error):
+                print("\(error.localizedDescription)")
+            case .locked:
+                self.handleCardParserLockedCard()
+            case .tlvError:
+                self.handleCardParserWrongTLV()
+            case .nonGenuineCard:
+                self.handleNonGenuineTangemCard()
+            }
+        }
+        
+        scanner?.initiateScan()
         #endif
     }
     
@@ -275,36 +332,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         self.present(viewController, animated: true, completion: nil)
     }
     
-    func launchParsingOperationWith(payload: Data) {
-        operationQueue.cancelAllOperations()
-        viewModel.setWalletInfoLoading(true)
-        
-        let operation = CardParsingOperation(payload: payload) { (result) in
-            switch result {
-            case .success(let card):
-                self.cardDetails = card
-                self.setupWithCardDetails()
-            case .locked:
-                self.handleCardParserLockedCard()
-            case .tlvError:
-                self.handleCardParserWrongTLV()
-            }
-        }
-        operationQueue.addOperation(operation)
-    }
-    
-}
-
-extension CardDetailsViewController: NFCHelperDelegate {
-    
-    func nfcHelper(_ helper: NFCHelper, didInvalidateWith error: Error) {
-        print("\(error.localizedDescription)")
-    }
-    
-    func nfcHelper(_ helper: NFCHelper, didDetectCardWith payload: Data) {
-        launchParsingOperationWith(payload: payload)
-    }
-    
 }
 
 extension CardDetailsViewController {
@@ -319,6 +346,14 @@ extension CardDetailsViewController {
         print("Card is locked, two first bytes are equal 0x6A86")
         let validationAlert = UIAlertController(title: "Info", message: "This app can’t read protected Tangem banknotes", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(validationAlert, animated: true, completion: nil)
+    }
+    
+    func handleNonGenuineTangemCard() {
+        let validationAlert = UIAlertController(title: "Error", message: "Not a genuine Tangem card", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+            self.navigationController?.popViewController(animated: true)
+        }))
         self.present(validationAlert, animated: true, completion: nil)
     }
 
