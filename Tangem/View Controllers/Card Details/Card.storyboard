@@ -211,7 +211,7 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VFt-01-uLn">
                                                 <rect key="frame" x="0.0" y="0.0" width="147.5" height="30"/>
                                                 <inset key="imageEdgeInsets" minX="-10" minY="0.0" maxX="10" maxY="0.0"/>
-                                                <state key="normal" title="Scan" image="icon-scan-small">
+                                                <state key="normal" title="New Scan" image="icon-scan-small">
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
