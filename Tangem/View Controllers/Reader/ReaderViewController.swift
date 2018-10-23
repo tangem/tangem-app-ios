@@ -67,8 +67,8 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
                 self.handleCardParserLockedCard()
             case .tlvError:
                 self.handleCardParserWrongTLV()
-            case .nonGenuineCard:
-                self.handleNonGenuineTangemCard()
+            case .nonGenuineCard(let card):
+                self.handleNonGenuineTangemCard(card)
             }
         }
         
@@ -131,9 +131,11 @@ extension ReaderViewController {
         }
     }
     
-    func handleNonGenuineTangemCard() {
+    func handleNonGenuineTangemCard(_ card: Card) {
         let validationAlert = UIAlertController(title: "Error", message: "Not a genuine Tangem card", preferredStyle: .alert)
-        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+        }))
         self.present(validationAlert, animated: true, completion: nil)
         
         DispatchQueue.main.async {
