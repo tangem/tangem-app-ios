@@ -42,7 +42,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         if cardDetails.isWallet {
             verifyCard()
             getBalance()
-            setupBalanceVerified(false)
+            setupBalanceIsBeingVerified()
         } else {
             viewModel.setWalletInfoLoading(false)
             setupBalanceNoWallet()
@@ -84,7 +84,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         
         let operation = CardVerificationOperation(saltHex: salt, challengeHex: challenge, signatureArr: cardDetails.signArr, publicKeyArr: cardDetails.pubArr) { (isGenuineCard) in
             if !isGenuineCard {
-                self.handleNonGenuineTangemCard()
+                self.handleNonGenuineTangemCard(cardDetails)
             }
         }
         
@@ -148,6 +148,22 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         operationQueue.addOperation(balanceVerificationOperation)
     }
     
+    func setupBalanceIsBeingVerified() {
+        isBalanceVerified = false
+        
+        viewModel.qrCodeContainerView.isHidden = false
+        viewModel.walletAddressLabel.isHidden = false
+        
+        viewModel.updateWalletBalanceIsBeingVerified()
+        viewModel.loadButton.isEnabled = false
+        viewModel.extractButton.isEnabled = false
+        viewModel.buttonsAvailabilityView.isHidden = false
+        viewModel.balanceVefificationIconImageView.image = nil
+        
+        viewModel.exploreButton.isEnabled = true
+        viewModel.copyButton.isEnabled = true
+    }
+    
     func setupBalanceVerified(_ verified: Bool) {
         isBalanceVerified = verified
         
@@ -175,7 +191,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         viewModel.extractButton.isEnabled = false
         viewModel.buttonsAvailabilityView.isHidden = false
         
-        viewModel.balanceVefificationIconImageView.isHidden = true
+        viewModel.balanceVefificationIconImageView.image = nil
         
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
@@ -290,8 +306,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
                 self.handleCardParserLockedCard()
             case .tlvError:
                 self.handleCardParserWrongTLV()
-            case .nonGenuineCard:
-                self.handleNonGenuineTangemCard()
+            case .nonGenuineCard(let card):
+                self.handleNonGenuineTangemCard(card)
             }
         }
         
@@ -313,10 +329,20 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
             cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
         }
         
+        var verificationChallenge: String? = nil
+        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.salt {
+            let cardChallenge1 = String(challenge.prefix(3))
+            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+            let cardChallenge3 = String(saltValue.prefix(3))
+            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+            verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+        }
+        
         let strings = ["Issuer: \(cardDetails.issuer)",
             "Manufacturer: \(cardDetails.issuer)",
             "API node: \(cardDetails.node)",
-            "Challenge: \(cardChallenge ?? "N\\A")",
+            "Challenge 1: \(cardChallenge ?? "N\\A")",
+            "Challenge 2: \(verificationChallenge ?? "N\\A")",
             "Signature: \(isBalanceVerified ? "passed" : "not passed")",
             "Authenticity: attested",
             "Firmware: \(cardDetails.firmware)",
@@ -349,7 +375,7 @@ extension CardDetailsViewController {
         self.present(validationAlert, animated: true, completion: nil)
     }
     
-    func handleNonGenuineTangemCard() {
+    func handleNonGenuineTangemCard(_ card: Card) {
         let validationAlert = UIAlertController(title: "Error", message: "Not a genuine Tangem card", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
             self.navigationController?.popViewController(animated: true)
