@@ -139,6 +139,13 @@ extension CardDetailsViewModel {
         walletAddressLabel.attributedText = attributedText
     }
     
+    func updateWalletBalanceIsBeingVerified() {
+        let text = "Verifying in blockchain..."
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88,
+                                                                           NSAttributedStringKey.foregroundColor : UIColor.black])
+        balanceVerificationLabel.attributedText = attributedText
+    }
+    
     func updateWalletBalanceVerification(_ verified: Bool) {
         let text = verified ? "Verified balance" : "Unverified balance"
         let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88,
