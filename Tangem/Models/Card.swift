@@ -63,8 +63,16 @@ struct Card {
     var node: String = ""
     var salt: String?
     var challenge: String?
+    var verificationChallenge: String?
     var signArr: [UInt8] = [UInt8]()
     var pubArr: [UInt8] = [UInt8]()
+    
+    var isAuthentic: Bool {
+        guard let challenge = challenge, let verificationChallenge = verificationChallenge else {
+            return false
+        }
+        return challenge != verificationChallenge
+    }
     
     var maxSignatures: String?
     
