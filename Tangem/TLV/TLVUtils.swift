@@ -138,12 +138,18 @@ func sha256(_ str: String) -> String? {
 }
 
 func randomNode() -> String {
-    let nodes = ["btc.cihar.com:50001",
+    let nodes = ["electrum.anduck.net:50001",
+                 "electrum-server.ninja:50001",
+                 "btc.cihar.com:50001",
+                 "vps.hsmiths.com:50001",
+                 "electrum.hsmiths.com:50001",
                  "electrum.vom-stausee.de:50001",
-                 "helicarrier.bauerj.eu:50001",
+                 "node.ispol.sk:50001",
+                 "electrum2.eff.ro:50001",
+                 "electrumx.nmdps.net:50001",
                  "kirsche.emzy.de:50001",
-                 "spv.48.org:50003",
-                 "vps.hsmiths.com:50001"]
+                 "electrum.petrkr.net:50001",
+                 "electrum.dk:50001"]
     
     let rundomNumber = randRange(lower: 0, upper: nodes.count - 1)
     return nodes[rundomNumber]

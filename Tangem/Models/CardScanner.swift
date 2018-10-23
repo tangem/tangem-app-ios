@@ -18,7 +18,7 @@ class CardScanner: NSObject {
         case readerSessionError(Error)
         case locked
         case tlvError
-        case nonGenuineCard
+        case nonGenuineCard(Card)
     }
     
     var operationQueue = OperationQueue()
@@ -31,7 +31,7 @@ class CardScanner: NSObject {
         self.completion = completion
     }
     
-    func initiateScan(_ shouldCleanup: Bool = true) {
+    func initiateScan(shouldCleanup: Bool = true) {
         if shouldCleanup {
             savedChallenge = nil
         }
@@ -79,12 +79,15 @@ class CardScanner: NSObject {
         
         guard let savedChallenge = savedChallenge else {
             self.savedChallenge = card.challenge
-            initiateScan(false)
+            initiateScan(shouldCleanup: false)
             return
         }
         
-        guard let currentChallenge = card.challenge, savedChallenge != currentChallenge else {
-            completion(.nonGenuineCard)
+        var card = card
+        card.verificationChallenge = savedChallenge
+        
+        guard card.isAuthentic else {
+            completion(.nonGenuineCard(card))
             return
         }
         
