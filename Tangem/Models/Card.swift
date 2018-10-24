@@ -293,4 +293,13 @@ struct Card {
         }
     }
     
+    mutating func updateWithVerificationCard(_ card: Card) {
+        guard let challenge = card.challenge, let salt = card.salt else {
+            assertionFailure()
+            return
+        }
+        verificationChallenge = challenge
+        verificationSalt = salt
+    }
+    
 }
