@@ -26,6 +26,7 @@ class CardScanner: NSObject {
     
     var session: NFCReaderSession?
     var savedChallenge: String?
+    var savedSalt: String?
     
     init(completion: @escaping (CardScannerResult) -> Void) {
         self.completion = completion
@@ -77,14 +78,16 @@ class CardScanner: NSObject {
     
     func handleDidParseCard(_ card: Card) {
         
-        guard let savedChallenge = savedChallenge else {
+        guard let savedChallenge = savedChallenge, let savedSalt = savedSalt else {
             self.savedChallenge = card.challenge
+            self.savedSalt = card.salt
             initiateScan(shouldCleanup: false)
             return
         }
         
         var card = card
         card.verificationChallenge = savedChallenge
+        card.verificationSalt = savedSalt
         
         guard card.isAuthentic else {
             completion(.nonGenuineCard(card))
