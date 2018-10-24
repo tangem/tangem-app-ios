@@ -86,11 +86,11 @@ class CardScanner: NSObject {
         savedCard.updateWithVerificationCard(card)
         
         guard savedCard.isAuthentic else {
-            completion(.nonGenuineCard(card))
+            completion(.nonGenuineCard(savedCard))
             return
         }
         
-        completion(.success(card))
+        completion(.success(savedCard))
     }
 
 }
