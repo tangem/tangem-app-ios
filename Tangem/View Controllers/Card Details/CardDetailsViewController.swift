@@ -307,6 +307,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
             case .tlvError:
                 self.handleCardParserWrongTLV()
             case .nonGenuineCard(let card):
+                self.cardDetails = card
+                self.setupWithCardDetails()
                 self.handleNonGenuineTangemCard(card)
             }
         }
@@ -330,7 +332,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         }
         
         var verificationChallenge: String? = nil
-        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.salt {
+        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
             let cardChallenge1 = String(challenge.prefix(3))
             let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
             let cardChallenge3 = String(saltValue.prefix(3))
@@ -377,9 +379,7 @@ extension CardDetailsViewController {
     
     func handleNonGenuineTangemCard(_ card: Card) {
         let validationAlert = UIAlertController(title: "Error", message: "Not a genuine Tangem card", preferredStyle: .alert)
-        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
-            self.navigationController?.popViewController(animated: true)
-        }))
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
 

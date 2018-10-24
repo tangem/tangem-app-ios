@@ -64,6 +64,7 @@ struct Card {
     var salt: String?
     var challenge: String?
     var verificationChallenge: String?
+    var verificationSalt: String?
     var signArr: [UInt8] = [UInt8]()
     var pubArr: [UInt8] = [UInt8]()
     
@@ -71,7 +72,10 @@ struct Card {
         guard let challenge = challenge, let verificationChallenge = verificationChallenge else {
             return false
         }
-        return challenge != verificationChallenge
+        guard let salt = salt, let verificationSalt = verificationSalt else {
+            return false
+        }
+        return challenge != verificationChallenge && salt != verificationSalt
     }
     
     var maxSignatures: String?
