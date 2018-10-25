@@ -68,18 +68,28 @@
                                     <constraint firstAttribute="width" constant="100" id="wBv-mo-5ED"/>
                                 </constraints>
                             </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Warning: due to limitations of NFC in iOS, the application cannot guarantee that scanned Tangem cards are genuine" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OmG-A1-1OC">
+                                <rect key="frame" x="20" y="483" width="335" height="54"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="UnF-ge-InH" firstAttribute="top" secondItem="cDy-71-7XF" secondAttribute="bottom" constant="40" id="3Hr-ko-fdV"/>
                             <constraint firstItem="cDy-71-7XF" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="50" id="5pj-ei-L26"/>
                             <constraint firstAttribute="trailing" secondItem="d4K-pn-hOC" secondAttribute="trailing" constant="40" id="C4O-hm-ydg"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="OmG-A1-1OC" secondAttribute="trailing" constant="20" id="CEQ-jR-YRh"/>
                             <constraint firstItem="UnF-ge-InH" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ChN-mz-6xK"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="gnc-6q-G1n" secondAttribute="bottom" constant="50" id="CnS-Xm-v32"/>
+                            <constraint firstItem="OmG-A1-1OC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="FDg-0V-aNC"/>
+                            <constraint firstItem="OmG-A1-1OC" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="HOW-VS-n3n"/>
                             <constraint firstItem="d4K-pn-hOC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="ODs-VT-FXt"/>
                             <constraint firstItem="cDy-71-7XF" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="OyI-8O-wGP"/>
                             <constraint firstItem="d4K-pn-hOC" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="50" id="QM6-aG-czn"/>
                             <constraint firstItem="1if-4X-bgs" firstAttribute="top" secondItem="UnF-ge-InH" secondAttribute="bottom" constant="-72" id="UfC-om-oh5"/>
+                            <constraint firstItem="gnc-6q-G1n" firstAttribute="top" secondItem="OmG-A1-1OC" secondAttribute="bottom" constant="30" id="XKF-sb-dQu"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gnc-6q-G1n" secondAttribute="trailing" constant="50" id="cS8-2a-6gb"/>
                             <constraint firstItem="1if-4X-bgs" firstAttribute="leading" secondItem="UnF-ge-InH" secondAttribute="trailing" constant="-119.5" id="p6Z-8N-YGo"/>
                             <constraint firstItem="gnc-6q-G1n" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="50" id="wsq-PF-yD7"/>
