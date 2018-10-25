@@ -20,12 +20,15 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
         static let hintLabelScanningText = "Hold the card close to the reader"
     }
     
+    @IBOutlet weak var warningLabel: UILabel!
     @IBOutlet weak var hintLabel: UILabel! {
         didSet {
             hintLabel.font = UIFont.tgm_maaxFontWith(size: 16.0, weight: .medium)
         }
     }
     
+    @IBOutlet weak var infoButton: UIButton!
+    @IBOutlet weak var warningLabelButton: UIButton!
     @IBOutlet weak var scanButton: UIButton! {
         didSet {
             scanButton.layer.cornerRadius = 30.0
@@ -47,6 +50,13 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
     }
     
     // MARK: Actions
+    
+    @IBAction func infoButtonPressed(_ sender: Any) {
+        UIView.animate(withDuration: 0.3) {
+            self.infoButton.alpha = fabs(self.infoButton.alpha - 1)
+            self.warningLabel.alpha = fabs(self.warningLabel.alpha - 1)
+        }
+    }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
         #if targetEnvironment(simulator)
