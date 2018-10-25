@@ -27,7 +27,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gnc-6q-G1n">
-                                <rect key="frame" x="50" y="567" width="275" height="50"/>
+                                <rect key="frame" x="50" y="533" width="275" height="50"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="cIi-AX-7fb"/>
@@ -56,7 +56,7 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Press Scan and touch banknote with your iPhone as shown above" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d4K-pn-hOC">
-                                <rect key="frame" x="40" y="363" width="295" height="41"/>
+                                <rect key="frame" x="40" y="352.5" width="295" height="41"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -68,31 +68,48 @@
                                     <constraint firstAttribute="width" constant="100" id="wBv-mo-5ED"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Warning: due to limitations of NFC in iOS, the application cannot guarantee that scanned Tangem cards are genuine" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OmG-A1-1OC">
-                                <rect key="frame" x="20" y="483" width="335" height="54"/>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Warning: due to limitations of NFC in iOS, the application cannot guarantee that scanned Tangem cards are genuine" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OmG-A1-1OC">
+                                <rect key="frame" x="20" y="603" width="335" height="54"/>
                                 <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="U6I-XM-Aot">
+                                <rect key="frame" x="20" y="603" width="335" height="54"/>
+                                <connections>
+                                    <action selector="infoButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8VL-9H-DQJ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoLight" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uie-cT-Q7h">
+                                <rect key="frame" x="176.5" y="619" width="22" height="22"/>
+                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="UnF-ge-InH" firstAttribute="top" secondItem="cDy-71-7XF" secondAttribute="bottom" constant="40" id="3Hr-ko-fdV"/>
+                            <constraint firstItem="UnF-ge-InH" firstAttribute="top" relation="greaterThanOrEqual" secondItem="cDy-71-7XF" secondAttribute="bottom" constant="40" id="3Hr-ko-fdV"/>
+                            <constraint firstItem="U6I-XM-Aot" firstAttribute="trailing" secondItem="OmG-A1-1OC" secondAttribute="trailing" id="5HS-OH-fKC"/>
                             <constraint firstItem="cDy-71-7XF" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="50" id="5pj-ei-L26"/>
                             <constraint firstAttribute="trailing" secondItem="d4K-pn-hOC" secondAttribute="trailing" constant="40" id="C4O-hm-ydg"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="OmG-A1-1OC" secondAttribute="trailing" constant="20" id="CEQ-jR-YRh"/>
                             <constraint firstItem="UnF-ge-InH" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ChN-mz-6xK"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="gnc-6q-G1n" secondAttribute="bottom" constant="50" id="CnS-Xm-v32"/>
                             <constraint firstItem="OmG-A1-1OC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="FDg-0V-aNC"/>
                             <constraint firstItem="OmG-A1-1OC" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="HOW-VS-n3n"/>
+                            <constraint firstItem="U6I-XM-Aot" firstAttribute="top" secondItem="OmG-A1-1OC" secondAttribute="top" id="L9a-B5-hB9"/>
                             <constraint firstItem="d4K-pn-hOC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="ODs-VT-FXt"/>
                             <constraint firstItem="cDy-71-7XF" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="OyI-8O-wGP"/>
-                            <constraint firstItem="d4K-pn-hOC" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="50" id="QM6-aG-czn"/>
+                            <constraint firstItem="U6I-XM-Aot" firstAttribute="bottom" secondItem="OmG-A1-1OC" secondAttribute="bottom" id="QrB-Ws-uQf"/>
+                            <constraint firstItem="d4K-pn-hOC" firstAttribute="top" secondItem="1if-4X-bgs" secondAttribute="bottom" constant="22" id="RSa-ye-0wO"/>
                             <constraint firstItem="1if-4X-bgs" firstAttribute="top" secondItem="UnF-ge-InH" secondAttribute="bottom" constant="-72" id="UfC-om-oh5"/>
-                            <constraint firstItem="gnc-6q-G1n" firstAttribute="top" secondItem="OmG-A1-1OC" secondAttribute="bottom" constant="30" id="XKF-sb-dQu"/>
+                            <constraint firstItem="gnc-6q-G1n" firstAttribute="bottom" secondItem="OmG-A1-1OC" secondAttribute="top" constant="-20" id="XKF-sb-dQu"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gnc-6q-G1n" secondAttribute="trailing" constant="50" id="cS8-2a-6gb"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="OmG-A1-1OC" secondAttribute="bottom" constant="10" id="d4m-0e-gNj"/>
+                            <constraint firstItem="uie-cT-Q7h" firstAttribute="centerX" secondItem="OmG-A1-1OC" secondAttribute="centerX" id="ifM-fD-7x9"/>
                             <constraint firstItem="1if-4X-bgs" firstAttribute="leading" secondItem="UnF-ge-InH" secondAttribute="trailing" constant="-119.5" id="p6Z-8N-YGo"/>
+                            <constraint firstItem="U6I-XM-Aot" firstAttribute="leading" secondItem="OmG-A1-1OC" secondAttribute="leading" id="pW7-76-0DA"/>
                             <constraint firstItem="gnc-6q-G1n" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="50" id="wsq-PF-yD7"/>
+                            <constraint firstItem="d4K-pn-hOC" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" priority="750" id="xcM-fv-Tlv"/>
+                            <constraint firstItem="uie-cT-Q7h" firstAttribute="centerY" secondItem="OmG-A1-1OC" secondAttribute="centerY" id="ySE-ym-Vsd"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -106,7 +123,10 @@
                     </navigationItem>
                     <connections>
                         <outlet property="hintLabel" destination="d4K-pn-hOC" id="Eec-mQ-99C"/>
+                        <outlet property="infoButton" destination="uie-cT-Q7h" id="sUa-LU-iMs"/>
                         <outlet property="scanButton" destination="gnc-6q-G1n" id="bJT-ZO-1es"/>
+                        <outlet property="warningLabel" destination="OmG-A1-1OC" id="tN4-04-Q6l"/>
+                        <outlet property="warningLabelButton" destination="U6I-XM-Aot" id="euR-7g-kHL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
