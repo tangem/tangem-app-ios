@@ -132,7 +132,7 @@ extension ReaderViewController {
     }
     
     func handleNonGenuineTangemCard(_ card: Card) {
-        let validationAlert = UIAlertController(title: "Error", message: "Not a genuine Tangem card", preferredStyle: .alert)
+        let validationAlert = UIAlertController(title: "Error", message: "It is not a genuine Tangem card or your iPhone does not allow to attest the card", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
             UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
         }))
