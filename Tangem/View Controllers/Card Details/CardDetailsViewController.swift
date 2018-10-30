@@ -31,8 +31,14 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         setupWithCardDetails()
     }
     
-    func setupWithCardDetails() {
+    func setupWithCardDetails(pending: Bool = false) {
         setupUI()
+        
+        guard !pending else {
+            return
+        }
+        
+        viewModel.doubleScanHintLabel.isHidden = true
         
         guard let cardDetails = cardDetails else {
             assertionFailure()
@@ -54,8 +60,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
             assertionFailure()
             return
         }
-        
-        viewModel.doubleScanHintLabel.isHidden = true
         
         viewModel.updateBlockchainName(cardDetails.blockchain)
         viewModel.updateWalletAddress(cardDetails.address)
@@ -295,8 +299,13 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
+        
+        scanner?.invalidate()
         scanner = CardScanner { (result) in
             switch result {
+            case .pending(let card):
+                self.cardDetails = card
+                self.setupWithCardDetails(pending: true)
             case .success(let card):
                 self.cardDetails = card
                 self.setupWithCardDetails()
