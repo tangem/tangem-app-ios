@@ -14,6 +14,7 @@ class CardScanner: NSObject {
     static let tangemWalletRecordType = "tangem.com:wallet"
     
     enum CardScannerResult {
+        case pending(Card)
         case success(Card)
         case readerSessionError(Error)
         case locked
@@ -42,6 +43,10 @@ class CardScanner: NSObject {
         session?.begin()
     }
     
+    func invalidate() {
+        session?.invalidate()
+    }
+    
     func handleMessage(_ message: NFCNDEFMessage) {
         let payloads = message.records.filter { (record) -> Bool in
             guard let recordType = String(data: record.type, encoding: String.Encoding.utf8) else {
@@ -65,7 +70,6 @@ class CardScanner: NSObject {
             switch result {
             case .success(let card):
                 self.handleDidParseCard(card)
-                
             case .locked:
                 self.completion(.locked)
             case .tlvError:
@@ -80,6 +84,7 @@ class CardScanner: NSObject {
         guard var savedCard = savedCard else {
             self.savedCard = card
             initiateScan(shouldCleanup: false)
+            completion(.pending(card))
             return
         }
         
