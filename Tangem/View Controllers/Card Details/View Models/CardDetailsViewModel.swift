@@ -38,6 +38,7 @@ class CardDetailsViewModel: NSObject {
     @IBOutlet weak var doubleScanHintLabel: UILabel! {
         didSet {
             doubleScanHintLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
+            doubleScanHintLabel.textColor = UIColor.tgm_red()
         }
     }
     //    [REDACTED_USERNAME] weak var networkSafetyDescriptionLabel: UILabel! {
@@ -122,6 +123,7 @@ extension CardDetailsViewModel {
         UIView.animate(withDuration: 0.1) {
             self.cardWalletInfoView.isHidden = loading
             self.cardWalletInfoLoadingView.isHidden = !loading
+            self.buttonsAvailabilityView.isHidden = !loading
         }
     }
     
