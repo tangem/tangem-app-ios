@@ -69,6 +69,8 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
     func initiateScan() {
         scanner = CardScanner { (result) in
             switch result {
+            case .pending:
+                break
             case .success(let card):
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
             case .readerSessionError(let error):
