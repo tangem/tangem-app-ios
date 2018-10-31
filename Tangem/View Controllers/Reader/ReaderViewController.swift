@@ -73,8 +73,8 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
                 break
             case .success(let card):
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
-            case .readerSessionError(let error):
-                print("\(error.localizedDescription)")
+            case .readerSessionError:
+                break
             case .locked:
                 self.handleCardParserLockedCard()
             case .tlvError:

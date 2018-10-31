@@ -123,6 +123,7 @@ extension CardDetailsViewModel {
         UIView.animate(withDuration: 0.1) {
             self.cardWalletInfoView.isHidden = loading
             self.cardWalletInfoLoadingView.isHidden = !loading
+            self.buttonsAvailabilityView.isHidden = !loading
         }
     }
     
