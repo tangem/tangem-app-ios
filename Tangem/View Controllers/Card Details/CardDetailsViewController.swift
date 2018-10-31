@@ -310,7 +310,9 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
                 self.cardDetails = card
                 self.setupWithCardDetails()
             case .readerSessionError(let error):
-                print("\(error.localizedDescription)")
+                if error.code == .invalidatedUnexpectedly {
+                    self.navigationController?.popViewController(animated: true)
+                }
             case .locked:
                 self.handleCardParserLockedCard()
             case .tlvError:
