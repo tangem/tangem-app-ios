@@ -294,8 +294,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
-        viewModel.setWalletInfoLoading(true)
-        viewModel.doubleScanHintLabel.isHidden = false
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
@@ -304,15 +302,16 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         scanner = CardScanner { (result) in
             switch result {
             case .pending(let card):
+                self.viewModel.setWalletInfoLoading(true)
+                self.viewModel.doubleScanHintLabel.isHidden = false
+                
                 self.cardDetails = card
                 self.setupWithCardDetails(pending: true)
             case .success(let card):
                 self.cardDetails = card
                 self.setupWithCardDetails()
-            case .readerSessionError(let error):
-                if error.code == .invalidatedUnexpectedly {
-                    self.navigationController?.popViewController(animated: true)
-                }
+            case .readerSessionError:
+                self.navigationController?.popViewController(animated: true)
             case .locked:
                 self.handleCardParserLockedCard()
             case .tlvError:
