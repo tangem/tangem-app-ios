@@ -9,30 +9,6 @@
 import Foundation
 import CoreNFC
 
-enum NFCReaderErrorCode: Int {
-    case invalidatedUnexpectedly = 202
-    case other
-    
-    init(errorCode: Int) {
-        self = NFCReaderErrorCode(rawValue: errorCode) ?? .other
-    }
-}
-
-struct NFCReaderError: Error {
-    
-    var message: String
-    var code: NFCReaderErrorCode = .other
-    
-    init(generalError: Error) {
-        self.message = generalError.localizedDescription
-        self.code = NFCReaderErrorCode(errorCode: (generalError as NSError).code)
-    }
-    
-    var localizedDescription: String {
-        return message
-    }
-}
-
 class CardScanner: NSObject {
     
     static let tangemWalletRecordType = "tangem.com:wallet"
@@ -128,7 +104,13 @@ extension CardScanner: NFCNDEFReaderSessionDelegate {
     
     func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
         DispatchQueue.main.async {
-            self.completion(.readerSessionError(NFCReaderError(generalError: error)))
+            let nfcError = NFCReaderError(_nsError: error as NSError)
+            guard nfcError.code != .readerSessionInvalidationErrorFirstNDEFTagRead,
+                nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
+                    return
+            }
+            
+            self.completion(.readerSessionError(nfcError))
         }
     }
     
