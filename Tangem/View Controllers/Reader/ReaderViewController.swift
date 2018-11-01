@@ -67,6 +67,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
     }
     
     func initiateScan() {
+        scanner?.invalidate()
         scanner = CardScanner { (result) in
             switch result {
             case .pending:
