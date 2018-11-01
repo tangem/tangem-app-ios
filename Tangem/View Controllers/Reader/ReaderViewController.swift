@@ -71,11 +71,11 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
         scanner = CardScanner { (result) in
             switch result {
             case .pending:
-                break
+                self.hintLabel.text = Constants.hintLabelScanningText
             case .success(let card):
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
             case .readerSessionError:
-                break
+                self.hintLabel.text = Constants.hintLabelDefaultText
             case .locked:
                 self.handleCardParserLockedCard()
             case .tlvError:
@@ -86,7 +86,6 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
         }
         
         scanner?.initiateScan()
-        hintLabel.text = Constants.hintLabelScanningText
     }
     
     @IBAction func moreButtonPressed(_ sender: Any) {
