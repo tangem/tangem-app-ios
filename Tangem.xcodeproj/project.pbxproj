@@ -68,6 +68,7 @@
 		8026BC492177C26B00DC6255 /* CardVerificationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8026BC482177C26B00DC6255 /* CardVerificationOperation.swift */; };
 		8026BC4B2177CBA100DC6255 /* CardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8026BC4A2177CBA100DC6255 /* CardScanner.swift */; };
 		8026BC4C2177CDAC00DC6255 /* CardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8026BC4A2177CBA100DC6255 /* CardScanner.swift */; };
+		8026BC50218DD96200DC6255 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8026BC4F218DD96200DC6255 /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		803A86F220FB7CA400E19427 /* CardParsingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A86F120FB7CA400E19427 /* CardParsingOperation.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
 		8D03610120225C1400F13A39 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D03610020225C1400F13A39 /* Card.swift */; };
@@ -183,6 +184,7 @@
 		80205BBD2166B0B00091618F /* CardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardBalanceOperation.swift; sourceTree = "<group>"; };
 		8026BC482177C26B00DC6255 /* CardVerificationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardVerificationOperation.swift; sourceTree = "<group>"; };
 		8026BC4A2177CBA100DC6255 /* CardScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardScanner.swift; sourceTree = "<group>"; };
+		8026BC4F218DD96200DC6255 /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		803A86F120FB7CA400E19427 /* CardParsingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardParsingOperation.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
 		8D03610020225C1400F13A39 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -251,6 +253,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8026BC50218DD96200DC6255 /* CoreNFC.framework in Frameworks */,
 				B1FEF070153C749010F4F939 /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -528,6 +531,7 @@
 		9BB2E7086FC55540D6D4477B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8026BC4F218DD96200DC6255 /* CoreNFC.framework */,
 				679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */,
 				77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */,
 			);
