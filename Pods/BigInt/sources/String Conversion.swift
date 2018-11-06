@@ -94,11 +94,11 @@ extension BigInt {
     init?(_ text: Substring, radix: Int = 10) {
         var text = text
         var sign: Sign = .plus
-        if text.first == "-" {
+        if text.characters.first == "-" {
             sign = .minus
             text = text.dropFirst()
         }
-        else if text.first == "+" {
+        else if text.characters.first == "+" {
             text = text.dropFirst()
         }
         guard let magnitude = BigUInt(text, radix: radix) else { return nil }
@@ -143,7 +143,7 @@ extension String {
         self = ""
         var first = true
         for part in parts.reversed() {
-            let zeroes = charsPerWord - part.count
+            let zeroes = charsPerWord - part.characters.count
             assert(zeroes >= 0)
             if !first && zeroes > 0 {
                 // Insert leading zeroes for mid-Words
