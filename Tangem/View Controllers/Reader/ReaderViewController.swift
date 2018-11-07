@@ -7,13 +7,14 @@
 //
 
 import UIKit
+import TangemKit
 
 class ReaderViewController: UIViewController, TestCardParsingCapable {
     
     var customPresentationController: CustomPresentationController?
     
     let operationQueue = OperationQueue()
-    var scanner: CardScanner?
+    var tangemSession: TangemSession?
     
     private struct Constants {
         static let hintLabelDefaultText = "Press Scan and touch banknote with your iPhone as shown above"
@@ -67,25 +68,8 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
     }
     
     func initiateScan() {
-        scanner?.invalidate()
-        scanner = CardScanner { (result) in
-            switch result {
-            case .pending:
-                self.hintLabel.text = Constants.hintLabelScanningText
-            case .success(let card):
-                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
-            case .readerSessionError:
-                self.hintLabel.text = Constants.hintLabelDefaultText
-            case .locked:
-                self.handleCardParserLockedCard()
-            case .tlvError:
-                self.handleCardParserWrongTLV()
-            case .nonGenuineCard(let card):
-                self.handleNonGenuineTangemCard(card)
-            }
-        }
-        
-        scanner?.initiateScan()
+        tangemSession = TangemSession(delegate: self)
+        tangemSession?.start()
     }
     
     @IBAction func moreButtonPressed(_ sender: Any) {
@@ -103,19 +87,19 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
     }
     
     func launchSimulationParsingOperationWith(payload: Data) {
-        operationQueue.cancelAllOperations()
-        
-        let operation = CardParsingOperation(payload: payload) { (result) in
-            switch result {
-            case .success(let card):
-                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
-            case .locked:
-                self.handleCardParserLockedCard()
-            case .tlvError:
-                self.handleCardParserWrongTLV()
-            }
-        }
-        operationQueue.addOperation(operation)
+//        operationQueue.cancelAllOperations()
+//
+//        let operation = CardParsingOperation(payload: payload) { (result) in
+//            switch result {
+//            case .success(let card):
+//                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+//            case .locked:
+//                self.handleCardParserLockedCard()
+//            case .tlvError:
+//                self.handleCardParserWrongTLV()
+//            }
+//        }
+//        operationQueue.addOperation(operation)
     }
     
 }
@@ -153,6 +137,26 @@ extension ReaderViewController {
         DispatchQueue.main.async {
             self.hintLabel.text = Constants.hintLabelDefaultText
         }
+    }
+
+}
+
+extension ReaderViewController : TangemSessionDelegate {
+
+    func tangemSessionDidRead(card: Card) {
+
+    }
+
+    func tangemSessionDidGetBalance(card: Card) {
+
+    }
+
+    func tangemSessionDidVerifySignature(card: Card, isGenuineCard: Bool) {
+
+    }
+
+    func tangemSessionDidFailWith(error: Error) {
+
     }
 
 }
