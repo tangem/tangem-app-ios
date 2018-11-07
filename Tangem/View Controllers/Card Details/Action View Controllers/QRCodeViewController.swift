@@ -8,6 +8,7 @@
 
 import Foundation
 import QRCode
+import TangemKit
 
 class QRCodeViewController: ModalActionViewController {
     
