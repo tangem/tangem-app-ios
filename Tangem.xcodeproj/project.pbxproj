@@ -46,6 +46,7 @@
 		80205B9A215FF2300091618F /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
 		80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B9C215FF3280091618F /* UIAlertController+TestData.swift */; };
 		8026BC50218DD96200DC6255 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8026BC4F218DD96200DC6255 /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		804638B321A36776005C539B /* UIViewControllerErrorsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
 		8D4B4A38205FA2300094E712 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
 		8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D882018DA92006C73D9 /* AppDelegate.swift */; };
@@ -113,6 +114,7 @@
 		80205B91215FF0460091618F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		80205B9C215FF3280091618F /* UIAlertController+TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+TestData.swift"; sourceTree = "<group>"; };
 		8026BC4F218DD96200DC6255 /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
+		804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerErrorsExtension.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
 		8D4B4A34205F9CCC0094E712 /* Tangem-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tangem-Bridging-Header.h"; sourceTree = "<group>"; };
 		8D4B4A37205FA2300094E712 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
@@ -292,6 +294,7 @@
 				8000367E2127671700C151E8 /* UIColorExtensions.swift */,
 				80205B84215FDF390091618F /* TestCardParsingCapable.swift */,
 				80205B9C215FF3280091618F /* UIAlertController+TestData.swift */,
+				804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -574,6 +577,7 @@
 				80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */,
 				80003671211108A800C151E8 /* ViewControllerInteractiveTransition.swift in Sources */,
 				80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */,
+				804638B321A36776005C539B /* UIViewControllerErrorsExtension.swift in Sources */,
 				80003670211108A400C151E8 /* ModalViewControllerDragView.swift in Sources */,
 				80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */,
 				8000368B213C9BFC00C151E8 /* QRCodeViewController.swift in Sources */,
