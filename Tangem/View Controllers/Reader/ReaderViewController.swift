@@ -9,7 +9,7 @@
 import UIKit
 import TangemKit
 
-class ReaderViewController: UIViewController, TestCardParsingCapable {
+class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErrorAlertsCapable {
     
     var customPresentationController: CustomPresentationController?
     
@@ -87,77 +87,40 @@ class ReaderViewController: UIViewController, TestCardParsingCapable {
     }
     
     func launchSimulationParsingOperationWith(payload: Data) {
-//        operationQueue.cancelAllOperations()
-//
-//        let operation = CardParsingOperation(payload: payload) { (result) in
-//            switch result {
-//            case .success(let card):
-//                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
-//            case .locked:
-//                self.handleCardParserLockedCard()
-//            case .tlvError:
-//                self.handleCardParserWrongTLV()
-//            }
-//        }
-//        operationQueue.addOperation(operation)
+        tangemSession = TangemSession(payload: payload, delegate: self)
+        tangemSession?.start()
     }
     
-}
-
-extension ReaderViewController {
-    
-    func handleCardParserWrongTLV() {
-        let validationAlert = UIAlertController(title: "Error", message: "Failed to parse data received from the banknote", preferredStyle: .alert)
-        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(validationAlert, animated: true, completion: nil)
-        
-        DispatchQueue.main.async {
-            self.hintLabel.text = Constants.hintLabelDefaultText
-        }
-    }
-    
-    func handleCardParserLockedCard() {
-        print("Card is locked, two first bytes are equal 0x6A86")
-        let validationAlert = UIAlertController(title: "Info", message: "This app can’t read protected Tangem banknotes", preferredStyle: .alert)
-        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(validationAlert, animated: true, completion: nil)
-        
-        DispatchQueue.main.async {
-            self.hintLabel.text = Constants.hintLabelDefaultText
-        }
-    }
-    
-    func handleNonGenuineTangemCard(_ card: Card) {
-        let validationAlert = UIAlertController(title: "Error", message: "It is not a genuine Tangem card or your iPhone does not allow to attest the card", preferredStyle: .alert)
-        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
-            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
-        }))
-        self.present(validationAlert, animated: true, completion: nil)
-        
-        DispatchQueue.main.async {
-            self.hintLabel.text = Constants.hintLabelDefaultText
-        }
-    }
-
 }
 
 extension ReaderViewController : TangemSessionDelegate {
 
     func tangemSessionDidRead(card: Card) {
-
+        switch card.genuinityState {
+        case .pending:
+            self.hintLabel.text = Constants.hintLabelScanningText
+        case .nonGenuine:
+            handleNonGenuineTangemCard(card) {
+                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+            }
+        case .genuine:
+            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+        }
     }
 
-    func tangemSessionDidGetBalance(card: Card) {
+    func tangemSessionDidFailWith(error: TangemSessionError) {
+        switch error {
+        case .locked:
+            handleCardParserLockedCard()
+        case .payloadError:
+            handleCardParserWrongTLV()
+        case .readerSessionError:
+            handleReaderSessionError()
+        }
 
-    }
-
-    func tangemSessionDidVerifySignature(card: Card, isGenuineCard: Bool) {
-
-    }
-
-    func tangemSessionDidFailWith(error: Error) {
-
+        DispatchQueue.main.async {
+            self.hintLabel.text = Constants.hintLabelDefaultText
+        }
     }
 
 }
-
