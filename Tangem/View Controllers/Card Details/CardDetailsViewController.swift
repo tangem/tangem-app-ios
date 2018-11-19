@@ -10,7 +10,7 @@ import UIKit
 import QRCode
 import TangemKit
 
-class CardDetailsViewController: UIViewController, TestCardParsingCapable {
+class CardDetailsViewController: UIViewController, TestCardParsingCapable, DefaultErrorAlertsCapable {
     
     @IBOutlet var viewModel: CardDetailsViewModel!
     
@@ -20,11 +20,9 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     var customPresentationController: CustomPresentationController?
     
     let operationQueue = OperationQueue()
+    var dispatchWorkItem: DispatchWorkItem?
     
     var tangemSession: TangemSession?
-    
-    var numberOfScans = 0
-    var savedChallenge: String?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -47,6 +45,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         viewModel.doubleScanHintLabel.isHidden = true
         
         if cardDetails.isWallet {
+            verifySignature(card: cardDetails)
+            getBalance(card: cardDetails)
             setupBalanceIsBeingVerified()
         } else {
             viewModel.setWalletInfoLoading(false)
@@ -78,7 +78,48 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
         
         viewModel.balanceVerificationActivityIndicator.stopAnimating()
     }
-    
+
+    func verifySignature(card: Card) {
+        do {
+            let operation = try card.signatureVerificationOperation { (isGenuineCard) in
+                self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
+                self.setupBalanceVerified(isGenuineCard)
+
+                if !isGenuineCard {
+                    self.handleNonGenuineTangemCard(card)
+                }
+            }
+
+            operationQueue.addOperation(operation)
+        } catch {
+            print("Error: \(error)")
+        }
+
+    }
+
+    func getBalance(card: Card) {
+        let operation = card.balanceRequestOperation(onSuccess: { (card) in
+            self.viewModel.setWalletInfoLoading(false)
+
+            self.cardDetails = card
+            self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
+
+        }, onFailure: { (error) in
+            self.viewModel.setWalletInfoLoading(false)
+            self.viewModel.updateWalletBalance("--")
+
+            let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
+            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                self.navigationController?.popViewController(animated: true)
+            }))
+            self.present(validationAlert, animated: true, completion: nil)
+            self.setupBalanceVerified(false)
+        })
+
+        operationQueue.addOperation(operation)
+
+    }
+
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
         
@@ -129,174 +170,12 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable {
     }
     
     // MARK: Simulator parsing Operation
-    
+
     func launchSimulationParsingOperationWith(payload: Data) {
-//        operationQueue.cancelAllOperations()
-//        viewModel.setWalletInfoLoading(true)
-//
-//        let operation = CardParsingOperation(payload: payload) { (result) in
-//            DispatchQueue.main.async {
-//                self.handleOperationFinishedSimulatorWith(result: result)
-//            }
-//        }
-//        operationQueue.addOperation(operation)
-//    }
-//
-//    func handleOperationFinishedSimulatorWith(result: CardParsingOperation.CardParsingResult) {
-//        switch result {
-//        case .success(let card):
-//            cardDetails = card
-//            setupWithCardDetails()
-//        case .locked:
-//            handleCardParserLockedCard()
-//        case .tlvError:
-//            handleCardParserWrongTLV()
-//        }
-    }
-    
-    // MARK: Actions
-    
-    @IBAction func exploreButtonPressed(_ sender: Any) {
-        if let link = cardDetails?.link, let url = URL(string: link) {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
-    }
-    
-    var dispatchWorkItem: DispatchWorkItem?
-    
-    @IBAction func copyButtonPressed(_ sender: Any) {
-        UIPasteboard.general.string = cardDetails?.address
-        
-        dispatchWorkItem?.cancel()
-        
-        updateCopyButtonTitleForState(copied: true)
-        dispatchWorkItem = DispatchWorkItem(block: {
-            self.updateCopyButtonTitleForState(copied: false)
-        })
-        
-        guard let dispatchWorkItem = dispatchWorkItem else {
-            return
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: dispatchWorkItem)
-    }
-    
-    func updateCopyButtonTitleForState(copied: Bool) {
-        let title = copied ? "Copied!" : "Copy"
-        let color = copied ? UIColor.tgm_green() : UIColor.black
-        
-        UIView.transition(with: viewModel.copyButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
-            self.viewModel.copyButton.setTitle(title.uppercased(), for: .normal)
-            self.viewModel.copyButton.setTitleColor(color, for: .normal)
-        }, completion: nil)
-    }
-    
-    @IBAction func loadButtonPressed(_ sender: Any) {
-        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "LoadViewController") as? LoadViewController else {
-            return
-        }
-        
-        viewController.cardDetails = cardDetails
-        viewController.delegate = self
-        
-        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
-        self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
-        viewController.transitioningDelegate = presentationController
-        self.present(viewController, animated: true, completion: nil)
-    }
-    
-    @IBAction func extractButtonPressed(_ sender: Any) {
-
-        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ExtractViewController") else {
-            return
-        }
-        
-        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
-        self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
-        viewController.transitioningDelegate = presentationController
-        self.present(viewController, animated: true, completion: nil)
-
-    }
-    
-    @IBAction func scanButtonPressed(_ sender: Any) {
-        #if targetEnvironment(simulator)
-        showSimulationSheet()
-        #else
-
-        tangemSession = TangemSession(delegate: self)
+        tangemSession = TangemSession(payload: payload, delegate: self)
         tangemSession?.start()
-
-        #endif
     }
     
-    @IBAction func moreButtonPressed(_ sender: Any) {
-        guard let cardDetails = cardDetails, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
-            return
-        }
-        
-        var cardChallenge: String? = nil
-        if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var verificationChallenge: String? = nil
-        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        let strings = ["Issuer: \(cardDetails.issuer)",
-            "Manufacturer: \(cardDetails.issuer)",
-            "API node: \(cardDetails.node)",
-            "Challenge 1: \(cardChallenge ?? "N\\A")",
-            "Challenge 2: \(verificationChallenge ?? "N\\A")",
-            "Signature: \(isBalanceVerified ? "passed" : "not passed")",
-            "Authenticity: attested",
-            "Firmware: \(cardDetails.firmware)",
-            "Registration date: \(cardDetails.manufactureDateTime)",
-            "Serial: \(cardDetails.cardID)",
-            "Remaining signatures: \(cardDetails.remainingSignatures)"]
-        viewController.contentText = strings.joined(separator: "\n")
-        
-        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
-        self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(478, self.view.frame.height - 200))
-        viewController.transitioningDelegate = presentationController
-        self.present(viewController, animated: true, completion: nil)
-    }
-    
-}
-
-extension CardDetailsViewController {
-    
-    func handleCardParserWrongTLV() {
-        let validationAlert = UIAlertController(title: "Error", message: "Failed to parse data received from the banknote", preferredStyle: .alert)
-        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(validationAlert, animated: true, completion: nil)
-    }
-    
-    func handleCardParserLockedCard() {
-        print("Card is locked, two first bytes are equal 0x6A86")
-        let validationAlert = UIAlertController(title: "Info", message: "This app can’t read protected Tangem banknotes", preferredStyle: .alert)
-        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(validationAlert, animated: true, completion: nil)
-    }
-    
-    func handleNonGenuineTangemCard(_ card: Card) {
-        let validationAlert = UIAlertController(title: "Error", message: "It is not a genuine Tangem card or your iPhone does not allow to attest the card", preferredStyle: .alert)
-        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(validationAlert, animated: true, completion: nil)
-    }
-
 }
 
 extension CardDetailsViewController: LoadViewControllerDelegate {
@@ -337,31 +216,139 @@ extension CardDetailsViewController : TangemSessionDelegate {
 
     }
 
-    func tangemSessionDidGetBalance(card: Card) {
-        self.cardDetails = card
-        self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
-
-//        self.viewModel.updateWalletBalance("--")
-//
-//        let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
-//        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-//            self.navigationController?.popViewController(animated: true)
-//        }))
-//        self.present(validationAlert, animated: true, completion: nil)
-//        self.setupBalanceVerified(false)
+    func tangemSessionDidFailWith(error: TangemSessionError) {
+        switch error {
+        case .locked:
+            handleCardParserLockedCard()
+        case .payloadError:
+            handleCardParserWrongTLV()
+        case .readerSessionError:
+            handleReaderSessionError() {
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
     }
 
-    func tangemSessionDidVerifySignature(card: Card, isGenuineCard: Bool) {
-        self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
-        self.setupBalanceVerified(isGenuineCard)
-//        self.handleNonGenuineTangemCard(card)
+}
+
+extension CardDetailsViewController {
+
+    // MARK: Actions
+
+    @IBAction func exploreButtonPressed(_ sender: Any) {
+        if let link = cardDetails?.link, let url = URL(string: link) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
+
+    @IBAction func copyButtonPressed(_ sender: Any) {
+        UIPasteboard.general.string = cardDetails?.address
+
+        dispatchWorkItem?.cancel()
+
+        updateCopyButtonTitleForState(copied: true)
+        dispatchWorkItem = DispatchWorkItem(block: {
+            self.updateCopyButtonTitleForState(copied: false)
+        })
+
+        guard let dispatchWorkItem = dispatchWorkItem else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: dispatchWorkItem)
+    }
+
+    func updateCopyButtonTitleForState(copied: Bool) {
+        let title = copied ? "Copied!" : "Copy"
+        let color = copied ? UIColor.tgm_green() : UIColor.black
+
+        UIView.transition(with: viewModel.copyButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
+            self.viewModel.copyButton.setTitle(title.uppercased(), for: .normal)
+            self.viewModel.copyButton.setTitleColor(color, for: .normal)
+        }, completion: nil)
+    }
+
+    @IBAction func loadButtonPressed(_ sender: Any) {
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "LoadViewController") as? LoadViewController else {
+            return
+        }
+
+        viewController.cardDetails = cardDetails
+        viewController.delegate = self
+
+        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        self.customPresentationController = presentationController
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
+        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
+    }
+
+    @IBAction func extractButtonPressed(_ sender: Any) {
+
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ExtractViewController") else {
+            return
+        }
+
+        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        self.customPresentationController = presentationController
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
+        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
 
     }
 
-    func tangemSessionDidFailWith(error: Error) {
-//        self.navigationController?.popViewController(animated: true)
-//        self.handleCardParserLockedCard()
-//        self.handleCardParserWrongTLV()
+    @IBAction func scanButtonPressed(_ sender: Any) {
+        #if targetEnvironment(simulator)
+        showSimulationSheet()
+        #else
+
+        tangemSession = TangemSession(delegate: self)
+        tangemSession?.start()
+
+        #endif
+    }
+
+    @IBAction func moreButtonPressed(_ sender: Any) {
+        guard let cardDetails = cardDetails, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+            return
+        }
+
+        var cardChallenge: String? = nil
+        if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
+            let cardChallenge1 = String(challenge.prefix(3))
+            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+            let cardChallenge3 = String(saltValue.prefix(3))
+            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+            cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+        }
+
+        var verificationChallenge: String? = nil
+        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
+            let cardChallenge1 = String(challenge.prefix(3))
+            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+            let cardChallenge3 = String(saltValue.prefix(3))
+            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+            verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+        }
+
+        let strings = ["Issuer: \(cardDetails.issuer)",
+            "Manufacturer: \(cardDetails.issuer)",
+            "API node: \(cardDetails.node)",
+            "Challenge 1: \(cardChallenge ?? "N\\A")",
+            "Challenge 2: \(verificationChallenge ?? "N\\A")",
+            "Signature: \(isBalanceVerified ? "passed" : "not passed")",
+            "Authenticity: \(cardDetails.isAuthentic ? "attested" : "not attested")",
+            "Firmware: \(cardDetails.firmware)",
+            "Registration date: \(cardDetails.manufactureDateTime)",
+            "Serial: \(cardDetails.cardID)",
+            "Remaining signatures: \(cardDetails.remainingSignatures)"]
+        viewController.contentText = strings.joined(separator: "\n")
+
+        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        self.customPresentationController = presentationController
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(478, self.view.frame.height - 200))
+        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
     }
 
 }
