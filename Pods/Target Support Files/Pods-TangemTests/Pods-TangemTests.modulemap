@@ -1,6 +1,0 @@
-framework module Pods_TangemTests {
-  umbrella header "Pods-TangemTests-umbrella.h"
-
-  export *
-  module * { export * }
-}
