@@ -8,11 +8,3 @@ target 'Tangem' do
     
 end
 
-target 'TangemTests' do
-    
-    use_frameworks!
-    pod 'BigInt', '~> 3.0'
-    pod 'CryptoSwift'
-    
-end
-
