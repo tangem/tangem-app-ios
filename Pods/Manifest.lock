@@ -15,8 +15,6 @@ PODS:
     - SwiftyJSON (= 3.0.0)
 
 DEPENDENCIES:
-  - BigInt (~> 3.0)
-  - CryptoSwift
   - QRCode
   - TangemKit (from `../TangemKit`)
 
@@ -44,6 +42,6 @@ SPEC CHECKSUMS:
   SwiftyJSON: f57b2b44bc166617372d1c70773591fe9f0f5fd4
   TangemKit: cb51e0da9e1e59c7f59402a06b0bc67f14d49700
 
-PODFILE CHECKSUM: f8271bd4eb345d906623f119e9f99e785340381d
+PODFILE CHECKSUM: c21aa494c5844b5c5934489aefebf68b713abca9
 
 COCOAPODS: 1.5.0
