@@ -74,7 +74,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
-        viewModel.cardImageView.image = UIImage(named: cardDetails.imageName)
+        viewModel.cardImageView.image = cardDetails.image
         
         viewModel.balanceVerificationActivityIndicator.stopAnimating()
     }
