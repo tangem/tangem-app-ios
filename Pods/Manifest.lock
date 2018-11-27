@@ -3,6 +3,7 @@ PODS:
   - BigInt (3.0.0):
     - SipHash (~> 1.2)
   - CryptoSwift (0.13.0)
+  - GBAsyncOperation (0.1.0)
   - QRCode (2.0)
   - SipHash (1.2.2)
   - SwiftLint (0.27.0)
@@ -11,11 +12,13 @@ PODS:
     - Alamofire (= 4.7.2)
     - BigInt (= 3.0)
     - CryptoSwift (= 0.13.0)
+    - GBAsyncOperation (= 0.1.0)
     - SwiftLint (= 0.27.0)
     - SwiftyJSON (= 3.0.0)
 
 DEPENDENCIES:
-  - QRCode
+  - Alamofire (~> 4.7)
+  - QRCode (= 2.0)
   - TangemKit (from `../TangemKit`)
 
 SPEC REPOS:
@@ -23,6 +26,7 @@ SPEC REPOS:
     - Alamofire
     - BigInt
     - CryptoSwift
+    - GBAsyncOperation
     - QRCode
     - SipHash
     - SwiftLint
@@ -36,12 +40,13 @@ SPEC CHECKSUMS:
   Alamofire: e4fa87002c137ba2d8d634d2c51fabcda0d5c223
   BigInt: a7864bcecd2976bced91963baef90079dbdcca25
   CryptoSwift: 16e78bebf567bad1c87b2d58f6547f25b74c31aa
+  GBAsyncOperation: 4ccac10ded7f575376d741a64a11dab274bfa8d8
   QRCode: f98a1886c8f37523704a7512a4c0cd45b34c18a4
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
   SwiftLint: 3207c1faa2240bf8973b191820a116113cd11073
   SwiftyJSON: f57b2b44bc166617372d1c70773591fe9f0f5fd4
-  TangemKit: cb51e0da9e1e59c7f59402a06b0bc67f14d49700
+  TangemKit: 4e25c891e72ed94855110e9ad8d081dd16de7a9f
 
-PODFILE CHECKSUM: c21aa494c5844b5c5934489aefebf68b713abca9
+PODFILE CHECKSUM: a5084e4af007197b6e132a7f11716693337d9775
 
 COCOAPODS: 1.5.0
