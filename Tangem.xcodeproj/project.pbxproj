@@ -45,7 +45,10 @@
 		80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B9C215FF3280091618F /* UIAlertController+TestData.swift */; };
 		8026BC50218DD96200DC6255 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8026BC4F218DD96200DC6255 /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		804638B321A36776005C539B /* UIViewControllerErrorsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */; };
+		807C6AA021AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807C6A9F21AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift */; };
+		80BC7ABD21ADEF4B0013BDA5 /* CardNetworkDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BC7ABC21ADEF4B0013BDA5 /* CardNetworkDetails.swift */; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
+		80C7E9FA21ADEFA8006AC1BF /* CardArtworkNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C7E9F921ADEFA8006AC1BF /* CardArtworkNetworkOperation.swift */; };
 		8D4B4A38205FA2300094E712 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
 		8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D882018DA92006C73D9 /* AppDelegate.swift */; };
 		8D946D8B2018DA92006C73D9 /* ReaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D8A2018DA92006C73D9 /* ReaderViewController.swift */; };
@@ -56,8 +59,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2FCC1822E7F39C9C7FA83D3B /* Pods-TangemTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-TangemTests/Pods-TangemTests.release.xcconfig"; sourceTree = "<group>"; };
-		497E33290EA652EA358286C7 /* Pods-TangemTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TangemTests/Pods-TangemTests.debug.xcconfig"; sourceTree = "<group>"; };
 		4F16D29E05DA5A490FD1E224 /* Pods-Tangem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.release.xcconfig"; sourceTree = "<group>"; };
 		679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,7 +100,10 @@
 		80205B9C215FF3280091618F /* UIAlertController+TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+TestData.swift"; sourceTree = "<group>"; };
 		8026BC4F218DD96200DC6255 /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerErrorsExtension.swift; sourceTree = "<group>"; };
+		807C6A9F21AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsNetworkOperation.swift; sourceTree = "<group>"; };
+		80BC7ABC21ADEF4B0013BDA5 /* CardNetworkDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardNetworkDetails.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
+		80C7E9F921ADEFA8006AC1BF /* CardArtworkNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardArtworkNetworkOperation.swift; sourceTree = "<group>"; };
 		8D4B4A34205F9CCC0094E712 /* Tangem-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tangem-Bridging-Header.h"; sourceTree = "<group>"; };
 		8D4B4A37205FA2300094E712 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		8D899FBE202476DF006131E0 /* Card.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Card.storyboard; sourceTree = "<group>"; };
@@ -162,6 +166,7 @@
 		80205B88215FDFC00091618F /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				807C6A9E21AC9A910060FBE2 /* Operations */,
 				80205B82215FCAFF0091618F /* NavigationManager.swift */,
 				8000366A2111062C00C151E8 /* Transitions */,
 				8DD6947A2021EA0E00BF3FBD /* Reader */,
@@ -170,10 +175,20 @@
 			path = "View Controllers";
 			sourceTree = "<group>";
 		};
+		807C6A9E21AC9A910060FBE2 /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				807C6A9F21AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift */,
+				80C7E9F921ADEFA8006AC1BF /* CardArtworkNetworkOperation.swift */,
+			);
+			path = Operations;
+			sourceTree = "<group>";
+		};
 		8D0360FF20225BF500F13A39 /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				8D4B4A37205FA2300094E712 /* TestData.swift */,
+				80BC7ABC21ADEF4B0013BDA5 /* CardNetworkDetails.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -279,8 +294,6 @@
 			children = (
 				FD1D2D0D24BADF13534061E4 /* Pods-Tangem.debug.xcconfig */,
 				4F16D29E05DA5A490FD1E224 /* Pods-Tangem.release.xcconfig */,
-				497E33290EA652EA358286C7 /* Pods-TangemTests.debug.xcconfig */,
-				2FCC1822E7F39C9C7FA83D3B /* Pods-TangemTests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -419,6 +432,7 @@
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCode/QRCode.framework",
 				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
@@ -429,6 +443,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GBAsyncOperation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCode.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
@@ -449,6 +464,7 @@
 				8D946D8B2018DA92006C73D9 /* ReaderViewController.swift in Sources */,
 				8D4B4A38205FA2300094E712 /* TestData.swift in Sources */,
 				800036692111060900C151E8 /* ModalActionViewController.swift in Sources */,
+				80C7E9FA21ADEFA8006AC1BF /* CardArtworkNetworkOperation.swift in Sources */,
 				8000366F211108A200C151E8 /* CustomPresentationController.swift in Sources */,
 				80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */,
 				80003671211108A800C151E8 /* ViewControllerInteractiveTransition.swift in Sources */,
@@ -462,11 +478,13 @@
 				8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */,
 				8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */,
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
+				80BC7ABD21ADEF4B0013BDA5 /* CardNetworkDetails.swift in Sources */,
 				800036672111054900C151E8 /* CardDetailsViewModel.swift in Sources */,
 				80003681213C68DB00C151E8 /* CardMoreViewController.swift in Sources */,
 				800036792111097700C151E8 /* UIViewExtensions.swift in Sources */,
 				80205B83215FCAFF0091618F /* NavigationManager.swift in Sources */,
 				80205B85215FDF390091618F /* TestCardParsingCapable.swift in Sources */,
+				807C6AA021AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift in Sources */,
 				80003683213C6AAF00C151E8 /* ReaderMoreViewController.swift in Sources */,
 				800036772111090F00C151E8 /* UIImage+ImageEffects.m in Sources */,
 			);
