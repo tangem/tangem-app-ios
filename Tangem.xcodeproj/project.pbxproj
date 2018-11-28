@@ -44,6 +44,7 @@
 		80205B85215FDF390091618F /* TestCardParsingCapable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B84215FDF390091618F /* TestCardParsingCapable.swift */; };
 		80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B9C215FF3280091618F /* UIAlertController+TestData.swift */; };
 		8026BC50218DD96200DC6255 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8026BC4F218DD96200DC6255 /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		802B7D6421AF4D82000FB9E4 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 802B7D6321AF4D82000FB9E4 /* TangemKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		804638B321A36776005C539B /* UIViewControllerErrorsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */; };
 		807C6AA021AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807C6A9F21AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift */; };
 		80BC7ABD21ADEF4B0013BDA5 /* CardNetworkDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BC7ABC21ADEF4B0013BDA5 /* CardNetworkDetails.swift */; };
@@ -99,6 +100,7 @@
 		80205B84215FDF390091618F /* TestCardParsingCapable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCardParsingCapable.swift; sourceTree = "<group>"; };
 		80205B9C215FF3280091618F /* UIAlertController+TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+TestData.swift"; sourceTree = "<group>"; };
 		8026BC4F218DD96200DC6255 /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
+		802B7D6321AF4D82000FB9E4 /* TangemKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerErrorsExtension.swift; sourceTree = "<group>"; };
 		807C6A9F21AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsNetworkOperation.swift; sourceTree = "<group>"; };
 		80BC7ABC21ADEF4B0013BDA5 /* CardNetworkDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardNetworkDetails.swift; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				802B7D6421AF4D82000FB9E4 /* TangemKit.framework in Frameworks */,
 				8026BC50218DD96200DC6255 /* CoreNFC.framework in Frameworks */,
 				B1FEF070153C749010F4F939 /* Pods_Tangem.framework in Frameworks */,
 			);
@@ -301,6 +304,7 @@
 		9BB2E7086FC55540D6D4477B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				802B7D6321AF4D82000FB9E4 /* TangemKit.framework */,
 				8026BC4F218DD96200DC6255 /* CoreNFC.framework */,
 				679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */,
 				77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */,
@@ -633,7 +637,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 46;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				INFOPLIST_FILE = Tangem/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -657,7 +661,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 46;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				INFOPLIST_FILE = Tangem/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
