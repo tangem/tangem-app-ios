@@ -43,8 +43,6 @@
 		80205B83215FCAFF0091618F /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B82215FCAFF0091618F /* NavigationManager.swift */; };
 		80205B85215FDF390091618F /* TestCardParsingCapable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B84215FDF390091618F /* TestCardParsingCapable.swift */; };
 		80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B9C215FF3280091618F /* UIAlertController+TestData.swift */; };
-		8026BC50218DD96200DC6255 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8026BC4F218DD96200DC6255 /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		802B7D6421AF4D82000FB9E4 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 802B7D6321AF4D82000FB9E4 /* TangemKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		804638B321A36776005C539B /* UIViewControllerErrorsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */; };
 		807C6AA021AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807C6A9F21AC9AA20060FBE2 /* CardDetailsNetworkOperation.swift */; };
 		80BC7ABD21ADEF4B0013BDA5 /* CardNetworkDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BC7ABC21ADEF4B0013BDA5 /* CardNetworkDetails.swift */; };
@@ -126,8 +124,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				802B7D6421AF4D82000FB9E4 /* TangemKit.framework in Frameworks */,
-				8026BC50218DD96200DC6255 /* CoreNFC.framework in Frameworks */,
 				B1FEF070153C749010F4F939 /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
