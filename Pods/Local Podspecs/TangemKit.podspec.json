@@ -20,6 +20,7 @@
     "ios": "11.0"
   },
   "source_files": "TangemKit/Classes/**/*",
+  "frameworks": "CoreNFC",
   "resources": "TangemKit/Assets/*.xcassets",
   "dependencies": {
     "Alamofire": [
