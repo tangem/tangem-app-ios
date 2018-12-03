@@ -12,6 +12,9 @@ extension UIAlertController {
     
     static func testDataAlertController(handler: @escaping (TestData) -> Void) -> UIAlertController {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let updatedSpec = UIAlertAction(title: "BTC Upd", style: .default) { (_) in
+            handler(TestData.updatedSpec)
+        }
         let btcAction = UIAlertAction(title: "BTC", style: .default) { (_) in
             handler(TestData.btcWallet)
         }
@@ -34,7 +37,8 @@ extension UIAlertController {
             handler(TestData.whirl)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        
+
+        alertController.addAction(updatedSpec)
         alertController.addAction(btcAction)
         alertController.addAction(btcNoWalletAction)
         alertController.addAction(ethAction)
