@@ -25,8 +25,8 @@ struct CardNetworkArtwork: Codable {
 struct CardNetworkDetails: Codable {
 
     var cardId: String
-    var artwork: CardNetworkArtwork
-    var batch: String
+    var artwork: CardNetworkArtwork?
+    var batch: String?
     var isValid: Bool
 
     enum CodingKeys: String, CodingKey {
