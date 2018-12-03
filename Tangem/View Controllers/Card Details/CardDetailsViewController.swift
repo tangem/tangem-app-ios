@@ -40,6 +40,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
 
+        /*
         let operation = CardDetailsNetworkOperation(card: cardDetails) { (result) in
             switch result {
             case .success(let value):
@@ -49,6 +50,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             }
         }
         operationQueue.addOperation(operation)
+ */
         
         guard cardDetails.genuinityState != .pending else {
             return
