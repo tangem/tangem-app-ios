@@ -8,7 +8,7 @@ PODS:
   - SipHash (1.2.2)
   - SwiftLint (0.27.0)
   - SwiftyJSON (3.0.0)
-  - TangemKit (0.1.0):
+  - TangemKit (0.2.0):
     - Alamofire (= 4.7.2)
     - BigInt (= 3.0)
     - CryptoSwift (= 0.13.0)
@@ -45,7 +45,7 @@ SPEC CHECKSUMS:
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
   SwiftLint: 3207c1faa2240bf8973b191820a116113cd11073
   SwiftyJSON: f57b2b44bc166617372d1c70773591fe9f0f5fd4
-  TangemKit: 1af4a2e05bad49fc4edd00201502e7fc0e9f2221
+  TangemKit: 34a5857554c455417b7075a90de52ab68cf7df70
 
 PODFILE CHECKSUM: a5084e4af007197b6e132a7f11716693337d9775
 
