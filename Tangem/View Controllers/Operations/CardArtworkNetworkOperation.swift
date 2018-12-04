@@ -26,8 +26,8 @@ class CardArtworkNetworkOperation: GBAsyncOperation {
         let url = "https://verify.tangem.com/card/verify-and-get-info"
 
         let parameters = ["CID"        : card.cardID.replacingOccurrences(of: " ", with: ""),
-                       "publicKey"  : card.cardPublicKey,
-                       "artworkId"  : artworkId]
+                          "publicKey"  : card.cardPublicKey,
+                          "artworkId"  : artworkId]
 
         Alamofire.request(url, parameters: parameters, encoding: URLEncoding.default).responseData { (response) in
             switch response.result {
