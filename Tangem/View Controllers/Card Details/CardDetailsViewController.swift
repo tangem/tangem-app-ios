@@ -39,18 +39,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             assertionFailure()
             return
         }
-
-        /*
-        let operation = CardDetailsNetworkOperation(card: cardDetails) { (result) in
-            switch result {
-            case .success(let value):
-                break
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
-        operationQueue.addOperation(operation)
- */
         
         guard cardDetails.genuinityState != .pending else {
             return
