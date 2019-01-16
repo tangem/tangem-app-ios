@@ -39,6 +39,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         setupUI()
         
         guard card.genuinityState != .pending else {
+            viewModel.setSubstitutionInfoLoading(true)
             return
         }
         
@@ -47,7 +48,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     func fetchSubstitutionInfo(card: Card) {
-        viewModel.setSubstitutionInfoLoading(true)
         let operation = CardSubstitutionInfoOperation(card: card) { [weak self] (card) in
             guard let self = self else {
                 return
