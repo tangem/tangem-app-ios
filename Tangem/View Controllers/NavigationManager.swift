@@ -27,7 +27,7 @@ class NavigationManager {
             return
         }
         
-        cardDetailsViewController.cardDetails = cardDetails
+        cardDetailsViewController.card = cardDetails
         
         navigationController.pushViewController(cardDetailsViewController, animated: true)
     }
