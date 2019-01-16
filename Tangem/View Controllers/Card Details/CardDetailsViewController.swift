@@ -14,7 +14,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     @IBOutlet var viewModel: CardDetailsViewModel!
     
-    var cardDetails: Card?
+    var card: Card?
     var isBalanceVerified = false
     
     var customPresentationController: CustomPresentationController?
@@ -27,56 +27,72 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        setupWithCardDetails()
-    }
-    
-    func setupWithCardDetails() {
-        setupUI()
-
-
-
-        guard let cardDetails = cardDetails else {
+        guard let card = card else {
             assertionFailure()
             return
         }
         
-        guard cardDetails.genuinityState != .pending else {
+        setupWithCardDetails(card: card)
+    }
+    
+    func setupWithCardDetails(card: Card) {
+        setupUI()
+        
+        guard card.genuinityState != .pending else {
             return
         }
         
         viewModel.doubleScanHintLabel.isHidden = true
-        
-        if cardDetails.isWallet {
-            verifySignature(card: cardDetails)
-            getBalance(card: cardDetails)
-            setupBalanceIsBeingVerified()
-        } else {
+        fetchSubstitutionInfo(card: card)
+    }
+    
+    func fetchSubstitutionInfo(card: Card) {
+        viewModel.setSubstitutionInfoLoading(true)
+        let operation = CardSubstitutionInfoOperation(card: card) { [weak self] (card) in
+            guard let self = self else {
+                return
+            }
+            
+            self.viewModel.setSubstitutionInfoLoading(false)
+            
+            self.card = card
+            self.viewModel.cardImageView.image = card.image
+            self.fetchWalletBalance(card: card)
+        }
+        operationQueue.addOperation(operation)
+    }
+    
+    func fetchWalletBalance(card: Card) {
+        guard card.isWallet else {
             viewModel.setWalletInfoLoading(false)
             setupBalanceNoWallet()
+            return
         }
+        
+        verifySignature(card: card)
+        getBalance(card: card)
+        setupBalanceIsBeingVerified()
     }
     
     func setupUI() {
-        guard let cardDetails = cardDetails else {
+        guard let card = card else {
             assertionFailure()
             return
         }
         
-        viewModel.updateBlockchainName(cardDetails.blockchain)
-        viewModel.updateWalletAddress(cardDetails.address)
+        viewModel.updateBlockchainName(card.blockchain)
+        viewModel.updateWalletAddress(card.address)
         
         var blockchainName = String()
-        if cardDetails.type == .btc {
+        if card.type == .btc {
             blockchainName = "bitcoin:"
         } else {
             blockchainName = "ethereum:"
         }
         
-        var qrCodeResult = QRCode(blockchainName + cardDetails.address)
+        var qrCodeResult = QRCode(blockchainName + card.address)
         qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
         viewModel.qrCodeImageView.image = qrCodeResult?.image
-        
-        viewModel.cardImageView.image = cardDetails.image
         
         viewModel.balanceVerificationActivityIndicator.stopAnimating()
     }
@@ -94,7 +110,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
 
             operationQueue.addOperation(operation)
         } catch {
-            print("Error: \(error)")
+            print("Signature verification rrror: \(error)")
         }
 
     }
@@ -103,7 +119,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         let operation = card.balanceRequestOperation(onSuccess: { (card) in
             self.viewModel.setWalletInfoLoading(false)
 
-            self.cardDetails = card
+            self.card = card
             self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
 
         }, onFailure: { (error) in
@@ -188,7 +204,7 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
                 return
             }
             
-            viewController.cardDetails = self.cardDetails
+            viewController.cardDetails = self.card
             
             let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
             self.customPresentationController = presentationController
@@ -203,8 +219,8 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 extension CardDetailsViewController : TangemSessionDelegate {
 
     func tangemSessionDidRead(card: Card) {
-        self.cardDetails = card
-        self.setupWithCardDetails()
+        self.card = card
+        self.setupWithCardDetails(card: card)
 
         switch card.genuinityState {
         case .pending:
@@ -238,13 +254,13 @@ extension CardDetailsViewController {
     // MARK: Actions
 
     @IBAction func exploreButtonPressed(_ sender: Any) {
-        if let link = cardDetails?.link, let url = URL(string: link) {
+        if let link = card?.link, let url = URL(string: link) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
 
     @IBAction func copyButtonPressed(_ sender: Any) {
-        UIPasteboard.general.string = cardDetails?.address
+        UIPasteboard.general.string = card?.address
 
         dispatchWorkItem?.cancel()
 
@@ -275,7 +291,7 @@ extension CardDetailsViewController {
             return
         }
 
-        viewController.cardDetails = cardDetails
+        viewController.cardDetails = card
         viewController.delegate = self
 
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
@@ -311,7 +327,7 @@ extension CardDetailsViewController {
     }
 
     @IBAction func moreButtonPressed(_ sender: Any) {
-        guard let cardDetails = cardDetails, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+        guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
             return
         }
 
