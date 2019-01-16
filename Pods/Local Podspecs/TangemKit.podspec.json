@@ -19,13 +19,10 @@
   "platforms": {
     "ios": "11.0"
   },
-  "source_files": "TangemKit/Classes/**/*",
+  "source_files": "TangemKit/TangemKit/Classes/**/*.{swift}",
   "frameworks": "CoreNFC",
-  "resources": "TangemKit/Assets/*.xcassets",
+  "resources": "TangemKit/TangemKit/Assets/*.xcassets",
   "dependencies": {
-    "Alamofire": [
-      "4.7.2"
-    ],
     "BigInt": [
       "3.0"
     ],
