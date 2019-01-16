@@ -119,19 +119,16 @@ class CardDetailsViewModel: NSObject {
 
 extension CardDetailsViewModel {
     
+    func setSubstitutionInfoLoading(_ isLoading: Bool) {
+        cardImageView.isHidden = isLoading
+    }
+    
     func setWalletInfoLoading(_ loading: Bool) {
         UIView.animate(withDuration: 0.1) {
             self.cardWalletInfoView.isHidden = loading
             self.cardWalletInfoLoadingView.isHidden = !loading
             self.buttonsAvailabilityView.isHidden = !loading
         }
-    }
-    
-    func updateNetworkSafetyDescription(_ text: String) {
-//        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 8.0)
-//        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
-//                                                                           NSAttributedStringKey.kern : 0.75])
-//        networkSafetyDescriptionLabel.attributedText = attributedText
     }
     
     func updateWalletAddress(_ text: String) {
