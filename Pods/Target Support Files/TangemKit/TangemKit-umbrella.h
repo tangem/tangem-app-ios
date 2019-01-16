@@ -10,7 +10,6 @@
 #endif
 #endif
 
-#import "secp256k1.h"
 
 FOUNDATION_EXPORT double TangemKitVersionNumber;
 FOUNDATION_EXPORT const unsigned char TangemKitVersionString[];
