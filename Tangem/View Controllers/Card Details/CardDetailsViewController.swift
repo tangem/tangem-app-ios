@@ -69,9 +69,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        verifySignature(card: card)
         getBalance(card: card)
-        setupBalanceIsBeingVerified()
     }
     
     func setupUI() {
@@ -121,15 +119,16 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
 
             self.card = card
             self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
+            
+            self.verifySignature(card: card)
+            self.setupBalanceIsBeingVerified()
 
         }, onFailure: { (error) in
             self.viewModel.setWalletInfoLoading(false)
-            self.viewModel.updateWalletBalance("--")
+            self.viewModel.updateWalletBalance("-- " + card.walletUnits)
 
             let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
-            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-                self.navigationController?.popViewController(animated: true)
-            }))
+            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             self.present(validationAlert, animated: true, completion: nil)
             self.setupBalanceVerified(false)
         })
