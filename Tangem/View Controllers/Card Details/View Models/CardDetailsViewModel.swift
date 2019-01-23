@@ -153,8 +153,9 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceNoWallet() {
-        let attributedText = NSAttributedString(string: "No wallet", attributes: [NSAttributedStringKey.kern : 0.88,
-                                                                                  NSAttributedStringKey.foregroundColor : UIColor.tgm_red()])
+        let string = "This card has no wallet.\nWallet creation is not available on the iPhone at this time"
+        let attributedText = NSAttributedString(string: string, attributes: [NSAttributedStringKey.kern : 0.88,
+                                                                             NSAttributedStringKey.foregroundColor : UIColor.tgm_red()])
         balanceVerificationLabel.attributedText = attributedText
     }
     
