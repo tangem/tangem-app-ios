@@ -12,6 +12,7 @@ import GBAsyncOperation
 struct Links {
     static let bitcoinMainLink = "https://blockchain.info/address/"
     static let ethereumMainLink = "https://etherscan.io/address/"
+    static let rootstockExploreLink = "https://explorer.rsk.co/address/"
 }
 
 public enum WalletType {
@@ -22,6 +23,7 @@ public enum WalletType {
     case qlear
     case ert
     case wrl
+    case rsk
     case empty
 }
 
@@ -46,7 +48,7 @@ public class Card {
     public var binaryAddress: String = ""
     public var walletPublicKey: String = ""
 
-    public var blockchain: String = ""
+    public var blockchainDisplayName: String = ""
     public var blockchainName: String = ""
     public var issuer: String = ""
     public var manufactureDateTime: String = ""
@@ -104,6 +106,10 @@ public class Card {
     public var type: WalletType {
         if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
             return .btc
+        }
+        
+        if blockchainName.containsIgnoringCase(find: "rsk") {
+            return .rsk
         }
 
         if blockchainName.containsIgnoringCase(find: "eth") {
@@ -296,7 +302,7 @@ public class Card {
     }
 
     private func setupBTCAddress() {
-        blockchain = "Bitcoin"
+        blockchainDisplayName = "Bitcoin"
         node = randomNode()
 
         if let addr = AddressHelper.getBTCAddress(walletPublicKey) {
@@ -307,11 +313,19 @@ public class Card {
     }
 
     private func setupETHAddress() {
-        blockchain = "Ethereum"
+        blockchainDisplayName = "Ethereum"
         node = "mainnet.infura.io"
         ethAddress = AddressHelper.getETHAddress(walletPublicKey)
         address = ethAddress
         link = Links.ethereumMainLink + address
+    }
+    
+    private func setupRootstockAddress() {
+        blockchainDisplayName = "Rootstock"
+        node = "public-node.rsk.co"
+        ethAddress = AddressHelper.getETHAddress(walletPublicKey)
+        address = ethAddress
+        link = Links.rootstockExploreLink + address
     }
 
     func updateWithVerificationCard(_ card: Card) {
@@ -366,6 +380,8 @@ public extension Card {
             operation = BTCCardBalanceOperation(card: self, completion: onResult)
         case .eth:
             operation = ETHCardBalanceOperation(card: self, completion: onResult)
+        case .rsk:
+            operation = RSKCardBalanceOperation(card: self, completion: onResult)
         default:
             operation = TokenCardBalanceOperation(card: self, completion: onResult)
         }

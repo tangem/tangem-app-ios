@@ -6,14 +6,13 @@
 //  Copyright © 2018 Smart Cash AG. All rights reserved.
 //
 
-import Foundation
 import SwiftyJSON
 import GBAsyncOperation
 
 class EthereumNetworkBalanceOperation: GBAsyncOperation {
 
     private struct Constants {
-        static let mainNetURL = "https://mainnet.infura.io/"
+        static let mainNetURL = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
     }
 
     var address: String
@@ -44,14 +43,13 @@ class EthereumNetworkBalanceOperation: GBAsyncOperation {
             
             switch result {
             case .success(let data):
-                let balanceInfo = JSON(data: data)
+                let balanceInfo = try? JSON(data: data)
                 
-                guard balanceInfo["result"] != JSON.null else {
+                guard balanceInfo?["result"] != JSON.null, let checkStr = balanceInfo?["result"].stringValue else {
                     self.failOperationWith(error: "ETH Main – Missing check string")
                     return
                 }
-                
-                let checkStr = balanceInfo["result"].stringValue
+    
                 let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex, offsetBy: 2)...])
                 
                 let checkArray = checkWithoutTwoFirstLetters.asciiHexToData()
