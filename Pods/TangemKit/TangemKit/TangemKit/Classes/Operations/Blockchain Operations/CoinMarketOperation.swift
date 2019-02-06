@@ -12,6 +12,7 @@ import GBAsyncOperation
 
 enum CoinMarketError: Error {
     case noNetworkInfo
+    case responseDataError
     case requestFailure(String?)
 }
 
@@ -43,15 +44,19 @@ public class CoinMarketOperation: GBAsyncOperation {
             
             switch result {
             case .success(let data):
-                guard let item = JSON(data: data).arrayValue.first(where: {
-                    return $0["id"].stringValue == self.network.rawValue
-                }) else {
-                    self.failOperationWith(error: CoinMarketError.noNetworkInfo)
-                    return
+                do {
+                    guard let item = try JSON(data: data).arrayValue.first(where: {
+                        return $0["id"].stringValue == self.network.rawValue
+                    }) else {
+                        self.failOperationWith(error: CoinMarketError.noNetworkInfo)
+                        return
+                    }
+                    
+                    let priceUSD = item["price_usd"].doubleValue
+                    self.completeOperationWith(price: priceUSD)
+                } catch {
+                    self.failOperationWith(error: CoinMarketError.responseDataError)
                 }
-                
-                let priceUSD = item["price_usd"].doubleValue
-                self.completeOperationWith(price: priceUSD)
             case .failure(let error):
                 self.failOperationWith(error: CoinMarketError.requestFailure(error.localizedDescription))
             }
