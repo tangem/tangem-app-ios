@@ -36,12 +36,17 @@ class BitcoinNetworkBalanceOperation: GBAsyncOperation {
             
             switch result {
             case .success(let data):
-                let balanceInfo = JSON(data: data)
-                let satoshi = balanceInfo[self.address]["final_balance"].doubleValue
+                do {
+                    let balanceInfo = try JSON(data: data)
+                    let satoshi = balanceInfo[self.address]["final_balance"].doubleValue
+                    
+                    self.completeOperationWith(balance: satoshi)
+                } catch {
+                    self.failOperationWith(error: error)
+                }
                 
-                self.completeOperationWith(balance: satoshi)
             case .failure(let error):
-                self.failOperationWith(error: String(describing: error))
+                self.failOperationWith(error: error)
             }
         }
         
