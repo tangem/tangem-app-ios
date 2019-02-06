@@ -8,7 +8,9 @@
 
 import Foundation
 
-open class GBAsyncOperation: Operation {
+/// A class that provides asynchronous completion capabilities
+
+open class GBAsyncOperation: GBBaseOperation {
 
     @objc private enum OperationState: Int {
         case ready
@@ -37,7 +39,7 @@ open class GBAsyncOperation: Operation {
         return super.keyPathsForValuesAffectingValue(forKey: key)
     }
 
-    public final override func start() {
+    open override func start() {
         if isCancelled {
             finish()
             return
@@ -52,7 +54,18 @@ open class GBAsyncOperation: Operation {
         fatalError("Subclasses must implement `main`.")
     }
 
+    /**
+     Triggers operation completion.
+
+     ## Important ##
+
+     Must be called in order for the operation to successfuly leave the queue
+
+     */
     public final func finish() {
-        if isExecuting { state = .finished }
+        if isExecuting {
+            state = .finished
+        }
     }
+
 }
