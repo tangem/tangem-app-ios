@@ -13,8 +13,7 @@ import GBAsyncOperation
 class TokenNetworkBalanceOperation: GBAsyncOperation {
 
     private struct Constants {
-        static let mainNetURL = "https://blockchain.info/balance?active="
-        static let testNetURL = "https://testnet.blockchain.info/balance?active="
+        static let mainNetURL = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
     }
 
     var address: String
@@ -33,7 +32,7 @@ class TokenNetworkBalanceOperation: GBAsyncOperation {
 
         let jsonDict = ["method": "eth_call", "params": [dataValue, "latest"], "id": 03] as [String: Any]
         
-        let url = URL(string: "https://mainnet.infura.io")
+        let url = URL(string: Constants.mainNetURL)
         var urlRequest = URLRequest(url: url!)
         urlRequest.httpMethod = "POST"
         
@@ -50,14 +49,13 @@ class TokenNetworkBalanceOperation: GBAsyncOperation {
             
             switch result {
             case .success(let data):
-                let balanceInfo = JSON(data: data)
+                let balanceInfo = try? JSON(data: data)
                 
-                guard balanceInfo["result"] != JSON.null else {
+                guard balanceInfo?["result"] != JSON.null, let checkStr = balanceInfo?["result"].stringValue else {
                     self.failOperationWith(error: "Token – Missing check string")
                     return
                 }
                 
-                let checkStr = balanceInfo["result"].stringValue
                 let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex, offsetBy: 2)...])
                 
                 guard let decimalNumber = arrayToDecimalNumber(checkWithoutTwoFirstLetters.asciiHexToData()!) else {
