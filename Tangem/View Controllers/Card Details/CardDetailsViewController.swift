@@ -78,7 +78,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        viewModel.updateBlockchainName(card.blockchain)
+        viewModel.updateBlockchainName(card.blockchainDisplayName)
         viewModel.updateWalletAddress(card.address)
         
         var blockchainName = String()
