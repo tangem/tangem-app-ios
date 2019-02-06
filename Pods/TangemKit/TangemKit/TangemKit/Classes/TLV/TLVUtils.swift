@@ -159,15 +159,6 @@ func randomNode() -> String {
     return nodes[rundomNumber]
 }
 
-func randomTestNode() -> String {
-    let nodes = ["testnet.hsmiths.com:53011",
-                 "testnet.qtornado.com:51001",
-                 "testnet1.bauerj.eu:50001"]
-
-    let rundomNumber = randRange(lower: 0, upper: nodes.count - 1)
-    return nodes[rundomNumber]
-}
-
 func randRange (lower: Int, upper: Int) -> Int {
     return lower + Int(arc4random_uniform(UInt32(upper - lower + 1)))
 }
