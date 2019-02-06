@@ -1,28 +1,27 @@
 //
-//  EthereumNetworkBalanceOperation.swift
-//  Tangem
+//  RootstockNetworkBalanceOperation.swift
+//  BigInt
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2018 Smart Cash AG. All rights reserved.
 //
 
 import SwiftyJSON
 import GBAsyncOperation
 
-class EthereumNetworkBalanceOperation: GBAsyncOperation {
-
+class RootstockNetworkBalanceOperation: GBAsyncOperation {
+    
     private struct Constants {
-        static let mainNetURL = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
+        static let mainNetURL = "https://public-node.rsk.co/"
     }
-
+    
     var address: String
     var completion: (TangemObjectResult<UInt64>) -> Void
-
+    
     init(address: String, completion: @escaping (TangemObjectResult<UInt64>) -> Void) {
         self.address = address
         self.completion = completion
     }
-
+    
     override func main() {
         let jsonDict = ["jsonrpc": "2.0", "method": "eth_getBalance", "params": [address, "latest"], "id": 03] as [String: Any] 
         
@@ -46,10 +45,10 @@ class EthereumNetworkBalanceOperation: GBAsyncOperation {
                 let balanceInfo = try? JSON(data: data)
                 
                 guard balanceInfo?["result"] != JSON.null, let checkStr = balanceInfo?["result"].stringValue else {
-                    self.failOperationWith(error: "ETH Main – Missing check string")
+                    self.failOperationWith(error: "RSK – Missing check string")
                     return
                 }
-    
+                
                 let checkWithoutTwoFirstLetters = String(checkStr[checkStr.index(checkStr.startIndex, offsetBy: 2)...])
                 
                 let checkArray = checkWithoutTwoFirstLetters.asciiHexToData()
@@ -65,22 +64,23 @@ class EthereumNetworkBalanceOperation: GBAsyncOperation {
         
         task.resume()
     }
-
+    
     func completeOperationWith(balance: UInt64) {
         guard !isCancelled else {
             return
         }
-
+        
         completion(.success(balance))
         finish()
     }
-
+    
     func failOperationWith(error: Error) {
         guard !isCancelled else {
             return
         }
-
+        
         completion(.failure(error))
         finish()
     }
+    
 }
