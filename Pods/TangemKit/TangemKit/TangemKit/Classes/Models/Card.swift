@@ -24,6 +24,7 @@ public enum WalletType {
     case ert
     case wrl
     case rsk
+    case cardano
     case empty
 }
 
@@ -110,6 +111,10 @@ public class Card {
         
         if blockchainName.containsIgnoringCase(find: "rsk") {
             return .rsk
+        }
+        
+        if blockchainName.containsIgnoringCase(find: "cardano") {
+            return .cardano
         }
 
         if blockchainName.containsIgnoringCase(find: "eth") {
@@ -294,9 +299,14 @@ public class Card {
     }
 
     public func setupAddress() {
-        if type == .btc {
+        switch type {
+        case .btc:
             setupBTCAddress()
-        } else {
+        case .rsk:
+            setupRootstockAddress()
+//        case .cardano:
+//            setupCardanoAddress()
+        default:
             setupETHAddress()
         }
     }
@@ -325,6 +335,16 @@ public class Card {
         node = "public-node.rsk.co"
         ethAddress = AddressHelper.getETHAddress(walletPublicKey)
         address = ethAddress
+        link = Links.rootstockExploreLink + address
+    }
+    
+    private func setupCardanoAddress() {
+        blockchainDisplayName = "Cardano"
+        node = "explorer2.adalite.io"
+        if let addr = AddressHelper.getBTCAddress(walletPublicKey) {
+            btcAddressMain = addr[0]
+        }
+        address = btcAddressMain
         link = Links.rootstockExploreLink + address
     }
 
