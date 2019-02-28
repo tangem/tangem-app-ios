@@ -8,7 +8,7 @@ PODS:
   - SwiftCBOR (0.3.0)
   - SwiftLint (0.27.0)
   - SwiftyJSON (4.2.0)
-  - TangemKit (0.4.3):
+  - TangemKit (0.4.4):
     - BigInt (= 3.1.0)
     - CryptoSwift (= 0.13.0)
     - GBAsyncOperation (= 0.2.0)
@@ -18,7 +18,7 @@ PODS:
 
 DEPENDENCIES:
   - QRCode (= 2.0)
-  - TangemKit (= 0.4.3)
+  - TangemKit (= 0.4.4)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -41,8 +41,8 @@ SPEC CHECKSUMS:
   SwiftCBOR: 0b6b686bf24b77d06d35a2a6298713358c761bf8
   SwiftLint: 3207c1faa2240bf8973b191820a116113cd11073
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
-  TangemKit: fe2ab26eae092963baaf6f30c9c2670ba02ab91a
+  TangemKit: eacb3fa60d275e4ba6edb40bc715f6b0fb438b48
 
-PODFILE CHECKSUM: 877dea33d559f3ea1e322ffcc6d1ea7f5cfbefc2
+PODFILE CHECKSUM: febf62152be67cd1e7aa02b1a051eb4c8e35f6b5
 
 COCOAPODS: 1.5.0
