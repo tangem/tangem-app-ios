@@ -63,9 +63,12 @@ public class Card {
     public var tokenDecimal: Int?
 
     public var walletUnits: String {
-        if type == .btc {
+        switch type {
+        case .btc:
             return "BTC"
-        } else {
+        case .rsk:
+            return tokenSymbol ?? "RBTC"
+        default:
             return tokenSymbol ?? "ETH"
         }
     }
