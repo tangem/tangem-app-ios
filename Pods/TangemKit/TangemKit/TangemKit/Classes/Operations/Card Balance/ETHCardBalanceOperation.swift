@@ -17,7 +17,7 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        let operation = EthereumNetworkBalanceOperation(address: card.ethAddress) { [weak self] (result) in
+        let operation = EthereumNetworkBalanceOperation(address: card.address) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.handleBalanceLoaded(balanceValue: value)
