@@ -17,7 +17,7 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        let operation = BitcoinNetworkBalanceOperation(address: card.btcAddressMain) { [weak self] (result) in
+        let operation = BitcoinNetworkBalanceOperation(address: card.address) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.handleBalanceLoaded(balanceValue: value)
