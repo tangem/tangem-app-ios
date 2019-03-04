@@ -120,8 +120,12 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             self.card = card
             self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
             
-            self.verifySignature(card: card)
-            self.setupBalanceIsBeingVerified()
+            if card.type == .cardano {
+                self.setupBalanceVerified(true)
+            } else {
+                self.verifySignature(card: card)
+                self.setupBalanceIsBeingVerified()
+            }
 
         }, onFailure: { (error) in
             self.viewModel.setWalletInfoLoading(false)

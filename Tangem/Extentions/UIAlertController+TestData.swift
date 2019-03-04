@@ -13,7 +13,7 @@ extension UIAlertController {
     static func testDataAlertController(handler: @escaping (TestData) -> Void) -> UIAlertController {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let updatedSpec = UIAlertAction(title: "BTC Upd", style: .default) { (_) in
-            handler(TestData.rsk)
+            handler(TestData.cardano)
         }
         let btcAction = UIAlertAction(title: "BTC", style: .default) { (_) in
             handler(TestData.btcWallet)
