@@ -22,7 +22,7 @@ class TokenCardBalanceOperation: BaseCardBalanceOperation {
             return
         }
 
-        let operation = TokenNetworkBalanceOperation(address: card.ethAddress, contract: tokenContractAddress) { [weak self] (result) in
+        let operation = TokenNetworkBalanceOperation(address: card.address, contract: tokenContractAddress) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.handleBalanceLoaded(balanceValue: value)
