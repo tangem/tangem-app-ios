@@ -9,25 +9,6 @@
 import Foundation
 import GBAsyncOperation
 
-struct Links {
-    static let bitcoinMainLink = "https://blockchain.info/address/"
-    static let ethereumMainLink = "https://etherscan.io/address/"
-    static let rootstockExploreLink = "https://explorer.rsk.co/address/"
-}
-
-public enum WalletType {
-    case btc
-    case eth
-    case seed
-    case cle
-    case qlear
-    case ert
-    case wrl
-    case rsk
-    case cardano
-    case empty
-}
-
 public enum CardGenuinityState {
     case pending
     case genuine
@@ -35,6 +16,8 @@ public enum CardGenuinityState {
 }
 
 public class Card {
+    
+    public var cardEngine: CardEngine!
 
     public var cardID: String = ""
     public var cardPublicKey: String = ""
@@ -42,12 +25,14 @@ public class Card {
         return !walletPublicKey.isEmpty
     }
 
-    public var address: String = ""
+    public var address: String {
+        return cardEngine.walletAddress
+    }
 
-    public var btcAddressMain: String = ""
-    public var ethAddress: String = ""
     public var binaryAddress: String = ""
+    
     public var walletPublicKey: String = ""
+    public var walletPublicKeyBytesArray: [UInt8] = [UInt8]()
 
     public var blockchainDisplayName: String = ""
     public var blockchainName: String = ""
@@ -62,15 +47,11 @@ public class Card {
     public var tokenSymbol: String?
     public var tokenDecimal: Int?
 
+    public var type: WalletType {
+        return cardEngine.walletType
+    }
     public var walletUnits: String {
-        switch type {
-        case .btc:
-            return "BTC"
-        case .rsk:
-            return tokenSymbol ?? "RBTC"
-        default:
-            return tokenSymbol ?? "ETH"
-        }
+        return cardEngine.walletUnits
     }
     public var walletValue = "0.00" // [REDACTED_TODO_COMMENT]
     public var usdWalletValue = "" // [REDACTED_TODO_COMMENT]
@@ -86,7 +67,6 @@ public class Card {
     public var salt: String?
     public var verificationSalt: String?
     public var signArr: [UInt8] = [UInt8]()
-    public var pubArr: [UInt8] = [UInt8]()
 
     public var genuinityState: CardGenuinityState = .pending
     public var isAuthentic: Bool {
@@ -107,55 +87,24 @@ public class Card {
      4 - Version < 1.19 (Format firmware -  x.xx + любое кол-во других символов)
      */
 
-    public var type: WalletType {
-        if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
-            return .btc
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "rsk") {
-            return .rsk
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "cardano") {
-            return .cardano
-        }
-
-        if blockchainName.containsIgnoringCase(find: "eth") {
-            switch tokenSymbol {
-            case "SEED":
-                return .seed
-            case "QLEAR":
-                return .qlear
-            case "CLE":
-                return .cle
-            case "ERT":
-                return .ert
-            case "WRL":
-                return .wrl
-            default:
-                return .eth
-            }
-        }
-
-        return .empty
-    }
-
     private var tokenContractAddressPrivate: String?
     public var tokenContractAddress: String? {
         set {
             tokenContractAddressPrivate = newValue
         }
         get {
-            if batchId == 0x0019 { // CLE
+            switch batchId {
+            case 0x0019: // CLE
                 return "0x0c056b0cda0763cc14b8b2d6c02465c91e33ec72"
-            } else if batchId == 0x0017 { // Qlear
+            case 0x0017: // Qlear
                 return "0x9Eef75bA8e81340da9D8d1fd06B2f313DB88839c"
-            } else if batchId == 0x001E { // Whirl
+            case 0x001E: // Whirl
                 return "0xc6e6fbec35c866b46bbb9d4f43bbfd205944f019"
-            } else if batchId == 0x0020 { // CNS
+            case 0x0020: // CNS
                 return "0xe961e7c13538db076b2db273cf408e4d4150fd72"
+            default:
+                return tokenContractAddressPrivate
             }
-            return tokenContractAddressPrivate
         }
     }
 
@@ -276,7 +225,7 @@ public class Card {
                 manufactureSignature = $0.hexStringValue
             case .walletPublicKey:
                 walletPublicKey = $0.hexStringValue
-                pubArr = $0.hexBinaryValues
+                walletPublicKeyBytesArray = $0.hexBinaryValues
             case .maxSignatures:
                 maxSignatures = $0.stringValue
             case .remainingSignatures:
@@ -298,57 +247,34 @@ public class Card {
             }
         })
 
-        setupAddress()
-    }
-
-    public func setupAddress() {
-        switch type {
-        case .btc:
-            setupBTCAddress()
-        case .rsk:
-            setupRootstockAddress()
-//        case .cardano:
-//            setupCardanoAddress()
-        default:
-            setupETHAddress()
-        }
-    }
-
-    private func setupBTCAddress() {
-        blockchainDisplayName = "Bitcoin"
-        node = randomNode()
-
-        if let addr = AddressHelper.getBTCAddress(walletPublicKey) {
-            btcAddressMain = addr[0]
-        }
-        address = btcAddressMain
-        link = Links.bitcoinMainLink + address
-    }
-
-    private func setupETHAddress() {
-        blockchainDisplayName = "Ethereum"
-        node = "mainnet.infura.io"
-        ethAddress = AddressHelper.getETHAddress(walletPublicKey)
-        address = ethAddress
-        link = Links.ethereumMainLink + address
+        setupEngine()
     }
     
-    private func setupRootstockAddress() {
-        blockchainDisplayName = "Rootstock"
-        node = "public-node.rsk.co"
-        ethAddress = AddressHelper.getETHAddress(walletPublicKey)
-        address = ethAddress
-        link = Links.rootstockExploreLink + address
-    }
-    
-    private func setupCardanoAddress() {
-        blockchainDisplayName = "Cardano"
-        node = "explorer2.adalite.io"
-        if let addr = AddressHelper.getBTCAddress(walletPublicKey) {
-            btcAddressMain = addr[0]
+    func setupEngine() {
+        guard !blockchainName.isEmpty else {
+            cardEngine = NoWalletCardEngine(card: self)
+            return
         }
-        address = btcAddressMain
-        link = Links.rootstockExploreLink + address
+        
+        if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
+            cardEngine = BTCEngine(card: self)
+        }
+        
+        if blockchainName.containsIgnoringCase(find: "rsk") {
+            cardEngine = RootstockEngine(card: self)
+        }
+        
+        if blockchainName.containsIgnoringCase(find: "cardano") {
+            cardEngine = CardanoEngine(card: self)
+        }
+        
+        if blockchainName.containsIgnoringCase(find: "eth") {
+            if tokenSymbol != nil {
+                cardEngine = TokenEngine(card: self)
+            } else {
+                cardEngine = ETHEngine(card: self)
+            }
+        }
     }
 
     func updateWithVerificationCard(_ card: Card) {
@@ -381,7 +307,7 @@ public extension Card {
             throw "parametersNil"
         }
 
-        return SignatureVerificationOperation(saltHex: salt, challengeHex: challenge, signatureArr: signArr, publicKeyArr: pubArr) { (isGenuineCard) in
+        return SignatureVerificationOperation(saltHex: salt, challengeHex: challenge, signatureArr: signArr, publicKeyArr: walletPublicKeyBytesArray) { (isGenuineCard) in
             completion(isGenuineCard)
         }
     }
@@ -405,6 +331,8 @@ public extension Card {
             operation = ETHCardBalanceOperation(card: self, completion: onResult)
         case .rsk:
             operation = RSKCardBalanceOperation(card: self, completion: onResult)
+        case .cardano:
+            operation = CardanoCardBalanceOperation(card: self, completion: onResult)
         default:
             operation = TokenCardBalanceOperation(card: self, completion: onResult)
         }
