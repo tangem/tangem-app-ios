@@ -21,6 +21,9 @@ class ETHEngine: CardEngine {
     }
     
     var walletAddress: String = ""
+    var exploreLink: String {
+        return "https://etherscan.io/address/" + walletAddress
+    }
     
     required init(card: Card) {
         self.card = card
@@ -40,7 +43,6 @@ class ETHEngine: CardEngine {
         
         card.node = "mainnet.infura.io"
         card.blockchainDisplayName = "Ethereum"
-        card.link = "https://etherscan.io/address/" + walletAddress
     }
     
 }
