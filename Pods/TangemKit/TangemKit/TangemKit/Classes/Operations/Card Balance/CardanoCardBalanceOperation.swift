@@ -37,10 +37,10 @@ class CardanoCardBalanceOperation: BaseCardBalanceOperation {
         card.value = Int(balanceValue)
 
         let walletValue = balanceValue / 1000000.0
-        card.walletValue = self.balanceFormatter.string(from: NSNumber(value: walletValue))!
+        card.walletValue = String(walletValue)
 
         let usdWalletValue = walletValue * card.mult
-        card.usdWalletValue = self.balanceFormatter.string(from: NSNumber(value: usdWalletValue))!
+        card.usdWalletValue = String(usdWalletValue)
 
         completeOperation()
     }
