@@ -19,7 +19,6 @@ public class CardSubstitutionInfoOperation: GBAsyncOperation {
     }()
     
     
-    
     public init(card: Card, completion: @escaping (Card) -> Void) {
         self.card = card
         self.completion = completion
