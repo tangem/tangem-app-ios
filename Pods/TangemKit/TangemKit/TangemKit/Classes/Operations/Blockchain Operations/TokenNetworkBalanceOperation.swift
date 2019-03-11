@@ -10,19 +10,22 @@ import Foundation
 import SwiftyJSON
 import GBAsyncOperation
 
-class TokenNetworkBalanceOperation: GBAsyncOperation {
+enum TokenNetwork: String {
+    case eth = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
+    case rsk = "https://public-node.rsk.co/"
+}
 
-    private struct Constants {
-        static let mainNetURL = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
-    }
+class TokenNetworkBalanceOperation: GBAsyncOperation {
 
     var address: String
     var contract: String
+    var network: TokenNetwork
     var completion: (TangemObjectResult<NSDecimalNumber>) -> Void
 
-    init(address: String, contract: String, completion: @escaping (TangemObjectResult<NSDecimalNumber>) -> Void) {
+    init(address: String, contract: String, network: TokenNetwork, completion: @escaping (TangemObjectResult<NSDecimalNumber>) -> Void) {
         self.address = address
         self.contract = contract
+        self.network = network
         self.completion = completion
     }
 
@@ -32,7 +35,7 @@ class TokenNetworkBalanceOperation: GBAsyncOperation {
 
         let jsonDict = ["method": "eth_call", "params": [dataValue, "latest"], "id": 03] as [String: Any]
         
-        let url = URL(string: Constants.mainNetURL)
+        let url = URL(string: network.rawValue)
         var urlRequest = URLRequest(url: url!)
         urlRequest.httpMethod = "POST"
         
