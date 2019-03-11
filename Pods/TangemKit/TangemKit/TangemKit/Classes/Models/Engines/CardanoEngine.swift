@@ -24,6 +24,9 @@ class CardanoEngine: CardEngine {
     }
     
     var walletAddress: String = ""
+    var exploreLink: String {
+        return "https://cardanoexplorer.com/address/" + walletAddress
+    }
     
     required init(card: Card) {
         self.card = card
@@ -50,7 +53,6 @@ class CardanoEngine: CardEngine {
         
         card.blockchainDisplayName = "Cardano"
         card.node = "explorer2.adalite.io"
-        card.link = "https://cardanoexplorer.com/address/" + walletAddress
     }
     
 }
