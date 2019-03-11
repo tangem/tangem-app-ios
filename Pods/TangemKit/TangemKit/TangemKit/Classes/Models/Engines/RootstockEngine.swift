@@ -18,6 +18,15 @@ class RootstockEngine: ETHEngine {
         return card.tokenSymbol ?? "RBTC"
     }
     
+    override var exploreLink: String {
+        var exploreLink = "https://explorer.rsk.co/address/" + walletAddress 
+        if card.tokenSymbol != nil {
+            exploreLink += "?__tab=tokens"
+        }
+        
+        return exploreLink
+    }
+    
     private var tokenContractAddressPrivate: String?
     public var tokenContractAddress: String? {
         set {
@@ -44,7 +53,6 @@ class RootstockEngine: ETHEngine {
         
         card.blockchainDisplayName = "Rootstock"
         card.node = "public-node.rsk.co"
-        card.link = "https://explorer.rsk.co/address/" + walletAddress
     }
     
 }
