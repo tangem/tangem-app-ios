@@ -29,6 +29,8 @@ public protocol CardEngine: class {
     var walletUnits: String { get }
     var walletAddress: String { get }
     
+    var exploreLink: String { get }
+    
     init(card: Card)
     
     func setupAddress()
@@ -42,6 +44,9 @@ class NoWalletCardEngine: CardEngine {
     var walletType: WalletType = .empty
     var walletUnits: String = "---"
     var walletAddress: String = ""
+    var exploreLink: String {
+        return ""
+    }
     
     required init(card: Card) {
         self.card = card
