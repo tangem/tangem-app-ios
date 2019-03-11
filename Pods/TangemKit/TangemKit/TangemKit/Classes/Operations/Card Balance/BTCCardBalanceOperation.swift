@@ -36,11 +36,9 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
 
         card.value = Int(balanceValue)
 
-        let walletValue = balanceValue / 100000000.0
-        card.walletValue = self.balanceFormatter.string(from: NSNumber(value: walletValue))!
-
-        let usdWalletValue = walletValue * card.mult
-        card.usdWalletValue = self.balanceFormatter.string(from: NSNumber(value: usdWalletValue))!
+        let decimalCount: Int16 = 8
+        let walletValue = NSDecimalNumber(value: card.valueUInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
+        card.walletValue = walletValue.stringValue
 
         completeOperation()
     }
