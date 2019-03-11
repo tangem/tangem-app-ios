@@ -21,6 +21,9 @@ class BTCEngine: CardEngine {
     }
     
     var walletAddress: String = ""
+    var exploreLink: String {
+        return "https://blockchain.info/address/" + walletAddress
+    }
     
     required init(card: Card) {
         self.card = card
@@ -63,7 +66,6 @@ class BTCEngine: CardEngine {
         
         card.node = randomNode()
         card.blockchainDisplayName = "Bitcoin"
-        card.link = "https://blockchain.info/address/" + walletAddress
     }
     
 }
