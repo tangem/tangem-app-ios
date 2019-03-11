@@ -31,4 +31,12 @@ class TokenEngine: ETHEngine {
         return card.tokenSymbol ?? "ETH"
     }
     
+    override var exploreLink: String {
+        guard let tokenContractAddress = card.tokenContractAddress else {
+            return super.exploreLink
+        }
+        
+        return "https://etherscan.io/token/\(tokenContractAddress)?a=\(walletAddress)"
+    }
+    
 }
