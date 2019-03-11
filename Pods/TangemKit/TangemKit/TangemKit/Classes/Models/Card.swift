@@ -58,7 +58,6 @@ public class Card {
 
     public var value: Int = 0
     public var valueUInt64: UInt64 = 0
-    public var link: String = ""
 
     public var node: String = ""
 
@@ -330,7 +329,11 @@ public extension Card {
         case .eth:
             operation = ETHCardBalanceOperation(card: self, completion: onResult)
         case .rsk:
-            operation = RSKCardBalanceOperation(card: self, completion: onResult)
+            if self.tokenSymbol != nil {
+                operation = TokenCardBalanceOperation(card: self, network: .rsk, completion: onResult)
+            } else {
+                operation = RSKCardBalanceOperation(card: self, completion: onResult)
+            }
         case .cardano:
             operation = CardanoCardBalanceOperation(card: self, completion: onResult)
         default:
