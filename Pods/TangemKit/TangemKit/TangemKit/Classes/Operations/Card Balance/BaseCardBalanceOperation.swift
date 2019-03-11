@@ -14,16 +14,7 @@ enum TangemKitResult<Value> {
     case failure(Error)
 }
 
-
 class BaseCardBalanceOperation: GBAsyncOperation {
-
-    let balanceFormatter: NumberFormatter = {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.minimumIntegerDigits = 1
-        numberFormatter.maximumFractionDigits = 8
-        numberFormatter.minimumFractionDigits = 2
-        return numberFormatter
-    }()
 
     var card: Card
     var completion: (TangemKitResult<Card>) -> Void
