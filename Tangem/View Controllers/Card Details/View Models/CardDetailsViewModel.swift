@@ -13,7 +13,6 @@ class CardDetailsViewModel: NSObject {
     // MARK: Image Views
     
     @IBOutlet weak var qrCodeImageView: UIImageView!
-    @IBOutlet weak var balanceVefificationIconImageView: UIImageView!
     @IBOutlet weak var cardImageView: UIImageView!
     
     // MARK: Labels
@@ -31,7 +30,7 @@ class CardDetailsViewModel: NSObject {
     
     @IBOutlet weak var walletBlockchainLabel: UILabel! {
         didSet {
-            walletBlockchainLabel.font = UIFont.tgm_maaxFontWith(size: 14, weight: .medium)
+            walletBlockchainLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
         }
     }
     
