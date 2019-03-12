@@ -96,6 +96,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
 
     func verifySignature(card: Card) {
+        viewModel.balanceVerificationActivityIndicator.startAnimating()
         do {
             let operation = try card.signatureVerificationOperation { (isGenuineCard) in
                 self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
@@ -151,7 +152,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.loadButton.isEnabled = false
         viewModel.extractButton.isEnabled = false
         viewModel.buttonsAvailabilityView.isHidden = false
-        viewModel.balanceVefificationIconImageView.image = nil
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
@@ -167,8 +167,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.loadButton.isEnabled = verified
         viewModel.extractButton.isEnabled = verified
         viewModel.buttonsAvailabilityView.isHidden = verified
-        let verificationIconName = verified ? "icon-verified" : "icon-unverified"
-        viewModel.balanceVefificationIconImageView.image = UIImage(named: verificationIconName)
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
@@ -183,8 +181,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.loadButton.isEnabled = false
         viewModel.extractButton.isEnabled = false
         viewModel.buttonsAvailabilityView.isHidden = false
-        
-        viewModel.balanceVefificationIconImageView.image = nil
         
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
