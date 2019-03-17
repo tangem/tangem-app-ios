@@ -35,9 +35,9 @@ class CardanoEngine: CardEngine {
     }
     
     func setupAddress() {
-        let hexPublicKeyExtended = Array(repeating: 0, count: 32) + card.walletPublicKeyBytesArray
+        let hexPublicKeyExtended = card.walletPublicKeyBytesArray + Array(repeating: 0, count: 32) 
         
-        let forSha3 = ([[0, [0, CBOR.byteString(hexPublicKeyExtended)], [:]]] as CBOR).encode()
+        let forSha3 = ([0, [0, CBOR.byteString(hexPublicKeyExtended)], [:]] as CBOR).encode()
         
         let sha = forSha3.sha3(.sha256)
         let pkHash = Sodium().genericHash.hash(message: sha, outputLength: 28)!
