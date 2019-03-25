@@ -35,6 +35,7 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
         }
 
         card.value = Int(balanceValue)
+        card.valueUInt64 = UInt64(balanceValue)
 
         let decimalCount: Int16 = 8
         let walletValue = NSDecimalNumber(value: card.valueUInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
