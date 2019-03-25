@@ -84,6 +84,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         var blockchainName = String()
         if card.type == .btc {
             blockchainName = "bitcoin:"
+        } else if card.type == .cardano {
+            blockchainName = ""
         } else {
             blockchainName = "ethereum:"
         }
