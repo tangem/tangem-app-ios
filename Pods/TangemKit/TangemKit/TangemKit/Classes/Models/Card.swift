@@ -15,6 +15,11 @@ public enum CardGenuinityState {
     case nonGenuine
 }
 
+public enum EllipticCurve {
+    case secp256k1
+    case ed25519
+}
+
 public class Card {
     
     public var cardEngine: CardEngine!
@@ -36,6 +41,9 @@ public class Card {
 
     public var blockchainDisplayName: String = ""
     public var blockchainName: String = ""
+    public var curveID: EllipticCurve {
+        return walletPublicKeyBytesArray.count == 65 ? .secp256k1 : .ed25519
+    }
     public var issuer: String = ""
     public var manufactureDateTime: String = ""
     public var manufactureSignature: String = ""
@@ -188,6 +196,10 @@ public class Card {
             return "card-est"
         case 0x0022:
             return "card-btc-22"
+        case 0x0025:
+            return "card-ru037"
+        case 0x0026:
+            return "card-ru039"
         default:
             return "card-default"
         }
@@ -265,6 +277,10 @@ public class Card {
         
         if blockchainName.containsIgnoringCase(find: "cardano") {
             cardEngine = CardanoEngine(card: self)
+        }
+        
+        if blockchainName.containsIgnoringCase(find: "XRP") {
+            cardEngine = RippleEngine(card: self)
         }
         
         if blockchainName.containsIgnoringCase(find: "eth") {
