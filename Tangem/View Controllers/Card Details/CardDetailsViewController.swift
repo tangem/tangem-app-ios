@@ -81,16 +81,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.updateBlockchainName(card.blockchainDisplayName)
         viewModel.updateWalletAddress(card.address)
         
-        var blockchainName = String()
-        if card.type == .btc {
-            blockchainName = "bitcoin:"
-        } else if card.type == .cardano {
-            blockchainName = ""
-        } else {
-            blockchainName = "ethereum:"
-        }
-        
-        var qrCodeResult = QRCode(blockchainName + card.address)
+        var qrCodeResult = QRCode(card.cardEngine.qrCodePreffix + card.address)
         qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
