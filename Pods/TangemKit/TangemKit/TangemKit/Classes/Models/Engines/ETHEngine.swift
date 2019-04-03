@@ -20,6 +20,10 @@ class ETHEngine: CardEngine {
         return "ETH"
     }
     
+    var qrCodePreffix: String {
+        return "ethereum:"
+    }
+    
     var walletAddress: String = ""
     var exploreLink: String {
         return "https://etherscan.io/address/" + walletAddress
