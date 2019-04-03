@@ -18,6 +18,7 @@ public enum WalletType {
     case wrl
     case rsk
     case cardano
+    case ripple
     case empty
 }
 
@@ -28,6 +29,7 @@ public protocol CardEngine: class {
     var walletType: WalletType { get }
     var walletUnits: String { get }
     var walletAddress: String { get }
+    var qrCodePreffix: String { get }
     
     var exploreLink: String { get }
     
@@ -45,6 +47,10 @@ class NoWalletCardEngine: CardEngine {
     var walletUnits: String = "---"
     var walletAddress: String = ""
     var exploreLink: String {
+        return ""
+    }
+    
+    var qrCodePreffix: String {
         return ""
     }
     
