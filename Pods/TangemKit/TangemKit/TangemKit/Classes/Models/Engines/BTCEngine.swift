@@ -20,6 +20,10 @@ class BTCEngine: CardEngine {
         return "BTC"
     }
     
+    var qrCodePreffix: String {
+        return "bitcoin:"
+    }
+    
     var walletAddress: String = ""
     var exploreLink: String {
         return "https://blockchain.info/address/" + walletAddress
