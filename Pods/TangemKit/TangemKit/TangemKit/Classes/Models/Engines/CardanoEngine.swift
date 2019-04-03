@@ -23,6 +23,10 @@ class CardanoEngine: CardEngine {
         return "ADA"
     }
     
+    var qrCodePreffix: String {
+        return ""
+    }
+    
     var walletAddress: String = ""
     var exploreLink: String {
         return "https://cardanoexplorer.com/address/" + walletAddress
