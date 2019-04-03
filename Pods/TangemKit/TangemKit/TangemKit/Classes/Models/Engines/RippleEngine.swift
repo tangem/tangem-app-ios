@@ -14,11 +14,15 @@ class RippleEngine: CardEngine {
     var card: Card
     
     var walletType: WalletType {
-        return .cardano
+        return .ripple
     }
     
     var walletUnits: String {
         return "XRP"
+    }
+    
+    var qrCodePreffix: String {
+        return "ripple:"
     }
     
     var walletAddress: String = ""
@@ -47,9 +51,6 @@ class RippleEngine: CardEngine {
             canonicalPubKey = pubKeyCompressed 
         case .ed25519:
             canonicalPubKey = [0xED] + card.walletPublicKeyBytesArray
-        default:
-            canonicalPubKey = []
-            assertionFailure()
         }
         
         guard canonicalPubKey.count == 33 else {
