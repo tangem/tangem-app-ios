@@ -16,9 +16,9 @@ class EthereumNetworkBalanceOperation: GBAsyncOperation {
     }
 
     var address: String
-    var completion: (TangemObjectResult<UInt64>) -> Void
+    var completion: (TangemObjectResult<String>) -> Void
 
-    init(address: String, completion: @escaping (TangemObjectResult<UInt64>) -> Void) {
+    init(address: String, completion: @escaping (TangemObjectResult<String>) -> Void) {
         self.address = address
         self.completion = completion
     }
@@ -57,7 +57,10 @@ class EthereumNetworkBalanceOperation: GBAsyncOperation {
                     return
                 }
                 
-                self.completeOperationWith(balance: checkInt64)
+                let decimalCount: Int16 = 18
+                let walletValue = NSDecimalNumber(value: checkInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
+                
+                self.completeOperationWith(balance: walletValue.stringValue)
             case .failure(let error):
                 self.failOperationWith(error: String(describing: error))
             }
@@ -66,7 +69,7 @@ class EthereumNetworkBalanceOperation: GBAsyncOperation {
         task.resume()
     }
 
-    func completeOperationWith(balance: UInt64) {
+    func completeOperationWith(balance: String) {
         guard !isCancelled else {
             return
         }
