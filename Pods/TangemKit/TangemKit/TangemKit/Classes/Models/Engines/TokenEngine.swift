@@ -10,6 +10,10 @@ import Foundation
 
 class TokenEngine: ETHEngine {
     
+    public var walletTokenUnits: String? {
+        return card.tokenSymbol
+    }
+    
     override var walletType: WalletType {
         switch card.tokenSymbol {
         case "SEED":
@@ -28,7 +32,7 @@ class TokenEngine: ETHEngine {
     }
     
     override var walletUnits: String {
-        return card.tokenSymbol ?? "ETH"
+        return "ETH"
     }
     
     override var exploreLink: String {
