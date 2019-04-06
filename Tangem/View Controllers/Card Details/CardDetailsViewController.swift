@@ -112,7 +112,16 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             self.viewModel.setWalletInfoLoading(false)
 
             self.card = card
-            self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
+            var balanceTitle: String
+            var balanceSubtitle: String? = nil
+            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
+                balanceTitle = walletTokenValue + " " + walletTokenUnits
+                balanceSubtitle = card.walletValue + " " + card.walletUnits
+            } else {
+                balanceTitle = card.walletValue + " " + card.walletUnits
+            }
+            
+            self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
             
             if card.type == .cardano {
                 self.setupBalanceVerified(true)
@@ -123,7 +132,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
 
         }, onFailure: { (error) in
             self.viewModel.setWalletInfoLoading(false)
-            self.viewModel.updateWalletBalance("-- " + card.walletUnits)
+            self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
 
             let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
             validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
@@ -168,7 +177,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     func setupBalanceNoWallet() {
         isBalanceVerified = false
         
-        viewModel.updateWalletBalance("--")
+        viewModel.updateWalletBalance(title: "--")
         
         viewModel.updateWalletBalanceNoWallet()
         viewModel.loadButton.isEnabled = false
