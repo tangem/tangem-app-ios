@@ -61,11 +61,15 @@ public class Card {
     public var walletUnits: String {
         return cardEngine.walletUnits
     }
-    public var walletValue = "0.00" // [REDACTED_TODO_COMMENT]
-    public var usdWalletValue = "" // [REDACTED_TODO_COMMENT]
-
-    public var value: Int = 0
-    public var valueUInt64: UInt64 = 0
+    public var walletTokenUnits: String? {
+        if let tokenEngine = cardEngine as? TokenEngine {
+            return tokenEngine.walletTokenUnits
+        }
+        return nil
+    }
+    public var walletValue: String = "0"
+    public var walletTokenValue: String?
+    public var usdWalletValue: String?
 
     public var node: String = ""
 
@@ -345,13 +349,11 @@ public extension Card {
         case .eth:
             operation = ETHCardBalanceOperation(card: self, completion: onResult)
         case .rsk:
-            if self.tokenSymbol != nil {
-                operation = TokenCardBalanceOperation(card: self, network: .rsk, completion: onResult)
-            } else {
-                operation = RSKCardBalanceOperation(card: self, completion: onResult)
-            }
+            operation = RSKCardBalanceOperation(card: self, completion: onResult)
         case .cardano:
             operation = CardanoCardBalanceOperation(card: self, completion: onResult)
+        case .ripple:
+            operation = XRPCardBalanceOperation(card: self, completion: onResult)
         default:
             operation = TokenCardBalanceOperation(card: self, completion: onResult)
         }
