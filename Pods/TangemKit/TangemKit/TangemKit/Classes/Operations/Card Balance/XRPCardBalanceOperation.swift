@@ -1,14 +1,14 @@
 //
-//  BTCCardBalanceOperation.swift
+//  ETHCardBalanceOperation.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2018 Smart Cash AG. All rights reserved.
+//  Copyright © 2019 Smart Cash AG. All rights reserved.
 //
 
 import Foundation
 
-class BTCCardBalanceOperation: BaseCardBalanceOperation {
+class XRPCardBalanceOperation: BaseCardBalanceOperation {
 
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
@@ -17,7 +17,7 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        let operation = BitcoinNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+        let operation = RippleNetworkBalanceOperation(address: card.address) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.handleBalanceLoaded(balanceValue: value)

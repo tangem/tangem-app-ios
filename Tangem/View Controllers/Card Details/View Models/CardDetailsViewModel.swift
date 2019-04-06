@@ -158,8 +158,15 @@ extension CardDetailsViewModel {
         balanceVerificationLabel.attributedText = attributedText
     }
     
-    func updateWalletBalance(_ text: String) {
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.3])
+    func updateWalletBalance(title: String, subtitle: String? = nil) {
+        let attributedText = NSMutableAttributedString(string: title, attributes: [NSAttributedStringKey.kern : 0.3])
+
+        if let subtitle = subtitle {
+            let subtitleAttributedString = NSAttributedString(string: "\n+ " + subtitle, 
+                                                              attributes: [NSAttributedStringKey.font : UIFont.tgm_maaxFontWith(size: 14, weight: .medium)])
+            attributedText.append(subtitleAttributedString)
+        }        
+        
         balanceLabel.attributedText = attributedText
     }
     
