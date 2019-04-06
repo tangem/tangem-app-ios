@@ -17,9 +17,9 @@ class CardanoNetworkBalanceOperation: GBAsyncOperation {
     }
 
     var address: String
-    var completion: (TangemObjectResult<Double>) -> Void
+    var completion: (TangemObjectResult<String>) -> Void
 
-    init(address: String, completion: @escaping (TangemObjectResult<Double>) -> Void) {
+    init(address: String, completion: @escaping (TangemObjectResult<String>) -> Void) {
         self.address = address
         self.completion = completion
     }
@@ -37,7 +37,12 @@ class CardanoNetworkBalanceOperation: GBAsyncOperation {
             case .success(let data):
                 do {
                     let balanceInfo = try JSON(data: data)
-                    self.completeOperationWith(balance: balanceInfo["Right"]["caBalance"]["getCoin"].doubleValue)
+                    let balance = balanceInfo["Right"]["caBalance"]["getCoin"].doubleValue
+                    
+                    let decimalCount: Int16 = 6
+                    let walletValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
+                        
+                    self.completeOperationWith(balance: walletValue.stringValue)
                 } catch {
                     self.failOperationWith(error: error)
                 }
@@ -50,7 +55,7 @@ class CardanoNetworkBalanceOperation: GBAsyncOperation {
         task.resume()
     }
 
-    func completeOperationWith(balance: Double) {
+    func completeOperationWith(balance: String) {
         guard !isCancelled else {
             return
         }
