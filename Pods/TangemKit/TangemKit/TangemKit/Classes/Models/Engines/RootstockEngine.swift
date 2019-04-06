@@ -8,14 +8,14 @@
 
 import Foundation
 
-class RootstockEngine: ETHEngine {
+class RootstockEngine: TokenEngine {
     
     override var walletType: WalletType {
         return .rsk
     }
     
     override var walletUnits: String {
-        return card.tokenSymbol ?? "RBTC"
+        return "RBTC"
     }
     
     override var exploreLink: String {

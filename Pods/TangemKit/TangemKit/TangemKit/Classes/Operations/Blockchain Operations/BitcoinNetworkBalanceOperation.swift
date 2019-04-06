@@ -18,9 +18,9 @@ class BitcoinNetworkBalanceOperation: GBAsyncOperation {
     }
 
     var address: String
-    var completion: (TangemObjectResult<Double>) -> Void
+    var completion: (TangemObjectResult<String>) -> Void
 
-    init(address: String, completion: @escaping (TangemObjectResult<Double>) -> Void) {
+    init(address: String, completion: @escaping (TangemObjectResult<String>) -> Void) {
         self.address = address
         self.completion = completion
     }
@@ -40,7 +40,10 @@ class BitcoinNetworkBalanceOperation: GBAsyncOperation {
                     let balanceInfo = try JSON(data: data)
                     let satoshi = balanceInfo[self.address]["final_balance"].doubleValue
                     
-                    self.completeOperationWith(balance: satoshi)
+                    let decimalCount: Int16 = 8
+                    let walletValue = NSDecimalNumber(value: satoshi).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
+                    
+                    self.completeOperationWith(balance: walletValue.stringValue)
                 } catch {
                     self.failOperationWith(error: error)
                 }
@@ -53,7 +56,7 @@ class BitcoinNetworkBalanceOperation: GBAsyncOperation {
         task.resume()
     }
 
-    func completeOperationWith(balance: Double) {
+    func completeOperationWith(balance: String) {
         guard !isCancelled else {
             return
         }
