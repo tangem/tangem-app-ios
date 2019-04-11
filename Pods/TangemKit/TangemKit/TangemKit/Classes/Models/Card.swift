@@ -321,17 +321,17 @@ public class Card {
 
 public extension Card {
 
-    public func signatureVerificationOperation(completion: @escaping (Bool) -> Void) throws -> GBAsyncOperation {
+    func signatureVerificationOperation(completion: @escaping (Bool) -> Void) throws -> GBAsyncOperation {
         guard let salt = salt, let challenge = challenge else {
             throw "parametersNil"
         }
 
-        return SignatureVerificationOperation(saltHex: salt, challengeHex: challenge, signatureArr: signArr, publicKeyArr: walletPublicKeyBytesArray) { (isGenuineCard) in
+        return SignatureVerificationOperation(curve: curveID, saltHex: salt, challengeHex: challenge, signatureArr: signArr, publicKeyArr: walletPublicKeyBytesArray) { (isGenuineCard) in
             completion(isGenuineCard)
         }
     }
 
-    public func balanceRequestOperation(onSuccess: @escaping (Card) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation {
+    func balanceRequestOperation(onSuccess: @escaping (Card) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation {
         var operation: GBAsyncOperation
 
         let onResult = { (result: TangemKitResult<Card>) in
