@@ -18,6 +18,10 @@ class RootstockEngine: TokenEngine {
         return "RBTC"
     }
     
+    override var qrCodePreffix: String {
+        return ""
+    }
+    
     override var exploreLink: String {
         var exploreLink = "https://explorer.rsk.co/address/" + walletAddress 
         if card.tokenSymbol != nil {
