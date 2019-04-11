@@ -27,7 +27,15 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
             }
         }
         operationQueue.addOperation(tokenBalanceOperation)
+    }
 
+    func handleTokenBalanceLoaded(balanceValue: String) {
+        guard !isCancelled else {
+            return
+        }
+        
+        card.walletTokenValue = balanceValue        
+        
         let mainBalanceOperation = RootstockNetworkBalanceOperation(address: card.address) { [weak self] (result) in
             switch result {
             case .success(let value):
@@ -38,17 +46,6 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
             }
         }
         operationQueue.addOperation(mainBalanceOperation)
-        
-    }
-
-    func handleTokenBalanceLoaded(balanceValue: String) {
-        guard !isCancelled else {
-            return
-        }
-        
-        card.walletTokenValue = balanceValue        
-        
-        completeOperation()
     }
     
     func handleMainBalanceLoaded(balanceValue: String) {
