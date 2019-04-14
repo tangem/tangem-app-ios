@@ -112,24 +112,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             self.viewModel.setWalletInfoLoading(false)
 
             self.card = card
-            var balanceTitle: String
-            var balanceSubtitle: String? = nil
-            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
-                balanceTitle = walletTokenValue + " " + walletTokenUnits
-                balanceSubtitle = card.walletValue + " " + card.walletUnits
-            } else {
-                balanceTitle = card.walletValue + " " + card.walletUnits
-            }
             
-            self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
-            
-            if card.type == .cardano {
-                self.setupBalanceVerified(true)
-            } else {
-                self.verifySignature(card: card)
-                self.setupBalanceIsBeingVerified()
-            }
-
+            self.handleBalanceLoaded()
         }, onFailure: { (error) in
             self.viewModel.setWalletInfoLoading(false)
             self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
@@ -142,6 +126,37 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
 
         operationQueue.addOperation(operation)
 
+    }
+    
+    func handleBalanceLoaded() {
+        guard let card = card else {
+            assertionFailure()
+            return
+        }
+        
+        var balanceTitle: String
+        var balanceSubtitle: String? = nil
+        
+        if let xrpEngine = card.cardEngine as? RippleEngine, let walletReserve = xrpEngine.walletReserve {
+            // Ripple reserve
+            balanceTitle = card.walletValue + " " + card.walletUnits
+            balanceSubtitle = "\(walletReserve) \(card.walletUnits)"
+        } else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
+            // Tokens
+            balanceTitle = walletTokenValue + " " + walletTokenUnits
+            balanceSubtitle = card.walletValue + " " + card.walletUnits
+        } else {
+            balanceTitle = card.walletValue + " " + card.walletUnits
+        }
+        
+        self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
+        
+        if card.type == .cardano {
+            self.setupBalanceVerified(true)
+        } else {
+            self.verifySignature(card: card)
+            self.setupBalanceIsBeingVerified()
+        }
     }
 
     func setupBalanceIsBeingVerified() {
