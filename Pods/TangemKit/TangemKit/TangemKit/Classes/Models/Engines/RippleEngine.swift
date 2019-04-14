@@ -9,34 +9,35 @@
 import Foundation
 import CryptoSwift
 
-class RippleEngine: CardEngine {
+public class RippleEngine: CardEngine {
     
-    var card: Card
+    public var card: Card
     
-    var walletType: WalletType {
+    public var walletReserve: String?
+    public var walletType: WalletType {
         return .ripple
     }
     
-    var walletUnits: String {
+    public var walletUnits: String {
         return "XRP"
     }
     
-    var qrCodePreffix: String {
+    public var qrCodePreffix: String {
         return "ripple:"
     }
     
-    var walletAddress: String = ""
-    var exploreLink: String {
+    public var walletAddress: String = ""
+    public var exploreLink: String {
         return "https://xrpscan.com/account/" + walletAddress
     }
     
-    required init(card: Card) {
+    public required init(card: Card) {
         self.card = card
         
         setupAddress()
     }
     
-    func setupAddress() {
+    public func setupAddress() {
         var canonicalPubKey: [UInt8]
         
         switch card.curveID {
