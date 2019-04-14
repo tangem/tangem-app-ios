@@ -35,7 +35,35 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
         }
         
         card.walletValue = balanceValue
+        
+        let operation = RippleNetworkReserveOperation { [weak self] (result) in
+            switch result {
+            case .success(let value):
+                self?.handleReserveLoaded(reserve: value)
+            case .failure(let error):
+                self?.failOperationWith(error: error)
+            }
+        }
+        operationQueue.addOperation(operation)
+    }
+    
+    func handleReserveLoaded(reserve: String) {
+        guard !isCancelled else {
+            return
+        }
+        
+        if let xrpEngine = card.cardEngine as? RippleEngine {
+            xrpEngine.walletReserve = reserve
+        }
+        
+        guard let balanceValue = Double(card.walletValue), let reserveValue = Double(reserve) else {
+            assertionFailure()
+            completeOperation()
+            return
+        }
 
+        card.walletValue = NSDecimalNumber(value: balanceValue).subtracting(NSDecimalNumber(value: reserveValue)).stringValue
+        
         completeOperation()
     }
 
