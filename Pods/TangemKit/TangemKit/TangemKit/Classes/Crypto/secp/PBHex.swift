@@ -33,15 +33,15 @@ extension UInt32 : HexRepresentable
     }
 }
 
-extension String {
-    public func unhexlify() -> [UInt8] {
-        var pos = startIndex
-        return (0..<self.count/2).compactMap { _ in
-            defer { pos = index(pos, offsetBy: 2) }
-            return UInt8(self[pos...index(after: pos)], radix: 16)
-        }
-    }
-}
+//extension String {
+//    public func unhexlify() -> [UInt8] {
+//        var pos = startIndex
+//        return (0..<self.count/2).compactMap { _ in
+//            defer { pos = index(pos, offsetBy: 2) }
+//            return UInt8(self[pos...index(after: pos)], radix: 16)
+//        }
+//    }
+//}
 
 extension Collection where Iterator.Element : HexRepresentable {
     public func hexDescription(separator: String = "") -> String {
