@@ -65,13 +65,7 @@ class SignatureVerificationOperation: GBAsyncOperation {
     }
     
     func ed25519(message: [UInt8]) {
-        let sodium = Sodium()
-        let keyPair = sodium.sign.keyPair()!
-        let signature = sodium.sign.signature(message: message, secretKey: keyPair.secretKey)!
-        let result = sodium.sign.verify(message: message,
-                              publicKey: keyPair.publicKey,
-                              signature: signature)
-        
+        let result = Ed25519.verify(signatureArr, message, publicKeyArr)
         completeOperationWith(result: result)
     }
 
