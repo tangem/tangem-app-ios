@@ -140,7 +140,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         if let xrpEngine = card.cardEngine as? RippleEngine, let walletReserve = xrpEngine.walletReserve {
             // Ripple reserve
             balanceTitle = card.walletValue + " " + card.walletUnits
-            balanceSubtitle = "\(walletReserve) \(card.walletUnits)"
+            balanceSubtitle = "\(walletReserve) \(card.walletUnits) reserve"
         } else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
             balanceTitle = walletTokenValue + " " + walletTokenUnits
