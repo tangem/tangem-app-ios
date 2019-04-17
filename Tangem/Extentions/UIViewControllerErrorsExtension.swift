@@ -45,7 +45,7 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
     }
 
     func handleNonGenuineTangemCard(_ card: Card, completion: @escaping () -> Void = {}) {
-        let validationAlert = UIAlertController(title: "Error", message: "It is not a genuine Tangem card or your iPhone does not allow to attest the card", preferredStyle: .alert)
+        let validationAlert = UIAlertController(title: "Error", message: "Warning: your iPhone device does not allow to attest the card. Please check elsewhere if possible.", preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
             completion()
         }))
