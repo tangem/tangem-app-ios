@@ -19,6 +19,7 @@ public enum WalletType {
     case rsk
     case cardano
     case ripple
+    case nft
     case empty
 }
 
