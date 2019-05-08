@@ -144,8 +144,11 @@ extension CardDetailsViewModel {
         balanceVerificationLabel.attributedText = attributedText
     }
     
-    func updateWalletBalanceVerification(_ verified: Bool) {
-        let text = verified ? "Verified balance" : "Unverified balance"
+    func updateWalletBalanceVerification(_ verified: Bool, customText: String? = nil) {
+        var text = verified ? "Verified balance" : "Unverified balance"
+        if let customText = customText, !customText.isEmpty {
+            text = customText
+        }
         let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88,
                                                                            NSAttributedStringKey.foregroundColor : verified ? UIColor.tgm_green() : UIColor.tgm_red()])
         balanceVerificationLabel.attributedText = attributedText
@@ -162,7 +165,7 @@ extension CardDetailsViewModel {
         let attributedText = NSMutableAttributedString(string: title, attributes: [NSAttributedStringKey.kern : 0.3])
 
         if let subtitle = subtitle {
-            let subtitleAttributedString = NSAttributedString(string: "\n+ " + subtitle, 
+            let subtitleAttributedString = NSAttributedString(string: subtitle, 
                                                               attributes: [NSAttributedStringKey.font : UIFont.tgm_maaxFontWith(size: 14, weight: .medium)])
             attributedText.append(subtitleAttributedString)
         }        
