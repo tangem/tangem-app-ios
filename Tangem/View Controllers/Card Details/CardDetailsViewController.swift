@@ -113,7 +113,12 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
 
             self.card = card
             
-            self.handleBalanceLoaded()
+            if card.cardEngine.walletType == .nft {
+                self.handleBalanceLoadedNFT()
+            } else {
+                self.handleBalanceLoaded()
+            }
+            
         }, onFailure: { (error) in
             self.viewModel.setWalletInfoLoading(false)
             self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
@@ -140,11 +145,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         if let xrpEngine = card.cardEngine as? RippleEngine, let walletReserve = xrpEngine.walletReserve {
             // Ripple reserve
             balanceTitle = card.walletValue + " " + card.walletUnits
-            balanceSubtitle = "\(walletReserve) \(card.walletUnits) reserve"
+            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) reserve"
         } else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
             balanceTitle = walletTokenValue + " " + walletTokenUnits
-            balanceSubtitle = card.walletValue + " " + card.walletUnits
+            balanceSubtitle = "\n+ " + card.walletValue + " " + card.walletUnits
         } else {
             balanceTitle = card.walletValue + " " + card.walletUnits
         }
@@ -157,6 +162,19 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             self.verifySignature(card: card)
             self.setupBalanceIsBeingVerified()
         }
+    }
+    
+    func handleBalanceLoadedNFT() {
+        guard let card = card else {
+            assertionFailure()
+            return
+        }
+        
+        let hasBalance = NSDecimalNumber(string: card.walletValue).doubleValue > 0 
+        let balanceTitle = hasBalance ? "GENIUNE" : "NOT FOUND"
+        
+        viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
+        setupBalanceVerified(hasBalance, customText: hasBalance ? "Verified in blockchain" : "Authencity was not verified")
     }
 
     func setupBalanceIsBeingVerified() {
@@ -174,13 +192,13 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.copyButton.isEnabled = true
     }
     
-    func setupBalanceVerified(_ verified: Bool) {
+    func setupBalanceVerified(_ verified: Bool, customText: String? = nil) {
         isBalanceVerified = verified
         
         viewModel.qrCodeContainerView.isHidden = false
         viewModel.walletAddressLabel.isHidden = false
         
-        viewModel.updateWalletBalanceVerification(verified)
+        viewModel.updateWalletBalanceVerification(verified, customText: customText)
         viewModel.loadButton.isEnabled = verified
         viewModel.extractButton.isEnabled = verified
         viewModel.buttonsAvailabilityView.isHidden = verified
