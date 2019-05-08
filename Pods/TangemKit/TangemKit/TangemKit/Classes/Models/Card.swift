@@ -134,6 +134,10 @@ public class Card {
     }
 
     var imageName: String {
+        if cardEngine.walletType == .nft {
+            return "card-ruNFT"
+        }
+        
         switch batchId {
         case 0x0004:
             return "card-btc001"
