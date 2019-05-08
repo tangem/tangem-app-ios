@@ -15,6 +15,11 @@ class TokenEngine: ETHEngine {
     }
     
     override var walletType: WalletType {
+        
+        if let symbol = card.tokenSymbol, symbol.containsIgnoringCase(find: "NFT:"){
+            return .nft
+        }
+        
         switch card.tokenSymbol {
         case "SEED":
             return .seed
