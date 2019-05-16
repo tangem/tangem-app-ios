@@ -10,6 +10,10 @@ import Foundation
 
 class RootstockEngine: TokenEngine {
     
+    override var blockchainDisplayName: String {
+        return "Rootstock"
+    }
+    
     override var walletType: WalletType {
         return .rsk
     }
@@ -55,7 +59,6 @@ class RootstockEngine: TokenEngine {
     override func setupAddress() {
         super.setupAddress()
         
-        card.blockchainDisplayName = "Rootstock"
         card.node = "public-node.rsk.co"
     }
     
