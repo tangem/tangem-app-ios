@@ -25,13 +25,7 @@ class QRCodeViewController: ModalActionViewController {
             return
         }
         
-        var blockchainName = String()
-        if cardDetails.type == .btc {
-            blockchainName = "bitcoin:"
-        } else {
-            blockchainName = "ethereum:"
-        }
-        var qrCodeResult = QRCode(blockchainName + cardDetails.address)
+        var qrCodeResult = QRCode(cardDetails.qrCodeAddress)
         qrCodeResult?.size = imageView.frame.size
         imageView.image = qrCodeResult?.image
         
