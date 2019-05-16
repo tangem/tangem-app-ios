@@ -13,6 +13,10 @@ public class RippleEngine: CardEngine {
     
     public var card: Card
     
+    public var blockchainDisplayName: String {
+        return "Ripple"
+    }
+    
     public var walletReserve: String?
     public var walletType: WalletType {
         return .ripple
@@ -71,7 +75,6 @@ public class RippleEngine: CardEngine {
         
         walletAddress = String(base58Encoding: Data(bytes: buffer + checkSum), alphabet: Base58String.xrpAlphabet)
         
-        card.blockchainDisplayName = "Ripple"
         card.node = "explorer2.adalite.io"
     }
     
