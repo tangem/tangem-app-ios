@@ -26,6 +26,7 @@ public enum WalletType {
 public protocol CardEngine: class {
     
     var card: Card { get set }
+    var blockchainDisplayName: String { get }
     
     var walletType: WalletType { get }
     var walletUnits: String { get }
@@ -43,6 +44,10 @@ public protocol CardEngine: class {
 class NoWalletCardEngine: CardEngine {
     
     var card: Card
+    
+    var blockchainDisplayName: String {
+        return "No blockchain"
+    }
     
     var walletType: WalletType = .empty
     var walletUnits: String = "---"
