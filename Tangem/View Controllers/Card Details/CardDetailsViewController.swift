@@ -63,13 +63,42 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     func fetchWalletBalance(card: Card) {
+        
         guard card.isWallet else {
             viewModel.setWalletInfoLoading(false)
             setupBalanceNoWallet()
             return
         }
         
-        getBalance(card: card)
+        let operation = card.balanceRequestOperation(onSuccess: { (card) in
+            self.viewModel.setWalletInfoLoading(false)
+            
+            self.card = card
+            
+            if card.cardEngine.walletType == .nft {
+                self.handleBalanceLoadedNFT()
+            } else {
+                self.handleBalanceLoaded()
+            }
+            
+        }, onFailure: { (error) in
+            self.viewModel.setWalletInfoLoading(false)
+            self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
+            
+            let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
+            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(validationAlert, animated: true, completion: nil)
+            self.setupBalanceVerified(false)
+        })
+        
+        guard operation != nil else {
+            viewModel.setWalletInfoLoading(false)
+            setupBalanceNoWallet()
+            assertionFailure()
+            return
+        }
+        
+        operationQueue.addOperation(operation!)
     }
     
     func setupUI() {
@@ -78,10 +107,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        viewModel.updateBlockchainName(card.blockchainDisplayName)
+        viewModel.updateBlockchainName(card.cardEngine.blockchainDisplayName)
         viewModel.updateWalletAddress(card.address)
         
-        var qrCodeResult = QRCode(card.cardEngine.qrCodePreffix + card.address)
+        var qrCodeResult = QRCode(card.qrCodeAddress)
         qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
@@ -104,32 +133,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         } catch {
             print("Signature verification rrror: \(error)")
         }
-
-    }
-
-    func getBalance(card: Card) {
-        let operation = card.balanceRequestOperation(onSuccess: { (card) in
-            self.viewModel.setWalletInfoLoading(false)
-
-            self.card = card
-            
-            if card.cardEngine.walletType == .nft {
-                self.handleBalanceLoadedNFT()
-            } else {
-                self.handleBalanceLoaded()
-            }
-            
-        }, onFailure: { (error) in
-            self.viewModel.setWalletInfoLoading(false)
-            self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
-
-            let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
-            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self.present(validationAlert, animated: true, completion: nil)
-            self.setupBalanceVerified(false)
-        })
-
-        operationQueue.addOperation(operation)
 
     }
     
@@ -156,11 +159,16 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
         
+        guard !card.isTestBlockchain, card.isBlockchainKnown else {
+            setupBalanceVerified(false, customText: "Unknown blockchain")
+            return
+        }
+        
         if card.type == .cardano {
-            self.setupBalanceVerified(true)
+            setupBalanceVerified(true)
         } else {
-            self.verifySignature(card: card)
-            self.setupBalanceIsBeingVerified()
+            verifySignature(card: card)
+            setupBalanceIsBeingVerified()
         }
     }
     
@@ -170,8 +178,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        let hasBalance = NSDecimalNumber(string: card.walletValue).doubleValue > 0 
-        let balanceTitle = hasBalance ? "GENIUNE" : "NOT FOUND"
+        let hasBalance = NSDecimalNumber(string: card.walletTokenValue).doubleValue > 0 
+        let balanceTitle = hasBalance ? "GENUINE" : "NOT FOUND"
         
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
         setupBalanceVerified(hasBalance, customText: hasBalance ? "Verified in blockchain" : "Authencity was not verified")

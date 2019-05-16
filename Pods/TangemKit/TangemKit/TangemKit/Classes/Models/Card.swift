@@ -20,8 +20,17 @@ public enum EllipticCurve {
     case ed25519
 }
 
+public enum Blockchain {
+    case bitcoin
+    case ethereum
+    case rootstock
+    case cardano
+    case ripple
+    case unknown
+}
+
 public class Card {
-    
+
     public var cardEngine: CardEngine!
 
     public var cardID: String = ""
@@ -39,8 +48,30 @@ public class Card {
     public var walletPublicKey: String = ""
     public var walletPublicKeyBytesArray: [UInt8] = [UInt8]()
 
-    public var blockchainDisplayName: String = ""
+    public var isTestBlockchain: Bool {
+        return blockchainName.containsIgnoringCase(find: "test")
+    }
     public var blockchainName: String = ""
+    var blockchain: Blockchain {
+        switch blockchainName {
+        case let blockchainName where (blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc")):
+            return .bitcoin
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "rsk"):
+            return .rootstock
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "cardano"):
+            return .cardano
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "XRP"):
+            return .ripple
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "eth"):
+            return .ethereum
+        default:
+            return .unknown
+        }
+    }
+    public var isBlockchainKnown: Bool {
+        return blockchain != .unknown
+    }
+    
     public var curveID: EllipticCurve {
         return walletPublicKeyBytesArray.count == 65 ? .secp256k1 : .ed25519
     }
@@ -212,6 +243,10 @@ public class Card {
             return "card-default"
         }
     }
+    
+    public var qrCodeAddress: String {
+        return cardEngine.qrCodePreffix + address
+    }
 
     convenience init() {
         self.init(tags: [TLV]())
@@ -270,33 +305,23 @@ public class Card {
     }
     
     func setupEngine() {
-        guard !blockchainName.isEmpty else {
-            cardEngine = NoWalletCardEngine(card: self)
-            return
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc") {
+        switch blockchain {
+        case .bitcoin:
             cardEngine = BTCEngine(card: self)
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "rsk") {
+        case .rootstock:
             cardEngine = RootstockEngine(card: self)
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "cardano") {
+        case .cardano:
             cardEngine = CardanoEngine(card: self)
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "XRP") {
+        case .ripple:
             cardEngine = RippleEngine(card: self)
-        }
-        
-        if blockchainName.containsIgnoringCase(find: "eth") {
+        case .ethereum:
             if tokenSymbol != nil {
                 cardEngine = TokenEngine(card: self)
             } else {
                 cardEngine = ETHEngine(card: self)
             }
+        default:
+            cardEngine = NoWalletCardEngine(card: self)
         }
     }
 
@@ -320,6 +345,23 @@ public class Card {
         }
 
     }
+    
+    func substituteDataFrom(_ substitutionInfo: CardNetworkDetails) {
+        guard let substutionData = substitutionInfo.substitution?.substutionData else {
+            return
+        } 
+        
+        if tokenSymbol == nil, let tokenSymbol = substutionData.tokenSymbol {
+            self.tokenSymbol = tokenSymbol
+            setupEngine()
+        }
+        if tokenContractAddress == nil, let tokenContractAddress = substutionData.tokenContractAddress {
+            self.tokenContractAddress = tokenContractAddress
+        }
+        if tokenDecimal == nil, let tokenDecimal = substutionData.tokenDecimal {
+            self.tokenDecimal = tokenDecimal
+        }
+    }
 
 }
 
@@ -335,8 +377,8 @@ public extension Card {
         }
     }
 
-    func balanceRequestOperation(onSuccess: @escaping (Card) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation {
-        var operation: GBAsyncOperation
+    func balanceRequestOperation(onSuccess: @escaping (Card) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation? {
+        var operation: GBAsyncOperation?
 
         let onResult = { (result: TangemKitResult<Card>) in
             switch result {
@@ -347,19 +389,19 @@ public extension Card {
             }
         }
 
-        switch type {
-        case .btc:
+        switch blockchain {
+        case .bitcoin:
             operation = BTCCardBalanceOperation(card: self, completion: onResult)
-        case .eth:
+        case .ethereum:
             operation = ETHCardBalanceOperation(card: self, completion: onResult)
-        case .rsk:
+        case .rootstock:
             operation = RSKCardBalanceOperation(card: self, completion: onResult)
         case .cardano:
             operation = CardanoCardBalanceOperation(card: self, completion: onResult)
         case .ripple:
             operation = XRPCardBalanceOperation(card: self, completion: onResult)
         default:
-            operation = TokenCardBalanceOperation(card: self, completion: onResult)
+            break
         }
 
         return operation
