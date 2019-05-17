@@ -393,7 +393,11 @@ public extension Card {
         case .bitcoin:
             operation = BTCCardBalanceOperation(card: self, completion: onResult)
         case .ethereum:
-            operation = ETHCardBalanceOperation(card: self, completion: onResult)
+            if tokenSymbol != nil {
+                operation = TokenCardBalanceOperation(card: self, completion: onResult)
+            } else {
+                operation = ETHCardBalanceOperation(card: self, completion: onResult)
+            }
         case .rootstock:
             operation = RSKCardBalanceOperation(card: self, completion: onResult)
         case .cardano:
