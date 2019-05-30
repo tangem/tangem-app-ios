@@ -51,5 +51,13 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
         }))
         self.present(validationAlert, animated: true, completion: nil)
     }
+    
+    func handleUnknownBlockchainCard(_ completion: @escaping () -> Void = {}) {
+        let alert = UIAlertController(title: "Warning", message: "This card is not supported", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+            completion()
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
 
 }
