@@ -50,6 +50,14 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        _ = {
+            self.showFeatureRestrictionAlertIfNeeded()
+        }()
+    }
+    
     // MARK: Actions
     
     @IBAction func infoButtonPressed(_ sender: Any) {
