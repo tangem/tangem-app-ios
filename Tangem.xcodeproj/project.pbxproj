@@ -46,6 +46,7 @@
 		804638B321A36776005C539B /* UIViewControllerErrorsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */; };
 		80BAA49721B9AE6000E9EB99 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8026BC4F218DD96200DC6255 /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
+		80EC113C229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80EC113B229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift */; };
 		8D4B4A38205FA2300094E712 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
 		8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D882018DA92006C73D9 /* AppDelegate.swift */; };
 		8D946D8B2018DA92006C73D9 /* ReaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D8A2018DA92006C73D9 /* ReaderViewController.swift */; };
@@ -99,6 +100,7 @@
 		802B7D6321AF4D82000FB9E4 /* TangemKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerErrorsExtension.swift; sourceTree = "<group>"; };
 		80C5257B2106923100754961 /* CardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailsViewController.swift; sourceTree = "<group>"; };
+		80EC113B229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerFeaturesAlertExtension.swift; sourceTree = "<group>"; };
 		8D4B4A34205F9CCC0094E712 /* Tangem-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tangem-Bridging-Header.h"; sourceTree = "<group>"; };
 		8D4B4A37205FA2300094E712 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		8D899FBE202476DF006131E0 /* Card.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Card.storyboard; sourceTree = "<group>"; };
@@ -257,6 +259,7 @@
 				80205B84215FDF390091618F /* TestCardParsingCapable.swift */,
 				80205B9C215FF3280091618F /* UIAlertController+TestData.swift */,
 				804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */,
+				80EC113B229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -462,6 +465,7 @@
 				8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */,
 				8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */,
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
+				80EC113C229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift in Sources */,
 				800036672111054900C151E8 /* CardDetailsViewModel.swift in Sources */,
 				80003681213C68DB00C151E8 /* CardMoreViewController.swift in Sources */,
 				800036792111097700C151E8 /* UIViewExtensions.swift in Sources */,
