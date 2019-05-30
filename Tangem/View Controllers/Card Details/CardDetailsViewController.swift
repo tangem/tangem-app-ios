@@ -261,6 +261,13 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 extension CardDetailsViewController : TangemSessionDelegate {
 
     func tangemSessionDidRead(card: Card) {
+        guard !card.isTestBlockchain && card.isBlockchainKnown else {
+            handleUnknownBlockchainCard {
+                self.navigationController?.popViewController(animated: true)
+            }
+            return
+        }
+        
         self.card = card
         self.setupWithCardDetails(card: card)
 
