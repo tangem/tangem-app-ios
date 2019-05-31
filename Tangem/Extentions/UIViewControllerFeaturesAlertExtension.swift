@@ -32,14 +32,14 @@ extension UIViewController {
         }
         
         let validationAlert = UIAlertController(title: "Important: NFC restriction on iOS", 
-                                                message: "You can only check the validity of Tangem card and receive funds to it due to iOS restrictions on data transfer via NFC", preferredStyle: .alert)
+                                                message: "You can only check balance and validity of Tangem card and receive funds to it due to iOS restrictions on data transfer via NFC", preferredStyle: .alert)
         
         validationAlert.addAction(UIAlertAction(title: "I understand", style: .default, handler: nil))
         validationAlert.addAction(UIAlertAction(title: "Don't show again", style: .default, handler: { (_) in
             UserDefaults.standard.setIsFeaturesRestrictionAlertDismissed(true)
         }))
-        validationAlert.addAction(UIAlertAction(title: "More Info", style: .default, handler: { (_) in
-            let url = URL(string: "")!
+        validationAlert.addAction(UIAlertAction(title: "More Info", style: .cancel, handler: { (_) in
+            let url = URL(string: "http://tangem.com/faq")!
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }))
         
