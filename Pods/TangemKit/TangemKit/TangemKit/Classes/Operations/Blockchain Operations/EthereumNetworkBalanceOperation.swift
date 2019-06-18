@@ -57,8 +57,7 @@ class EthereumNetworkBalanceOperation: GBAsyncOperation {
                     return
                 }
                 
-                let decimalCount: Int16 = 18
-                let walletValue = NSDecimalNumber(value: checkInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
+                let walletValue = NSDecimalNumber(value: checkInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ethereum.decimalCount))
                 
                 self.completeOperationWith(balance: walletValue.stringValue)
             case .failure(let error):
