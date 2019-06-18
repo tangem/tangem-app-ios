@@ -50,8 +50,7 @@ class RippleNetworkReserveOperation: GBAsyncOperation {
                     return
                 }
                 
-                let decimalCount: Int16 = 6
-                let reserveValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
+                let reserveValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount))
                 
                 self.completeOperationWith(balance: reserveValue.stringValue)
             case .failure(let error):
