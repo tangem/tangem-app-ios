@@ -20,7 +20,7 @@ PODS:
 
 DEPENDENCIES:
   - QRCode (= 2.0)
-  - TangemKit (from `https://github.com/TangemCash/tangem-ios-kit.git`, branch `feature/IOS-5-binance`)
+  - TangemKit (= 0.4.20)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -33,16 +33,7 @@ SPEC REPOS:
     - SwiftCBOR
     - SwiftLint
     - SwiftyJSON
-
-EXTERNAL SOURCES:
-  TangemKit:
-    :branch: feature/IOS-5-binance
-    :git: https://github.com/TangemCash/tangem-ios-kit.git
-
-CHECKOUT OPTIONS:
-  TangemKit:
-    :commit: a75b9f35fa0f0ef3b7b0064e90c23dae1cc6e729
-    :git: https://github.com/TangemCash/tangem-ios-kit.git
+    - TangemKit
 
 SPEC CHECKSUMS:
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
@@ -56,6 +47,6 @@ SPEC CHECKSUMS:
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
   TangemKit: 9e81aacc00089478958e0e33a37fd0bb3ffc8591
 
-PODFILE CHECKSUM: d836eeacad9c80739ef2f7e13d309004b6f268a5
+PODFILE CHECKSUM: d8d698b601d9088bd2048d375c97732c37e28121
 
 COCOAPODS: 1.7.1
