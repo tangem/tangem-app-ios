@@ -26,7 +26,24 @@ public enum Blockchain {
     case rootstock
     case cardano
     case ripple
+    case binance
     case unknown
+    
+    var decimalCount: Int16 {
+        switch self {
+        case .bitcoin:
+            return 8
+        case .ethereum, .rootstock:
+            return 18
+        case .ripple, .cardano:
+            return 6
+        case .binance:
+            return 8
+        default:
+            assertionFailure()
+            return 0
+        }
+    }
 }
 
 public class Card {
@@ -64,6 +81,8 @@ public class Card {
             return .ripple
         case let blockchainName where blockchainName.containsIgnoringCase(find: "eth"):
             return .ethereum
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "binance"):
+            return .binance
         default:
             return .unknown
         }
@@ -320,6 +339,8 @@ public class Card {
             } else {
                 cardEngine = ETHEngine(card: self)
             }
+        case .binance:
+            cardEngine = BinanceEngine(card: self)
         default:
             cardEngine = NoWalletCardEngine(card: self)
         }
@@ -404,6 +425,8 @@ public extension Card {
             operation = CardanoCardBalanceOperation(card: self, completion: onResult)
         case .ripple:
             operation = XRPCardBalanceOperation(card: self, completion: onResult)
+        case .binance:
+            operation = BNBCardBalanceOperation(card: self, completion: onResult)
         default:
             break
         }
