@@ -40,8 +40,7 @@ class BitcoinNetworkBalanceOperation: GBAsyncOperation {
                     let balanceInfo = try JSON(data: data)
                     let satoshi = balanceInfo[self.address]["final_balance"].doubleValue
                     
-                    let decimalCount: Int16 = 8
-                    let walletValue = NSDecimalNumber(value: satoshi).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
+                    let walletValue = NSDecimalNumber(value: satoshi).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.bitcoin.decimalCount))
                     
                     self.completeOperationWith(balance: walletValue.stringValue)
                 } catch {
