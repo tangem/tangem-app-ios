@@ -20,6 +20,7 @@ public enum WalletType {
     case cardano
     case ripple
     case nft
+    case binance
     case empty
 }
 
@@ -38,6 +39,22 @@ public protocol CardEngine: class {
     init(card: Card)
     
     func setupAddress()
+    
+}
+
+extension CardEngine {
+    
+    var pubKeyCompressed: [UInt8] {
+        let vrfy: secp256k1_context = secp256k1_context_create(.SECP256K1_CONTEXT_NONE)!
+        var pubkey = secp256k1_pubkey()
+        _ = secp256k1_ec_pubkey_parse(vrfy, &pubkey, card.walletPublicKeyBytesArray, 65)
+        
+        var pubLength: UInt = 33
+        var pubKeyCompressed = Array(repeating: 0, count: Int(pubLength)) as [UInt8]
+        _ = secp256k1_ec_pubkey_serialize(vrfy, &pubKeyCompressed, &pubLength, pubkey, SECP256K1_FLAGS.SECP256K1_EC_COMPRESSED)
+        
+        return pubKeyCompressed
+    }
     
 }
 
