@@ -24,6 +24,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     var tangemSession: TangemSession?
     
+    let storageManager: StorageManagerType = SecureStorageManager()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -213,6 +215,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
+        
+        showUntrustedAlertIfNeeded()
     }
     
     func setupBalanceNoWallet() {
@@ -236,6 +240,28 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         tangemSession?.start()
     }
     
+    func showUntrustedAlertIfNeeded() {
+        guard let card = card,
+              let walletAmount = Double(card.walletValue),
+              let signedHashesAmount = Int(card.signedHashes) else {
+            return
+        }
+       
+        let scannedCards = storageManager.stringArray(forKey: .cids) ?? []
+        let cardScannedBefore = scannedCards.contains(card.cardID)
+        if cardScannedBefore {
+            return
+        }
+        
+        if walletAmount > 0 && signedHashesAmount > 0 {
+            DispatchQueue.main.async {
+                self.handleUntrustedCard()
+            }
+        }
+        
+        let allScannedCards = scannedCards + [card.cardID]
+        storageManager.set(allScannedCards, forKey: .cids)
+    }
 }
 
 extension CardDetailsViewController: LoadViewControllerDelegate {
