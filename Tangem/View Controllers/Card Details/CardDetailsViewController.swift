@@ -243,7 +243,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     func showUntrustedAlertIfNeeded() {
         guard let card = card,
               let walletAmount = Double(card.walletValue),
-              let signedHashesAmount = Int(card.signedHashes) else {
+              let signedHashesAmount = Int(card.signedHashes, radix: 16) else {
             return
         }
        
