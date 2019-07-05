@@ -3,6 +3,7 @@ PODS:
     - SipHash (~> 1.2)
   - CryptoSwift (0.13.0)
   - GBAsyncOperation (0.2.0)
+  - KeychainSwift (16.0.1)
   - QRCode (2.0)
   - SipHash (1.2.2)
   - Sodium (0.8.0)
@@ -19,26 +20,32 @@ PODS:
     - SwiftyJSON (= 4.2.0)
 
 DEPENDENCIES:
+  - KeychainSwift
   - QRCode (= 2.0)
-  - TangemKit (= 0.4.20)
+  - TangemKit (from `/Users/alexander.osokin/repos/tangem/tangem-ios-kit`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - BigInt
     - CryptoSwift
     - GBAsyncOperation
+    - KeychainSwift
     - QRCode
     - SipHash
     - Sodium
     - SwiftCBOR
     - SwiftLint
     - SwiftyJSON
-    - TangemKit
+
+EXTERNAL SOURCES:
+  TangemKit:
+    :path: "/Users/alexander.osokin/repos/tangem/tangem-ios-kit"
 
 SPEC CHECKSUMS:
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
   CryptoSwift: 16e78bebf567bad1c87b2d58f6547f25b74c31aa
   GBAsyncOperation: 8152acfd21e19246349ed2e56d40f895faf0df8b
+  KeychainSwift: 4209611373ca4a098e09b1e547eebd87c544dcc4
   QRCode: f98a1886c8f37523704a7512a4c0cd45b34c18a4
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
@@ -47,6 +54,6 @@ SPEC CHECKSUMS:
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
   TangemKit: 9e81aacc00089478958e0e33a37fd0bb3ffc8591
 
-PODFILE CHECKSUM: d8d698b601d9088bd2048d375c97732c37e28121
+PODFILE CHECKSUM: 6a4327e5a37fb6b6eac16e8e69bcb59a10582561
 
-COCOAPODS: 1.7.1
+COCOAPODS: 1.7.3

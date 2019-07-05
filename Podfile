@@ -4,7 +4,7 @@ target 'Tangem' do
     
     use_frameworks!
     pod 'TangemKit', '0.4.20'
-    
+    pod 'KeychainSwift'
     pod 'QRCode', '2.0'
     
 end
