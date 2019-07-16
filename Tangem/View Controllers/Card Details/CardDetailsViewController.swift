@@ -377,17 +377,22 @@ extension CardDetailsViewController {
     }
 
     @IBAction func extractButtonPressed(_ sender: Any) {
-
-        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ExtractViewController") else {
-            return
+        
+        let fw = Float(card?.firmware ?? "") ?? 0
+        
+        if #available(iOS 13.0, *) {
+            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController")
+            
+                self.present(viewController, animated: true, completion: nil)
+        } else {
+            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController")
+            
+            let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+            self.customPresentationController = presentationController
+            viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
+            viewController.transitioningDelegate = presentationController
+            self.present(viewController, animated: true, completion: nil)
         }
-
-        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
-        self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
-        viewController.transitioningDelegate = presentationController
-        self.present(viewController, animated: true, completion: nil)
-
     }
 
     @IBAction func scanButtonPressed(_ sender: Any) {
