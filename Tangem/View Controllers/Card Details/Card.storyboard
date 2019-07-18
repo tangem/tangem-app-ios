@@ -357,9 +357,9 @@
                                     <constraint firstItem="Jcc-qw-WQh" firstAttribute="centerX" secondItem="bQm-VT-pR3" secondAttribute="centerX" id="pwC-DY-Ncv"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bx9-On-jnu">
-                                <rect key="frame" x="172" y="318" width="31" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bx9-On-jnu">
+                                <rect key="frame" x="103" y="273.5" width="169" height="120"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="90"/>
                                 <state key="normal" title="Sign"/>
                                 <connections>
                                     <action selector="scanTapped" destination="KdO-lq-239" eventType="touchUpInside" id="wtk-eR-OqH"/>
@@ -369,6 +369,8 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="bQm-VT-pR3" firstAttribute="trailing" secondItem="frm-o3-2wK" secondAttribute="trailing" id="1Br-2Z-mLl"/>
+                            <constraint firstItem="bx9-On-jnu" firstAttribute="centerX" secondItem="p6O-Zr-AKx" secondAttribute="centerX" id="5Pf-LM-0Ma"/>
+                            <constraint firstItem="bx9-On-jnu" firstAttribute="centerY" secondItem="p6O-Zr-AKx" secondAttribute="centerY" id="Hme-D5-haF"/>
                             <constraint firstItem="bQm-VT-pR3" firstAttribute="top" secondItem="frm-o3-2wK" secondAttribute="top" constant="8" id="eEQ-QP-y52"/>
                             <constraint firstItem="bQm-VT-pR3" firstAttribute="leading" secondItem="frm-o3-2wK" secondAttribute="leading" id="x5O-sL-Ttu"/>
                         </constraints>
