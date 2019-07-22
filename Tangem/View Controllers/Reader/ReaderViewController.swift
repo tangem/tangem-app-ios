@@ -76,6 +76,17 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     }
     
     func initiateScan() {
+        if tangemSession != nil {
+            tangemSession?.invalidate()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.startSession()
+            }
+        } else {
+            startSession()
+        }
+    }
+    
+    private func startSession() {
         tangemSession = TangemSession(delegate: self)
         tangemSession?.start()
     }
