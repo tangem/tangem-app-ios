@@ -395,11 +395,23 @@ extension CardDetailsViewController {
         showSimulationSheet()
         #else
 
-        tangemSession = TangemSession(delegate: self)
-        tangemSession?.start()
+        if tangemSession != nil {
+            tangemSession?.invalidate()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.startSession()
+            }
+        } else {
+            startSession()
+        }
 
         #endif
     }
+    
+    private func startSession() {
+        tangemSession = TangemSession(delegate: self)
+        tangemSession?.start()
+    }
+    
 
     @IBAction func moreButtonPressed(_ sender: Any) {
         guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
