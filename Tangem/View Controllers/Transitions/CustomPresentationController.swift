@@ -105,13 +105,8 @@ class CustomPresentationController: UIPresentationController {
                 fatalError()
         }
         
-        let toView = transitionContext.view(forKey: .to)
-        
         let _ = transitionContext.initialFrame(for: fromViewController)
         var fromViewFinalFrame = transitionContext.finalFrame(for: fromViewController)
-        
-        var toViewInitialFrame = transitionContext.initialFrame(for: toViewController)
-        let toViewFinalFrame = transitionContext.finalFrame(for: toViewController)
         
         let containerView = transitionContext.containerView
         
@@ -127,14 +122,18 @@ class CustomPresentationController: UIPresentationController {
         }
         
         if isPresenting {
-            guard let toView = toView else {
+            guard let toView = transitionContext.view(forKey: .to) else {
                 fatalError()
             }
             
-            toViewInitialFrame.origin = CGPoint(x: containerView.bounds.minX, y: containerView.bounds.maxY);
-            toViewInitialFrame.size = toViewFinalFrame.size
-            toView.frame = toViewInitialFrame;
+            var toViewFinalFrame = transitionContext.finalFrame(for: toViewController)
             
+            if #available(iOS 13.0, *) {
+                toViewFinalFrame =  toViewFinalFrame.offsetBy(dx: 0, dy:  -toView.frame.height)
+            }
+            
+            toView.frame = toView.frame.offsetBy(dx: 0, dy: toView.frame.height);
+
             let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
             tapGestureRecognizer.delegate = self
             transitionContext.containerView.addGestureRecognizer(tapGestureRecognizer)
