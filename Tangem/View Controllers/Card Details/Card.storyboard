@@ -524,7 +524,7 @@ Registration date: Jul 9, 2018
 Serial: CB04 8888 0000 7725
 Remaining signatures: 1,000,000</string>
                                         <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="18"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
