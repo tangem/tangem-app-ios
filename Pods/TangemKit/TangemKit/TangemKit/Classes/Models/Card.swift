@@ -364,7 +364,14 @@ public class Card {
         if challenge != verificationChallenge && salt != verificationSalt {
             genuinityState = .genuine
         }
-
+    }
+    
+    func invalidateSignedHashes(with card: Card) {
+        let currentSignedHashes = Int(signedHashes, radix: 16) ?? 0
+        let secondReadSignedHashes = Int(card.signedHashes, radix: 16) ?? 0
+        if secondReadSignedHashes > currentSignedHashes {
+            signedHashes = card.signedHashes
+        }
     }
     
     func substituteDataFrom(_ substitutionInfo: CardNetworkDetails) {
