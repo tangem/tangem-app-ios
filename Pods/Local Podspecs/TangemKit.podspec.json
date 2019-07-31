@@ -1,6 +1,6 @@
 {
   "name": "TangemKit",
-  "version": "0.4.20",
+  "version": "0.4.22",
   "summary": "Everything that you need to read Tangem notes",
   "swift_versions": "4.0",
   "description": "Check the values and details of your Tangem notes — special NFC smart cards that can securely carry digital tokens, acting as a highly protected cold wallets with fixed value inside.",
@@ -14,7 +14,7 @@
   },
   "source": {
     "git": "https://github.com/TangemCash/tangem-ios-kit.git",
-    "tag": "0.4.20"
+    "tag": "0.4.22"
   },
   "platforms": {
     "ios": "11.0"
@@ -24,10 +24,10 @@
   "resources": "TangemKit/TangemKit/Assets/*.xcassets",
   "dependencies": {
     "BigInt": [
-      "3.1.0"
+
     ],
     "CryptoSwift": [
-      "0.13.0"
+
     ],
     "SwiftyJSON": [
       "4.2.0"
@@ -43,6 +43,9 @@
     ],
     "Sodium": [
       "0.8.0"
+    ],
+    "web3.swift.pod": [
+
     ]
   },
   "swift_version": "4.0"
