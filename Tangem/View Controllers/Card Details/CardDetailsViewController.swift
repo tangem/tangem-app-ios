@@ -381,8 +381,8 @@ extension CardDetailsViewController {
         let fw = Float(card?.firmware ?? "") ?? 0
         //[REDACTED_TODO_COMMENT]
         if #available(iOS 13.0, *) {
-            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController")
-            
+            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
+            viewController.card = card
                 self.present(viewController, animated: true, completion: nil)
         } else {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController")
