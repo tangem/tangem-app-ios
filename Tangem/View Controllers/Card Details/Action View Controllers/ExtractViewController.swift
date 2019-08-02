@@ -14,30 +14,98 @@ import TangemKit
 class ExtractViewController: ModalActionViewController {
     
     var card: Card!
+    var onDone: (()-> Void)?
+    var fee: (min: String, normal: String, max: String)?
+    var feeTimer: Timer?
+    
+    @IBOutlet weak var targetText: UITextField!
+    @IBOutlet weak var amountText: UITextField!
+    @IBOutlet weak var feeText: UITextField!
     
     private var readerSession: NFCTagReaderSession?
     private var startDate = Date()
+    @IBOutlet weak var feeControl: UISegmentedControl!
+    
+    @IBAction func feePresetChanged(_ sender: UISegmentedControl, forEvent event: UIEvent) {
+        updateFee()
+    }
+    
+    func updateFee() {
+        switch feeControl.selectedSegmentIndex {
+        case 0:
+            feeText.text = fee?.min ?? ""
+        case 1:
+            feeText.text = fee?.normal ?? ""
+        case 2:
+            feeText.text = fee?.max ?? ""
+        default:
+            feeText.text = ""
+        }
+    }
+    
+    
+    @IBAction func targetChanged(_ sender: UITextField, forEvent event: UIEvent) {
+        tryUpdateFeePreset()
+    }
+    @IBAction func amountChanged(_ sender: UITextField, forEvent event: UIEvent) {
+        tryUpdateFeePreset()
+    }
     
     @IBAction func scanTapped() {
+        
+        guard validateInput() else {
+            return
+        }
+    
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
         readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
         readerSession?.begin()
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        let cProvider = self.card.cardEngine as! CoinProvider
-        cProvider.getFee(targetAddress: "0x4dcc15cc2756d2b3b39c66c0a54d9265d8c386e0", amount: "0.0001") {[weak self] fee in
-            guard let self = self,
-                let fee = fee else {
-                    return
-            }
-            
-            print("min fee: \(fee.min) normal fee: \(fee.normal) max fee \(fee.max)")
+    func validateInput() -> Bool {
+        if targetText.text == card.walletPublicKey {
+            return false
         }
         
+        
+        //[REDACTED_TODO_COMMENT]
+        return true
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        amountText.text = card.walletValue
+    }
+    
+    func tryUpdateFeePreset() {
+        feeTimer?.invalidate()
+        
+        guard let targetAddress = targetText.text,
+            let amount = amountText.text,
+            !targetAddress.isEmpty,
+            !amount.isEmpty else {
+                return
+        }
+        
+        feeTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(0.3), repeats: false, block: { [weak self] _ in
+            guard let cProvider = self?.card.cardEngine as? CoinProvider else {
+                return
+            }
+            cProvider.getFee(targetAddress: targetAddress, amount: amount) {[weak self] fee in
+                guard let self = self,
+                    let fee = fee else {
+                        return
+                }
+                self.fee = fee
+                DispatchQueue.main.async {
+                     self.updateFee()
+                }
+                print("min fee: \(fee.min) normal fee: \(fee.normal) max fee \(fee.max)")
+            }
+        })
+    }
+    
 }
 
 
@@ -72,7 +140,9 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                 
                 
                 let cProvider = self.card.cardEngine as! CoinProvider
-                let hashToSign = cProvider.getHashForSignature(amount: "0.0001", fee: "0.000021", includeFee: false, targetAddress: "0x4dcc15cc2756d2b3b39c66c0a54d9265d8c386e0")
+                let hashToSign = cProvider.getHashForSignature(amount: self.amountText.text!, fee: self.feeText.text!, includeFee: false, targetAddress: self.targetText.text!)
+                
+                print(hashToSign!.toHexString())
                 
                 //[REDACTED_TODO_COMMENT]
                 //let commandApdu = CommandApdu(with: .sign, tlv: [])
@@ -90,7 +160,11 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                 
                 let commandApdu = CommandApdu(with: .sign, tlv: tlvData)
                 let signApduBytes = commandApdu.buildCommand()
+                for tlv in tlvData {
+                     print(tlv.value!.toHexString())
+                }
                 
+                print(signApduBytes.toHexString())
                 let signApdu = NFCISO7816APDU(data: Data(bytes: signApduBytes))!
                 self.sendSignRequest(to: tag7816, with: session, signApdu)
             }
@@ -136,6 +210,11 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                                 print("Tx send successfully")
                             } else {
                                 print("error")
+                            }
+                              DispatchQueue.main.async {
+                                self.dismiss(animated: true) {
+                                    self.onDone?()
+                                }
                             }
                         }
                     }
