@@ -14,7 +14,7 @@ import TangemKit
 class ExtractViewController: ModalActionViewController {
     
     var card: Card!
-    let operationQueue = OperationQueue()
+    
     private var readerSession: NFCTagReaderSession?
     private var startDate = Date()
     
@@ -22,6 +22,21 @@ class ExtractViewController: ModalActionViewController {
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
         readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
         readerSession?.begin()
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let cProvider = self.card.cardEngine as! CoinProvider
+        cProvider.getFee(targetAddress: "0x4dcc15cc2756d2b3b39c66c0a54d9265d8c386e0", amount: "0.0001") {[weak self] fee in
+            guard let self = self,
+                let fee = fee else {
+                    return
+            }
+            
+            print("min fee: \(fee.min) normal fee: \(fee.normal) max fee \(fee.max)")
+        }
+        
     }
 }
 
@@ -56,8 +71,8 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                 */
                 
                 
-                let sProvider = self.card.cardEngine as! SignatureProvider
-                let hashToSign = sProvider.getHashForSignature(amount: "0.0001", fee: "0.000021", includeFee: false, targetAddress: "0x4dcc15cc2756d2b3b39c66c0a54d9265d8c386e0")
+                let cProvider = self.card.cardEngine as! CoinProvider
+                let hashToSign = cProvider.getHashForSignature(amount: "0.0001", fee: "0.000021", includeFee: false, targetAddress: "0x4dcc15cc2756d2b3b39c66c0a54d9265d8c386e0")
                 
                 //[REDACTED_TODO_COMMENT]
                 //let commandApdu = CommandApdu(with: .sign, tlv: [])
@@ -115,22 +130,14 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                     session.invalidate()
                     if let sign = respApdu.tlv[.signature]?.value {
                         // session.alertMessage = "Signed :)"
-                        let sProvider = self.card.cardEngine as! SignatureProvider
-                        let tx = sProvider.getHashForSend(signFromCard: sign)
-                        let txHexString = "0x\(tx?.toHexString())"
-                        print(sign)
-                        
-                        let sendOperation = EthereumNetworkSendOperation(tx: txHexString) { [weak self] (result) in
-                            switch result {
-                            case .success(let value):
-                                self?.card.txCount += 1
-                               print(value)
-                            case .failure(let error):
-                               print(error)
+                        let cProvider = self.card.cardEngine as! CoinProvider
+                        cProvider.sendToBlockchain(signFromCard: sign) {result in
+                            if result {
+                                print("Tx send successfully")
+                            } else {
+                                print("error")
                             }
-
                         }
-                        self.operationQueue.addOperation(sendOperation)
                     }
                     
                     let dateDiff = Calendar.current.dateComponents([.second,.nanosecond], from: self.startDate, to: Date())
