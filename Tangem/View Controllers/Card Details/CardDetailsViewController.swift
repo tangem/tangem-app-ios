@@ -43,7 +43,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             assertionFailure()
             return
         }
-        
+   
        setupWithCardDetails(card: card)
     }
     
@@ -57,8 +57,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         guard !isBalanceLoading else {
             return
         }
-        
+
         if card.hasPendingTransactions  {
+            self.isBalanceLoading = true
+            self.viewModel.setWalletInfoLoading(true)
             fetchWalletBalance(card: card)
         }
     }
