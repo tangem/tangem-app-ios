@@ -415,10 +415,7 @@ extension CardDetailsViewController {
     }
 
     @IBAction func extractButtonPressed(_ sender: Any) {
-        
-        let fw = Float(card?.firmware ?? "") ?? 0
-        //[REDACTED_TODO_COMMENT]
-        if #available(iOS 13.0, *) {
+        if #available(iOS 13.0, *), card!.canExtract {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
             viewController.card = card
             viewController.onDone = { [unowned self] in
