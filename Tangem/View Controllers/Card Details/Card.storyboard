@@ -36,7 +36,7 @@
                                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the card close to the reader" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wuf-Hj-EKQ">
                                                 <rect key="frame" x="0.0" y="35" width="200" height="41"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
@@ -72,13 +72,13 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Unverified balance" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FF6-9W-3kh">
                                                 <rect key="frame" x="0.0" y="37" width="123.5" height="17"/>
                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="--" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oFz-2Y-wgy">
                                                 <rect key="frame" x="0.0" y="0.0" width="123.5" height="27"/>
                                                 <fontDescription key="fontDescription" name=".SFNSDisplay" family=".SF NS Display" pointSize="24"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="VAO-g0-gA5">
@@ -175,13 +175,13 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="16t433L6C9g7AHmopPkrmjLEhLyGJF26G9" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Yp-7Z-uw0">
                                         <rect key="frame" x="40" y="458" width="295" height="17"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bitcoin" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OXE-6A-lHc">
                                         <rect key="frame" x="164.5" y="433" width="46" height="17"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="5pd-nS-j4U">
@@ -335,7 +335,7 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="EXTRACT" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jcc-qw-WQh">
                                         <rect key="frame" x="156" y="4.5" width="63" height="31.5"/>
                                         <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kB1-h8-3kS">
@@ -358,28 +358,114 @@
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bx9-On-jnu">
-                                <rect key="frame" x="103" y="273.5" width="169" height="120"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="90"/>
-                                <state key="normal" title="Sign"/>
+                                <rect key="frame" x="156.5" y="254" width="62" height="41"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                <state key="normal" title="SEND"/>
                                 <connections>
                                     <action selector="scanTapped" destination="KdO-lq-239" eventType="touchUpInside" id="wtk-eR-OqH"/>
                                 </connections>
                             </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="28" translatesAutoresizingMaskIntoConstraints="NO" id="7u7-MR-3OI">
+                                <rect key="frame" x="8" y="64" width="359" height="158"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="18" translatesAutoresizingMaskIntoConstraints="NO" id="UDC-Or-IAt">
+                                        <rect key="frame" x="0.0" y="0.0" width="359" height="34"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Target" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OQ5-Fz-HHQ">
+                                                <rect key="frame" x="0.0" y="0.0" width="49" height="34"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Ded-nq-uaw">
+                                                <rect key="frame" x="67" y="0.0" width="292" height="34"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                                <connections>
+                                                    <action selector="targetChanged:forEvent:" destination="KdO-lq-239" eventType="editingDidEnd" id="dT6-Ne-Y8y"/>
+                                                </connections>
+                                            </textField>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="x73-UG-aXR">
+                                        <rect key="frame" x="0.0" y="62" width="359" height="34"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Amount" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="clg-PF-62O">
+                                                <rect key="frame" x="0.0" y="0.0" width="60" height="34"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="l0p-77-2FO">
+                                                <rect key="frame" x="68" y="0.0" width="291" height="34"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                                <connections>
+                                                    <action selector="amountChanged:forEvent:" destination="KdO-lq-239" eventType="editingDidEnd" id="PCe-0D-2wv"/>
+                                                </connections>
+                                            </textField>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="2uF-7F-3vt">
+                                        <rect key="frame" x="0.0" y="124" width="359" height="34"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Fee" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Kw-nT-DBj">
+                                                <rect key="frame" x="0.0" y="0.0" width="28" height="34"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="THp-9t-jcN">
+                                                <rect key="frame" x="36" y="0.0" width="112" height="34"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                            </textField>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Hg9-Lm-2zM">
+                                                <rect key="frame" x="156" y="-1" width="203" height="35"/>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <segments>
+                                                    <segment title="Minimal"/>
+                                                    <segment title="Normal"/>
+                                                    <segment title="Priority"/>
+                                                </segments>
+                                                <connections>
+                                                    <action selector="feePresetChanged:forEvent:" destination="KdO-lq-239" eventType="valueChanged" id="5JR-Ce-mct"/>
+                                                </connections>
+                                            </segmentedControl>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="bQm-VT-pR3" firstAttribute="trailing" secondItem="frm-o3-2wK" secondAttribute="trailing" id="1Br-2Z-mLl"/>
-                            <constraint firstItem="bx9-On-jnu" firstAttribute="centerX" secondItem="p6O-Zr-AKx" secondAttribute="centerX" id="5Pf-LM-0Ma"/>
-                            <constraint firstItem="bx9-On-jnu" firstAttribute="centerY" secondItem="p6O-Zr-AKx" secondAttribute="centerY" id="Hme-D5-haF"/>
+                            <constraint firstItem="7u7-MR-3OI" firstAttribute="leading" secondItem="frm-o3-2wK" secondAttribute="leading" constant="8" id="1YW-F0-nu7"/>
+                            <constraint firstItem="frm-o3-2wK" firstAttribute="trailing" secondItem="7u7-MR-3OI" secondAttribute="trailing" constant="8" id="B3U-Iy-cO3"/>
+                            <constraint firstItem="bx9-On-jnu" firstAttribute="top" secondItem="7u7-MR-3OI" secondAttribute="bottom" constant="32" id="Uea-C7-t9j"/>
                             <constraint firstItem="bQm-VT-pR3" firstAttribute="top" secondItem="frm-o3-2wK" secondAttribute="top" constant="8" id="eEQ-QP-y52"/>
+                            <constraint firstItem="7u7-MR-3OI" firstAttribute="top" secondItem="bQm-VT-pR3" secondAttribute="bottom" constant="16" id="gkE-Z7-GXr"/>
                             <constraint firstItem="bQm-VT-pR3" firstAttribute="leading" secondItem="frm-o3-2wK" secondAttribute="leading" id="x5O-sL-Ttu"/>
+                            <constraint firstItem="bx9-On-jnu" firstAttribute="centerX" secondItem="p6O-Zr-AKx" secondAttribute="centerX" id="xh8-Yf-Wgl"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="frm-o3-2wK"/>
                     </view>
+                    <connections>
+                        <outlet property="amountText" destination="l0p-77-2FO" id="izI-ts-BgT"/>
+                        <outlet property="feeControl" destination="Hg9-Lm-2zM" id="w7n-Km-Wuv"/>
+                        <outlet property="feeText" destination="THp-9t-jcN" id="1ka-9B-C1q"/>
+                        <outlet property="targetText" destination="Ded-nq-uaw" id="K4G-X2-SIe"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lBu-zG-agy" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1922" y="93"/>
+            <point key="canvasLocation" x="1920.8" y="92.203898050974516"/>
         </scene>
         <!--Load View Controller-->
         <scene sceneID="xUq-1Q-sxV">
@@ -405,7 +491,7 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOAD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b7s-lc-UnO">
                                                 <rect key="frame" x="168.5" y="4.5" width="38" height="32"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
@@ -497,7 +583,7 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MORE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eUM-J5-RUS">
                                                 <rect key="frame" x="166.5" y="4.5" width="42.5" height="32"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
@@ -581,7 +667,7 @@ Remaining signatures: 1,000,000</string>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOAD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="emL-8I-vTT">
                                                 <rect key="frame" x="168.5" y="4.5" width="38" height="32"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
@@ -608,7 +694,7 @@ Remaining signatures: 1,000,000</string>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="16t433L6C9g7AHmopPkrmjLEhLyGJF26G9" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cnw-bw-ZSo">
                                                 <rect key="frame" x="0.0" y="237" width="235" height="34"/>
                                                 <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="17"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
@@ -670,7 +756,7 @@ Remaining signatures: 1,000,000</string>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="EXTRACT" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Ks-mV-eZe">
                                                 <rect key="frame" x="156" y="4.5" width="63" height="31.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="trS-9k-CUk">
@@ -697,7 +783,7 @@ Remaining signatures: 1,000,000</string>
 available on the iPhone
 at this time</string>
                                         <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="18"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
