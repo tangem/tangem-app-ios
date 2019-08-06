@@ -427,7 +427,7 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <segmentedControl opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Hg9-Lm-2zM">
-                                                <rect key="frame" x="156" y="-1" width="203" height="35"/>
+                                                <rect key="frame" x="156" y="0.0" width="203" height="35"/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <segments>
                                                     <segment title="Minimal"/>
@@ -742,7 +742,7 @@ Remaining signatures: 1,000,000</string>
         <!--Extract Placeholder View Controller-->
         <scene sceneID="jX6-cL-QEw">
             <objects>
-                <viewController storyboardIdentifier="ExtractPlaceholderViewController" id="6Zj-ZT-C2X" customClass="ExtractPlaceholderViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ExtractPlaceholderViewController" id="6Zj-ZT-C2X" customClass="ExtractPlaceholderViewController" customModule="Tangem" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="22C-mi-e5Z">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
