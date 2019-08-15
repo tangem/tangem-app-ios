@@ -140,8 +140,9 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             assertionFailure()
             return
         }
-        
-        viewModel.updateBlockchainName(card.cardEngine.blockchainDisplayName)
+        let blockchainName = card.cardEngine.blockchainDisplayName
+        let name = card.isTestBlockchain ? "\(blockchainName) Test" : blockchainName
+        viewModel.updateBlockchainName(name)
         viewModel.updateWalletAddress(card.address)
         
         var qrCodeResult = QRCode(card.qrCodeAddress)
@@ -193,7 +194,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
         
-        guard !card.isTestBlockchain, card.isBlockchainKnown else {
+        guard card.isBlockchainKnown else {
             setupBalanceVerified(false, customText: "Unknown blockchain")
             return
         }
@@ -204,7 +205,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
         
         if card.type == .cardano {
-            setupBalanceVerified(true)
+            setupBalanceVerified(true, customText: card.isTestBlockchain ? "Test blockhain": nil)
         } else {
             verifySignature(card: card)
             setupBalanceIsBeingVerified()
@@ -324,7 +325,7 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 extension CardDetailsViewController : TangemSessionDelegate {
 
     func tangemSessionDidRead(card: Card) {
-        guard !card.isTestBlockchain && card.isBlockchainKnown else {
+        guard /*!card.isTestBlockchain &&*/ card.isBlockchainKnown else {
             handleUnknownBlockchainCard {
                 self.navigationController?.popViewController(animated: true)
             }
@@ -415,7 +416,7 @@ extension CardDetailsViewController {
     }
 
     @IBAction func extractButtonPressed(_ sender: Any) {
-        if #available(iOS 13.0, *), card!.canExtract {
+        if #available(iOS 13.0, *) /*, card!.canExtract*/ {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
             viewController.card = card
             viewController.onDone = { [unowned self] in
