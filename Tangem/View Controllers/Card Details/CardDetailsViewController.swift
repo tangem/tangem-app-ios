@@ -486,7 +486,7 @@ extension CardDetailsViewController {
         }
 
         let strings = ["Issuer: \(cardDetails.issuer)",
-            "Manufacturer: \(cardDetails.issuer)",
+            "Manufacturer: \(cardDetails.manufactureName)",
             "API node: \(cardDetails.node)",
             "Challenge 1: \(cardChallenge ?? "N\\A")",
             "Challenge 2: \(verificationChallenge ?? "N\\A")",
