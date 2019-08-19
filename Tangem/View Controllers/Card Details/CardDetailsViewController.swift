@@ -506,4 +506,3 @@ extension CardDetailsViewController {
     }
 
 }
-
