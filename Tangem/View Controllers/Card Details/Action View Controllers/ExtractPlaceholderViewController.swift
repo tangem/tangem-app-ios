@@ -11,7 +11,7 @@ import UIKit
 class ExtractPlaceholderViewController: UIViewController {
     @IBOutlet weak var contentLabel: UILabel!
     
-    var contentText = "Value extraction is not available on the iPhone at this time"
+    var contentText = "Value extraction is available only on iOS 13 and cards with firmware newer then 2.28"
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

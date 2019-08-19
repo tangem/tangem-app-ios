@@ -157,7 +157,7 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceVerification(_ verified: Bool, customText: String? = nil) {
-        var text = verified ? "Verified balance" : "Unverified balance"
+        var text = verified ? "Verified balance" : "Unverified balance. Tap to retry"
         if let customText = customText, !customText.isEmpty {
             text = customText
         }
