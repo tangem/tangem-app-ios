@@ -22,3 +22,90 @@ extension UIView {
     }
     
 }
+
+extension UIButton {
+    public func showActivityIndicator() {
+        let views = subviews.filter{ $0 is UIActivityIndicatorView }
+        guard views.isEmpty else { return }
+        
+        isEnabled = false
+        fadeTransition(0.25)
+        let activityIndicator = createActivityIndicator()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(activityIndicator)
+        activityIndicator.color = backgroundColor == UIColor.white ? .darkGray : .white
+        centerActivityIndicatorInButton(activityIndicator: activityIndicator)
+        setTitleColor(UIColor.clear, for: .normal)
+        activityIndicator.startAnimating()
+    }
+    
+    public func hideActivityIndicator() {
+        let activityArray = subviews.filter{ $0 is UIActivityIndicatorView }
+        
+        var textColor : UIColor?
+        for each in activityArray {
+            guard let activity = each as? UIActivityIndicatorView else { continue }
+            
+            activity.stopAnimating()
+            activity.removeFromSuperview()
+        }
+        isEnabled = true
+        fadeTransition(0.5)
+        textColor = backgroundColor == UIColor.white ? .blue : .white
+        setTitleColor(textColor, for: .normal)
+    }
+}
+
+extension UILabel {
+    public func showActivityIndicator() {
+        let views = subviews.filter{ $0 is UIActivityIndicatorView }
+        guard views.isEmpty else { return }
+        //isEnabled = false
+        fadeTransition(0.25)
+        let activityIndicator = createActivityIndicator()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(activityIndicator)
+        activityIndicator.color = .darkGray
+        centerActivityIndicatorInButton(activityIndicator: activityIndicator)
+        textColor = .clear
+        activityIndicator.startAnimating()
+    }
+    
+    public func hideActivityIndicator() {
+        let activityArray = subviews.filter{ $0 is UIActivityIndicatorView }
+        
+        for each in activityArray {
+            guard let activity = each as? UIActivityIndicatorView else { continue }
+            
+            activity.stopAnimating()
+            activity.removeFromSuperview()
+        }
+       //isEnabled = true
+        fadeTransition(0.5)
+        textColor = .lightGray
+    }
+}
+
+extension UIView {
+        func createActivityIndicator() -> UIActivityIndicatorView {
+           let activityIndicator = UIActivityIndicatorView()
+           activityIndicator.hidesWhenStopped = true
+           activityIndicator.color = UIColor.white
+           return activityIndicator
+       }
+       
+        func centerActivityIndicatorInButton(activityIndicator : UIActivityIndicatorView) {
+           let xCenterConstraint = NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: activityIndicator, attribute: .centerX, multiplier: 1, constant: 0)
+           self.addConstraint(xCenterConstraint)
+           let yCenterConstraint = NSLayoutConstraint(item: self, attribute: .centerY, relatedBy: .equal, toItem: activityIndicator, attribute: .centerY, multiplier: 1, constant: 0)
+           self.addConstraint(yCenterConstraint)
+       }
+       
+        func fadeTransition(_ duration: CFTimeInterval) {
+           let animation:CATransition = CATransition()
+           animation.timingFunction =  CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn)
+           animation.type = kCATransitionFade
+           animation.duration = duration
+           self.layer.add(animation, forKey: kCATransitionFade)
+       }
+}
