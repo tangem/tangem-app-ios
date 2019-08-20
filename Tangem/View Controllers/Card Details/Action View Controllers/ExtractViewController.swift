@@ -102,34 +102,45 @@ class ExtractViewController: ModalActionViewController {
         
         if !feeLabel.text!.isEmpty {
             feeLabel.text! += " \(card.walletUnits)"
+        } else {
+            feeLabel.text = Constants.feeStub
         }
         
         feeLabel.hideActivityIndicator()
         print("min fee: \(fee?.min) normal fee: \(fee?.normal) max fee \(fee?.max)")
     }
     
-    func validateInput() -> Bool {
+    func validateInput(skipFee: Bool = false) -> Bool {
         validatedAmount = ""
         validatedFee = ""
         validatedTarget = ""
         
         guard let amount = amountText.text,
             let target = targetAddressText.text,
-            let fee = feeLabel.text?.remove(" \(card.walletUnits)"),
+            !target.isEmpty,
+            
+            !amount.isEmpty,
             let amountValue = Decimal(string: amount),
-            let feeValue = Decimal(string: fee),
             let total = Decimal(string: card.walletValue),
-            targetAddressText.text != card.walletPublicKey else {
+            target != card.cardEngine.walletAddress else {
                 return false
         }
         
-        let valueToSend = includeFeeSwitch.isOn ? amountValue : amountValue + feeValue
-        guard total >= valueToSend else {
-            return false
+        if !skipFee {
+            guard let fee = feeLabel.text?.remove(" \(card.walletUnits)"),
+                let feeValue = Decimal(string: fee),
+                !fee.isEmpty else {
+                    return false
+            }
+            
+            let valueToSend = includeFeeSwitch.isOn ? amountValue : amountValue + feeValue
+            guard total >= valueToSend else {
+                return false
+            }
+            validatedFee = fee
         }
         
         validatedAmount = amount
-        validatedFee = fee
         validatedTarget = target
         return true
     }
@@ -153,10 +164,12 @@ class ExtractViewController: ModalActionViewController {
         addressText.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 8))
         
         addressLabel.attributedText = addressText
-        if let pasteString = UIPasteboard.general.string {
+        if let pasteString = UIPasteboard.general.string,
+            (card.cardEngine as! CoinProvider).validate(address: pasteString) {
             pasteTargetAddressLabel.text = pasteString
             pasteTargetAddressContainer.isHidden = false
         }
+        feeLabel.text = Constants.feeStub
     }
     
     override func viewDidLayoutSubviews() {
@@ -213,8 +226,7 @@ class ExtractViewController: ModalActionViewController {
         
         guard let targetAddress = targetAddressText.text,
             let amount = amountText.text,
-            !targetAddress.isEmpty,
-            !amount.isEmpty else {
+            validateInput(skipFee: true) else {
                 fee = nil
                 updateFee()
                 return
@@ -248,14 +260,13 @@ class ExtractViewController: ModalActionViewController {
 @available(iOS 13.0, *)
 extension ExtractViewController: NFCTagReaderSessionDelegate {
     func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
-        session.invalidate()
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
         guard session.alertMessage != "Sign completed" else {
             return
         }
-
+        
         DispatchQueue.main.async {
             self.btnSend.hideActivityIndicator()
         }
@@ -363,5 +374,14 @@ extension ExtractViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+}
+
+
+//MARK: Constants
+@available(iOS 13.0, *)
+extension ExtractViewController {
+    struct Constants {
+        static let feeStub = "Specify amount and address to see the fee"
     }
 }
