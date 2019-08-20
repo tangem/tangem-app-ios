@@ -16,6 +16,7 @@ protocol DefaultErrorAlertsCapable {
     func handleReaderSessionError(completion: @escaping () -> Void)
     func handleNonGenuineTangemCard(_ card: Card, completion: @escaping () -> Void)
     func handleUntrustedCard()
+    func handleTXSendError()
 }
 
 extension DefaultErrorAlertsCapable where Self: UIViewController {
@@ -64,5 +65,11 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
         let alert = UIAlertController(title: "Warning", message: "This card has been already topped up and signed transactions in the past. Consider immediate withdrawal of all funds if you have received this card from an untrusted source", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    func handleTXSendError() {
+        let validationAlert = UIAlertController(title: "Error", message: "Transaction wasn't sent to the blockchain", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(validationAlert, animated: true, completion: nil)
     }
 }
