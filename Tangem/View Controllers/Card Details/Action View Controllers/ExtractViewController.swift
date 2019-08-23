@@ -166,6 +166,7 @@ class ExtractViewController: ModalActionViewController {
             pasteTargetAddressContainer.isHidden = false
         }
         feeLabel.text = Constants.feeStub
+        amountText.text = card.walletValue
     }
     
     override func viewWillAppear(_ animated: Bool) {
