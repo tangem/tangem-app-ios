@@ -118,9 +118,9 @@ class ExtractViewController: ModalActionViewController {
         guard let amount = amountText.text,
             let target = targetAddressText.text,
             !target.isEmpty,
-            
             !amount.isEmpty,
             let amountValue = Decimal(string: amount),
+            amountValue > 0,
             let total = Decimal(string: card.walletValue),
             target != card.cardEngine.walletAddress else {
                 return false
@@ -148,10 +148,6 @@ class ExtractViewController: ModalActionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         btnSend.layer.cornerRadius = 8.0
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         
         let cardText = NSMutableAttributedString(string: "Card: \(card.cardID)")
         cardText.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 5))
@@ -170,6 +166,12 @@ class ExtractViewController: ModalActionViewController {
             pasteTargetAddressContainer.isHidden = false
         }
         feeLabel.text = Constants.feeStub
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        
     }
     
     override func viewDidLayoutSubviews() {
@@ -223,16 +225,15 @@ class ExtractViewController: ModalActionViewController {
     func tryUpdateFeePreset() {
         feeLabel.showActivityIndicator()
         feeTimer?.invalidate()
-        
-        guard let targetAddress = targetAddressText.text,
-            let amount = amountText.text,
-            validateInput(skipFee: true) else {
-                fee = nil
-                updateFee()
-                return
-        }
-        
-        feeTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(0.3), repeats: false, block: { [weak self] _ in
+        feeTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: { [weak self] _ in
+            guard let targetAddress = self?.targetAddressText.text,
+                let amount = self?.amountText.text,
+                self?.validateInput(skipFee: true) ?? false else {
+                    self?.fee = nil
+                    self?.updateFee()
+                    return
+            }
+            
             guard let cProvider = self?.card.cardEngine as? CoinProvider else {
                 DispatchQueue.main.async {
                     self?.updateFee()
@@ -283,18 +284,22 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                 }
                 
                 let cProvider = self.card.cardEngine as! CoinProvider
-                let hashToSign = cProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!)
+                guard let hashToSign = cProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
+                    session.invalidate()
+                    self.handleTXBuildError()
+                    return
+                }
                 
                 
                 let cardId = self.card.cardID.asciiHexToData()!
-                let hSize = [UInt8(hashToSign!.count)]
+                let hSize = [UInt8(hashToSign.count)]
                 
                 let tlvData = [
                     CardTLV(.pin, value: "000000".sha256().asciiHexToData()),
                     CardTLV(.cardId, value: cardId),
                     CardTLV(.pin2, value: "000".sha256().asciiHexToData()),
                     CardTLV(.transactionOutHashSize, value: hSize),
-                    CardTLV(.transactionOutHash, value: hashToSign?.bytes)]
+                    CardTLV(.transactionOutHash, value: hashToSign.bytes)]
                 
                 let commandApdu = CommandApdu(with: .sign, tlv: tlvData)
                 let signApduBytes = commandApdu.buildCommand()
@@ -340,9 +345,11 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                             self?.btnSend.hideActivityIndicator()
                             if result {
                                 DispatchQueue.main.async {
-                                    self?.dismiss(animated: true) {
-                                        self?.onDone?()
-                                    }
+                                    self?.handleSuccess(completion: {
+                                        self?.dismiss(animated: true) {
+                                            self?.onDone?()
+                                        }
+                                    })
                                 }
                             } else {
                                 self?.handleTXSendError()
