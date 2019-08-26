@@ -200,7 +200,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
         
         guard !card.hasPendingTransactions else {
-            setupBalanceVerified(false, customText: "Transaction in progress. Wait for confirmation in blockchain")
+            setupBalanceVerified(false, customText: "Transaction in progress. Wait for confirmation in blockchain. Tap to retry")
             return
         }
         
