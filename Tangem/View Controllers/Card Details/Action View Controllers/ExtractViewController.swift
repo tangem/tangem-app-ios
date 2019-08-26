@@ -167,6 +167,10 @@ class ExtractViewController: ModalActionViewController {
         }
         feeLabel.text = Constants.feeStub
         amountText.text = card.walletValue
+        
+        let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
+        includeFeeSwitch.isHidden = !traits.contains(CoinTrait.allowsFeeInclude)
+        feeControl.isHidden = !traits.contains(CoinTrait.allowsFeeSelector)
     }
     
     override func viewWillAppear(_ animated: Bool) {
