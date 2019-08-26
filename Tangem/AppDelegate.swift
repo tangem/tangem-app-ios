@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreNFC
 
 extension UIApplication {
     
@@ -36,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().tintColor = .white
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = navigationManager?.navigationController
+        window.rootViewController = isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
         window.makeKeyAndVisible()
         
         self.window = window
@@ -52,6 +53,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         navigationManager = NavigationManager(rootViewController: rootViewController)
+    }
+    
+    func instantiateStub() -> UIViewController {
+        let sb = UIStoryboard(name: "Reader", bundle: nil)
+        let stubViewController = sb.instantiateViewController(withIdentifier: "StubViewController")
+        return stubViewController
     }
     
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
@@ -78,8 +85,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
-    
-    
-
+    var isNFCAvailable: Bool {
+        #if targetEnvironment(simulator)
+            return true
+        #else
+            if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
+            return NFCNDEFReaderSession.readingAvailable
+        #endif
+    }
 }
 
