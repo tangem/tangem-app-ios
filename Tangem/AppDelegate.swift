@@ -22,6 +22,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     var navigationManager: NavigationManager?
+    
+    var isNFCAvailable: Bool {
+        #if targetEnvironment(simulator)
+            return true
+        #else
+            if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
+            return NFCNDEFReaderSession.readingAvailable
+        #endif
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
@@ -83,15 +92,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         return true
-    }
-    
-    var isNFCAvailable: Bool {
-        #if targetEnvironment(simulator)
-            return true
-        #else
-            if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
-            return NFCNDEFReaderSession.readingAvailable
-        #endif
     }
 }
 
