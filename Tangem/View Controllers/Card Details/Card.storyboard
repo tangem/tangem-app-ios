@@ -77,7 +77,7 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="--" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oFz-2Y-wgy">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="--" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="14" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oFz-2Y-wgy">
                                                 <rect key="frame" x="0.0" y="0.0" width="123.5" height="28"/>
                                                 <fontDescription key="fontDescription" name=".SFNSDisplay" family=".SF NS Display" pointSize="24"/>
                                                 <nil key="textColor"/>
@@ -175,13 +175,13 @@
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="16t433L6C9g7AHmopPkrmjLEhLyGJF26G9" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Yp-7Z-uw0">
-                                        <rect key="frame" x="40" y="459" width="295" height="17"/>
+                                        <rect key="frame" x="40" y="450" width="295" height="17"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bitcoin" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OXE-6A-lHc">
-                                        <rect key="frame" x="164.5" y="434" width="46" height="17"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bitcoin" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="OXE-6A-lHc">
+                                        <rect key="frame" x="164.5" y="425" width="46" height="17"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -251,13 +251,13 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="Ywb-Zq-Tcq" firstAttribute="top" secondItem="Avd-ez-2CK" secondAttribute="top" id="3Hr-gj-OOa"/>
-                                    <constraint firstItem="urx-lf-qZ1" firstAttribute="top" secondItem="uei-9H-Dqj" secondAttribute="bottom" constant="40" id="DIS-1W-s5f"/>
                                     <constraint firstAttribute="trailing" secondItem="0Yp-7Z-uw0" secondAttribute="trailing" constant="40" id="Dlx-Sg-7pP"/>
                                     <constraint firstItem="vgg-PE-syF" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="Gap-DL-4gt"/>
                                     <constraint firstItem="OXE-6A-lHc" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="JgG-7e-aPc"/>
                                     <constraint firstItem="6Wr-gR-Lzf" firstAttribute="height" secondItem="5pd-nS-j4U" secondAttribute="height" constant="30" id="KA3-Ay-8yn"/>
                                     <constraint firstItem="5pd-nS-j4U" firstAttribute="centerY" secondItem="6Wr-gR-Lzf" secondAttribute="centerY" id="NH6-fR-ZF3"/>
                                     <constraint firstItem="Ywb-Zq-Tcq" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="QzV-tw-kcO"/>
+                                    <constraint firstItem="urx-lf-qZ1" firstAttribute="top" secondItem="vgg-PE-syF" secondAttribute="bottom" constant="140" id="Rbx-RU-cPe"/>
                                     <constraint firstItem="0Yp-7Z-uw0" firstAttribute="top" secondItem="OXE-6A-lHc" secondAttribute="bottom" constant="8" id="SFx-wP-oaQ"/>
                                     <constraint firstAttribute="bottom" secondItem="Ywb-Zq-Tcq" secondAttribute="bottom" id="SJ4-RM-bZy"/>
                                     <constraint firstItem="0Yp-7Z-uw0" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="T6H-2R-20N"/>
@@ -277,7 +277,7 @@
                                     <constraint firstItem="XFd-FO-m0e" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="f8i-K4-YI9"/>
                                     <constraint firstItem="0Yp-7Z-uw0" firstAttribute="leading" secondItem="Avd-ez-2CK" secondAttribute="leading" constant="40" id="hnO-6Y-u62"/>
                                     <constraint firstItem="yPP-d2-WIV" firstAttribute="top" secondItem="5pd-nS-j4U" secondAttribute="bottom" constant="20" id="x6E-Zj-PZs"/>
-                                    <constraint firstItem="OXE-6A-lHc" firstAttribute="top" secondItem="urx-lf-qZ1" secondAttribute="bottom" constant="25" id="zld-c3-fg6"/>
+                                    <constraint firstItem="OXE-6A-lHc" firstAttribute="top" secondItem="urx-lf-qZ1" secondAttribute="bottom" constant="16" id="zld-c3-fg6"/>
                                 </constraints>
                             </scrollView>
                         </subviews>
