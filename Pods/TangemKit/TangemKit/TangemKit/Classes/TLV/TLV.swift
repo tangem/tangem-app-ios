@@ -40,6 +40,7 @@ public enum TLVTagName: String {
     case batchId = "Batch_ID"
     case manufacturerDateTime = "Manufacture_Date_Time"
     case issuerName = "Issuer_Name"
+    case manufactureId = "ManufactureId"
     case blockchainName = "Blockchain_Name"
     case tokenSymbol = "Token_Symbol"
     case tokenContractAddress = "Token_Contract_Address"
@@ -93,7 +94,7 @@ public class TLV {
         tags.append(TLVTag(name: .salt, address: 0x17, length: 16))
         tags.append(TLVTag(name: .walletSignature, address: 0x61, length: 64))
         tags.append(TLVTag(name: .health, address: 0x0F, length: 1))
-
+        tags.append(TLVTag(name: .manufactureId, address: 0x20, isString: true))
         return tags
     }()
 
