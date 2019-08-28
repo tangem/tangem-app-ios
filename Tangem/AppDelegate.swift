@@ -8,6 +8,8 @@
 
 import UIKit
 import CoreNFC
+import Fabric
+import Crashlytics
 
 extension UIApplication {
     
@@ -50,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window.makeKeyAndVisible()
         
         self.window = window
-        
+        Fabric.with([Crashlytics.self])
         return true
     }
     
