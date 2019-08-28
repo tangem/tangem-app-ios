@@ -1,7 +1,10 @@
 PODS:
   - BigInt (3.1.0):
     - SipHash (~> 1.2)
+  - Crashlytics (3.13.4):
+    - Fabric (~> 1.10.2)
   - CryptoSwift (0.13.0)
+  - Fabric (1.10.2)
   - GBAsyncOperation (0.2.0)
   - KeychainSwift (16.0.1)
   - QRCode (2.0)
@@ -10,7 +13,7 @@ PODS:
   - SwiftCBOR (0.3.0)
   - SwiftLint (0.27.0)
   - SwiftyJSON (4.2.0)
-  - TangemKit (0.4.22):
+  - TangemKit (0.4.23):
     - BigInt (= 3.1.0)
     - CryptoSwift (= 0.13.0)
     - GBAsyncOperation (= 0.2.0)
@@ -20,14 +23,18 @@ PODS:
     - SwiftyJSON (= 4.2.0)
 
 DEPENDENCIES:
+  - Crashlytics
+  - Fabric
   - KeychainSwift
   - QRCode (= 2.0)
-  - TangemKit (= 0.4.22)
+  - TangemKit
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - BigInt
+    - Crashlytics
     - CryptoSwift
+    - Fabric
     - GBAsyncOperation
     - KeychainSwift
     - QRCode
@@ -40,7 +47,9 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
+  Crashlytics: 2dfd686bcb918dc10ee0e76f7f853fe42c7bd552
   CryptoSwift: 16e78bebf567bad1c87b2d58f6547f25b74c31aa
+  Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   GBAsyncOperation: 8152acfd21e19246349ed2e56d40f895faf0df8b
   KeychainSwift: 4209611373ca4a098e09b1e547eebd87c544dcc4
   QRCode: f98a1886c8f37523704a7512a4c0cd45b34c18a4
@@ -49,8 +58,8 @@ SPEC CHECKSUMS:
   SwiftCBOR: 0b6b686bf24b77d06d35a2a6298713358c761bf8
   SwiftLint: 3207c1faa2240bf8973b191820a116113cd11073
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
-  TangemKit: 25a3db4c62e369b2d8ebe59a0d58eeabd2140c6e
+  TangemKit: 131ad71a6484bcdac63524490a5533ac1a78651c
 
-PODFILE CHECKSUM: e9a59d769ef45abc2747588548793648ecbfd574
+PODFILE CHECKSUM: 60940c4f60797bd54d883465b1c9f71a3b1ec3b9
 
 COCOAPODS: 1.7.5
