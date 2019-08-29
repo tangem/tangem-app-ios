@@ -24,6 +24,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     var tangemSession: TangemSession?
     
+    let storageManager: StorageManagerType = SecureStorageManager()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -63,13 +65,42 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     func fetchWalletBalance(card: Card) {
+        
         guard card.isWallet else {
             viewModel.setWalletInfoLoading(false)
             setupBalanceNoWallet()
             return
         }
         
-        getBalance(card: card)
+        let operation = card.balanceRequestOperation(onSuccess: { (card) in
+            self.viewModel.setWalletInfoLoading(false)
+            
+            self.card = card
+            
+            if card.cardEngine.walletType == .nft {
+                self.handleBalanceLoadedNFT()
+            } else {
+                self.handleBalanceLoaded()
+            }
+            
+        }, onFailure: { (error) in
+            self.viewModel.setWalletInfoLoading(false)
+            self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
+            
+            let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
+            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(validationAlert, animated: true, completion: nil)
+            self.setupBalanceVerified(false)
+        })
+        
+        guard operation != nil else {
+            viewModel.setWalletInfoLoading(false)
+            setupBalanceNoWallet()
+            assertionFailure()
+            return
+        }
+        
+        operationQueue.addOperation(operation!)
     }
     
     func setupUI() {
@@ -78,19 +109,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        viewModel.updateBlockchainName(card.blockchainDisplayName)
+        viewModel.updateBlockchainName(card.cardEngine.blockchainDisplayName)
         viewModel.updateWalletAddress(card.address)
         
-        var blockchainName = String()
-        if card.type == .btc {
-            blockchainName = "bitcoin:"
-        } else if card.type == .cardano {
-            blockchainName = ""
-        } else {
-            blockchainName = "ethereum:"
-        }
-        
-        var qrCodeResult = QRCode(blockchainName + card.address)
+        var qrCodeResult = QRCode(card.qrCodeAddress)
         qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
@@ -115,33 +137,54 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
 
     }
-
-    func getBalance(card: Card) {
-        let operation = card.balanceRequestOperation(onSuccess: { (card) in
-            self.viewModel.setWalletInfoLoading(false)
-
-            self.card = card
-            self.viewModel.updateWalletBalance(card.walletValue + " " + card.walletUnits)
-            
-            if card.type == .cardano {
-                self.setupBalanceVerified(true)
-            } else {
-                self.verifySignature(card: card)
-                self.setupBalanceIsBeingVerified()
-            }
-
-        }, onFailure: { (error) in
-            self.viewModel.setWalletInfoLoading(false)
-            self.viewModel.updateWalletBalance("-- " + card.walletUnits)
-
-            let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
-            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self.present(validationAlert, animated: true, completion: nil)
-            self.setupBalanceVerified(false)
-        })
-
-        operationQueue.addOperation(operation)
-
+    
+    func handleBalanceLoaded() {
+        guard let card = card else {
+            assertionFailure()
+            return
+        }
+        
+        var balanceTitle: String
+        var balanceSubtitle: String? = nil
+        
+        if let xrpEngine = card.cardEngine as? RippleEngine, let walletReserve = xrpEngine.walletReserve {
+            // Ripple reserve
+            balanceTitle = card.walletValue + " " + card.walletUnits
+            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) reserve"
+        } else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
+            // Tokens
+            balanceTitle = walletTokenValue + " " + walletTokenUnits
+            balanceSubtitle = "\n+ " + card.walletValue + " " + card.walletUnits
+        } else {
+            balanceTitle = card.walletValue + " " + card.walletUnits
+        }
+        
+        self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
+        
+        guard !card.isTestBlockchain, card.isBlockchainKnown else {
+            setupBalanceVerified(false, customText: "Unknown blockchain")
+            return
+        }
+        
+        if card.type == .cardano {
+            setupBalanceVerified(true)
+        } else {
+            verifySignature(card: card)
+            setupBalanceIsBeingVerified()
+        }
+    }
+    
+    func handleBalanceLoadedNFT() {
+        guard let card = card else {
+            assertionFailure()
+            return
+        }
+        
+        let hasBalance = NSDecimalNumber(string: card.walletTokenValue).doubleValue > 0 
+        let balanceTitle = hasBalance ? "GENUINE" : "NOT FOUND"
+        
+        viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
+        setupBalanceVerified(hasBalance, customText: hasBalance ? "Verified in blockchain" : "Authencity was not verified")
     }
 
     func setupBalanceIsBeingVerified() {
@@ -159,25 +202,27 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.copyButton.isEnabled = true
     }
     
-    func setupBalanceVerified(_ verified: Bool) {
+    func setupBalanceVerified(_ verified: Bool, customText: String? = nil) {
         isBalanceVerified = verified
         
         viewModel.qrCodeContainerView.isHidden = false
         viewModel.walletAddressLabel.isHidden = false
         
-        viewModel.updateWalletBalanceVerification(verified)
+        viewModel.updateWalletBalanceVerification(verified, customText: customText)
         viewModel.loadButton.isEnabled = verified
         viewModel.extractButton.isEnabled = verified
         viewModel.buttonsAvailabilityView.isHidden = verified
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
+        
+        showUntrustedAlertIfNeeded()
     }
     
     func setupBalanceNoWallet() {
         isBalanceVerified = false
         
-        viewModel.updateWalletBalance("--")
+        viewModel.updateWalletBalance(title: "--")
         
         viewModel.updateWalletBalanceNoWallet()
         viewModel.loadButton.isEnabled = false
@@ -195,6 +240,28 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         tangemSession?.start()
     }
     
+    func showUntrustedAlertIfNeeded() {
+        guard let card = card,
+              let walletAmount = Double(card.walletValue),
+              let signedHashesAmount = Int(card.signedHashes, radix: 16) else {
+            return
+        }
+       
+        let scannedCards = storageManager.stringArray(forKey: .cids) ?? []
+        let cardScannedBefore = scannedCards.contains(card.cardID)
+        if cardScannedBefore {
+            return
+        }
+        
+        if walletAmount > 0 && signedHashesAmount > 0 {
+            DispatchQueue.main.async {
+                self.handleUntrustedCard()
+            }
+        }
+        
+        let allScannedCards = scannedCards + [card.cardID]
+        storageManager.set(allScannedCards, forKey: .cids)
+    }
 }
 
 extension CardDetailsViewController: LoadViewControllerDelegate {
@@ -220,6 +287,13 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 extension CardDetailsViewController : TangemSessionDelegate {
 
     func tangemSessionDidRead(card: Card) {
+        guard !card.isTestBlockchain && card.isBlockchainKnown else {
+            handleUnknownBlockchainCard {
+                self.navigationController?.popViewController(animated: true)
+            }
+            return
+        }
+        
         self.card = card
         self.setupWithCardDetails(card: card)
 
@@ -321,11 +395,23 @@ extension CardDetailsViewController {
         showSimulationSheet()
         #else
 
-        tangemSession = TangemSession(delegate: self)
-        tangemSession?.start()
+        if tangemSession != nil {
+            tangemSession?.invalidate()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.startSession()
+            }
+        } else {
+            startSession()
+        }
 
         #endif
     }
+    
+    private func startSession() {
+        tangemSession = TangemSession(delegate: self)
+        tangemSession?.start()
+    }
+    
 
     @IBAction func moreButtonPressed(_ sender: Any) {
         guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
@@ -351,7 +437,7 @@ extension CardDetailsViewController {
         }
 
         let strings = ["Issuer: \(cardDetails.issuer)",
-            "Manufacturer: \(cardDetails.issuer)",
+            "Manufacturer: \(cardDetails.manufactureName)",
             "API node: \(cardDetails.node)",
             "Challenge 1: \(cardChallenge ?? "N\\A")",
             "Challenge 2: \(verificationChallenge ?? "N\\A")",

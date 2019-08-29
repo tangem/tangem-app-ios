@@ -8,14 +8,22 @@
 
 import Foundation
 
-class RootstockEngine: ETHEngine {
+class RootstockEngine: TokenEngine {
+    
+    override var blockchainDisplayName: String {
+        return "Rootstock"
+    }
     
     override var walletType: WalletType {
         return .rsk
     }
     
     override var walletUnits: String {
-        return card.tokenSymbol ?? "RBTC"
+        return "RBTC"
+    }
+    
+    override var qrCodePreffix: String {
+        return ""
     }
     
     override var exploreLink: String {
@@ -51,7 +59,6 @@ class RootstockEngine: ETHEngine {
     override func setupAddress() {
         super.setupAddress()
         
-        card.blockchainDisplayName = "Rootstock"
         card.node = "public-node.rsk.co"
     }
     

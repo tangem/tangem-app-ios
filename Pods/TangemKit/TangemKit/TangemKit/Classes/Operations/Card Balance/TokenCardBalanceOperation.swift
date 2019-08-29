@@ -24,43 +24,44 @@ class TokenCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        guard let tokenContractAddress = card.tokenContractAddress else {
-            self.failOperationWith(error: "Token card contract is empty")
-            return
-        }
-
-        let operation = TokenNetworkBalanceOperation(address: card.address, contract: tokenContractAddress, network: network) { [weak self] (result) in
+        let tokenBalanceOperation = TokenNetworkBalanceOperation(card: card, network: network) { [weak self] (result) in
             switch result {
             case .success(let value):
-                self?.handleBalanceLoaded(balanceValue: value)
+                self?.handleTokenBalanceLoaded(balanceValue: value)
             case .failure(let error):
                 self?.card.mult = 0
                 self?.failOperationWith(error: error)
             }
         }
-        operationQueue.addOperation(operation)
+        operationQueue.addOperation(tokenBalanceOperation)
     }
 
-    func handleBalanceLoaded(balanceValue: NSDecimalNumber) {
+    func handleTokenBalanceLoaded(balanceValue: String) {
         guard !isCancelled else {
             return
         }
-
-        card.valueUInt64 = balanceValue.uint64Value
         
-        guard let tokenDecimal = card.tokenDecimal else {
-            assertionFailure()
-            print("Error: Card TokenDecimal is nil")
-            completeOperation()
+        card.walletTokenValue = balanceValue        
+
+        let mainBalanceOperation = EthereumNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+            switch result {
+            case .success(let value):
+                self?.handleMainBalanceLoaded(balanceValue: value)
+            case .failure(let error):
+                self?.card.mult = 0
+                self?.failOperationWith(error: error)
+            }
+        }
+        operationQueue.addOperation(mainBalanceOperation)
+    }
+    
+    func handleMainBalanceLoaded(balanceValue: String) {
+        guard !isCancelled else {
             return
         }
-
-        let normalisedValue = balanceValue.dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Int16(tokenDecimal)))
-        card.walletValue = normalisedValue.stringValue
-
-        let value = normalisedValue.doubleValue * card.mult
-        card.usdWalletValue = String(value)
-
+        
+        card.walletValue = balanceValue
+        
         completeOperation()
     }
 

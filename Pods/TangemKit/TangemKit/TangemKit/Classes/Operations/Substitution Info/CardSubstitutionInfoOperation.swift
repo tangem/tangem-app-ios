@@ -49,7 +49,7 @@ public class CardSubstitutionInfoOperation: GBAsyncOperation {
             return
         }
         
-        updateCardWith(substitutionInfo: result)
+        card.substituteDataFrom(result)
         
         if let cardImage = card.image, let appArtworkHash = sha256(cardImage), appArtworkHash == result.artwork?.hash {
             completeOperation()
@@ -61,22 +61,6 @@ public class CardSubstitutionInfoOperation: GBAsyncOperation {
             fetchArtwork(artworkId: artworkId)
         }
 
-    }
-    
-    func updateCardWith(substitutionInfo: CardNetworkDetails) {
-        guard let substutionData = substitutionInfo.substitution?.substutionData else {
-                return
-        } 
-        
-        if card.tokenSymbol == nil, let tokenSymbol = substutionData.tokenSymbol {
-            card.tokenSymbol = tokenSymbol
-        }
-        if card.tokenContractAddress == nil, let tokenContractAddress = substutionData.tokenContractAddress {
-            card.tokenContractAddress = tokenContractAddress
-        }
-        if card.tokenDecimal == nil, let tokenDecimal = substutionData.tokenDecimal {
-            card.tokenDecimal = tokenDecimal
-        }
     }
     
     func fetchArtwork(artworkId: String) {
