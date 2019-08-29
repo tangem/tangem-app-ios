@@ -12,12 +12,20 @@ class BTCEngine: CardEngine {
     
     var card: Card
     
+    var blockchainDisplayName: String {
+        return "Bitcoin"
+    }
+    
     var walletType: WalletType {
         return .btc
     }
 
     var walletUnits: String {
         return "BTC"
+    }
+    
+    var qrCodePreffix: String {
+        return "bitcoin:"
     }
     
     var walletAddress: String = ""
@@ -64,8 +72,7 @@ class BTCEngine: CardEngine {
         
         walletAddress = String(base58Encoding: binaryForBase58) 
         
-        card.node = randomNode()
-        card.blockchainDisplayName = "Bitcoin"
+        card.node = randomNode() 
     }
     
 }
