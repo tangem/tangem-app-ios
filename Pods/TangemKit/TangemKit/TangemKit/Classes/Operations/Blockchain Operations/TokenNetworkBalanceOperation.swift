@@ -17,20 +17,25 @@ enum TokenNetwork: String {
 
 class TokenNetworkBalanceOperation: GBAsyncOperation {
 
-    var address: String
-    var contract: String
+    var card: Card
     var network: TokenNetwork
-    var completion: (TangemObjectResult<NSDecimalNumber>) -> Void
+    var completion: (TangemObjectResult<String>) -> Void
 
-    init(address: String, contract: String, network: TokenNetwork, completion: @escaping (TangemObjectResult<NSDecimalNumber>) -> Void) {
-        self.address = address
-        self.contract = contract
+    init(card: Card, network: TokenNetwork, completion: @escaping (TangemObjectResult<String>) -> Void) {
+        self.card = card
         self.network = network
         self.completion = completion
     }
 
     override func main() {
+        let address = card.address
+        
         let index = address.index(address.startIndex, offsetBy: 2)
+        guard let contract = card.tokenContractAddress else {
+            self.failOperationWith(error: "Token card contract is empty")
+            return
+        }
+        
         let dataValue = ["data": "0x70a08231000000000000000000000000\(address[index...])", "to": contract.replacingOccurrences(of: "\n", with: "")]
 
         let jsonDict = ["method": "eth_call", "params": [dataValue, "latest"], "id": 03] as [String: Any]
@@ -66,7 +71,14 @@ class TokenNetworkBalanceOperation: GBAsyncOperation {
                     return
                 }
                 
-                self.completeOperationWith(balance: decimalNumber)
+                guard let tokenDecimal = self.card.tokenDecimal else {
+                    self.failOperationWith(error: "Card TokenDecimal is nil")
+                    return
+                }
+                
+                let normalisedValue = decimalNumber.dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Int16(tokenDecimal)))
+                
+                self.completeOperationWith(balance: normalisedValue.stringValue)
             case .failure(let error):
                 self.failOperationWith(error: String(describing: error))
             }
@@ -75,7 +87,7 @@ class TokenNetworkBalanceOperation: GBAsyncOperation {
         task.resume()
     }
 
-    func completeOperationWith(balance: NSDecimalNumber) {
+    func completeOperationWith(balance: String) {
         guard !isCancelled else {
             return
         }
