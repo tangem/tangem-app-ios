@@ -290,7 +290,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                 
                 let cProvider = self.card.cardEngine as! CoinProvider
                 guard let hashToSign = cProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
-                    session.invalidate()
+                    session.invalidate(errorMessage: "Failed")
                     self.handleTXBuildError()
                     return
                 }
@@ -299,12 +299,26 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                 let cardId = self.card.cardID.asciiHexToData()!
                 let hSize = [UInt8(hashToSign.count)]
                 
-                let tlvData = [
+                var tlvData = [
                     CardTLV(.pin, value: "000000".sha256().asciiHexToData()),
                     CardTLV(.cardId, value: cardId),
                     CardTLV(.pin2, value: "000".sha256().asciiHexToData()),
                     CardTLV(.transactionOutHashSize, value: hSize),
                     CardTLV(.transactionOutHash, value: hashToSign.bytes)]
+                
+                let signMethods = self.card.supportedSignMethods
+                
+                if signMethods.contains(.issuerSign) {
+                    let issuerSignature: [UInt8] = []
+                    if issuerSignature.isEmpty {
+                        if !signMethods.contains(.signHashes) {
+                            session.invalidate(errorMessage: "Transaction must be signed by issuer")
+                            return
+                        }
+                    } else {
+                        tlvData.append(CardTLV(.issuerTxSignature, value: issuerSignature))
+                    }
+                }
                 
                 let commandApdu = CommandApdu(with: .sign, tlv: tlvData)
                 let signApduBytes = commandApdu.buildCommand()
