@@ -29,7 +29,10 @@ class BaseCardBalanceOperation: GBAsyncOperation {
     }
 
     override func main() {
-        loadMarketCapInfo()
+//        SKIP coin market cap for now
+//        loadMarketCapInfo()
+        
+        handleMarketInfoLoaded(priceUSD: 0.0)
     }
 
     func loadMarketCapInfo() {
