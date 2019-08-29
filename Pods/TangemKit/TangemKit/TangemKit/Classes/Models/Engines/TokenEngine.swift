@@ -10,7 +10,16 @@ import Foundation
 
 class TokenEngine: ETHEngine {
     
+    public var walletTokenUnits: String? {
+        return card.tokenSymbol
+    }
+    
     override var walletType: WalletType {
+        
+        if let symbol = card.tokenSymbol, symbol.containsIgnoringCase(find: "NFT:"){
+            return .nft
+        }
+        
         switch card.tokenSymbol {
         case "SEED":
             return .seed
@@ -28,7 +37,7 @@ class TokenEngine: ETHEngine {
     }
     
     override var walletUnits: String {
-        return card.tokenSymbol ?? "ETH"
+        return "ETH"
     }
     
     override var exploreLink: String {
