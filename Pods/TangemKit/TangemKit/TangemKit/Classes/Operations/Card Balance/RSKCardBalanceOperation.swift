@@ -16,30 +16,45 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
         }
 
         card.mult = priceUSD
-
-        let operation = RootstockNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+        
+        let tokenBalanceOperation = TokenNetworkBalanceOperation(card: card, network: .rsk) { [weak self] (result) in
             switch result {
             case .success(let value):
-                self?.handleBalanceLoaded(balanceValue: value)
+                self?.handleTokenBalanceLoaded(balanceValue: value)
             case .failure(let error):
                 self?.card.mult = 0
                 self?.failOperationWith(error: error)
             }
         }
-        operationQueue.addOperation(operation)
+        operationQueue.addOperation(tokenBalanceOperation)
     }
 
-    func handleBalanceLoaded(balanceValue: UInt64) {
+    func handleTokenBalanceLoaded(balanceValue: String) {
         guard !isCancelled else {
             return
         }
-
-        card.valueUInt64 = balanceValue
-
-        let decimalCount: Int16 = 18
-        let walletValue = NSDecimalNumber(value: card.valueUInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
-        card.walletValue = walletValue.stringValue
-
+        
+        card.walletTokenValue = balanceValue        
+        
+        let mainBalanceOperation = RootstockNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+            switch result {
+            case .success(let value):
+                self?.handleMainBalanceLoaded(balanceValue: value)
+            case .failure(let error):
+                self?.card.mult = 0
+                self?.failOperationWith(error: error)
+            }
+        }
+        operationQueue.addOperation(mainBalanceOperation)
+    }
+    
+    func handleMainBalanceLoaded(balanceValue: String) {
+        guard !isCancelled else {
+            return
+        }
+        
+        card.walletValue = balanceValue
+        
         completeOperation()
     }
 
