@@ -29,17 +29,12 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
         operationQueue.addOperation(operation)
     }
 
-    func handleBalanceLoaded(balanceValue: Double) {
+    func handleBalanceLoaded(balanceValue: String) {
         guard !isCancelled else {
             return
         }
-
-        card.value = Int(balanceValue)
-        card.valueUInt64 = UInt64(balanceValue)
-
-        let decimalCount: Int16 = 8
-        let walletValue = NSDecimalNumber(value: card.valueUInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
-        card.walletValue = walletValue.stringValue
+        
+        card.walletValue = balanceValue
 
         completeOperation()
     }
