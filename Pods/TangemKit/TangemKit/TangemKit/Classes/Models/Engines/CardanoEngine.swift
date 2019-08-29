@@ -15,12 +15,20 @@ class CardanoEngine: CardEngine {
     
     var card: Card
     
+    var blockchainDisplayName: String {
+        return "Cardano"
+    }
+    
     var walletType: WalletType {
         return .cardano
     }
     
     var walletUnits: String {
         return "ADA"
+    }
+    
+    var qrCodePreffix: String {
+        return ""
     }
     
     var walletAddress: String = ""
@@ -51,7 +59,6 @@ class CardanoEngine: CardEngine {
         
         walletAddress = String(base58Encoding: Data(bytes: hexAddress))
         
-        card.blockchainDisplayName = "Cardano"
         card.node = "explorer2.adalite.io"
     }
     
