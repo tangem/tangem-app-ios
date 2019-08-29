@@ -29,18 +29,12 @@ class CardanoCardBalanceOperation: BaseCardBalanceOperation {
         operationQueue.addOperation(operation)
     }
 
-    func handleBalanceLoaded(balanceValue: Double) {
+    func handleBalanceLoaded(balanceValue: String) {
         guard !isCancelled else {
             return
         }
 
-        card.value = Int(balanceValue)
-
-        let walletValue = balanceValue / 1000000.0
-        card.walletValue = String(walletValue)
-
-        let usdWalletValue = walletValue * card.mult
-        card.usdWalletValue = String(usdWalletValue)
+        card.walletValue = balanceValue
 
         completeOperation()
     }

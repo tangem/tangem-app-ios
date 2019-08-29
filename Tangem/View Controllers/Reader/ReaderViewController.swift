@@ -50,6 +50,14 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        _ = {
+            self.showFeatureRestrictionAlertIfNeeded()
+        }()
+    }
+    
     // MARK: Actions
     
     @IBAction func infoButtonPressed(_ sender: Any) {
@@ -68,6 +76,17 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     }
     
     func initiateScan() {
+        if tangemSession != nil {
+            tangemSession?.invalidate()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.startSession()
+            }
+        } else {
+            startSession()
+        }
+    }
+    
+    private func startSession() {
         tangemSession = TangemSession(delegate: self)
         tangemSession?.start()
     }
@@ -96,6 +115,14 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
 extension ReaderViewController : TangemSessionDelegate {
 
     func tangemSessionDidRead(card: Card) {
+        guard card.isBlockchainKnown && !card.isTestBlockchain else {
+            handleUnknownBlockchainCard()
+            DispatchQueue.main.async {
+                self.hintLabel.text = Constants.hintLabelDefaultText
+            }
+            return
+        }
+        
         switch card.genuinityState {
         case .pending:
             self.hintLabel.text = Constants.hintLabelScanningText
