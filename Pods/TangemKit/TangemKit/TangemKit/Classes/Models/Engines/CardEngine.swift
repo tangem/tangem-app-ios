@@ -18,16 +18,21 @@ public enum WalletType {
     case wrl
     case rsk
     case cardano
+    case ripple
+    case nft
+    case binance
     case empty
 }
 
 public protocol CardEngine: class {
     
     var card: Card { get set }
+    var blockchainDisplayName: String { get }
     
     var walletType: WalletType { get }
     var walletUnits: String { get }
     var walletAddress: String { get }
+    var qrCodePreffix: String { get }
     
     var exploreLink: String { get }
     
@@ -37,14 +42,38 @@ public protocol CardEngine: class {
     
 }
 
+extension CardEngine {
+    
+    var pubKeyCompressed: [UInt8] {
+        let vrfy: secp256k1_context = secp256k1_context_create(.SECP256K1_CONTEXT_NONE)!
+        var pubkey = secp256k1_pubkey()
+        _ = secp256k1_ec_pubkey_parse(vrfy, &pubkey, card.walletPublicKeyBytesArray, 65)
+        
+        var pubLength: UInt = 33
+        var pubKeyCompressed = Array(repeating: 0, count: Int(pubLength)) as [UInt8]
+        _ = secp256k1_ec_pubkey_serialize(vrfy, &pubKeyCompressed, &pubLength, pubkey, SECP256K1_FLAGS.SECP256K1_EC_COMPRESSED)
+        
+        return pubKeyCompressed
+    }
+    
+}
+
 class NoWalletCardEngine: CardEngine {
     
     var card: Card
+    
+    var blockchainDisplayName: String {
+        return "No blockchain"
+    }
     
     var walletType: WalletType = .empty
     var walletUnits: String = "---"
     var walletAddress: String = ""
     var exploreLink: String {
+        return ""
+    }
+    
+    var qrCodePreffix: String {
         return ""
     }
     

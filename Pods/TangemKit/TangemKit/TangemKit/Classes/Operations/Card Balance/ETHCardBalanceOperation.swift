@@ -29,16 +29,12 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
         operationQueue.addOperation(operation)
     }
 
-    func handleBalanceLoaded(balanceValue: UInt64) {
+    func handleBalanceLoaded(balanceValue: String) {
         guard !isCancelled else {
             return
         }
 
-        card.valueUInt64 = balanceValue
-
-        let decimalCount: Int16 = 18
-        let walletValue = NSDecimalNumber(value: card.valueUInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: decimalCount))
-        card.walletValue = walletValue.stringValue
+        card.walletValue = balanceValue
 
         completeOperation()
     }
