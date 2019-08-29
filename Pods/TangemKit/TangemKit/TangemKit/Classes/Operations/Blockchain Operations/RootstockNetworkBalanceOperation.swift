@@ -15,9 +15,9 @@ class RootstockNetworkBalanceOperation: GBAsyncOperation {
     }
     
     var address: String
-    var completion: (TangemObjectResult<UInt64>) -> Void
+    var completion: (TangemObjectResult<String>) -> Void
     
-    init(address: String, completion: @escaping (TangemObjectResult<UInt64>) -> Void) {
+    init(address: String, completion: @escaping (TangemObjectResult<String>) -> Void) {
         self.address = address
         self.completion = completion
     }
@@ -56,7 +56,9 @@ class RootstockNetworkBalanceOperation: GBAsyncOperation {
                     return
                 }
                 
-                self.completeOperationWith(balance: checkInt64)
+                let walletValue = NSDecimalNumber(value: checkInt64).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.rootstock.decimalCount))
+                
+                self.completeOperationWith(balance: walletValue.stringValue)
             case .failure(let error):
                 self.failOperationWith(error: String(describing: error))
             }
@@ -65,7 +67,7 @@ class RootstockNetworkBalanceOperation: GBAsyncOperation {
         task.resume()
     }
     
-    func completeOperationWith(balance: UInt64) {
+    func completeOperationWith(balance: String) {
         guard !isCancelled else {
             return
         }
