@@ -12,12 +12,20 @@ class ETHEngine: CardEngine {
     
     var card: Card
     
+    var blockchainDisplayName: String {
+        return "Ethereum"
+    }
+    
     var walletType: WalletType {
         return .eth
     }
     
     var walletUnits: String {
         return "ETH"
+    }
+    
+    var qrCodePreffix: String {
+        return "ethereum:"
     }
     
     var walletAddress: String = ""
@@ -42,7 +50,6 @@ class ETHEngine: CardEngine {
         walletAddress = "0x" + cutHexKeccak
         
         card.node = "mainnet.infura.io"
-        card.blockchainDisplayName = "Ethereum"
     }
     
 }
