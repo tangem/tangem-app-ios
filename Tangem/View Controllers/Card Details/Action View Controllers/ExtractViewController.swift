@@ -21,19 +21,22 @@ class ExtractViewController: ModalActionViewController {
             amountText.delegate = self
         }
     }
+    @IBOutlet weak var amountStackView: UIStackView!
+    @IBOutlet weak var addressSeparator: UIView!
+    @IBOutlet weak var amountSeparator: UIView!
     @IBOutlet weak var topStackView: UIStackView!
     @IBOutlet weak var targetStackView: UIStackView!
     @IBOutlet weak var feeControl: UISegmentedControl!
     @IBOutlet weak var cardLabel: UILabel!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var amountLabel: UILabel!
+    @IBOutlet weak var amountUnitsLabel: UILabel!
+    @IBOutlet weak var blockchainNameLabel: UILabel!
     @IBOutlet weak var targetAddressText: UITextField! {
         didSet {
             targetAddressText.delegate = self
         }
     }
-    @IBOutlet weak var pasteTargetAddressContainer: UIStackView!
-    @IBOutlet weak var pasteTargetAddressLabel: UILabel!
     @IBOutlet weak var includeFeeSwitch: UISwitch!
     @IBOutlet weak var feeLabel: UILabel!
     @IBOutlet weak var pasteTargetAdressButton: UIButton!
@@ -50,38 +53,64 @@ class ExtractViewController: ModalActionViewController {
     private var feeTimer: Timer?
     private var feeTime = Date(timeIntervalSince1970: TimeInterval(1.0))
     
+    private lazy var recognizer: UITapGestureRecognizer = {
+        let recognizer = UITapGestureRecognizer()
+        recognizer.numberOfTouchesRequired = 1
+        recognizer.addTarget(self, action: #selector(viewDidTap))
+        return recognizer
+    }()
+    
+    @objc func viewDidTap() {
+        targetAddressText.resignFirstResponder()
+        amountText.resignFirstResponder()
+    }
     
     private var fee: (min: String, normal: String, max: String)? {
         didSet {
             feeTime = Date()
         }
     }
+    @IBAction func feeIncludeChanged(_ sender: UISwitch, forEvent event: UIEvent) {
+        validateInput()
+    }
     
     @IBAction func feePresetChanged(_ sender: UISegmentedControl, forEvent event: UIEvent) {
+        if fee == nil {
+            tryUpdateFeePreset()
+            return
+        }
         updateFee()
+        validateInput()
     }
     @IBAction func pasteTapped(_ sender: Any, forEvent event: UIEvent) {
-        targetAddressText.text = pasteTargetAddressLabel.text
-        hidePasteboardIfNeeded()
+        if let pasteAddress = getPasteAddress() {
+              targetAddressText.text = pasteAddress
+              tryUpdateFeePreset()
+        } else {
+            pasteTargetAdressButton.isEnabled = false
+        }
     }
     
     @IBAction func targetChanged(_ sender: UITextField, forEvent event: UIEvent) {
+        setError(false, for: sender)
         tryUpdateFeePreset()
-        hidePasteboardIfNeeded()
     }
     @IBAction func amountChanged(_ sender: UITextField, forEvent event: UIEvent) {
+        setError(false, for: sender)
         tryUpdateFeePreset()
     }
     
     @IBAction func scanTapped() {
+        guard validateInput() else {
+            return
+        }
+        
         guard feeTime.distance(to: Date()) < TimeInterval(60.0) else {
             tryUpdateFeePreset()
             return
         }
         
-        guard validateInput() else {
-            return
-        }
+        btnSend.setAttributedTitle(NSAttributedString(string: ""), for: .normal)
         btnSend.showActivityIndicator()
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
         readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
@@ -89,40 +118,50 @@ class ExtractViewController: ModalActionViewController {
     }
     
     func updateFee() {
-        switch feeControl.selectedSegmentIndex {
-        case 0:
-            feeLabel.text = fee?.min ?? ""
-        case 1:
-            feeLabel.text = fee?.normal ?? ""
-        case 2:
-            feeLabel.text = fee?.max ?? ""
-        default:
-            feeLabel.text = ""
-        }
+            switch feeControl.selectedSegmentIndex {
+            case 0:
+                feeLabel.text = fee?.min ?? ""
+            case 1:
+                feeLabel.text = fee?.normal ?? ""
+            case 2:
+                feeLabel.text = fee?.max ?? ""
+            default:
+                feeLabel.text = ""
+            }
+       
         
         if !feeLabel.text!.isEmpty {
             feeLabel.text! += " \(card.walletUnits)"
         } else {
             feeLabel.text = Constants.feeStub
         }
-        
+    
+            
+        validatedFee = feeLabel.text
         feeLabel.hideActivityIndicator()
-        print("min fee: \(fee?.min) normal fee: \(fee?.normal) max fee \(fee?.max)")
+        //  print("min fee: \(fee?.min) normal fee: \(fee?.normal) max fee \(fee?.max)")
     }
     
+    @discardableResult
     func validateInput(skipFee: Bool = false) -> Bool {
         validatedAmount = ""
         validatedFee = ""
         validatedTarget = ""
+       
+        guard let target = targetAddressText.text,
+            validate(address: target) else {
+                setError(true, for: targetAddressText )
+                btnSendSetEnabled(false)
+                return false
+         }
         
-        guard let amount = amountText.text,
-            let target = targetAddressText.text,
-            !target.isEmpty,
+        guard let amount = amountText.text?.replacingOccurrences(of: ",", with: "."),
             !amount.isEmpty,
             let amountValue = Decimal(string: amount),
             amountValue > 0,
-            let total = Decimal(string: card.walletValue),
-            target != card.cardEngine.walletAddress else {
+            let total = Decimal(string: card.walletValue) else {
+                 setError(true, for: amountText )
+                btnSendSetEnabled(false)
                 return false
         }
         
@@ -130,53 +169,140 @@ class ExtractViewController: ModalActionViewController {
             guard let fee = feeLabel.text?.remove(" \(card.walletUnits)"),
                 let feeValue = Decimal(string: fee),
                 !fee.isEmpty else {
+                    btnSendSetEnabled(false)
                     return false
             }
             
             let valueToSend = includeFeeSwitch.isOn ? amountValue : amountValue + feeValue
             guard total >= valueToSend else {
+                 setError(true, for: amountText )
+                btnSendSetEnabled(false)
                 return false
             }
+            
             validatedFee = fee
         }
-        
+             
+        setError(false, for: targetAddressText )
+        setError(false, for: amountText )
         validatedAmount = amount
         validatedTarget = target
+        btnSendSetEnabled(true)
+        updateSendButtonSubtitle()
         return true
     }
+    
+    func getPasteAddress() -> String? {
+        if let pasteString = UIPasteboard.general.string,
+                   validate(address: pasteString) {
+                  return pasteString
+               }
+        return  nil
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if let _ = getPasteAddress() {
+            pasteTargetAdressButton.isEnabled = true
+        }
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         btnSend.layer.cornerRadius = 8.0
-        
-        let cardText = NSMutableAttributedString(string: "Card: \(card.cardID)")
-        cardText.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 5))
-        
-        cardLabel.attributedText = cardText
+        btnSendSetEnabled(false)
+        cardLabel.text = card.cardID
         amountLabel.text = "\(card.walletValue) \(card.cardEngine.walletUnits)"
         
         
-        let addressText = NSMutableAttributedString(string: "Address: \(card.address)")
-        addressText.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 8))
+        includeFeeSwitch.transform = CGAffineTransform.identity.translatedBy(x: -0.1*includeFeeSwitch.frame.width, y: 0).scaledBy(x: 0.8, y: 0.8)
+      
+        //        let addressText = NSMutableAttributedString(string: "Address: \(card.address)")
+        //        addressText.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 8))
         
-        addressLabel.attributedText = addressText
-        if let pasteString = UIPasteboard.general.string,
-            (card.cardEngine as! CoinProvider).validate(address: pasteString) {
-            pasteTargetAddressLabel.text = pasteString
-            pasteTargetAddressContainer.isHidden = false
-        }
+        addressLabel.text = card.address
         feeLabel.text = Constants.feeStub
         amountText.text = card.walletValue
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
         includeFeeSwitch.isHidden = !traits.contains(CoinTrait.allowsFeeInclude)
         feeControl.isHidden = !traits.contains(CoinTrait.allowsFeeSelector)
+        
+        blockchainNameLabel.text = card.blockchain.rawValue.uppercased()
+        amountUnitsLabel.text = card.walletUnits.uppercased()
+        view.addGestureRecognizer(recognizer)
+        
+        topStackView.setCustomSpacing(20.0, after: amountStackView)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    private func validate(address: String) -> Bool {
+        guard !address.isEmpty,
+            address != card.cardEngine.walletAddress,
+            (card.cardEngine as! CoinProvider).validate(address: address)
+            else {
+                return false
+        }
         
+        return true
+    }
+    
+    
+    func updateSendButtonSubtitle() {
+        guard btnSend.isEnabled else {
+            return
+        }
         
+        let sendTitle = "SEND"
+        guard let amount = Decimal(string: validatedAmount ?? ""),
+            let fee = Decimal(string: validatedFee ?? "") else {
+                if btnSend.titleLabel?.text != sendTitle {
+                    UIView.performWithoutAnimation {
+                         btnSend.setTitle(sendTitle, for: .normal)
+                        btnSend.layoutIfNeeded()
+                    }
+                }
+                return
+        }
+        
+        let valueToSend = includeFeeSwitch.isOn ? amount : amount + fee
+        guard valueToSend > 0 else {
+            if btnSend.titleLabel?.text != sendTitle {
+               btnSend.setTitle(sendTitle, for: .normal)
+            }
+            return
+        }
+        
+        let titleFont = UIFont(name: "SairaCondensed-ExtraBold", size: 20)!
+        let subtitleFont = UIFont(name: "SairaCondensed-Regular", size: 12)!
+        
+        let titleParagraph = NSMutableParagraphStyle()
+        titleParagraph.alignment = .center
+        titleParagraph.maximumLineHeight = 24
+
+    
+        let subtitleParagraph = NSMutableParagraphStyle()
+        subtitleParagraph.alignment = .center
+        subtitleParagraph.maximumLineHeight = 12
+        
+        let titleAttributes: [NSAttributedString.Key : Any] = [NSAttributedString.Key.paragraphStyle: titleParagraph,
+                                                          NSAttributedString.Key.foregroundColor: UIColor.white,
+                                                          NSAttributedString.Key.font: titleFont]
+        
+        let subtitleAttributes: [NSAttributedString.Key : Any] = [NSAttributedString.Key.paragraphStyle: subtitleParagraph,
+                                                                 NSAttributedString.Key.foregroundColor: UIColor.white,
+                                                                 NSAttributedString.Key.font: subtitleFont]
+        
+        let titleText = NSMutableAttributedString(string: "\(sendTitle)", attributes: titleAttributes)
+        let subtitleText = NSMutableAttributedString(string: "\(valueToSend) \(card.walletUnits)", attributes: subtitleAttributes)
+        titleText.append(NSAttributedString(string: "\n"))
+        titleText.append(subtitleText)
+    
+        UIView.performWithoutAnimation {
+            btnSend?.setAttributedTitle(titleText, for: .normal)
+             btnSend.layoutIfNeeded()
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -187,8 +313,8 @@ class ExtractViewController: ModalActionViewController {
     
     private func addBgLayers(){
         
-        let color = UIColor.init(red: 244.0/255.0, green: 244.0/255.0, blue: 244.0/255.0, alpha: 1.0).cgColor
-        let padding = CGFloat(8.0)
+        let color = UIColor.init(red: 237.0/255.0, green: 237.0/255.0, blue: 237.0/255.0, alpha: 1.0).cgColor
+        let padding = CGFloat(16.0)
         
         
         bgLayer.backgroundColor = color
@@ -196,16 +322,16 @@ class ExtractViewController: ModalActionViewController {
         bgLayer.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: converted.height + converted.minY + padding)
         
         let path = UIBezierPath()
-        path.move(to: CGPoint(x: view.center.x-40, y: converted.maxY + padding))
-        path.addLine(to: CGPoint(x: view.center.x+40, y: converted.maxY + padding))
-        path.addLine(to: CGPoint(x: view.center.x, y: converted.maxY + 10 + padding))
+        path.move(to: CGPoint(x: view.center.x-50, y: converted.maxY + padding))
+        path.addLine(to: CGPoint(x: view.center.x+50, y: converted.maxY + padding))
+        path.addLine(to: CGPoint(x: view.center.x, y: converted.maxY + 16 + padding))
         path.close()
         triangleLayer.fillColor = color
         triangleLayer.path = path.cgPath
         
-        let convertedPasteFrame =  topStackView.convert(targetStackView.convert(pasteTargetAddressContainer.frame, to: topStackView), to: view)
-        pasteLayer.frame = CGRect(x: 0, y: convertedPasteFrame.minY, width: view.frame.width, height: convertedPasteFrame.height)
-        pasteLayer.backgroundColor = color
+        //let convertedPasteFrame =  topStackView.convert(targetStackView.convert(pasteTargetAddressContainer.frame, to: topStackView), to: view)
+        // pasteLayer.frame = CGRect(x: 0, y: convertedPasteFrame.minY, width: view.frame.width, height: convertedPasteFrame.height)
+        // pasteLayer.backgroundColor = color
         
         if bgLayer.superlayer == nil {
             view.layer.insertSublayer(triangleLayer, at: 0)
@@ -215,50 +341,54 @@ class ExtractViewController: ModalActionViewController {
         
         bgLayer.setNeedsLayout()
         triangleLayer.setNeedsLayout()
-        pasteLayer.setNeedsLayout()
+        // pasteLayer.setNeedsLayout()
     }
     
-    func hidePasteboardIfNeeded() {
-        if pasteTargetAddressContainer.alpha == CGFloat(1.0) {
-            UIView.animate(withDuration: 0.2) {
-                self.pasteTargetAddressContainer.isHidden = true
-                self.pasteLayer.isHidden = true
-            }
-        }
-    }
     
     func tryUpdateFeePreset() {
-        feeLabel.showActivityIndicator()
+        btnSendSetEnabled(false)
         feeTimer?.invalidate()
-        feeTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: { [weak self] _ in
-            guard let targetAddress = self?.targetAddressText.text,
-                let amount = self?.amountText.text,
-                self?.validateInput(skipFee: true) ?? false else {
-                    self?.fee = nil
-                    self?.updateFee()
+        feeTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { [weak self] _ in
+            guard let self = self else {
+                return
+            }
+           
+            guard self.validateInput(skipFee: true),
+                let targetAddress = self.validatedTarget,
+                let amount = self.validatedAmount  else {
+                    self.fee = nil
+                    self.updateFee()
                     return
             }
             
-            guard let cProvider = self?.card.cardEngine as? CoinProvider else {
-                DispatchQueue.main.async {
-                    self?.updateFee()
-                }
-                return
-            }
+            self.feeLabel.showActivityIndicator()
+            
+            let cProvider = self.card.cardEngine as! CoinProvider
             cProvider.getFee(targetAddress: targetAddress, amount: amount) {[weak self] fee in
                 self?.fee = fee
                 DispatchQueue.main.async {
                     self?.updateFee()
+                    self?.validateInput()
                 }
             }
         })
     }
     
     private func setError(_ error: Bool, for textField: UITextField) {
-        textField.layer.borderColor = error ? UIColor.red.cgColor : UIColor.clear.cgColor
-        textField.layer.borderWidth = error ? 1.0 : 0.0
-        textField.layer.cornerRadius = error ? 8.0 : 0.0
-        textField.textColor = error ? UIColor.red : UIColor.black
+        
+         let separatorColor = UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
+         let textColor = UIColor.init(red: 102.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1.0)
+        
+//        textField.layer.borderColor = error ? UIColor.red.cgColor : UIColor.clear.cgColor
+//        textField.layer.borderWidth = error ? 1.0 : 0.0
+//        textField.layer.cornerRadius = error ? 8.0 : 0.0
+        textField.textColor = error ? UIColor.red : textColor
+        
+        if textField == amountText {
+               amountSeparator.backgroundColor = error ? UIColor.red : separatorColor
+        } else if textField == targetAddressText {
+            addressSeparator.backgroundColor = error ? UIColor.red : separatorColor
+        }
     }
 }
 
@@ -275,6 +405,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
         
         DispatchQueue.main.async {
             self.btnSend.hideActivityIndicator()
+            self.updateSendButtonSubtitle()
         }
         print(error)
     }
@@ -362,6 +493,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                         let cProvider = self.card.cardEngine as! CoinProvider
                         cProvider.sendToBlockchain(signFromCard: sign) {[weak self] result in
                             self?.btnSend.hideActivityIndicator()
+                            self?.updateSendButtonSubtitle()
                             if result {
                                 DispatchQueue.main.async {
                                     self?.handleSuccess(completion: {
@@ -387,6 +519,12 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
         }
     }
     
+    func btnSendSetEnabled(_ enabled: Bool) {
+        btnSend.isEnabled = enabled
+        UIView.animate(withDuration: 0.3) {
+            self.btnSend.backgroundColor = enabled ? UIColor(red: 27.0/255.0, green: 154.0/255.0, blue: 247.0/255.0, alpha: 1) :  UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
+               }
+        }
 }
 
 @available(iOS 13.0, *)
