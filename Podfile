@@ -6,5 +6,6 @@ target 'Tangem' do
     pod 'TangemKit', :path => '/Users/alexander.osokin/repos/tangem/tangem-ios-kit'
     pod 'KeychainSwift'
     pod 'QRCode', '2.0'
-    
+    pod 'Fabric'
+    pod 'Crashlytics'
 end
