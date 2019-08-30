@@ -36,7 +36,6 @@
 		5D3CAD2C2319737E000F0AA9 /* ReaderMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */; };
 		5D3CAD2D2319737E000F0AA9 /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = 800036752111090F00C151E8 /* UIImage+ImageEffects.m */; };
 		5D3CAD2F2319737E000F0AA9 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8026BC4F218DD96200DC6255 /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		5D3CAD302319737E000F0AA9 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		5D3CAD322319737E000F0AA9 /* SairaCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364A2110F86F00C151E8 /* SairaCondensed-Light.ttf */; };
 		5D3CAD332319737E000F0AA9 /* SairaCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364B2110F86F00C151E8 /* SairaCondensed-Medium.ttf */; };
 		5D3CAD342319737E000F0AA9 /* SairaCondensed-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364D2110F86F00C151E8 /* SairaCondensed-ExtraLight.ttf */; };
@@ -61,6 +60,7 @@
 		5D74D6F622CCFB41007C0E3F /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F522CCFB41007C0E3F /* SecureStorageManager.swift */; };
 		5D74D6F922CDDCA8007C0E3F /* StorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */; };
 		5D74D6FB22CDDDD6007C0E3F /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */; };
+		5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */; };
 		8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000364321069C8E00C151E8 /* FontsExtensions.swift */; };
 		8000364E2110F86F00C151E8 /* SairaCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036452110F86E00C151E8 /* SairaCondensed-Regular.ttf */; };
 		8000364F2110F86F00C151E8 /* SairaCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036462110F86E00C151E8 /* SairaCondensed-SemiBold.ttf */; };
@@ -107,6 +107,7 @@
 		8D946D8E2018DA92006C73D9 /* Reader.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8C2018DA92006C73D9 /* Reader.storyboard */; };
 		8D946D902018DA92006C73D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8F2018DA92006C73D9 /* Assets.xcassets */; };
 		8D946D932018DA92006C73D9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */; };
+		98885AFBE4422E923E9D42C0 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */; };
 		B1FEF070153C749010F4F939 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
 
@@ -121,7 +122,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4F16D29E05DA5A490FD1E224 /* Pods-Tangem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.release.xcconfig"; sourceTree = "<group>"; };
+		0CE1B97534515F85AB9CD5BF /* Pods-Tangem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.debug.xcconfig"; sourceTree = "<group>"; };
 		5D076E5923153AA90009F208 /* TangemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D076E5B23153AA90009F208 /* TangemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemTests.swift; sourceTree = "<group>"; };
 		5D076E5D23153AA90009F208 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -130,6 +131,7 @@
 		5D74D6F522CCFB41007C0E3F /* SecureStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageManager.swift; sourceTree = "<group>"; };
 		5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeys.swift; sourceTree = "<group>"; };
 		5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManagerType.swift; sourceTree = "<group>"; };
+		5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractPlaceholderViewController.swift; sourceTree = "<group>"; };
 		679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8000364321069C8E00C151E8 /* FontsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontsExtensions.swift; sourceTree = "<group>"; };
@@ -184,7 +186,7 @@
 		8D946D8F2018DA92006C73D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8D946D922018DA92006C73D9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8D946D942018DA92006C73D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		FD1D2D0D24BADF13534061E4 /* Pods-Tangem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.debug.xcconfig"; sourceTree = "<group>"; };
+		FCB922AEDA8E1E487343FB67 /* Pods-Tangem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,7 +202,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D3CAD2F2319737E000F0AA9 /* CoreNFC.framework in Frameworks */,
-				5D3CAD302319737E000F0AA9 /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,6 +211,7 @@
 			files = (
 				80BAA49721B9AE6000E9EB99 /* CoreNFC.framework in Frameworks */,
 				B1FEF070153C749010F4F939 /* Pods_Tangem.framework in Frameworks */,
+				98885AFBE4422E923E9D42C0 /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +272,7 @@
 				80003686213C73BC00C151E8 /* LoadViewController.swift */,
 				800036682111060900C151E8 /* ModalActionViewController.swift */,
 				8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */,
+				5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */,
 			);
 			path = "Action View Controllers";
 			sourceTree = "<group>";
@@ -397,8 +400,8 @@
 		8EC6CE990F4994553ACE6BCB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				FD1D2D0D24BADF13534061E4 /* Pods-Tangem.debug.xcconfig */,
-				4F16D29E05DA5A490FD1E224 /* Pods-Tangem.release.xcconfig */,
+				0CE1B97534515F85AB9CD5BF /* Pods-Tangem.debug.xcconfig */,
+				FCB922AEDA8E1E487343FB67 /* Pods-Tangem.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -439,11 +442,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5D3CAD492319737E000F0AA9 /* Build configuration list for PBXNativeTarget "Tangem beta" */;
 			buildPhases = (
-				5D3CAD112319737E000F0AA9 /* [CP] Check Pods Manifest.lock */,
 				5D3CAD122319737E000F0AA9 /* Sources */,
 				5D3CAD2E2319737E000F0AA9 /* Frameworks */,
 				5D3CAD312319737E000F0AA9 /* Resources */,
-				5D3CAD472319737E000F0AA9 /* [CP] Embed Pods Frameworks */,
 				5D3CAD482319737E000F0AA9 /* ShellScript */,
 			);
 			buildRules = (
@@ -464,7 +465,7 @@
 				8D946D822018DA92006C73D9 /* Frameworks */,
 				8D946D832018DA92006C73D9 /* Resources */,
 				EBDEA6075FC20E11A67AFBBC /* [CP] Embed Pods Frameworks */,
-				5D1A417D23168C1300A0B59D /* ShellScript */,
+				5DE9FC7523197B5B00B233C0 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -612,7 +613,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5D1A417D23168C1300A0B59D /* ShellScript */ = {
+		5D3CAD482319737E000F0AA9 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -630,61 +631,7 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Fabric/run\" 68e061ccd83942d8d4bb729f253bed3295927dba 83f6b1e185a02ad393c2f4c0e095c27fa95c1ff3ff99719329b0b8086332f244\n";
 		};
-		5D3CAD112319737E000F0AA9 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Tangem-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		5D3CAD472319737E000F0AA9 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Tangem/Pods-Tangem-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
-				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework",
-				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/QRCode/QRCode.framework",
-				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
-				"${BUILT_PRODUCTS_DIR}/Sodium/Sodium.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
-				"${BUILT_PRODUCTS_DIR}/TangemKit/TangemKit.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GBAsyncOperation.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCode.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sodium.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftCBOR.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TangemKit.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tangem/Pods-Tangem-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		5D3CAD482319737E000F0AA9 /* ShellScript */ = {
+		5DE9FC7523197B5B00B233C0 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -713,12 +660,15 @@
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework",
 				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCode/QRCode.framework",
-				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
 				"${BUILT_PRODUCTS_DIR}/Sodium/Sodium.framework",
+				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/TangemKit/TangemKit.framework",
+				"${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework",
+				"${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -726,12 +676,15 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GBAsyncOperation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCode.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sodium.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftCBOR.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TangemKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/web3swift.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -793,6 +746,7 @@
 				800036692111060900C151E8 /* ModalActionViewController.swift in Sources */,
 				8000366F211108A200C151E8 /* CustomPresentationController.swift in Sources */,
 				80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */,
+				5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */,
 				80003671211108A800C151E8 /* ViewControllerInteractiveTransition.swift in Sources */,
 				80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */,
 				804638B321A36776005C539B /* UIViewControllerErrorsExtension.swift in Sources */,
@@ -888,7 +842,6 @@
 		};
 		5D3CAD4A2319737E000F0AA9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FD1D2D0D24BADF13534061E4 /* Pods-Tangem.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
@@ -918,7 +871,6 @@
 		};
 		5D3CAD4B2319737E000F0AA9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F16D29E05DA5A490FD1E224 /* Pods-Tangem.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
@@ -1002,6 +954,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -1054,13 +1007,14 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 4.2;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		8D946DA32018DA93006C73D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FD1D2D0D24BADF13534061E4 /* Pods-Tangem.debug.xcconfig */;
+			baseConfigurationReference = 0CE1B97534515F85AB9CD5BF /* Pods-Tangem.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
@@ -1085,7 +1039,7 @@
 		};
 		8D946DA42018DA93006C73D9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F16D29E05DA5A490FD1E224 /* Pods-Tangem.release.xcconfig */;
+			baseConfigurationReference = FCB922AEDA8E1E487343FB67 /* Pods-Tangem.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
