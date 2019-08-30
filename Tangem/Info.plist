@@ -65,6 +65,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
+	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+	<array>
+		<string>A000000812010208</string>
+		<string>D2760000850101</string>
+	</array>
     <key>Fabric</key>
     <dict>
         <key>APIKey</key>

@@ -133,7 +133,7 @@ class CustomPresentationController: UIPresentationController {
             }
             
             toView.frame = toView.frame.offsetBy(dx: 0, dy: toView.frame.height);
-            
+
             let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
             tapGestureRecognizer.delegate = self
             transitionContext.containerView.addGestureRecognizer(tapGestureRecognizer)
