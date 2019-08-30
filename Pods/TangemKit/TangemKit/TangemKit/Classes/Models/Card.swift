@@ -47,24 +47,24 @@ public enum Blockchain {
 }
 
 public class Card {
-
+    
     public var cardEngine: CardEngine!
-
+    
     public var cardID: String = ""
     public var cardPublicKey: String = ""
     public var isWallet: Bool {
         return !walletPublicKey.isEmpty
     }
-
+    
     public var address: String {
         return cardEngine.walletAddress
     }
-
+    
     public var binaryAddress: String = ""
     
     public var walletPublicKey: String = ""
     public var walletPublicKeyBytesArray: [UInt8] = [UInt8]()
-
+    
     public var isTestBlockchain: Bool {
         return blockchainName.containsIgnoringCase(find: "test")
     }
@@ -95,16 +95,28 @@ public class Card {
         return walletPublicKeyBytesArray.count == 65 ? .secp256k1 : .ed25519
     }
     public var issuer: String = ""
+    public var manufactureId: String = ""
+    
+    public var manufactureName: String {
+        guard !manufactureId.isEmpty else {
+            return issuer
+        }
+        
+        return manufactureId
+            .replacingOccurrences(of: "SMART CASH", with: "TANGEM")
+            .replacingOccurrences(of: "DEVELOP CASH AG", with: "TANGEM AG (DEVELOPERS)")
+    }
+    
     public var manufactureDateTime: String = ""
     public var manufactureSignature: String = ""
     public var batchId: Int = 0x0
     public var remainingSignatures: String = ""
-
+    
     public var mult: Double = 0
-
+    
     public var tokenSymbol: String?
     public var tokenDecimal: Int?
-
+    
     public var type: WalletType {
         return cardEngine.walletType
     }
@@ -120,27 +132,27 @@ public class Card {
     public var walletValue: String = "0"
     public var walletTokenValue: String?
     public var usdWalletValue: String?
-
+    
     public var node: String = ""
-
+    
     public var challenge: String?
     public var verificationChallenge: String?
     public var salt: String?
     public var verificationSalt: String?
     public var signArr: [UInt8] = [UInt8]()
-
+    
     public var genuinityState: CardGenuinityState = .pending
     public var isAuthentic: Bool {
         return genuinityState == .genuine
     }
-
+    
     public var maxSignatures: String?
-
+    
     public var signedHashes: String = ""
     public var firmware: String = "Not available"
-
+    
     public var ribbonCase: Int = 0
-
+    
     /*
      1 - Firmware contains simbol 'd'
      2 - Firmware contains simbol 'r' and SignedHashes == ""
@@ -168,7 +180,7 @@ public class Card {
             }
         }
     }
-
+    
     var substitutionImage: UIImage?
     public var image: UIImage? {
         if substitutionImage != nil {
@@ -179,13 +191,41 @@ public class Card {
             assertionFailure()
             return nil
         }
-
+        
         return image
     }
-
+    
+    private var imageNameFromCardId: String? {
+        let cardIdWithoutSpaces = cardID.replacingOccurrences(of: " ", with: "")
+        switch cardIdWithoutSpaces {
+        case "AA01000000000000"..."AA01000000004999",
+             "AE01000000000000"..."AE01000000004999",
+             "CB01000000000000"..."CB01000000009999",
+             "CB02000000000000"..."CB02000000024999",
+             "CB01000000020000"..."CB01000000039999",
+             "CB05000010000000"..."CB05000010009999":
+            return "card-btc001"
+        case  "AA01000000005000"..."AA01000000009999",
+              "AE01000000005000"..."AE01000000009999",
+              "CB01000000010000"..."CB01000000019999",
+              "CB01000000040000"..."CB01000000059999",
+              "CB02000000025000"..."CB02000000049999":
+            return  "card-btc005"
+        case "CB25000000000000"..."CB25000000099999":
+            return "card_ru043"
+        case "CB26000000000000"..."CB26000000099999":
+            return "card_tg044"
+        default: return nil
+        }
+    }
+    
     var imageName: String {
         if cardEngine.walletType == .nft {
             return "card-ruNFT"
+        }
+        
+        if let nameFromCardId = imageNameFromCardId {
+            return nameFromCardId
         }
         
         switch batchId {
@@ -197,26 +237,7 @@ public class Card {
             return "card-btc001"
         case 0x0007:
             return "card-btc005"
-        case 0x0008, 0x0009:
-            let index = cardID.index(cardID.endIndex, offsetBy: -4)
-            guard let lastIndexDigits = Int(cardID[index...]) else {
-                assertionFailure()
-                return "card-default"
-            }
-
-            if lastIndexDigits < 5000 {
-                return "card-btc001"
-            } else {
-                return "card-btc005"
-            }
         case 0x0010:
-            let cardIdWithoutSpaces = cardID.replacingOccurrences(of: " ", with: "")
-
-            let index = cardIdWithoutSpaces.index(cardIdWithoutSpaces.endIndex, offsetBy: -5)
-            if let lastIndexDigits = Int(cardIdWithoutSpaces[index...]), lastIndexDigits >= 25000, lastIndexDigits < 50000 {
-                return "card-btc005"
-            }
-
             return "card-btc001"
         case 0x0011:
             return "card-btc005"
@@ -258,19 +279,30 @@ public class Card {
             return "card-ru037"
         case 0x0026:
             return "card-ru039"
+        case 0x0027:
+            return "card_ru038"
+        case 0x0030:
+            return "card_ru038"
+        case 0x0028:
+            return "card_ru040"
+        case 0x0029:
+            return "card_ru041"
+        case 0x0031:
+            return "card_ru042"
+        case 0xFF32:
+            return "card_ff32"
         default:
             return "card-default"
         }
     }
-    
     public var qrCodeAddress: String {
         return cardEngine.qrCodePreffix + address
     }
-
+    
     convenience init() {
         self.init(tags: [TLV]())
     }
-
+    
     init(tags: [TLV]) {
         tags.forEach({
             switch $0.tagName {
@@ -286,6 +318,8 @@ public class Card {
                 manufactureDateTime = $0.stringValue
             case .issuerName:
                 issuer = $0.stringValue
+            case .manufactureId:
+                manufactureId = $0.stringValue
             case .blockchainName:
                 blockchainName = $0.stringValue
             case .tokenSymbol:
@@ -311,15 +345,15 @@ public class Card {
                 salt = $0.hexStringValue.lowercased()
             case .walletSignature:
                 signArr = $0.hexBinaryValues
-
+                
             case .health, .settingsMask:
                 break
-
+                
             default:
                 print("Tag \($0.tagCode) doesn't have a handler")
             }
         })
-
+        
         setupEngine()
     }
     
@@ -345,22 +379,22 @@ public class Card {
             cardEngine = NoWalletCardEngine(card: self)
         }
     }
-
+    
     func updateWithVerificationCard(_ card: Card) {
         genuinityState = .nonGenuine
-
+        
         guard let verificationChallenge = card.challenge, let verificationSalt = card.salt else {
             assertionFailure()
             return
         }
         self.verificationChallenge = verificationChallenge
         self.verificationSalt = verificationSalt
-
+        
         guard let challenge = challenge, let salt = salt else {
             assertionFailure()
             return
         }
-
+        
         if challenge != verificationChallenge && salt != verificationSalt {
             genuinityState = .genuine
         }
@@ -390,24 +424,24 @@ public class Card {
             self.tokenDecimal = tokenDecimal
         }
     }
-
+    
 }
 
 public extension Card {
-
+    
     func signatureVerificationOperation(completion: @escaping (Bool) -> Void) throws -> GBAsyncOperation {
         guard let salt = salt, let challenge = challenge else {
             throw "parametersNil"
         }
-
+        
         return SignatureVerificationOperation(curve: curveID, saltHex: salt, challengeHex: challenge, signatureArr: signArr, publicKeyArr: walletPublicKeyBytesArray) { (isGenuineCard) in
             completion(isGenuineCard)
         }
     }
-
+    
     func balanceRequestOperation(onSuccess: @escaping (Card) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation? {
         var operation: GBAsyncOperation?
-
+        
         let onResult = { (result: TangemKitResult<Card>) in
             switch result {
             case .success(let card):
@@ -416,7 +450,7 @@ public extension Card {
                 onFailure("getBalanceError")
             }
         }
-
+        
         switch blockchain {
         case .bitcoin:
             operation = BTCCardBalanceOperation(card: self, completion: onResult)
@@ -437,8 +471,8 @@ public extension Card {
         default:
             break
         }
-
+        
         return operation
     }
-
+    
 }
