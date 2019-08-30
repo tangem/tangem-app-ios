@@ -84,11 +84,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             }
             
             self.viewModel.setSubstitutionInfoLoading(false)
-            
             self.card = card
-            self.viewModel.cardImageView.image = card.image
             self.fetchWalletBalance(card: card)
         }
+        self.viewModel.cardImageView.image = card.image
         operationQueue.addOperation(operation)
     }
     
@@ -416,7 +415,7 @@ extension CardDetailsViewController {
     }
 
     @IBAction func extractButtonPressed(_ sender: Any) {
-        if #available(iOS 13.0, *) /*, card!.canExtract*/ {
+        if #available(iOS 13.0, *) /*, card!.canExtract */ {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
             viewController.card = card
             viewController.onDone = { [unowned self] in

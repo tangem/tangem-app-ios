@@ -74,11 +74,15 @@ extension UILabel {
     public func hideActivityIndicator() {
         let activityArray = subviews.filter{ $0 is UIActivityIndicatorView }
         
+        var foundIndicator = false
         for each in activityArray {
             guard let activity = each as? UIActivityIndicatorView else { continue }
-            
+            foundIndicator = true
             activity.stopAnimating()
             activity.removeFromSuperview()
+        }
+        guard foundIndicator else {
+            return
         }
        //isEnabled = true
         fadeTransition(0.5)
