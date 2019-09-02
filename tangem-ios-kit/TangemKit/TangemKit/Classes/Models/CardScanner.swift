@@ -104,7 +104,7 @@ public class CardScanner: NSObject {
 
         savedCard.updateWithVerificationCard(card)
         savedCard.invalidateSignedHashes(with: card)
-
+        
         completion(.finished(savedCard))
     }
 }
