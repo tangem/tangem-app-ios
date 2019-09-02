@@ -111,9 +111,21 @@ class CardDetailsViewModel: NSObject {
     
     @IBOutlet weak var balanceVerificationActivityIndicator: UIActivityIndicatorView!
     
-    @IBOutlet weak var cardWalletInfoView: UIView!
+    @IBOutlet weak var cardWalletInfoView: UIView! {
+        didSet {
+            let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapBalance))
+            tapRecognizer.numberOfTapsRequired = 1
+            cardWalletInfoView.addGestureRecognizer(tapRecognizer)
+        }
+    }
     @IBOutlet weak var cardWalletInfoLoadingView: UIView!
     @IBOutlet weak var qrCodeContainerView: UIView!
+    
+    @objc func didTapBalance() {
+       onBalanceTap?()
+    }
+    
+    public var onBalanceTap: (() -> Void)?
 }
 
 extension CardDetailsViewModel {

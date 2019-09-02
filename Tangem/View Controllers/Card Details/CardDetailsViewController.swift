@@ -12,10 +12,16 @@ import TangemKit
 
 class CardDetailsViewController: UIViewController, TestCardParsingCapable, DefaultErrorAlertsCapable {
     
-    @IBOutlet var viewModel: CardDetailsViewModel!
+    @IBOutlet var viewModel: CardDetailsViewModel! {
+        didSet {
+            viewModel.onBalanceTap = updateBalance
+        }
+    }
     
     var card: Card?
     var isBalanceVerified = false
+    var isBalanceLoading = false
+    
     
     var customPresentationController: CustomPresentationController?
     
@@ -26,6 +32,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     let storageManager: StorageManagerType = SecureStorageManager()
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -33,8 +43,26 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             assertionFailure()
             return
         }
+   
+       setupWithCardDetails(card: card)
+    }
+    
+    
+    func updateBalance() {
+        guard let card = card else {
+            assertionFailure()
+            return
+        }
         
-        setupWithCardDetails(card: card)
+        guard !isBalanceLoading else {
+            return
+        }
+
+        if card.hasPendingTransactions  {
+            self.isBalanceLoading = true
+            self.viewModel.setWalletInfoLoading(true)
+            fetchWalletBalance(card: card)
+        }
     }
     
     func setupWithCardDetails(card: Card) {
@@ -56,23 +84,24 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             }
             
             self.viewModel.setSubstitutionInfoLoading(false)
-            
             self.card = card
-            self.viewModel.cardImageView.image = card.image
             self.fetchWalletBalance(card: card)
         }
+        self.viewModel.cardImageView.image = card.image
         operationQueue.addOperation(operation)
     }
     
     func fetchWalletBalance(card: Card) {
         
         guard card.isWallet else {
+            isBalanceLoading = false
             viewModel.setWalletInfoLoading(false)
             setupBalanceNoWallet()
             return
         }
         
         let operation = card.balanceRequestOperation(onSuccess: { (card) in
+            self.isBalanceLoading = false
             self.viewModel.setWalletInfoLoading(false)
             
             self.card = card
@@ -84,6 +113,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             }
             
         }, onFailure: { (error) in
+            self.isBalanceLoading = false
             self.viewModel.setWalletInfoLoading(false)
             self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
             
@@ -94,6 +124,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         })
         
         guard operation != nil else {
+            isBalanceLoading = false
             viewModel.setWalletInfoLoading(false)
             setupBalanceNoWallet()
             assertionFailure()
@@ -108,8 +139,9 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             assertionFailure()
             return
         }
-        
-        viewModel.updateBlockchainName(card.cardEngine.blockchainDisplayName)
+        let blockchainName = card.cardEngine.blockchainDisplayName
+        let name = card.isTestBlockchain ? "\(blockchainName) Test" : blockchainName
+        viewModel.updateBlockchainName(name)
         viewModel.updateWalletAddress(card.address)
         
         var qrCodeResult = QRCode(card.qrCodeAddress)
@@ -161,13 +193,18 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
         
-        guard !card.isTestBlockchain, card.isBlockchainKnown else {
+        guard card.isBlockchainKnown else {
             setupBalanceVerified(false, customText: "Unknown blockchain")
             return
         }
         
+        guard !card.hasPendingTransactions else {
+            setupBalanceVerified(false, customText: "Transaction in progress. Wait for confirmation in blockchain. Tap to retry")
+            return
+        }
+        
         if card.type == .cardano {
-            setupBalanceVerified(true)
+            setupBalanceVerified(true, customText: card.isTestBlockchain ? "Test blockhain": nil)
         } else {
             verifySignature(card: card)
             setupBalanceIsBeingVerified()
@@ -287,7 +324,7 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 extension CardDetailsViewController : TangemSessionDelegate {
 
     func tangemSessionDidRead(card: Card) {
-        guard !card.isTestBlockchain && card.isBlockchainKnown else {
+        guard /*!card.isTestBlockchain &&*/ card.isBlockchainKnown else {
             handleUnknownBlockchainCard {
                 self.navigationController?.popViewController(animated: true)
             }
@@ -299,6 +336,7 @@ extension CardDetailsViewController : TangemSessionDelegate {
 
         switch card.genuinityState {
         case .pending:
+            self.isBalanceLoading = true
             self.viewModel.setWalletInfoLoading(true)
             self.viewModel.doubleScanHintLabel.isHidden = false
         case .nonGenuine:
@@ -377,17 +415,27 @@ extension CardDetailsViewController {
     }
 
     @IBAction func extractButtonPressed(_ sender: Any) {
-
-        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ExtractViewController") else {
-            return
+        if #available(iOS 13.0, *) /*, card!.canExtract */ {
+            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
+            viewController.card = card
+            viewController.onDone = { [unowned self] in
+                guard let card = self.card else {
+                    return
+                }
+                if card.hasPendingTransactions {
+                    self.fetchWalletBalance(card: card)
+                }
+            }
+                self.present(viewController, animated: true, completion: nil)
+        } else {
+            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController")
+            
+            let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+            self.customPresentationController = presentationController
+            viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
+            viewController.transitioningDelegate = presentationController
+            self.present(viewController, animated: true, completion: nil)
         }
-
-        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
-        self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
-        viewController.transitioningDelegate = presentationController
-        self.present(viewController, animated: true, completion: nil)
-
     }
 
     @IBAction func scanButtonPressed(_ sender: Any) {
@@ -457,4 +505,3 @@ extension CardDetailsViewController {
     }
 
 }
-
