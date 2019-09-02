@@ -7,9 +7,22 @@
 //
 
 import Foundation
-import CoreNFC
+#if canImport(CoreNFC)
+    import CoreNFC
+#endif
 
 public class CardScanner: NSObject {
+    
+    public static  var isNFCAvailable: Bool {
+        #if targetEnvironment(simulator)
+        return true
+        #elseif canImport(CoreNFC)
+        if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
+        return NFCNDEFReaderSession.readingAvailable
+        #else
+        return false
+        #endif
+    }
 
     static let tangemWalletRecordType = "tangem.com:wallet"
 
