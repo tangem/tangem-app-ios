@@ -404,6 +404,10 @@ public class Card {
     func updateWithVerificationCard(_ card: Card) {
         genuinityState = .nonGenuine
         
+        guard  card.isWallet else {
+            return
+        }
+        
         guard let verificationChallenge = card.challenge, let verificationSalt = card.salt else {
             assertionFailure()
             return
@@ -422,6 +426,10 @@ public class Card {
     }
     
     func invalidateSignedHashes(with card: Card) {
+        guard card.isWallet else {
+            return
+        }
+        
         let currentSignedHashes = Int(signedHashes, radix: 16) ?? 0
         let secondReadSignedHashes = Int(card.signedHashes, radix: 16) ?? 0
         if secondReadSignedHashes > currentSignedHashes {
