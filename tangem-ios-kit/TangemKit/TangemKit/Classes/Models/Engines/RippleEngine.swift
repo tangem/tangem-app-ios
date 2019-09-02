@@ -37,8 +37,9 @@ public class RippleEngine: CardEngine {
     
     public required init(card: Card) {
         self.card = card
-        
-        setupAddress()
+        if card.isWallet {
+            setupAddress()
+        }
     }
     
     public func setupAddress() {
