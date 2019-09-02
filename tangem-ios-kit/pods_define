@@ -1,0 +1,10 @@
+def tangemioskit_pods
+    pod 'BigInt'
+    pod 'CryptoSwift'
+    pod 'SwiftyJSON', '4.2.0'
+    pod 'SwiftLint', '0.27.0'
+    pod 'GBAsyncOperation', '0.2.1'
+    pod 'SwiftCBOR', '0.3'
+    pod 'Sodium', '0.8.0'
+    pod 'web3.swift.pod'
+end
