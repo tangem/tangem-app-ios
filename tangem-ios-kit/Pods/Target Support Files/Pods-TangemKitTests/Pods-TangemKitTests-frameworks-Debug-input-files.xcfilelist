@@ -1,0 +1,11 @@
+${PODS_ROOT}/Target Support Files/Pods-TangemKitTests/Pods-TangemKitTests-frameworks.sh
+${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework
+${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework
+${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework
+${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework
+${BUILT_PRODUCTS_DIR}/Sodium/Sodium.framework
+${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework
+${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework
+${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework
+${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework
+${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework
