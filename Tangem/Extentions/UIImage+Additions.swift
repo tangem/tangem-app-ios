@@ -10,7 +10,7 @@ import UIKit
 
 @objc public extension UIView {
     
-    @objc public func snapshotImage() -> UIImage? {
+    @objc func snapshotImage() -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(self.bounds.size, self.isOpaque, 0.0)
         
         defer {
