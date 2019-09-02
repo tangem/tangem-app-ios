@@ -13,6 +13,8 @@ public class CardScanner: NSObject {
 
     static let tangemWalletRecordType = "tangem.com:wallet"
 
+    public private(set) var isBusy: Bool = false
+    
     enum CardScannerResult {
         case pending(Card)
         case finished(Card)
@@ -41,10 +43,11 @@ public class CardScanner: NSObject {
     }
 
     func initiateScan(shouldCleanup: Bool = true) {
+        isBusy = true
         if shouldCleanup {
             savedCard = nil
         }
-
+        
         session = NFCNDEFReaderSession(delegate: self,
                                        queue: nil,
                                        invalidateAfterFirstRead: true)
@@ -112,6 +115,7 @@ public class CardScanner: NSObject {
 extension CardScanner: NFCNDEFReaderSessionDelegate {
 
     public func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
+        isBusy = false
         DispatchQueue.main.async {
             let nfcError = NFCReaderError(_nsError: error as NSError)
             guard nfcError.code != .readerSessionInvalidationErrorFirstNDEFTagRead,

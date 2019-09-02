@@ -14,7 +14,10 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     var customPresentationController: CustomPresentationController?
     
     let operationQueue = OperationQueue()
-    var tangemSession: TangemSession?
+    
+    lazy var tangemSession = {
+         return TangemSession(delegate: self)
+    }()
     
     private struct Constants {
         static let hintLabelDefaultText = "Press Scan and touch banknote with your iPhone as shown above"
@@ -71,24 +74,12 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
-        initiateScan()
+        startSession()
         #endif
     }
     
-    func initiateScan() {
-        if tangemSession != nil {
-            tangemSession?.invalidate()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.startSession()
-            }
-        } else {
-            startSession()
-        }
-    }
-    
     private func startSession() {
-        tangemSession = TangemSession(delegate: self)
-        tangemSession?.start()
+        tangemSession.start()
     }
     
     @IBAction func moreButtonPressed(_ sender: Any) {
@@ -106,8 +97,8 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     }
     
     func launchSimulationParsingOperationWith(payload: Data) {
-        tangemSession = TangemSession(payload: payload, delegate: self)
-        tangemSession?.start()
+        tangemSession.payload = payload
+        startSession()
     }
     
 }
