@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 import TangemKit
 
 @available(iOS 13.0, *)
@@ -113,10 +115,32 @@ class ExtractViewController: ModalActionViewController {
         
         btnSend.setAttributedTitle(NSAttributedString(string: ""), for: .normal)
         btnSend.showActivityIndicator()
+        addLoadingView()
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
         readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
         readerSession?.begin()
         isBusy = true
+    }
+    
+    func addLoadingView() {
+        if let window = self.view.window {
+            let view = UIView(frame: window.bounds)
+            view.backgroundColor = UIColor.init(white: 0.0, alpha: 0.6)
+            let indicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
+            view.addSubview(indicator)
+            view.tag = 0781
+            indicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+            indicator.startAnimating()
+            window.addSubview(view)
+            window.bringSubview(toFront: view)
+        }
+    }
+    
+    func removeLoadingView() {
+        if let window = self.view.window,
+            let view = window.viewWithTag(0781) {
+            view.removeFromSuperview()
+        }
     }
     
     func updateFee() {
@@ -409,6 +433,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
         DispatchQueue.main.async {
             self.btnSend.hideActivityIndicator()
             self.updateSendButtonSubtitle()
+            self.removeLoadingView()
         }
         print(error)
     }
@@ -495,6 +520,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                         // session.alertMessage = "Signed :)"
                         let cProvider = self.card.cardEngine as! CoinProvider
                         cProvider.sendToBlockchain(signFromCard: sign) {[weak self] result in
+                            self?.removeLoadingView()
                             self?.btnSend.hideActivityIndicator()
                             self?.updateSendButtonSubtitle()
                             if result {
