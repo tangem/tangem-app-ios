@@ -28,7 +28,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     let operationQueue = OperationQueue()
     var dispatchWorkItem: DispatchWorkItem?
     
-    var tangemSession: TangemSession?
+    lazy var tangemSession: TangemSession = {
+        let session = TangemSession(delegate: self)
+        return session
+    }()
     
     let storageManager: StorageManagerType = SecureStorageManager()
     
@@ -273,8 +276,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     // MARK: Simulator parsing Operation
 
     func launchSimulationParsingOperationWith(payload: Data) {
-        tangemSession = TangemSession(payload: payload, delegate: self)
-        tangemSession?.start()
+        tangemSession.payload = payload
+        tangemSession.start()
     }
     
     func showUntrustedAlertIfNeeded() {
@@ -442,24 +445,9 @@ extension CardDetailsViewController {
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
-
-        if tangemSession != nil {
-            tangemSession?.invalidate()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.startSession()
-            }
-        } else {
-            startSession()
-        }
-
+        tangemSession.start()
         #endif
     }
-    
-    private func startSession() {
-        tangemSession = TangemSession(delegate: self)
-        tangemSession?.start()
-    }
-    
 
     @IBAction func moreButtonPressed(_ sender: Any) {
         guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
