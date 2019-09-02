@@ -41,8 +41,9 @@ class BTCEngine: CardEngine {
     
     required init(card: Card) {
         self.card = card
-        
-        setupAddress()
+        if card.isWallet {
+            setupAddress()
+        }
     }
     
     func setupAddress() {
