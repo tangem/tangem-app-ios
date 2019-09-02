@@ -16,6 +16,10 @@ protocol DefaultErrorAlertsCapable {
     func handleReaderSessionError(completion: @escaping () -> Void)
     func handleNonGenuineTangemCard(_ card: Card, completion: @escaping () -> Void)
     func handleUntrustedCard()
+    func handleTXSendError()
+    func handleTXBuildError()
+    func handleFeeOutadatedError()
+    func handleSuccess(completion: @escaping () -> Void)
 }
 
 extension DefaultErrorAlertsCapable where Self: UIViewController {
@@ -64,5 +68,32 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
         let alert = UIAlertController(title: "Warning", message: "This card has been already topped up and signed transactions in the past. Consider immediate withdrawal of all funds if you have received this card from an untrusted source", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    func handleTXSendError() {
+        let validationAlert = UIAlertController(title: "Error", message: "Transaction wasn't sent to the blockchain", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(validationAlert, animated: true, completion: nil)
+    }
+    
+    func handleTXBuildError() {
+           let validationAlert = UIAlertController(title: "Error", message: "Can't build transaction with provided data. Please, try to rescan card and try again", preferredStyle: .alert)
+           validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+           self.present(validationAlert, animated: true, completion: nil)
+       }
+    
+    func handleFeeOutadatedError() {
+        let validationAlert = UIAlertController(title: "Warning", message: "The obtained data is outdated! Fee was updated", preferredStyle: .alert)
+                  validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                  self.present(validationAlert, animated: true, completion: nil)
+    }
+    
+    func handleSuccess(completion: @escaping () -> Void = {}) {
+        let validationAlert = UIAlertController(title: "Success", message: "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while", preferredStyle: .alert)
+        validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (_) in
+            completion()
+        }))
+        self.present(validationAlert, animated: true, completion: nil)
+        
     }
 }
