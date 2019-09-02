@@ -15,6 +15,7 @@ class ExtractViewController: ModalActionViewController {
     
     var card: Card!
     var onDone: (()-> Void)?
+    var isBusy = false
     
     @IBOutlet weak var amountText: UITextField! {
         didSet {
@@ -101,7 +102,7 @@ class ExtractViewController: ModalActionViewController {
     }
     
     @IBAction func scanTapped() {
-        guard validateInput() else {
+        guard !isBusy, validateInput() else {
             return
         }
         
@@ -115,6 +116,7 @@ class ExtractViewController: ModalActionViewController {
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
         readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
         readerSession?.begin()
+        isBusy = true
     }
     
     func updateFee() {
@@ -399,6 +401,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
+        isBusy = false
         guard session.alertMessage != "Sign completed" else {
             return
         }
