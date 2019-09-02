@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CoreNFC
 
 class CardParsingOperation: Operation {
 
