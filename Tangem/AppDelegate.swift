@@ -8,6 +8,8 @@
 
 import UIKit
 import CoreNFC
+import Fabric
+import Crashlytics
 
 extension UIApplication {
     
@@ -48,9 +50,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
         window.makeKeyAndVisible()
-        
         self.window = window
-        
+        #if BETA
+            Fabric.with([Crashlytics.self])
+        #endif
         return true
     }
     
