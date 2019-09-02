@@ -13,6 +13,8 @@ open class GBBaseOperation: Operation {
 
     /// Block that is executed upon operation cancellation
     public var cancellationBlock: (() -> Void)?
+    
+    var isCancellationInProgress = false
 
     /// Queue used for synchronisation purposes
     private let stateQueue = DispatchQueue(label: Bundle.main.bundleIdentifier! + "base.rw.state", attributes: .concurrent)
@@ -28,10 +30,16 @@ open class GBBaseOperation: Operation {
      */
     public func addCancellableDependency(operation: GBBaseOperation) {
         addDependency(operation)
-        cancellableDependencies.add(operation)
+        operation.cancellableDependencies.add(self)
     }
 
     open override func cancel() {
+        guard !isCancellationInProgress else {
+            return
+        }
+        
+        isCancellationInProgress = true
+        
         stateQueue.sync(flags: .barrier) {
             for object in cancellableDependencies.objectEnumerator() {
                 guard let operation = object as? Operation else {
