@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		5D076E5C23153AA90009F208 /* TangemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D076E5B23153AA90009F208 /* TangemTests.swift */; };
+		5D3BDD88231CF3900003E895 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA214231B1CE800D6AB83 /* TangemKit.framework */; };
+		5D3BDD89231CF3900003E895 /* TangemKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA214231B1CE800D6AB83 /* TangemKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		5D3BDD8B231CF3BD0003E895 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA198231B1C0600D6AB83 /* TangemKit.framework */; };
+		5D3BDD8C231CF3BD0003E895 /* TangemKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA198231B1C0600D6AB83 /* TangemKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5D3CAD132319737E000F0AA9 /* ReaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D8A2018DA92006C73D9 /* ReaderViewController.swift */; };
 		5D3CAD142319737E000F0AA9 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
 		5D3CAD152319737E000F0AA9 /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F522CCFB41007C0E3F /* SecureStorageManager.swift */; };
@@ -60,9 +64,7 @@
 		5D74D6F622CCFB41007C0E3F /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F522CCFB41007C0E3F /* SecureStorageManager.swift */; };
 		5D74D6F922CDDCA8007C0E3F /* StorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */; };
 		5D74D6FB22CDDDD6007C0E3F /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */; };
-		5D7BA199231B1C0600D6AB83 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA198231B1C0600D6AB83 /* TangemKit.framework */; };
 		5D7BA19B231B1C1B00D6AB83 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA19A231B1C1B00D6AB83 /* Pods_Tangem.framework */; };
-		5D7BA215231B1CE800D6AB83 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA214231B1CE800D6AB83 /* TangemKit.framework */; };
 		5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */; };
 		8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000364321069C8E00C151E8 /* FontsExtensions.swift */; };
 		8000364E2110F86F00C151E8 /* SairaCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036452110F86E00C151E8 /* SairaCondensed-Regular.ttf */; };
@@ -122,6 +124,31 @@
 			remoteInfo = Tangem;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5D3BDD8A231CF3900003E895 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5D3BDD89231CF3900003E895 /* TangemKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5D3BDD8D231CF3BD0003E895 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5D3BDD8C231CF3BD0003E895 /* TangemKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0CE1B97534515F85AB9CD5BF /* Pods-Tangem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.debug.xcconfig"; sourceTree = "<group>"; };
@@ -208,8 +235,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D7BA19B231B1C1B00D6AB83 /* Pods_Tangem.framework in Frameworks */,
-				5D7BA199231B1C0600D6AB83 /* TangemKit.framework in Frameworks */,
 				5D3CAD2F2319737E000F0AA9 /* CoreNFC.framework in Frameworks */,
+				5D3BDD8B231CF3BD0003E895 /* TangemKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,9 +244,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D7BA215231B1CE800D6AB83 /* TangemKit.framework in Frameworks */,
 				80BAA49721B9AE6000E9EB99 /* CoreNFC.framework in Frameworks */,
 				B1FEF070153C749010F4F939 /* Pods_Tangem.framework in Frameworks */,
+				5D3BDD88231CF3900003E895 /* TangemKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +485,7 @@
 				5D3CAD2E2319737E000F0AA9 /* Frameworks */,
 				5D3CAD312319737E000F0AA9 /* Resources */,
 				5D3CAD482319737E000F0AA9 /* ShellScript */,
+				5D3BDD8D231CF3BD0003E895 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -478,6 +506,7 @@
 				8D946D832018DA92006C73D9 /* Resources */,
 				EBDEA6075FC20E11A67AFBBC /* [CP] Embed Pods Frameworks */,
 				5DE9FC7523197B5B00B233C0 /* ShellScript */,
+				5D3BDD8A231CF3900003E895 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
