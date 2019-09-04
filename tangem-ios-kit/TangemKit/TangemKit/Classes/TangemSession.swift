@@ -14,31 +14,38 @@ public enum TangemSessionError: Error {
 }
 
 public protocol TangemSessionDelegate: class {
-
+    
     func tangemSessionDidRead(card: Card)
     func tangemSessionDidFailWith(error: TangemSessionError)
-
+    
 }
 
 public class TangemSession {
-
+    
+    public var payload: Data?
+    
+    var isBusy: Bool {
+        return scanner?.isBusy ?? false
+    }
+    
     weak var delegate: TangemSessionDelegate?
-
-    var payload: Data?
     var card: Card?
     var scanner: CardScanner?
-
+    
     public init(payload: Data? = nil, delegate: TangemSessionDelegate) {
         self.delegate = delegate
         self.payload = payload
     }
-
+    
     public func invalidate() {
         scanner?.invalidate()
     }
-
+    
     public func start() {
-        scanner?.invalidate()
+        guard !isBusy else {
+            return
+        }
+        
         scanner = CardScanner(payload: payload, completion: { [weak self] (result) in
             switch result {
             case .pending(let card):
@@ -56,10 +63,12 @@ public class TangemSession {
             }
         })
     }
-
+    
     func handleCardChanged() {
-        invalidate()
+        guard !isBusy else {
+            return
+        }
+        
         start()
-    }
-
+    }    
 }
