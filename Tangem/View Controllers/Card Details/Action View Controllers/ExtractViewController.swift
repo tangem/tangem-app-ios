@@ -7,8 +7,16 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 import TangemKit
+
+public enum NFCState {
+    case active
+    case signed
+    case none
+}
 
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
@@ -16,11 +24,27 @@ class ExtractViewController: ModalActionViewController {
     var card: Card!
     var onDone: (()-> Void)?
     
+    private let stateLockQueue = DispatchQueue(label: "Tangem.ExtractViewController.stateLockQueue")
+    private var _state: NFCState = .none
+    var state: NFCState  {
+        get {
+            stateLockQueue.sync {
+                return _state
+            }
+        }
+        set {
+            stateLockQueue.sync {
+                _state = newValue
+            }
+        }
+    }
+    
     @IBOutlet weak var amountText: UITextField! {
         didSet {
             amountText.delegate = self
         }
     }
+    
     @IBOutlet weak var amountStackView: UIStackView!
     @IBOutlet weak var addressSeparator: UIView!
     @IBOutlet weak var amountSeparator: UIView!
@@ -59,6 +83,29 @@ class ExtractViewController: ModalActionViewController {
         recognizer.addTarget(self, action: #selector(viewDidTap))
         return recognizer
     }()
+    
+    private var sessionTimer: Timer?
+    private func startSessionTimer() {
+        DispatchQueue.main.async {
+            self.sessionTimer?.invalidate()
+            self.sessionTimer = Timer.scheduledTimer(timeInterval: 58.0, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
+        }
+    }
+    
+    private var tagTimer: Timer?
+    private func startTagTimer() {
+        DispatchQueue.main.async {
+            self.tagTimer?.invalidate()
+            self.tagTimer = Timer.scheduledTimer(timeInterval: 18.0, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
+        }
+    }
+    
+    @objc func timerTimeout() {
+        guard let session = self.readerSession,
+            state == .active  else { return }
+                   
+        session.invalidate(errorMessage: "Session timeout")
+    }
     
     @objc func viewDidTap() {
         targetAddressText.resignFirstResponder()
@@ -101,7 +148,7 @@ class ExtractViewController: ModalActionViewController {
     }
     
     @IBAction func scanTapped() {
-        guard validateInput() else {
+        guard state == .none, validateInput() else {
             return
         }
         
@@ -112,9 +159,32 @@ class ExtractViewController: ModalActionViewController {
         
         btnSend.setAttributedTitle(NSAttributedString(string: ""), for: .normal)
         btnSend.showActivityIndicator()
+        addLoadingView()
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
         readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
         readerSession?.begin()
+        state = .active
+    }
+    
+    func addLoadingView() {
+        if let window = self.view.window {
+            let view = UIView(frame: window.bounds)
+            view.backgroundColor = UIColor.init(white: 0.0, alpha: 0.6)
+            let indicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
+            view.addSubview(indicator)
+            view.tag = 0781
+            indicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+            indicator.startAnimating()
+            window.addSubview(view)
+            window.bringSubview(toFront: view)
+        }
+    }
+    
+    func removeLoadingView() {
+        if let window = self.view.window,
+            let view = window.viewWithTag(0781) {
+            view.removeFromSuperview()
+        }
     }
     
     func updateFee() {
@@ -396,17 +466,20 @@ class ExtractViewController: ModalActionViewController {
 @available(iOS 13.0, *)
 extension ExtractViewController: NFCTagReaderSessionDelegate {
     func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
+       startSessionTimer()
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        guard session.alertMessage != "Sign completed" else {
+        guard state != .signed else {
             return
         }
-        
+        state = .none
         DispatchQueue.main.async {
             self.btnSend.hideActivityIndicator()
             self.updateSendButtonSubtitle()
+            self.removeLoadingView()
         }
+        
         print(error)
     }
     
@@ -418,7 +491,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                     session.invalidate(errorMessage: error!.localizedDescription)
                     return
                 }
-                
+                self.startTagTimer()
                 let cProvider = self.card.cardEngine as! CoinProvider
                 guard let hashToSign = cProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
                     session.invalidate(errorMessage: "Failed")
@@ -465,6 +538,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
             guard apduError == nil else {
                 // session.invalidate(errorMessage: apduError!.localizedDescription)
                 session.alertMessage = "Hold your iPhone near a Tangem card"
+                self.startTagTimer()
                 session.restartPolling()
                 return
             }
@@ -479,6 +553,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                     }
                     
                     if respApdu.tlv[.flash] != nil {
+                        self.startTagTimer()
                         self.readerSession?.restartPolling()
                         
                     } else {
@@ -486,12 +561,14 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                     }
                     
                 case .processCompleted:
+                    self.state = .signed
                     session.alertMessage = "Sign completed"
                     session.invalidate()
                     if let sign = respApdu.tlv[.signature]?.value {
                         // session.alertMessage = "Signed :)"
                         let cProvider = self.card.cardEngine as! CoinProvider
                         cProvider.sendToBlockchain(signFromCard: sign) {[weak self] result in
+                            self?.removeLoadingView()
                             self?.btnSend.hideActivityIndicator()
                             self?.updateSendButtonSubtitle()
                             if result {
@@ -503,13 +580,13 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                                     })
                                 }
                             } else {
+                                self?.state = .none
                                 self?.handleTXSendError()
                             }
                             
                         }
                     }
                     
-                //[REDACTED_TODO_COMMENT]
                 default:
                     session.invalidate(errorMessage: cardState.localizedDescription)
                 }
