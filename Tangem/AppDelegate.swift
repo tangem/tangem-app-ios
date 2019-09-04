@@ -7,9 +7,9 @@
 //
 
 import UIKit
-import CoreNFC
 import Fabric
 import Crashlytics
+import TangemKit
 
 extension UIApplication {
     
@@ -25,15 +25,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var navigationManager: NavigationManager?
     
-    var isNFCAvailable: Bool {
-        #if targetEnvironment(simulator)
-            return true
-        #else
-            if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
-            return NFCNDEFReaderSession.readingAvailable
-        #endif
-    }
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         initializeNavigationManager()
@@ -48,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().tintColor = .white
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
+        window.rootViewController = CardScanner.isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
         window.makeKeyAndVisible()
         self.window = window
         #if BETA
