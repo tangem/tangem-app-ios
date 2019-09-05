@@ -224,17 +224,16 @@ extension CardanoEngine: CoinProvider {
         let a = Decimal(0.155381)
         let b = Decimal(0.000043946)
         
-        
         guard let transactionSize = buildTxForSend(signFromCard: dummySign)?.count else {
             assertionFailure()
             self.transaction = nil
             completion((min: "", normal: "", max: ""))
             return
         }
-        
+        let feeValue = a + b * Decimal(transactionSize)
         self.transaction = nil
-        let feeValue = (a + b * Decimal(transactionSize)).rounded(Int(Blockchain.cardano.decimalCount))
-        let fee = "\(feeValue)"
+        let feeRounded = feeValue.rounded(Int(Blockchain.cardano.decimalCount), .up)
+        let fee = "\(feeRounded)"
         
         completion((min: fee, normal: fee, max: fee))
     }
