@@ -20,6 +20,7 @@ protocol DefaultErrorAlertsCapable {
     func handleTXBuildError()
     func handleFeeOutadatedError()
     func handleSuccess(completion: @escaping () -> Void)
+    func handleTXNotSignedByIssuer()
 }
 
 extension DefaultErrorAlertsCapable where Self: UIViewController {
@@ -81,6 +82,12 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
            self.present(validationAlert, animated: true, completion: nil)
        }
+    
+    func handleTXNotSignedByIssuer() {
+              let validationAlert = UIAlertController(title: "Error", message: "Transaction must be signed by issuer", preferredStyle: .alert)
+              validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+              self.present(validationAlert, animated: true, completion: nil)
+          }
     
     func handleFeeOutadatedError() {
         let validationAlert = UIAlertController(title: "Warning", message: "The obtained data is outdated! Fee was updated", preferredStyle: .alert)
