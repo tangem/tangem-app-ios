@@ -342,9 +342,9 @@ extension BTCEngine: CoinProvider {
                     let normalPerByte = Decimal(normalKb)/kb
                     let maxPerByte = Decimal(maxKb)/kb
                     
-                    guard let testHash = self.getHashForSignature(amount: amount, fee: "0.00000001", includeFee: true, targetAddress: targetAddress),
+                    guard let _ = self.getHashForSignature(amount: amount, fee: "0.00000001", includeFee: true, targetAddress: targetAddress),
                             let txRefs = self.blockcypherResponse?.txrefs,
-                            let testTx  = self.buildTxForSend(signFromCard: [UInt8](repeating: UInt8(0x01), count: 64 * testHash.count), txRefs: txRefs, publicKey: self.card.walletPublicKeyBytesArray) else {
+                            let testTx  = self.buildTxForSend(signFromCard: [UInt8](repeating: UInt8(0x01), count: 64 * txRefs.count), txRefs: txRefs, publicKey: self.card.walletPublicKeyBytesArray) else {
                             completion(nil)
                             return
                     }
@@ -383,7 +383,7 @@ extension BTCEngine: CoinProvider {
         }
     
         guard let decoded = address.base58DecodedData,
-            decoded.count != 0 else {
+            decoded.count > 24 else {
             return false
         }
 
