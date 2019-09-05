@@ -15,17 +15,18 @@ extension Decimal {
         return Array(bytes8)
     }
     
-    mutating func round(_ scale: Int) {
+    mutating func round(_ scale: Int, _ roundingMode: NSDecimalNumber.RoundingMode = .plain) {
         var localCopy = self
-        NSDecimalRound(&self, &localCopy, scale, NSDecimalNumber.RoundingMode.plain)
+        NSDecimalRound(&self, &localCopy, scale, roundingMode)
     }
     
-    func rounded(_ scale: Int) -> Decimal {
+    func rounded(_ scale: Int, _ roundingMode: NSDecimalNumber.RoundingMode = .plain) -> Decimal {
         var result = Decimal()
         var localCopy = self
-        NSDecimalRound(&result, &localCopy, scale, NSDecimalNumber.RoundingMode.plain)
+        NSDecimalRound(&result, &localCopy, scale, roundingMode)
         return result
     }
+    
     
     var btcToSatoshi: Decimal  {
         return self * Decimal(100000000)
