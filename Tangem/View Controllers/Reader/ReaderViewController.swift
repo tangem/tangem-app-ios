@@ -19,6 +19,23 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
          return TangemSession(delegate: self)
     }()
     
+    @available(iOS 13.0, *)
+    lazy var session: CardSession =  {
+        let session = CardSession(instruction: .read) { result in
+            switch result {
+            case .success (let tlv):
+                let card = Card(tags: Array(tlv.values))
+                card.genuinityState = .genuine
+                DispatchQueue.main.async {
+                    UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+                }
+            case .failure:
+                break
+            }
+        }
+        return session
+    }()
+    
     private struct Constants {
         static let hintLabelDefaultText = "Press Scan and touch banknote with your iPhone as shown above"
         static let hintLabelScanningText = "Hold the card close to the reader"
@@ -74,7 +91,11 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
-        startSession()
+        if #available(iOS 13.0, *) {
+            session.start()
+        } else {
+            startSession()
+        }
         #endif
     }
     
@@ -100,7 +121,6 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         tangemSession.payload = payload
         startSession()
     }
-    
 }
 
 extension ReaderViewController : TangemSessionDelegate {
