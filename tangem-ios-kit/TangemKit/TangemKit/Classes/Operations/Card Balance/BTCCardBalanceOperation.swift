@@ -21,11 +21,10 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        let operation: BlockcypherRequestOperation<BlockcypherAddressResponse> = BlockcypherRequestOperation(endpoint: .address(address: card.address), completion: { [weak self] (result) in
+        let operation: BtcRequestOperation<BlockcypherAddressResponse> = BtcRequestOperation(endpoint: BlockcypherEndpoint.address(address: card.address), completion: { [weak self] (result) in
             switch result {
-            case .success(let value):
-                guard let response = value,
-                let balance = response.balance
+            case .success(let response):
+                guard let balance = response.balance
                 else {
                     self?.card.mult = 0
                     self?.failOperationWith(error: BTCCardBalanceError.balanceIsNil)
@@ -41,7 +40,7 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
                 self?.handleBalanceLoaded(balanceValue: "\(btcBalance)")
             case .failure(let error):
                 self?.card.mult = 0
-                self?.failOperationWith(error: error)
+                self?.handleBlockcypherFailed()
             }
         })
         
@@ -57,6 +56,10 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
         card.walletValue = balanceValue
 
         completeOperation()
+    }
+    
+    func handleBlockcypherFailed() {
+       
     }
 
 }
