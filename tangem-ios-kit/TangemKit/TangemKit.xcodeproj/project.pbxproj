@@ -72,6 +72,8 @@
 		5DE10AFE22D884B500BC45B9 /* ResponseApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFC22D884B500BC45B9 /* ResponseApdu.swift */; };
 		5DE10B0022D8D0CD00BC45B9 /* TLVReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */; };
 		5DE10B0122D8D0CD00BC45B9 /* TLVReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */; };
+		5DE995D5232298EB00623148 /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D4232298EB00623148 /* CryptoUtils.swift */; };
+		5DE995D723229EA500623148 /* Curve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D623229EA500623148 /* Curve.swift */; };
 		5DEF97EA22F071E3004E0CC5 /* EthereumTransaction+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEF97E922F071E3004E0CC5 /* EthereumTransaction+.swift */; };
 		5DEF97EC22F0729D004E0CC5 /* CoinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEF97EB22F0729D004E0CC5 /* CoinProvider.swift */; };
 		5DEF97EE22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEF97ED22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift */; };
@@ -180,6 +182,8 @@
 		5DE10AF922D765D400BC45B9 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		5DE10AFC22D884B500BC45B9 /* ResponseApdu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseApdu.swift; sourceTree = "<group>"; };
 		5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLVReader.swift; sourceTree = "<group>"; };
+		5DE995D4232298EB00623148 /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
+		5DE995D623229EA500623148 /* Curve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Curve.swift; sourceTree = "<group>"; };
 		5DEF97E922F071E3004E0CC5 /* EthereumTransaction+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EthereumTransaction+.swift"; sourceTree = "<group>"; };
 		5DEF97EB22F0729D004E0CC5 /* CoinProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinProvider.swift; sourceTree = "<group>"; };
 		5DEF97ED22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkSendOperation.swift; sourceTree = "<group>"; };
@@ -349,6 +353,7 @@
 				5DE10AFC22D884B500BC45B9 /* ResponseApdu.swift */,
 				5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */,
 				5D48752622DC9E2400F690BE /* CardSW.swift */,
+				5DE995D623229EA500623148 /* Curve.swift */,
 			);
 			path = SIgn;
 			sourceTree = "<group>";
@@ -461,6 +466,7 @@
 				806C4F4921DE9BC00002E967 /* secp */,
 				806C4F6521DE9BC00002E967 /* RIPEMD160.swift */,
 				8067A24622B2FF9B0080ECF1 /* Bech32.swift */,
+				5DE995D4232298EB00623148 /* CryptoUtils.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -847,6 +853,7 @@
 				806C4FA921DE9BC00002E967 /* CardDetailsNetworkOperation.swift in Sources */,
 				80C14C912263C457008E4818 /* ed25519_sc.swift in Sources */,
 				8067A24322B2F2720080ECF1 /* BinanceNetworkBalanceOperation.swift in Sources */,
+				5DE995D723229EA500623148 /* Curve.swift in Sources */,
 				806C4FAE21DE9BC00002E967 /* CoinMarketOperation.swift in Sources */,
 				8067A24122B2F22D0080ECF1 /* BNBCardBalanceOperation.swift in Sources */,
 				5DEF97EE22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift in Sources */,
@@ -881,6 +888,7 @@
 				80C80EDC230B544A00333AB3 /* TransactionInfo.swift in Sources */,
 				5D3DBF5C2310194F0065D96A /* CardanoUnspentOutput.swift in Sources */,
 				5D11114222F0691E009919D1 /* lax_der_privatekey_parsing.swift in Sources */,
+				5DE995D5232298EB00623148 /* CryptoUtils.swift in Sources */,
 				5DE10AF322D609DA00BC45B9 /* CardTLV.swift in Sources */,
 				80EABF03222DCEBE00E1302A /* BTCEngine.swift in Sources */,
 				5D11114B22F0691E009919D1 /* scalar_impl.swift in Sources */,
