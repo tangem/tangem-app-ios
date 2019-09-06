@@ -25,7 +25,7 @@ extension Array where Element == UInt8 {
     }
     
     public var utf8String: String? {
-        return String(bytes: self, encoding: .utf8)
+        return String(bytes: self, encoding: .utf8)?.remove("\0")
     }
     
     public var intValue: Int? {
