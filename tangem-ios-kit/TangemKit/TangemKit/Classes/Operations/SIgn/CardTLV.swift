@@ -10,10 +10,6 @@ public struct CardTLV {
     public let tag: CardTag
     public let value: [UInt8]?
     
-    public var intValue: Int? {
-        return Int(from: value)
-    }
-    
     var bytes: [UInt8] {
         var bytes = [UInt8]()
         let length = value?.count ?? 0
