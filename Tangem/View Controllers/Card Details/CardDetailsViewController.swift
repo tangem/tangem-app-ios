@@ -33,6 +33,29 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         return session
     }()
     
+    @available(iOS 13.0, *)
+    lazy var session: CardSession =  {
+        let session = CardSession() {[weak self] result in
+            switch result {
+            case .success (let tlv):
+                let card = Card(tags: Array(tlv.values))
+                card.genuinityState = .genuine
+                 DispatchQueue.main.async {
+                    self?.tangemSessionDidRead(card: card)
+                }
+            case .failure(let error):
+                if let error = error {
+                     DispatchQueue.main.async {
+                        self?.tangemSessionDidFailWith(error: .readerSessionError)
+                    }
+                }
+                break
+            }
+        }
+        return session
+    }()
+    
+    
     let storageManager: StorageManagerType = SecureStorageManager()
     
     override func viewDidLoad() {
@@ -206,11 +229,15 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        if card.type == .cardano {
+        if #available(iOS 13.0, *) {
             setupBalanceVerified(true, customText: card.isTestBlockchain ? "Test blockhain": nil)
-        } else {
-            verifySignature(card: card)
-            setupBalanceIsBeingVerified()
+        } else {            
+            if card.type == .cardano {
+                setupBalanceVerified(true, customText: card.isTestBlockchain ? "Test blockhain": nil)
+            } else {
+                verifySignature(card: card)
+                setupBalanceIsBeingVerified()
+            }
         }
     }
     
@@ -445,7 +472,12 @@ extension CardDetailsViewController {
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
-        tangemSession.start()
+        if #available(iOS 13.0, *) {
+            session.start()
+        } else {
+            tangemSession.start()
+        }
+        
         #endif
     }
 

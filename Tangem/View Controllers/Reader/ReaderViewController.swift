@@ -21,15 +21,20 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     
     @available(iOS 13.0, *)
     lazy var session: CardSession =  {
-        let session = CardSession() { result in
+        let session = CardSession() {[weak self] result in
             switch result {
             case .success (let tlv):
                 let card = Card(tags: Array(tlv.values))
                 card.genuinityState = .genuine
-                DispatchQueue.main.async {
+                 DispatchQueue.main.async {
                     UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
                 }
-            case .failure:
+            case .failure(let error):
+                if let error = error {
+                     DispatchQueue.main.async {
+                    self?.handleGenericError(error)
+                    }
+                }
                 break
             }
         }
