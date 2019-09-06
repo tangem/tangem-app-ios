@@ -421,7 +421,7 @@ public class Card {
             case .signature:
                 signArr = $0.value ?? []
             default:
-                print("Tag \($0.tag) doesn't have a handler")
+                print("Warning: Tag \($0.tag) doesn't have a handler in a Card class")
             }
         })
         
