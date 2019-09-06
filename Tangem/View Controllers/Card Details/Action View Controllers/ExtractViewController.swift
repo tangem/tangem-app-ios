@@ -562,7 +562,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
             if let cardState = respApdu.state {
                 switch cardState {
                 case .needPause:
-                    if let remainingMilliseconds = respApdu.tlv[.pause]?.intValue {
+                    if let remainingMilliseconds = respApdu.tlv[.pause]?.value?.intValue {
                         self.readerSession?.alertMessage = "Security delay: \(remainingMilliseconds/100) seconds"
                     }
                 
