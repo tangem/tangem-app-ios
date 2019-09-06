@@ -21,7 +21,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     
     @available(iOS 13.0, *)
     lazy var session: CardSession =  {
-        let session = CardSession(instruction: .read) { result in
+        let session = CardSession() { result in
             switch result {
             case .success (let tlv):
                 let card = Card(tags: Array(tlv.values))
