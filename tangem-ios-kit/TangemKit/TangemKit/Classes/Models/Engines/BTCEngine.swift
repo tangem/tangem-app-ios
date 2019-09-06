@@ -11,6 +11,8 @@ import Foundation
 class BTCEngine: CardEngine {
     
     unowned var card: Card
+    var currentBackend = BtcBackend.blockcypher
+    
     private let operationQueue = OperationQueue()
     var blockcypherResponse: BlockcypherAddressResponse? {
         didSet {
@@ -85,8 +87,11 @@ class BTCEngine: CardEngine {
     var targetAddress: String?
     var amount: Decimal?
     var change: Decimal?
+    
+    func switchBackend() {
+        currentBackend =  (currentBackend == .blockcypher) ? .blockchainInfo : .blockcypher
+    }
 }
-
 
 extension BTCEngine: CoinProvider {
     var coinTraitCollection: CoinTrait {
@@ -303,44 +308,33 @@ extension BTCEngine: CoinProvider {
         
         let txHexString = txToSend.toHexString()
         
-        let sendOp: BlockcypherRequestOperation<BlockcypherSendResponse> = BlockcypherRequestOperation(endpoint: .send(txHex: txHexString)) {[weak self] result in
+        let sendOp = BtcSendOperation(with: self, txHex: txHexString, completion: {[weak self] result in
             switch result {
             case .success(let sendResponse):
                 self?.unconfirmedBalance = nil
-                print(sendResponse?.tx)
                 completion(true)
             case .failure(let error):
                 print(error)
                 completion(false)
             }
-        }
-        sendOp.useTestNet =  card.isTestBlockchain
+        })
         operationQueue.addOperation(sendOp)
     }
     
     func getFee(targetAddress: String, amount: String, completion: @escaping ((min: String, normal: String, max: String)?) -> Void) {
         
-        let feeRequestOperation: BlockcypherRequestOperation<BlockcypherFeeResponse> =
-            BlockcypherRequestOperation(endpoint: .fee) {[weak self] result in
+        let feeRequestOperation = BtcFeeOperation(with: self, completion: {[weak self] result in
                 switch result {
                 case .success(let feeResponse):
                     guard let self = self else {
                          completion(nil)
                         return
                     }
-
-                    guard let feeResponse = feeResponse,
-                        let minKb = feeResponse.low_fee_per_kb,
-                        let normalKb = feeResponse.medium_fee_per_kb,
-                        let maxKb = feeResponse.high_fee_per_kb else {
-                            completion(nil)
-                            return
-                    }
                     
                     let kb = Decimal(1024)
-                    let minPerByte = Decimal(minKb)/kb
-                    let normalPerByte = Decimal(normalKb)/kb
-                    let maxPerByte = Decimal(maxKb)/kb
+                    let minPerByte = feeResponse.minimalKb/kb
+                    let normalPerByte = feeResponse.normalKb/kb
+                    let maxPerByte = feeResponse.priorityKb/kb
                     
                     guard let testHash = self.getHashForSignature(amount: amount, fee: "0.00000001", includeFee: true, targetAddress: targetAddress),
                             let txRefs = self.blockcypherResponse?.txrefs,
@@ -349,9 +343,9 @@ extension BTCEngine: CoinProvider {
                             return
                     }
                     let estimatedTxSize = Decimal(testTx.count + 1)
-                    let minFee = (minPerByte * estimatedTxSize).satoshiToBtc
-                    let normalFee = (normalPerByte * estimatedTxSize).satoshiToBtc
-                    let maxFee = (maxPerByte * estimatedTxSize).satoshiToBtc
+                    let minFee = (minPerByte * estimatedTxSize)
+                    let normalFee = (normalPerByte * estimatedTxSize)
+                    let maxFee = (maxPerByte * estimatedTxSize)
                     
                     
                     let fee = ("\(minFee.rounded(Int(Blockchain.bitcoin.decimalCount)))",
@@ -363,8 +357,8 @@ extension BTCEngine: CoinProvider {
                     print(error)
                     completion(nil)
                 }
-        }
-        feeRequestOperation.useTestNet =  card.isTestBlockchain
+        })
+
         operationQueue.addOperation(feeRequestOperation)
     }
     
