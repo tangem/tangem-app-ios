@@ -377,7 +377,7 @@ public class Card {
         
         setupEngine()
     }
-    
+    //[REDACTED_TODO_COMMENT]
     public init(tags: [CardTLV]) {
         tags.forEach({
             switch $0.tag {
@@ -388,7 +388,7 @@ public class Card {
             case .firmware:
                 firmware = $0.value?.utf8String ?? ""
             case .batch:
-                batchId = $0.value?.intValue ?? 0 //Int($0.hexStringValue, radix: 16)!
+                batchId = $0.value?.intValue ?? -1 //Int($0.hexStringValue, radix: 16)!
             case .manufactureDateTime:
                 manufactureDateTime = $0.value?.utf8String ?? ""
             case .issuerId:
@@ -409,9 +409,9 @@ public class Card {
                 walletPublicKey = $0.value?.hexString ?? ""
                 walletPublicKeyBytesArray = $0.value ?? []
             case .maxSignatures:
-                maxSignatures = "\($0.value?.intValue ?? 0)"
+                maxSignatures = "\($0.value?.intValue ?? -1)"
             case .walletRemainingSignatures:
-                remainingSignatures = $0.value?.utf8String ?? ""
+                remainingSignatures = "\($0.value?.intValue ?? -1)"
             case .walletSignedHashes:
                 signedHashes = $0.value?.hexString ?? ""
             case .challenge:
