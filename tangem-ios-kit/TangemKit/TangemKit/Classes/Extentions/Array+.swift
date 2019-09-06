@@ -18,3 +18,17 @@ extension Array where Element == Int {
         return self.map { return $0.byte }
     }
 }
+
+extension Array where Element == UInt8 {
+    public var hexString: String {
+        return self.map { return String(format: "%02X", $0) }.joined()
+    }
+    
+    public var utf8String: String? {
+        return String(bytes: self, encoding: .utf8)
+    }
+    
+    public var intValue: Int? {
+         return Int(from: self)
+    }
+}

@@ -378,6 +378,56 @@ public class Card {
         setupEngine()
     }
     
+    public init(tags: [CardTLV]) {
+        tags.forEach({
+            switch $0.tag {
+            case .cardId:
+                cardID = $0.value?.hexString.cardFormatted ?? ""
+            case .cardPublicKey:
+                cardPublicKey = $0.value?.hexString ?? ""
+            case .firmware:
+                firmware = $0.value?.utf8String ?? ""
+            case .batch:
+                batchId = $0.value?.intValue ?? 0 //Int($0.hexStringValue, radix: 16)!
+            case .manufactureDateTime:
+                manufactureDateTime = $0.value?.utf8String ?? ""
+            case .issuerId:
+                issuer = $0.value?.utf8String ?? ""
+            case .manufactureId:
+                manufactureId = $0.value?.utf8String ?? ""
+            case .blockchainId:
+                blockchainName = $0.value?.utf8String ?? ""
+            case .tokenSymbol:
+                tokenSymbol = $0.value?.utf8String ?? ""
+            case .tokenContractAddress:
+                tokenContractAddress = $0.value?.utf8String ?? ""
+            case .tokenDecimal:
+                tokenDecimal = $0.value?.intValue ?? 0 // Int($0.hexStringValue, radix: 16)!
+            case .manufacturerSignature:
+                manufactureSignature = $0.value?.hexString ?? ""
+            case .walletPublicKey:
+                walletPublicKey = $0.value?.hexString ?? ""
+                walletPublicKeyBytesArray = $0.value ?? []
+            case .maxSignatures:
+                maxSignatures = "\($0.value?.intValue ?? 0)"
+            case .walletRemainingSignatures:
+                remainingSignatures = $0.value?.utf8String ?? ""
+            case .walletSignedHashes:
+                signedHashes = $0.value?.hexString ?? ""
+            case .challenge:
+                challenge = $0.value?.hexString.lowercased() ?? ""
+            case .salt:
+                salt = $0.value?.hexString.lowercased() ?? ""
+            case .signature:
+                signArr = $0.value ?? []
+            default:
+                print("Tag \($0.tag) doesn't have a handler")
+            }
+        })
+        
+        setupEngine()
+    }
+    
     func setupEngine() {
         switch blockchain {
         case .bitcoin:
