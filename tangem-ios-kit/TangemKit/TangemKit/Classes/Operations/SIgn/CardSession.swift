@@ -57,9 +57,9 @@ public class CardSession: NSObject {
                               checkWalletResult: [CardTag : CardTLV],
                               challenge: [UInt8]) -> Bool {
         
-        guard let curveId = checkWalletResult[.curveId]?.value?.utf8String,
+        guard let curveId = readResult[.curveId]?.value?.utf8String,
             let curve = Curve(rawValue: curveId),
-            let publicKey = checkWalletResult[.walletPublicKey]?.value,
+            let publicKey = readResult[.walletPublicKey]?.value,
             let salt = checkWalletResult[.salt]?.value,
             let signature = checkWalletResult[.signature]?.value else {
                 return false
@@ -90,7 +90,6 @@ public class CardSession: NSObject {
             if let cardState = respApdu.state {
                 switch cardState {
                 case .processCompleted:
-                   // session.invalidate()
                     completionHandler(.success(respApdu.tlv))
                 default:
                     session.invalidate(errorMessage: cardState.localizedDescription)
@@ -112,9 +111,12 @@ extension CardSession: NFCTagReaderSessionDelegate {
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        if let nfcError = error as? NFCReaderError {
-            completion(.failure(error))
+        guard let nfcError = error as? NFCReaderError,
+            nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
+            return
         }
+        
+        completion(.failure(error))
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
