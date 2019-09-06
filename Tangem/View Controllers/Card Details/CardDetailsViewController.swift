@@ -168,7 +168,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
 
             operationQueue.addOperation(operation)
         } catch {
-            print("Signature verification rrror: \(error)")
+            print("Signature verification error: \(error)")
         }
 
     }
