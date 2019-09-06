@@ -60,8 +60,8 @@
 		5DE10AEC22D609DA00BC45B9 /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE622D609DA00BC45B9 /* Instruction.swift */; };
 		5DE10AED22D609DA00BC45B9 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */; };
 		5DE10AEE22D609DA00BC45B9 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */; };
-		5DE10AEF22D609DA00BC45B9 /* CardSignOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSignOperation.swift */; };
-		5DE10AF022D609DA00BC45B9 /* CardSignOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSignOperation.swift */; };
+		5DE10AEF22D609DA00BC45B9 /* CardSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSession.swift */; };
+		5DE10AF022D609DA00BC45B9 /* CardSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSession.swift */; };
 		5DE10AF122D609DA00BC45B9 /* CardTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE922D609DA00BC45B9 /* CardTag.swift */; };
 		5DE10AF222D609DA00BC45B9 /* CardTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE922D609DA00BC45B9 /* CardTag.swift */; };
 		5DE10AF322D609DA00BC45B9 /* CardTLV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AEA22D609DA00BC45B9 /* CardTLV.swift */; };
@@ -174,7 +174,7 @@
 		5DE10AE222D607F800BC45B9 /* SignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTests.swift; sourceTree = "<group>"; };
 		5DE10AE622D609DA00BC45B9 /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
 		5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandApdu.swift; sourceTree = "<group>"; };
-		5DE10AE822D609DA00BC45B9 /* CardSignOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardSignOperation.swift; sourceTree = "<group>"; };
+		5DE10AE822D609DA00BC45B9 /* CardSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardSession.swift; sourceTree = "<group>"; };
 		5DE10AE922D609DA00BC45B9 /* CardTag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardTag.swift; sourceTree = "<group>"; };
 		5DE10AEA22D609DA00BC45B9 /* CardTLV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardTLV.swift; sourceTree = "<group>"; };
 		5DE10AF922D765D400BC45B9 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
@@ -343,7 +343,7 @@
 			children = (
 				5DE10AE622D609DA00BC45B9 /* Instruction.swift */,
 				5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */,
-				5DE10AE822D609DA00BC45B9 /* CardSignOperation.swift */,
+				5DE10AE822D609DA00BC45B9 /* CardSession.swift */,
 				5DE10AE922D609DA00BC45B9 /* CardTag.swift */,
 				5DE10AEA22D609DA00BC45B9 /* CardTLV.swift */,
 				5DE10AFC22D884B500BC45B9 /* ResponseApdu.swift */,
@@ -824,7 +824,7 @@
 				80C14C922263C457008E4818 /* ed25519_utility.swift in Sources */,
 				5D11115322F0691E009919D1 /* scalar_8x32.swift in Sources */,
 				5D11114A22F0691E009919D1 /* scalar_8x32_impl.swift in Sources */,
-				5DE10AEF22D609DA00BC45B9 /* CardSignOperation.swift in Sources */,
+				5DE10AEF22D609DA00BC45B9 /* CardSession.swift in Sources */,
 				806C4F8321DE9BC00002E967 /* TLVUtils.swift in Sources */,
 				806C4FAB21DE9BC00002E967 /* CardArtworkNetworkOperation.swift in Sources */,
 				8067A23F22B2ED1B0080ECF1 /* BinanceEngine.swift in Sources */,
@@ -938,7 +938,7 @@
 				5DE10AF222D609DA00BC45B9 /* CardTag.swift in Sources */,
 				5D56590222FDB27200DE016B /* ETHTest.swift in Sources */,
 				5D5C028F22EAD7E50036A601 /* TangemAPIClient.swift in Sources */,
-				5DE10AF022D609DA00BC45B9 /* CardSignOperation.swift in Sources */,
+				5DE10AF022D609DA00BC45B9 /* CardSession.swift in Sources */,
 				806C4FE921DEA07B0002E967 /* TestData.swift in Sources */,
 				5DE10AEC22D609DA00BC45B9 /* Instruction.swift in Sources */,
 				5DE10B0122D8D0CD00BC45B9 /* TLVReader.swift in Sources */,
