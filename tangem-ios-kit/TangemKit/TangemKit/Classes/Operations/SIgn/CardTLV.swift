@@ -10,7 +10,7 @@ public struct CardTLV {
     public let tag: CardTag
     public let value: [UInt8]?
     
-    var bytes: [UInt8] {
+    var bytes: [UInt8] { 
         var bytes = [UInt8]()
         let length = value?.count ?? 0
         bytes.reserveCapacity(1 + length)
