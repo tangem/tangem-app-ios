@@ -353,11 +353,9 @@ extension BTCEngine: CoinProvider {
                     let normalFee = (normalPerByte * estimatedTxSize).satoshiToBtc
                     let maxFee = (maxPerByte * estimatedTxSize).satoshiToBtc
                     
-                    let decCount = Int(Blockchain.bitcoin.decimalCount)
-                    
-                    let fee = ("\(minFee.rounded(decCount, .down))",
-                        "\(normalFee.rounded(decCount, .down))",
-                        "\(maxFee.rounded(decCount, .down))")
+                    let fee = ("\(minFee.rounded(blockchain: .bitcoin))",
+                        "\(normalFee.rounded(blockchain: .bitcoin))",
+                        "\(maxFee.rounded(blockchain: .bitcoin))")
                     completion(fee)
                 
                 case .failure(let error):
