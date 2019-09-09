@@ -232,7 +232,7 @@ extension CardanoEngine: CoinProvider {
         }
         let feeValue = a + b * Decimal(transactionSize)
         self.transaction = nil
-        let feeRounded = feeValue.rounded(Int(Blockchain.cardano.decimalCount), .up)
+        let feeRounded = feeValue.rounded(blockchain: .cardano)
         let fee = "\(feeRounded)"
         
         completion((min: fee, normal: fee, max: fee))
