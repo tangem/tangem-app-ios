@@ -49,6 +49,17 @@ public enum Blockchain: String {
             return 0
         }
     }
+    
+    var roundingMode: NSDecimalNumber.RoundingMode {
+        switch self {
+        case .bitcoin, .ethereum, .rootstock, .binance:
+            return .down
+        case .cardano:
+            return .up
+        default:
+            return .plain
+        }
+    }
 }
 
 public class Card {
