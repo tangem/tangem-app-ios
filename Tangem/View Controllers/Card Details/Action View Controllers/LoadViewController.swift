@@ -42,7 +42,7 @@ class LoadViewController: ModalActionViewController {
     }
     
     func updateCopyButtonTitleForState(copied: Bool) {
-        let title = copied ? "Address Copied" : "Copy Address"
+        let title = copied ? Localizations.addressCopied : Localizations.copyAddress
         
         UIView.transition(with: copyAddressButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
             self.copyAddressButton.setTitle(title, for: .normal)
