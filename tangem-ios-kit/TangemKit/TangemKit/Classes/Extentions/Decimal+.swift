@@ -27,6 +27,9 @@ extension Decimal {
         return result
     }
     
+    public func rounded(blockchain: Blockchain) -> Decimal {
+        return rounded(Int(blockchain.decimalCount), blockchain.roundingMode)
+    }
     
     var btcToSatoshi: Decimal  {
         return self * Decimal(100000000)
