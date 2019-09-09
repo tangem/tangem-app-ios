@@ -386,6 +386,7 @@ class ExtractViewController: ModalActionViewController {
         }
         
         let valueToSend = includeFeeSwitch.isOn ? amount : amount + fee
+        let rounded = valueToSend.rounded(blockchain: card.blockchain)
         guard valueToSend > 0 else {
             if btnSend.titleLabel?.text != sendTitle {
                btnSend.setTitle(sendTitle, for: .normal)
