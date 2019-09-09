@@ -150,14 +150,14 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceIsBeingVerified() {
-        let text = "Verifying in blockchain..."
+        let text = Localizations.loadedWalletVerifyingInBlockchain
         let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88,
                                                                            NSAttributedStringKey.foregroundColor : UIColor.black])
         balanceVerificationLabel.attributedText = attributedText
     }
     
     func updateWalletBalanceVerification(_ verified: Bool, customText: String? = nil) {
-        var text = verified ? "Verified balance" : "Unverified balance"
+        var text = verified ? Localizations.verifiedBalance: Localizations.unverifiedBalance
         if let customText = customText, !customText.isEmpty {
             text = customText
         }
@@ -167,7 +167,7 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceNoWallet() {
-        let string = "This card has no wallet.\nWallet creation is not available on the iPhone at this time"
+        let string = "\(Localizations.loadedWalletNoCompatibleWallet).\n\(Localizations.disclamerNoWalletCreation)"
         let attributedText = NSAttributedString(string: string, attributes: [NSAttributedStringKey.kern : 0.88,
                                                                              NSAttributedStringKey.foregroundColor : UIColor.tgm_red()])
         balanceVerificationLabel.attributedText = attributedText
