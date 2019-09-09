@@ -66,6 +66,7 @@
 		5D74D6FB22CDDDD6007C0E3F /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */; };
 		5D7BA19B231B1C1B00D6AB83 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA19A231B1C1B00D6AB83 /* Pods_Tangem.framework */; };
 		5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */; };
+		5DE995D92322C91A00623148 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D82322C91A00623148 /* Localizations.swift */; };
 		8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000364321069C8E00C151E8 /* FontsExtensions.swift */; };
 		8000364E2110F86F00C151E8 /* SairaCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036452110F86E00C151E8 /* SairaCondensed-Regular.ttf */; };
 		8000364F2110F86F00C151E8 /* SairaCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036462110F86E00C151E8 /* SairaCondensed-SemiBold.ttf */; };
@@ -164,6 +165,7 @@
 		5D7BA19A231B1C1B00D6AB83 /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D7BA214231B1CE800D6AB83 /* TangemKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractPlaceholderViewController.swift; sourceTree = "<group>"; };
+		5DE995D82322C91A00623148 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8000364321069C8E00C151E8 /* FontsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontsExtensions.swift; sourceTree = "<group>"; };
@@ -399,6 +401,7 @@
 				8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */,
 				8D946D942018DA92006C73D9 /* Info.plist */,
 				8D8E3F98203AF5F0002E6266 /* Fonts */,
+				5DE995D82322C91A00623148 /* Localizations.swift */,
 			);
 			path = Tangem;
 			sourceTree = "<group>";
@@ -795,6 +798,7 @@
 				80003687213C73BC00C151E8 /* LoadViewController.swift in Sources */,
 				8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */,
 				8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */,
+				5DE995D92322C91A00623148 /* Localizations.swift in Sources */,
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
 				80EC113C229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift in Sources */,
 				800036672111054900C151E8 /* CardDetailsViewModel.swift in Sources */,
