@@ -39,7 +39,7 @@ class ExtractViewController: ModalActionViewController {
             }
         }
     }
-    
+
     private var signApdu: NFCISO7816APDU?
     
     @IBOutlet weak var amountText: UITextField! {
