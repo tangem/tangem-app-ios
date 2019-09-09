@@ -106,7 +106,8 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
     }
     
     func handleGenericError(_ error: Error) {
-        let validationAlert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+        let message = error as?  String ?? error.localizedDescription
+        let validationAlert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
