@@ -42,18 +42,62 @@ class ExtractViewController: ModalActionViewController {
 
     private var signApdu: NFCISO7816APDU?
     
+    @IBOutlet weak var titleLabel: UILabel! {
+        didSet {
+            titleLabel.text = Localizations.sendPayment.uppercased()
+        }
+    }
     @IBOutlet weak var amountText: UITextField! {
         didSet {
             amountText.delegate = self
+            amountText.placeholder = Localizations.generalAmount.lowercased()
         }
     }
     
+    @IBOutlet weak var feeTitleLabel: UILabel! {
+        didSet {
+            feeTitleLabel.text = Localizations.confirmTransactionFee
+        }
+    }
+    @IBOutlet weak var includeFeeLabel: UILabel! {
+        didSet {
+            includeFeeLabel.text = Localizations.confirmTransactionBtnIncludingFee
+        }
+    }
+    @IBOutlet weak var amountTitleLabel: UILabel! {
+        didSet {
+            amountTitleLabel.text = Localizations.generalAmount.uppercased()
+        }
+    }
+    @IBOutlet weak var toWalletLabel: UILabel! {
+        didSet {
+            toWalletLabel.text = Localizations.toWallet.uppercased()
+        }
+    }
+    @IBOutlet weak var addressTitleLabel: UILabel! {
+        didSet {
+            addressTitleLabel.text = "\(Localizations.address):"
+        }
+    }
+    @IBOutlet weak var cardTitleLabel: UILabel! {
+        didSet {
+            cardTitleLabel.text = Localizations.detailsTitleCardId
+        }
+    }
     @IBOutlet weak var amountStackView: UIStackView!
     @IBOutlet weak var addressSeparator: UIView!
     @IBOutlet weak var amountSeparator: UIView!
     @IBOutlet weak var topStackView: UIStackView!
     @IBOutlet weak var targetStackView: UIStackView!
-    @IBOutlet weak var feeControl: UISegmentedControl!
+    @IBOutlet weak var feeControl: UISegmentedControl!  {
+           didSet {
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeeMinimal, forSegmentAt: 0)
+            
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeeNormal, forSegmentAt: 1)
+            
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeePriority, forSegmentAt: 2)
+           }
+       }
     @IBOutlet weak var cardLabel: UILabel!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var amountLabel: UILabel!
@@ -62,12 +106,17 @@ class ExtractViewController: ModalActionViewController {
     @IBOutlet weak var targetAddressText: UITextField! {
         didSet {
             targetAddressText.delegate = self
+            targetAddressText.placeholder = Localizations.address.lowercased()
         }
     }
     @IBOutlet weak var includeFeeSwitch: UISwitch!
     @IBOutlet weak var feeLabel: UILabel!
     @IBOutlet weak var pasteTargetAdressButton: UIButton!
-    @IBOutlet weak var btnSend: UIButton!
+    @IBOutlet weak var btnSend: UIButton! {
+        didSet {
+        btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
+        }
+    }
     @IBOutlet weak var cardInfoContainer: UIStackView!
     
     private var readerSession: NFCTagReaderSession?
@@ -111,7 +160,7 @@ class ExtractViewController: ModalActionViewController {
             state = .none
             return
         }
-        session.invalidate(errorMessage: "Session timeout")
+        session.invalidate(errorMessage: Localizations.nfcSssionTimeout)
     }
     
     @objc func viewDidTap() {
@@ -173,7 +222,7 @@ class ExtractViewController: ModalActionViewController {
         btnSend.showActivityIndicator()
         addLoadingView()
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
-        readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
+        readerSession?.alertMessage = Localizations.nfcAlertDefault
         readerSession?.begin()
         state = .active
     }
@@ -252,7 +301,7 @@ class ExtractViewController: ModalActionViewController {
         if !feeLabel.text!.isEmpty {
             feeLabel.text! += " \(card.walletUnits)"
         } else {
-            feeLabel.text = Constants.feeStub
+            feeLabel.text = Localizations.commonFeeStub
         }
     
             
@@ -342,7 +391,7 @@ class ExtractViewController: ModalActionViewController {
         //        addressText.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 8))
         
         addressLabel.text = card.address
-        feeLabel.text = Constants.feeStub
+        feeLabel.text = Localizations.commonFeeStub
         amountText.text = card.walletValue
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
@@ -373,23 +422,21 @@ class ExtractViewController: ModalActionViewController {
             return
         }
         
-        let sendTitle = "SEND"
         guard let amount = Decimal(string: validatedAmount ?? ""),
             let fee = Decimal(string: validatedFee ?? "") else {
-                if btnSend.titleLabel?.text != sendTitle {
+                if btnSend.titleLabel?.text != Localizations.confirmTransactionBtnSend {
                     UIView.performWithoutAnimation {
-                         btnSend.setTitle(sendTitle, for: .normal)
+                         btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
                         btnSend.layoutIfNeeded()
                     }
                 }
                 return
         }
         
-        let valueToSend = includeFeeSwitch.isOn ? amount : amount + fee
-        let rounded = valueToSend.rounded(blockchain: card.blockchain)
+        let valueToSend = (includeFeeSwitch.isOn ? amount : amount + fee).rounded(blockchain: card.blockchain)
         guard valueToSend > 0 else {
-            if btnSend.titleLabel?.text != sendTitle {
-               btnSend.setTitle(sendTitle, for: .normal)
+            if btnSend.titleLabel?.text != Localizations.confirmTransactionBtnSend {
+               btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
             }
             return
         }
@@ -414,7 +461,7 @@ class ExtractViewController: ModalActionViewController {
                                                                  NSAttributedString.Key.foregroundColor: UIColor.white,
                                                                  NSAttributedString.Key.font: subtitleFont]
         
-        let titleText = NSMutableAttributedString(string: "\(sendTitle)", attributes: titleAttributes)
+        let titleText = NSMutableAttributedString(string: "\(Localizations.confirmTransactionBtnSend)", attributes: titleAttributes)
         let subtitleText = NSMutableAttributedString(string: "\(valueToSend) \(card.walletUnits)", attributes: subtitleAttributes)
         titleText.append(NSAttributedString(string: "\n"))
         titleText.append(subtitleText)
@@ -552,7 +599,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
         tag.sendCommand(apdu: apdu) {[unowned self] (data, sw1, sw2, apduError) in
             guard apduError == nil else {
                 // session.invalidate(errorMessage: apduError!.localizedDescription)
-                session.alertMessage = "Hold your iPhone near a Tangem card"
+                session.alertMessage = Localizations.nfcAlertDefault
                 session.restartPolling()
                 return
             }
@@ -564,14 +611,14 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                 switch cardState {
                 case .needPause:
                     if let remainingMilliseconds = respApdu.tlv[.pause]?.value?.intValue {
-                        self.readerSession?.alertMessage = "Security delay: \(remainingMilliseconds/100) seconds"
+                        self.readerSession?.alertMessage = "\(Localizations.dialogSecurityDelay): \(remainingMilliseconds/100) \(Localizations.secondsLeft)"
                     }
                 
                     if respApdu.tlv[.flash] != nil {
                         self.readerSession?.restartPolling()
                     } else {
                         if self.state == .none {
-                            session.invalidate(errorMessage: "Session timeout")
+                            session.invalidate(errorMessage: Localizations.nfcSssionTimeout)
                             return
                         }
                         self.sendSignRequest(to: tag, with: session, apdu)
@@ -579,7 +626,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                     
                 case .processCompleted:
                     self.state = .signed
-                    session.alertMessage = "Sign completed"
+                    session.alertMessage = Localizations.nfcAlertSignCompleted
                     session.invalidate()
                     if let sign = respApdu.tlv[.signature]?.value {
                         let cProvider = self.card.cardEngine as! CoinProvider
@@ -606,7 +653,7 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                     session.invalidate(errorMessage: cardState.localizedDescription)
                 }
             } else {
-                session.invalidate(errorMessage: "Unknown card state: \(sw1) \(sw2)")
+                session.invalidate(errorMessage: "\(Localizations.unknownCardState): \(sw1) \(sw2)")
             }
             
         }
@@ -631,14 +678,5 @@ extension ExtractViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
-    }
-}
-
-
-//MARK: Constants
-@available(iOS 13.0, *)
-extension ExtractViewController {
-    struct Constants {
-        static let feeStub = "Specify amount and address to see the fee"
     }
 }
