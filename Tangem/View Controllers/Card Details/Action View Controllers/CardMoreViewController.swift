@@ -11,6 +11,11 @@ import UIKit
 class CardMoreViewController: ModalActionViewController {
     
     @IBOutlet weak var contentLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel! {
+        didSet {
+            titleLabel.text = Localizations.moreInfo.uppercased()
+        }
+    }
     
     var contentText = ""
     
