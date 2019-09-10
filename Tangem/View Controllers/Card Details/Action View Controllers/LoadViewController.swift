@@ -19,8 +19,23 @@ class LoadViewController: ModalActionViewController {
     
     weak var delegate: LoadViewControllerDelegate?
     
-    @IBOutlet weak var copyAddressButton: UIButton!
-    @IBOutlet weak var showQRButton: UIButton!
+    @IBOutlet weak var copyAddressButton: UIButton! {
+           didSet {
+               titleLabel.text = Localizations.copyAddress
+           }
+       }
+    
+    @IBOutlet weak var showQRButton: UIButton! {
+        didSet {
+            titleLabel.text = Localizations.loadedWalletDialogShowQr
+        }
+    }
+    
+    @IBOutlet weak var titleLabel: UILabel! {
+        didSet {
+            titleLabel.text = Localizations.loadedWalletBtnLoad.uppercased()
+        }
+    }
     
     var dispatchWorkItem: DispatchWorkItem?
     
