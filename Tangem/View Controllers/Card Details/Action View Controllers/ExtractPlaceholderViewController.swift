@@ -10,6 +10,11 @@ import UIKit
 
 class ExtractPlaceholderViewController: UIViewController {
     @IBOutlet weak var contentLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel! {
+           didSet {
+            titleLabel.text = Localizations.loadedWalletBtnExtract.uppercased()
+           }
+       }
     
     var contentText: String = ""
     
