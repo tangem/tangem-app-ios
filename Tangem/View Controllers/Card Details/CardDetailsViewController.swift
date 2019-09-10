@@ -143,8 +143,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             self.viewModel.setWalletInfoLoading(false)
             self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
             
-            let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
-            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
+            validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
             self.present(validationAlert, animated: true, completion: nil)
             self.setupBalanceVerified(false)
         })
@@ -166,7 +166,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         let blockchainName = card.cardEngine.blockchainDisplayName
-        let name = card.isTestBlockchain ? "\(blockchainName) Test" : blockchainName
+        let name = card.isTestBlockchain ? "\(blockchainName) \(Localizations.test)" : blockchainName
         viewModel.updateBlockchainName(name)
         viewModel.updateWalletAddress(card.address)
         
@@ -191,7 +191,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
 
             operationQueue.addOperation(operation)
         } catch {
-            print("Signature verification error: \(error)")
+            print("\(Localizations.signatureVerificationError): \(error)")
         }
 
     }
@@ -208,7 +208,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         if let xrpEngine = card.cardEngine as? RippleEngine, let walletReserve = xrpEngine.walletReserve {
             // Ripple reserve
             balanceTitle = card.walletValue + " " + card.walletUnits
-            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) reserve"
+            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
         } else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
             balanceTitle = walletTokenValue + " " + walletTokenUnits
@@ -220,20 +220,20 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
         
         guard card.isBlockchainKnown else {
-            setupBalanceVerified(false, customText: "Unknown blockchain")
+            setupBalanceVerified(false, customText: Localizations.alertUnknownBlockchain)
             return
         }
         
         guard !card.hasPendingTransactions else {
-            setupBalanceVerified(false, customText: "Transaction in progress. Wait for confirmation in blockchain. Tap to retry")
+            setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
             return
         }
         
         if #available(iOS 13.0, *) {
-            setupBalanceVerified(true, customText: card.isTestBlockchain ? "Test blockhain": nil)
+            setupBalanceVerified(true, customText: card.isTestBlockchain ? Localizations.testBlockchain: nil)
         } else {            
             if card.type == .cardano {
-                setupBalanceVerified(true, customText: card.isTestBlockchain ? "Test blockhain": nil)
+                setupBalanceVerified(true, customText: card.isTestBlockchain ? Localizations.testBlockchain: nil)
             } else {
                 verifySignature(card: card)
                 setupBalanceIsBeingVerified()
@@ -248,10 +248,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
         
         let hasBalance = NSDecimalNumber(string: card.walletTokenValue).doubleValue > 0 
-        let balanceTitle = hasBalance ? "GENUINE" : "NOT FOUND"
+        let balanceTitle = hasBalance ? Localizations.genuine : Localizations.notFound
         
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
-        setupBalanceVerified(hasBalance, customText: hasBalance ? "Verified in blockchain" : "Authencity was not verified")
+        setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
     }
 
     func setupBalanceIsBeingVerified() {
@@ -420,7 +420,7 @@ extension CardDetailsViewController {
     }
 
     func updateCopyButtonTitleForState(copied: Bool) {
-        let title = copied ? "Copied!" : "Copy"
+        let title = copied ? Localizations.copied : Localizations.loadedWalletBtnCopy
         let color = copied ? UIColor.tgm_green() : UIColor.black
 
         UIView.transition(with: viewModel.copyButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
@@ -507,17 +507,17 @@ extension CardDetailsViewController {
             verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
         }
 
-        let strings = ["Issuer: \(cardDetails.issuer)",
-            "Manufacturer: \(cardDetails.manufactureName)",
-            "API node: \(cardDetails.node)",
-            "Challenge 1: \(cardChallenge ?? "N\\A")",
-            "Challenge 2: \(verificationChallenge ?? "N\\A")",
-            "Signature: \(isBalanceVerified ? "passed" : "not passed")",
-            "Authenticity: \(cardDetails.isAuthentic ? "attested" : "not attested")",
-            "Firmware: \(cardDetails.firmware)",
-            "Registration date: \(cardDetails.manufactureDateTime)",
-            "Serial: \(cardDetails.cardID)",
-            "Remaining signatures: \(cardDetails.remainingSignatures)"]
+        let strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
+            "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
+            "\(Localizations.detailsValidationNode): \(cardDetails.node)",
+            "\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)",
+            "\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)",
+            "\(Localizations.signature): \(isBalanceVerified ? Localizations.passed : Localizations.notPassed)",
+            "\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)",
+            "\(Localizations.detailsFirmware): \(cardDetails.firmware)",
+            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)",
+            "\(Localizations.detailsTitleCardId): \(cardDetails.cardID)",
+            "\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)"]
         viewController.contentText = strings.joined(separator: "\n")
 
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
