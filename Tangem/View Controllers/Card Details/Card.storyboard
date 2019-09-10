@@ -110,7 +110,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="urx-lf-qZ1">
-                                        <rect key="frame" x="49.5" y="319" width="276" height="89"/>
+                                        <rect key="frame" x="49.5" y="320" width="276" height="89"/>
                                         <subviews>
                                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9Eu-SO-21M">
                                                 <rect key="frame" x="0.0" y="0.0" width="89" height="89"/>
@@ -183,13 +183,13 @@
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="16t433L6C9g7AHmopPkrmjLEhLyGJF26G9" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Yp-7Z-uw0">
-                                        <rect key="frame" x="40" y="449" width="295" height="17"/>
+                                        <rect key="frame" x="40" y="450" width="295" height="17"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bitcoin" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="13" translatesAutoresizingMaskIntoConstraints="NO" id="OXE-6A-lHc">
-                                        <rect key="frame" x="164.5" y="424" width="46" height="17"/>
+                                        <rect key="frame" x="164.5" y="425" width="46" height="17"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
@@ -210,10 +210,10 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z0H-I6-hUI">
                                                 <rect key="frame" x="175" y="0.0" width="160" height="60"/>
-                                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                 <state key="normal" title="EXTRACT">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
                                                     <action selector="extractButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="muc-V1-b69"/>
@@ -342,7 +342,7 @@
                             <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="bQm-VT-pR3">
                                 <rect key="frame" x="0.0" y="8" width="375" height="40"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SEND PAYMENT" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jcc-qw-WQh">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SEND PAYMENT" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jcc-qw-WQh">
                                         <rect key="frame" x="132.5" y="4.5" width="110" height="31.5"/>
                                         <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -602,21 +602,28 @@
                     <connections>
                         <outlet property="addressLabel" destination="sdv-eg-yCT" id="uKz-IX-3wX"/>
                         <outlet property="addressSeparator" destination="xfo-xf-RFf" id="Lye-aY-FyP"/>
+                        <outlet property="addressTitleLabel" destination="1Gb-aF-3sP" id="g6t-SB-dkn"/>
                         <outlet property="amountLabel" destination="kBV-Dy-vaU" id="8cT-ld-mc2"/>
                         <outlet property="amountSeparator" destination="cAI-tk-lwG" id="Khj-7I-875"/>
                         <outlet property="amountStackView" destination="Mnf-h3-kcj" id="quP-Id-eDf"/>
                         <outlet property="amountText" destination="l0p-77-2FO" id="izI-ts-BgT"/>
+                        <outlet property="amountTitleLabel" destination="IDR-Xx-TAo" id="YFh-QI-tL5"/>
                         <outlet property="amountUnitsLabel" destination="l7a-4v-0je" id="kdl-ab-Qd4"/>
                         <outlet property="blockchainNameLabel" destination="NGJ-4c-JhN" id="rhi-7c-xJD"/>
                         <outlet property="btnSend" destination="bx9-On-jnu" id="1Re-2U-pr3"/>
                         <outlet property="cardInfoContainer" destination="eiA-sf-drp" id="yLQ-Kb-NDZ"/>
                         <outlet property="cardLabel" destination="W9C-jC-USt" id="Kvc-ao-UgG"/>
+                        <outlet property="cardTitleLabel" destination="QFt-no-LS2" id="Hgt-JK-GyB"/>
                         <outlet property="feeControl" destination="Hg9-Lm-2zM" id="w7n-Km-Wuv"/>
                         <outlet property="feeLabel" destination="Sp6-ka-43A" id="uJd-2l-RDn"/>
+                        <outlet property="feeTitleLabel" destination="7x8-18-YLd" id="QEB-8z-eae"/>
+                        <outlet property="includeFeeLabel" destination="bNo-sl-ySn" id="cjH-PL-dSG"/>
                         <outlet property="includeFeeSwitch" destination="thG-2d-9j2" id="i1i-nQ-h0C"/>
                         <outlet property="pasteTargetAdressButton" destination="pej-X6-HFk" id="FOp-zv-NqP"/>
                         <outlet property="targetAddressText" destination="xvB-ev-yjz" id="Npt-df-g5g"/>
                         <outlet property="targetStackView" destination="pBi-ll-mXY" id="0Fs-az-0V5"/>
+                        <outlet property="titleLabel" destination="Jcc-qw-WQh" id="mre-Pg-Hk7"/>
+                        <outlet property="toWalletLabel" destination="Hby-Nl-gBl" id="Bc7-aJ-btA"/>
                         <outlet property="topStackView" destination="7u7-MR-3OI" id="8Kc-Ht-tRQ"/>
                     </connections>
                 </viewController>
@@ -636,17 +643,17 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="4mC-LX-D9L">
-                                        <rect key="frame" x="0.0" y="10" width="375" height="40"/>
+                                        <rect key="frame" x="0.0" y="10" width="375" height="42"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="agl-yI-2WI">
-                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
+                                                <rect key="frame" x="325" y="0.0" width="42" height="42"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="agl-yI-2WI" secondAttribute="height" multiplier="1:1" id="cnT-bd-DuS"/>
                                                 </constraints>
                                                 <state key="normal" image="icon-help-small"/>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOAD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b7s-lc-UnO">
-                                                <rect key="frame" x="168.5" y="4.5" width="38" height="31.5"/>
+                                                <rect key="frame" x="161" y="4.5" width="53.5" height="33.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
@@ -663,7 +670,7 @@
                                         </constraints>
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i91-lH-hS4">
-                                        <rect key="frame" x="0.0" y="145" width="375" height="38"/>
+                                        <rect key="frame" x="0.0" y="151" width="375" height="42"/>
                                         <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="25"/>
                                         <state key="normal" title="Show QR">
                                             <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -673,7 +680,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XEE-I5-SjJ">
-                                        <rect key="frame" x="0.0" y="85" width="375" height="38"/>
+                                        <rect key="frame" x="0.0" y="87" width="375" height="42"/>
                                         <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="25"/>
                                         <state key="normal" title="Copy Address">
                                             <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -710,6 +717,7 @@
                     <connections>
                         <outlet property="copyAddressButton" destination="XEE-I5-SjJ" id="kLF-ge-4ND"/>
                         <outlet property="showQRButton" destination="i91-lH-hS4" id="YW5-kX-Bsq"/>
+                        <outlet property="titleLabel" destination="b7s-lc-UnO" id="Uid-1V-VWY"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xUc-yA-pyY" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -728,17 +736,17 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="CTT-kX-MD8">
-                                        <rect key="frame" x="0.0" y="10" width="375" height="40"/>
+                                        <rect key="frame" x="0.0" y="10" width="375" height="42"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Tt-b1-JEP">
-                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
+                                                <rect key="frame" x="325" y="0.0" width="42" height="42"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="1Tt-b1-JEP" secondAttribute="height" multiplier="1:1" id="bi8-Pg-iuF"/>
                                                 </constraints>
                                                 <state key="normal" image="icon-help-small"/>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MORE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eUM-J5-RUS">
-                                                <rect key="frame" x="166" y="4.5" width="43" height="31.5"/>
+                                                <rect key="frame" x="158" y="4.5" width="59" height="33.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
@@ -755,7 +763,7 @@
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZGJ-w1-cTW">
-                                        <rect key="frame" x="30" y="104" width="315" height="180"/>
+                                        <rect key="frame" x="30" y="106" width="315" height="210"/>
                                         <string key="text">Issuer: Tangem, Inc.
 Manufacturer: Tangem, Inc.
 API node: tardis.bauerj.eu:50001
@@ -794,6 +802,7 @@ Remaining signatures: 1,000,000</string>
                     </view>
                     <connections>
                         <outlet property="contentLabel" destination="ZGJ-w1-cTW" id="IYJ-9R-K6d"/>
+                        <outlet property="titleLabel" destination="eUM-J5-RUS" id="cIq-TO-sac"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gdW-sl-hSZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -812,17 +821,17 @@ Remaining signatures: 1,000,000</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="UTB-gB-ReA">
-                                        <rect key="frame" x="0.0" y="10" width="375" height="40.5"/>
+                                        <rect key="frame" x="0.0" y="10" width="375" height="42"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vkU-ZN-NRT">
-                                                <rect key="frame" x="326.5" y="0.0" width="40.5" height="40.5"/>
+                                                <rect key="frame" x="325" y="0.0" width="42" height="42"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="vkU-ZN-NRT" secondAttribute="height" multiplier="1:1" id="2nG-Mu-Fbi"/>
                                                 </constraints>
                                                 <state key="normal" image="icon-help-small"/>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOAD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="emL-8I-vTT">
-                                                <rect key="frame" x="168.5" y="4.5" width="38" height="32"/>
+                                                <rect key="frame" x="161" y="4.5" width="53.5" height="33.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
@@ -839,7 +848,7 @@ Remaining signatures: 1,000,000</string>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WFh-b0-G0O">
-                                        <rect key="frame" x="70" y="80.5" width="235" height="271"/>
+                                        <rect key="frame" x="70" y="82" width="235" height="277"/>
                                         <subviews>
                                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="58n-bZ-L7p">
                                                 <rect key="frame" x="20.5" y="0.0" width="194" height="194"/>
@@ -849,7 +858,7 @@ Remaining signatures: 1,000,000</string>
                                                 </constraints>
                                             </imageView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="16t433L6C9g7AHmopPkrmjLEhLyGJF26G9" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cnw-bw-ZSo">
-                                                <rect key="frame" x="0.0" y="237" width="235" height="34"/>
+                                                <rect key="frame" x="0.0" y="237" width="235" height="40"/>
                                                 <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="17"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
@@ -890,6 +899,7 @@ Remaining signatures: 1,000,000</string>
                     <connections>
                         <outlet property="addressLabel" destination="Cnw-bw-ZSo" id="MBm-Nm-QVx"/>
                         <outlet property="imageView" destination="58n-bZ-L7p" id="Tcy-LB-nhD"/>
+                        <outlet property="titleLabel" destination="emL-8I-vTT" id="9Jj-OJ-kpE"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WiV-ao-w4U" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -908,16 +918,16 @@ Remaining signatures: 1,000,000</string>
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="ASr-1L-qmf">
-                                        <rect key="frame" x="0.0" y="10" width="375" height="40"/>
+                                        <rect key="frame" x="0.0" y="10" width="375" height="42"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="EXTRACT" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Ks-mV-eZe">
-                                                <rect key="frame" x="156" y="4.5" width="63" height="31.5"/>
+                                                <rect key="frame" x="143" y="4.5" width="89" height="33.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="trS-9k-CUk">
-                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
+                                                <rect key="frame" x="325" y="0.0" width="42" height="42"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="trS-9k-CUk" secondAttribute="height" multiplier="1:1" id="t30-uG-pD7"/>
                                                 </constraints>
@@ -935,7 +945,7 @@ Remaining signatures: 1,000,000</string>
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999998807907104" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yob-Ty-lb9">
-                                        <rect key="frame" x="80" y="106" width="215" height="54"/>
+                                        <rect key="frame" x="80" y="108" width="215" height="63"/>
                                         <string key="text">Value extraction is not
 available on the iPhone
 at this time</string>
@@ -967,6 +977,7 @@ at this time</string>
                     </view>
                     <connections>
                         <outlet property="contentLabel" destination="yob-Ty-lb9" id="RSN-Ni-gyx"/>
+                        <outlet property="titleLabel" destination="9Ks-mV-eZe" id="LXQ-yS-Nbx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QXM-1t-Vhm" userLabel="First Responder" sceneMemberID="firstResponder"/>
