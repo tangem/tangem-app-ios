@@ -246,10 +246,10 @@ class ExtractViewController: ModalActionViewController {
         
         let signMethods = self.card.supportedSignMethods
         
-        if signMethods.contains(.issuerSign) {
+        if signMethods.contains(.signHashValidatedByIssuer) {
             let issuerSignature: [UInt8] = []
             if issuerSignature.isEmpty {
-                if !signMethods.contains(.signHashes) {
+                if !signMethods.contains(.signHashValidatedByIssuer) {
                     self.handleTXNotSignedByIssuer()
                     return nil
                 }
