@@ -514,7 +514,8 @@ struct Localizations {
     static let address = translate("common_address")
     static let toWallet = translate("common_to_wallet")
     static let doubleScanHint = translate("common_double_scan_hint")
-    
+    static let alertStart2CoinMessage = translate("alert_start2coin")
+    static let goToLink = translate("common_go_link")
 }
 // MARK: - Implementation Details
 
