@@ -323,6 +323,8 @@ public class Card {
             return "card_ru042"
         case 0xFF32:
             return "card_ff32"
+        case 0x0034:
+            return "card-start2coin"
         default:
             return "card-default"
         }
