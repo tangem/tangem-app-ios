@@ -58,7 +58,7 @@ public class CardSession: NSObject {
                               challenge: [UInt8]) -> Bool {
         
         guard let curveId = readResult[.curveId]?.value?.utf8String,
-            let curve = Curve(rawValue: curveId),
+            let curve = EllipticCurve(rawValue: curveId),
             let publicKey = readResult[.walletPublicKey]?.value,
             let salt = checkWalletResult[.salt]?.value,
             let signature = checkWalletResult[.signature]?.value else {
