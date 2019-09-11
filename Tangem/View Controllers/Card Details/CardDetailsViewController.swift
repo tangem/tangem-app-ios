@@ -175,6 +175,16 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
         viewModel.balanceVerificationActivityIndicator.stopAnimating()
+        
+        if card.cardID.starts(with: "10") {
+            viewModel.loadButton.isHidden = true
+            viewModel.extractButton.backgroundColor = UIColor(red: 249.0/255.0, green: 175.0/255.0, blue: 37.0/255.0, alpha: 1.0)
+            viewModel.extractButton.setTitleColor(.white, for: .normal)
+        } else {
+            viewModel.loadButton.isHidden = false
+            viewModel.extractButton.backgroundColor = .white
+            viewModel.extractButton.setTitleColor(.black, for: .normal)
+        }
     }
 
     func verifySignature(card: Card) {
@@ -430,6 +440,15 @@ extension CardDetailsViewController {
     }
 
     @IBAction func loadButtonPressed(_ sender: Any) {
+        guard let card = self.card else {
+            return
+        }
+        
+//        guard !card.cardID.starts(with: "10") else {
+//            self.handleStart2CoinLoad()
+//            return
+//        }
+
         guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "LoadViewController") as? LoadViewController else {
             return
         }
