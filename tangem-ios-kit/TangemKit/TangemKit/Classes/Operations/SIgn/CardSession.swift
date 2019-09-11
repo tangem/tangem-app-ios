@@ -13,7 +13,7 @@ import CoreNFC
 @available(iOS 13.0, *)
 public enum CardSessionResult<T> {
     case success(T)
-    case failure(Error?)
+    case failure(Error)
 }
 
 @available(iOS 13.0, *)
@@ -22,12 +22,14 @@ public class CardSession: NSObject {
     private let completion: (CardSessionResult<[CardTag : CardTLV]>) -> Void
     private var readerSession: NFCTagReaderSession?
     private var cardHandled: Bool = false
+    public private(set) var isBusy: Bool = false
     
     public init(completion: @escaping (CardSessionResult<[CardTag : CardTLV]>) -> Void) {
         self.completion = completion
     }
     
     public func start() {
+        isBusy = true
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
         readerSession!.alertMessage = "Hold your iPhone near a Tangem card"
         readerSession!.begin()
@@ -123,9 +125,11 @@ extension CardSession: NFCTagReaderSessionDelegate {
             return
         }
         
+        self.isBusy = false
+        
         guard let nfcError = error as? NFCReaderError,
             nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
-                completion(.failure(nil))
+                completion(.failure(error))
                 return
         }
         
@@ -145,6 +149,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                 guard let challenge = CryptoUtils.getRandomBytes(count: 16) else {
                     let error = "Failed to generate challenge"
                     session.invalidate(errorMessage: error)
+                    self.isBusy = false
                     self.completion(.failure(error))
                     return
                 }
@@ -162,7 +167,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                                 self.cardHandled = true
                                 session.invalidate()
                                 let verifyed = self.verifyWallet(readResult: readResult, checkWalletResult: checkWalletResult, challenge: challenge)
-                                
+                                self.isBusy = false
                                 if verifyed {
                                     self.completion(.success(readResult))
                                 } else {
