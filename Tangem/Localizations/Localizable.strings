@@ -728,3 +728,7 @@
 "common_to_wallet" = "To wallet";
 
 "common_double_scan_hint" = "Hold the card close to the reader";
+
+"alert_start2coin" = "Load is prohibited. Please, go to Start2Coin website";
+
+"common_go_link" = "Open in Safari";

@@ -22,6 +22,7 @@ protocol DefaultErrorAlertsCapable {
     func handleSuccess(completion: @escaping () -> Void)
     func handleTXNotSignedByIssuer()
     func handleGenericError(_ error: Error)
+    func handleStart2CoinLoad()
 }
 
 extension DefaultErrorAlertsCapable where Self: UIViewController {
@@ -112,4 +113,13 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
         self.present(validationAlert, animated: true, completion: nil)
     }
     
+    func handleStart2CoinLoad() {
+        let alert = UIAlertController(title: Localizations.dialogWarning, message: Localizations.alertStart2CoinMessage, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: Localizations.generalCancel, style: .default, handler: { (_) in
+        }))
+        alert.addAction(UIAlertAction(title: Localizations.goToLink, style: .default, handler: { (_) in
+            let url = URL(string: "https://www.google.com")!
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)        }))
+        self.present(alert, animated: true, completion: nil)
+    }
 }
