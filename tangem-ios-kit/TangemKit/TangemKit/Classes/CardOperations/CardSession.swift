@@ -13,7 +13,8 @@ import CoreNFC
 @available(iOS 13.0, *)
 public enum CardSessionResult<T> {
     case success(T)
-    case failure(Error?)
+    case failure(Error)
+    case cancelled
 }
 
 @available(iOS 13.0, *)
@@ -22,14 +23,17 @@ public class CardSession: NSObject {
     private let completion: (CardSessionResult<[CardTag : CardTLV]>) -> Void
     private var readerSession: NFCTagReaderSession?
     private var cardHandled: Bool = false
+    public private(set) var isBusy: Bool = false
     
     public init(completion: @escaping (CardSessionResult<[CardTag : CardTLV]>) -> Void) {
         self.completion = completion
     }
     
     public func start() {
+        isBusy = true
+        cardHandled = false
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
-        readerSession!.alertMessage = "Hold your iPhone near a Tangem card"
+        readerSession!.alertMessage = Localizations.nfcAlertDefault
         readerSession!.begin()
     }
     
@@ -56,7 +60,7 @@ public class CardSession: NSObject {
                               challenge: [UInt8]) -> Bool {
         
         guard let curveId = readResult[.curveId]?.value?.utf8String,
-            let curve = Curve(rawValue: curveId),
+            let curve = EllipticCurve(rawValue: curveId),
             let publicKey = readResult[.walletPublicKey]?.value,
             let salt = checkWalletResult[.salt]?.value,
             let signature = checkWalletResult[.signature]?.value else {
@@ -74,7 +78,7 @@ public class CardSession: NSObject {
             _ = secp256k1_ecdsa_signature_normalize(vrfy, &dummy, sig)
             var pubkey = secp256k1_pubkey()
             _ = secp256k1_ec_pubkey_parse(vrfy, &pubkey, publicKey, 65)
-             let result = secp256k1_ecdsa_verify(vrfy, dummy, message, pubkey)
+            let result = secp256k1_ecdsa_verify(vrfy, dummy, message, pubkey)
             secp256k1_context_destroy(&vrfy)
             return result
         case .ed25519:
@@ -89,8 +93,8 @@ public class CardSession: NSObject {
                                  session: NFCTagReaderSession,
                                  completionHandler:  @escaping (CardSessionResult<[CardTag : CardTLV]>) -> Void) {
         tag7816.sendCommand(apdu: apdu) {(data, sw1, sw2, apduError) in
-            guard apduError == nil else {
-                completionHandler(.failure("Request failed"))
+            if let apduError = apduError {
+                completionHandler(.failure(apduError))
                 return
             }
             
@@ -101,11 +105,11 @@ public class CardSession: NSObject {
                     completionHandler(.success(respApdu.tlv))
                 default:
                     session.invalidate(errorMessage: cardState.localizedDescription)
-                    completionHandler(.failure("Request failed"))
+                    completionHandler(.failure(cardState.localizedDescription))
                 }
             } else {
-                session.invalidate(errorMessage: "Unknown card state: \(sw1) \(sw2)")
-                completionHandler(.failure("Request failed"))
+                session.invalidate(errorMessage: "\(Localizations.unknownCardState): \(sw1) \(sw2)")
+                completionHandler(.failure(Localizations.unknownCardState))
             }
         }
     }
@@ -123,9 +127,11 @@ extension CardSession: NFCTagReaderSessionDelegate {
             return
         }
         
+        self.isBusy = false
+        
         guard let nfcError = error as? NFCReaderError,
             nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
-                completion(.failure(nil))
+                completion(.cancelled)
                 return
         }
         
@@ -145,6 +151,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                 guard let challenge = CryptoUtils.getRandomBytes(count: 16) else {
                     let error = "Failed to generate challenge"
                     session.invalidate(errorMessage: error)
+                    self.isBusy = false
                     self.completion(.failure(error))
                     return
                 }
@@ -162,7 +169,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                                 self.cardHandled = true
                                 session.invalidate()
                                 let verifyed = self.verifyWallet(readResult: readResult, checkWalletResult: checkWalletResult, challenge: challenge)
-                                
+                                self.isBusy = false
                                 if verifyed {
                                     self.completion(.success(readResult))
                                 } else {

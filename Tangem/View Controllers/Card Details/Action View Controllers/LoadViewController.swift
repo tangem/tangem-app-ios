@@ -21,13 +21,13 @@ class LoadViewController: ModalActionViewController {
     
     @IBOutlet weak var copyAddressButton: UIButton! {
            didSet {
-               titleLabel.text = Localizations.copyAddress
+            copyAddressButton.setTitle(Localizations.copyAddress, for: .normal) 
            }
        }
     
     @IBOutlet weak var showQRButton: UIButton! {
         didSet {
-            titleLabel.text = Localizations.loadedWalletDialogShowQr
+            showQRButton.setTitle(Localizations.loadedWalletDialogShowQr, for: .normal)
         }
     }
     
