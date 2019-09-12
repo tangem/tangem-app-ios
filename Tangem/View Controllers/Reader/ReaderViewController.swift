@@ -14,12 +14,33 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     var customPresentationController: CustomPresentationController?
     
     let operationQueue = OperationQueue()
-    var tangemSession: TangemSession?
     
-    private struct Constants {
-        static let hintLabelDefaultText = "Press Scan and touch banknote with your iPhone as shown above"
-        static let hintLabelScanningText = "Hold the card close to the reader"
-    }
+    lazy var tangemSession = {
+         return TangemSession(delegate: self)
+    }()
+    
+    @available(iOS 13.0, *)
+    lazy var session: CardSession =  {
+        let session = CardSession() {[weak self] result in
+            switch result {
+            case .success (let tlv):
+                let card = Card(tags: Array(tlv.values))
+                card.genuinityState = .genuine
+                 DispatchQueue.main.async {
+                    UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+                }
+            case .failure(let error):
+                if let error = error {
+                     DispatchQueue.main.async {
+                    self?.handleGenericError(error)
+                    }
+                }
+                break
+            }
+        }
+        return session
+    }()
+    
     
     @IBOutlet weak var warningLabel: UILabel!
     @IBOutlet weak var hintLabel: UILabel! {
@@ -35,6 +56,8 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
             scanButton.layer.cornerRadius = 30.0
             scanButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
             
+            scanButton.setTitle(Localizations.scanButtonTitle, for: .normal)
+            
             scanButton.layer.shadowRadius = 5.0
             scanButton.layer.shadowOffset = CGSize(width: 0, height: 5)
             scanButton.layer.shadowColor = UIColor.black.cgColor
@@ -45,9 +68,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        DispatchQueue.main.async {
-            self.hintLabel.text = Constants.hintLabelDefaultText
-        }
+        self.hintLabel.text = Localizations.readerHintDefault
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -71,27 +92,19 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
-        initiateScan()
-        #endif
-    }
-    
-    func initiateScan() {
-        if tangemSession != nil {
-            tangemSession?.invalidate()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.startSession()
-            }
+        if #available(iOS 13.0, *) {
+            session.start()
         } else {
             startSession()
         }
+        #endif
     }
     
     private func startSession() {
-        tangemSession = TangemSession(delegate: self)
-        tangemSession?.start()
+        tangemSession.start()
     }
     
-    @IBAction func moreButtonPressed(_ sender: Any) {
+   /* @IBAction func moreButtonPressed(_ sender: Any) {
         guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ReaderMoreViewController") as? ReaderMoreViewController else {
             return
         }
@@ -103,13 +116,12 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
-    }
+    }*/
     
     func launchSimulationParsingOperationWith(payload: Data) {
-        tangemSession = TangemSession(payload: payload, delegate: self)
-        tangemSession?.start()
+        tangemSession.payload = payload
+        startSession()
     }
-    
 }
 
 extension ReaderViewController : TangemSessionDelegate {
@@ -118,14 +130,14 @@ extension ReaderViewController : TangemSessionDelegate {
         guard card.isBlockchainKnown /*&& !card.isTestBlockchain*/ else {
             handleUnknownBlockchainCard()
             DispatchQueue.main.async {
-                self.hintLabel.text = Constants.hintLabelDefaultText
+                self.hintLabel.text = Localizations.readerHintDefault
             }
             return
         }
         
         switch card.genuinityState {
         case .pending:
-            self.hintLabel.text = Constants.hintLabelScanningText
+            self.hintLabel.text = Localizations.readerHintScan
         case .nonGenuine:
             handleNonGenuineTangemCard(card) {
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
@@ -146,7 +158,7 @@ extension ReaderViewController : TangemSessionDelegate {
         }
 
         DispatchQueue.main.async {
-            self.hintLabel.text = Constants.hintLabelDefaultText
+            self.hintLabel.text = Localizations.readerHintDefault
         }
     }
 
