@@ -21,28 +21,42 @@ public struct ResponseApdu {
         return CardSW(rawValue: swByte)
     }
     
-    public init(with bytes: [UInt8]) throws {
-        guard bytes.count >= 2 else {
-            throw TangemException.wrongResponseApdu(description: Constants.invalidLength)
-        }
-        
-        if bytes.count == 2 {
-            tlv = [:]
-        } else {
-            let bodyData = Array(bytes.prefix(bytes.count-2))
-            tlv = Dictionary.init(with: bodyData)
-        }
-        
-        sw1 = 0x00FF & bytes[bytes.count - 2]
-        sw2 = 0x00FF & bytes[bytes.count - 1]
-    }
+//    public init(with bytes: [UInt8]) throws {
+//        guard bytes.count >= 2 else {
+//            throw TangemException.wrongResponseApdu(description: Constants.invalidLength)
+//        }
+//
+//        if bytes.count == 2 {
+//            tlv = [:]
+//        } else {
+//            let bodyData = Array(bytes.prefix(bytes.count-2))
+//             let commonTlv = Dictionary.init(with: bodyData)
+//                  if let cardData = commonTlv[.cardData]?.value {
+//                      let cardDataTlv = Dictionary.init(with: cardData)
+//                      tlv = commonTlv.merging(cardDataTlv, uniquingKeysWith: { (_, new) -> CardTLV in new })
+//                  } else {
+//                      tlv = commonTlv
+//                  }
+//        }
+//
+//        sw1 = 0x00FF & bytes[bytes.count - 2]
+//        sw2 = 0x00FF & bytes[bytes.count - 1]
+//    }
     
     public init(with data: Data, sw1: UInt8, sw2: UInt8) {
         self.sw1 = sw1
         self.sw2 = sw2
         let dataBytes = [UInt8](data)
-        tlv = Dictionary.init(with: dataBytes)
+        
+        let commonTlv = Dictionary.init(with: dataBytes)
+        if let cardData = commonTlv[.cardData]?.value {
+            let cardDataTlv = Dictionary.init(with: cardData)
+            tlv = commonTlv.merging(cardDataTlv, uniquingKeysWith: { (_, new) -> CardTLV in new })
+        } else {
+            tlv = commonTlv
+        }
     }
+
 }
 
 //Mark: Constants
