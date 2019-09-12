@@ -33,29 +33,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         return session
     }()
     
-    @available(iOS 13.0, *)
-    lazy var session: CardSession =  {
-        let session = CardSession() {[weak self] result in
-            switch result {
-            case .success (let tlv):
-                let card = Card(tags: Array(tlv.values))
-                card.genuinityState = .genuine
-                 DispatchQueue.main.async {
-                    self?.tangemSessionDidRead(card: card)
-                }
-            case .failure(let error):
-                if let error = error {
-                     DispatchQueue.main.async {
-                        self?.tangemSessionDidFailWith(error: .readerSessionError)
-                    }
-                }
-                break
-            }
-        }
-        return session
-    }()
-    
-    
     let storageManager: StorageManagerType = SecureStorageManager()
     
     override func viewDidLoad() {
@@ -69,8 +46,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             assertionFailure()
             return
         }
-   
-       setupWithCardDetails(card: card)
+        
+        setupWithCardDetails(card: card)
     }
     
     
@@ -83,7 +60,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         guard !isBalanceLoading else {
             return
         }
-
+        
         if card.hasPendingTransactions  {
             self.isBalanceLoading = true
             self.viewModel.setWalletInfoLoading(true)
@@ -186,24 +163,24 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             viewModel.extractButton.setTitleColor(.black, for: .normal)
         }
     }
-
+    
     func verifySignature(card: Card) {
         viewModel.balanceVerificationActivityIndicator.startAnimating()
         do {
             let operation = try card.signatureVerificationOperation { (isGenuineCard) in
                 self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
                 self.setupBalanceVerified(isGenuineCard)
-
+                
                 if !isGenuineCard {
                     self.handleNonGenuineTangemCard(card)
                 }
             }
-
+            
             operationQueue.addOperation(operation)
         } catch {
             print("\(Localizations.signatureVerificationError): \(error)")
         }
-
+        
     }
     
     func handleBalanceLoaded() {
@@ -263,7 +240,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
         setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
     }
-
+    
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
         
@@ -311,7 +288,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     // MARK: Simulator parsing Operation
-
+    
     func launchSimulationParsingOperationWith(payload: Data) {
         tangemSession.payload = payload
         tangemSession.start()
@@ -319,11 +296,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     func showUntrustedAlertIfNeeded() {
         guard let card = card,
-              let walletAmount = Double(card.walletValue),
-              let signedHashesAmount = Int(card.signedHashes, radix: 16) else {
-            return
+            let walletAmount = Double(card.walletValue),
+            let signedHashesAmount = Int(card.signedHashes, radix: 16) else {
+                return
         }
-       
+        
         let scannedCards = storageManager.stringArray(forKey: .cids) ?? []
         let cardScannedBefore = scannedCards.contains(card.cardID)
         if cardScannedBefore {
@@ -362,7 +339,7 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 }
 
 extension CardDetailsViewController : TangemSessionDelegate {
-
+    
     func tangemSessionDidRead(card: Card) {
         guard /*!card.isTestBlockchain &&*/ card.isBlockchainKnown else {
             handleUnknownBlockchainCard {
@@ -373,7 +350,7 @@ extension CardDetailsViewController : TangemSessionDelegate {
         
         self.card = card
         self.setupWithCardDetails(card: card)
-
+        
         switch card.genuinityState {
         case .pending:
             self.isBalanceLoading = true
@@ -384,9 +361,9 @@ extension CardDetailsViewController : TangemSessionDelegate {
         default:
             break
         }
-
+        
     }
-
+    
     func tangemSessionDidFailWith(error: TangemSessionError) {
         switch error {
         case .locked:
@@ -397,72 +374,74 @@ extension CardDetailsViewController : TangemSessionDelegate {
             handleReaderSessionError() {
                 self.navigationController?.popViewController(animated: true)
             }
+        case .userCancelled:
+                      break
         }
     }
-
+    
 }
 
 extension CardDetailsViewController {
-
+    
     // MARK: Actions
-
+    
     @IBAction func exploreButtonPressed(_ sender: Any) {
         if let link = card?.cardEngine.exploreLink, let url = URL(string: link) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
-
+    
     @IBAction func copyButtonPressed(_ sender: Any) {
         UIPasteboard.general.string = card?.address
-
+        
         dispatchWorkItem?.cancel()
-
+        
         updateCopyButtonTitleForState(copied: true)
         dispatchWorkItem = DispatchWorkItem(block: {
             self.updateCopyButtonTitleForState(copied: false)
         })
-
+        
         guard let dispatchWorkItem = dispatchWorkItem else {
             return
         }
-
+        
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: dispatchWorkItem)
     }
-
+    
     func updateCopyButtonTitleForState(copied: Bool) {
         let title = copied ? Localizations.copied : Localizations.loadedWalletBtnCopy
         let color = copied ? UIColor.tgm_green() : UIColor.black
-
+        
         UIView.transition(with: viewModel.copyButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
             self.viewModel.copyButton.setTitle(title.uppercased(), for: .normal)
             self.viewModel.copyButton.setTitleColor(color, for: .normal)
         }, completion: nil)
     }
-
+    
     @IBAction func loadButtonPressed(_ sender: Any) {
         guard let card = self.card else {
             return
         }
         
-//        guard !card.cardID.starts(with: "10") else {
-//            self.handleStart2CoinLoad()
-//            return
-//        }
-
+        //        guard !card.cardID.starts(with: "10") else {
+        //            self.handleStart2CoinLoad()
+        //            return
+        //        }
+        
         guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "LoadViewController") as? LoadViewController else {
             return
         }
-
+        
         viewController.cardDetails = card
         viewController.delegate = self
-
+        
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
         viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
     }
-
+    
     @IBAction func extractButtonPressed(_ sender: Any) {
         if #available(iOS 13.0, *), card!.canExtract  {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
@@ -475,12 +454,12 @@ extension CardDetailsViewController {
                     self.fetchWalletBalance(card: card)
                 }
             }
-                self.present(viewController, animated: true, completion: nil)
+            self.present(viewController, animated: true, completion: nil)
         } else {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController") as! ExtractPlaceholderViewController
             
             viewController.contentText = card!.canExtract ? Localizations.disclamerOldIOS :
-            Localizations.disclamerOldCard
+                Localizations.disclamerOldCard
             
             let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
             self.customPresentationController = presentationController
@@ -489,25 +468,20 @@ extension CardDetailsViewController {
             self.present(viewController, animated: true, completion: nil)
         }
     }
-
+    
     @IBAction func scanButtonPressed(_ sender: Any) {
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
-        if #available(iOS 13.0, *) {
-            session.start()
-        } else {
-            tangemSession.start()
-        }
-        
+        tangemSession.start()
         #endif
     }
-
+    
     @IBAction func moreButtonPressed(_ sender: Any) {
         guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
             return
         }
-
+        
         var cardChallenge: String? = nil
         if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
             let cardChallenge1 = String(challenge.prefix(3))
@@ -516,7 +490,7 @@ extension CardDetailsViewController {
             let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
             cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
         }
-
+        
         var verificationChallenge: String? = nil
         if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
             let cardChallenge1 = String(challenge.prefix(3))
@@ -525,7 +499,7 @@ extension CardDetailsViewController {
             let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
             verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
         }
-
+        
         let strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
             "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
             "\(Localizations.detailsValidationNode): \(cardDetails.node)",
@@ -538,12 +512,12 @@ extension CardDetailsViewController {
             "\(Localizations.detailsTitleCardId): \(cardDetails.cardID)",
             "\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)"]
         viewController.contentText = strings.joined(separator: "\n")
-
+        
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
         viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(478, self.view.frame.height - 200))
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
     }
-
+    
 }
