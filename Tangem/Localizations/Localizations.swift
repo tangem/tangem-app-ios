@@ -33,7 +33,7 @@ import Foundation
 
 // MARK: - Strings
 
-struct Localizations {
+class Localizations {
   /// Minimal
   static let confirmTransactionBtnFeeMinimal = translate("confirm_transaction_btn_fee_minimal")
   /// Normal
@@ -504,12 +504,7 @@ struct Localizations {
     static let passed = translate("common_passed")
     static let notPassed = translate("common_not_passed")
     static let notAvailable = translate("common_not_available")
-    static let nfcSssionTimeout = translate("nfc_session_timeout")
-    static let nfcAlertDefault = translate("nfc_alert_default")
-    static let secondsLeft = translate("nfc_seconds_left")
     static let commonFeeStub = translate("common_fee_stub")
-    static let unknownCardState = translate("nfc_unknown_card_state")
-    static let nfcAlertSignCompleted = translate("nfc_alert_sign_completed")
     static let sendPayment = translate("common_send_payment")
     static let address = translate("common_address")
     static let toWallet = translate("common_to_wallet")
