@@ -537,4 +537,40 @@ extension ExtractViewController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard textField === amountText else {
+            return true
+        }
+        
+        let maxLength = card.blockchain.decimalCount
+        let currentString: NSString = textField.text! as NSString
+        let newString: String =
+            currentString.replacingCharacters(in: range, with: string) as String
+        
+        
+        
+        var allowNew = true
+        
+        if let dotIndex = newString.index(of: ".") {
+            let fromIndex = newString.index(after: dotIndex)
+            let decimalsString = newString[fromIndex...]
+            allowNew = decimalsString.count <= maxLength
+        } else {
+            allowNew = true
+        }
+        
+        guard allowNew else {
+            return false
+        }
+        
+        if string == "," {
+            if let text = textField.text {
+                textField.text = text + "."
+                     return false
+            }
+        }
+        
+        return true
+    }
 }
