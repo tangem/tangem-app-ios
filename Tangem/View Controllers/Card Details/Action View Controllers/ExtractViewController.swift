@@ -7,8 +7,17 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 import TangemKit
+
+public enum NFCState {
+    case active
+    case signed
+    case processing
+    case none
+}
 
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
@@ -16,9 +25,63 @@ class ExtractViewController: ModalActionViewController {
     var card: Card!
     var onDone: (()-> Void)?
     
+    private let stateLockQueue = DispatchQueue(label: "Tangem.ExtractViewController.stateLockQueue")
+    private var _state: NFCState = .none
+    var state: NFCState  {
+        get {
+            stateLockQueue.sync {
+                return _state
+            }
+        }
+        set {
+            stateLockQueue.sync {
+                _state = newValue
+            }
+        }
+    }
+
+    private var signApdu: NFCISO7816APDU?
+    
+    @IBOutlet weak var titleLabel: UILabel! {
+        didSet {
+            titleLabel.text = Localizations.sendPayment.uppercased()
+        }
+    }
     @IBOutlet weak var amountText: UITextField! {
         didSet {
             amountText.delegate = self
+            amountText.placeholder = Localizations.generalAmount.lowercased()
+        }
+    }
+    
+    @IBOutlet weak var feeTitleLabel: UILabel! {
+        didSet {
+            feeTitleLabel.text = Localizations.confirmTransactionFee
+        }
+    }
+    @IBOutlet weak var includeFeeLabel: UILabel! {
+        didSet {
+            includeFeeLabel.text = Localizations.confirmTransactionBtnIncludingFee
+        }
+    }
+    @IBOutlet weak var amountTitleLabel: UILabel! {
+        didSet {
+            amountTitleLabel.text = Localizations.generalAmount.uppercased()
+        }
+    }
+    @IBOutlet weak var toWalletLabel: UILabel! {
+        didSet {
+            toWalletLabel.text = Localizations.toWallet.uppercased()
+        }
+    }
+    @IBOutlet weak var addressTitleLabel: UILabel! {
+        didSet {
+            addressTitleLabel.text = "\(Localizations.address):"
+        }
+    }
+    @IBOutlet weak var cardTitleLabel: UILabel! {
+        didSet {
+            cardTitleLabel.text = Localizations.detailsTitleCardId
         }
     }
     @IBOutlet weak var amountStackView: UIStackView!
@@ -26,7 +89,15 @@ class ExtractViewController: ModalActionViewController {
     @IBOutlet weak var amountSeparator: UIView!
     @IBOutlet weak var topStackView: UIStackView!
     @IBOutlet weak var targetStackView: UIStackView!
-    @IBOutlet weak var feeControl: UISegmentedControl!
+    @IBOutlet weak var feeControl: UISegmentedControl!  {
+           didSet {
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeeMinimal, forSegmentAt: 0)
+            
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeeNormal, forSegmentAt: 1)
+            
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeePriority, forSegmentAt: 2)
+           }
+       }
     @IBOutlet weak var cardLabel: UILabel!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var amountLabel: UILabel!
@@ -35,12 +106,17 @@ class ExtractViewController: ModalActionViewController {
     @IBOutlet weak var targetAddressText: UITextField! {
         didSet {
             targetAddressText.delegate = self
+            targetAddressText.placeholder = Localizations.address.lowercased()
         }
     }
     @IBOutlet weak var includeFeeSwitch: UISwitch!
     @IBOutlet weak var feeLabel: UILabel!
     @IBOutlet weak var pasteTargetAdressButton: UIButton!
-    @IBOutlet weak var btnSend: UIButton!
+    @IBOutlet weak var btnSend: UIButton! {
+        didSet {
+        btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
+        }
+    }
     @IBOutlet weak var cardInfoContainer: UIStackView!
     
     private var readerSession: NFCTagReaderSession?
@@ -59,6 +135,33 @@ class ExtractViewController: ModalActionViewController {
         recognizer.addTarget(self, action: #selector(viewDidTap))
         return recognizer
     }()
+    
+    private var sessionTimer: Timer?
+    private func startSessionTimer() {
+        DispatchQueue.main.async {
+            self.sessionTimer?.invalidate()
+            self.sessionTimer = Timer.scheduledTimer(timeInterval: 59.0, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
+        }
+    }
+    
+    private var tagTimer: Timer?
+    private func startTagTimer() {
+        DispatchQueue.main.async {
+            self.tagTimer?.invalidate()
+            self.tagTimer = Timer.scheduledTimer(timeInterval: 19.0, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
+        }
+    }
+    
+    @objc func timerTimeout() {
+        guard let session = self.readerSession,
+            (state == .active || state == .processing)   else { return }
+        
+        if state == .processing {
+            state = .none
+            return
+        }
+        session.invalidate(errorMessage: Localizations.nfcSssionTimeout)
+    }
     
     @objc func viewDidTap() {
         targetAddressText.resignFirstResponder()
@@ -101,7 +204,7 @@ class ExtractViewController: ModalActionViewController {
     }
     
     @IBAction func scanTapped() {
-        guard validateInput() else {
+        guard state == .none, validateInput() else {
             return
         }
         
@@ -110,11 +213,76 @@ class ExtractViewController: ModalActionViewController {
             return
         }
         
+        signApdu = buildSignApdu()
+        guard signApdu != nil else {
+            return
+        }
+        
         btnSend.setAttributedTitle(NSAttributedString(string: ""), for: .normal)
         btnSend.showActivityIndicator()
+        addLoadingView()
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
-        readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
+        readerSession?.alertMessage = Localizations.nfcAlertDefault
         readerSession?.begin()
+        state = .active
+    }
+    
+    func buildSignApdu() -> NFCISO7816APDU? {
+        let cProvider = self.card.cardEngine as! CoinProvider
+        guard let hashToSign = cProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
+            self.handleTXBuildError()
+            return nil
+        }
+                
+        let cardId = self.card.cardID.asciiHexToData()!
+        let hSize = [UInt8(hashToSign.count)]
+        
+        var tlvData = [
+            CardTLV(.pin, value: "000000".sha256().asciiHexToData()),
+            CardTLV(.cardId, value: cardId),
+            CardTLV(.pin2, value: "000".sha256().asciiHexToData()),
+            CardTLV(.transactionOutHashSize, value: hSize),
+            CardTLV(.transactionOutHash, value: hashToSign.bytes)]
+        
+        let signMethods = self.card.supportedSignMethods
+        
+        if signMethods.contains(.issuerSign) {
+            let issuerSignature: [UInt8] = []
+            if issuerSignature.isEmpty {
+                if !signMethods.contains(.signHashes) {
+                    self.handleTXNotSignedByIssuer()
+                    return nil
+                }
+            } else {
+                tlvData.append(CardTLV(.issuerTxSignature, value: issuerSignature))
+            }
+        }
+        
+        let commandApdu = CommandApdu(with: .sign, tlv: tlvData)
+        let signApduBytes = commandApdu.buildCommand()
+        let signApdu = NFCISO7816APDU(data: Data(bytes: signApduBytes))!
+        return signApdu
+    }
+    
+    func addLoadingView() {
+        if let window = self.view.window {
+            let view = UIView(frame: window.bounds)
+            view.backgroundColor = UIColor.init(white: 0.0, alpha: 0.6)
+            let indicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
+            view.addSubview(indicator)
+            view.tag = 0781
+            indicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+            indicator.startAnimating()
+            window.addSubview(view)
+            window.bringSubview(toFront: view)
+        }
+    }
+    
+    func removeLoadingView() {
+        if let window = self.view.window,
+            let view = window.viewWithTag(0781) {
+            view.removeFromSuperview()
+        }
     }
     
     func updateFee() {
@@ -133,7 +301,7 @@ class ExtractViewController: ModalActionViewController {
         if !feeLabel.text!.isEmpty {
             feeLabel.text! += " \(card.walletUnits)"
         } else {
-            feeLabel.text = Constants.feeStub
+            feeLabel.text = Localizations.commonFeeStub
         }
     
             
@@ -223,7 +391,7 @@ class ExtractViewController: ModalActionViewController {
         //        addressText.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 8))
         
         addressLabel.text = card.address
-        feeLabel.text = Constants.feeStub
+        feeLabel.text = Localizations.commonFeeStub
         amountText.text = card.walletValue
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
@@ -254,22 +422,21 @@ class ExtractViewController: ModalActionViewController {
             return
         }
         
-        let sendTitle = "SEND"
         guard let amount = Decimal(string: validatedAmount ?? ""),
             let fee = Decimal(string: validatedFee ?? "") else {
-                if btnSend.titleLabel?.text != sendTitle {
+                if btnSend.titleLabel?.text != Localizations.confirmTransactionBtnSend {
                     UIView.performWithoutAnimation {
-                         btnSend.setTitle(sendTitle, for: .normal)
+                         btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
                         btnSend.layoutIfNeeded()
                     }
                 }
                 return
         }
         
-        let valueToSend = includeFeeSwitch.isOn ? amount : amount + fee
+        let valueToSend = (includeFeeSwitch.isOn ? amount : amount + fee).rounded(blockchain: card.blockchain)
         guard valueToSend > 0 else {
-            if btnSend.titleLabel?.text != sendTitle {
-               btnSend.setTitle(sendTitle, for: .normal)
+            if btnSend.titleLabel?.text != Localizations.confirmTransactionBtnSend {
+               btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
             }
             return
         }
@@ -294,7 +461,7 @@ class ExtractViewController: ModalActionViewController {
                                                                  NSAttributedString.Key.foregroundColor: UIColor.white,
                                                                  NSAttributedString.Key.font: subtitleFont]
         
-        let titleText = NSMutableAttributedString(string: "\(sendTitle)", attributes: titleAttributes)
+        let titleText = NSMutableAttributedString(string: "\(Localizations.confirmTransactionBtnSend)", attributes: titleAttributes)
         let subtitleText = NSMutableAttributedString(string: "\(valueToSend) \(card.walletUnits)", attributes: subtitleAttributes)
         titleText.append(NSAttributedString(string: "\n"))
         titleText.append(subtitleText)
@@ -396,17 +563,20 @@ class ExtractViewController: ModalActionViewController {
 @available(iOS 13.0, *)
 extension ExtractViewController: NFCTagReaderSessionDelegate {
     func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
+       startSessionTimer()
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        guard session.alertMessage != "Sign completed" else {
+        guard state != .signed else {
             return
         }
-        
+        state = .none
         DispatchQueue.main.async {
             self.btnSend.hideActivityIndicator()
             self.updateSendButtonSubtitle()
+            self.removeLoadingView()
         }
+        
         print(error)
     }
     
@@ -418,43 +588,8 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                     session.invalidate(errorMessage: error!.localizedDescription)
                     return
                 }
-                
-                let cProvider = self.card.cardEngine as! CoinProvider
-                guard let hashToSign = cProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
-                    session.invalidate(errorMessage: "Failed")
-                    self.handleTXBuildError()
-                    return
-                }
-                
-                
-                let cardId = self.card.cardID.asciiHexToData()!
-                let hSize = [UInt8(hashToSign.count)]
-                
-                var tlvData = [
-                    CardTLV(.pin, value: "000000".sha256().asciiHexToData()),
-                    CardTLV(.cardId, value: cardId),
-                    CardTLV(.pin2, value: "000".sha256().asciiHexToData()),
-                    CardTLV(.transactionOutHashSize, value: hSize),
-                    CardTLV(.transactionOutHash, value: hashToSign.bytes)]
-                
-                let signMethods = self.card.supportedSignMethods
-                
-                if signMethods.contains(.issuerSign) {
-                    let issuerSignature: [UInt8] = []
-                    if issuerSignature.isEmpty {
-                        if !signMethods.contains(.signHashes) {
-                            session.invalidate(errorMessage: "Transaction must be signed by issuer")
-                            return
-                        }
-                    } else {
-                        tlvData.append(CardTLV(.issuerTxSignature, value: issuerSignature))
-                    }
-                }
-                
-                let commandApdu = CommandApdu(with: .sign, tlv: tlvData)
-                let signApduBytes = commandApdu.buildCommand()
-                let signApdu = NFCISO7816APDU(data: Data(bytes: signApduBytes))!
-                self.sendSignRequest(to: tag7816, with: session, signApdu)
+                self.startTagTimer()
+                self.sendSignRequest(to: tag7816, with: session, self.signApdu!)
             }
         }
         
@@ -464,34 +599,39 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
         tag.sendCommand(apdu: apdu) {[unowned self] (data, sw1, sw2, apduError) in
             guard apduError == nil else {
                 // session.invalidate(errorMessage: apduError!.localizedDescription)
-                session.alertMessage = "Hold your iPhone near a Tangem card"
+                session.alertMessage = Localizations.nfcAlertDefault
                 session.restartPolling()
                 return
             }
+            self.state = .processing
             
             let respApdu = ResponseApdu(with: data, sw1: sw1, sw2: sw2)
             
             if let cardState = respApdu.state {
                 switch cardState {
                 case .needPause:
-                    if let remainingMilliseconds = respApdu.tlv[.pause]?.intValue {
-                        self.readerSession?.alertMessage = "Security delay: \(remainingMilliseconds/100) seconds"
+                    if let remainingMilliseconds = respApdu.tlv[.pause]?.value?.intValue {
+                        self.readerSession?.alertMessage = "\(Localizations.dialogSecurityDelay): \(remainingMilliseconds/100) \(Localizations.secondsLeft)"
                     }
-                    
+                
                     if respApdu.tlv[.flash] != nil {
                         self.readerSession?.restartPolling()
-                        
                     } else {
+                        if self.state == .none {
+                            session.invalidate(errorMessage: Localizations.nfcSssionTimeout)
+                            return
+                        }
                         self.sendSignRequest(to: tag, with: session, apdu)
                     }
                     
                 case .processCompleted:
-                    session.alertMessage = "Sign completed"
+                    self.state = .signed
+                    session.alertMessage = Localizations.nfcAlertSignCompleted
                     session.invalidate()
                     if let sign = respApdu.tlv[.signature]?.value {
-                        // session.alertMessage = "Signed :)"
                         let cProvider = self.card.cardEngine as! CoinProvider
                         cProvider.sendToBlockchain(signFromCard: sign) {[weak self] result in
+                            self?.removeLoadingView()
                             self?.btnSend.hideActivityIndicator()
                             self?.updateSendButtonSubtitle()
                             if result {
@@ -503,19 +643,19 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
                                     })
                                 }
                             } else {
+                                self?.state = .none
                                 self?.handleTXSendError()
                             }
                             
                         }
                     }
-                    
-                //[REDACTED_TODO_COMMENT]
                 default:
                     session.invalidate(errorMessage: cardState.localizedDescription)
                 }
             } else {
-                session.invalidate(errorMessage: "Unknown card state: \(sw1) \(sw2)")
+                session.invalidate(errorMessage: "\(Localizations.unknownCardState): \(sw1) \(sw2)")
             }
+            
         }
     }
     
@@ -538,14 +678,5 @@ extension ExtractViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
-    }
-}
-
-
-//MARK: Constants
-@available(iOS 13.0, *)
-extension ExtractViewController {
-    struct Constants {
-        static let feeStub = "Specify amount and address to see the fee"
     }
 }
