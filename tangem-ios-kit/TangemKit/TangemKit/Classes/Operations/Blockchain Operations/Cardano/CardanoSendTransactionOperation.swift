@@ -10,6 +10,10 @@ import Foundation
 import SwiftyJSON
 import GBAsyncOperation
 
+public protocol BlockchainTxOperation: GBAsyncOperation {
+    var completion: ((TangemObjectResult<Bool>) -> Void)? {get set}
+}
+
 class CardanoSendTransactionOperation: GBAsyncOperation {
     
     private struct Constants {
@@ -17,11 +21,9 @@ class CardanoSendTransactionOperation: GBAsyncOperation {
     }
     
     var httpBody: Data?
-    var completion: (TangemObjectResult<Bool>) -> Void
+    var completion: ((TangemObjectResult<Bool>) -> Void)?
     
-    init(bytes: [UInt8], completion: @escaping (TangemObjectResult<Bool>) -> Void) {
-        self.completion = completion
-        
+    init(bytes: [UInt8]) {
         super.init()
         
         do {
@@ -64,7 +66,7 @@ class CardanoSendTransactionOperation: GBAsyncOperation {
             return
         }
         
-        completion(.success(success))
+        completion?(.success(success))
         finish()
     }
     
@@ -73,7 +75,12 @@ class CardanoSendTransactionOperation: GBAsyncOperation {
             return
         }
         
-        completion(.failure(error))
+        completion?(.failure(error))
         cancel()
     }
+}
+
+
+extension CardanoSendTransactionOperation: BlockchainTxOperation {
+    
 }
