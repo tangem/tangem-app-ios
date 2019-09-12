@@ -374,6 +374,8 @@ extension CardDetailsViewController : TangemSessionDelegate {
             handleReaderSessionError() {
                 self.navigationController?.popViewController(animated: true)
             }
+        case .userCancelled:
+                      break
         }
     }
     

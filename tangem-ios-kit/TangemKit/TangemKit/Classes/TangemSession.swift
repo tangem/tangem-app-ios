@@ -11,6 +11,7 @@ public enum TangemSessionError: Error {
     case readerSessionError(error: Error)
     case payloadError
     case locked
+    case userCancelled
 }
 
 public protocol TangemSessionDelegate: class {
@@ -49,6 +50,10 @@ public class TangemSession {
             case .failure(let error):
                 DispatchQueue.main.async {
                     self?.delegate?.tangemSessionDidFailWith(error: .readerSessionError(error:error))
+                }
+            case .cancelled:
+                DispatchQueue.main.async {
+                    self?.delegate?.tangemSessionDidFailWith(error: .userCancelled)
                 }
             }
         }
