@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CardanoUnspentOutput {
+public struct CardanoUnspentOutput {
     let id: String
     let index: Int
 }
