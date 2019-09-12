@@ -52,7 +52,7 @@ public enum Blockchain: String {
     case binance
     case unknown
     
-    var decimalCount: Int16 {
+    public var decimalCount: Int16 {
         switch self {
         case .bitcoin:
             return 8
@@ -68,7 +68,7 @@ public enum Blockchain: String {
         }
     }
     
-    var roundingMode: NSDecimalNumber.RoundingMode {
+    public var roundingMode: NSDecimalNumber.RoundingMode {
         switch self {
         case .bitcoin, .ethereum, .rootstock, .binance:
             return .down
