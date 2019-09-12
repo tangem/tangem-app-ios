@@ -70,4 +70,5 @@ public enum CardTag: UInt8 {
     case lastSignDate = 0xC2
     case denominationText = 0xC3
     case checkWalletCounter = 0x64
+    case productMask = 0x8A
 }

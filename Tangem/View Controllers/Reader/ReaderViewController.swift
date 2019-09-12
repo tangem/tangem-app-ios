@@ -16,29 +16,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     let operationQueue = OperationQueue()
     
     lazy var tangemSession = {
-         return TangemSession(delegate: self)
-    }()
-    
-    @available(iOS 13.0, *)
-    lazy var session: CardSession =  {
-        let session = CardSession() {[weak self] result in
-            switch result {
-            case .success (let tlv):
-                let card = Card(tags: Array(tlv.values))
-                card.genuinityState = .genuine
-                 DispatchQueue.main.async {
-                    UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
-                }
-            case .failure(let error):
-                if let error = error {
-                     DispatchQueue.main.async {
-                    self?.handleGenericError(error)
-                    }
-                }
-                break
-            }
-        }
-        return session
+        return TangemSession(delegate: self)
     }()
     
     
@@ -92,40 +70,32 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
-        if #available(iOS 13.0, *) {
-            session.start()
-        } else {
-            startSession()
-        }
+        tangemSession.start()
         #endif
     }
     
-    private func startSession() {
-        tangemSession.start()
-    }
-    
-   /* @IBAction func moreButtonPressed(_ sender: Any) {
-        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ReaderMoreViewController") as? ReaderMoreViewController else {
-            return
-        }
-        
-        viewController.contentText = "Tangem for iOS\nVersion \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")!)"
-        
-        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
-        self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
-        viewController.transitioningDelegate = presentationController
-        self.present(viewController, animated: true, completion: nil)
-    }*/
+    /* @IBAction func moreButtonPressed(_ sender: Any) {
+     guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ReaderMoreViewController") as? ReaderMoreViewController else {
+     return
+     }
+     
+     viewController.contentText = "Tangem for iOS\nVersion \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")!)"
+     
+     let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+     self.customPresentationController = presentationController
+     viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
+     viewController.transitioningDelegate = presentationController
+     self.present(viewController, animated: true, completion: nil)
+     }*/
     
     func launchSimulationParsingOperationWith(payload: Data) {
         tangemSession.payload = payload
-        startSession()
+        tangemSession.start()
     }
 }
 
 extension ReaderViewController : TangemSessionDelegate {
-
+    
     func tangemSessionDidRead(card: Card) {
         guard card.isBlockchainKnown /*&& !card.isTestBlockchain*/ else {
             handleUnknownBlockchainCard()
@@ -146,7 +116,7 @@ extension ReaderViewController : TangemSessionDelegate {
             UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
         }
     }
-
+    
     func tangemSessionDidFailWith(error: TangemSessionError) {
         switch error {
         case .locked:
@@ -155,11 +125,13 @@ extension ReaderViewController : TangemSessionDelegate {
             handleCardParserWrongTLV()
         case .readerSessionError:
             handleReaderSessionError()
+        case .userCancelled:
+            break
         }
-
+        
         DispatchQueue.main.async {
             self.hintLabel.text = Localizations.readerHintDefault
         }
     }
-
+    
 }
