@@ -11,45 +11,45 @@ import SwiftCBOR
 import CryptoSwift
 import Sodium
 
-class CardanoEngine: CardEngine {
+open class CardanoEngine: CardEngine {
     
     static let kPendingTransactionTimeoutSeconds: Int = 60
 
-    unowned var card: Card
+    public unowned var card: Card
     
     var unspentOutputs: [CardanoUnspentOutput]?
     var transaction: CardanoTransaction?
     private let operationQueue = OperationQueue()
     
-    var blockchainDisplayName: String {
+    public var blockchainDisplayName: String {
         return "Cardano"
     }
     
-    var walletType: WalletType {
+    public var walletType: WalletType {
         return .cardano
     }
     
-    var walletUnits: String {
+    public var walletUnits: String {
         return "ADA"
     }
     
-    var qrCodePreffix: String {
+    public var qrCodePreffix: String {
         return ""
     }
     
-    var walletAddress: String = ""
-    var exploreLink: String {
+    public var walletAddress: String = ""
+    public var exploreLink: String {
         return "https://cardanoexplorer.com/address/" + walletAddress
     }
     
-    required init(card: Card) {
+    public required init(card: Card) {
         self.card = card
         if card.isWallet {
             setupAddress()
         }
     }
     
-    func setupAddress() {
+    public func setupAddress() {
         let hexPublicKeyExtended = card.walletPublicKeyBytesArray + Array(repeating: 0, count: 32) 
         
         let forSha3 = ([0, [0, CBOR.byteString(hexPublicKeyExtended)], [:]] as CBOR).encode()
@@ -69,14 +69,11 @@ class CardanoEngine: CardEngine {
         card.node = "explorer2.adalite.io"
     }
     
-}
-
-extension CardanoEngine: CoinProvider {
-    var coinTraitCollection: CoinTrait {
+    public var coinTraitCollection: CoinTrait {
         return [.allowsFeeInclude]
        }
     
-    func validate(address: String) -> Bool {
+    public func validate(address: String) -> Bool {
         guard !address.isEmpty else {
             return false;
         }
@@ -109,7 +106,7 @@ extension CardanoEngine: CoinProvider {
         return CardanoPendingTransactionsStorage.shared.hasPendingTransactions(card)
     }
     
-    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> Data? {
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> Data? {
         guard let unspentOutputs = unspentOutputs else {
             assertionFailure()
             return nil
@@ -119,13 +116,7 @@ extension CardanoEngine: CoinProvider {
         let fee = NSDecimalNumber(string: fee).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
         let amount = NSDecimalNumber(string: amount).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
         let walletValue = NSDecimalNumber(string: card.walletValue).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
-        let transaction = CardanoTransaction(unspentOutputs: unspentOutputs, 
-                                                  cardWalletAddress: walletAddress, 
-                                                  targetAddress: targetAddress, 
-                                                  amount: amount, 
-                                                  walletBalance: walletValue,
-                                                  feeValue: fee,
-                                                  isIncludeFee: true)
+        let transaction = builTxForSign(unspentOutputs: unspentOutputs, targetAddress: targetAddress, amount: amount, walletBalance: walletValue, feeValue: fee, isIncludeFee: includeFee)
         
         guard let transactionHash = transaction.dataToSign else {
             assertionFailure()
@@ -134,7 +125,17 @@ extension CardanoEngine: CoinProvider {
         
         self.transaction = transaction
         
-        return Data(bytes: transactionHash) 
+        return Data(bytes: transactionHash)
+    }
+    
+    open func builTxForSign(unspentOutputs: [CardanoUnspentOutput], targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool) -> CardanoTransaction {
+        return CardanoTransaction(unspentOutputs: unspentOutputs,
+                                  cardWalletAddress: walletAddress,
+                                  targetAddress: targetAddress,
+                                  amount: amount,
+                                  walletBalance: walletBalance,
+                                  feeValue: feeValue,
+                                  isIncludeFee: isIncludeFee)
     }
     
     func buildTxForSend(signFromCard: [UInt8]) -> [UInt8]? {
@@ -164,31 +165,30 @@ extension CardanoEngine: CoinProvider {
         return txForSend
     }
     
-    func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void) {
+    public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void) {
         guard let txForSend = buildTxForSend(signFromCard: signFromCard) else {
             assertionFailure()
             completion(false)
             return
         }
-
-        let operation = CardanoSendTransactionOperation(bytes: txForSend) { (result) in
+        
+        let operation = getSendOperation(bytes: txForSend)
+        operation.completion = { (result) in
             switch result {
             case .success(let success):
                 guard success else {
                     completion(false)
                     return
                 }
-                
-                // GB_[REDACTED_TODO_COMMENT]
-                
+        
                 guard let transactionId = self.transaction?.transactionHash?.hexDescription() else {
                     assertionFailure()
                     completion(false)
                     return
                 }
                 
-                CardanoPendingTransactionsStorage.shared.append(transactionId: transactionId, 
-                                                                card: self.card, 
+                CardanoPendingTransactionsStorage.shared.append(transactionId: transactionId,
+                                                                card: self.card,
                                                                 expirationTimeoutSeconds: CardanoEngine.kPendingTransactionTimeoutSeconds)
                 completion(true)
             case .failure(let error):
@@ -200,7 +200,11 @@ extension CardanoEngine: CoinProvider {
         operationQueue.addOperation(operation)
     }
     
-    func getFee(targetAddress: String, amount: String, completion: @escaping ((min: String, normal: String, max: String)?) -> Void) {
+    open func getSendOperation(bytes: [UInt8]) -> BlockchainTxOperation {
+        return CardanoSendTransactionOperation(bytes: bytes)
+    }
+    
+    public func getFee(targetAddress: String, amount: String, completion: @escaping ((min: String, normal: String, max: String)?) -> Void) {
         guard let unspentOutputs = unspentOutputs else {
             assertionFailure()
             completion((min: "", normal: "", max: ""))
@@ -211,9 +215,9 @@ extension CardanoEngine: CoinProvider {
         let dummyFee = NSDecimalNumber(0.000001).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
         let amount = NSDecimalNumber(string: amount).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
         let walletValue = NSDecimalNumber(string: card.walletValue).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
-        let dummyTransaction = CardanoTransaction(unspentOutputs: unspentOutputs, 
-                                                  cardWalletAddress: walletAddress, 
-                                                  targetAddress: targetAddress, 
+        let dummyTransaction = CardanoTransaction(unspentOutputs: unspentOutputs,
+                                                  cardWalletAddress: walletAddress,
+                                                  targetAddress: targetAddress,
                                                   amount: amount,
                                                   walletBalance: walletValue,
                                                   feeValue: dummyFee,
@@ -237,5 +241,9 @@ extension CardanoEngine: CoinProvider {
         
         completion((min: fee, normal: fee, max: fee))
     }
+    
+}
+
+extension CardanoEngine: CoinProvider {
     
 }
