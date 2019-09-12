@@ -677,7 +677,7 @@
 
 "common_copy_address" = "Copy Address";
 
-"disclamer_old_card" = "Value extraction is available only for new notes starting with firmware version 2.30";
+"disclamer_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS";
 
 "disclamer_old_ios" = "Value extraction is available starting from iOS 13";
 
@@ -709,17 +709,7 @@
 
 "common_not_available" = "N\\A";
 
-"nfc_session_timeout" = "Session timeout";
-
-"nfc_alert_default" = "Hold your iPhone near a Tangem card";
-
-"nfc_alert_sign_completed" = "Transaction has been successfully signed";
-
-"nfc_seconds_left" = "seconds left";
-
 "common_fee_stub" = "Specify amount and address to see the fee";
-
-"nfc_unknown_card_state" = "Unknown card state";
 
 "common_send_payment" = "Send Payment";
 
