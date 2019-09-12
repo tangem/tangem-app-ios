@@ -125,6 +125,8 @@ extension ReaderViewController : TangemSessionDelegate {
             handleCardParserWrongTLV()
         case .readerSessionError:
             handleReaderSessionError()
+        case .userCancelled:
+            break
         }
         
         DispatchQueue.main.async {
