@@ -105,17 +105,17 @@ extension ETHEngine: CoinProvider {
                 return
             }
             let m = BigUInt(21000)
-            
+            let decimalCount = Int(Blockchain.ethereum.decimalCount)
             let minValue = gasPrice * m
-            let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: 6, decimalSeparator: ".", fallbackToScientific: false)!
+            let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
             let normalValue = gasPrice * BigUInt(12) / BigUInt(10) * m
-            let normal = Web3.Utils.formatToEthereumUnits(normalValue, toUnits: .eth, decimals: 6, decimalSeparator: ".", fallbackToScientific: false)!
+            let normal = Web3.Utils.formatToEthereumUnits(normalValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
             let maxValue = gasPrice * BigUInt(15) / BigUInt(10) * m
-            let max = Web3.Utils.formatToEthereumUnits(maxValue, toUnits: .eth, decimals: 6, decimalSeparator: ".", fallbackToScientific: false)!
+            let max = Web3.Utils.formatToEthereumUnits(maxValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
-            let fee = (min, normal, max)
+            let fee = (min.trimZeroes(), normal.trimZeroes(), max.trimZeroes())
             completion(fee)
         }
         
