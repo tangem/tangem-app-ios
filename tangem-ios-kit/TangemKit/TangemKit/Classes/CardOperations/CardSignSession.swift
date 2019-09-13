@@ -164,7 +164,9 @@ public class CardSignSession: NSObject {
                     session.invalidate()
                     if let sign = respApdu.tlv[.signature]?.value {
                         self.state = .none
-                        self.completion(.success(sign))
+                        DispatchQueue.main.async {
+                            self.completion(.success(sign))
+                        }
                         return
                     }
                 default:
