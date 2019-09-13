@@ -118,7 +118,9 @@ class ExtractViewController: ModalActionViewController {
                                       supportedSignMethods: card.supportedSignMethods) {[weak self] result in
                                         switch result {
                                         case .cancelled:
-                                            break
+                                            self?.btnSend.hideActivityIndicator()
+                                            self?.updateSendButtonSubtitle()
+                                            self?.removeLoadingView()
                                         case.success(let signature):
                                             self?.handleSuccessSign(with: signature)
                                         case .failure(let signError):
@@ -289,6 +291,14 @@ class ExtractViewController: ModalActionViewController {
                 btnSendSetEnabled(false)
                 return false
             }
+            
+            let valueToReceive = includeFeeSwitch.isOn ? amountValue - feeValue : amountValue + feeValue
+            guard valueToReceive > 0 else {
+                setError(true, for: amountText )
+                btnSendSetEnabled(false)
+                return false
+            }
+            
             
             validatedFee = fee
         }
@@ -520,7 +530,7 @@ class ExtractViewController: ModalActionViewController {
                         }
                     })
                 } else {
-                    self?.handleTXSendError()
+                    self?.handleTXSendError(message:"")
                 }
             }
         }
