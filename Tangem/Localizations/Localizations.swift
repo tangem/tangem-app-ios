@@ -517,6 +517,6 @@ class Localizations {
 extension Localizations {
   private static func translate( _ key: String, _ args: CVarArg...) -> String {
     let format = NSLocalizedString(key, comment: "")
-    return String(format: format, locale: Locale.current, arguments: args)
+    return String(format: format, locale: Locale.current, arguments: args).replacingOccurrences(of: "()", with: "")
   }
 }
