@@ -1,3 +1,6 @@
+#if canImport(Foundation)
+import Foundation
+#endif
 
 let isBigEndian = Int(bigEndian: 42) == 42
 
@@ -93,6 +96,12 @@ extension CBOR {
         res.append(contentsOf: bs)
         return res
     }
+    
+    #if canImport(Foundation)
+    public static func encodeData(_ data: Data) -> [UInt8] {
+        return encodeByteString([UInt8](data))
+    }
+    #endif
 
     // MARK: - major 3: UTF8 string
 
@@ -124,6 +133,14 @@ extension CBOR {
             res.append(contentsOf: k.encode())
             res.append(contentsOf: v.encode())
         }
+        return res
+    }
+
+    public static func encodeMap<A: CBOREncodable>(_ map: [A: Any?]) throws -> [UInt8] {
+        var res: [UInt8] = []
+        res = map.count.encode()
+        res[0] = res[0] | 0b101_00000
+        try CBOR.encodeMap(map, into: &res)
         return res
     }
 
@@ -219,4 +236,101 @@ extension CBOR {
         }
         return res
     }
+
+    #if canImport(Foundation)
+    public static func encodeDate(_ date: Date) -> [UInt8] {
+        let timeInterval = date.timeIntervalSince1970
+        let (integral, fractional) = modf(timeInterval)
+
+        let seconds = Int64(integral)
+        let nanoseconds = UInt32(fractional * Double(NSEC_PER_SEC))
+
+        var res: [UInt8] = [0b110_00001] // Epoch timestamp tag is 1
+        if seconds < 0 {
+            res.append(contentsOf: CBOR.encodeNegativeInt(Int64(timeInterval)))
+        } else if seconds > UInt32.max {
+            res.append(contentsOf: CBOR.encodeDouble(timeInterval))
+        } else if nanoseconds > 0 {
+            res.append(contentsOf: CBOR.encodeDouble(timeInterval))
+        } else {
+            res.append(contentsOf: CBOR.encode(Int(seconds)))
+        }
+
+        return res
+    }
+    #endif
+
+    public static func encodeAny(_ any: Any?) throws -> [UInt8] {
+        switch any {
+        case is Bool:
+            return (any as! Bool).encode()
+        case is Int:
+            return (any as! Int).encode()
+        case is UInt:
+            return (any as! UInt).encode()
+        case is UInt8:
+            return (any as! UInt8).encode()
+        case is UInt16:
+            return (any as! UInt16).encode()
+        case is UInt32:
+            return (any as! UInt32).encode()
+        case is UInt64:
+            return (any as! UInt64).encode()
+        case is String:
+            return (any as! String).encode()
+        case is Float:
+            return (any as! Float).encode()
+        case is Double:
+            return (any as! Double).encode()
+        case is [UInt8]:
+            return CBOR.encodeByteString(any as! [UInt8])
+        #if canImport(Foundation)
+        case is Data:
+            return CBOR.encodeByteString((any as! Data).map { $0 })
+        case is Date:
+            return CBOR.encodeDate((any as! Date))
+        case is NSNull:
+            return CBOR.encodeNull()
+        #endif
+        case is [Any]:
+            let anyArr = any as! [Any]
+            var res = anyArr.count.encode()
+            res[0] = res[0] | 0b100_00000
+            let encodedInners = try anyArr.reduce(into: []) { acc, next in
+                acc.append(contentsOf: try encodeAny(next))
+            }
+            res.append(contentsOf: encodedInners)
+            return res
+        case is [String: Any]:
+            let anyMap = any as! [String: Any]
+            var res: [UInt8] = anyMap.count.encode()
+            res[0] = res[0] | 0b101_00000
+            try CBOR.encodeMap(anyMap, into: &res)
+            return res
+        case is Void:
+            return CBOR.encodeUndefined()
+        case nil:
+            return CBOR.encodeNull()
+        default:
+            throw CBOREncoderError.invalidType
+        }
+    }
+
+    private static func encodeMap<A: CBOREncodable>(_ map: [A: Any?], into res: inout [UInt8]) throws {
+        let sortedKeysWithEncodedKeys = map.keys.map {
+            (encoded: $0.encode(), key: $0)
+        }.sorted(by: {
+            $0.encoded.lexicographicallyPrecedes($1.encoded)
+        })
+
+        try sortedKeysWithEncodedKeys.forEach { keyTuple in
+            res.append(contentsOf: keyTuple.encoded)
+            let encodedVal = try encodeAny(map[keyTuple.key]!)
+            res.append(contentsOf: encodedVal)
+        }
+    }
+}
+
+public enum CBOREncoderError: Error {
+    case invalidType
 }
