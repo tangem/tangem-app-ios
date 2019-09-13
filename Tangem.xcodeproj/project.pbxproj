@@ -8,63 +8,66 @@
 
 /* Begin PBXBuildFile section */
 		5D076E5C23153AA90009F208 /* TangemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D076E5B23153AA90009F208 /* TangemTests.swift */; };
+		5D09952E232B7F200000DF03 /* ReaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D8A2018DA92006C73D9 /* ReaderViewController.swift */; };
+		5D09952F232B7F200000DF03 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
+		5D099530232B7F200000DF03 /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F522CCFB41007C0E3F /* SecureStorageManager.swift */; };
+		5D099531232B7F200000DF03 /* ModalActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800036682111060900C151E8 /* ModalActionViewController.swift */; };
+		5D099532232B7F200000DF03 /* CustomPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000366C2111062C00C151E8 /* CustomPresentationController.swift */; };
+		5D099533232B7F200000DF03 /* ExtractViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003684213C73B500C151E8 /* ExtractViewController.swift */; };
+		5D099534232B7F200000DF03 /* ExtractPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */; };
+		5D099535232B7F200000DF03 /* ViewControllerInteractiveTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000366E2111062C00C151E8 /* ViewControllerInteractiveTransition.swift */; };
+		5D099536232B7F200000DF03 /* UIAlertController+TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B9C215FF3280091618F /* UIAlertController+TestData.swift */; };
+		5D099537232B7F200000DF03 /* UIViewControllerErrorsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */; };
+		5D099538232B7F200000DF03 /* ModalViewControllerDragView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000366D2111062C00C151E8 /* ModalViewControllerDragView.swift */; };
+		5D099539232B7F200000DF03 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
+		5D09953A232B7F200000DF03 /* StubViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB03D32326A35F00E278DD /* StubViewController.swift */; };
+		5D09953B232B7F200000DF03 /* QRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */; };
+		5D09953C232B7F200000DF03 /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000367E2127671700C151E8 /* UIColorExtensions.swift */; };
+		5D09953D232B7F200000DF03 /* StorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */; };
+		5D09953E232B7F200000DF03 /* LoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003686213C73BC00C151E8 /* LoadViewController.swift */; };
+		5D09953F232B7F200000DF03 /* FontsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000364321069C8E00C151E8 /* FontsExtensions.swift */; };
+		5D099540232B7F200000DF03 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D882018DA92006C73D9 /* AppDelegate.swift */; };
+		5D099541232B7F200000DF03 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D82322C91A00623148 /* Localizations.swift */; };
+		5D099542232B7F200000DF03 /* UIImage+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003673211108F000C151E8 /* UIImage+Additions.swift */; };
+		5D099543232B7F200000DF03 /* UIViewControllerFeaturesAlertExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80EC113B229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift */; };
+		5D099544232B7F200000DF03 /* CardDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800036662111054900C151E8 /* CardDetailsViewModel.swift */; };
+		5D099545232B7F200000DF03 /* CardMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003680213C68DB00C151E8 /* CardMoreViewController.swift */; };
+		5D099546232B7F200000DF03 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800036782111097700C151E8 /* UIViewExtensions.swift */; };
+		5D099547232B7F200000DF03 /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B82215FCAFF0091618F /* NavigationManager.swift */; };
+		5D099548232B7F200000DF03 /* TestCardParsingCapable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B84215FDF390091618F /* TestCardParsingCapable.swift */; };
+		5D099549232B7F200000DF03 /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */; };
+		5D09954A232B7F200000DF03 /* ReaderMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */; };
+		5D09954B232B7F200000DF03 /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = 800036752111090F00C151E8 /* UIImage+ImageEffects.m */; };
+		5D09954D232B7F200000DF03 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		5D09954E232B7F200000DF03 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA214231B1CE800D6AB83 /* TangemKit.framework */; };
+		5D099550232B7F200000DF03 /* SairaCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364A2110F86F00C151E8 /* SairaCondensed-Light.ttf */; };
+		5D099551232B7F200000DF03 /* SairaCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364B2110F86F00C151E8 /* SairaCondensed-Medium.ttf */; };
+		5D099552232B7F200000DF03 /* SairaCondensed-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364D2110F86F00C151E8 /* SairaCondensed-ExtraLight.ttf */; };
+		5D099553232B7F200000DF03 /* maax.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8000365D2110F87700C151E8 /* maax.otf */; };
+		5D099554232B7F200000DF03 /* maaxbold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8000365A2110F87700C151E8 /* maaxbold.otf */; };
+		5D099555232B7F200000DF03 /* Card.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D899FBE202476DF006131E0 /* Card.storyboard */; };
+		5D099556232B7F200000DF03 /* maaxbolditalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8000365B2110F87700C151E8 /* maaxbolditalic.otf */; };
+		5D099557232B7F200000DF03 /* maaxitalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8000365C2110F87700C151E8 /* maaxitalic.otf */; };
+		5D099558232B7F200000DF03 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */; };
+		5D099559232B7F200000DF03 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8F2018DA92006C73D9 /* Assets.xcassets */; };
+		5D09955A232B7F200000DF03 /* maaxblack.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036592110F87600C151E8 /* maaxblack.otf */; };
+		5D09955B232B7F200000DF03 /* SairaCondensed-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036472110F86E00C151E8 /* SairaCondensed-ExtraBold.ttf */; };
+		5D09955C232B7F200000DF03 /* maaxmediumitalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036572110F87600C151E8 /* maaxmediumitalic.otf */; };
+		5D09955D232B7F200000DF03 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DFB03D12326557900E278DD /* Localizable.strings */; };
+		5D09955E232B7F200000DF03 /* SairaCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364C2110F86F00C151E8 /* SairaCondensed-Bold.ttf */; };
+		5D09955F232B7F200000DF03 /* ModalViewControllerDragView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8000366B2111062C00C151E8 /* ModalViewControllerDragView.xib */; };
+		5D099560232B7F200000DF03 /* maaxmedium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036582110F87600C151E8 /* maaxmedium.otf */; };
+		5D099561232B7F200000DF03 /* SairaCondensed-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036482110F86E00C151E8 /* SairaCondensed-Thin.ttf */; };
+		5D099562232B7F200000DF03 /* Reader.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8C2018DA92006C73D9 /* Reader.storyboard */; };
+		5D099563232B7F200000DF03 /* SairaCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036462110F86E00C151E8 /* SairaCondensed-SemiBold.ttf */; };
+		5D099564232B7F200000DF03 /* SairaCondensed-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036492110F86F00C151E8 /* SairaCondensed-Black.ttf */; };
+		5D099565232B7F200000DF03 /* SairaCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036452110F86E00C151E8 /* SairaCondensed-Regular.ttf */; };
+		5D099569232B7F200000DF03 /* TangemKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA214231B1CE800D6AB83 /* TangemKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5D3BDD88231CF3900003E895 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA214231B1CE800D6AB83 /* TangemKit.framework */; };
 		5D3BDD89231CF3900003E895 /* TangemKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA214231B1CE800D6AB83 /* TangemKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		5D3BDD8B231CF3BD0003E895 /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA198231B1C0600D6AB83 /* TangemKit.framework */; };
-		5D3BDD8C231CF3BD0003E895 /* TangemKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA198231B1C0600D6AB83 /* TangemKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		5D3CAD132319737E000F0AA9 /* ReaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D8A2018DA92006C73D9 /* ReaderViewController.swift */; };
-		5D3CAD142319737E000F0AA9 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4B4A37205FA2300094E712 /* TestData.swift */; };
-		5D3CAD152319737E000F0AA9 /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F522CCFB41007C0E3F /* SecureStorageManager.swift */; };
-		5D3CAD162319737E000F0AA9 /* ModalActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800036682111060900C151E8 /* ModalActionViewController.swift */; };
-		5D3CAD172319737E000F0AA9 /* CustomPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000366C2111062C00C151E8 /* CustomPresentationController.swift */; };
-		5D3CAD182319737E000F0AA9 /* ExtractViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003684213C73B500C151E8 /* ExtractViewController.swift */; };
-		5D3CAD192319737E000F0AA9 /* ViewControllerInteractiveTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000366E2111062C00C151E8 /* ViewControllerInteractiveTransition.swift */; };
-		5D3CAD1A2319737E000F0AA9 /* UIAlertController+TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B9C215FF3280091618F /* UIAlertController+TestData.swift */; };
-		5D3CAD1B2319737E000F0AA9 /* UIViewControllerErrorsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */; };
-		5D3CAD1C2319737E000F0AA9 /* ModalViewControllerDragView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000366D2111062C00C151E8 /* ModalViewControllerDragView.swift */; };
-		5D3CAD1D2319737E000F0AA9 /* CardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5257B2106923100754961 /* CardDetailsViewController.swift */; };
-		5D3CAD1E2319737E000F0AA9 /* QRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */; };
-		5D3CAD1F2319737E000F0AA9 /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000367E2127671700C151E8 /* UIColorExtensions.swift */; };
-		5D3CAD202319737E000F0AA9 /* StorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */; };
-		5D3CAD212319737E000F0AA9 /* LoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003686213C73BC00C151E8 /* LoadViewController.swift */; };
-		5D3CAD222319737E000F0AA9 /* FontsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000364321069C8E00C151E8 /* FontsExtensions.swift */; };
-		5D3CAD232319737E000F0AA9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D946D882018DA92006C73D9 /* AppDelegate.swift */; };
-		5D3CAD242319737E000F0AA9 /* UIImage+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003673211108F000C151E8 /* UIImage+Additions.swift */; };
-		5D3CAD252319737E000F0AA9 /* UIViewControllerFeaturesAlertExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80EC113B229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift */; };
-		5D3CAD262319737E000F0AA9 /* CardDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800036662111054900C151E8 /* CardDetailsViewModel.swift */; };
-		5D3CAD272319737E000F0AA9 /* CardMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003680213C68DB00C151E8 /* CardMoreViewController.swift */; };
-		5D3CAD282319737E000F0AA9 /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800036782111097700C151E8 /* UIViewExtensions.swift */; };
-		5D3CAD292319737E000F0AA9 /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B82215FCAFF0091618F /* NavigationManager.swift */; };
-		5D3CAD2A2319737E000F0AA9 /* TestCardParsingCapable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80205B84215FDF390091618F /* TestCardParsingCapable.swift */; };
-		5D3CAD2B2319737E000F0AA9 /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */; };
-		5D3CAD2C2319737E000F0AA9 /* ReaderMoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80003682213C6AAF00C151E8 /* ReaderMoreViewController.swift */; };
-		5D3CAD2D2319737E000F0AA9 /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = 800036752111090F00C151E8 /* UIImage+ImageEffects.m */; };
-		5D3CAD2F2319737E000F0AA9 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8026BC4F218DD96200DC6255 /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		5D3CAD322319737E000F0AA9 /* SairaCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364A2110F86F00C151E8 /* SairaCondensed-Light.ttf */; };
-		5D3CAD332319737E000F0AA9 /* SairaCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364B2110F86F00C151E8 /* SairaCondensed-Medium.ttf */; };
-		5D3CAD342319737E000F0AA9 /* SairaCondensed-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364D2110F86F00C151E8 /* SairaCondensed-ExtraLight.ttf */; };
-		5D3CAD352319737E000F0AA9 /* maax.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8000365D2110F87700C151E8 /* maax.otf */; };
-		5D3CAD362319737E000F0AA9 /* maaxbold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8000365A2110F87700C151E8 /* maaxbold.otf */; };
-		5D3CAD372319737E000F0AA9 /* Card.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D899FBE202476DF006131E0 /* Card.storyboard */; };
-		5D3CAD382319737E000F0AA9 /* maaxbolditalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8000365B2110F87700C151E8 /* maaxbolditalic.otf */; };
-		5D3CAD392319737E000F0AA9 /* maaxitalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8000365C2110F87700C151E8 /* maaxitalic.otf */; };
-		5D3CAD3A2319737E000F0AA9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */; };
-		5D3CAD3B2319737E000F0AA9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8F2018DA92006C73D9 /* Assets.xcassets */; };
-		5D3CAD3C2319737E000F0AA9 /* maaxblack.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036592110F87600C151E8 /* maaxblack.otf */; };
-		5D3CAD3D2319737E000F0AA9 /* SairaCondensed-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036472110F86E00C151E8 /* SairaCondensed-ExtraBold.ttf */; };
-		5D3CAD3E2319737E000F0AA9 /* maaxmediumitalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036572110F87600C151E8 /* maaxmediumitalic.otf */; };
-		5D3CAD3F2319737E000F0AA9 /* SairaCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364C2110F86F00C151E8 /* SairaCondensed-Bold.ttf */; };
-		5D3CAD402319737E000F0AA9 /* ModalViewControllerDragView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8000366B2111062C00C151E8 /* ModalViewControllerDragView.xib */; };
-		5D3CAD412319737E000F0AA9 /* maaxmedium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036582110F87600C151E8 /* maaxmedium.otf */; };
-		5D3CAD422319737E000F0AA9 /* SairaCondensed-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036482110F86E00C151E8 /* SairaCondensed-Thin.ttf */; };
-		5D3CAD432319737E000F0AA9 /* Reader.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8C2018DA92006C73D9 /* Reader.storyboard */; };
-		5D3CAD442319737E000F0AA9 /* SairaCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036462110F86E00C151E8 /* SairaCondensed-SemiBold.ttf */; };
-		5D3CAD452319737E000F0AA9 /* SairaCondensed-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036492110F86F00C151E8 /* SairaCondensed-Black.ttf */; };
-		5D3CAD462319737E000F0AA9 /* SairaCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036452110F86E00C151E8 /* SairaCondensed-Regular.ttf */; };
 		5D74D6F622CCFB41007C0E3F /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F522CCFB41007C0E3F /* SecureStorageManager.swift */; };
 		5D74D6F922CDDCA8007C0E3F /* StorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */; };
 		5D74D6FB22CDDDD6007C0E3F /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */; };
-		5D7BA19B231B1C1B00D6AB83 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D7BA19A231B1C1B00D6AB83 /* Pods_Tangem.framework */; };
 		5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */; };
 		5DE995D92322C91A00623148 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D82322C91A00623148 /* Localizations.swift */; };
 		5DFB03D22326557900E278DD /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DFB03D12326557900E278DD /* Localizable.strings */; };
@@ -128,6 +131,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		5D099568232B7F200000DF03 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5D099569232B7F200000DF03 /* TangemKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5D3BDD8A231CF3900003E895 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,32 +153,22 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5D3BDD8D231CF3BD0003E895 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				5D3BDD8C231CF3BD0003E895 /* TangemKit.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		066D4539CD1DF7ECF3465AA2 /* Pods-Tangem beta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem beta.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem beta/Pods-Tangem beta.release.xcconfig"; sourceTree = "<group>"; };
 		0CE1B97534515F85AB9CD5BF /* Pods-Tangem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.debug.xcconfig"; sourceTree = "<group>"; };
 		5D076E5923153AA90009F208 /* TangemTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D076E5B23153AA90009F208 /* TangemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemTests.swift; sourceTree = "<group>"; };
 		5D076E5D23153AA90009F208 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5D3CAD4C2319737E000F0AA9 /* Tangem beta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tangem beta.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D09956D232B7F200000DF03 /* Tangem beta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tangem beta.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D09956E232B7F210000DF03 /* Tangem copy2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Tangem copy2-Info.plist"; path = "/Users/alexander.osokin/repos/tangem/tangem-lite/Tangem copy2-Info.plist"; sourceTree = "<absolute>"; };
 		5D3CAD4D2319737E000F0AA9 /* Tangem copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Tangem copy-Info.plist"; path = "/Users/alexander.osokin/repos/tangem/tangem-lite/Tangem copy-Info.plist"; sourceTree = "<absolute>"; };
 		5D74D6F522CCFB41007C0E3F /* SecureStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageManager.swift; sourceTree = "<group>"; };
 		5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeys.swift; sourceTree = "<group>"; };
 		5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManagerType.swift; sourceTree = "<group>"; };
 		5D7BA196231B1BF700D6AB83 /* TangemKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D7BA198231B1C0600D6AB83 /* TangemKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		5D7BA19A231B1C1B00D6AB83 /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D7BA214231B1CE800D6AB83 /* TangemKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractPlaceholderViewController.swift; sourceTree = "<group>"; };
 		5DE995D82322C91A00623148 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
@@ -224,6 +228,8 @@
 		8D946D8F2018DA92006C73D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8D946D922018DA92006C73D9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8D946D942018DA92006C73D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A75F2A4DA9D35B7CB879701F /* Pods-Tangem beta.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem beta.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem beta/Pods-Tangem beta.debug.xcconfig"; sourceTree = "<group>"; };
+		FB5DA9FFC11D7CBC4488C3B1 /* Pods_Tangem_beta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_beta.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB922AEDA8E1E487343FB67 /* Pods-Tangem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tangem/Pods-Tangem.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -235,13 +241,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5D3CAD2E2319737E000F0AA9 /* Frameworks */ = {
+		5D09954C232B7F200000DF03 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D7BA19B231B1C1B00D6AB83 /* Pods_Tangem.framework in Frameworks */,
-				5D3CAD2F2319737E000F0AA9 /* CoreNFC.framework in Frameworks */,
-				5D3BDD8B231CF3BD0003E895 /* TangemKit.framework in Frameworks */,
+				5D09954D232B7F200000DF03 /* Pods_Tangem.framework in Frameworks */,
+				5D09954E232B7F200000DF03 /* TangemKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,6 +394,7 @@
 				8EC6CE990F4994553ACE6BCB /* Pods */,
 				9BB2E7086FC55540D6D4477B /* Frameworks */,
 				5D3CAD4D2319737E000F0AA9 /* Tangem copy-Info.plist */,
+				5D09956E232B7F210000DF03 /* Tangem copy2-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -397,7 +403,7 @@
 			children = (
 				8D946D852018DA92006C73D9 /* Tangem.app */,
 				5D076E5923153AA90009F208 /* TangemTests.xctest */,
-				5D3CAD4C2319737E000F0AA9 /* Tangem beta.app */,
+				5D09956D232B7F200000DF03 /* Tangem beta.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -452,6 +458,8 @@
 			children = (
 				0CE1B97534515F85AB9CD5BF /* Pods-Tangem.debug.xcconfig */,
 				FCB922AEDA8E1E487343FB67 /* Pods-Tangem.release.xcconfig */,
+				A75F2A4DA9D35B7CB879701F /* Pods-Tangem beta.debug.xcconfig */,
+				066D4539CD1DF7ECF3465AA2 /* Pods-Tangem beta.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -460,13 +468,13 @@
 			isa = PBXGroup;
 			children = (
 				5D7BA214231B1CE800D6AB83 /* TangemKit.framework */,
-				5D7BA19A231B1C1B00D6AB83 /* Pods_Tangem.framework */,
 				5D7BA198231B1C0600D6AB83 /* TangemKit.framework */,
 				5D7BA196231B1BF700D6AB83 /* TangemKit.framework */,
 				802B7D6321AF4D82000FB9E4 /* TangemKit.framework */,
 				8026BC4F218DD96200DC6255 /* CoreNFC.framework */,
 				679FF29BB205DA4C5D1AE39D /* Pods_Tangem.framework */,
 				77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */,
+				FB5DA9FFC11D7CBC4488C3B1 /* Pods_Tangem_beta.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -492,15 +500,17 @@
 			productReference = 5D076E5923153AA90009F208 /* TangemTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		5D3CAD102319737E000F0AA9 /* Tangem beta */ = {
+		5D09952B232B7F200000DF03 /* Tangem beta */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5D3CAD492319737E000F0AA9 /* Build configuration list for PBXNativeTarget "Tangem beta" */;
+			buildConfigurationList = 5D09956A232B7F200000DF03 /* Build configuration list for PBXNativeTarget "Tangem beta" */;
 			buildPhases = (
-				5D3CAD122319737E000F0AA9 /* Sources */,
-				5D3CAD2E2319737E000F0AA9 /* Frameworks */,
-				5D3CAD312319737E000F0AA9 /* Resources */,
-				5D3CAD482319737E000F0AA9 /* ShellScript */,
-				5D3BDD8D231CF3BD0003E895 /* Embed Frameworks */,
+				5D09952C232B7F200000DF03 /* [CP] Check Pods Manifest.lock */,
+				5D09952D232B7F200000DF03 /* Sources */,
+				5D09954C232B7F200000DF03 /* Frameworks */,
+				5D09954F232B7F200000DF03 /* Resources */,
+				5D099566232B7F200000DF03 /* [CP] Embed Pods Frameworks */,
+				5D099567232B7F200000DF03 /* ShellScript */,
+				5D099568232B7F200000DF03 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -508,7 +518,7 @@
 			);
 			name = "Tangem beta";
 			productName = Tangem;
-			productReference = 5D3CAD4C2319737E000F0AA9 /* Tangem beta.app */;
+			productReference = 5D09956D232B7F200000DF03 /* Tangem beta.app */;
 			productType = "com.apple.product-type.application";
 		};
 		8D946D842018DA92006C73D9 /* Tangem */ = {
@@ -547,7 +557,7 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = 8D946D842018DA92006C73D9;
 					};
-					5D3CAD102319737E000F0AA9 = {
+					5D09952B232B7F200000DF03 = {
 						ProvisioningStyle = Automatic;
 					};
 					8D946D842018DA92006C73D9 = {
@@ -579,7 +589,7 @@
 			targets = (
 				8D946D842018DA92006C73D9 /* Tangem */,
 				5D076E5823153AA90009F208 /* TangemTests */,
-				5D3CAD102319737E000F0AA9 /* Tangem beta */,
+				5D09952B232B7F200000DF03 /* Tangem beta */,
 			);
 		};
 /* End PBXProject section */
@@ -592,31 +602,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5D3CAD312319737E000F0AA9 /* Resources */ = {
+		5D09954F232B7F200000DF03 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D3CAD322319737E000F0AA9 /* SairaCondensed-Light.ttf in Resources */,
-				5D3CAD332319737E000F0AA9 /* SairaCondensed-Medium.ttf in Resources */,
-				5D3CAD342319737E000F0AA9 /* SairaCondensed-ExtraLight.ttf in Resources */,
-				5D3CAD352319737E000F0AA9 /* maax.otf in Resources */,
-				5D3CAD362319737E000F0AA9 /* maaxbold.otf in Resources */,
-				5D3CAD372319737E000F0AA9 /* Card.storyboard in Resources */,
-				5D3CAD382319737E000F0AA9 /* maaxbolditalic.otf in Resources */,
-				5D3CAD392319737E000F0AA9 /* maaxitalic.otf in Resources */,
-				5D3CAD3A2319737E000F0AA9 /* LaunchScreen.storyboard in Resources */,
-				5D3CAD3B2319737E000F0AA9 /* Assets.xcassets in Resources */,
-				5D3CAD3C2319737E000F0AA9 /* maaxblack.otf in Resources */,
-				5D3CAD3D2319737E000F0AA9 /* SairaCondensed-ExtraBold.ttf in Resources */,
-				5D3CAD3E2319737E000F0AA9 /* maaxmediumitalic.otf in Resources */,
-				5D3CAD3F2319737E000F0AA9 /* SairaCondensed-Bold.ttf in Resources */,
-				5D3CAD402319737E000F0AA9 /* ModalViewControllerDragView.xib in Resources */,
-				5D3CAD412319737E000F0AA9 /* maaxmedium.otf in Resources */,
-				5D3CAD422319737E000F0AA9 /* SairaCondensed-Thin.ttf in Resources */,
-				5D3CAD432319737E000F0AA9 /* Reader.storyboard in Resources */,
-				5D3CAD442319737E000F0AA9 /* SairaCondensed-SemiBold.ttf in Resources */,
-				5D3CAD452319737E000F0AA9 /* SairaCondensed-Black.ttf in Resources */,
-				5D3CAD462319737E000F0AA9 /* SairaCondensed-Regular.ttf in Resources */,
+				5D099550232B7F200000DF03 /* SairaCondensed-Light.ttf in Resources */,
+				5D099551232B7F200000DF03 /* SairaCondensed-Medium.ttf in Resources */,
+				5D099552232B7F200000DF03 /* SairaCondensed-ExtraLight.ttf in Resources */,
+				5D099553232B7F200000DF03 /* maax.otf in Resources */,
+				5D099554232B7F200000DF03 /* maaxbold.otf in Resources */,
+				5D099555232B7F200000DF03 /* Card.storyboard in Resources */,
+				5D099556232B7F200000DF03 /* maaxbolditalic.otf in Resources */,
+				5D099557232B7F200000DF03 /* maaxitalic.otf in Resources */,
+				5D099558232B7F200000DF03 /* LaunchScreen.storyboard in Resources */,
+				5D099559232B7F200000DF03 /* Assets.xcassets in Resources */,
+				5D09955A232B7F200000DF03 /* maaxblack.otf in Resources */,
+				5D09955B232B7F200000DF03 /* SairaCondensed-ExtraBold.ttf in Resources */,
+				5D09955C232B7F200000DF03 /* maaxmediumitalic.otf in Resources */,
+				5D09955D232B7F200000DF03 /* Localizable.strings in Resources */,
+				5D09955E232B7F200000DF03 /* SairaCondensed-Bold.ttf in Resources */,
+				5D09955F232B7F200000DF03 /* ModalViewControllerDragView.xib in Resources */,
+				5D099560232B7F200000DF03 /* maaxmedium.otf in Resources */,
+				5D099561232B7F200000DF03 /* SairaCondensed-Thin.ttf in Resources */,
+				5D099562232B7F200000DF03 /* Reader.storyboard in Resources */,
+				5D099563232B7F200000DF03 /* SairaCondensed-SemiBold.ttf in Resources */,
+				5D099564232B7F200000DF03 /* SairaCondensed-Black.ttf in Resources */,
+				5D099565232B7F200000DF03 /* SairaCondensed-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -670,7 +681,65 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5D3CAD482319737E000F0AA9 /* ShellScript */ = {
+		5D09952C232B7F200000DF03 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Tangem-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5D099566232B7F200000DF03 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Tangem/Pods-Tangem-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
+				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework",
+				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
+				"${BUILT_PRODUCTS_DIR}/QRCode/QRCode.framework",
+				"${BUILT_PRODUCTS_DIR}/Sodium/Sodium.framework",
+				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework",
+				"${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GBAsyncOperation.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCode.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sodium.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftCBOR.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/web3swift.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tangem/Pods-Tangem-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5D099567232B7F200000DF03 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -757,37 +826,40 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5D3CAD122319737E000F0AA9 /* Sources */ = {
+		5D09952D232B7F200000DF03 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D3CAD132319737E000F0AA9 /* ReaderViewController.swift in Sources */,
-				5D3CAD142319737E000F0AA9 /* TestData.swift in Sources */,
-				5D3CAD152319737E000F0AA9 /* SecureStorageManager.swift in Sources */,
-				5D3CAD162319737E000F0AA9 /* ModalActionViewController.swift in Sources */,
-				5D3CAD172319737E000F0AA9 /* CustomPresentationController.swift in Sources */,
-				5D3CAD182319737E000F0AA9 /* ExtractViewController.swift in Sources */,
-				5D3CAD192319737E000F0AA9 /* ViewControllerInteractiveTransition.swift in Sources */,
-				5D3CAD1A2319737E000F0AA9 /* UIAlertController+TestData.swift in Sources */,
-				5D3CAD1B2319737E000F0AA9 /* UIViewControllerErrorsExtension.swift in Sources */,
-				5D3CAD1C2319737E000F0AA9 /* ModalViewControllerDragView.swift in Sources */,
-				5D3CAD1D2319737E000F0AA9 /* CardDetailsViewController.swift in Sources */,
-				5D3CAD1E2319737E000F0AA9 /* QRCodeViewController.swift in Sources */,
-				5D3CAD1F2319737E000F0AA9 /* UIColorExtensions.swift in Sources */,
-				5D3CAD202319737E000F0AA9 /* StorageKeys.swift in Sources */,
-				5D3CAD212319737E000F0AA9 /* LoadViewController.swift in Sources */,
-				5D3CAD222319737E000F0AA9 /* FontsExtensions.swift in Sources */,
-				5D3CAD232319737E000F0AA9 /* AppDelegate.swift in Sources */,
-				5D3CAD242319737E000F0AA9 /* UIImage+Additions.swift in Sources */,
-				5D3CAD252319737E000F0AA9 /* UIViewControllerFeaturesAlertExtension.swift in Sources */,
-				5D3CAD262319737E000F0AA9 /* CardDetailsViewModel.swift in Sources */,
-				5D3CAD272319737E000F0AA9 /* CardMoreViewController.swift in Sources */,
-				5D3CAD282319737E000F0AA9 /* UIViewExtensions.swift in Sources */,
-				5D3CAD292319737E000F0AA9 /* NavigationManager.swift in Sources */,
-				5D3CAD2A2319737E000F0AA9 /* TestCardParsingCapable.swift in Sources */,
-				5D3CAD2B2319737E000F0AA9 /* StorageManagerType.swift in Sources */,
-				5D3CAD2C2319737E000F0AA9 /* ReaderMoreViewController.swift in Sources */,
-				5D3CAD2D2319737E000F0AA9 /* UIImage+ImageEffects.m in Sources */,
+				5D09952E232B7F200000DF03 /* ReaderViewController.swift in Sources */,
+				5D09952F232B7F200000DF03 /* TestData.swift in Sources */,
+				5D099530232B7F200000DF03 /* SecureStorageManager.swift in Sources */,
+				5D099531232B7F200000DF03 /* ModalActionViewController.swift in Sources */,
+				5D099532232B7F200000DF03 /* CustomPresentationController.swift in Sources */,
+				5D099533232B7F200000DF03 /* ExtractViewController.swift in Sources */,
+				5D099534232B7F200000DF03 /* ExtractPlaceholderViewController.swift in Sources */,
+				5D099535232B7F200000DF03 /* ViewControllerInteractiveTransition.swift in Sources */,
+				5D099536232B7F200000DF03 /* UIAlertController+TestData.swift in Sources */,
+				5D099537232B7F200000DF03 /* UIViewControllerErrorsExtension.swift in Sources */,
+				5D099538232B7F200000DF03 /* ModalViewControllerDragView.swift in Sources */,
+				5D099539232B7F200000DF03 /* CardDetailsViewController.swift in Sources */,
+				5D09953A232B7F200000DF03 /* StubViewController.swift in Sources */,
+				5D09953B232B7F200000DF03 /* QRCodeViewController.swift in Sources */,
+				5D09953C232B7F200000DF03 /* UIColorExtensions.swift in Sources */,
+				5D09953D232B7F200000DF03 /* StorageKeys.swift in Sources */,
+				5D09953E232B7F200000DF03 /* LoadViewController.swift in Sources */,
+				5D09953F232B7F200000DF03 /* FontsExtensions.swift in Sources */,
+				5D099540232B7F200000DF03 /* AppDelegate.swift in Sources */,
+				5D099541232B7F200000DF03 /* Localizations.swift in Sources */,
+				5D099542232B7F200000DF03 /* UIImage+Additions.swift in Sources */,
+				5D099543232B7F200000DF03 /* UIViewControllerFeaturesAlertExtension.swift in Sources */,
+				5D099544232B7F200000DF03 /* CardDetailsViewModel.swift in Sources */,
+				5D099545232B7F200000DF03 /* CardMoreViewController.swift in Sources */,
+				5D099546232B7F200000DF03 /* UIViewExtensions.swift in Sources */,
+				5D099547232B7F200000DF03 /* NavigationManager.swift in Sources */,
+				5D099548232B7F200000DF03 /* TestCardParsingCapable.swift in Sources */,
+				5D099549232B7F200000DF03 /* StorageManagerType.swift in Sources */,
+				5D09954A232B7F200000DF03 /* ReaderMoreViewController.swift in Sources */,
+				5D09954B232B7F200000DF03 /* UIImage+ImageEffects.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -897,15 +969,16 @@
 			};
 			name = Release;
 		};
-		5D3CAD4A2319737E000F0AA9 /* Debug */ = {
+		5D09956B232B7F200000DF03 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CE1B97534515F85AB9CD5BF /* Pods-Tangem.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -913,9 +986,10 @@
 					"COCOAPODS=1",
 					"BETA=1",
 				);
-				INFOPLIST_FILE = "Tangem copy-Info.plist";
+				INFOPLIST_FILE = "Tangem copy2-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 2.14;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -926,15 +1000,16 @@
 			};
 			name = Debug;
 		};
-		5D3CAD4B2319737E000F0AA9 /* Release */ = {
+		5D09956C232B7F200000DF03 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FCB922AEDA8E1E487343FB67 /* Pods-Tangem.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 82;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 89;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -942,12 +1017,13 @@
 					"COCOAPODS=1",
 					"BETA=1",
 				);
-				INFOPLIST_FILE = "Tangem copy-Info.plist";
+				INFOPLIST_FILE = "Tangem copy2-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 2.14;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "App Store Provisioning Profile";
 				SWIFT_OBJC_BRIDGING_HEADER = "Tangem-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1113,7 +1189,7 @@
 				MARKETING_VERSION = 2.14;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Tangem Profile";
+				PROVISIONING_PROFILE_SPECIFIER = "App Store Provisioning Profile";
 				SWIFT_OBJC_BRIDGING_HEADER = "Tangem-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1133,11 +1209,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5D3CAD492319737E000F0AA9 /* Build configuration list for PBXNativeTarget "Tangem beta" */ = {
+		5D09956A232B7F200000DF03 /* Build configuration list for PBXNativeTarget "Tangem beta" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				5D3CAD4A2319737E000F0AA9 /* Debug */,
-				5D3CAD4B2319737E000F0AA9 /* Release */,
+				5D09956B232B7F200000DF03 /* Debug */,
+				5D09956C232B7F200000DF03 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
