@@ -160,6 +160,14 @@ extension CardSession: NFCTagReaderSessionDelegate {
                     switch result {
                     case .success(let readResult):
                         
+                        guard let intStatus = readResult[.status]?.value?.intValue,
+                            let status = CardStatus(rawValue: intStatus),
+                            status == .loaded  else {
+                                session.invalidate()
+                                self.completion(.success(readResult))
+                                return
+                        }
+                        
                         let cardId = readResult[.cardId]?.value
                         let checkWalletApdu = self.buildCheckWalletApdu(with: challenge, cardId: cardId! )
                         
