@@ -139,7 +139,7 @@
 		33B79E4BFF8D25E1A705E2C469BBCA9B /* PromiseKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 6C6C6FB4A2306103CCE4653114FBD7C4 /* PromiseKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		33F8BD0B095261E1F0856201EFE2D040 /* KeyedEncodingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C8150F745277C324A5B18C9663A6279 /* KeyedEncodingContainer.swift */; };
 		34DD3884DAC2B6462434A3F66DF1CE51 /* crypto_verify_16.h in Headers */ = {isa = PBXBuildFile; fileRef = BFFB7837BF0201079E11A64DDDC58D3B /* crypto_verify_16.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		34E2067D8B324AE0E9A18D44B41BB1B4 /* Pods-Tangem-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C0884C378ACE1CC29D1E55EC85A41955 /* Pods-Tangem-dummy.m */; };
+		34E2067D8B324AE0E9A18D44B41BB1B4 /* Pods-Tangem-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = B77C6239E72CA9C2ADF34DCAC06A7168 /* Pods-Tangem-dummy.m */; };
 		3607067F46CCABE732B2E0078149F8B2 /* Array+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8718CD1E0922A3F649837AC250FE38A2 /* Array+Foundation.swift */; };
 		3621EC8A55F2B89A13B5EB57A9CEF4AF /* Web3+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7697810E1F83E4CCEC09F28BD7561BC1 /* Web3+Utils.swift */; };
 		3673081E4DE5FC570D7F208643205C9B /* scalar_4x64.h in Headers */ = {isa = PBXBuildFile; fileRef = 2E578AEC0D818878EA7D4ED9520C559F /* scalar_4x64.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -157,6 +157,7 @@
 		3E93F25F03685D7F5410A94AF1CC4065 /* Square Root.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0FDBF440ED34D4188DFE7FD7FE7846 /* Square Root.swift */; };
 		4114B771AFCD2E37A93864A736364DDB /* KeyedDecodingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9EAE92950EDD7E2FECC7791C030559 /* KeyedDecodingContainer.swift */; };
 		4133C88057A7F674B4168E03095492A5 /* ABITypeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4987BB0FD2816E314F68A4EB0C2692F /* ABITypeParser.swift */; };
+		41DFFBA86C431B055D973B194C6EFBE0 /* Pods-Tangem beta-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BA942D2377DAB74413D9B9AC3DC0F1B /* Pods-Tangem beta-dummy.m */; };
 		41EBD28707672B78C5AABCF4EB2FDE10 /* GBAsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CC7AC9426186123DBA526F3341F835 /* GBAsyncOperation.swift */; };
 		420C87B493B70746472899A82479242F /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64EE8BD8F995F2172FE0C6311D52AD0 /* String+Extension.swift */; };
 		42198F818DC4422F9BA5C08CC9539446 /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4379A43D600F7826237D9711694C7A /* Base58.swift */; };
@@ -321,7 +322,7 @@
 		96D67F9A7630A34944B6EAAD47F785E3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54239D6577343C0194A16225F38AF5EE /* Foundation.framework */; };
 		97579EEBBD594D95CE0824FBA132BCB6 /* Web3+ERC165.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1E8D9545EDCC5489B818740AE65DF6 /* Web3+ERC165.swift */; };
 		989DC2AB8BB6390612172B7C6653B33C /* Promise+Web3+Personal+CreateAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBA46500B558E4F39FFA69C134239F20 /* Promise+Web3+Personal+CreateAccount.swift */; };
-		98AA30A907940E92149F5B51DBBD3390 /* Pods-Tangem-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 5FDD62669DD8624862C03E4E2B685F10 /* Pods-Tangem-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		98AA30A907940E92149F5B51DBBD3390 /* Pods-Tangem-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 89C2F782195545882C4FF1FAD379D169 /* Pods-Tangem-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		994C0E8FD2D51AFB52C3B5DCEB0CD904 /* CIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B021AD08B91DD2484A11632A172C99 /* CIImageExtension.swift */; };
 		997870D5F490326F024B4D8687FF18DC /* Resolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6313BD26843FEDC54EEFD8B471B46EC /* Resolver.swift */; };
 		997DE716A1136A8D3B909BDFDDA6CF96 /* crypto_pwhash_argon2i.h in Headers */ = {isa = PBXBuildFile; fileRef = 1700F7DF91E645DC85CE078CD327058D /* crypto_pwhash_argon2i.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -458,6 +459,8 @@
 		E5445DFB40D0A11F4EE679B7B965CA32 /* scalar_8x32.h in Headers */ = {isa = PBXBuildFile; fileRef = DB188A699E192A386F0FCC7BEC7AFCC7 /* scalar_8x32.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		E7BAB29C081E251DC9C2BA19E101B073 /* BIP32Keystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51B78C10D09254CE0A1F81E73CC34896 /* BIP32Keystore.swift */; };
 		E80B0C4A039F263F6323A7546AB30398 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0985EDDA3BE3F9FD09F7D6B612A46446 /* PromiseKit.framework */; };
+		EA30E4B79EDA4CDB1EC9573F6CBBA0AE /* Pods-Tangem beta-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = BCF0284511FB8301F2F9F15E7653C645 /* Pods-Tangem beta-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EA934D67FE8EAD69AF7361E274655DC3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54239D6577343C0194A16225F38AF5EE /* Foundation.framework */; };
 		EA95317C04FA46F08399A9F6DFE82119 /* Blowfish+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0855189BC22C5B4CCFBFB3BBF6575E41 /* Blowfish+Foundation.swift */; };
 		EAC994EA457048CA6AA49B82C9F05DF4 /* NSURLSession+AnyPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DEB9007A9012C3BF457E200ED9D965C /* NSURLSession+AnyPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EB5C9F0BC0A19563C8644FD12BC52ED2 /* scratch_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = A5775592150BCD7F58BA124CF0C0D4AB /* scratch_impl.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -518,6 +521,20 @@
 			remoteGlobalIDString = 52B60EC2A583F24ACBB69C113F5488B9;
 			remoteInfo = SwiftLint;
 		};
+		20271E4317B84E40DFD94A0453332C32 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 52B60EC2A583F24ACBB69C113F5488B9;
+			remoteInfo = SwiftLint;
+		};
+		24FA6C94276BBFC6170BC6EFFF3A2944 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CEF561CEEBFA5EBBDA6E240FF1B20CEC;
+			remoteInfo = QRCode;
+		};
 		2E089B78AB775F79B051F7BE49EF0AFE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -546,12 +563,33 @@
 			remoteGlobalIDString = 07E54A78BCF82272E99319D7F7F5E8C1;
 			remoteInfo = KeychainSwift;
 		};
+		3E0B349A45B7B75615D38FA79031D5B0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 99313990C1D76A6D1D017868B6975CC8;
+			remoteInfo = CryptoSwift;
+		};
 		43339F8DB60849D39913E70579644D24 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 9B78EE4AF6AE03E79D88886319853FF7;
 			remoteInfo = Starscream;
+		};
+		44B6E8063DE4AA175449E4C89154D067 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ABB048B191245233986A7CD75FE412A5;
+			remoteInfo = Fabric;
+		};
+		454978695573A7A69DE60B59AE700D60 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7C579CE66A1E7A9AA33CA5F97F9C22C5;
+			remoteInfo = PromiseKit;
 		};
 		46073C5E9A7317BA9F5A9710AC8E742C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -574,6 +612,13 @@
 			remoteGlobalIDString = D118A6A04828FD3CDA8640CD2B6796D2;
 			remoteInfo = SwiftyJSON;
 		};
+		5F712CB288B62B5801E10AFBA0B75178 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DCA8E87C12CF989C78BB9F82E72BB210;
+			remoteInfo = web3.swift.pod;
+		};
 		5FE0CC1DFA1FC9FCBB2F1EA4BCDAE7D9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -587,6 +632,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 09DD83B7D075842A3A5105AD410BD38A;
 			remoteInfo = BigInt;
+		};
+		69CA7FC5160D190D4DFE5C1A1FAC7109 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AC54079097E3E3B70EBE9D712693CE4;
+			remoteInfo = Sodium;
 		};
 		70D4DDCC405FBD08F0FC5EAD2725D270 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -602,6 +654,20 @@
 			remoteGlobalIDString = CEF561CEEBFA5EBBDA6E240FF1B20CEC;
 			remoteInfo = QRCode;
 		};
+		83398259EAED58162467AE0695EDE777 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C0E41540D6862472ED7F2FA11669BE1F;
+			remoteInfo = Crashlytics;
+		};
+		86F55F085E8F4EA1C27EF7F51752E055 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 161C26511FC920CB146236AB7295D5E0;
+			remoteInfo = secp256k1.c;
+		};
 		87683EA11840C988A4C0E79B0052CA13 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -616,12 +682,47 @@
 			remoteGlobalIDString = 9B78EE4AF6AE03E79D88886319853FF7;
 			remoteInfo = Starscream;
 		};
+		9FA8DA7CB22706F4ABA3AEEF2F694C04 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D118A6A04828FD3CDA8640CD2B6796D2;
+			remoteInfo = SwiftyJSON;
+		};
+		A06C0C3603D60EE1F7916EBFB42BA30D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D63C21A5947585903B9D0F41D12CBE62;
+			remoteInfo = GBAsyncOperation;
+		};
 		A802B48BBA885CE6DE7486FD9AEFEA7D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = C0E41540D6862472ED7F2FA11669BE1F;
 			remoteInfo = Crashlytics;
+		};
+		B9FAC7F083A842CB7109A5555C790903 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9B78EE4AF6AE03E79D88886319853FF7;
+			remoteInfo = Starscream;
+		};
+		C0724750EBBCBA8D4D6EC0E80B67FA05 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 83AB5031998E119DFDFFDA70C3749F33;
+			remoteInfo = SwiftCBOR;
+		};
+		D044E22D9DEAA0CBCD96DA08F4442728 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 07E54A78BCF82272E99319D7F7F5E8C1;
+			remoteInfo = KeychainSwift;
 		};
 		D465047540D12FD9D95291AE82A76DB9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -636,6 +737,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = D63C21A5947585903B9D0F41D12CBE62;
 			remoteInfo = GBAsyncOperation;
+		};
+		EE5EC2663B9F865FBCFFE5D3D7F53866 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 09DD83B7D075842A3A5105AD410BD38A;
+			remoteInfo = BigInt;
 		};
 		F6BD5E9ADD87982A302AC0DF4C4C5708 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -695,11 +803,11 @@
 		110DC2BD830BB522B16A7B534898219E /* NSTask+AnyPromise.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "NSTask+AnyPromise.h"; path = "Extensions/Foundation/Sources/NSTask+AnyPromise.h"; sourceTree = "<group>"; };
 		1119C8FCBD59A119BEE6B0D2482B363A /* QRCode-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "QRCode-Info.plist"; sourceTree = "<group>"; };
 		11A903E2EDDE938E8D38D1AEBDDB62F4 /* QRCode-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "QRCode-umbrella.h"; sourceTree = "<group>"; };
+		11D81B98B837C64CB01A05A36DAFA3FE /* Pods-Tangem-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Tangem-acknowledgements.markdown"; sourceTree = "<group>"; };
 		129457376CFFC1C1B9D1D42EF43CBCF0 /* CIColorExtension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CIColorExtension.swift; path = QRCode/CIColorExtension.swift; sourceTree = "<group>"; };
 		12A488AE20899AFBFD7DEA8F072E66D7 /* web3.swift.pod.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = web3.swift.pod.modulemap; sourceTree = "<group>"; };
 		12AC9799C014867119472521ECC2761E /* FixedWidthInteger+Bytes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "FixedWidthInteger+Bytes.swift"; path = "Sources/SwiftCBOR/FixedWidthInteger+Bytes.swift"; sourceTree = "<group>"; };
 		12FC14ADE886DD68BB21B38B54D8ADBF /* field_5x52_int128_impl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = field_5x52_int128_impl.h; path = secp256k1/field_5x52_int128_impl.h; sourceTree = "<group>"; };
-		12FE0B470E3C5C1E62341273AE5869E1 /* Pods-Tangem-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Tangem-acknowledgements.plist"; sourceTree = "<group>"; };
 		138D55FBE0848365520F7A7C2C7004A7 /* Promise+Web3+Eth+GetAccounts.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Promise+Web3+Eth+GetAccounts.swift"; path = "Sources/web3swift/Promises/Promise+Web3+Eth+GetAccounts.swift"; sourceTree = "<group>"; };
 		13A7736CAC465217EA165AE475ADB1AF /* Checksum.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Checksum.swift; path = Sources/CryptoSwift/Checksum.swift; sourceTree = "<group>"; };
 		1436F76F992678FEEC5431D630B892B4 /* Floating Point Conversion.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Floating Point Conversion.swift"; path = "sources/Floating Point Conversion.swift"; sourceTree = "<group>"; };
@@ -747,6 +855,7 @@
 		2994D2FCA54D8C5F3502E3F16AD1899B /* Authenticator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Authenticator.swift; path = Sources/CryptoSwift/Authenticator.swift; sourceTree = "<group>"; };
 		2A1E38D2B0619BDE973F9F5DF9C2796F /* ABIEncoding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ABIEncoding.swift; path = Sources/web3swift/EthereumABI/ABIEncoding.swift; sourceTree = "<group>"; };
 		2AEF734B0EC3C61604D433462B966E6D /* crypto_onetimeauth.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_onetimeauth.h; path = Sodium/libsodium/crypto_onetimeauth.h; sourceTree = "<group>"; };
+		2B147DA971A48BEAA8F449BBF9C879C9 /* Pods-Tangem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Tangem.debug.xcconfig"; sourceTree = "<group>"; };
 		2C0F546A18C0F422AC6D69DD5C8EBA91 /* QRCode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRCode.swift; path = QRCode/QRCode.swift; sourceTree = "<group>"; };
 		2C1B97D0CC6368E3D62CD35D8CD75B52 /* Data+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Data+Extension.swift"; path = "Sources/CryptoSwift/Foundation/Data+Extension.swift"; sourceTree = "<group>"; };
 		2C3E01E47942496D220BBAD869252E5D /* Compression.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Compression.swift; path = Sources/Starscream/Compression.swift; sourceTree = "<group>"; };
@@ -755,7 +864,6 @@
 		2DC3D6C010DCE767A56F70B7BA2773AE /* crypto_kdf_blake2b.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_kdf_blake2b.h; path = Sodium/libsodium/crypto_kdf_blake2b.h; sourceTree = "<group>"; };
 		2E2593CE484CD9E19FFB244B9B8DEADC /* CipherModeWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CipherModeWorker.swift; path = Sources/CryptoSwift/BlockMode/CipherModeWorker.swift; sourceTree = "<group>"; };
 		2E578AEC0D818878EA7D4ED9520C559F /* scalar_4x64.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = scalar_4x64.h; path = secp256k1/scalar_4x64.h; sourceTree = "<group>"; };
-		2E9A7FBEC80AD5CB233DEB4C9F5408BD /* Pods-Tangem-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Tangem-acknowledgements.markdown"; sourceTree = "<group>"; };
 		2E9C925FE4A5863004DEFABBF8AC38F4 /* Generics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Generics.swift; path = Sources/CryptoSwift/Generics.swift; sourceTree = "<group>"; };
 		2F2E3DCCED5EC1D660253F862A0EA6DC /* EthereumKeystoreV3.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EthereumKeystoreV3.swift; path = Sources/web3swift/KeystoreManager/EthereumKeystoreV3.swift; sourceTree = "<group>"; };
 		2F35AB4EF635DFEB8701F60DE88E2147 /* Data+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Data+Extension.swift"; path = "Sources/web3swift/Convenience/Data+Extension.swift"; sourceTree = "<group>"; };
@@ -855,12 +963,13 @@
 		5E1E8D9545EDCC5489B818740AE65DF6 /* Web3+ERC165.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+ERC165.swift"; path = "Sources/web3swift/Tokens/ERC165/Web3+ERC165.swift"; sourceTree = "<group>"; };
 		5E55B076E3359C65F10BB326A63DA11F /* Hashable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Hashable.swift; path = sources/Hashable.swift; sourceTree = "<group>"; };
 		5E93AA410BD4C36A7903626A94A67921 /* NSObject+Promise.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "NSObject+Promise.swift"; path = "Extensions/Foundation/Sources/NSObject+Promise.swift"; sourceTree = "<group>"; };
+		5ED4EA887A547D534688E6A5427532A4 /* Pods-Tangem beta-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Tangem beta-frameworks.sh"; sourceTree = "<group>"; };
 		5F3C9AB2AA6D7136A097E889536DD0EE /* ecmult_gen.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ecmult_gen.h; path = secp256k1/ecmult_gen.h; sourceTree = "<group>"; };
-		5FDD62669DD8624862C03E4E2B685F10 /* Pods-Tangem-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Tangem-umbrella.h"; sourceTree = "<group>"; };
 		5FF471CFDE503B136AF879829EAD6426 /* KeystoreV3JSONStructure.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeystoreV3JSONStructure.swift; path = Sources/web3swift/KeystoreManager/KeystoreV3JSONStructure.swift; sourceTree = "<group>"; };
 		60BDA9B6BE3D8F6A29FD102DAF28CCEB /* HMAC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HMAC.swift; path = Sources/CryptoSwift/HMAC.swift; sourceTree = "<group>"; };
 		6156B2FB19C18A56AFFE0455C383066F /* KeychainSwift-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "KeychainSwift-umbrella.h"; sourceTree = "<group>"; };
 		618E0630F7F0584E8003E7E7BDD507FB /* Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Extensions.swift; path = Sources/web3swift/EthereumAddress/Extensions.swift; sourceTree = "<group>"; };
+		61E9082234A715896E116AE8050156EC /* Pods-Tangem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Tangem.release.xcconfig"; sourceTree = "<group>"; };
 		627879F5E14250449068A5BDCCCA21FE /* AES.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AES.swift; path = Sources/CryptoSwift/AES.swift; sourceTree = "<group>"; };
 		639A97AD5BF14D2C26B7BF37513FD080 /* QRCode-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "QRCode-dummy.m"; sourceTree = "<group>"; };
 		63CC07C23C5F5CB1626C4CCA9CB61E03 /* crypto_hash_sha256.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_hash_sha256.h; path = Sodium/libsodium/crypto_hash_sha256.h; sourceTree = "<group>"; };
@@ -906,6 +1015,8 @@
 		7AB779725D7DF952CF193CC1F0211736 /* EthereumContract.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EthereumContract.swift; path = Sources/web3swift/Contract/EthereumContract.swift; sourceTree = "<group>"; };
 		7AC466C002F76DBEB6DC77A3976E8284 /* ecdsa.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ecdsa.h; path = secp256k1/ecdsa.h; sourceTree = "<group>"; };
 		7B02B8CEE078AC396293E4A7193A9C51 /* ENSRegistry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ENSRegistry.swift; path = Sources/web3swift/Utils/ENS/ENSRegistry.swift; sourceTree = "<group>"; };
+		7B5625DBE5BE917AA6970E680C10E83A /* Pods-Tangem beta-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Tangem beta-acknowledgements.plist"; sourceTree = "<group>"; };
+		7BA942D2377DAB74413D9B9AC3DC0F1B /* Pods-Tangem beta-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Tangem beta-dummy.m"; sourceTree = "<group>"; };
 		7BD8EDEAB953E8A8A170A2ED4E1E9BDB /* crypto_stream_xsalsa20.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_stream_xsalsa20.h; path = Sodium/libsodium/crypto_stream_xsalsa20.h; sourceTree = "<group>"; };
 		7D99C6F90718FAECCC4E7671440F60AE /* web3.swift.pod-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "web3.swift.pod-umbrella.h"; sourceTree = "<group>"; };
 		7DCEE5B46BD37E003FE40E771D75275F /* ENSReverseRegistrar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ENSReverseRegistrar.swift; path = Sources/web3swift/Utils/ENS/ENSReverseRegistrar.swift; sourceTree = "<group>"; };
@@ -933,12 +1044,12 @@
 		891B2270823847ED23F2ECFC28F935EC /* Starscream.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Starscream.framework; path = Starscream.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		896D201F4C04EAB251B238827472573A /* CTR.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CTR.swift; path = Sources/CryptoSwift/BlockMode/CTR.swift; sourceTree = "<group>"; };
 		89C0BA9AE09ED5C8ED7F1B1546C4C6A1 /* crypto_stream.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_stream.h; path = Sodium/libsodium/crypto_stream.h; sourceTree = "<group>"; };
+		89C2F782195545882C4FF1FAD379D169 /* Pods-Tangem-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Tangem-umbrella.h"; sourceTree = "<group>"; };
 		8A53DD296830EE9EAA052F1903DF966F /* field_10x26.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = field_10x26.h; path = secp256k1/field_10x26.h; sourceTree = "<group>"; };
 		8AAAD5A7E87C867052EF7E9D0C9BB6ED /* Promise+HttpProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Promise+HttpProvider.swift"; path = "Sources/web3swift/Promises/Promise+HttpProvider.swift"; sourceTree = "<group>"; };
 		8B0D6C1895EB983DA162689DE8844D65 /* UInt8+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UInt8+Extension.swift"; path = "Sources/CryptoSwift/UInt8+Extension.swift"; sourceTree = "<group>"; };
 		8BD2E070BFAC68E4C4E7E763BB726C8A /* Cipher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Cipher.swift; path = Sources/CryptoSwift/Cipher.swift; sourceTree = "<group>"; };
 		8C8150F745277C324A5B18C9663A6279 /* KeyedEncodingContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeyedEncodingContainer.swift; path = Sources/SwiftCBOR/Encoder/KeyedEncodingContainer.swift; sourceTree = "<group>"; };
-		8D2248B6904A97870FFA85716132D9AC /* Pods-Tangem-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Tangem-Info.plist"; sourceTree = "<group>"; };
 		8DDA6B05D456158B4BD88518E6EECD48 /* CustomStringConvertible.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomStringConvertible.swift; path = Sources/CustomStringConvertible.swift; sourceTree = "<group>"; };
 		8E64152C3DAA639F9A44D1EE0039FB4E /* crypto_secretstream_xchacha20poly1305.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_secretstream_xchacha20poly1305.h; path = Sodium/libsodium/crypto_secretstream_xchacha20poly1305.h; sourceTree = "<group>"; };
 		8F2ED67F1E883B06D8DA4A667CC13189 /* UIViewController+AnyPromise.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "UIViewController+AnyPromise.h"; path = "Extensions/UIKit/Sources/UIViewController+AnyPromise.h"; sourceTree = "<group>"; };
@@ -949,6 +1060,7 @@
 		9149332EEAEAAE330AF6CF96D1DA8EDA /* ecdh_impl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ecdh_impl.h; path = secp256k1/ecdh_impl.h; sourceTree = "<group>"; };
 		91BB24BA472AF523E913108C9AA301F2 /* BigInt.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = BigInt.framework; path = BigInt.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		928AA3E39C93A6406458EBFE645D8EB3 /* GBAsyncOperation.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = GBAsyncOperation.xcconfig; sourceTree = "<group>"; };
+		92B94FAD6D878C8E9E03D94459EA0215 /* Pods-Tangem beta.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-Tangem beta.modulemap"; sourceTree = "<group>"; };
 		931253B58D0FAC38F8D055D7F1225B27 /* SwiftCBOR-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "SwiftCBOR-Info.plist"; sourceTree = "<group>"; };
 		9321E34DCF801824D900CD17E2941489 /* NameHash.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NameHash.swift; path = Sources/web3swift/Utils/ENS/NameHash.swift; sourceTree = "<group>"; };
 		93ECEE87BE8CA85A9A5C28529CE76F9D /* CBCMAC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CBCMAC.swift; path = Sources/CryptoSwift/CBCMAC.swift; sourceTree = "<group>"; };
@@ -959,7 +1071,6 @@
 		9659B257974470C88D3B79A34916065F /* UInt16+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UInt16+Extension.swift"; path = "Sources/CryptoSwift/UInt16+Extension.swift"; sourceTree = "<group>"; };
 		96E087DACAFCB02431638F69F1EBA3C0 /* Blowfish.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Blowfish.swift; path = Sources/CryptoSwift/Blowfish.swift; sourceTree = "<group>"; };
 		97498616635E87E13951949B4552798E /* UIViewPropertyAnimator+Promise.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UIViewPropertyAnimator+Promise.swift"; path = "Extensions/UIKit/Sources/UIViewPropertyAnimator+Promise.swift"; sourceTree = "<group>"; };
-		97701E15073472F13D2101344CD27AF5 /* Pods-Tangem-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Tangem-frameworks.sh"; sourceTree = "<group>"; };
 		9789B6187D77DE237A73690618F3EA8A /* SwiftCBOR.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftCBOR.xcconfig; sourceTree = "<group>"; };
 		97994DF0F848034B74C35C78FBBCEAC3 /* RandomBytesSequence.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RandomBytesSequence.swift; path = Sources/CryptoSwift/RandomBytesSequence.swift; sourceTree = "<group>"; };
 		97AC7B7EC5237FCD5A9D7CCE4878C6EC /* when.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = when.swift; path = Sources/when.swift; sourceTree = "<group>"; };
@@ -974,10 +1085,10 @@
 		9D26970010B59A5849E8B8C3C2E4BECF /* PCBC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PCBC.swift; path = Sources/CryptoSwift/BlockMode/PCBC.swift; sourceTree = "<group>"; };
 		9D7DF02910DE0D0D2F829E8BC58B9E6D /* PromiseKit.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = PromiseKit.modulemap; sourceTree = "<group>"; };
 		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9DB935A1985D52AAC1F289EB8E4A94A8 /* Pods-Tangem beta-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Tangem beta-Info.plist"; sourceTree = "<group>"; };
 		9E0FD012ADC3C7179C684035672383E5 /* KeychainSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = KeychainSwift.framework; path = KeychainSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E2A30F374C0DAD2D5131630D493C0C2 /* ecmult_const.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ecmult_const.h; path = secp256k1/ecmult_const.h; sourceTree = "<group>"; };
 		9EABE657640A7FF59423AF47C0FBCDCB /* PromiseKit-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "PromiseKit-dummy.m"; sourceTree = "<group>"; };
-		A065303A359CBCB38AE8B073CC9D345D /* Pods-Tangem.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Tangem.debug.xcconfig"; sourceTree = "<group>"; };
 		A0932C9B0C8FF7459110919719CB39EF /* Box.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Box.swift; path = Sources/Box.swift; sourceTree = "<group>"; };
 		A09A936F3560CB1FD17600349A51D2ED /* GBAsyncBlockOperation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GBAsyncBlockOperation.swift; path = GBAsyncOperation/Classes/GBAsyncBlockOperation.swift; sourceTree = "<group>"; };
 		A0B8BA5FB06DB570C9529D8ADED47AC8 /* Cryptor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Cryptor.swift; path = Sources/CryptoSwift/Cryptor.swift; sourceTree = "<group>"; };
@@ -1014,7 +1125,6 @@
 		AC04AE2D5C66C8E5672B336025C2B793 /* Web3+ERC820.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+ERC820.swift"; path = "Sources/web3swift/Tokens/ERC820/Web3+ERC820.swift"; sourceTree = "<group>"; };
 		AC2EE3EDA88231C3A16DC55D38AACD35 /* afterlife.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = afterlife.swift; path = Extensions/Foundation/Sources/afterlife.swift; sourceTree = "<group>"; };
 		ACBE0C8F9D2D25D0A9FFE48BC9018EC3 /* UInt32+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UInt32+Extension.swift"; path = "Sources/CryptoSwift/UInt32+Extension.swift"; sourceTree = "<group>"; };
-		ADEBFB7B421B83D8A3A7611A1AF18CA7 /* Pods-Tangem.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Tangem.release.xcconfig"; sourceTree = "<group>"; };
 		AE3057F9AE82D4A0C723FCD7FCF45411 /* UIView+AnyPromise.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "UIView+AnyPromise.h"; path = "Extensions/UIKit/Sources/UIView+AnyPromise.h"; sourceTree = "<group>"; };
 		AE30B0B76BB5771C4B1971BEFF990A4E /* Web3+ReadingTransaction.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+ReadingTransaction.swift"; path = "Sources/web3swift/Web3/Web3+ReadingTransaction.swift"; sourceTree = "<group>"; };
 		AEF24696A9C4FB49E8815F5413A50D2B /* CodableCBORDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CodableCBORDecoder.swift; path = Sources/SwiftCBOR/Decoder/CodableCBORDecoder.swift; sourceTree = "<group>"; };
@@ -1035,6 +1145,7 @@
 		B67D1B19501EB4B3BFA174F119881218 /* Promise.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Promise.swift; path = Sources/Promise.swift; sourceTree = "<group>"; };
 		B69D5851EBD9DF07EF353B67BCF69CB3 /* EthereumTransaction.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EthereumTransaction.swift; path = Sources/web3swift/Transaction/EthereumTransaction.swift; sourceTree = "<group>"; };
 		B77B875B959943E0DAA2AF2B2577AD17 /* NonceGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NonceGenerator.swift; path = Sodium/Generators/NonceGenerator.swift; sourceTree = "<group>"; };
+		B77C6239E72CA9C2ADF34DCAC06A7168 /* Pods-Tangem-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Tangem-dummy.m"; sourceTree = "<group>"; };
 		B7A0FDA8E890155CAE5F853D2BCFF362 /* crypto_core_curve25519.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_core_curve25519.h; path = Sodium/libsodium/crypto_core_curve25519.h; sourceTree = "<group>"; };
 		B7EFD35F90A7E77F244322FD768580EB /* Starscream.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = Starscream.modulemap; sourceTree = "<group>"; };
 		B88EEFBEB8D5D79DE247160907B3646B /* Web3+Options.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+Options.swift"; path = "Sources/web3swift/Web3/Web3+Options.swift"; sourceTree = "<group>"; };
@@ -1050,6 +1161,7 @@
 		BB728B480ED7884C029490EBE1E87867 /* hash.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = hash.h; path = secp256k1/hash.h; sourceTree = "<group>"; };
 		BBDC1BFA770C9562950727211D1D6A98 /* BloomFilter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BloomFilter.swift; path = Sources/web3swift/Transaction/BloomFilter.swift; sourceTree = "<group>"; };
 		BC23134F2B462E037E8B77D0B554ABA5 /* scalar.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = scalar.h; path = secp256k1/scalar.h; sourceTree = "<group>"; };
+		BCF0284511FB8301F2F9F15E7653C645 /* Pods-Tangem beta-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Tangem beta-umbrella.h"; sourceTree = "<group>"; };
 		BD40E3CC9ABBB87ED150B0E8886BEDB7 /* Deprecations.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Deprecations.swift; path = Sources/Deprecations.swift; sourceTree = "<group>"; };
 		BD7EB6C3C0D283D968CF1D89AD8C5A51 /* TegKeychainConstants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TegKeychainConstants.swift; path = Sources/TegKeychainConstants.swift; sourceTree = "<group>"; };
 		BD97F710928E83C1396D109435FD04C0 /* Starscream-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Starscream-dummy.m"; sourceTree = "<group>"; };
@@ -1058,7 +1170,6 @@
 		BF1CCA7785F616E54A3751E4C6D816C5 /* Promise+Web3+Personal+UnlockAccount.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Promise+Web3+Personal+UnlockAccount.swift"; path = "Sources/web3swift/Promises/Promise+Web3+Personal+UnlockAccount.swift"; sourceTree = "<group>"; };
 		BF93F91435D156699B24FB03DC9BD4D1 /* Promise+Web3+Contract+GetIndexedEvents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Promise+Web3+Contract+GetIndexedEvents.swift"; path = "Sources/web3swift/Promises/Promise+Web3+Contract+GetIndexedEvents.swift"; sourceTree = "<group>"; };
 		BFFB7837BF0201079E11A64DDDC58D3B /* crypto_verify_16.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_verify_16.h; path = Sodium/libsodium/crypto_verify_16.h; sourceTree = "<group>"; };
-		C0884C378ACE1CC29D1E55EC85A41955 /* Pods-Tangem-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Tangem-dummy.m"; sourceTree = "<group>"; };
 		C0C1591B1E6E77CA639C9C337B362BFA /* crypto_aead_aes256gcm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_aead_aes256gcm.h; path = Sodium/libsodium/crypto_aead_aes256gcm.h; sourceTree = "<group>"; };
 		C122EC00CB63F8565318CD420AE039B7 /* AnyCodingKey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AnyCodingKey.swift; path = Sources/SwiftCBOR/AnyCodingKey.swift; sourceTree = "<group>"; };
 		C17350E09F62871CCA10FD292C523795 /* Web3+ERC1633.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+ERC1633.swift"; path = "Sources/web3swift/Tokens/ERC1633/Web3+ERC1633.swift"; sourceTree = "<group>"; };
@@ -1071,13 +1182,14 @@
 		C6313BD26843FEDC54EEFD8B471B46EC /* Resolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Resolver.swift; path = Sources/Resolver.swift; sourceTree = "<group>"; };
 		C64EE8BD8F995F2172FE0C6311D52AD0 /* String+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "String+Extension.swift"; path = "Sources/CryptoSwift/String+Extension.swift"; sourceTree = "<group>"; };
 		C6D712B04C130CD5C5A663B561E227A6 /* Web3+ERC888.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+ERC888.swift"; path = "Sources/web3swift/Tokens/ERC888/Web3+ERC888.swift"; sourceTree = "<group>"; };
+		C852C7A393725C0976D191A2D1CAEF50 /* Pods-Tangem beta-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Tangem beta-acknowledgements.markdown"; sourceTree = "<group>"; };
+		C886ADD5163A1311B3AB56131020B8D5 /* Pods-Tangem-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Tangem-Info.plist"; sourceTree = "<group>"; };
 		C888D20909ECBA5F283A974EA9226FF1 /* crypto_secretbox.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_secretbox.h; path = Sodium/libsodium/crypto_secretbox.h; sourceTree = "<group>"; };
 		C8F022939E215EE7BE7D16E5C60B57EC /* runtime.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = runtime.h; path = Sodium/libsodium/runtime.h; sourceTree = "<group>"; };
 		CA0722EB1C0500DF0DBABF7001B2E901 /* Starscream-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Starscream-umbrella.h"; sourceTree = "<group>"; };
 		CC90786D822F27D254DF75C1CEC61901 /* CBOREncoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CBOREncoder.swift; path = Sources/SwiftCBOR/CBOREncoder.swift; sourceTree = "<group>"; };
 		CD35CBEC94C1EA3083A036561E259383 /* crypto_auth_hmacsha256.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_auth_hmacsha256.h; path = Sodium/libsodium/crypto_auth_hmacsha256.h; sourceTree = "<group>"; };
 		CD560F2D118410F7C9D39DADD1D1D02E /* Thenable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Thenable.swift; path = Sources/Thenable.swift; sourceTree = "<group>"; };
-		CDC0BA2B580A5BEDED52387EA7FECA2F /* Pods-Tangem.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-Tangem.modulemap"; sourceTree = "<group>"; };
 		CDCB81E7D04DA9EA0B1C7F04358C493F /* HMAC+Foundation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "HMAC+Foundation.swift"; path = "Sources/CryptoSwift/Foundation/HMAC+Foundation.swift"; sourceTree = "<group>"; };
 		CDCB8E6CF2F54D396ED2FE9961EC0080 /* Fabric.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Fabric.xcconfig; sourceTree = "<group>"; };
 		CE09E24D8F193EB05E20CB2CD76EA1A7 /* SwiftCBOR.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = SwiftCBOR.framework; path = SwiftCBOR.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1100,11 +1212,14 @@
 		D500C3B0C4AFBB9BED0ADC28B6E8CA09 /* NativeTypesEncoding+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "NativeTypesEncoding+Extensions.swift"; path = "Sources/web3swift/Convenience/NativeTypesEncoding+Extensions.swift"; sourceTree = "<group>"; };
 		D5048AF703E0608E5C0E8C9A17B571E0 /* CryptoSwift-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "CryptoSwift-dummy.m"; sourceTree = "<group>"; };
 		D56897B8677E4885B02DE8D1587B4BD2 /* HKDF.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HKDF.swift; path = Sources/CryptoSwift/HKDF.swift; sourceTree = "<group>"; };
+		D5B6912B5CB5595C0E5786603B26532C /* Pods-Tangem-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Tangem-acknowledgements.plist"; sourceTree = "<group>"; };
 		D683A049F6253A0094170DD883E84C85 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/CoreImage.framework; sourceTree = DEVELOPER_DIR; };
+		D699218EAEAF14E247AE664FEA7E3F51 /* Pods-Tangem beta.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Tangem beta.debug.xcconfig"; sourceTree = "<group>"; };
 		D6F328D385AF4FF901AAB0CF24A30EAA /* PromiseKit-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "PromiseKit-prefix.pch"; sourceTree = "<group>"; };
 		D75D7567CF0438D19630523A7437E3EE /* Web3+ERC1376.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+ERC1376.swift"; path = "Sources/web3swift/Tokens/ERC1376/Web3+ERC1376.swift"; sourceTree = "<group>"; };
 		D7DDBAC22709F230F42CE9B30495B3C6 /* hang.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = hang.m; path = Sources/hang.m; sourceTree = "<group>"; };
 		D82D45B17DD725D39DD89DF4553384B5 /* Web3+Eventloop.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+Eventloop.swift"; path = "Sources/web3swift/Web3/Web3+Eventloop.swift"; sourceTree = "<group>"; };
+		D86E9F3F6FE916D5CD46FD367ED56F51 /* Pods-Tangem-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Tangem-frameworks.sh"; sourceTree = "<group>"; };
 		D8949B9C4A7B7F61F047BC67D8D397C6 /* Subtraction.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Subtraction.swift; path = sources/Subtraction.swift; sourceTree = "<group>"; };
 		D8B6B26ED860E29A0F3B2A8A021F275F /* field_5x52.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = field_5x52.h; path = secp256k1/field_5x52.h; sourceTree = "<group>"; };
 		D966CCCCDAE17A4003DEA3182725A8BC /* Web3+BrowserFunctions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+BrowserFunctions.swift"; path = "Sources/web3swift/HookedFunctions/Web3+BrowserFunctions.swift"; sourceTree = "<group>"; };
@@ -1112,6 +1227,7 @@
 		D99A13546E4B496DC8E42D64BFBEB66F /* Operators.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Operators.swift; path = Sources/CryptoSwift/Operators.swift; sourceTree = "<group>"; };
 		DA30582772FF352858D92B54838A6240 /* num.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = num.h; path = secp256k1/num.h; sourceTree = "<group>"; };
 		DA32373EF004EBFF58F858EFABC5E17C /* Padding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Padding.swift; path = Sources/CryptoSwift/Padding.swift; sourceTree = "<group>"; };
+		DA51B08F4355409D5E326C2FACAED242 /* Pods_Tangem_beta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_Tangem_beta.framework; path = "Pods-Tangem beta.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB188A699E192A386F0FCC7BEC7AFCC7 /* scalar_8x32.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = scalar_8x32.h; path = secp256k1/scalar_8x32.h; sourceTree = "<group>"; };
 		DB20592002858B1449C215EBF38F5977 /* SecureBytes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SecureBytes.swift; path = Sources/CryptoSwift/SecureBytes.swift; sourceTree = "<group>"; };
 		DB50A36F1C501666BD178A4284666342 /* UnkeyedEncodingContainer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UnkeyedEncodingContainer.swift; path = Sources/SwiftCBOR/Encoder/UnkeyedEncodingContainer.swift; sourceTree = "<group>"; };
@@ -1148,6 +1264,7 @@
 		E8CC187D3C3CFFAF5685ACEFC7461AFA /* String+FoundationExtension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "String+FoundationExtension.swift"; path = "Sources/CryptoSwift/Foundation/String+FoundationExtension.swift"; sourceTree = "<group>"; };
 		EA1116ED62125328FF9B79334A2BA7F7 /* ETHRegistrarController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ETHRegistrarController.swift; path = Sources/web3swift/Utils/ENS/ETHRegistrarController.swift; sourceTree = "<group>"; };
 		EA3FA87EF318AA39C9853C095BDCF155 /* CryptoSwift-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "CryptoSwift-umbrella.h"; sourceTree = "<group>"; };
+		EA4321FBA3058F8CB8F42EBDAF23CDD8 /* Pods-Tangem beta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Tangem beta.release.xcconfig"; sourceTree = "<group>"; };
 		EB907D47BEEA01C3760C6FA6F419B0BC /* Web3+MutatingTransaction.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Web3+MutatingTransaction.swift"; path = "Sources/web3swift/Web3/Web3+MutatingTransaction.swift"; sourceTree = "<group>"; };
 		EBA46500B558E4F39FFA69C134239F20 /* Promise+Web3+Personal+CreateAccount.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Promise+Web3+Personal+CreateAccount.swift"; path = "Sources/web3swift/Promises/Promise+Web3+Personal+CreateAccount.swift"; sourceTree = "<group>"; };
 		EC1C7F709F0766A4A9738261F54CD5C9 /* secp256k1-config.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "secp256k1-config.h"; path = "secp256k1/secp256k1-config.h"; sourceTree = "<group>"; };
@@ -1158,6 +1275,7 @@
 		EE978DE28868DAC5FC3C060FFFA7D4CE /* Catchable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Catchable.swift; path = Sources/Catchable.swift; sourceTree = "<group>"; };
 		EECCF016281E050CD4A02C011CFE1473 /* Rabbit+Foundation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Rabbit+Foundation.swift"; path = "Sources/CryptoSwift/Foundation/Rabbit+Foundation.swift"; sourceTree = "<group>"; };
 		EEFBA2250594E42F99B7E64DE762CA83 /* crypto_stream_xchacha20.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_stream_xchacha20.h; path = Sodium/libsodium/crypto_stream_xchacha20.h; sourceTree = "<group>"; };
+		EF94B662232560575914BDB0A3BEAD91 /* Pods-Tangem.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-Tangem.modulemap"; sourceTree = "<group>"; };
 		EFD85B7F2074051CAE35F36485CC8CCD /* Digest.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Digest.swift; path = Sources/CryptoSwift/Digest.swift; sourceTree = "<group>"; };
 		F08EA70D8DCA6B900C62EEE157AEF457 /* KeychainSwift-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "KeychainSwift-Info.plist"; sourceTree = "<group>"; };
 		F0F6DD1460DB6B87152649E848DCB76F /* crypto_core_salsa2012.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = crypto_core_salsa2012.h; path = Sodium/libsodium/crypto_core_salsa2012.h; sourceTree = "<group>"; };
@@ -1303,6 +1421,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E1157DA8A97848829FA2C525DAC88D56 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA934D67FE8EAD69AF7361E274655DC3 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1352,6 +1478,15 @@
 			);
 			name = SwiftCBOR;
 			path = SwiftCBOR;
+			sourceTree = "<group>";
+		};
+		10D57134E0F0C5F58798EEA26695E4B8 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				249AD9F9FEAE7D21D28D7B68FD9B4E92 /* Pods-Tangem */,
+				29B87FA71A1B942009AF566B0E078DCA /* Pods-Tangem beta */,
+			);
+			name = "Targets Support Files";
 			sourceTree = "<group>";
 		};
 		11273D384F091DC45D21B33430C28B64 /* secp256k1.c */ = {
@@ -1406,6 +1541,61 @@
 			);
 			name = secp256k1.c;
 			path = secp256k1.c;
+			sourceTree = "<group>";
+		};
+		249AD9F9FEAE7D21D28D7B68FD9B4E92 /* Pods-Tangem */ = {
+			isa = PBXGroup;
+			children = (
+				EF94B662232560575914BDB0A3BEAD91 /* Pods-Tangem.modulemap */,
+				11D81B98B837C64CB01A05A36DAFA3FE /* Pods-Tangem-acknowledgements.markdown */,
+				D5B6912B5CB5595C0E5786603B26532C /* Pods-Tangem-acknowledgements.plist */,
+				B77C6239E72CA9C2ADF34DCAC06A7168 /* Pods-Tangem-dummy.m */,
+				D86E9F3F6FE916D5CD46FD367ED56F51 /* Pods-Tangem-frameworks.sh */,
+				C886ADD5163A1311B3AB56131020B8D5 /* Pods-Tangem-Info.plist */,
+				89C2F782195545882C4FF1FAD379D169 /* Pods-Tangem-umbrella.h */,
+				2B147DA971A48BEAA8F449BBF9C879C9 /* Pods-Tangem.debug.xcconfig */,
+				61E9082234A715896E116AE8050156EC /* Pods-Tangem.release.xcconfig */,
+			);
+			name = "Pods-Tangem";
+			path = "Target Support Files/Pods-Tangem";
+			sourceTree = "<group>";
+		};
+		29B87FA71A1B942009AF566B0E078DCA /* Pods-Tangem beta */ = {
+			isa = PBXGroup;
+			children = (
+				92B94FAD6D878C8E9E03D94459EA0215 /* Pods-Tangem beta.modulemap */,
+				C852C7A393725C0976D191A2D1CAEF50 /* Pods-Tangem beta-acknowledgements.markdown */,
+				7B5625DBE5BE917AA6970E680C10E83A /* Pods-Tangem beta-acknowledgements.plist */,
+				7BA942D2377DAB74413D9B9AC3DC0F1B /* Pods-Tangem beta-dummy.m */,
+				5ED4EA887A547D534688E6A5427532A4 /* Pods-Tangem beta-frameworks.sh */,
+				9DB935A1985D52AAC1F289EB8E4A94A8 /* Pods-Tangem beta-Info.plist */,
+				BCF0284511FB8301F2F9F15E7653C645 /* Pods-Tangem beta-umbrella.h */,
+				D699218EAEAF14E247AE664FEA7E3F51 /* Pods-Tangem beta.debug.xcconfig */,
+				EA4321FBA3058F8CB8F42EBDAF23CDD8 /* Pods-Tangem beta.release.xcconfig */,
+			);
+			name = "Pods-Tangem beta";
+			path = "Target Support Files/Pods-Tangem beta";
+			sourceTree = "<group>";
+		};
+		2F87701A8E1DCC6E54450873BC838C1C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				91BB24BA472AF523E913108C9AA301F2 /* BigInt.framework */,
+				F81274EDB681F11E7CB05F7DCA2BB33C /* CryptoSwift.framework */,
+				7317BCB4A5C2A378042C02DC768CD898 /* GBAsyncOperation.framework */,
+				9E0FD012ADC3C7179C684035672383E5 /* KeychainSwift.framework */,
+				75334CC48EC52AAAB3652EB429134DFA /* Pods_Tangem.framework */,
+				DA51B08F4355409D5E326C2FACAED242 /* Pods_Tangem_beta.framework */,
+				002B1E88BA14EBF633CD66EBFBA107E9 /* PromiseKit.framework */,
+				5C871E3AA3292278FEE126AAFAEC60A5 /* QRCode.framework */,
+				332A47430CFF99501D563788C7AAF1D2 /* secp256k1.framework */,
+				32497A3ACEA14D32D7F8C65D5357128A /* Sodium.framework */,
+				891B2270823847ED23F2ECFC28F935EC /* Starscream.framework */,
+				CE09E24D8F193EB05E20CB2CD76EA1A7 /* SwiftCBOR.framework */,
+				E23C076BA70925415F490FEDB215DA92 /* SwiftyJSON.framework */,
+				58CD4251D6A5C7F92AA5526EE4DDEF41 /* web3swift.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		3066A640121BDBB0F786F086042C9918 /* Support Files */ = {
@@ -1470,43 +1660,6 @@
 				905918842F076D569F852C8032634B9B /* Process+Promise.swift */,
 			);
 			name = Foundation;
-			sourceTree = "<group>";
-		};
-		42EF195F1BA75E152B53A7A2C932D6C5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				91BB24BA472AF523E913108C9AA301F2 /* BigInt.framework */,
-				F81274EDB681F11E7CB05F7DCA2BB33C /* CryptoSwift.framework */,
-				7317BCB4A5C2A378042C02DC768CD898 /* GBAsyncOperation.framework */,
-				9E0FD012ADC3C7179C684035672383E5 /* KeychainSwift.framework */,
-				75334CC48EC52AAAB3652EB429134DFA /* Pods_Tangem.framework */,
-				002B1E88BA14EBF633CD66EBFBA107E9 /* PromiseKit.framework */,
-				5C871E3AA3292278FEE126AAFAEC60A5 /* QRCode.framework */,
-				332A47430CFF99501D563788C7AAF1D2 /* secp256k1.framework */,
-				32497A3ACEA14D32D7F8C65D5357128A /* Sodium.framework */,
-				891B2270823847ED23F2ECFC28F935EC /* Starscream.framework */,
-				CE09E24D8F193EB05E20CB2CD76EA1A7 /* SwiftCBOR.framework */,
-				E23C076BA70925415F490FEDB215DA92 /* SwiftyJSON.framework */,
-				58CD4251D6A5C7F92AA5526EE4DDEF41 /* web3swift.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		456293320F498F6340B088BE6ED54BC9 /* Pods-Tangem */ = {
-			isa = PBXGroup;
-			children = (
-				CDC0BA2B580A5BEDED52387EA7FECA2F /* Pods-Tangem.modulemap */,
-				2E9A7FBEC80AD5CB233DEB4C9F5408BD /* Pods-Tangem-acknowledgements.markdown */,
-				12FE0B470E3C5C1E62341273AE5869E1 /* Pods-Tangem-acknowledgements.plist */,
-				C0884C378ACE1CC29D1E55EC85A41955 /* Pods-Tangem-dummy.m */,
-				97701E15073472F13D2101344CD27AF5 /* Pods-Tangem-frameworks.sh */,
-				8D2248B6904A97870FFA85716132D9AC /* Pods-Tangem-Info.plist */,
-				5FDD62669DD8624862C03E4E2B685F10 /* Pods-Tangem-umbrella.h */,
-				A065303A359CBCB38AE8B073CC9D345D /* Pods-Tangem.debug.xcconfig */,
-				ADEBFB7B421B83D8A3A7611A1AF18CA7 /* Pods-Tangem.release.xcconfig */,
-			);
-			name = "Pods-Tangem";
-			path = "Target Support Files/Pods-Tangem";
 			sourceTree = "<group>";
 		};
 		4774CB4F78BCE45C7DA2ED40681350DE /* Support Files */ = {
@@ -1960,14 +2113,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		C69CF01D06520AC8B7CE818F2AD9DAC3 /* Targets Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				456293320F498F6340B088BE6ED54BC9 /* Pods-Tangem */,
-			);
-			name = "Targets Support Files";
-			sourceTree = "<group>";
-		};
 		CE4612A10AF9741A1D30F8708DADDCF8 /* GBAsyncOperation */ = {
 			isa = PBXGroup;
 			children = (
@@ -1987,8 +2132,8 @@
 				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
 				BD79595A3DA54A4C0B2725FEF2479943 /* Frameworks */,
 				74A5B52F911702C3DDF135C3A365B0AF /* Pods */,
-				42EF195F1BA75E152B53A7A2C932D6C5 /* Products */,
-				C69CF01D06520AC8B7CE818F2AD9DAC3 /* Targets Support Files */,
+				2F87701A8E1DCC6E54450873BC838C1C /* Products */,
+				10D57134E0F0C5F58798EEA26695E4B8 /* Targets Support Files */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2438,9 +2583,50 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E332C8E839362C7AE0EFFA1C9C1B32BB /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA30E4B79EDA4CDB1EC9573F6CBBA0AE /* Pods-Tangem beta-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		04D44DB47268D199FEA1C2293A40EB3E /* Pods-Tangem beta */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CAD407B0CEAF1B4530119159BDA5CEE6 /* Build configuration list for PBXNativeTarget "Pods-Tangem beta" */;
+			buildPhases = (
+				E332C8E839362C7AE0EFFA1C9C1B32BB /* Headers */,
+				C03CD9D52FC72CC4E609882C8D413E51 /* Sources */,
+				E1157DA8A97848829FA2C525DAC88D56 /* Frameworks */,
+				CC81D274799817F98B8842FA89807E18 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				643828C891F95905D55A1F8D02B08A50 /* PBXTargetDependency */,
+				A4A1A25129F07EB68DA2B5B7C24BA0B1 /* PBXTargetDependency */,
+				DC7F411399DBF7F286451736E9A46605 /* PBXTargetDependency */,
+				51FB7FC598A04DAFC22785B6F6A1882B /* PBXTargetDependency */,
+				794D4AFAAE1F2E6F17CC03C30F33B5B2 /* PBXTargetDependency */,
+				4C42FD6E181ACE17125A13D37A3184CB /* PBXTargetDependency */,
+				0D0724A17BDCD8C999B6279CE8CFD19B /* PBXTargetDependency */,
+				29C3933B65A8E1F44544A4120EE93BAB /* PBXTargetDependency */,
+				A2EFA88D27ADB24B3142BE22FA9994CF /* PBXTargetDependency */,
+				F22DADDDAE3E38904D50BCFB20DABE32 /* PBXTargetDependency */,
+				5485F1A8FE945206A5E4F81DBF473B65 /* PBXTargetDependency */,
+				2DDFC52B73AA9A9EBBB9F4A6C284F655 /* PBXTargetDependency */,
+				CE652A354ECDB14E05DE0A6B430925EC /* PBXTargetDependency */,
+				E53E408A864A979851F5F28742C09D64 /* PBXTargetDependency */,
+				24F5864B4F9D15916D96A293F8DD3B1E /* PBXTargetDependency */,
+			);
+			name = "Pods-Tangem beta";
+			productName = "Pods-Tangem beta";
+			productReference = DA51B08F4355409D5E326C2FACAED242 /* Pods_Tangem_beta.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		07E54A78BCF82272E99319D7F7F5E8C1 /* KeychainSwift */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B6B334E2C50C2C0C66D96CADAEE2EA01 /* Build configuration list for PBXNativeTarget "KeychainSwift" */;
@@ -2712,7 +2898,7 @@
 				en,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
-			productRefGroup = 42EF195F1BA75E152B53A7A2C932D6C5 /* Products */;
+			productRefGroup = 2F87701A8E1DCC6E54450873BC838C1C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -2723,6 +2909,7 @@
 				D63C21A5947585903B9D0F41D12CBE62 /* GBAsyncOperation */,
 				07E54A78BCF82272E99319D7F7F5E8C1 /* KeychainSwift */,
 				FDB4E3941F6A4F5549E1A9B0573F51BD /* Pods-Tangem */,
+				04D44DB47268D199FEA1C2293A40EB3E /* Pods-Tangem beta */,
 				7C579CE66A1E7A9AA33CA5F97F9C22C5 /* PromiseKit */,
 				CEF561CEEBFA5EBBDA6E240FF1B20CEC /* QRCode */,
 				161C26511FC920CB146236AB7295D5E0 /* secp256k1.c */,
@@ -2794,6 +2981,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CAD35AFFFBDC213DD619A2EEBD8FC059 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC81D274799817F98B8842FA89807E18 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -3203,6 +3397,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C03CD9D52FC72CC4E609882C8D413E51 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41DFFBA86C431B055D973B194C6EFBE0 /* Pods-Tangem beta-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D461E09CC11836C0E1C8C2C51C2D1F07 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3244,6 +3446,12 @@
 			target = CEF561CEEBFA5EBBDA6E240FF1B20CEC /* QRCode */;
 			targetProxy = 81C20E6C4D03F6937156B44E7C0CAF44 /* PBXContainerItemProxy */;
 		};
+		0D0724A17BDCD8C999B6279CE8CFD19B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = PromiseKit;
+			target = 7C579CE66A1E7A9AA33CA5F97F9C22C5 /* PromiseKit */;
+			targetProxy = 454978695573A7A69DE60B59AE700D60 /* PBXContainerItemProxy */;
+		};
 		12A57BDBCCDC75E0556D82E4C14168D2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = Crashlytics;
@@ -3261,6 +3469,24 @@
 			name = Sodium;
 			target = 9AC54079097E3E3B70EBE9D712693CE4 /* Sodium */;
 			targetProxy = F7259D7483289AEBF48B6C6E249AC8CC /* PBXContainerItemProxy */;
+		};
+		24F5864B4F9D15916D96A293F8DD3B1E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = web3.swift.pod;
+			target = DCA8E87C12CF989C78BB9F82E72BB210 /* web3.swift.pod */;
+			targetProxy = 5F712CB288B62B5801E10AFBA0B75178 /* PBXContainerItemProxy */;
+		};
+		29C3933B65A8E1F44544A4120EE93BAB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = QRCode;
+			target = CEF561CEEBFA5EBBDA6E240FF1B20CEC /* QRCode */;
+			targetProxy = 24FA6C94276BBFC6170BC6EFFF3A2944 /* PBXContainerItemProxy */;
+		};
+		2DDFC52B73AA9A9EBBB9F4A6C284F655 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftLint;
+			target = 52B60EC2A583F24ACBB69C113F5488B9 /* SwiftLint */;
+			targetProxy = 20271E4317B84E40DFD94A0453332C32 /* PBXContainerItemProxy */;
 		};
 		34A64080C6308D61EB88D81E25C2B8A1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3280,6 +3506,24 @@
 			target = 99313990C1D76A6D1D017868B6975CC8 /* CryptoSwift */;
 			targetProxy = 362A4C5E85A7A37F10DA5B16E4BBDDAD /* PBXContainerItemProxy */;
 		};
+		4C42FD6E181ACE17125A13D37A3184CB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KeychainSwift;
+			target = 07E54A78BCF82272E99319D7F7F5E8C1 /* KeychainSwift */;
+			targetProxy = D044E22D9DEAA0CBCD96DA08F4442728 /* PBXContainerItemProxy */;
+		};
+		51FB7FC598A04DAFC22785B6F6A1882B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Fabric;
+			target = ABB048B191245233986A7CD75FE412A5 /* Fabric */;
+			targetProxy = 44B6E8063DE4AA175449E4C89154D067 /* PBXContainerItemProxy */;
+		};
+		5485F1A8FE945206A5E4F81DBF473B65 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftCBOR;
+			target = 83AB5031998E119DFDFFDA70C3749F33 /* SwiftCBOR */;
+			targetProxy = C0724750EBBCBA8D4D6EC0E80B67FA05 /* PBXContainerItemProxy */;
+		};
 		56065E23E5F23A4F588E331FD54AC53D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = KeychainSwift;
@@ -3297,6 +3541,18 @@
 			name = Starscream;
 			target = 9B78EE4AF6AE03E79D88886319853FF7 /* Starscream */;
 			targetProxy = 98CB6C8288920BA53AFA7A5BF2736939 /* PBXContainerItemProxy */;
+		};
+		643828C891F95905D55A1F8D02B08A50 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = BigInt;
+			target = 09DD83B7D075842A3A5105AD410BD38A /* BigInt */;
+			targetProxy = EE5EC2663B9F865FBCFFE5D3D7F53866 /* PBXContainerItemProxy */;
+		};
+		794D4AFAAE1F2E6F17CC03C30F33B5B2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = GBAsyncOperation;
+			target = D63C21A5947585903B9D0F41D12CBE62 /* GBAsyncOperation */;
+			targetProxy = A06C0C3603D60EE1F7916EBFB42BA30D /* PBXContainerItemProxy */;
 		};
 		79E19F77DCE0998C3A80E66E93186055 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3328,6 +3584,18 @@
 			target = D118A6A04828FD3CDA8640CD2B6796D2 /* SwiftyJSON */;
 			targetProxy = 59A9E1BE033EE6DC3A4EC5DD2AC16C3F /* PBXContainerItemProxy */;
 		};
+		A2EFA88D27ADB24B3142BE22FA9994CF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sodium;
+			target = 9AC54079097E3E3B70EBE9D712693CE4 /* Sodium */;
+			targetProxy = 69CA7FC5160D190D4DFE5C1A1FAC7109 /* PBXContainerItemProxy */;
+		};
+		A4A1A25129F07EB68DA2B5B7C24BA0B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Crashlytics;
+			target = C0E41540D6862472ED7F2FA11669BE1F /* Crashlytics */;
+			targetProxy = 83398259EAED58162467AE0695EDE777 /* PBXContainerItemProxy */;
+		};
 		AAED92D23F4F2A8DB33C606C2500346D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = secp256k1.c;
@@ -3346,6 +3614,12 @@
 			target = DCA8E87C12CF989C78BB9F82E72BB210 /* web3.swift.pod */;
 			targetProxy = 5FE0CC1DFA1FC9FCBB2F1EA4BCDAE7D9 /* PBXContainerItemProxy */;
 		};
+		CE652A354ECDB14E05DE0A6B430925EC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftyJSON;
+			target = D118A6A04828FD3CDA8640CD2B6796D2 /* SwiftyJSON */;
+			targetProxy = 9FA8DA7CB22706F4ABA3AEEF2F694C04 /* PBXContainerItemProxy */;
+		};
 		D3D32FF9932D1538900AE64407285640 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = CryptoSwift;
@@ -3357,6 +3631,24 @@
 			name = SwiftLint;
 			target = 52B60EC2A583F24ACBB69C113F5488B9 /* SwiftLint */;
 			targetProxy = 1319FB525E320A9DF91EB5C3FD941CB0 /* PBXContainerItemProxy */;
+		};
+		DC7F411399DBF7F286451736E9A46605 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CryptoSwift;
+			target = 99313990C1D76A6D1D017868B6975CC8 /* CryptoSwift */;
+			targetProxy = 3E0B349A45B7B75615D38FA79031D5B0 /* PBXContainerItemProxy */;
+		};
+		E53E408A864A979851F5F28742C09D64 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = secp256k1.c;
+			target = 161C26511FC920CB146236AB7295D5E0 /* secp256k1.c */;
+			targetProxy = 86F55F085E8F4EA1C27EF7F51752E055 /* PBXContainerItemProxy */;
+		};
+		F22DADDDAE3E38904D50BCFB20DABE32 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Starscream;
+			target = 9B78EE4AF6AE03E79D88886319853FF7 /* Starscream */;
+			targetProxy = B9FAC7F083A842CB7109A5555C790903 /* PBXContainerItemProxy */;
 		};
 		F66B3F6FE8B3DD92F0B43ADA042E7392 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3512,7 +3804,7 @@
 		};
 		0CED48FA58C521FE678292CE2E6F8B30 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A065303A359CBCB38AE8B073CC9D345D /* Pods-Tangem.debug.xcconfig */;
+			baseConfigurationReference = 2B147DA971A48BEAA8F449BBF9C879C9 /* Pods-Tangem.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
@@ -3814,7 +4106,7 @@
 		};
 		6828644D0A6CB0BADBBA8555272E17E7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = ADEBFB7B421B83D8A3A7611A1AF18CA7 /* Pods-Tangem.release.xcconfig */;
+			baseConfigurationReference = 61E9082234A715896E116AE8050156EC /* Pods-Tangem.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
@@ -3906,6 +4198,42 @@
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		7376C51D311D9A3FD0610A8BEBB4D77E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EA4321FBA3058F8CB8F42EBDAF23CDD8 /* Pods-Tangem beta.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-Tangem beta/Pods-Tangem beta-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-Tangem beta/Pods-Tangem beta.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -4153,6 +4481,41 @@
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
+		};
+		BD102C9B5B7A0E9D5E9319C932B3C531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D699218EAEAF14E247AE664FEA7E3F51 /* Pods-Tangem beta.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-Tangem beta/Pods-Tangem beta-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-Tangem beta/Pods-Tangem beta.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
 		};
 		C1C71FA4F2939916E7D55F0BC006B730 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -4545,6 +4908,15 @@
 			buildConfigurations = (
 				9EF6F591E9AA189C07726B7C8F399C0C /* Debug */,
 				D6C3E11C5F00EF96B552D16E88C8AE61 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CAD407B0CEAF1B4530119159BDA5CEE6 /* Build configuration list for PBXNativeTarget "Pods-Tangem beta" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD102C9B5B7A0E9D5E9319C932B3C531 /* Debug */,
+				7376C51D311D9A3FD0610A8BEBB4D77E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
