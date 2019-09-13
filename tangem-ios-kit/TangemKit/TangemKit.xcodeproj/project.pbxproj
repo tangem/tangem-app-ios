@@ -64,7 +64,6 @@
 		5DE10AED22D609DA00BC45B9 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */; };
 		5DE10AEE22D609DA00BC45B9 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */; };
 		5DE10AEF22D609DA00BC45B9 /* CardSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSession.swift */; };
-		5DE10AF022D609DA00BC45B9 /* CardSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSession.swift */; };
 		5DE10AF122D609DA00BC45B9 /* CardTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE922D609DA00BC45B9 /* CardTag.swift */; };
 		5DE10AF222D609DA00BC45B9 /* CardTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE922D609DA00BC45B9 /* CardTag.swift */; };
 		5DE10AF322D609DA00BC45B9 /* CardTLV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AEA22D609DA00BC45B9 /* CardTLV.swift */; };
@@ -962,7 +961,6 @@
 				5DE10AF222D609DA00BC45B9 /* CardTag.swift in Sources */,
 				5D56590222FDB27200DE016B /* ETHTest.swift in Sources */,
 				5D5C028F22EAD7E50036A601 /* TangemAPIClient.swift in Sources */,
-				5DE10AF022D609DA00BC45B9 /* CardSession.swift in Sources */,
 				806C4FE921DEA07B0002E967 /* TestData.swift in Sources */,
 				5DE10AEC22D609DA00BC45B9 /* Instruction.swift in Sources */,
 				5DE10B0122D8D0CD00BC45B9 /* TLVReader.swift in Sources */,
