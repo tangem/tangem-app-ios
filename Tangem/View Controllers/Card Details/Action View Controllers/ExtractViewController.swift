@@ -268,7 +268,8 @@ class ExtractViewController: ModalActionViewController {
             !amount.isEmpty,
             let amountValue = Decimal(string: amount),
             amountValue > 0,
-            let total = Decimal(string: card.walletValue) else {
+            let total = Decimal(string: card.walletValue),
+            amountValue <= total else {
                 setError(true, for: amountText )
                 btnSendSetEnabled(false)
                 return false
@@ -535,6 +536,42 @@ extension ExtractViewController: DefaultErrorAlertsCapable {
 extension ExtractViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard textField === amountText else {
+            return true
+        }
+        
+        let maxLength = card.blockchain.decimalCount
+        let currentString: NSString = textField.text! as NSString
+        let newString: String =
+            currentString.replacingCharacters(in: range, with: string) as String
+        
+        
+        
+        var allowNew = true
+        
+        if let dotIndex = newString.index(of: ".") {
+            let fromIndex = newString.index(after: dotIndex)
+            let decimalsString = newString[fromIndex...]
+            allowNew = decimalsString.count <= maxLength
+        } else {
+            allowNew = true
+        }
+        
+        guard allowNew else {
+            return false
+        }
+        
+        if string == "," {
+            if let text = textField.text {
+                textField.text = text + "."
+                     return false
+            }
+        }
+        
         return true
     }
 }
