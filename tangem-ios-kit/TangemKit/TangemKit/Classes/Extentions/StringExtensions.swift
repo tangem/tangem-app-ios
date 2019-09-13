@@ -25,4 +25,15 @@ public extension String {
         }
         return resultString
     }
+    
+    func trimZeroes() -> String {
+        let reversed = self.reversed()
+        if let latestNonZero = reversed.firstIndex(where: {$0 != "0"}) {
+            let reversedSubstring = reversed[latestNonZero...]
+            let normalSubstring = reversedSubstring.reversed()
+            return String(normalSubstring)
+        } else {
+            return self
+        }
+    }
 }
