@@ -455,7 +455,7 @@ extension CardDetailsViewController {
                     self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
             
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
-                        self?.fetchWalletBalance(card: card)
+                        self?.updateBalance()
                     }
                 }
             }
