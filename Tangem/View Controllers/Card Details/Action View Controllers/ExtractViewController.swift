@@ -268,7 +268,8 @@ class ExtractViewController: ModalActionViewController {
             !amount.isEmpty,
             let amountValue = Decimal(string: amount),
             amountValue > 0,
-            let total = Decimal(string: card.walletValue) else {
+            let total = Decimal(string: card.walletValue),
+            amountValue <= total else {
                 setError(true, for: amountText )
                 btnSendSetEnabled(false)
                 return false
