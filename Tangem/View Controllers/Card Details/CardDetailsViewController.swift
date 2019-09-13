@@ -450,8 +450,13 @@ extension CardDetailsViewController {
                 guard let card = self.card else {
                     return
                 }
-                if card.hasPendingTransactions {
-                    self.fetchWalletBalance(card: card)
+                
+                if card.hasPendingTransactions  {
+                    self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+            
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
+                        self?.fetchWalletBalance(card: card)
+                    }
                 }
             }
             self.present(viewController, animated: true, completion: nil)
