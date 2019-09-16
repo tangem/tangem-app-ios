@@ -307,10 +307,10 @@ extension BTCEngine: CoinProvider {
             switch result {
             case .success(let sendResponse):
                 self?.unconfirmedBalance = nil
-                print(sendResponse?.tx)
+               // print(sendResponse?.tx)
                 completion(true)
             case .failure(let error):
-                print(error)
+              //  print(error)
                 completion(false)
             }
         }
@@ -359,7 +359,7 @@ extension BTCEngine: CoinProvider {
                     completion(fee)
                 
                 case .failure(let error):
-                    print(error)
+                  //  print(error)
                     completion(nil)
                 }
         }

@@ -133,10 +133,10 @@ extension ETHEngine: CoinProvider {
             switch result {
             case .success(let value):
                 self?.txCount += 1
-                print(value)
+                //print(value)
                 completion(true)
             case .failure(let error):
-                print(error)
+              //  print(error)
                 completion(false)
             }
         }
