@@ -113,6 +113,10 @@ public class Card {
     }
     
     public var blockchain: Blockchain {
+        guard blockchainName != "CARDANO:NB" else {
+            return .unknown
+        }
+        
         switch blockchainName {
         case let blockchainName where (blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc")):
             return .bitcoin
