@@ -25,9 +25,9 @@ open class CardanoTransaction {
     
     let kProtocolMagic: UInt64 = 764824073
     
-    var transactionBody: [UInt8]?
-    var transactionHash: [UInt8]?
-    var dataToSign: [UInt8]?
+    public var transactionBody: [UInt8]?
+    public var transactionHash: [UInt8]?
+    public var dataToSign: [UInt8]?
     
     public init(unspentOutputs: [CardanoUnspentOutput], cardWalletAddress: String, targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool) {
         self.cardWalletAddress = cardWalletAddress
