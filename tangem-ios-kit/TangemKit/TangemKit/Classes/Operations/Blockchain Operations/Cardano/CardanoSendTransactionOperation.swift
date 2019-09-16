@@ -27,7 +27,7 @@ class CardanoSendTransactionOperation: GBAsyncOperation {
         super.init()
         
         do {
-            print("Sending Cardano transaction bytes: \(bytes.hexDescription()) ")
+          //  print("Sending Cardano transaction bytes: \(bytes.hexDescription()) ")
             httpBody = try JSONSerialization.data(withJSONObject: ["signedTx" : Data(bytes: bytes).base64EncodedString()], options: [])
         } catch (let error) {
             self.failOperationWith(error: error)
