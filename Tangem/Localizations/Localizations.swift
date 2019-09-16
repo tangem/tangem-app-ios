@@ -493,7 +493,7 @@ class Localizations {
     static let disclamerOldIOS = translate("disclamer_old_ios")
     static let test = translate("common_test")
     static let signatureVerificationError = translate("signature_verification_error")
-    static let testBlockchain = translate("common_test_blockhain")
+    static let testBlockchain = translate("common_test_blockchain")
     static let reserve = translate("common_reserve")
     static let tapToRetry = translate("common_tap_to_retry")
     static let genuine = translate("common_genuine")
