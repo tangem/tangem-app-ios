@@ -192,7 +192,7 @@ open class CardanoEngine: CardEngine {
                                                                 expirationTimeoutSeconds: CardanoEngine.kPendingTransactionTimeoutSeconds)
                 completion(true)
             case .failure(let error):
-                print(error)
+               // print(error)
                 completion(false)
             }
         }
