@@ -182,16 +182,16 @@ extension ETHEngine: CoinProvider {
         var vrfy: secp256k1_context = secp256k1_context_create(.SECP256K1_CONTEXT_VERIFY)!
         defer {secp256k1_context_destroy(&vrfy)}
         var sig = secp256k1_ecdsa_signature()
-        var dummy = secp256k1_ecdsa_signature()
+        var normalizied = secp256k1_ecdsa_signature()
         _ = secp256k1_ecdsa_signature_parse_compact(vrfy, &sig, sign)
-        _ = secp256k1_ecdsa_signature_normalize(vrfy, &dummy, sig)
+        _ = secp256k1_ecdsa_signature_normalize(vrfy, &normalizied, sig)
         
         var pubkey = secp256k1_pubkey()
         _ = secp256k1_ec_pubkey_parse(vrfy, &pubkey, publicKey, 65)
-        if !secp256k1_ecdsa_verify(vrfy, dummy, hashToSign, pubkey) {
+        if !secp256k1_ecdsa_verify(vrfy, normalizied, hashToSign, pubkey) {
             return nil
         }        
-        return Data(sig.data)
+        return Data(normalizied.data)
     }
     
     public var hasPendingTransactions: Bool {
