@@ -163,7 +163,6 @@ public class CardSignSession: NSObject {
                     session.alertMessage = Localizations.nfcAlertSignCompleted
                     session.invalidate()
                     if let sign = respApdu.tlv[.signature]?.value {
-                        self.state = .none
                         DispatchQueue.main.async {
                             self.completion(.success(sign))
                         }
@@ -189,6 +188,7 @@ extension CardSignSession: NFCTagReaderSessionDelegate {
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
         guard state != .signed else {
+             state = .none
             return
         }
         state = .none
