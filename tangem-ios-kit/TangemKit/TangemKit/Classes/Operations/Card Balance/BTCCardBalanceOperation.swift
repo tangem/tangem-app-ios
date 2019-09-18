@@ -27,7 +27,7 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
                 
                 let engine = self?.card.cardEngine as! BTCEngine
                 engine.addressResponse = response
-                self?.handleBalanceLoaded(balanceValue: "\(response.balance.rounded(6))")
+                self?.handleBalanceLoaded(balanceValue: "\(response.balance.rounded(blockchain: .bitcoin))")
             case .failure(let error):
                 self?.card.mult = 0
                 self?.failOperationWith(error: error)
