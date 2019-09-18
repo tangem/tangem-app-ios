@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5D028B07232A25BB00E0F9D2 /* CardSignSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D028B06232A25BB00E0F9D2 /* CardSignSession.swift */; };
+		5D028B0A232A394D00E0F9D2 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D028B09232A394D00E0F9D2 /* Localizable.strings */; };
+		5D028B0C232A396000E0F9D2 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D028B0B232A396000E0F9D2 /* Localizations.swift */; };
 		5D11114022F0691E009919D1 /* eckey_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F4A21DE9BC00002E967 /* eckey_impl.swift */; };
 		5D11114122F0691E009919D1 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F4B21DE9BC00002E967 /* hash.swift */; };
 		5D11114222F0691E009919D1 /* lax_der_privatekey_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F4C21DE9BC00002E967 /* lax_der_privatekey_parsing.swift */; };
@@ -68,8 +71,7 @@
 		5DE10AEC22D609DA00BC45B9 /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE622D609DA00BC45B9 /* Instruction.swift */; };
 		5DE10AED22D609DA00BC45B9 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */; };
 		5DE10AEE22D609DA00BC45B9 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */; };
-		5DE10AEF22D609DA00BC45B9 /* CardSignOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSignOperation.swift */; };
-		5DE10AF022D609DA00BC45B9 /* CardSignOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSignOperation.swift */; };
+		5DE10AEF22D609DA00BC45B9 /* CardSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE822D609DA00BC45B9 /* CardSession.swift */; };
 		5DE10AF122D609DA00BC45B9 /* CardTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE922D609DA00BC45B9 /* CardTag.swift */; };
 		5DE10AF222D609DA00BC45B9 /* CardTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE922D609DA00BC45B9 /* CardTag.swift */; };
 		5DE10AF322D609DA00BC45B9 /* CardTLV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AEA22D609DA00BC45B9 /* CardTLV.swift */; };
@@ -80,6 +82,7 @@
 		5DE10AFE22D884B500BC45B9 /* ResponseApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFC22D884B500BC45B9 /* ResponseApdu.swift */; };
 		5DE10B0022D8D0CD00BC45B9 /* TLVReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */; };
 		5DE10B0122D8D0CD00BC45B9 /* TLVReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */; };
+		5DE995D5232298EB00623148 /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D4232298EB00623148 /* CryptoUtils.swift */; };
 		5DE995CF232156CA00623148 /* BtcFeeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995CE232156CA00623148 /* BtcFeeOperation.swift */; };
 		5DE995D1232161F600623148 /* BtcSendOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D0232161F600623148 /* BtcSendOperation.swift */; };
 		5DE995D32321688E00623148 /* BlockchainInfoBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D22321688E00623148 /* BlockchainInfoBalanceOperation.swift */; };
@@ -167,6 +170,9 @@
 		42DE2E3646D4F0F677AFC15E /* Pods-TangemKitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemKitTests.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-TangemKitTests/Pods-TangemKitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		49060956102AB9C73948EE92 /* Pods-TangemKitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemKitTests.release.xcconfig"; path = "../Pods/Target Support Files/Pods-TangemKitTests/Pods-TangemKitTests.release.xcconfig"; sourceTree = "<group>"; };
 		4B6DE630D0FB1D512ACFE941 /* Pods-TangemKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemKit.release.xcconfig"; path = "../Pods/Target Support Files/Pods-TangemKit/Pods-TangemKit.release.xcconfig"; sourceTree = "<group>"; };
+		5D028B06232A25BB00E0F9D2 /* CardSignSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSignSession.swift; sourceTree = "<group>"; };
+		5D028B09232A394D00E0F9D2 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		5D028B0B232A396000E0F9D2 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutput.swift; sourceTree = "<group>"; };
 		5D48752022DC6B1D00F690BE /* InputStream+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		5D48752322DC78A100F690BE /* Dictionary+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+.swift"; sourceTree = "<group>"; };
@@ -193,7 +199,7 @@
 		5DE10AE222D607F800BC45B9 /* SignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTests.swift; sourceTree = "<group>"; };
 		5DE10AE622D609DA00BC45B9 /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
 		5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandApdu.swift; sourceTree = "<group>"; };
-		5DE10AE822D609DA00BC45B9 /* CardSignOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardSignOperation.swift; sourceTree = "<group>"; };
+		5DE10AE822D609DA00BC45B9 /* CardSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardSession.swift; sourceTree = "<group>"; };
 		5DE10AE922D609DA00BC45B9 /* CardTag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardTag.swift; sourceTree = "<group>"; };
 		5DE10AEA22D609DA00BC45B9 /* CardTLV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardTLV.swift; sourceTree = "<group>"; };
 		5DE10AF922D765D400BC45B9 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
@@ -202,6 +208,7 @@
 		5DE995CE232156CA00623148 /* BtcFeeOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BtcFeeOperation.swift; sourceTree = "<group>"; };
 		5DE995D0232161F600623148 /* BtcSendOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BtcSendOperation.swift; sourceTree = "<group>"; };
 		5DE995D22321688E00623148 /* BlockchainInfoBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainInfoBalanceOperation.swift; sourceTree = "<group>"; };
+		5DE995D4232298EB00623148 /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
 		5DEF97E922F071E3004E0CC5 /* EthereumTransaction+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EthereumTransaction+.swift"; sourceTree = "<group>"; };
 		5DEF97EB22F0729D004E0CC5 /* CoinProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinProvider.swift; sourceTree = "<group>"; };
 		5DEF97ED22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkSendOperation.swift; sourceTree = "<group>"; };
@@ -335,6 +342,15 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		5D028B08232A391E00E0F9D2 /* Localizations */ = {
+			isa = PBXGroup;
+			children = (
+				5D028B09232A394D00E0F9D2 /* Localizable.strings */,
+				5D028B0B232A396000E0F9D2 /* Localizations.swift */,
+			);
+			path = Localizations;
+			sourceTree = "<group>";
+		};
 		5D48D0B5231FAEC400C0F1D9 /* Blockcypher */ = {
 			isa = PBXGroup;
 			children = (
@@ -395,19 +411,20 @@
 			path = BitkoinKit;
 			sourceTree = "<group>";
 		};
-		5DE10AE522D609DA00BC45B9 /* SIgn */ = {
+		5DE10AE522D609DA00BC45B9 /* CardOperations */ = {
 			isa = PBXGroup;
 			children = (
 				5DE10AE622D609DA00BC45B9 /* Instruction.swift */,
 				5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */,
-				5DE10AE822D609DA00BC45B9 /* CardSignOperation.swift */,
+				5DE10AE822D609DA00BC45B9 /* CardSession.swift */,
 				5DE10AE922D609DA00BC45B9 /* CardTag.swift */,
 				5DE10AEA22D609DA00BC45B9 /* CardTLV.swift */,
 				5DE10AFC22D884B500BC45B9 /* ResponseApdu.swift */,
 				5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */,
 				5D48752622DC9E2400F690BE /* CardSW.swift */,
+				5D028B06232A25BB00E0F9D2 /* CardSignSession.swift */,
 			);
-			path = SIgn;
+			path = CardOperations;
 			sourceTree = "<group>";
 		};
 		8013A66222FA2ADC007896A6 /* Cardano */ = {
@@ -489,6 +506,8 @@
 		806C4F4221DE9BC00002E967 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				5D028B08232A391E00E0F9D2 /* Localizations */,
+				5DE10AE522D609DA00BC45B9 /* CardOperations */,
 				5DBD00B922FC238E0017E3CC /* BitkoinKit */,
 				5D55F51222DDFF5600A1643E /* Exceptions */,
 				806C4F6621DE9BC00002E967 /* TangemSession.swift */,
@@ -518,6 +537,7 @@
 				806C4F4921DE9BC00002E967 /* secp */,
 				806C4F6521DE9BC00002E967 /* RIPEMD160.swift */,
 				8067A24622B2FF9B0080ECF1 /* Bech32.swift */,
+				5DE995D4232298EB00623148 /* CryptoUtils.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -572,7 +592,6 @@
 		806C4F6D21DE9BC00002E967 /* Operations */ = {
 			isa = PBXGroup;
 			children = (
-				5DE10AE522D609DA00BC45B9 /* SIgn */,
 				806C4F6E21DE9BC00002E967 /* Substitution Info */,
 				806C4F7221DE9BC00002E967 /* Blockchain Operations */,
 				806C4F7721DE9BC00002E967 /* Card Balance */,
@@ -792,6 +811,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D028B0A232A394D00E0F9D2 /* Localizable.strings in Resources */,
 				806C4FE621DE9FC90002E967 /* README.md in Resources */,
 				806C4FE721DE9FC90002E967 /* TangemKit.podspec in Resources */,
 				806C4FE521DE9FC90002E967 /* LICENSE in Resources */,
@@ -881,7 +901,7 @@
 				80C14C922263C457008E4818 /* ed25519_utility.swift in Sources */,
 				5D11115322F0691E009919D1 /* scalar_8x32.swift in Sources */,
 				5D11114A22F0691E009919D1 /* scalar_8x32_impl.swift in Sources */,
-				5DE10AEF22D609DA00BC45B9 /* CardSignOperation.swift in Sources */,
+				5DE10AEF22D609DA00BC45B9 /* CardSession.swift in Sources */,
 				806C4F8321DE9BC00002E967 /* TLVUtils.swift in Sources */,
 				806C4FAB21DE9BC00002E967 /* CardArtworkNetworkOperation.swift in Sources */,
 				8067A23F22B2ED1B0080ECF1 /* BinanceEngine.swift in Sources */,
@@ -947,6 +967,7 @@
 				80C80EDC230B544A00333AB3 /* TransactionInfo.swift in Sources */,
 				5D3DBF5C2310194F0065D96A /* CardanoUnspentOutput.swift in Sources */,
 				5D11114222F0691E009919D1 /* lax_der_privatekey_parsing.swift in Sources */,
+				5DE995D5232298EB00623148 /* CryptoUtils.swift in Sources */,
 				5D48D0BD231FC3EA00C0F1D9 /* BtcApi.swift in Sources */,
 				5DE10AF322D609DA00BC45B9 /* CardTLV.swift in Sources */,
 				80EABF03222DCEBE00E1302A /* BTCEngine.swift in Sources */,
@@ -982,6 +1003,8 @@
 				5DE10AF122D609DA00BC45B9 /* CardTag.swift in Sources */,
 				5D11115922F0691E009919D1 /* ecmult_impl.swift in Sources */,
 				5D11114F22F0691E009919D1 /* ecmult_const_impl.swift in Sources */,
+				5D028B0C232A396000E0F9D2 /* Localizations.swift in Sources */,
+				5D028B07232A25BB00E0F9D2 /* CardSignSession.swift in Sources */,
 				80EABF07222DCEDC00E1302A /* TokenEngine.swift in Sources */,
 				5D11114522F0691E009919D1 /* field_10x26.swift in Sources */,
 				5D11115A22F0691E009919D1 /* PBInt.swift in Sources */,
@@ -1006,7 +1029,6 @@
 				5DE10AF222D609DA00BC45B9 /* CardTag.swift in Sources */,
 				5D56590222FDB27200DE016B /* ETHTest.swift in Sources */,
 				5D5C028F22EAD7E50036A601 /* TangemAPIClient.swift in Sources */,
-				5DE10AF022D609DA00BC45B9 /* CardSignOperation.swift in Sources */,
 				806C4FE921DEA07B0002E967 /* TestData.swift in Sources */,
 				5DE10AEC22D609DA00BC45B9 /* Instruction.swift in Sources */,
 				5DE10B0122D8D0CD00BC45B9 /* TLVReader.swift in Sources */,
@@ -1064,7 +1086,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -1128,7 +1150,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Distribution";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1158,7 +1180,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A482BB743A17EB2D1E9B7390 /* Pods-TangemKit.debug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
@@ -1176,6 +1199,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1186,8 +1210,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4B6DE630D0FB1D512ACFE941 /* Pods-TangemKit.release.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1204,6 +1229,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1233,7 +1259,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 49060956102AB9C73948EE92 /* Pods-TangemKitTests.release.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				INFOPLIST_FILE = TangemKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1243,6 +1270,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemKit.TangemKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
