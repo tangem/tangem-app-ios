@@ -13,6 +13,9 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
     private var pendingRequests = 0
     private let lock = DispatchSemaphore(value: 1)
 
+    private var txCountLoaded = -1
+    private var pendingTxCountLoaded = -1
+    
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
             return
@@ -70,7 +73,7 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
         card.walletValue = balanceValue
         removeRequest()
         if !hasRequests {
-             completeOperation()
+             complete()
         }
     }
     
@@ -79,11 +82,11 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
           removeRequest()
             return
         }
-        
-        (card.cardEngine as! ETHEngine).txCount = txCount
+        txCountLoaded = txCount
+       
         removeRequest()
         if !hasRequests {
-            completeOperation()
+            complete()
         }
     }
     
@@ -92,12 +95,18 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
            removeRequest()
             return
         }
-        
-        (card.cardEngine as! ETHEngine).pendingTxCount = txCount
+        pendingTxCountLoaded = txCount
+       
         removeRequest()
         if !hasRequests {
-            completeOperation()
+             complete()
         }
+    }
+    
+    func complete() {
+         (card.cardEngine as! ETHEngine).txCount = txCountLoaded
+         (card.cardEngine as! ETHEngine).pendingTxCount = pendingTxCountLoaded
+         completeOperation()
     }
     
     func addRequest() {
