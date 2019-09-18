@@ -37,7 +37,6 @@ class BtcRequestOperation<T>: GBAsyncOperation where T: Decodable {
         for header in endpoint.headers {
             urlRequest.addValue(header.key, forHTTPHeaderField: header.value)
         }
-        
         let task = TangemAPIClient.dataDask(request: urlRequest) { [weak self] (result) in
             guard let self = self else {
                 return
@@ -47,8 +46,8 @@ class BtcRequestOperation<T>: GBAsyncOperation where T: Decodable {
             case .success(let data):
                 let response: T? = (try? JSONDecoder().decode(T.self, from: data)) ?? String(data: data, encoding: .utf8) as? T
                 if response == nil {
-                         self.failOperationWith(error: "Mapping error")
-                    } else {
+                    self.failOperationWith(error: "Mapping error")
+                } else {
                     self.completeOperationWith(response: response!)
                 }
             case .failure(let error):
