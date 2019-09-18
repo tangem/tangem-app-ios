@@ -11,7 +11,7 @@ import Foundation
 class BTCEngine: CardEngine {
     
     unowned var card: Card
-    var currentBackend = BtcBackend.blockcypher
+    var currentBackend = BtcBackend.blockchainInfo
     
     private let operationQueue = OperationQueue()
     var addressResponse: BtcResponse? {
