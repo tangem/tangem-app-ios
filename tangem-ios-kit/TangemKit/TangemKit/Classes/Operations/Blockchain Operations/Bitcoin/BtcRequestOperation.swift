@@ -45,10 +45,10 @@ class BtcRequestOperation<T>: GBAsyncOperation where T: Decodable {
             
             switch result {
             case .success(let data):
-                let response: T? = try? JSONDecoder().decode(T.self, from: data)
+                let response: T? = (try? JSONDecoder().decode(T.self, from: data)) ?? String(data: data, encoding: .utf8) as? T
                 if response == nil {
-                     self.failOperationWith(error: "Mapping error")
-                } else {
+                         self.failOperationWith(error: "Mapping error")
+                    } else {
                     self.completeOperationWith(response: response!)
                 }
             case .failure(let error):
