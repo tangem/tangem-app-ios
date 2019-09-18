@@ -9,9 +9,14 @@
 import Foundation
 import GBAsyncOperation
 
-public enum SignMethod {
-    case signHashes
-    case issuerSign
+public enum SignMethod: Int{
+    case signHash = 0
+    case signRaw = 1
+    case signHashValidatedByIssuer = 2
+    case signRawValidatedByIssuer = 3
+    case signHashValidatedByIssuerAndWriteIssuerData = 4
+    case SignRawValidatedByIssuerAndWriteIssuerData = 5
+    case signPos = 6
 }
 
 public enum CardGenuinityState {
@@ -20,9 +25,22 @@ public enum CardGenuinityState {
     case nonGenuine
 }
 
-public enum EllipticCurve {
+public enum EllipticCurve: String {
     case secp256k1
     case ed25519
+}
+
+public enum CardStatus: Int {
+    case notPersonalized = 0
+    case empty = 1
+    case loaded = 2
+    case purged = 3
+}
+
+public enum ProductMask: UInt8 {
+    case note = 0x01
+    case tag = 0x02
+    case idCard = 0x04
 }
 
 public enum Blockchain: String {
@@ -34,7 +52,7 @@ public enum Blockchain: String {
     case binance
     case unknown
     
-    var decimalCount: Int16 {
+    public var decimalCount: Int16 {
         switch self {
         case .bitcoin:
             return 8
@@ -49,12 +67,26 @@ public enum Blockchain: String {
             return 0
         }
     }
+    
+    public var roundingMode: NSDecimalNumber.RoundingMode {
+        switch self {
+        case .bitcoin, .ethereum, .rootstock, .binance:
+            return .down
+        case .cardano:
+            return .up
+        default:
+            return .plain
+        }
+    }
 }
 
 public class Card {
     
     public var cardEngine: CardEngine!
     
+    public var status: CardStatus = .loaded
+    public var productMask: ProductMask = .note
+    public var health = 0
     public var cardID: String = ""
     public var cardPublicKey: String = ""
     public var isWallet: Bool {
@@ -69,7 +101,8 @@ public class Card {
     
     public var walletPublicKey: String = ""
     public var walletPublicKeyBytesArray: [UInt8] = [UInt8]()
-    
+    public var issuerDataPublicKey: [UInt8] = [UInt8]()
+    public var cardIdSignedByManufacturer: [UInt8] = [UInt8]()
     public var isTestBlockchain: Bool {
         return blockchainName.containsIgnoringCase(find: "test")
     }
@@ -80,6 +113,10 @@ public class Card {
     }
     
     public var blockchain: Blockchain {
+        guard blockchainName != "CARDANO:NB" else {
+            return .unknown
+        }
+        
         switch blockchainName {
         case let blockchainName where (blockchainName.containsIgnoringCase(find: "bitcoin") || blockchainName.containsIgnoringCase(find: "btc")):
             return .bitcoin
@@ -101,9 +138,12 @@ public class Card {
         return blockchain != .unknown
     }
     
+    private var curve: EllipticCurve?
+
     public var curveID: EllipticCurve {
-        return walletPublicKeyBytesArray.count == 65 ? .secp256k1 : .ed25519
+        return curve ?? (walletPublicKeyBytesArray.count == 65 ? .secp256k1 : .ed25519)
     }
+    
     public var issuer: String = ""
     public var manufactureId: String = ""
     
@@ -163,6 +203,7 @@ public class Card {
     public var firmware: String = "Not available"
     
     public var ribbonCase: Int = 0
+    public var settingsMask: [UInt8] = []
     
     /*
      1 - Firmware contains  'd'
@@ -177,9 +218,7 @@ public class Card {
         return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum || blockchain == .cardano)
     }
     
-    public var supportedSignMethods: [SignMethod] {
-        return [.signHashes]
-    }
+    public var supportedSignMethods: [SignMethod] = [.signHash]
     
     private var tokenContractAddressPrivate: String?
     public var tokenContractAddress: String? {
@@ -312,6 +351,8 @@ public class Card {
             return "card_ru042"
         case 0xFF32:
             return "card_ff32"
+        case 0x0034:
+            return "card-start2coin"
         default:
             return "card-default"
         }
@@ -372,6 +413,94 @@ public class Card {
                 
             default:
                 print("Tag \($0.tagCode) doesn't have a handler")
+            }
+        })
+        
+        setupEngine()
+    }
+    //[REDACTED_TODO_COMMENT]
+    public init(tags: [CardTLV]) {
+        tags.forEach({
+            switch $0.tag {
+            case .cardId:
+                cardID = $0.value?.hexString.cardFormatted ?? ""
+            case .cardPublicKey:
+                cardPublicKey = $0.value?.hexString ?? ""
+            case .firmware:
+                firmware = $0.value?.utf8String ?? ""
+            case .batch:
+                batchId = $0.value?.intValue ?? -1 //Int($0.hexStringValue, radix: 16)!
+            case .manufactureDateTime:
+                manufactureDateTime = $0.value?.dateString ?? ""
+            case .issuerId:
+                issuer = $0.value?.utf8String ?? ""
+            case .manufactureId:
+                manufactureId = $0.value?.utf8String ?? ""
+            case .blockchainId:
+                blockchainName = $0.value?.utf8String ?? ""
+            case .tokenSymbol:
+                tokenSymbol = $0.value?.utf8String ?? ""
+            case .tokenContractAddress:
+                tokenContractAddress = $0.value?.utf8String ?? ""
+            case .tokenDecimal:
+                tokenDecimal = $0.value?.intValue ?? 0 // Int($0.hexStringValue, radix: 16)!
+            case .manufacturerSignature:
+                manufactureSignature = $0.value?.hexString ?? ""
+            case .walletPublicKey:
+                walletPublicKey = $0.value?.hexString ?? ""
+                walletPublicKeyBytesArray = $0.value ?? []
+            case .maxSignatures:
+                maxSignatures = "\($0.value?.intValue ?? -1)"
+            case .walletRemainingSignatures:
+                remainingSignatures = "\($0.value?.intValue ?? -1)"
+            case .walletSignedHashes:
+                signedHashes = $0.value?.hexString ?? ""
+            case .challenge:
+                challenge = $0.value?.hexString.lowercased() ?? ""
+            case .salt:
+                salt = $0.value?.hexString.lowercased() ?? ""
+            case .signature:
+                signArr = $0.value ?? []
+            case .status:
+                let intStatus = $0.value?.intValue ?? 0
+                status = CardStatus(rawValue: intStatus) ?? .loaded
+            case .issuerDataPublicKey:
+                issuerDataPublicKey = $0.value ?? []
+            case .health:
+                health = $0.value?.intValue ?? 0
+            case .productMask:
+                if let firstByte = $0.value?.first, let mask = ProductMask(rawValue: firstByte) {
+                    productMask = mask
+                }
+            case .cardIDManufacturerSignature:
+                cardIdSignedByManufacturer = $0.value ?? []
+            case .signingMethod:
+                if let intMethod = $0.value?.intValue {
+                    
+                    if ((intMethod & 0x80) != 0) {
+                        for i in 0..<6  {
+                            if ((intMethod & (0x01 << i)) != 0) {
+                                if let method = SignMethod(rawValue: intMethod) {
+                                    supportedSignMethods.append(method)
+                                }
+                            }
+                        }
+                    } else {
+                        if let method = SignMethod(rawValue: intMethod) {
+                            supportedSignMethods = [method]
+                        }
+                    }
+                }
+            case .curveId:
+                if let curveId = $0.value?.utf8String {
+                curve = EllipticCurve(rawValue: curveId)
+                }
+            case .settingsMask:
+                settingsMask = $0.value ?? []
+            default:
+                if $0.tag != .cardData  {
+                    print("Warning: Tag \($0.tag) doesn't have a handler in a Card class")
+                }
             }
         })
         
