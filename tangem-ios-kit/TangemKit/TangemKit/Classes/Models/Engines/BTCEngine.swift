@@ -11,12 +11,12 @@ import Foundation
 class BTCEngine: CardEngine {
     
     unowned var card: Card
-    var currentBackend = BtcBackend.blockcypher
+    var currentBackend = BtcBackend.blockchainInfo
     
     private let operationQueue = OperationQueue()
-    var blockcypherResponse: BlockcypherAddressResponse? {
+    var addressResponse: BtcResponse? {
         didSet {
-            unconfirmedBalance = blockcypherResponse?.unconfirmed_balance
+            unconfirmedBalance = addressResponse?.unconfirmed_balance
         }
     }
     var unconfirmedBalance: Int?
@@ -129,22 +129,21 @@ extension BTCEngine: CoinProvider {
         return nil
     }
     
-    func buildUnspents(with outputScripts:[[UInt8]], txRefs: [BlockcypherTxref]) -> [UnspentTransaction]? {
+    func buildUnspents(with outputScripts:[[UInt8]], txRefs: [BtcTx]) -> [UnspentTransaction]? {
         let unspentTransactions: [UnspentTransaction] = txRefs.enumerated().compactMap({ index, txRef  in
-            guard let amount = txRef.value,
-                let outputIndex = txRef.tx_output_n,
-                let hash = txRef.tx_hash?.asciiHexToData() else {
-                    return nil
+            guard let hash = txRef.tx_hash.asciiHexToData() else {
+                return nil
             }
+            
             let outputScript = outputScripts.count == 1 ? outputScripts.first! : outputScripts[index]
-            return UnspentTransaction(amount: amount, outputIndex: outputIndex, hash: hash, outputScript: outputScript)
+            return UnspentTransaction(amount: txRef.value, outputIndex: txRef.tx_output_n, hash: hash, outputScript: outputScript)
         })
         
         return unspentTransactions
     }
     
     func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> Data? {
-        guard let txRefs = blockcypherResponse?.txrefs else {
+        guard let txRefs = addressResponse?.txrefs else {
             return nil
         }
         
@@ -278,19 +277,21 @@ extension BTCEngine: CoinProvider {
         return Array(der[0..<Int(length)])
     }
     
-    func buildTxForSend(signFromCard: [UInt8], txRefs: [BlockcypherTxref], publicKey: [UInt8]) -> [UInt8]? {
+    func buildTxForSend(signFromCard: [UInt8], txRefs: [BtcTx], publicKey: [UInt8]) -> [UInt8]? {
         guard let outputScripts = buildSignedScripts(signFromCard: signFromCard,
                                                      publicKey: publicKey,
                                                      outputsCount: txRefs.count) else {
                                                         return nil
         }
-        
+            
         guard let unspentTransactions = buildUnspents(with: outputScripts, txRefs: txRefs),
             let amount = self.amount,
             let target = self.targetAddress,
             let change = self.change else {
                 return nil
         }
+        
+        
         
         guard let txToSign = buildTxBody(unspentTransactions: unspentTransactions, amount: amount, change: change, targetAddress: target, index: nil) else {
             return nil
@@ -300,7 +301,7 @@ extension BTCEngine: CoinProvider {
     }
     
     func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void) {
-        guard let txRefs = blockcypherResponse?.txrefs,
+        guard let txRefs = addressResponse?.txrefs,
             let txToSend = buildTxForSend(signFromCard: signFromCard, txRefs: txRefs, publicKey: card.walletPublicKeyBytesArray) else {
                 completion(false)
                 return
@@ -337,7 +338,7 @@ extension BTCEngine: CoinProvider {
                     let maxPerByte = feeResponse.priorityKb/kb
                     
                     guard let testHash = self.getHashForSignature(amount: amount, fee: "0.00000001", includeFee: true, targetAddress: targetAddress),
-                            let txRefs = self.blockcypherResponse?.txrefs,
+                            let txRefs = self.addressResponse?.txrefs,
                             let testTx  = self.buildTxForSend(signFromCard: [UInt8](repeating: UInt8(0x01), count: 64 * testHash.count), txRefs: txRefs, publicKey: self.card.walletPublicKeyBytesArray) else {
                             completion(nil)
                             return
