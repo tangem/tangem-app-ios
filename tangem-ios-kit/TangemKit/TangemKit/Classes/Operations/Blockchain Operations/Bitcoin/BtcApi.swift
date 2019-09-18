@@ -14,13 +14,13 @@ struct BtcFee {
     let priorityKb: Decimal
 }
 
-struct BtcResponse : Codable {
-    let balance: UInt64
-    let unconfirmed_balance: Int?
+struct BtcResponse {
+    let balance: Decimal
+    let unconfirmed_balance: Int
     let txrefs: [BtcTx]
 }
 
-struct BtcTx: Codable {
+struct BtcTx {
     let tx_hash: String
     let tx_output_n: Int
     let value: UInt64
