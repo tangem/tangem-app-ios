@@ -40,6 +40,7 @@ struct TLVReader {
     
     private func readTagCode(_ dataStream: InputStream) -> CardTag? {
         guard let tagBytes = dataStream.readBytes(1)?.first else {
+              print("Failed to read tag code")
             return nil
         }
         
@@ -56,11 +57,13 @@ struct TLVReader {
     private func readTagLength(_ dataStream: InputStream) -> Int? {
         let lengthBytes: [UInt8]? = {
             guard let shortLengthBytes = dataStream.readBytes(1)?.first else {
+                print("Failed to read tag lenght")
                 return nil
             }
             
             if (shortLengthBytes == 0xFF) {
                 guard let longLengthBytes = dataStream.readBytes(2) else {
+                    print("Failed to read tag long lenght")
                     return nil
                 }
                 return longLengthBytes
@@ -76,6 +79,7 @@ struct TLVReader {
     
     private func readTagData(_ dataStream: InputStream, count: Int) -> [UInt8]? {
         guard let dataBytes = dataStream.readBytes(count) else {
+             print("Failed to read tag data")
             return nil
         }
         return dataBytes

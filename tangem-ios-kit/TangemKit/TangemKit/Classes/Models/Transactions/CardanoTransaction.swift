@@ -10,7 +10,7 @@ import Foundation
 import SwiftCBOR
 import Sodium
 
-class CardanoTransaction {
+open class CardanoTransaction {
     
     let unspentOutputs: [CardanoUnspentOutput]
     let cardWalletAddress: String
@@ -25,11 +25,11 @@ class CardanoTransaction {
     
     let kProtocolMagic: UInt64 = 764824073
     
-    var transactionBody: [UInt8]?
-    var transactionHash: [UInt8]?
-    var dataToSign: [UInt8]?
+    public var transactionBody: [UInt8]?
+    public var transactionHash: [UInt8]?
+    public var dataToSign: [UInt8]?
     
-    init(unspentOutputs: [CardanoUnspentOutput], cardWalletAddress: String, targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool) {
+    public init(unspentOutputs: [CardanoUnspentOutput], cardWalletAddress: String, targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool) {
         self.cardWalletAddress = cardWalletAddress
         self.targetAddress = targetAddress
         self.unspentOutputs = unspentOutputs
@@ -41,7 +41,7 @@ class CardanoTransaction {
         buildTransaction()
     }
     
-    func buildTransaction() {
+    open func buildTransaction() {
         
         guard var amount = Decimal(string: self.amount), let fullAmount = Decimal(string: self.walletBalance), let fees = Decimal(string: feeValue) else {
             assertionFailure()
