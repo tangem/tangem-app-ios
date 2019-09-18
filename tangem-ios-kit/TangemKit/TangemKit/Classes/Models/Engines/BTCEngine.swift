@@ -313,9 +313,10 @@ extension BTCEngine: CoinProvider {
             switch result {
             case .success(let sendResponse):
                 self?.unconfirmedBalance = nil
+               // print(sendResponse?.tx)
                 completion(true)
             case .failure(let error):
-                print(error)
+              //  print(error)
                 completion(false)
             }
         })
@@ -337,9 +338,9 @@ extension BTCEngine: CoinProvider {
                     let normalPerByte = feeResponse.normalKb/kb
                     let maxPerByte = feeResponse.priorityKb/kb
                     
-                    guard let testHash = self.getHashForSignature(amount: amount, fee: "0.00000001", includeFee: true, targetAddress: targetAddress),
-                            let txRefs = self.addressResponse?.txrefs,
-                            let testTx  = self.buildTxForSend(signFromCard: [UInt8](repeating: UInt8(0x01), count: 64 * testHash.count), txRefs: txRefs, publicKey: self.card.walletPublicKeyBytesArray) else {
+                    guard let _ = self.getHashForSignature(amount: amount, fee: "0.00000001", includeFee: true, targetAddress: targetAddress),
+                            let txRefs = self.blockcypherResponse?.txrefs,
+                            let testTx  = self.buildTxForSend(signFromCard: [UInt8](repeating: UInt8(0x01), count: 64 * txRefs.count), txRefs: txRefs, publicKey: self.card.walletPublicKeyBytesArray) else {
                             completion(nil)
                             return
                     }
@@ -348,14 +349,13 @@ extension BTCEngine: CoinProvider {
                     let normalFee = (normalPerByte * estimatedTxSize)
                     let maxFee = (maxPerByte * estimatedTxSize)
                     
-                    
-                    let fee = ("\(minFee.rounded(Int(Blockchain.bitcoin.decimalCount)))",
-                        "\(normalFee.rounded(Int(Blockchain.bitcoin.decimalCount)))",
-                        "\(maxFee.rounded(Int(Blockchain.bitcoin.decimalCount)))")
+                    let fee = ("\(minFee.rounded(blockchain: .bitcoin))",
+                        "\(normalFee.rounded(blockchain: .bitcoin))",
+                        "\(maxFee.rounded(blockchain: .bitcoin))")
                     completion(fee)
                 
                 case .failure(let error):
-                    print(error)
+                  //  print(error)
                     completion(nil)
                 }
         })
@@ -378,7 +378,7 @@ extension BTCEngine: CoinProvider {
         }
     
         guard let decoded = address.base58DecodedData,
-            decoded.count != 0 else {
+            decoded.count > 24 else {
             return false
         }
 

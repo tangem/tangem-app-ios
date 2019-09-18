@@ -33,7 +33,7 @@ extension Int {
     }
     
     var byte: UInt8 {
-        return UInt8(bitPattern: Int8(self))
+        return UInt8(truncatingIfNeeded: self)
     }
     
     var bytes4: [UInt8] {
