@@ -66,16 +66,14 @@ class BtcBalanceOperation: GBAsyncOperation {
             switch result {
             case .success(let response):
                 guard let balance = response.balance,
-                    let uncBalance = response.unconfirmed_balance,
-                    let txRefs = response.txrefs
+                    let uncBalance = response.unconfirmed_balance
                     else {
                         self?.failOperation(with: BTCCardBalanceError.balanceIsNil)
                         return
                 }
                 
                 let satoshiBalance = Decimal(balance).satoshiToBtc
-                
-                let txs = txRefs.compactMap { utxo -> BtcTx?  in
+                let txs: [BtcTx] = response.txrefs?.compactMap { utxo -> BtcTx?  in
                     guard let hash = utxo.tx_hash,
                         let n = utxo.tx_output_n,
                         let val = utxo.value else {
@@ -84,7 +82,7 @@ class BtcBalanceOperation: GBAsyncOperation {
                     
                     let btx = BtcTx(tx_hash: hash, tx_output_n: n, value: UInt64(val))
                     return btx
-                }
+                } ?? []
                 
                 let btcResponse = BtcResponse(balance: satoshiBalance, unconfirmed_balance: uncBalance, txrefs: txs)
                 

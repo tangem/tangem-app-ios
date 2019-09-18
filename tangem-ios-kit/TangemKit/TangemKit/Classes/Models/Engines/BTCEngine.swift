@@ -11,7 +11,7 @@ import Foundation
 class BTCEngine: CardEngine {
     
     unowned var card: Card
-    var currentBackend = BtcBackend.blockchainInfo
+    var currentBackend = BtcBackend.blockcypher
     
     private let operationQueue = OperationQueue()
     var addressResponse: BtcResponse? {
@@ -339,7 +339,7 @@ extension BTCEngine: CoinProvider {
                     let maxPerByte = feeResponse.priorityKb/kb
                     
                     guard let _ = self.getHashForSignature(amount: amount, fee: "0.00000001", includeFee: true, targetAddress: targetAddress),
-                            let txRefs = self.blockcypherResponse?.txrefs,
+                            let txRefs = self.addressResponse?.txrefs,
                             let testTx  = self.buildTxForSend(signFromCard: [UInt8](repeating: UInt8(0x01), count: 64 * txRefs.count), txRefs: txRefs, publicKey: self.card.walletPublicKeyBytesArray) else {
                             completion(nil)
                             return
