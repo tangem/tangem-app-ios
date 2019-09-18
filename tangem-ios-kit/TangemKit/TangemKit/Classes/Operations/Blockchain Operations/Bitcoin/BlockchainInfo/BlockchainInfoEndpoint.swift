@@ -42,8 +42,8 @@ public enum BlockchainInfoEndpoint: BtcEndpoint {
     public var body: Data? {
         switch self {
         case .send(let txHex):
-            let jsonDict = ["tx": txHex]
-            let body = try? JSONSerialization.data(withJSONObject: jsonDict, options: [])
+            let params = "tx=\(txHex)"
+            let body = params.data(using: .utf8)
             return body
         default:
             return nil
