@@ -73,13 +73,12 @@ class BlockchainInfoBalanceOperation: GBAsyncOperation {
         }
 
         guard let balance = self.address?.final_balance,
-            let txs = self.address?.txs,
-            let unspents = self.unspent?.unspent_outputs else {
+            let txs = self.address?.txs else {
                 failOperationWith(error: "Fee request error")
                 return
         }
         
-        let utxs = unspents.compactMap { utxo -> BtcTx?  in
+        let utxs: [BtcTx] = self.unspent?.unspent_outputs?.compactMap { utxo -> BtcTx?  in
             guard let hash = utxo.tx_hash_big_endian,
                 let n = utxo.tx_output_n,
                 let val = utxo.value else {
@@ -88,7 +87,7 @@ class BlockchainInfoBalanceOperation: GBAsyncOperation {
             
             let btx = BtcTx(tx_hash: hash, tx_output_n: n, value: val)
             return btx
-        }
+        } ?? []
         
         let satoshiBalance = Decimal(balance).satoshiToBtc
         let hasUnconfirmed = txs.first(where: {$0.block_height == nil}) != nil
