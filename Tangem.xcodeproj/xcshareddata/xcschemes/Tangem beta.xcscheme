@@ -14,23 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5D3CAD102319737E000F0AA9"
+               BlueprintIdentifier = "5D09952B232B7F200000DF03"
                BuildableName = "Tangem beta.app"
                BlueprintName = "Tangem beta"
-               ReferencedContainer = "container:Tangem.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5D076E5823153AA90009F208"
-               BuildableName = "TangemTests.xctest"
-               BlueprintName = "TangemTests"
                ReferencedContainer = "container:Tangem.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -58,7 +44,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5D3CAD102319737E000F0AA9"
+            BlueprintIdentifier = "5D09952B232B7F200000DF03"
             BuildableName = "Tangem beta.app"
             BlueprintName = "Tangem beta"
             ReferencedContainer = "container:Tangem.xcodeproj">
@@ -75,7 +61,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5D3CAD102319737E000F0AA9"
+            BlueprintIdentifier = "5D09952B232B7F200000DF03"
             BuildableName = "Tangem beta.app"
             BlueprintName = "Tangem beta"
             ReferencedContainer = "container:Tangem.xcodeproj">
