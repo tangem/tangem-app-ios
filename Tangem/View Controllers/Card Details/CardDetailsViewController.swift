@@ -46,8 +46,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             assertionFailure()
             return
         }
-   
-       setupWithCardDetails(card: card)
+        
+        setupWithCardDetails(card: card)
     }
     
     
@@ -60,7 +60,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         guard !isBalanceLoading else {
             return
         }
-
+        
         if card.hasPendingTransactions  {
             self.isBalanceLoading = true
             self.viewModel.setWalletInfoLoading(true)
@@ -120,8 +120,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             self.viewModel.setWalletInfoLoading(false)
             self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
             
-            let validationAlert = UIAlertController(title: "Error", message: "Cannot obtain full wallet data", preferredStyle: .alert)
-            validationAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
+            validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
             self.present(validationAlert, animated: true, completion: nil)
             self.setupBalanceVerified(false)
         })
@@ -143,7 +143,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         let blockchainName = card.cardEngine.blockchainDisplayName
-        let name = card.isTestBlockchain ? "\(blockchainName) Test" : blockchainName
+        let name = card.isTestBlockchain ? "\(blockchainName) \(Localizations.test)" : blockchainName
         viewModel.updateBlockchainName(name)
         viewModel.updateWalletAddress(card.address)
         
@@ -152,25 +152,35 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
         viewModel.balanceVerificationActivityIndicator.stopAnimating()
+        
+        if card.cardID.starts(with: "10") {
+            viewModel.loadButton.isHidden = true
+            viewModel.extractButton.backgroundColor = UIColor(red: 249.0/255.0, green: 175.0/255.0, blue: 37.0/255.0, alpha: 1.0)
+            viewModel.extractButton.setTitleColor(.white, for: .normal)
+        } else {
+            viewModel.loadButton.isHidden = false
+            viewModel.extractButton.backgroundColor = .white
+            viewModel.extractButton.setTitleColor(.black, for: .normal)
+        }
     }
-
+    
     func verifySignature(card: Card) {
         viewModel.balanceVerificationActivityIndicator.startAnimating()
         do {
             let operation = try card.signatureVerificationOperation { (isGenuineCard) in
                 self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
                 self.setupBalanceVerified(isGenuineCard)
-
+                
                 if !isGenuineCard {
                     self.handleNonGenuineTangemCard(card)
                 }
             }
-
+            
             operationQueue.addOperation(operation)
         } catch {
-            print("Signature verification rrror: \(error)")
+            print("\(Localizations.signatureVerificationError): \(error)")
         }
-
+        
     }
     
     func handleBalanceLoaded() {
@@ -185,7 +195,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         if let xrpEngine = card.cardEngine as? RippleEngine, let walletReserve = xrpEngine.walletReserve {
             // Ripple reserve
             balanceTitle = card.walletValue + " " + card.walletUnits
-            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) reserve"
+            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
         } else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
             balanceTitle = walletTokenValue + " " + walletTokenUnits
@@ -197,20 +207,24 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         self.viewModel.updateWalletBalance(title: balanceTitle, subtitle: balanceSubtitle)
         
         guard card.isBlockchainKnown else {
-            setupBalanceVerified(false, customText: "Unknown blockchain")
+            setupBalanceVerified(false, customText: Localizations.alertUnknownBlockchain)
             return
         }
         
         guard !card.hasPendingTransactions else {
-            setupBalanceVerified(false, customText: "Transaction in progress. Wait for confirmation in blockchain. Tap to retry")
+            setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
             return
         }
         
-        if card.type == .cardano {
-            setupBalanceVerified(true, customText: card.isTestBlockchain ? "Test blockhain": nil)
-        } else {
-            verifySignature(card: card)
-            setupBalanceIsBeingVerified()
+        if #available(iOS 13.0, *) {
+            setupBalanceVerified(true, customText: card.isTestBlockchain ? Localizations.testBlockchain: nil)
+        } else {            
+            if card.type == .cardano {
+                setupBalanceVerified(true, customText: card.isTestBlockchain ? Localizations.testBlockchain: nil)
+            } else {
+                verifySignature(card: card)
+                setupBalanceIsBeingVerified()
+            }
         }
     }
     
@@ -221,12 +235,12 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
         
         let hasBalance = NSDecimalNumber(string: card.walletTokenValue).doubleValue > 0 
-        let balanceTitle = hasBalance ? "GENUINE" : "NOT FOUND"
+        let balanceTitle = hasBalance ? Localizations.genuine : Localizations.notFound
         
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
-        setupBalanceVerified(hasBalance, customText: hasBalance ? "Verified in blockchain" : "Authencity was not verified")
+        setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
     }
-
+    
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
         
@@ -274,7 +288,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     // MARK: Simulator parsing Operation
-
+    
     func launchSimulationParsingOperationWith(payload: Data) {
         tangemSession.payload = payload
         tangemSession.start()
@@ -282,11 +296,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     func showUntrustedAlertIfNeeded() {
         guard let card = card,
-              let walletAmount = Double(card.walletValue),
-              let signedHashesAmount = Int(card.signedHashes, radix: 16) else {
-            return
+            let walletAmount = Double(card.walletValue),
+            let signedHashesAmount = Int(card.signedHashes, radix: 16) else {
+                return
         }
-       
+        
         let scannedCards = storageManager.stringArray(forKey: .cids) ?? []
         let cardScannedBefore = scannedCards.contains(card.cardID)
         if cardScannedBefore {
@@ -325,7 +339,7 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 }
 
 extension CardDetailsViewController : TangemSessionDelegate {
-
+    
     func tangemSessionDidRead(card: Card) {
         guard /*!card.isTestBlockchain &&*/ card.isBlockchainKnown else {
             handleUnknownBlockchainCard {
@@ -336,7 +350,7 @@ extension CardDetailsViewController : TangemSessionDelegate {
         
         self.card = card
         self.setupWithCardDetails(card: card)
-
+        
         switch card.genuinityState {
         case .pending:
             self.isBalanceLoading = true
@@ -347,9 +361,9 @@ extension CardDetailsViewController : TangemSessionDelegate {
         default:
             break
         }
-
+        
     }
-
+    
     func tangemSessionDidFailWith(error: TangemSessionError) {
         switch error {
         case .locked:
@@ -360,78 +374,97 @@ extension CardDetailsViewController : TangemSessionDelegate {
             handleReaderSessionError() {
                 self.navigationController?.popViewController(animated: true)
             }
+        case .userCancelled:
+                      break
         }
     }
-
+    
 }
 
 extension CardDetailsViewController {
-
+    
     // MARK: Actions
-
+    
     @IBAction func exploreButtonPressed(_ sender: Any) {
         if let link = card?.cardEngine.exploreLink, let url = URL(string: link) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
-
+    
     @IBAction func copyButtonPressed(_ sender: Any) {
         UIPasteboard.general.string = card?.address
-
+        
         dispatchWorkItem?.cancel()
-
+        
         updateCopyButtonTitleForState(copied: true)
         dispatchWorkItem = DispatchWorkItem(block: {
             self.updateCopyButtonTitleForState(copied: false)
         })
-
+        
         guard let dispatchWorkItem = dispatchWorkItem else {
             return
         }
-
+        
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: dispatchWorkItem)
     }
-
+    
     func updateCopyButtonTitleForState(copied: Bool) {
-        let title = copied ? "Copied!" : "Copy"
+        let title = copied ? Localizations.copied : Localizations.loadedWalletBtnCopy
         let color = copied ? UIColor.tgm_green() : UIColor.black
-
+        
         UIView.transition(with: viewModel.copyButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
             self.viewModel.copyButton.setTitle(title.uppercased(), for: .normal)
             self.viewModel.copyButton.setTitleColor(color, for: .normal)
         }, completion: nil)
     }
-
+    
     @IBAction func loadButtonPressed(_ sender: Any) {
+        guard let card = self.card else {
+            return
+        }
+        
+        //        guard !card.cardID.starts(with: "10") else {
+        //            self.handleStart2CoinLoad()
+        //            return
+        //        }
+        
         guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "LoadViewController") as? LoadViewController else {
             return
         }
-
+        
         viewController.cardDetails = card
         viewController.delegate = self
-
+        
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
         viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
     }
-
+    
     @IBAction func extractButtonPressed(_ sender: Any) {
-        if #available(iOS 13.0, *) /*, card!.canExtract */ {
+        if #available(iOS 13.0, *), card!.canExtract  {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
             viewController.card = card
             viewController.onDone = { [unowned self] in
                 guard let card = self.card else {
                     return
                 }
-                if card.hasPendingTransactions {
-                    self.fetchWalletBalance(card: card)
+                
+                if card.hasPendingTransactions  {
+                    self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+            
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
+                        self?.updateBalance()
+                    }
                 }
             }
-                self.present(viewController, animated: true, completion: nil)
+            self.present(viewController, animated: true, completion: nil)
         } else {
-            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController")
+            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController") as! ExtractPlaceholderViewController
+            
+            viewController.contentText = card!.canExtract ? Localizations.disclamerOldIOS :
+                Localizations.disclamerOldCard
             
             let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
             self.customPresentationController = presentationController
@@ -440,7 +473,7 @@ extension CardDetailsViewController {
             self.present(viewController, animated: true, completion: nil)
         }
     }
-
+    
     @IBAction func scanButtonPressed(_ sender: Any) {
         #if targetEnvironment(simulator)
         showSimulationSheet()
@@ -448,12 +481,12 @@ extension CardDetailsViewController {
         tangemSession.start()
         #endif
     }
-
+    
     @IBAction func moreButtonPressed(_ sender: Any) {
         guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
             return
         }
-
+        
         var cardChallenge: String? = nil
         if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
             let cardChallenge1 = String(challenge.prefix(3))
@@ -462,7 +495,7 @@ extension CardDetailsViewController {
             let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
             cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
         }
-
+        
         var verificationChallenge: String? = nil
         if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
             let cardChallenge1 = String(challenge.prefix(3))
@@ -471,25 +504,25 @@ extension CardDetailsViewController {
             let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
             verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
         }
-
-        let strings = ["Issuer: \(cardDetails.issuer)",
-            "Manufacturer: \(cardDetails.manufactureName)",
-            "API node: \(cardDetails.node)",
-            "Challenge 1: \(cardChallenge ?? "N\\A")",
-            "Challenge 2: \(verificationChallenge ?? "N\\A")",
-            "Signature: \(isBalanceVerified ? "passed" : "not passed")",
-            "Authenticity: \(cardDetails.isAuthentic ? "attested" : "not attested")",
-            "Firmware: \(cardDetails.firmware)",
-            "Registration date: \(cardDetails.manufactureDateTime)",
-            "Serial: \(cardDetails.cardID)",
-            "Remaining signatures: \(cardDetails.remainingSignatures)"]
+        
+        let strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
+            "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
+            "\(Localizations.detailsValidationNode): \(cardDetails.node)",
+            "\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)",
+            "\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)",
+            "\(Localizations.signature): \(isBalanceVerified ? Localizations.passed : Localizations.notPassed)",
+            "\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)",
+            "\(Localizations.detailsFirmware): \(cardDetails.firmware)",
+            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)",
+            "\(Localizations.detailsTitleCardId): \(cardDetails.cardID)",
+            "\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)"]
         viewController.contentText = strings.joined(separator: "\n")
-
+        
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
         viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(478, self.view.frame.height - 200))
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
     }
-
+    
 }

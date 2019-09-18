@@ -1,0 +1,19 @@
+/* 
+  Localizable.strings
+  TangemKit
+
+  Created by Alexander Osokin on 12/09/2019.
+  Copyright © 2019 Smart Cash AG. All rights reserved.
+*/
+
+"nfc_session_timeout" = "Session timeout";
+
+"nfc_alert_default" = "Hold your iPhone near a Tangem card";
+
+"nfc_alert_sign_completed" = "Transaction has been successfully signed";
+
+"dialog_security_delay" = "Security delay";
+
+"nfc_seconds_left" = "seconds left";
+
+"nfc_unknown_card_state" = "Unknown card state";
