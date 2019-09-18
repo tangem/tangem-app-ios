@@ -38,6 +38,7 @@ class CardDetailsViewModel: NSObject {
         didSet {
             doubleScanHintLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
             doubleScanHintLabel.textColor = UIColor.tgm_red()
+            doubleScanHintLabel.text = Localizations.doubleScanHint
         }
     }
     //    [REDACTED_USERNAME] weak var networkSafetyDescriptionLabel: UILabel! {
@@ -65,6 +66,7 @@ class CardDetailsViewModel: NSObject {
             loadButton.layer.shadowOffset = CGSize(width: 0, height: 5)
             loadButton.layer.shadowColor = UIColor.black.cgColor
             loadButton.layer.shadowOpacity = 0.08
+            loadButton.setTitle(Localizations.loadedWalletBtnLoad, for: .normal)
         }
     }
     
@@ -77,12 +79,14 @@ class CardDetailsViewModel: NSObject {
             extractButton.layer.shadowOffset = CGSize(width: 0, height: 5)
             extractButton.layer.shadowColor = UIColor.black.cgColor
             extractButton.layer.shadowOpacity = 0.08
+            extractButton.setTitle(Localizations.loadedWalletBtnExtract, for: .normal)
         }
     }
     
     @IBOutlet weak var scanButton: UIButton! {
         didSet {
             scanButton.titleLabel?.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
+            scanButton.setTitle(Localizations.loadedWalletBtnNewScan, for: .normal)
         }
     }
     
@@ -90,6 +94,7 @@ class CardDetailsViewModel: NSObject {
         didSet {
             moreButton.titleLabel?.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
             moreButton.setTitleColor(UIColor.lightGray, for: .disabled)
+            moreButton.setTitle(Localizations.moreInfo, for: .normal)
         }
     }
     
@@ -97,6 +102,7 @@ class CardDetailsViewModel: NSObject {
         didSet {
             exploreButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
             exploreButton.setTitleColor(UIColor.lightGray, for: .disabled)
+            exploreButton.setTitle(Localizations.loadedWalletBtnExplore, for: .normal)
         }
     }
     
@@ -104,6 +110,7 @@ class CardDetailsViewModel: NSObject {
         didSet {
             copyButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
             copyButton.setTitleColor(UIColor.lightGray, for: .disabled)
+            copyButton.setTitle(Localizations.loadedWalletBtnCopy, for: .normal)
         }
     }
     
@@ -150,14 +157,14 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceIsBeingVerified() {
-        let text = "Verifying in blockchain..."
+        let text = Localizations.loadedWalletVerifyingInBlockchain
         let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88,
                                                                            NSAttributedStringKey.foregroundColor : UIColor.black])
         balanceVerificationLabel.attributedText = attributedText
     }
     
     func updateWalletBalanceVerification(_ verified: Bool, customText: String? = nil) {
-        var text = verified ? "Verified balance" : "Unverified balance"
+        var text = verified ? Localizations.verifiedBalance: Localizations.unverifiedBalance
         if let customText = customText, !customText.isEmpty {
             text = customText
         }
@@ -167,7 +174,7 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceNoWallet() {
-        let string = "This card has no wallet.\nWallet creation is not available on the iPhone at this time"
+        let string = "\(Localizations.loadedWalletNoCompatibleWallet).\n\(Localizations.disclamerNoWalletCreation)"
         let attributedText = NSAttributedString(string: string, attributes: [NSAttributedStringKey.kern : 0.88,
                                                                              NSAttributedStringKey.foregroundColor : UIColor.tgm_red()])
         balanceVerificationLabel.attributedText = attributedText

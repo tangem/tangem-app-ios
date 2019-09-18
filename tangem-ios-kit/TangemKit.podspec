@@ -32,10 +32,10 @@ Check the values and details of your Tangem notes — special NFC smart cards th
 
   s.dependency 'BigInt'
   s.dependency 'CryptoSwift'
-  s.dependency 'SwiftyJSON', '4.2.0'
-  s.dependency 'SwiftLint', '0.27.0'
-  s.dependency 'GBAsyncOperation', '0.2.0'
-  s.dependency 'SwiftCBOR', '0.3'
-  s.dependency 'Sodium', '0.8.0'
+  s.dependency 'SwiftyJSON'
+  s.dependency 'SwiftLint'
+  s.dependency 'GBAsyncOperation'
+  s.dependency 'SwiftCBOR'
+  s.dependency 'Sodium'
   s.dependency 'web3.swift.pod'
 end
