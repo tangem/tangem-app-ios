@@ -56,7 +56,6 @@ class BtcSendOperation: GBAsyncOperation {
             case .success(let sendResponse):
                 if sendResponse == "Transaction Submitted" {
                     self?.engine.unconfirmedBalance = nil
-                    //[REDACTED_TODO_COMMENT]
                     self?.completeOperation()
                 } else {
                     self?.failOperation(with: "Empty response")
