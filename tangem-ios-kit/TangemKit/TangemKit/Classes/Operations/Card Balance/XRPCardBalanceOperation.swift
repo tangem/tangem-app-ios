@@ -64,7 +64,7 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
 
         
         let walletValue = NSDecimalNumber(value: balanceValue).subtracting(NSDecimalNumber(value: reserveValue))
-        let rounded = (walletValue as Decimal).rounded(Int(Blockchain.ripple.decimalCount))
+        let rounded = (walletValue as Decimal).rounded(blockchain: .ripple)
         card.walletValue =  "\(rounded)"
      
         completeOperation()

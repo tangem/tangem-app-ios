@@ -27,18 +27,22 @@ extension UserDefaults {
 extension UIViewController {
     
     func showFeatureRestrictionAlertIfNeeded() {
+        if #available(iOS 13.0, *)  {
+            return
+        }
+        
         guard !UserDefaults.standard.isFeaturesRestrictionAlertDismissed() else {
             return
         }
         
-        let validationAlert = UIAlertController(title: "Important: NFC restriction on iOS", 
-                                                message: "You can only check balance and validity of Tangem card and receive funds to it due to iOS restrictions on data transfer via NFC", preferredStyle: .alert)
+        let validationAlert = UIAlertController(title: Localizations.disclamerNfcTitle,
+                                                message: Localizations.disclamerNfcMessage, preferredStyle: .alert)
         
-        validationAlert.addAction(UIAlertAction(title: "I understand", style: .default, handler: nil))
-        validationAlert.addAction(UIAlertAction(title: "Don't show again", style: .default, handler: { (_) in
+        validationAlert.addAction(UIAlertAction(title: Localizations.disclamerNfcOk, style: .default, handler: nil))
+        validationAlert.addAction(UIAlertAction(title: Localizations.disclamerNfcNotShow, style: .default, handler: { (_) in
             UserDefaults.standard.setIsFeaturesRestrictionAlertDismissed(true)
         }))
-        validationAlert.addAction(UIAlertAction(title: "More Info", style: .cancel, handler: { (_) in
+        validationAlert.addAction(UIAlertAction(title: Localizations.moreInfo, style: .cancel, handler: { (_) in
             let url = URL(string: "http://tangem.com/faq")!
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }))
