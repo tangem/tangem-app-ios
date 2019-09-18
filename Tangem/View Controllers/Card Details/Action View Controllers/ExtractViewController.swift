@@ -12,45 +12,69 @@ import CoreNFC
 #endif
 import TangemKit
 
-public enum NFCState {
-    case active
-    case signed
-    case none
-}
+
 
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
-    
     var card: Card!
     var onDone: (()-> Void)?
     
-    private let stateLockQueue = DispatchQueue(label: "Tangem.ExtractViewController.stateLockQueue")
-    private var _state: NFCState = .none
-    var state: NFCState  {
-        get {
-            stateLockQueue.sync {
-                return _state
-            }
-        }
-        set {
-            stateLockQueue.sync {
-                _state = newValue
-            }
+    @IBOutlet weak var titleLabel: UILabel! {
+        didSet {
+            titleLabel.text = Localizations.sendPayment.uppercased()
         }
     }
-    
     @IBOutlet weak var amountText: UITextField! {
         didSet {
             amountText.delegate = self
+            amountText.placeholder = Localizations.generalAmount.lowercased()
         }
     }
     
+    @IBOutlet weak var feeTitleLabel: UILabel! {
+        didSet {
+            feeTitleLabel.text = Localizations.confirmTransactionFee
+        }
+    }
+    @IBOutlet weak var includeFeeLabel: UILabel! {
+        didSet {
+            includeFeeLabel.text = Localizations.confirmTransactionBtnIncludingFee
+        }
+    }
+    @IBOutlet weak var amountTitleLabel: UILabel! {
+        didSet {
+            amountTitleLabel.text = Localizations.generalAmount.uppercased()
+        }
+    }
+    @IBOutlet weak var toWalletLabel: UILabel! {
+        didSet {
+            toWalletLabel.text = Localizations.toWallet.uppercased()
+        }
+    }
+    @IBOutlet weak var addressTitleLabel: UILabel! {
+        didSet {
+            addressTitleLabel.text = "\(Localizations.address):"
+        }
+    }
+    @IBOutlet weak var cardTitleLabel: UILabel! {
+        didSet {
+            cardTitleLabel.text = Localizations.detailsTitleCardId
+        }
+    }
     @IBOutlet weak var amountStackView: UIStackView!
     @IBOutlet weak var addressSeparator: UIView!
     @IBOutlet weak var amountSeparator: UIView!
     @IBOutlet weak var topStackView: UIStackView!
     @IBOutlet weak var targetStackView: UIStackView!
-    @IBOutlet weak var feeControl: UISegmentedControl!
+    @IBOutlet weak var feeControl: UISegmentedControl!  {
+        didSet {
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeeMinimal, forSegmentAt: 0)
+            
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeeNormal, forSegmentAt: 1)
+            
+            feeControl.setTitle(Localizations.confirmTransactionBtnFeePriority, forSegmentAt: 2)
+        }
+    }
     @IBOutlet weak var cardLabel: UILabel!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var amountLabel: UILabel!
@@ -59,12 +83,17 @@ class ExtractViewController: ModalActionViewController {
     @IBOutlet weak var targetAddressText: UITextField! {
         didSet {
             targetAddressText.delegate = self
+            targetAddressText.placeholder = Localizations.address.lowercased()
         }
     }
     @IBOutlet weak var includeFeeSwitch: UISwitch!
     @IBOutlet weak var feeLabel: UILabel!
     @IBOutlet weak var pasteTargetAdressButton: UIButton!
-    @IBOutlet weak var btnSend: UIButton!
+    @IBOutlet weak var btnSend: UIButton! {
+        didSet {
+            btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
+        }
+    }
     @IBOutlet weak var cardInfoContainer: UIStackView!
     
     private var readerSession: NFCTagReaderSession?
@@ -84,27 +113,35 @@ class ExtractViewController: ModalActionViewController {
         return recognizer
     }()
     
-    private var sessionTimer: Timer?
-    private func startSessionTimer() {
-        DispatchQueue.main.async {
-            self.sessionTimer?.invalidate()
-            self.sessionTimer = Timer.scheduledTimer(timeInterval: 58.0, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
+    private lazy var signSession: CardSignSession = {
+        let session = CardSignSession(cardId: card.cardID,
+                                      supportedSignMethods: card.supportedSignMethods) {[weak self] result in
+                                        switch result {
+                                        case .cancelled:
+                                            self?.btnSend.hideActivityIndicator()
+                                            self?.updateSendButtonSubtitle()
+                                            self?.removeLoadingView()
+                                        case.success(let signature):
+                                            self?.handleSuccessSign(with: signature)
+                                        case .failure(let signError):
+                                            self?.btnSend.hideActivityIndicator()
+                                            self?.updateSendButtonSubtitle()
+                                            self?.removeLoadingView()
+                                            
+                                            switch signError {
+                                                case .missingIssuerSignature:
+                                                    self?.handleTXNotSignedByIssuer()
+                                                case .nfcError(let nfcError):
+                                                    self?.handleGenericError(nfcError)
+                                            }                                            
+                                        }
         }
-    }
+        
+        return session
+    }()
     
-    private var tagTimer: Timer?
-    private func startTagTimer() {
-        DispatchQueue.main.async {
-            self.tagTimer?.invalidate()
-            self.tagTimer = Timer.scheduledTimer(timeInterval: 18.0, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
-        }
-    }
-    
-    @objc func timerTimeout() {
-        guard let session = self.readerSession,
-            state == .active  else { return }
-                   
-        session.invalidate(errorMessage: "Session timeout")
+    private var coinProvider: CoinProvider {
+        return card.cardEngine as! CoinProvider
     }
     
     @objc func viewDidTap() {
@@ -131,8 +168,8 @@ class ExtractViewController: ModalActionViewController {
     }
     @IBAction func pasteTapped(_ sender: Any, forEvent event: UIEvent) {
         if let pasteAddress = getPasteAddress() {
-              targetAddressText.text = pasteAddress
-              tryUpdateFeePreset()
+            targetAddressText.text = pasteAddress
+            tryUpdateFeePreset()
         } else {
             pasteTargetAdressButton.isEnabled = false
         }
@@ -142,13 +179,14 @@ class ExtractViewController: ModalActionViewController {
         setError(false, for: sender)
         tryUpdateFeePreset()
     }
+    
     @IBAction func amountChanged(_ sender: UITextField, forEvent event: UIEvent) {
         setError(false, for: sender)
         tryUpdateFeePreset()
     }
     
     @IBAction func scanTapped() {
-        guard state == .none, validateInput() else {
+        guard !signSession.isBusy, validateInput() else {
             return
         }
         
@@ -160,10 +198,13 @@ class ExtractViewController: ModalActionViewController {
         btnSend.setAttributedTitle(NSAttributedString(string: ""), for: .normal)
         btnSend.showActivityIndicator()
         addLoadingView()
-        readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
-        readerSession?.alertMessage = "Hold your iPhone near a Tangem card"
-        readerSession?.begin()
-        state = .active
+        
+        guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
+            self.handleTXBuildError()
+            return
+        }
+        
+        signSession.start(dataToSign: dataToSign)
     }
     
     func addLoadingView() {
@@ -188,25 +229,25 @@ class ExtractViewController: ModalActionViewController {
     }
     
     func updateFee() {
-            switch feeControl.selectedSegmentIndex {
-            case 0:
-                feeLabel.text = fee?.min ?? ""
-            case 1:
-                feeLabel.text = fee?.normal ?? ""
-            case 2:
-                feeLabel.text = fee?.max ?? ""
-            default:
-                feeLabel.text = ""
-            }
-       
+        switch feeControl.selectedSegmentIndex {
+        case 0:
+            feeLabel.text = fee?.min ?? ""
+        case 1:
+            feeLabel.text = fee?.normal ?? ""
+        case 2:
+            feeLabel.text = fee?.max ?? ""
+        default:
+            feeLabel.text = ""
+        }
+        
         
         if !feeLabel.text!.isEmpty {
             feeLabel.text! += " \(card.walletUnits)"
         } else {
-            feeLabel.text = Constants.feeStub
+            feeLabel.text = Localizations.commonFeeStub
         }
-    
-            
+        
+        
         validatedFee = feeLabel.text
         feeLabel.hideActivityIndicator()
         //  print("min fee: \(fee?.min) normal fee: \(fee?.normal) max fee \(fee?.max)")
@@ -217,20 +258,21 @@ class ExtractViewController: ModalActionViewController {
         validatedAmount = ""
         validatedFee = ""
         validatedTarget = ""
-       
+        
         guard let target = targetAddressText.text,
             validate(address: target) else {
                 setError(true, for: targetAddressText )
                 btnSendSetEnabled(false)
                 return false
-         }
+        }
         
         guard let amount = amountText.text?.replacingOccurrences(of: ",", with: "."),
             !amount.isEmpty,
             let amountValue = Decimal(string: amount),
             amountValue > 0,
-            let total = Decimal(string: card.walletValue) else {
-                 setError(true, for: amountText )
+            let total = Decimal(string: card.walletValue),
+            amountValue <= total else {
+                setError(true, for: amountText )
                 btnSendSetEnabled(false)
                 return false
         }
@@ -245,14 +287,22 @@ class ExtractViewController: ModalActionViewController {
             
             let valueToSend = includeFeeSwitch.isOn ? amountValue : amountValue + feeValue
             guard total >= valueToSend else {
-                 setError(true, for: amountText )
+                setError(true, for: amountText )
                 btnSendSetEnabled(false)
                 return false
             }
             
+            let valueToReceive = includeFeeSwitch.isOn ? amountValue - feeValue : amountValue + feeValue
+            guard valueToReceive > 0 else {
+                setError(true, for: amountText )
+                btnSendSetEnabled(false)
+                return false
+            }
+            
+            
             validatedFee = fee
         }
-             
+        
         setError(false, for: targetAddressText )
         setError(false, for: amountText )
         validatedAmount = amount
@@ -264,9 +314,9 @@ class ExtractViewController: ModalActionViewController {
     
     func getPasteAddress() -> String? {
         if let pasteString = UIPasteboard.general.string,
-                   validate(address: pasteString) {
-                  return pasteString
-               }
+            validate(address: pasteString) {
+            return pasteString
+        }
         return  nil
     }
     
@@ -288,12 +338,12 @@ class ExtractViewController: ModalActionViewController {
         
         
         includeFeeSwitch.transform = CGAffineTransform.identity.translatedBy(x: -0.1*includeFeeSwitch.frame.width, y: 0).scaledBy(x: 0.8, y: 0.8)
-      
+        
         //        let addressText = NSMutableAttributedString(string: "Address: \(card.address)")
         //        addressText.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.black, range: NSRange(location: 0, length: 8))
         
         addressLabel.text = card.address
-        feeLabel.text = Constants.feeStub
+        feeLabel.text = Localizations.commonFeeStub
         amountText.text = card.walletValue
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
@@ -324,22 +374,21 @@ class ExtractViewController: ModalActionViewController {
             return
         }
         
-        let sendTitle = "SEND"
         guard let amount = Decimal(string: validatedAmount ?? ""),
             let fee = Decimal(string: validatedFee ?? "") else {
-                if btnSend.titleLabel?.text != sendTitle {
+                if btnSend.titleLabel?.text != Localizations.confirmTransactionBtnSend {
                     UIView.performWithoutAnimation {
-                         btnSend.setTitle(sendTitle, for: .normal)
+                        btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
                         btnSend.layoutIfNeeded()
                     }
                 }
                 return
         }
         
-        let valueToSend = includeFeeSwitch.isOn ? amount : amount + fee
+        let valueToSend = (includeFeeSwitch.isOn ? amount : amount + fee).rounded(blockchain: card.blockchain)
         guard valueToSend > 0 else {
-            if btnSend.titleLabel?.text != sendTitle {
-               btnSend.setTitle(sendTitle, for: .normal)
+            if btnSend.titleLabel?.text != Localizations.confirmTransactionBtnSend {
+                btnSend.setTitle(Localizations.confirmTransactionBtnSend, for: .normal)
             }
             return
         }
@@ -350,28 +399,28 @@ class ExtractViewController: ModalActionViewController {
         let titleParagraph = NSMutableParagraphStyle()
         titleParagraph.alignment = .center
         titleParagraph.maximumLineHeight = 24
-
-    
+        
+        
         let subtitleParagraph = NSMutableParagraphStyle()
         subtitleParagraph.alignment = .center
         subtitleParagraph.maximumLineHeight = 12
         
         let titleAttributes: [NSAttributedString.Key : Any] = [NSAttributedString.Key.paragraphStyle: titleParagraph,
-                                                          NSAttributedString.Key.foregroundColor: UIColor.white,
-                                                          NSAttributedString.Key.font: titleFont]
+                                                               NSAttributedString.Key.foregroundColor: UIColor.white,
+                                                               NSAttributedString.Key.font: titleFont]
         
         let subtitleAttributes: [NSAttributedString.Key : Any] = [NSAttributedString.Key.paragraphStyle: subtitleParagraph,
-                                                                 NSAttributedString.Key.foregroundColor: UIColor.white,
-                                                                 NSAttributedString.Key.font: subtitleFont]
+                                                                  NSAttributedString.Key.foregroundColor: UIColor.white,
+                                                                  NSAttributedString.Key.font: subtitleFont]
         
-        let titleText = NSMutableAttributedString(string: "\(sendTitle)", attributes: titleAttributes)
+        let titleText = NSMutableAttributedString(string: "\(Localizations.confirmTransactionBtnSend)", attributes: titleAttributes)
         let subtitleText = NSMutableAttributedString(string: "\(valueToSend) \(card.walletUnits)", attributes: subtitleAttributes)
         titleText.append(NSAttributedString(string: "\n"))
         titleText.append(subtitleText)
-    
+        
         UIView.performWithoutAnimation {
             btnSend?.setAttributedTitle(titleText, for: .normal)
-             btnSend.layoutIfNeeded()
+            btnSend.layoutIfNeeded()
         }
     }
     
@@ -422,7 +471,7 @@ class ExtractViewController: ModalActionViewController {
             guard let self = self else {
                 return
             }
-           
+            
             guard self.validateInput(skipFee: true),
                 let targetAddress = self.validatedTarget,
                 let amount = self.validatedAmount  else {
@@ -446,153 +495,18 @@ class ExtractViewController: ModalActionViewController {
     
     private func setError(_ error: Bool, for textField: UITextField) {
         
-         let separatorColor = UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
-         let textColor = UIColor.init(red: 102.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1.0)
+        let separatorColor = UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
+        let textColor = UIColor.init(red: 102.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1.0)
         
-//        textField.layer.borderColor = error ? UIColor.red.cgColor : UIColor.clear.cgColor
-//        textField.layer.borderWidth = error ? 1.0 : 0.0
-//        textField.layer.cornerRadius = error ? 8.0 : 0.0
+        //        textField.layer.borderColor = error ? UIColor.red.cgColor : UIColor.clear.cgColor
+        //        textField.layer.borderWidth = error ? 1.0 : 0.0
+        //        textField.layer.cornerRadius = error ? 8.0 : 0.0
         textField.textColor = error ? UIColor.red : textColor
         
         if textField == amountText {
-               amountSeparator.backgroundColor = error ? UIColor.red : separatorColor
+            amountSeparator.backgroundColor = error ? UIColor.red : separatorColor
         } else if textField == targetAddressText {
             addressSeparator.backgroundColor = error ? UIColor.red : separatorColor
-        }
-    }
-}
-
-
-@available(iOS 13.0, *)
-extension ExtractViewController: NFCTagReaderSessionDelegate {
-    func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
-       startSessionTimer()
-    }
-    
-    func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        guard state != .signed else {
-            return
-        }
-        state = .none
-        DispatchQueue.main.async {
-            self.btnSend.hideActivityIndicator()
-            self.updateSendButtonSubtitle()
-            self.removeLoadingView()
-        }
-        
-        print(error)
-    }
-    
-    func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
-        if case let .iso7816(tag7816) = tags.first {
-            let nfcTag = tags.first!
-            session.connect(to: nfcTag) {[unowned self] error in
-                guard error == nil else {
-                    session.invalidate(errorMessage: error!.localizedDescription)
-                    return
-                }
-                self.startTagTimer()
-                let cProvider = self.card.cardEngine as! CoinProvider
-                guard let hashToSign = cProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
-                    session.invalidate(errorMessage: "Failed")
-                    self.handleTXBuildError()
-                    return
-                }
-                
-                
-                let cardId = self.card.cardID.asciiHexToData()!
-                let hSize = [UInt8(hashToSign.count)]
-                
-                var tlvData = [
-                    CardTLV(.pin, value: "000000".sha256().asciiHexToData()),
-                    CardTLV(.cardId, value: cardId),
-                    CardTLV(.pin2, value: "000".sha256().asciiHexToData()),
-                    CardTLV(.transactionOutHashSize, value: hSize),
-                    CardTLV(.transactionOutHash, value: hashToSign.bytes)]
-                
-                let signMethods = self.card.supportedSignMethods
-                
-                if signMethods.contains(.issuerSign) {
-                    let issuerSignature: [UInt8] = []
-                    if issuerSignature.isEmpty {
-                        if !signMethods.contains(.signHashes) {
-                            session.invalidate(errorMessage: "Transaction must be signed by issuer")
-                            return
-                        }
-                    } else {
-                        tlvData.append(CardTLV(.issuerTxSignature, value: issuerSignature))
-                    }
-                }
-                
-                let commandApdu = CommandApdu(with: .sign, tlv: tlvData)
-                let signApduBytes = commandApdu.buildCommand()
-                let signApdu = NFCISO7816APDU(data: Data(bytes: signApduBytes))!
-                self.sendSignRequest(to: tag7816, with: session, signApdu)
-            }
-        }
-        
-    }
-    
-    private func sendSignRequest(to tag: NFCISO7816Tag, with session: NFCTagReaderSession, _ apdu: NFCISO7816APDU) {
-        tag.sendCommand(apdu: apdu) {[unowned self] (data, sw1, sw2, apduError) in
-            guard apduError == nil else {
-                // session.invalidate(errorMessage: apduError!.localizedDescription)
-                session.alertMessage = "Hold your iPhone near a Tangem card"
-                self.startTagTimer()
-                session.restartPolling()
-                return
-            }
-            
-            let respApdu = ResponseApdu(with: data, sw1: sw1, sw2: sw2)
-            
-            if let cardState = respApdu.state {
-                switch cardState {
-                case .needPause:
-                    if let remainingMilliseconds = respApdu.tlv[.pause]?.intValue {
-                        self.readerSession?.alertMessage = "Security delay: \(remainingMilliseconds/100) seconds"
-                    }
-                    
-                    if respApdu.tlv[.flash] != nil {
-                        self.startTagTimer()
-                        self.readerSession?.restartPolling()
-                        
-                    } else {
-                        self.sendSignRequest(to: tag, with: session, apdu)
-                    }
-                    
-                case .processCompleted:
-                    self.state = .signed
-                    session.alertMessage = "Sign completed"
-                    session.invalidate()
-                    if let sign = respApdu.tlv[.signature]?.value {
-                        // session.alertMessage = "Signed :)"
-                        let cProvider = self.card.cardEngine as! CoinProvider
-                        cProvider.sendToBlockchain(signFromCard: sign) {[weak self] result in
-                            self?.removeLoadingView()
-                            self?.btnSend.hideActivityIndicator()
-                            self?.updateSendButtonSubtitle()
-                            if result {
-                                DispatchQueue.main.async {
-                                    self?.handleSuccess(completion: {
-                                        self?.dismiss(animated: true) {
-                                            self?.onDone?()
-                                        }
-                                    })
-                                }
-                            } else {
-                                self?.state = .none
-                                self?.handleTXSendError()
-                            }
-                            
-                        }
-                    }
-                    
-                default:
-                    session.invalidate(errorMessage: cardState.localizedDescription)
-                }
-            } else {
-                session.invalidate(errorMessage: "Unknown card state: \(sw1) \(sw2)")
-            }
         }
     }
     
@@ -600,8 +514,27 @@ extension ExtractViewController: NFCTagReaderSessionDelegate {
         btnSend.isEnabled = enabled
         UIView.animate(withDuration: 0.3) {
             self.btnSend.backgroundColor = enabled ? UIColor(red: 27.0/255.0, green: 154.0/255.0, blue: 247.0/255.0, alpha: 1) :  UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
-               }
         }
+    }
+    
+    private func handleSuccessSign(with signature: [UInt8]) {
+        coinProvider.sendToBlockchain(signFromCard: signature) {[weak self] result in
+            DispatchQueue.main.async {
+                self?.removeLoadingView()
+                self?.btnSend.hideActivityIndicator()
+                self?.updateSendButtonSubtitle()
+                if result {
+                    self?.handleSuccess(completion: {
+                        self?.dismiss(animated: true) {
+                            self?.onDone?()
+                        }
+                    })
+                } else {
+                    self?.handleTXSendError(message:"")
+                }
+            }
+        }
+    }
 }
 
 @available(iOS 13.0, *)
@@ -609,20 +542,46 @@ extension ExtractViewController: DefaultErrorAlertsCapable {
     
 }
 
-
 @available(iOS 13.0, *)
 extension ExtractViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
-}
-
-
-//MARK: Constants
-@available(iOS 13.0, *)
-extension ExtractViewController {
-    struct Constants {
-        static let feeStub = "Specify amount and address to see the fee"
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard textField === amountText else {
+            return true
+        }
+        
+        let maxLength = card.blockchain.decimalCount
+        let currentString: NSString = textField.text! as NSString
+        let newString: String =
+            currentString.replacingCharacters(in: range, with: string) as String
+        
+        
+        
+        var allowNew = true
+        
+        if let dotIndex = newString.index(of: ".") {
+            let fromIndex = newString.index(after: dotIndex)
+            let decimalsString = newString[fromIndex...]
+            allowNew = decimalsString.count <= maxLength
+        } else {
+            allowNew = true
+        }
+        
+        guard allowNew else {
+            return false
+        }
+        
+        if string == "," {
+            if let text = textField.text {
+                textField.text = text + "."
+                     return false
+            }
+        }
+        
+        return true
     }
 }
