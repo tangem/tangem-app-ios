@@ -1,3 +1,7 @@
+#if canImport(Foundation)
+import Foundation
+#endif
+
 public indirect enum CBOR : Equatable, Hashable,
         ExpressibleByNilLiteral, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral,
         ExpressibleByArrayLiteral, ExpressibleByDictionaryLiteral, ExpressibleByBooleanLiteral,
@@ -18,24 +22,31 @@ public indirect enum CBOR : Equatable, Hashable,
     case float(Float32)
     case double(Float64)
     case `break`
+    #if canImport(Foundation)
+    case date(Date)
+    #endif
 
-    public var hashValue : Int {
+    public func hash(into hasher: inout Hasher) {
         switch self {
-        case let .unsignedInt(l): return l.hashValue
-        case let .negativeInt(l): return l.hashValue
-        case let .byteString(l):  return Util.djb2Hash(l.map { Int($0) })
-        case let .utf8String(l):  return l.hashValue
-        case let .array(l):       return Util.djb2Hash(l.map { $0.hashValue })
-        case let .map(l):         return Util.djb2Hash(l.map { $0.hashValue &+ $1.hashValue })
-        case let .tagged(t, l):   return t.hashValue &+ l.hashValue
-        case let .simple(l):      return l.hashValue
-        case let .boolean(l):     return l.hashValue
-        case .null:               return -1
-        case .undefined:          return -2
-        case let .half(l):        return l.hashValue
-        case let .float(l):       return l.hashValue
-        case let .double(l):      return l.hashValue
-        case .break:              return Int.min
+        case let .unsignedInt(l): l.hash(into: &hasher)
+        case let .negativeInt(l): l.hash(into: &hasher)
+        case let .byteString(l):  Util.djb2Hash(l.map { Int($0) }).hash(into: &hasher)
+        case let .utf8String(l):  l.hash(into: &hasher)
+        case let .array(l):       Util.djb2Hash(l.map { $0.hashValue }).hash(into: &hasher)
+        case let .map(l):         Util.djb2Hash(l.map { $0.hashValue &+ $1.hashValue }).hash(into: &hasher)
+        case let .tagged(t, l):   t.hash(into: &hasher)
+                                  l.hash(into: &hasher)
+        case let .simple(l):      l.hash(into: &hasher)
+        case let .boolean(l):     l.hash(into: &hasher)
+        case .null:               (-1).hash(into: &hasher)
+        case .undefined:          (-2).hash(into: &hasher)
+        case let .half(l):        l.hash(into: &hasher)
+        case let .float(l):       l.hash(into: &hasher)
+        case let .double(l):      l.hash(into: &hasher)
+        #if canImport(Foundation)
+        case let .date(l):        l.hash(into: &hasher)
+        #endif
+        case .break:              Int.min.hash(into: &hasher)
         }
     }
 
@@ -49,8 +60,12 @@ public indirect enum CBOR : Equatable, Hashable,
         }
         set(x) {
             switch (self, position) {
-            case (var .array(l), let .unsignedInt(i)): l[Int(i)] = x!
-            case (var .map(l), let i): l[i] = x!
+            case (var .array(l), let .unsignedInt(i)):
+                l[Int(i)] = x!
+                self = .array(l)
+            case (var .map(l), let i):
+                l[i] = x!
+                self = .map(l)
             default: break
             }
         }
@@ -94,6 +109,9 @@ public indirect enum CBOR : Equatable, Hashable,
         case (let .half(l),        let .half(r)):        return l == r
         case (let .float(l),       let .float(r)):       return l == r
         case (let .double(l),      let .double(r)):      return l == r
+        #if canImport(Foundation)
+        case (let .date(l),        let .date(r)):        return l == r
+        #endif
         case (.break,              .break):              return true
         case (.unsignedInt, _): return false
         case (.negativeInt, _): return false
@@ -110,8 +128,7 @@ public indirect enum CBOR : Equatable, Hashable,
         case (.float,       _): return false
         case (.double,      _): return false
         case (.break,       _): return false
-        default:
-            return false
+        default:                return false
         }
     }
 
@@ -156,3 +173,7 @@ extension CBOR.Tag {
 
     public static let selfDescribeCBOR = CBOR.Tag(rawValue: 55799)
 }
+
+#if os(Linux)
+let NSEC_PER_SEC: UInt64 = 1_000_000_000
+#endif
