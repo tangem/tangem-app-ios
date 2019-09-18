@@ -61,6 +61,7 @@
 		5DBD00B722FC08910017E3CC /* BtcRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBD00B522FC08910017E3CC /* BtcRequestOperation.swift */; };
 		5DBD00B822FC08910017E3CC /* BlockcypherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBD00B622FC08910017E3CC /* BlockcypherResponse.swift */; };
 		5DC25BED2302FB310047871B /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC25BEC2302FB310047871B /* Decimal+.swift */; };
+		5DCB8ACA23312DDD0099955A /* BtcBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCB8AC923312DDD0099955A /* BtcBalanceOperation.swift */; };
 		5DD88A44231D606E009BA4EA /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DD88A42231D6052009BA4EA /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5DE10AE322D607F800BC45B9 /* SignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE222D607F800BC45B9 /* SignTests.swift */; };
 		5DE10AEB22D609DA00BC45B9 /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE622D609DA00BC45B9 /* Instruction.swift */; };
@@ -187,6 +188,7 @@
 		5DBD00B522FC08910017E3CC /* BtcRequestOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BtcRequestOperation.swift; sourceTree = "<group>"; };
 		5DBD00B622FC08910017E3CC /* BlockcypherResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockcypherResponse.swift; sourceTree = "<group>"; };
 		5DC25BEC2302FB310047871B /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
+		5DCB8AC923312DDD0099955A /* BtcBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BtcBalanceOperation.swift; sourceTree = "<group>"; };
 		5DD88A42231D6052009BA4EA /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		5DE10AE222D607F800BC45B9 /* SignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTests.swift; sourceTree = "<group>"; };
 		5DE10AE622D609DA00BC45B9 /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
@@ -380,6 +382,7 @@
 				5D48D0BE231FE4F300C0F1D9 /* BtcNetworkApi.swift */,
 				5DE995CE232156CA00623148 /* BtcFeeOperation.swift */,
 				5DE995D0232161F600623148 /* BtcSendOperation.swift */,
+				5DCB8AC923312DDD0099955A /* BtcBalanceOperation.swift */,
 			);
 			path = Bitcoin;
 			sourceTree = "<group>";
@@ -920,6 +923,7 @@
 				5DE995D1232161F600623148 /* BtcSendOperation.swift in Sources */,
 				806C4FB421DE9BC00002E967 /* CardParsingOperation.swift in Sources */,
 				806C4FB621DE9BC00002E967 /* StringExtensions.swift in Sources */,
+				5DCB8ACA23312DDD0099955A /* BtcBalanceOperation.swift in Sources */,
 				80467DAE225934A200EDA8FD /* XRPCardBalanceOperation.swift in Sources */,
 				80EABF06222DCEDC00E1302A /* ETHEngine.swift in Sources */,
 				8067A24722B2FF9B0080ECF1 /* Bech32.swift in Sources */,
