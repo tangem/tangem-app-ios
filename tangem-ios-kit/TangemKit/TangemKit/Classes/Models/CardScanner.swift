@@ -129,7 +129,6 @@ extension CardScanner: NFCNDEFReaderSessionDelegate {
 
     public func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
         isBusy = false
-        DispatchQueue.main.async {
             let nfcError = NFCReaderError(_nsError: error as NSError)
             guard nfcError.code != .readerSessionInvalidationErrorFirstNDEFTagRead,
                 nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
@@ -137,7 +136,6 @@ extension CardScanner: NFCNDEFReaderSessionDelegate {
             }
             print(nfcError)
             self.completion(.readerSessionError(nfcError))
-        }
     }
 
     public func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
@@ -154,16 +152,17 @@ extension CardScanner {
     func launchSimulationParsingOperationWith(payload: Data) {
         operationQueue.cancelAllOperations()
 
-        let operation = CardParsingOperation(payload: payload) { (result) in
+        let operation = CardParsingOperation(payload: payload) {[weak self] (result) in
             switch result {
             case .success(let card):
                 card.genuinityState = .genuine
-                self.completion(.finished(card))
+                self?.completion(.finished(card))
             case .locked:
-                self.completion(.locked)
+                self?.completion(.locked)
             case .tlvError:
-                self.completion(.tlvError)
+                self?.completion(.tlvError)
             }
+             self?.isBusy = false
         }
         operationQueue.addOperation(operation)
     }
