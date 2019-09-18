@@ -23,10 +23,6 @@ struct BlockcypherTxref: Codable {
     let script: String?
 }
 
-struct BlockcypherSendResponse: Codable {
-    let tx: String?
-}
-
 struct BlockcypherFeeResponse: Codable {
     let low_fee_per_kb: Int64?
     let medium_fee_per_kb: Int64?
