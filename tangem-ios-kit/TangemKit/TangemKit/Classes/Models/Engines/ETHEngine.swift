@@ -105,17 +105,17 @@ extension ETHEngine: CoinProvider {
                 return
             }
             let m = BigUInt(21000)
-            
+            let decimalCount = Int(Blockchain.ethereum.decimalCount)
             let minValue = gasPrice * m
-            let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: 6, decimalSeparator: ".", fallbackToScientific: false)!
+            let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
             let normalValue = gasPrice * BigUInt(12) / BigUInt(10) * m
-            let normal = Web3.Utils.formatToEthereumUnits(normalValue, toUnits: .eth, decimals: 6, decimalSeparator: ".", fallbackToScientific: false)!
+            let normal = Web3.Utils.formatToEthereumUnits(normalValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
             let maxValue = gasPrice * BigUInt(15) / BigUInt(10) * m
-            let max = Web3.Utils.formatToEthereumUnits(maxValue, toUnits: .eth, decimals: 6, decimalSeparator: ".", fallbackToScientific: false)!
+            let max = Web3.Utils.formatToEthereumUnits(maxValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
-            let fee = (min, normal, max)
+            let fee = (min.trimZeroes(), normal.trimZeroes(), max.trimZeroes())
             completion(fee)
         }
         
@@ -133,10 +133,10 @@ extension ETHEngine: CoinProvider {
             switch result {
             case .success(let value):
                 self?.txCount += 1
-                print(value)
+                //print(value)
                 completion(true)
             case .failure(let error):
-                print(error)
+              //  print(error)
                 completion(false)
             }
         }
@@ -182,16 +182,16 @@ extension ETHEngine: CoinProvider {
         var vrfy: secp256k1_context = secp256k1_context_create(.SECP256K1_CONTEXT_VERIFY)!
         defer {secp256k1_context_destroy(&vrfy)}
         var sig = secp256k1_ecdsa_signature()
-        var dummy = secp256k1_ecdsa_signature()
+        var normalizied = secp256k1_ecdsa_signature()
         _ = secp256k1_ecdsa_signature_parse_compact(vrfy, &sig, sign)
-        _ = secp256k1_ecdsa_signature_normalize(vrfy, &dummy, sig)
+        _ = secp256k1_ecdsa_signature_normalize(vrfy, &normalizied, sig)
         
         var pubkey = secp256k1_pubkey()
         _ = secp256k1_ec_pubkey_parse(vrfy, &pubkey, publicKey, 65)
-        if !secp256k1_ecdsa_verify(vrfy, dummy, hashToSign, pubkey) {
+        if !secp256k1_ecdsa_verify(vrfy, normalizied, hashToSign, pubkey) {
             return nil
         }        
-        return Data(sig.data)
+        return Data(normalizied.data)
     }
     
     public var hasPendingTransactions: Bool {
