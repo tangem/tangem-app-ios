@@ -70,10 +70,10 @@ class BtcSendOperation: GBAsyncOperation {
     }
     
     func getBlockcypherRequest() -> GBAsyncOperation {
-        let sendOp: BtcRequestOperation<BlockcypherSendResponse> = BtcRequestOperation(endpoint: BlockcypherEndpoint.send(txHex: tx)) {[weak self] result in
+        let sendOp: BtcRequestOperation<String> = BtcRequestOperation(endpoint: BlockcypherEndpoint.send(txHex: tx)) {[weak self] result in
             switch result {
             case .success(let sendResponse):
-                if let tx = sendResponse.tx, !tx.isEmpty {
+                if !sendResponse.isEmpty {
                     self?.engine.unconfirmedBalance = nil
                     self?.completeOperation()
                 } else {
