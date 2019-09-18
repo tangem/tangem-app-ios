@@ -10,12 +10,17 @@ import UIKit
 
 class ExtractPlaceholderViewController: UIViewController {
     @IBOutlet weak var contentLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel! {
+           didSet {
+            titleLabel.text = Localizations.loadedWalletBtnExtract.uppercased()
+           }
+       }
     
-    var contentText = "Value extraction is available only on iOS 13 and cards with firmware newer then 2.28"
+    var contentText: String = ""
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+ 
         let paragraphStyle = paragraphStyleWith(lineSpacingChange: 8.0, alignment: .center)
         let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
                                                                                   NSAttributedStringKey.kern : 1.12])

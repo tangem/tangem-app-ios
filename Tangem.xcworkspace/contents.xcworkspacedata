@@ -2,12 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:tangem-ios-kit/TangemKit/TangemKit.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:Tangem.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:tangem-ios-kit/TangemKit/TangemKit.xcodeproj">
    </FileRef>
 </Workspace>
