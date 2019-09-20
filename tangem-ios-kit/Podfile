@@ -1,0 +1,21 @@
+platform :ios, '11.0'
+
+use_frameworks!
+workspace 'TangemKit.xcworkspace'
+project 'TangemKit/TangemKit'
+
+load 'pods_define'
+
+target 'TangemKit' do
+   tangemioskit_pods
+End
+
+target 'TangemKitTests' do
+  use_frameworks!
+end
+
+target 'TangemKitExample Development' do
+    project 'Example/TangemKitExample'
+
+tangemioskit_pods
+end
