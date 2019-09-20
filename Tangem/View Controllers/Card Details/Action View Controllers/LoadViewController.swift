@@ -19,8 +19,23 @@ class LoadViewController: ModalActionViewController {
     
     weak var delegate: LoadViewControllerDelegate?
     
-    @IBOutlet weak var copyAddressButton: UIButton!
-    @IBOutlet weak var showQRButton: UIButton!
+    @IBOutlet weak var copyAddressButton: UIButton! {
+           didSet {
+            copyAddressButton.setTitle(Localizations.copyAddress, for: .normal) 
+           }
+       }
+    
+    @IBOutlet weak var showQRButton: UIButton! {
+        didSet {
+            showQRButton.setTitle(Localizations.loadedWalletDialogShowQr, for: .normal)
+        }
+    }
+    
+    @IBOutlet weak var titleLabel: UILabel! {
+        didSet {
+            titleLabel.text = Localizations.loadedWalletBtnLoad.uppercased()
+        }
+    }
     
     var dispatchWorkItem: DispatchWorkItem?
     
@@ -42,7 +57,7 @@ class LoadViewController: ModalActionViewController {
     }
     
     func updateCopyButtonTitleForState(copied: Bool) {
-        let title = copied ? "Address Copied" : "Copy Address"
+        let title = copied ? Localizations.addressCopied : Localizations.copyAddress
         
         UIView.transition(with: copyAddressButton, duration: 0.1, options: .transitionCrossDissolve, animations: {
             self.copyAddressButton.setTitle(title, for: .normal)
