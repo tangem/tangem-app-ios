@@ -1,0 +1,724 @@
+/* 
+  Localizable.strings
+  Tangem
+
+  Created by Alexander Osokin on 09/09/2019.
+  Copyright © 2019 Smart Cash AG. All rights reserved.
+*/
+
+/*  */
+"general_cancel" = "Cancel";
+
+/*  */
+"general_yes" = "Yes";
+
+/*  */
+"general_no" = "No";
+
+/*  */
+"general_error" = "Error!";
+
+/*  */
+"general_error_no_connection" = "No connection with blockchain nodes";
+
+/*  */
+"general_continue" = "Continue";
+
+/*  */
+"error_empty_pin" = "PIN is empty";
+
+/*  */
+"general_blockchain" = "Blockchain";
+
+/*  */
+"general_notification_scan_again" = "Try to scan again";
+
+/*  */
+"general_error_cannot_erase_wallet_with_non_zero_balance" = "Cannot erase wallet with non-zero balance";
+
+/*  */
+"general_send_transaction" = "Send payment";
+
+/*  */
+"general_from_banknote" = "From banknote";
+
+/*  */
+"general_on_banknote" = "on banknote";
+
+/*  */
+"general_balance" = "with balance";
+
+/*  */
+"general_send_to_wallet" = "Send to wallet";
+
+/*  */
+"general_amount" = "Amount";
+
+/*  */
+"general_btc" = "BTC";
+
+/*  */
+"general_notification_scan_again_to_verify" = "Scan again to verify the card";
+
+/*  */
+"general_status_reading" = "READING…";
+
+/*  */
+"general_wallet_empty" = "The wallet is empty";
+
+/* Settings */
+"settings_title" = "Settings";
+
+/*  */
+"settings-category-sommon" = "Common";
+
+/*  */
+"settings_option_manual_editing_fee" = "Manual editing Fee";
+
+/*  */
+"settings_option_encryption_modes" = "Encryption modes";
+
+/*  */
+"settings_encryption_modes_entries[0]" = "None";
+
+/*  */
+"settings_encryption_modes_entries[1]" = "Fast";
+
+/*  */
+"settings_encryption_modes_entries[2]" = "Strong";
+
+/*  */
+"settings_encryption_mode_values[0]" = "0";
+
+/*  */
+"settings_encryption_mode_values[1]" = "1";
+
+/*  */
+"settings_encryption_mode_values[2]" = "2";
+
+/*  */
+"settings_option_select_nodes" = "Select nodes";
+
+/* dialogs */
+"dialog_device_is_rooted" = "Your Android device is rooted. Security at risk!";
+
+/*  */
+"dialog_btn_got_it" = "Got it";
+
+/*  */
+"dialog_warning" = "Warning";
+
+/*  */
+"dialog_security_delay" = "Security delay";
+
+/*  */
+"dialog_the_nfc_adapter_length_apdu" = "Oops.. It seems your smartphone does not support such long NFC packets.";
+
+/*  */
+"dialog_the_nfc_adapter_length_apdu_advice" = "Try sending smaller amount or use a smartphone with full NFC support.";
+
+/*  */
+"dialog_title_money_is_at_risk" = "Your money is at risk!";
+
+/*  */
+"dialog_this_banknote_has_enforced_security_delay" = "This banknote has enforced security delay";
+
+/*  */
+"dialog_hold_banknote" = "Please hold the banknote firmly\n until the operation is completed…";
+
+/*  */
+"dialog_you_may_be_required_to_repeat" = "You may be required to repeat this operation a few times depending on the NFC performance of your smartphone.\n This is made for safety of your funds.";
+
+/* menu main */
+"main_menu_manage_pin_1" = "Manage user PIN1…";
+
+/*  */
+"main_menu_manage_pin_2" = "Manage user PIN2…";
+
+/*  */
+"main_menu_debug_send_logs" = "Send logs…";
+
+/*  */
+"main_menu_about" = "About…";
+
+/* menu loaded wallet */
+"menu_loaded_wallet_set_pin_1" = "Set PIN1";
+
+/*  */
+"menu_loaded_wallet_set_pin_2" = "Set PIN2";
+
+/*  */
+"menu_loaded_wallet_reset_pin_1" = "Reset PIN1 to default";
+
+/*  */
+"menu_loaded_wallet_reset_pin_2" = "Reset PIN2 to default";
+
+/*  */
+"menu_loaded_wallet_reset_pins" = "Reset PINs to default";
+
+/*  */
+"menu_loaded_wallet_erase_wallet" = "Erase wallet";
+
+/* Splash Screen */
+"splash_version_name_debug" = "ALPHA v.%1$@ \n dev \n build %2$@";
+
+/*  */
+"splash_version_name_release" = "v.%@";
+
+/*  */
+"splash_cardano" = "Cardano";
+
+/* Main */
+"main_screen_tap_card" = "Tap Tangem card with your smartphone";
+
+/*  */
+"main_screen_scan_banknote" = "Scan a banknote with your \n %@ \n as shown above";
+
+/*  */
+"main_screen_phone" = "phone";
+
+/*  */
+"main_screen_erased_wallet" = "Wallet was erased";
+
+/*  */
+"main_screen_not_personalized" = "Not personalized";
+
+/*  */
+"main_screen_new_version_toast" = "There is a new application version: %@";
+
+/*  */
+"main_screen_btn_update" = "Update";
+
+/* LoadedWallet */
+"loaded_wallet_no_compatible_wallet" = "No compatible wallets installed";
+
+/*  */
+"loaded_wallet_message_wait" = "Please wait while previous transaction is confirmed in blockchain";
+
+/*  */
+"loaded_wallet_message_refresh" = "Could not obtain all inputs. Swipe down to refresh.";
+
+/*  */
+"loaded_wallet_warning_no_signature" = "Card has no remaining signature!";
+
+/*  */
+"loaded_wallet_warning_dont_forget_pin" = "If you forget your new PIN you will lose your money forever!";
+
+/*  */
+"loaded_wallet_warning_default_pin" = "If you use default PIN someone can steal your money!";
+
+/*  */
+"loaded_wallet_error_obtaining_blockchain_data" = "Cannot obtain data from blockchain";
+
+/*  */
+"loaded_wallet_error_blockchain_connection_refused" = "Cannot obtain data from blockchain (connection refused)";
+
+/*  */
+"loaded_wallet_error_blockchain_empty_answer" = "Cannot obtain data from blockchain (empty answer received)";
+
+/*  */
+"loaded_wallet_error_blockchain_communication_error" = "Cannot obtain data from blockchain (communication error)";
+
+/*  */
+"loaded_wallet_chooser_share" = "Share wallet address with:";
+
+/*  */
+"loaded_wallet_toast_copied" = "Copied to clipboard";
+
+/*  */
+"loaded_wallet_btn_extract" = "Extract";
+
+/*  */
+"loaded_wallet_btn_load" = "Load";
+
+/*  */
+"loaded_wallet_btn_explore" = "Explore";
+
+/*  */
+"loaded_wallet_btn_copy" = "Copy";
+
+/*  */
+"loaded_wallet_btn_details" = "Details";
+
+/*  */
+"loaded_wallet_btn_new_scan" = "New scan";
+
+/*  */
+"loaded_wallet_verifying_in_blockchain" = "Verifying in blockchain…";
+
+/*  */
+"loaded_wallet_warning_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
+
+/*  */
+"loaded_wallet_status_verifying" = "VERIFYING…";
+
+/*  */
+"loaded_wallet_load_via_cryptonit" = "via CRYPTONIT";
+
+/*  */
+"loaded_wallet_load_via_cryptonit2" = "via CRYPTONIT2";
+
+/*  */
+"loaded_wallet_load_via_kraken" = "via KRAKEN";
+
+/*  */
+"loaded_wallet_load_via_app" = "Another wallet app";
+
+/*  */
+"loaded_wallet_load_via_share_address" = "Share address";
+
+/*  */
+"loaded_wallet_load_via_qr" = "Show QR-code";
+
+/*  */
+"loaded_wallet_dialog_show_qr" = "LOAD";
+
+/* CreateNewWallet, Purge, SignTransaction */
+"now_touch_the_banknote_with_id" = "Now touch the banknote with ID";
+
+/*  */
+"to_create_the_wallet" = "to create the wallet";
+
+/*  */
+"to_erase_the_wallet" = "to erase the wallet";
+
+/*  */
+"to_sign_the_transaction" = "to sign the payment";
+
+/*  */
+"to_change_pin_codes" = "to change PIN/PIN2 codes";
+
+/*  */
+"nfc_purge_warning" = "By tapping the card, you will permanently remove the blockchain wallet. Ensure there will be no further incoming transactions";
+
+/*  */
+"nfc_error_cannot_erase_wallet" = "Cannot erase wallet. Make sure you enter correct PIN2!";
+
+/*  */
+"nfc_error_cannot_create_wallet" = "Cannot create wallet. Make sure you enter correct PIN2!";
+
+/* PinRequest */
+"pin_request_enter_new_pin_or_use_fingerprint_scanner" = "Enter new PIN or use fingerprint scanner";
+
+/*  */
+"pin_request_enter_new_pin" = "Enter new PIN";
+
+/*  */
+"pin_request_enter_pin_or_use_fingerprint_scanner" = "Enter PIN or use fingerprint scanner";
+
+/*  */
+"pin_request_enter_pin_2_or_use_fingerprint_scanner" = "Enter PIN2 or use fingerprint scanner";
+
+/*  */
+"pin_request_confirm_new_pin" = "Confirm new PIN";
+
+/*  */
+"pin_request_confirm_new_pin_2" = "Confirm new PIN2";
+
+/*  */
+"pin_request_enter_pin" = "Enter PIN";
+
+/*  */
+"pin_request_prompt_enter_pin_2" = "Enter PIN2";
+
+/*  */
+"pin_request_prompt_new_pin_2_or_fingerprint" = "Enter new PIN2 or use fingerprint scanner";
+
+/*  */
+"pin_request_new_pin_2" = "Enter new PIN2";
+
+/*  */
+"pin_request_error_pin_confirmation_failed" = "Please enter the PIN for confirmation!";
+
+/* SendTransaction */
+"send_transaction_notification_wait" = "Please wait while the payment is sent…";
+
+/*  */
+"send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
+
+/*  */
+"send_transaction_error_failed_to_send" = "Try again. Failed to send transaction (%@)";
+
+/*  */
+"send_transaction_error_cannot_sign" = "Cannot sign transaction. Make sure you enter correct PIN2!";
+
+/*  */
+"send_transaction_error_wrong_amount" = "Amount and fee exceed total wallet balance!";
+
+/* PrepareTransaction */
+"prepare_transaction_hint_enter_address" = "enter wallet address";
+
+/*  */
+"prepare_transaction_hint_enter_amount" = "enter amount";
+
+/*  */
+"prepare_transaction_btn_verify" = "Verify";
+
+/*  */
+"prepare_transaction_error_not_enough_funds" = "Not enough funds";
+
+/*  */
+"prepare_transaction_error_unknown_amount_format" = "Unknown amount format";
+
+/*  */
+"prepare_transaction_error_incorrect_destination" = "Incorrect destination wallet address";
+
+/*  */
+"prepare_transaction_error_same_address" = "Destination wallet address equal source address";
+
+/*  */
+"prepare_transaction_error_amount_empty" = "Amount is empty";
+
+/* ConfirmTransaction */
+"confirm_transaction_hint_target_address" = "target wallet address";
+
+/*  */
+"confirm_transaction_hint_fee_amount" = "fee amount";
+
+/*  */
+"confirm_transaction_fee" = "Fee";
+
+/*  */
+"confirm_transaction_btn_send" = "Send";
+
+/*  */
+"confirm_transaction_btn_fee_minimal" = "Minimal";
+
+/*  */
+"confirm_transaction_btn_fee_normal" = "Normal";
+
+/*  */
+"confirm_transaction_btn_fee_priority" = "Priority";
+
+/*  */
+"confirm_transaction_btn_including_fee" = "Including fee";
+
+/*  */
+"confirm_transaction_btn_not_including_fee" = "Not including fee";
+
+/*  */
+"confirm_transaction_including_fee" = "(including fee)";
+
+/*  */
+"confirm_transaction_not_including_fee" = "(not including fee)";
+
+/*  */
+"confirm_transaction_error_data_is_outdated" = "The obtained data is outdated! Try again";
+
+/*  */
+"confirm_transaction_error_cannot_reach_node" = "Cannot reach current active blockchain node. Try again";
+
+/*  */
+"confirm_transaction_error_cannot_check_balance" = "Cannot check balance! No connection with blockchain nodes";
+
+/*  */
+"confirm_transaction_error_cannot_calculate_fee" = "Cannot calculate fee! Wrong data received from the node";
+
+/*  */
+"confirm_transaction_error_incoming_transaction_unconfirmed" = "Please wait for confirmation of incoming transaction";
+
+/*  */
+"confirm_transaction_error_not_enough_eth_for_fee" = "Not enough ETH funds for fee";
+
+/*  */
+"confirm_transaction_error_not_enough_rbtc_for_fee" = "Not enough RBTC funds for fee";
+
+/*  */
+"confirm_transaction_error_pin_2_is_required" = "PIN2 is required to sign the payment";
+
+/*  */
+"confirm_transaction_error_service_unavailable" = "Service unavailable";
+
+/*  */
+"confirm_transaction_warning_risk_delaying" = "You have a risk of delaying transaction";
+
+/* EmptyWallet */
+"empty_wallet_not_created" = "Wallet hasn't been yet created";
+
+/*  */
+"empty_wallet_btn_create" = "Create Wallet";
+
+/* VerifyCard */
+"details_title_card_id" = "Card ID";
+
+/*  */
+"details_signing_method" = "Signing method";
+
+/*  */
+"details_is_card_reusable" = "This card is";
+
+/*  */
+"details_signed_transactions" = "Signed transactions";
+
+/*  */
+"details_remaining_signatures" = "Remaining signatures";
+
+/*  */
+"details_time_of_last_signing" = "Time of last signing";
+
+/*  */
+"details_features" = "Features";
+
+/*  */
+"details_category_manufacturer" = "Manufacturer";
+
+/*  */
+"details_category_wallet" = "Wallet";
+
+/*  */
+"details_card_identity" = "Card identity";
+
+/*  */
+"details_attested" = "Attested";
+
+/*  */
+"details_not_confirmed" = "Not confirmed";
+
+/*  */
+"details_reusable" = "Reusable";
+
+/*  */
+"details_none" = "None";
+
+/*  */
+"details_last_one" = "Last one!";
+
+/*  */
+"details_unlimited" = "Unlimited";
+
+/*  */
+"details_one_off_banknote" = "One-off banknote";
+
+/*  */
+"details_firmware" = "Firmware";
+
+/*  */
+"details_registration_date" = "Registration date";
+
+/*  */
+"details_possession_proved" = "Possession proved";
+
+/*  */
+"details_possession_not_proved" = "Possession NOT proved";
+
+/*  */
+"details_not_available" = "not available";
+
+/*  */
+"details_category_issuer" = "Issuer";
+
+/*  */
+"details_private_key" = "Private key";
+
+/*  */
+"details_validation_node" = "Validation node";
+
+/*  */
+"details_unspents" = "Unspents";
+
+/*  */
+"details_protected_by_default_pin_1" = "This banknote is protected by default PIN1 code";
+
+/*  */
+"details_protected_by_user_pin_1" = "This banknote is protected by user's PIN1 code";
+
+/*  */
+"details_protected_by_default_pin_2" = "This banknote is protected by default PIN2 code";
+
+/*  */
+"details_protected_by_user_pin_2" = "This banknote is protected by user's PIN2 code";
+
+/*  */
+"details_unlocked_banknote" = "Unlocked banknote, only for development use";
+
+/*  */
+"details_security_delay" = "This banknote will enforce %.0f seconds security delay for all operations requiring PIN2 code";
+
+/* PinSave */
+"pin_save_btn_save" = "Save";
+
+/*  */
+"pin_save_btn_delete" = "Delete";
+
+/*  */
+"pin_save_checkbox_protect_with_fingerprint" = "Protect with fingerprint";
+
+/*  */
+"pin_save_dialog_touch_fingerprint_scanner" = "Touch fingerprint scanner to confirm";
+
+/*  */
+"pin_save_toast_lock_screen_not_enabled" = "User hasn't enabled Lock Screen";
+
+/*  */
+"pin_save_toast_no_permission_to_use_fingerprint" = "User hasn't granted permission to use Fingerprint";
+
+/*  */
+"pin_save_toast_no_fingerprints_registered" = "User hasn't registered any fingerprints";
+
+/*  */
+"pin_save_notification_failed" = "Saving pin failed";
+
+/*  */
+"pin_save_title_enter_pin_and_save" = "Enter PIN and save it";
+
+/*  */
+"pin_save_title_enter_pin2_and_save" = "Enter PIN2 and save it";
+
+/* PrepareCryptonitWithdrawal */
+"cryptonit_payment" = "CRYPTONIT payment";
+
+/*  */
+"cryptonit_from_account" = "From CRYPTONIT account:";
+
+/*  */
+"cryptonit_user_id" = "user ID:";
+
+/*  */
+"cryptonit_key" = "key:";
+
+/*  */
+"cryptonit_secret" = "secret:";
+
+/*  */
+"cryptonit_nonce" = "nonce:";
+
+/*  */
+"cryptonit_username" = "username:";
+
+/*  */
+"cryptonit_password" = "password:";
+
+/*  */
+"cryptonit_not_enough_account_data" = "Please enter account data";
+
+/*  */
+"cryptonit_request_balance" = "Get balance";
+
+/*  */
+"cryptonit_request_withdrawal" = "Withdrawal";
+
+/*  */
+"withdrawal_fee" = "operation fee";
+
+/*  */
+"withdrawal_successful" = "Withdrawal successful!";
+
+/* PrepareKrakenWithdrawal */
+"kraken_payment" = "KRAKEN payment";
+
+/*  */
+"kraken_from_account" = "From KRAKEN account:";
+
+/*  */
+"kraken_key" = "key:";
+
+/*  */
+"kraken_secret" = "secret:";
+
+/*  */
+"kraken_not_enough_account_data" = "Please enter account data";
+
+/*  */
+"kraken_request_balance" = "Get balance";
+
+/*  */
+"kraken_request_withdrawal" = "Withdrawal";
+
+/*  */
+"kraken_operation_canceled" = "Operation canceled!";
+
+/*  */
+"kraken_please_confirm_withdraw" = "Please confirm withdraw";
+
+//IOS only
+"common_verified_balance"="Verified balance";
+
+"common_unverified_balance"="Unverified balance";
+
+"disclamer_no_wallet_creation"="Wallet creation is not available on the iPhone at this time";
+
+"disclamer_nfc_title"="Important: NFC restriction on iOS";
+
+"disclamer_nfc_message"="You can only check balance and validity of Tangem card and receive funds to it due to iOS restrictions on data transfer via NFC";
+
+"disclamer_nfc_understand"="I understand";
+
+"disclamer_nfc_notshow"="Don't show again";
+
+"common_more_info"="More Info";
+
+"common_success" = "Success";
+
+"common_ok" = "Ok";
+
+"alert_parse_failed" = "Failed to parse data received from the banknote";
+
+"alert_read_protected" = "This app can’t read protected Tangem banknotes";
+
+"alert_nfc_generic" = "NFC reader invalidated with error";
+
+"alert_failed_attest" = "Your iPhone device does not allow to attest the card. Please check elsewhere if possible";
+
+"alert_unknown_blockchain" = "This card is not supported";
+
+"alert_no_issuer_sign" = "Transaction must be signed by issuer";
+
+"alert_failed_build_transaction" = "Can't build transaction with provided data. Please, try to rescan card and try again";
+
+"reader_hint_label_default" = "Press Scan and touch banknote with your iPhone as shown above";
+
+"reader_hint_label_scan" = "Hold the card close to the reader";
+
+"common_scan_button_title" = "SCAN";
+
+"reader_nfc_stub_message" = "This application works only with NFC-capable devices";
+
+"common_address_copied" = "Address Copied";
+
+"common_copy_address" = "Copy Address";
+
+"disclamer_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS";
+
+"disclamer_old_ios" = "Value extraction is available starting from iOS 13";
+
+"common_test" = "Test";
+
+"common_test_blockchain" = "Test blockchain";
+
+"signature_verification_error" = "Signature verification error";
+
+"common_reserve" = "reserve";
+
+"common_tap_to_retry" = "Tap to retry";
+
+"common_genuine" = "Genuine";
+
+"common_not_found" = "Not found";
+
+"common_copied" = "Copied";
+
+"common_copy" = "Copy";
+
+"common_signature" = "Signature";
+
+"common_challenge" = "Challenge";
+
+"common_passed" = "passed";
+
+"common_not_passed" = "not passed";
+
+"common_not_available" = "N\\A";
+
+"common_fee_stub" = "Specify amount and address to see the fee";
+
+"common_send_payment" = "Send Payment";
+
+"common_address" = "Address";
+
+"common_to_wallet" = "To wallet";
+
+"common_double_scan_hint" = "Hold the card close to the reader";
+
+"alert_start2coin" = "Load is prohibited. Please, go to Start2Coin website";
+
+"common_go_link" = "Open in Safari";
