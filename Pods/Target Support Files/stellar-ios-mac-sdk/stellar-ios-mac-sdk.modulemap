@@ -1,0 +1,6 @@
+framework module stellarsdk {
+  umbrella header "stellar-ios-mac-sdk-umbrella.h"
+
+  export *
+  module * { export * }
+}
