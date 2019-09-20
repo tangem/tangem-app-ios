@@ -49,7 +49,7 @@ open class CardanoEngine: CardEngine {
         }
     }
     
-    public func setupAddress() {
+    open func setupAddress() {
         let hexPublicKeyExtended = card.walletPublicKeyBytesArray + Array(repeating: 0, count: 32) 
         
         let forSha3 = ([0, [0, CBOR.byteString(hexPublicKeyExtended)], [:]] as CBOR).encode()
@@ -192,7 +192,7 @@ open class CardanoEngine: CardEngine {
                                                                 expirationTimeoutSeconds: CardanoEngine.kPendingTransactionTimeoutSeconds)
                 completion(true)
             case .failure(let error):
-                print(error)
+               // print(error)
                 completion(false)
             }
         }
