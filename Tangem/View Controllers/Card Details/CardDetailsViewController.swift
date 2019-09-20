@@ -61,11 +61,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        if card.hasPendingTransactions  {
-            self.isBalanceLoading = true
-            self.viewModel.setWalletInfoLoading(true)
-            fetchWalletBalance(card: card)
-        }
+         self.isBalanceLoading = true
+        self.viewModel.setWalletInfoLoading(true)
+    fetchWalletBalance(card: card)
+       
     }
     
     func setupWithCardDetails(card: Card) {
@@ -196,7 +195,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             // Ripple reserve
             balanceTitle = card.walletValue + " " + card.walletUnits
             balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
-        } else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
+        } else if let xlmEngine = card.cardEngine as? XlmEngine, let walletReserve = xlmEngine.walletReserve {
+            balanceTitle = card.walletValue + " " + card.walletUnits
+            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
+        }
+        else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
             balanceTitle = walletTokenValue + " " + walletTokenUnits
             balanceSubtitle = "\n+ " + card.walletValue + " " + card.walletUnits
