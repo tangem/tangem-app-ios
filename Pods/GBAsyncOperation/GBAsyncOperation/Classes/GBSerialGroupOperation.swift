@@ -12,6 +12,12 @@ import Foundation
 open class GBSerialGroupOperation: GBAsyncOperation {
 
     let internalQueue = OperationQueue()
+    
+    public override init() {
+        internalQueue.isSuspended = true
+        
+        super.init()
+    }
 
     /**
      initializes the group with an operation array.
