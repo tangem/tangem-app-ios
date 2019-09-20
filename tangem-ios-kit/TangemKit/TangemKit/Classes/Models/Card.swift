@@ -98,7 +98,7 @@ public class Card {
     }
     
     public var binaryAddress: String = ""
-    
+    public var isLinked = false
     public var walletPublicKey: String = ""
     public var walletPublicKeyBytesArray: [UInt8] = [UInt8]()
     public var issuerDataPublicKey: [UInt8] = [UInt8]()
@@ -497,6 +497,8 @@ public class Card {
                 }
             case .settingsMask:
                 settingsMask = $0.value ?? []
+            case .isLinked:
+                isLinked = true
             default:
                 if $0.tag != .cardData  {
                     print("Warning: Tag \($0.tag) doesn't have a handler in a Card class")
