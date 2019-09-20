@@ -73,12 +73,12 @@ public class CardSession: NSObject {
             let message = data.sha256()
             var vrfy: secp256k1_context = secp256k1_context_create(.SECP256K1_CONTEXT_VERIFY)!
             var sig = secp256k1_ecdsa_signature()
-            var dummy = secp256k1_ecdsa_signature()
+            var normalized = secp256k1_ecdsa_signature()
             _ = secp256k1_ecdsa_signature_parse_compact(vrfy, &sig, signature)
-            _ = secp256k1_ecdsa_signature_normalize(vrfy, &dummy, sig)
+            _ = secp256k1_ecdsa_signature_normalize(vrfy, &normalized, sig)
             var pubkey = secp256k1_pubkey()
             _ = secp256k1_ec_pubkey_parse(vrfy, &pubkey, publicKey, 65)
-            let result = secp256k1_ecdsa_verify(vrfy, dummy, message, pubkey)
+            let result = secp256k1_ecdsa_verify(vrfy, normalized, message, pubkey)
             secp256k1_context_destroy(&vrfy)
             return result
         case .ed25519:

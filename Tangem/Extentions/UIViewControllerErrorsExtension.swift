@@ -16,7 +16,7 @@ protocol DefaultErrorAlertsCapable {
     func handleReaderSessionError(completion: @escaping () -> Void)
     func handleNonGenuineTangemCard(_ card: Card, completion: @escaping () -> Void)
     func handleUntrustedCard()
-    func handleTXSendError()
+    func handleTXSendError(message: String)
     func handleTXBuildError()
     func handleFeeOutadatedError()
     func handleSuccess(completion: @escaping () -> Void)
@@ -73,8 +73,8 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
-    func handleTXSendError() {
-        let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.sendTransactionErrorFailedToSend(""), preferredStyle: .alert)
+    func handleTXSendError(message: String) {
+        let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.sendTransactionErrorFailedToSend(message), preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
         self.present(validationAlert, animated: true, completion: nil)
     }
