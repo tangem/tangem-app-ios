@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		5D028B07232A25BB00E0F9D2 /* CardSignSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D028B06232A25BB00E0F9D2 /* CardSignSession.swift */; };
-		5D028B0A232A394D00E0F9D2 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D028B09232A394D00E0F9D2 /* Localizable.strings */; };
 		5D028B0C232A396000E0F9D2 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D028B0B232A396000E0F9D2 /* Localizations.swift */; };
 		5D11114022F0691E009919D1 /* eckey_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F4A21DE9BC00002E967 /* eckey_impl.swift */; };
 		5D11114122F0691E009919D1 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F4B21DE9BC00002E967 /* hash.swift */; };
@@ -71,6 +70,7 @@
 		5DC4E2402338AE3800D58E43 /* BtcBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2322338AE3800D58E43 /* BtcBalanceOperation.swift */; };
 		5DC4E2412338AE3800D58E43 /* EstimateFeeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2342338AE3800D58E43 /* EstimateFeeOperation.swift */; };
 		5DC4E2422338AE3800D58E43 /* EstimateFeeEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2352338AE3800D58E43 /* EstimateFeeEndpoint.swift */; };
+		5DC4E24C2338C5AC00D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24E2338C5AC00D58E43 /* Localizable.strings */; };
 		5DD88A44231D606E009BA4EA /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DD88A42231D6052009BA4EA /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5DE10AE322D607F800BC45B9 /* SignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE222D607F800BC45B9 /* SignTests.swift */; };
 		5DE10AEB22D609DA00BC45B9 /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE622D609DA00BC45B9 /* Instruction.swift */; };
@@ -175,7 +175,6 @@
 		49060956102AB9C73948EE92 /* Pods-TangemKitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemKitTests.release.xcconfig"; path = "../Pods/Target Support Files/Pods-TangemKitTests/Pods-TangemKitTests.release.xcconfig"; sourceTree = "<group>"; };
 		4B6DE630D0FB1D512ACFE941 /* Pods-TangemKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemKit.release.xcconfig"; path = "../Pods/Target Support Files/Pods-TangemKit/Pods-TangemKit.release.xcconfig"; sourceTree = "<group>"; };
 		5D028B06232A25BB00E0F9D2 /* CardSignSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSignSession.swift; sourceTree = "<group>"; };
-		5D028B09232A394D00E0F9D2 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		5D028B0B232A396000E0F9D2 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutput.swift; sourceTree = "<group>"; };
 		5D48752022DC6B1D00F690BE /* InputStream+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
@@ -205,6 +204,8 @@
 		5DC4E2322338AE3800D58E43 /* BtcBalanceOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BtcBalanceOperation.swift; sourceTree = "<group>"; };
 		5DC4E2342338AE3800D58E43 /* EstimateFeeOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EstimateFeeOperation.swift; sourceTree = "<group>"; };
 		5DC4E2352338AE3800D58E43 /* EstimateFeeEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EstimateFeeEndpoint.swift; sourceTree = "<group>"; };
+		5DC4E24D2338C5AC00D58E43 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5DC4E24F2338C7DB00D58E43 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DD88A42231D6052009BA4EA /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		5DE10AE222D607F800BC45B9 /* SignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTests.swift; sourceTree = "<group>"; };
 		5DE10AE622D609DA00BC45B9 /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
@@ -353,7 +354,7 @@
 		5D028B08232A391E00E0F9D2 /* Localizations */ = {
 			isa = PBXGroup;
 			children = (
-				5D028B09232A394D00E0F9D2 /* Localizable.strings */,
+				5DC4E24E2338C5AC00D58E43 /* Localizable.strings */,
 				5D028B0B232A396000E0F9D2 /* Localizations.swift */,
 			);
 			path = Localizations;
@@ -810,6 +811,7 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
 			);
 			mainGroup = 806C4F1B21DE9B870002E967;
 			productRefGroup = 806C4F2621DE9B870002E967 /* Products */;
@@ -827,7 +829,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D028B0A232A394D00E0F9D2 /* Localizable.strings in Resources */,
+				5DC4E24C2338C5AC00D58E43 /* Localizable.strings in Resources */,
 				806C4FE621DE9FC90002E967 /* README.md in Resources */,
 				806C4FE721DE9FC90002E967 /* TangemKit.podspec in Resources */,
 				806C4FE521DE9FC90002E967 /* LICENSE in Resources */,
@@ -1073,11 +1075,24 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		5DC4E24E2338C5AC00D58E43 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5DC4E24D2338C5AC00D58E43 /* en */,
+				5DC4E24F2338C7DB00D58E43 /* fr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		806C4F3721DE9B870002E967 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1142,6 +1157,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
