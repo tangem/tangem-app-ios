@@ -38,4 +38,5 @@ Check the values and details of your Tangem notes — special NFC smart cards th
   s.dependency 'SwiftCBOR'
   s.dependency 'Sodium'
   s.dependency 'web3.swift.pod'
+  s.dependency 'stellar-ios-mac-sdk'
 end
