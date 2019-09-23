@@ -11,10 +11,12 @@ import Foundation
 class BTCEngine: CardEngine {
     
     unowned var card: Card
+    var currentBackend = BtcBackend.blockchainInfo
+    
     private let operationQueue = OperationQueue()
-    var blockcypherResponse: BlockcypherAddressResponse? {
+    var addressResponse: BtcResponse? {
         didSet {
-            unconfirmedBalance = blockcypherResponse?.unconfirmed_balance
+            unconfirmedBalance = addressResponse?.unconfirmed_balance
         }
     }
     var unconfirmedBalance: Int?
@@ -85,8 +87,11 @@ class BTCEngine: CardEngine {
     var targetAddress: String?
     var amount: Decimal?
     var change: Decimal?
+    
+    func switchBackend() {
+        currentBackend =  (currentBackend == .blockcypher) ? .blockchainInfo : .blockcypher
+    }
 }
-
 
 extension BTCEngine: CoinProvider {
     var coinTraitCollection: CoinTrait {
@@ -124,22 +129,21 @@ extension BTCEngine: CoinProvider {
         return nil
     }
     
-    func buildUnspents(with outputScripts:[[UInt8]], txRefs: [BlockcypherTxref]) -> [UnspentTransaction]? {
+    func buildUnspents(with outputScripts:[[UInt8]], txRefs: [BtcTx]) -> [UnspentTransaction]? {
         let unspentTransactions: [UnspentTransaction] = txRefs.enumerated().compactMap({ index, txRef  in
-            guard let amount = txRef.value,
-                let outputIndex = txRef.tx_output_n,
-                let hash = txRef.tx_hash?.asciiHexToData() else {
-                    return nil
+            guard let hash = txRef.tx_hash.asciiHexToData() else {
+                return nil
             }
+            
             let outputScript = outputScripts.count == 1 ? outputScripts.first! : outputScripts[index]
-            return UnspentTransaction(amount: amount, outputIndex: outputIndex, hash: hash, outputScript: outputScript)
+            return UnspentTransaction(amount: txRef.value, outputIndex: txRef.tx_output_n, hash: hash, outputScript: outputScript)
         })
         
         return unspentTransactions
     }
     
     func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> Data? {
-        guard let txRefs = blockcypherResponse?.txrefs else {
+        guard let txRefs = addressResponse?.txrefs else {
             return nil
         }
         
@@ -273,19 +277,21 @@ extension BTCEngine: CoinProvider {
         return Array(der[0..<Int(length)])
     }
     
-    func buildTxForSend(signFromCard: [UInt8], txRefs: [BlockcypherTxref], publicKey: [UInt8]) -> [UInt8]? {
+    func buildTxForSend(signFromCard: [UInt8], txRefs: [BtcTx], publicKey: [UInt8]) -> [UInt8]? {
         guard let outputScripts = buildSignedScripts(signFromCard: signFromCard,
                                                      publicKey: publicKey,
                                                      outputsCount: txRefs.count) else {
                                                         return nil
         }
-        
+            
         guard let unspentTransactions = buildUnspents(with: outputScripts, txRefs: txRefs),
             let amount = self.amount,
             let target = self.targetAddress,
             let change = self.change else {
                 return nil
         }
+        
+        
         
         guard let txToSign = buildTxBody(unspentTransactions: unspentTransactions, amount: amount, change: change, targetAddress: target, index: nil) else {
             return nil
@@ -295,7 +301,7 @@ extension BTCEngine: CoinProvider {
     }
     
     func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void) {
-        guard let txRefs = blockcypherResponse?.txrefs,
+        guard let txRefs = addressResponse?.txrefs,
             let txToSend = buildTxForSend(signFromCard: signFromCard, txRefs: txRefs, publicKey: card.walletPublicKeyBytesArray) else {
                 completion(false)
                 return
@@ -303,7 +309,7 @@ extension BTCEngine: CoinProvider {
         
         let txHexString = txToSend.toHexString()
         
-        let sendOp: BlockcypherRequestOperation<BlockcypherSendResponse> = BlockcypherRequestOperation(endpoint: .send(txHex: txHexString)) {[weak self] result in
+        let sendOp = BtcSendOperation(with: self, txHex: txHexString, completion: {[weak self] result in
             switch result {
             case .success(let sendResponse):
                 self?.unconfirmedBalance = nil
@@ -313,45 +319,35 @@ extension BTCEngine: CoinProvider {
               //  print(error)
                 completion(false)
             }
-        }
-        sendOp.useTestNet =  card.isTestBlockchain
+        })
         operationQueue.addOperation(sendOp)
     }
     
     func getFee(targetAddress: String, amount: String, completion: @escaping ((min: String, normal: String, max: String)?) -> Void) {
         
-        let feeRequestOperation: BlockcypherRequestOperation<BlockcypherFeeResponse> =
-            BlockcypherRequestOperation(endpoint: .fee) {[weak self] result in
+        let feeRequestOperation = BtcFeeOperation(with: self, completion: {[weak self] result in
                 switch result {
                 case .success(let feeResponse):
                     guard let self = self else {
                          completion(nil)
                         return
                     }
-
-                    guard let feeResponse = feeResponse,
-                        let minKb = feeResponse.low_fee_per_kb,
-                        let normalKb = feeResponse.medium_fee_per_kb,
-                        let maxKb = feeResponse.high_fee_per_kb else {
-                            completion(nil)
-                            return
-                    }
                     
                     let kb = Decimal(1024)
-                    let minPerByte = Decimal(minKb)/kb
-                    let normalPerByte = Decimal(normalKb)/kb
-                    let maxPerByte = Decimal(maxKb)/kb
+                    let minPerByte = feeResponse.minimalKb/kb
+                    let normalPerByte = feeResponse.normalKb/kb
+                    let maxPerByte = feeResponse.priorityKb/kb
                     
                     guard let _ = self.getHashForSignature(amount: amount, fee: "0.00000001", includeFee: true, targetAddress: targetAddress),
-                            let txRefs = self.blockcypherResponse?.txrefs,
+                            let txRefs = self.addressResponse?.txrefs,
                             let testTx  = self.buildTxForSend(signFromCard: [UInt8](repeating: UInt8(0x01), count: 64 * txRefs.count), txRefs: txRefs, publicKey: self.card.walletPublicKeyBytesArray) else {
                             completion(nil)
                             return
                     }
                     let estimatedTxSize = Decimal(testTx.count + 1)
-                    let minFee = (minPerByte * estimatedTxSize).satoshiToBtc
-                    let normalFee = (normalPerByte * estimatedTxSize).satoshiToBtc
-                    let maxFee = (maxPerByte * estimatedTxSize).satoshiToBtc
+                    let minFee = (minPerByte * estimatedTxSize)
+                    let normalFee = (normalPerByte * estimatedTxSize)
+                    let maxFee = (maxPerByte * estimatedTxSize)
                     
                     let fee = ("\(minFee.rounded(blockchain: .bitcoin))",
                         "\(normalFee.rounded(blockchain: .bitcoin))",
@@ -362,8 +358,8 @@ extension BTCEngine: CoinProvider {
                   //  print(error)
                     completion(nil)
                 }
-        }
-        feeRequestOperation.useTestNet =  card.isTestBlockchain
+        })
+
         operationQueue.addOperation(feeRequestOperation)
     }
     
