@@ -19,6 +19,7 @@ PODS:
   - secp256k1.c (0.1.2)
   - Sodium (0.8.0)
   - Starscream (3.1.0)
+  - stellar-ios-mac-sdk (1.6.7)
   - SwiftCBOR (0.4.3)
   - SwiftLint (0.35.0)
   - SwiftyJSON (5.0.0)
@@ -38,6 +39,7 @@ DEPENDENCIES:
   - KeychainSwift
   - QRCode (= 2.0)
   - Sodium
+  - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftLint
   - SwiftyJSON
@@ -56,6 +58,7 @@ SPEC REPOS:
     - secp256k1.c
     - Sodium
     - Starscream
+    - stellar-ios-mac-sdk
     - SwiftCBOR
     - SwiftLint
     - SwiftyJSON
@@ -73,6 +76,7 @@ SPEC CHECKSUMS:
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 08172b481e145289c4930cb567230fb55897cfa4
+  stellar-ios-mac-sdk: 9e2aa01b9f63af27ea3cbc012facfaada8e542bc
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftLint: 5553187048b900c91aa03552807681bb6b027846
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
