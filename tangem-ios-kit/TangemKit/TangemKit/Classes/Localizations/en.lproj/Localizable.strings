@@ -14,6 +14,6 @@
 
 "dialog_security_delay" = "Security delay";
 
-"nfc_seconds_left" = "seconds left";
+"nfc_seconds_left" = "%@ left";
 
 "nfc_unknown_card_state" = "Unknown card state";
