@@ -51,6 +51,7 @@ public enum Blockchain: String {
     case ripple
     case binance
     case unknown
+    case stellar
     
     public var decimalCount: Int16 {
         switch self {
@@ -62,6 +63,8 @@ public enum Blockchain: String {
             return 6
         case .binance:
             return 8
+        case .stellar:
+            return 7
         default:
             assertionFailure()
             return 0
@@ -130,6 +133,8 @@ public class Card {
             return .ethereum
         case let blockchainName where blockchainName.containsIgnoringCase(find: "binance"):
             return .binance
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "xlm"):
+            return .stellar
         default:
             return .unknown
         }
@@ -215,7 +220,7 @@ public class Card {
     public var canExtract: Bool {
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
-        return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum || blockchain == .cardano)
+        return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum || blockchain == .cardano || blockchain == .stellar)
     }
     
     public var supportedSignMethods: [SignMethod] = [.signHash]
@@ -525,6 +530,8 @@ public class Card {
             }
         case .binance:
             cardEngine = BinanceEngine(card: self)
+        case .stellar:
+            cardEngine = XlmEngine(card: self)
         default:
             cardEngine = NoWalletCardEngine(card: self)
         }
@@ -628,6 +635,8 @@ public extension Card {
             operation = XRPCardBalanceOperation(card: self, completion: onResult)
         case .binance:
             operation = BNBCardBalanceOperation(card: self, completion: onResult)
+        case .stellar:
+            operation = XlmCardBalanceOperation(card: self, completion: onResult)
         default:
             break
         }
