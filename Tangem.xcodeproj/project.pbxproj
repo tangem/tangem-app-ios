@@ -51,7 +51,6 @@
 		5D09955A232B7F200000DF03 /* maaxblack.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036592110F87600C151E8 /* maaxblack.otf */; };
 		5D09955B232B7F200000DF03 /* SairaCondensed-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036472110F86E00C151E8 /* SairaCondensed-ExtraBold.ttf */; };
 		5D09955C232B7F200000DF03 /* maaxmediumitalic.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036572110F87600C151E8 /* maaxmediumitalic.otf */; };
-		5D09955D232B7F200000DF03 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DFB03D12326557900E278DD /* Localizable.strings */; };
 		5D09955E232B7F200000DF03 /* SairaCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8000364C2110F86F00C151E8 /* SairaCondensed-Bold.ttf */; };
 		5D09955F232B7F200000DF03 /* ModalViewControllerDragView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8000366B2111062C00C151E8 /* ModalViewControllerDragView.xib */; };
 		5D099560232B7F200000DF03 /* maaxmedium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 800036582110F87600C151E8 /* maaxmedium.otf */; };
@@ -66,8 +65,9 @@
 		5D74D6F922CDDCA8007C0E3F /* StorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */; };
 		5D74D6FB22CDDDD6007C0E3F /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */; };
 		5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */; };
+		5DC4E2472338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
+		5DC4E2482338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
 		5DE995D92322C91A00623148 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D82322C91A00623148 /* Localizations.swift */; };
-		5DFB03D22326557900E278DD /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DFB03D12326557900E278DD /* Localizable.strings */; };
 		5DFB03D42326A35F00E278DD /* StubViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB03D32326A35F00E278DD /* StubViewController.swift */; };
 		8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000364321069C8E00C151E8 /* FontsExtensions.swift */; };
 		8000364E2110F86F00C151E8 /* SairaCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036452110F86E00C151E8 /* SairaCondensed-Regular.ttf */; };
@@ -166,8 +166,9 @@
 		5D74D6F822CDDCA8007C0E3F /* StorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeys.swift; sourceTree = "<group>"; };
 		5D74D6FA22CDDDD6007C0E3F /* StorageManagerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManagerType.swift; sourceTree = "<group>"; };
 		5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractPlaceholderViewController.swift; sourceTree = "<group>"; };
+		5DC4E2492338C4A700D58E43 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5DC4E24B2338C4B700D58E43 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DE995D82322C91A00623148 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
-		5DFB03D12326557900E278DD /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		5DFB03D32326A35F00E278DD /* StubViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubViewController.swift; sourceTree = "<group>"; };
 		77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8000364321069C8E00C151E8 /* FontsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontsExtensions.swift; sourceTree = "<group>"; };
@@ -284,7 +285,7 @@
 			isa = PBXGroup;
 			children = (
 				5DE995D82322C91A00623148 /* Localizations.swift */,
-				5DFB03D12326557900E278DD /* Localizable.strings */,
+				5DC4E24A2338C4A700D58E43 /* Localizable.strings */,
 			);
 			path = Localizations;
 			sourceTree = "<group>";
@@ -567,6 +568,7 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
 			);
 			mainGroup = 8D946D7C2018DA92006C73D9;
 			productRefGroup = 8D946D862018DA92006C73D9 /* Products */;
@@ -605,7 +607,7 @@
 				5D09955A232B7F200000DF03 /* maaxblack.otf in Resources */,
 				5D09955B232B7F200000DF03 /* SairaCondensed-ExtraBold.ttf in Resources */,
 				5D09955C232B7F200000DF03 /* maaxmediumitalic.otf in Resources */,
-				5D09955D232B7F200000DF03 /* Localizable.strings in Resources */,
+				5DC4E2482338C4A700D58E43 /* Localizable.strings in Resources */,
 				5D09955E232B7F200000DF03 /* SairaCondensed-Bold.ttf in Resources */,
 				5D09955F232B7F200000DF03 /* ModalViewControllerDragView.xib in Resources */,
 				5D099560232B7F200000DF03 /* maaxmedium.otf in Resources */,
@@ -634,7 +636,7 @@
 				800036602110F87700C151E8 /* maaxblack.otf in Resources */,
 				800036502110F86F00C151E8 /* SairaCondensed-ExtraBold.ttf in Resources */,
 				8000365E2110F87700C151E8 /* maaxmediumitalic.otf in Resources */,
-				5DFB03D22326557900E278DD /* Localizable.strings in Resources */,
+				5DC4E2472338C4A700D58E43 /* Localizable.strings in Resources */,
 				800036552110F86F00C151E8 /* SairaCondensed-Bold.ttf in Resources */,
 				80003672211108AC00C151E8 /* ModalViewControllerDragView.xib in Resources */,
 				8000365F2110F87700C151E8 /* maaxmedium.otf in Resources */,
@@ -901,6 +903,15 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		5DC4E24A2338C4A700D58E43 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5DC4E2492338C4A700D58E43 /* en */,
+				5DC4E24B2338C4B700D58E43 /* fr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		8D946D8C2018DA92006C73D9 /* Reader.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1027,6 +1038,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1087,6 +1099,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
