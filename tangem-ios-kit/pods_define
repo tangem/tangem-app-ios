@@ -7,4 +7,5 @@ def tangemioskit_pods
     pod 'SwiftCBOR'
     pod 'Sodium'
     pod 'web3.swift.pod'
+    pod 'KeychainSwift'
 end
