@@ -27,7 +27,7 @@ struct TLVReader {
             
             if let tagCode = readTagCode(dataStream),
                 let dataLength = readTagLength(dataStream) {
-                let data = readTagData(dataStream, count: dataLength)
+                let data = dataLength > 0 ?  readTagData(dataStream, count: dataLength) : nil
                 let tlvItem = CardTLV(tagCode, value: data)
                 tags[tagCode] = tlvItem
             }
