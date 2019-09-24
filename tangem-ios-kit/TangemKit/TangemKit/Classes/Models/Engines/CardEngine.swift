@@ -22,7 +22,6 @@ public enum WalletType {
     case nft
     case binance
     case empty
-    case stellar
 }
 
 public protocol CardEngine: class {
