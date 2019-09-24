@@ -28,11 +28,7 @@ class TangemAPIClient {
     static func dataDask(request: URLRequest, completion: @escaping (TangemNetworkResult) -> Void) -> URLSessionTask {
         var request = request
         print("request to: \(request.url!)")
-        
-        if request.value(forHTTPHeaderField: "Content-Type") == nil {
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        }
-        
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         return URLSession.shared.dataTask(with: request) { data, response, error in
             guard let unwrappedData = data,
                 let unwrappedResponse = response as? HTTPURLResponse,
