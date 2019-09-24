@@ -172,7 +172,6 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/stellar-ios-mac-sdk/stellarsdk.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
@@ -187,7 +186,6 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/stellar-ios-mac-sdk/stellarsdk.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
