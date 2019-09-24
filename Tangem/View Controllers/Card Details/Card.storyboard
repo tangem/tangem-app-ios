@@ -126,7 +126,7 @@
                                                         <rect key="frame" x="0.0" y="0.0" width="149" height="44.5"/>
                                                         <subviews>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XaP-jA-mxL">
-                                                                <rect key="frame" x="0.0" y="-5.5" width="149" height="56"/>
+                                                                <rect key="frame" x="0.0" y="8.5" width="149" height="28"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                                 <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="-10" maxY="0.0"/>
                                                                 <state key="normal" title="EXPLORE" image="icon-explore">
@@ -148,7 +148,7 @@
                                                         <rect key="frame" x="0.0" y="44.5" width="149" height="44.5"/>
                                                         <subviews>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jVZ-aM-qHX">
-                                                                <rect key="frame" x="0.0" y="-6.5" width="149" height="58"/>
+                                                                <rect key="frame" x="0.0" y="8" width="149" height="29"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                                 <inset key="titleEdgeInsets" minX="16" minY="0.0" maxX="-16" maxY="0.0"/>
                                                                 <state key="normal" title="COPY" image="icon-copy">
@@ -340,10 +340,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="bQm-VT-pR3">
-                                <rect key="frame" x="0.0" y="8" width="375" height="40"/>
+                                <rect key="frame" x="0.0" y="4" width="375" height="30"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SEND PAYMENT" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jcc-qw-WQh">
-                                        <rect key="frame" x="132.5" y="4.5" width="110" height="31.5"/>
+                                        <rect key="frame" x="132.5" y="4" width="110" height="22"/>
                                         <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
@@ -351,28 +351,28 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="4rS-4r-geS"/>
-                                    <constraint firstItem="Jcc-qw-WQh" firstAttribute="top" secondItem="bQm-VT-pR3" secondAttribute="top" constant="4.5" id="CfN-Ed-h0Y"/>
+                                    <constraint firstAttribute="height" constant="30" id="4rS-4r-geS"/>
+                                    <constraint firstItem="Jcc-qw-WQh" firstAttribute="top" secondItem="bQm-VT-pR3" secondAttribute="top" constant="4" id="CfN-Ed-h0Y"/>
                                     <constraint firstAttribute="bottom" secondItem="Jcc-qw-WQh" secondAttribute="bottom" constant="4" id="WBr-90-HZE"/>
                                     <constraint firstItem="Jcc-qw-WQh" firstAttribute="centerX" secondItem="bQm-VT-pR3" secondAttribute="centerX" id="pwC-DY-Ncv"/>
                                 </constraints>
                             </view>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="7u7-MR-3OI">
-                                <rect key="frame" x="20" y="64" width="335" height="512.5"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="36" translatesAutoresizingMaskIntoConstraints="NO" id="7u7-MR-3OI">
+                                <rect key="frame" x="20" y="42" width="335" height="556"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="eiA-sf-drp">
-                                        <rect key="frame" x="0.0" y="0.0" width="335" height="112"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="eiA-sf-drp">
+                                        <rect key="frame" x="0.0" y="0.0" width="335" height="120.5"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Pnf-1r-Bwd">
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="27"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="249" text="Card" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFt-no-LS2">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" text="Card" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFt-no-LS2">
                                                         <rect key="frame" x="0.0" y="0.0" width="26.5" height="27"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="17"/>
                                                         <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" verticalCompressionResistancePriority="249" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W9C-jC-USt">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" text="  " textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W9C-jC-USt">
                                                         <rect key="frame" x="26.5" y="0.0" width="308.5" height="27"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="17"/>
                                                         <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
@@ -381,16 +381,16 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cP3-5v-ltq">
-                                                <rect key="frame" x="0.0" y="31" width="335" height="50"/>
+                                                <rect key="frame" x="0.0" y="31" width="335" height="31.5"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NGJ-4c-JhN">
-                                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" text="      " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NGJ-4c-JhN">
+                                                        <rect key="frame" x="0.0" y="0.0" width="23.5" height="31.5"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="20"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kBV-Dy-vaU">
-                                                        <rect key="frame" x="50" y="0.0" width="285" height="50"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" text="          " textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kBV-Dy-vaU">
+                                                        <rect key="frame" x="23.5" y="0.0" width="311.5" height="31.5"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="20"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -398,16 +398,16 @@
                                                 </subviews>
                                             </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Qb4-2c-dOW">
-                                                <rect key="frame" x="0.0" y="85" width="335" height="27"/>
+                                                <rect key="frame" x="0.0" y="66.5" width="335" height="54"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="250" text="Address:" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="7" translatesAutoresizingMaskIntoConstraints="NO" id="1Gb-aF-3sP">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Address:" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="7" translatesAutoresizingMaskIntoConstraints="NO" id="1Gb-aF-3sP">
                                                         <rect key="frame" x="0.0" y="0.0" width="335" height="27"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="17"/>
                                                         <color key="textColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="248" text="" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="7" translatesAutoresizingMaskIntoConstraints="NO" id="sdv-eg-yCT">
-                                                        <rect key="frame" x="0.0" y="27" width="335" height="0.0"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="            " lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="7" translatesAutoresizingMaskIntoConstraints="NO" id="sdv-eg-yCT">
+                                                        <rect key="frame" x="0.0" y="27" width="335" height="27"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="17"/>
                                                         <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
@@ -417,7 +417,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="pBi-ll-mXY">
-                                        <rect key="frame" x="0.0" y="142" width="335" height="79"/>
+                                        <rect key="frame" x="0.0" y="162" width="335" height="79"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="TO WALLET" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hby-Nl-gBl">
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="35"/>
@@ -467,7 +467,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Mnf-h3-kcj">
-                                        <rect key="frame" x="0.0" y="251" width="335" height="127"/>
+                                        <rect key="frame" x="0.0" y="283" width="335" height="127"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="AMOUNT" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IDR-Xx-TAo">
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="35"/>
@@ -520,7 +520,7 @@
                                                         </connections>
                                                     </switch>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" text="Include fee" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bNo-sl-ySn">
-                                                        <rect key="frame" x="49" y="8" width="70" height="28.5"/>
+                                                        <rect key="frame" x="49" y="7.5" width="70" height="28.5"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="18"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -538,7 +538,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="Cta-eT-qRb">
-                                        <rect key="frame" x="0.0" y="408" width="335" height="104.5"/>
+                                        <rect key="frame" x="0.0" y="451.5" width="335" height="104.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="FEE" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7x8-18-YLd">
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="35"/>
@@ -589,12 +589,12 @@
                             <constraint firstItem="bQm-VT-pR3" firstAttribute="trailing" secondItem="frm-o3-2wK" secondAttribute="trailing" id="1Br-2Z-mLl"/>
                             <constraint firstItem="7u7-MR-3OI" firstAttribute="leading" secondItem="frm-o3-2wK" secondAttribute="leading" constant="20" id="1YW-F0-nu7"/>
                             <constraint firstItem="frm-o3-2wK" firstAttribute="trailing" secondItem="bx9-On-jnu" secondAttribute="trailing" constant="20" id="6YR-JA-J0c"/>
+                            <constraint firstItem="bx9-On-jnu" firstAttribute="top" secondItem="7u7-MR-3OI" secondAttribute="bottom" constant="8" id="AM1-Au-shx"/>
                             <constraint firstItem="frm-o3-2wK" firstAttribute="trailing" secondItem="7u7-MR-3OI" secondAttribute="trailing" constant="20" id="B3U-Iy-cO3"/>
                             <constraint firstItem="bx9-On-jnu" firstAttribute="leading" secondItem="frm-o3-2wK" secondAttribute="leading" constant="20" id="FyV-sZ-UmU"/>
-                            <constraint firstItem="7u7-MR-3OI" firstAttribute="bottom" relation="lessThanOrEqual" secondItem="bx9-On-jnu" secondAttribute="top" priority="250" constant="-16" id="MwU-uU-w0f"/>
                             <constraint firstItem="frm-o3-2wK" firstAttribute="bottom" secondItem="bx9-On-jnu" secondAttribute="bottom" constant="16" id="ZNN-sa-CqW"/>
-                            <constraint firstItem="bQm-VT-pR3" firstAttribute="top" secondItem="frm-o3-2wK" secondAttribute="top" constant="8" id="eEQ-QP-y52"/>
-                            <constraint firstItem="7u7-MR-3OI" firstAttribute="top" secondItem="bQm-VT-pR3" secondAttribute="bottom" constant="16" id="gkE-Z7-GXr"/>
+                            <constraint firstItem="bQm-VT-pR3" firstAttribute="top" secondItem="frm-o3-2wK" secondAttribute="top" constant="4" id="eEQ-QP-y52"/>
+                            <constraint firstItem="7u7-MR-3OI" firstAttribute="top" secondItem="bQm-VT-pR3" secondAttribute="bottom" constant="8" id="gkE-Z7-GXr"/>
                             <constraint firstItem="bQm-VT-pR3" firstAttribute="leading" secondItem="frm-o3-2wK" secondAttribute="leading" id="x5O-sL-Ttu"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="frm-o3-2wK"/>
@@ -643,17 +643,17 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="4mC-LX-D9L">
-                                        <rect key="frame" x="0.0" y="10" width="375" height="42"/>
+                                        <rect key="frame" x="0.0" y="10" width="375" height="40"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="agl-yI-2WI">
-                                                <rect key="frame" x="325" y="0.0" width="42" height="42"/>
+                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="agl-yI-2WI" secondAttribute="height" multiplier="1:1" id="cnT-bd-DuS"/>
                                                 </constraints>
                                                 <state key="normal" image="icon-help-small"/>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOAD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b7s-lc-UnO">
-                                                <rect key="frame" x="168.5" y="4.5" width="38" height="33.5"/>
+                                                <rect key="frame" x="168.5" y="4.5" width="38" height="31.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
@@ -670,7 +670,7 @@
                                         </constraints>
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i91-lH-hS4">
-                                        <rect key="frame" x="0.0" y="147" width="375" height="38"/>
+                                        <rect key="frame" x="0.0" y="145" width="375" height="38"/>
                                         <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="25"/>
                                         <state key="normal" title="Show QR">
                                             <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -680,7 +680,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XEE-I5-SjJ">
-                                        <rect key="frame" x="0.0" y="87" width="375" height="38"/>
+                                        <rect key="frame" x="0.0" y="85" width="375" height="38"/>
                                         <fontDescription key="fontDescription" name="Maax-Medium" family="Maax" pointSize="25"/>
                                         <state key="normal" title="Copy Address">
                                             <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -736,17 +736,17 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="CTT-kX-MD8">
-                                        <rect key="frame" x="0.0" y="10" width="375" height="42"/>
+                                        <rect key="frame" x="0.0" y="10" width="375" height="40"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Tt-b1-JEP">
-                                                <rect key="frame" x="325" y="0.0" width="42" height="42"/>
+                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="1Tt-b1-JEP" secondAttribute="height" multiplier="1:1" id="bi8-Pg-iuF"/>
                                                 </constraints>
                                                 <state key="normal" image="icon-help-small"/>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MORE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eUM-J5-RUS">
-                                                <rect key="frame" x="166.5" y="4.5" width="42.5" height="33.5"/>
+                                                <rect key="frame" x="166.5" y="4.5" width="42.5" height="31.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
@@ -763,7 +763,7 @@
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZGJ-w1-cTW">
-                                        <rect key="frame" x="30" y="106" width="315" height="180"/>
+                                        <rect key="frame" x="30" y="104" width="315" height="180"/>
                                         <string key="text">Issuer: Tangem, Inc.
 Manufacturer: Tangem, Inc.
 API node: tardis.bauerj.eu:50001
