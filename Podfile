@@ -7,7 +7,6 @@ target 'Tangem' do
     
     use_frameworks!
     tangemioskit_pods
-    pod 'KeychainSwift'
     pod 'QRCode', '2.0'
     pod 'Fabric'
     pod 'Crashlytics'
@@ -18,7 +17,6 @@ target 'Tangem beta' do
     
     use_frameworks!
     tangemioskit_pods
-    pod 'KeychainSwift'
     pod 'QRCode', '2.0'
     pod 'Fabric'
     pod 'Crashlytics'
