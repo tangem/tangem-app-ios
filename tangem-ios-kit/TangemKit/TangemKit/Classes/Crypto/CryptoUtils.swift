@@ -9,6 +9,11 @@
 import Foundation
 import secp256k1
 
+struct KeyPair {
+    let privateKey: Data
+    let publicKey: Data
+}
+
 class CryptoUtils {    
     static func getRandomBytes(count: Int) -> [UInt8]? {
         var bytes = [UInt8](repeating: 0, count: count)
@@ -21,60 +26,72 @@ class CryptoUtils {
         }
     }
     
-    static func getCryproKeyPair() -> (privateKey: Data, publicKey: Data)? {
-        guard let privateKey = getRandomBytes(count: 32),
-            verifyPrivateKey(privateKey: Data(privateKey)) else {
+    static func getCryproKeyPair() -> KeyPair? {
+        var context = secp256k1_context_create([SECP256K1_FLAGS.SECP256K1_CONTEXT_SIGN])!
+        defer {
+             secp256k1_context_destroy(&context)
+        }
+        guard let privateKey = getRandomBytes(count: 32) else {
             return nil
         }
+        
         let privateKeyData = Data(privateKey)
-        
-        guard let publicKeyData = privateKeyToPublicKey(privateKey: privateKeyData) else {
+        guard let publicKeyData = privateKeyToPublicKey(context, privateKey: privateKeyData) else {
             return nil
         }
         
-        return (privateKeyData, publicKeyData)
+        return KeyPair(privateKey: privateKeyData, publicKey: publicKeyData)
     }
     
-    static func verifyPrivateKey(privateKey: Data) -> Bool {
+    static func verifyPrivateKey(_ context: secp256k1_context, privateKey: Data) -> Bool {
         if (privateKey.count != 32) {return false}
-        let context = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_VERIFY))!
-        
-        let result = privateKey.withUnsafeBytes { (privateKeyRBPointer) -> Int32? in
-            if let privateKeyRPointer = privateKeyRBPointer.baseAddress, privateKeyRBPointer.count > 0 {
-                let privateKeyPointer = privateKeyRPointer.assumingMemoryBound(to: UInt8.self)
-                let res = secp256k1_ec_seckey_verify(context, privateKeyPointer)
-                return res
-            } else {
-                return nil
-            }
-        }
-        guard let res = result, res == 1 else {
-            return false
-        }
-        return true
+
+        let res = secp256k1_ec_seckey_verify(context, Array(privateKey))
+        return res
     }
     
-    static func privateKeyToPublicKey(privateKey: Data) -> Data? {
+    static func privateKeyToPublicKey(_ context: secp256k1_context, privateKey: Data) -> Data? {
         if (privateKey.count != 32) {return nil}
         var publicKey = secp256k1_pubkey()
-        let context = secp256k1_context_create(SECP256K1_FLAGS.SECP256K1_CONTEXT_NONE)!
         let res = secp256k1_ec_pubkey_create(context, &publicKey, Array(privateKey))
-
         guard res else {
             return nil
         }
         
-        return Data(publicKey.data)
+        var pubLength: UInt = 65
+        var pubKeyUncompressed = Array(repeating: 0, count: Int(pubLength)) as [UInt8]
+        let serializeResult = secp256k1_ec_pubkey_serialize(context, &pubKeyUncompressed, &pubLength, publicKey, SECP256K1_FLAGS.SECP256K1_EC_UNCOMPRESSED)
+        guard serializeResult else {
+            return nil
+        }
+        
+        return Data(pubKeyUncompressed)
     }
     
     static func sign(_ data: Data, with key: Data) -> Data? {
-        let context = secp256k1_context_create(SECP256K1_FLAGS.SECP256K1_CONTEXT_SIGN)!
+        var context = secp256k1_context_create(SECP256K1_FLAGS.SECP256K1_CONTEXT_SIGN)!
+        defer {
+            secp256k1_context_destroy(&context)
+        }
         var signature = secp256k1_ecdsa_signature()
-        let result = secp256k1_ecdsa_sign(context, &signature, Array(data), Array(data), nil, nil)
+        let result = secp256k1_ecdsa_sign(context, &signature, Array(data), Array(key), nil, nil)
         guard result else {
             return nil
         }
         
         return Data(signature.data)
     }
+    
+    static func verifySignature(signature: Data, data: Data, publicKey: Data) -> Bool {               
+               var vrfy: secp256k1_context = secp256k1_context_create(.SECP256K1_CONTEXT_VERIFY)!
+               var sig = secp256k1_ecdsa_signature()
+               var normalized = secp256k1_ecdsa_signature()
+               let sigLoaded = secp256k1_ecdsa_signature_parse_compact(vrfy, &sig, signature.bytes)
+               let sigNormalized = secp256k1_ecdsa_signature_normalize(vrfy, &normalized, sig)
+               var pubkey = secp256k1_pubkey()
+               let pubKeyLoaded = secp256k1_ec_pubkey_parse(vrfy, &pubkey, publicKey.bytes, 65)
+               let result = secp256k1_ecdsa_verify(vrfy, normalized, data.bytes, pubkey)
+               secp256k1_context_destroy(&vrfy)
+               return result
+           }
 }

@@ -505,7 +505,7 @@ extension CardDetailsViewController {
             verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
         }
         
-        let strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
+        var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
             "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
             "\(Localizations.detailsValidationNode): \(cardDetails.node)",
             "\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)",
@@ -516,6 +516,11 @@ extension CardDetailsViewController {
             "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)",
             "\(Localizations.detailsTitleCardId): \(cardDetails.cardID)",
             "\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)"]
+        
+        if cardDetails.isLinked {
+            strings.append("\(Localizations.detailsLinkedCard): \(Localizations.generalYes)")
+        }
+        
         viewController.contentText = strings.joined(separator: "\n")
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
