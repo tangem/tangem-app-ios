@@ -17,10 +17,6 @@ public protocol CoinProvider {
     func validate(address: String) -> Bool
 }
 
-public protocol CoinProviderAsync {
-    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping (Data?) -> Void)
-}
-
 public struct CoinTrait: OptionSet {
     public let rawValue: Int
     public init(rawValue: Int) {
