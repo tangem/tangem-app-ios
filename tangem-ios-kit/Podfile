@@ -18,4 +18,5 @@ target 'TangemKitExample Development' do
     project 'Example/TangemKitExample'
 
 tangemioskit_pods
+
 end
