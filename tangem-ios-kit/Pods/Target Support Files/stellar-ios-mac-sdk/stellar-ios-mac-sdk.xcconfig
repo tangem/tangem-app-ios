@@ -1,0 +1,12 @@
+CONFIGURATION_BUILD_DIR = ${PODS_CONFIGURATION_BUILD_DIR}/stellar-ios-mac-sdk
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+OTHER_SWIFT_FLAGS = $(inherited) -D COCOAPODS
+PODS_BUILD_DIR = ${BUILD_DIR}
+PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+PODS_ROOT = ${SRCROOT}
+PODS_TARGET_SRCROOT = ${PODS_ROOT}/stellar-ios-mac-sdk
+PRODUCT_BUNDLE_IDENTIFIER = org.cocoapods.${PRODUCT_NAME:rfc1034identifier}
+SKIP_INSTALL = YES
+SWIFT_INCLUDE_PATHS[sdk=iphoneos*] = $(SRCROOT)/stellar-ios-mac-sdk/stellarsdk/stellarsdk/libs/ed25519-C/** $(SRCROOT)/stellar-ios-mac-sdk/stellarsdk/stellarsdk/iphone
+SWIFT_INCLUDE_PATHS[sdk=iphonesimulator*] = $(SRCROOT)/stellar-ios-mac-sdk/stellarsdk/stellarsdk/libs/ed25519-C/** $(SRCROOT)/stellar-ios-mac-sdk/stellarsdk/stellarsdk/simulator
+SWIFT_INCLUDE_PATHS[sdk=macosx*] = $(SRCROOT)/stellar-ios-mac-sdk/stellarsdk/stellarsdk/libs/ed25519-C/** $(SRCROOT)/stellar-ios-mac-sdk/stellarsdk/stellarsdk/osx
