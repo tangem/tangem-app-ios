@@ -8,7 +8,7 @@
 
 import Foundation
 
- protocol StorageManagerType: NSObject {
+ public protocol StorageManagerType: NSObject {
     func set(_ stringArray: [String], forKey key: StorageKey)
     func stringArray(forKey key: StorageKey) -> [String]?
 }
