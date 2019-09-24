@@ -9,8 +9,8 @@
 import Foundation
 import KeychainSwift
 
-class SecureStorageManager: NSObject {
-    private func get(key: String) -> Any? {
+public class SecureStorageManager: NSObject {
+    func get(key: String) -> Any? {
         let keychain = KeychainSwift()
         if let data = keychain.getData(key) {
             return NSKeyedUnarchiver.unarchiveObject(with: data)
@@ -18,7 +18,7 @@ class SecureStorageManager: NSObject {
         return nil
     }
     
-    private func store(object: Any, key: String) {
+    func store(object: Any, key: String) {
         let data = NSKeyedArchiver.archivedData(withRootObject: object)
         let keychain = KeychainSwift()
         keychain.synchronizable = false
@@ -27,11 +27,11 @@ class SecureStorageManager: NSObject {
 }
 
 extension SecureStorageManager: StorageManagerType {
-    func set(_ stringArray: [String], forKey key: StorageKey) {
+    public func set(_ stringArray: [String], forKey key: StorageKey) {
         store(object: stringArray, key: key.rawValue)
     }
     
-    func stringArray(forKey key: StorageKey) -> [String]? {
+    public func stringArray(forKey key: StorageKey) -> [String]? {
         return get(key: key.rawValue) as? [String]
     }
 }
