@@ -54,6 +54,10 @@
 		5D84A80622E0B7790049B9D1 /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84A80522E0B7790049B9D1 /* Array+.swift */; };
 		5D84A80722E0B7790049B9D1 /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84A80522E0B7790049B9D1 /* Array+.swift */; };
 		5D9C62EB22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9C62EA22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift */; };
+		5DAB31162338FE6F001DBF24 /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2502338FC8600D58E43 /* SecureStorageManager.swift */; };
+		5DAB31172338FE72001DBF24 /* StorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2512338FC8600D58E43 /* StorageKeys.swift */; };
+		5DAB31182338FE74001DBF24 /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2522338FC8600D58E43 /* StorageManagerType.swift */; };
+		5DAB311B2338FEF7001DBF24 /* TerminalKeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAB311A2338FEF7001DBF24 /* TerminalKeysManager.swift */; };
 		5DBD00B722FC08910017E3CC /* BlockcypherRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBD00B522FC08910017E3CC /* BlockcypherRequestOperation.swift */; };
 		5DBD00B822FC08910017E3CC /* BlockcypherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBD00B622FC08910017E3CC /* BlockcypherResponse.swift */; };
 		5DC25BED2302FB310047871B /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC25BEC2302FB310047871B /* Decimal+.swift */; };
@@ -173,9 +177,13 @@
 		5D7BA213231B1CC800D6AB83 /* TangemKit copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "TangemKit copy-Info.plist"; path = "/Users/alexander.osokin/repos/tangem/tangem-lite/tangem-ios-kit/TangemKit/TangemKit copy-Info.plist"; sourceTree = "<absolute>"; };
 		5D84A80522E0B7790049B9D1 /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		5D9C62EA22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkPendingTxCount.swift; sourceTree = "<group>"; };
+		5DAB311A2338FEF7001DBF24 /* TerminalKeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeysManager.swift; sourceTree = "<group>"; };
 		5DBD00B522FC08910017E3CC /* BlockcypherRequestOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockcypherRequestOperation.swift; sourceTree = "<group>"; };
 		5DBD00B622FC08910017E3CC /* BlockcypherResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockcypherResponse.swift; sourceTree = "<group>"; };
 		5DC25BEC2302FB310047871B /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
+		5DC4E2502338FC8600D58E43 /* SecureStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageManager.swift; sourceTree = "<group>"; };
+		5DC4E2512338FC8600D58E43 /* StorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeys.swift; sourceTree = "<group>"; };
+		5DC4E2522338FC8600D58E43 /* StorageManagerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManagerType.swift; sourceTree = "<group>"; };
 		5DD88A42231D6052009BA4EA /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		5DE10AE222D607F800BC45B9 /* SignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTests.swift; sourceTree = "<group>"; };
 		5DE10AE622D609DA00BC45B9 /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
@@ -337,6 +345,15 @@
 			path = Exceptions;
 			sourceTree = "<group>";
 		};
+		5DAB31192338FEE0001DBF24 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				5DC4E2532338FC8600D58E43 /* StorageManager */,
+				5DAB311A2338FEF7001DBF24 /* TerminalKeysManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		5DBD00B422FC08910017E3CC /* Blockcypher */ = {
 			isa = PBXGroup;
 			children = (
@@ -352,6 +369,16 @@
 				5D5658D022FD689900DE016B /* UnspentTransaction.swift */,
 			);
 			path = BitkoinKit;
+			sourceTree = "<group>";
+		};
+		5DC4E2532338FC8600D58E43 /* StorageManager */ = {
+			isa = PBXGroup;
+			children = (
+				5DC4E2502338FC8600D58E43 /* SecureStorageManager.swift */,
+				5DC4E2512338FC8600D58E43 /* StorageKeys.swift */,
+				5DC4E2522338FC8600D58E43 /* StorageManagerType.swift */,
+			);
+			path = StorageManager;
 			sourceTree = "<group>";
 		};
 		5DE10AE522D609DA00BC45B9 /* CardOperations */ = {
@@ -449,6 +476,7 @@
 		806C4F4221DE9BC00002E967 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				5DAB31192338FEE0001DBF24 /* Services */,
 				5D028B08232A391E00E0F9D2 /* Localizations */,
 				5DE10AE522D609DA00BC45B9 /* CardOperations */,
 				5DBD00B922FC238E0017E3CC /* BitkoinKit */,
@@ -684,8 +712,6 @@
 			dependencies = (
 			);
 			name = TangemKit;
-			packageProductDependencies = (
-			);
 			productName = TangemKit;
 			productReference = 806C4F2521DE9B870002E967 /* TangemKit.framework */;
 			productType = "com.apple.product-type.framework";
@@ -737,8 +763,6 @@
 				Base,
 			);
 			mainGroup = 806C4F1B21DE9B870002E967;
-			packageReferences = (
-			);
 			productRefGroup = 806C4F2621DE9B870002E967 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -844,6 +868,7 @@
 				80C14C922263C457008E4818 /* ed25519_utility.swift in Sources */,
 				5D11115322F0691E009919D1 /* scalar_8x32.swift in Sources */,
 				5D11114A22F0691E009919D1 /* scalar_8x32_impl.swift in Sources */,
+				5DAB31162338FE6F001DBF24 /* SecureStorageManager.swift in Sources */,
 				5DE10AEF22D609DA00BC45B9 /* CardSession.swift in Sources */,
 				806C4F8321DE9BC00002E967 /* TLVUtils.swift in Sources */,
 				806C4FAB21DE9BC00002E967 /* CardArtworkNetworkOperation.swift in Sources */,
@@ -910,9 +935,11 @@
 				5D11114822F0691E009919D1 /* group_impl.swift in Sources */,
 				80467DAC225933A700EDA8FD /* RippleNetworkBalanceOperation.swift in Sources */,
 				806C4FB221DE9BC00002E967 /* BaseCardBalanceOperation.swift in Sources */,
+				5DAB311B2338FEF7001DBF24 /* TerminalKeysManager.swift in Sources */,
 				5D48752422DC78A100F690BE /* Dictionary+.swift in Sources */,
 				5D11114422F0691E009919D1 /* ecmult_gen.swift in Sources */,
 				5DE10AED22D609DA00BC45B9 /* CommandApdu.swift in Sources */,
+				5DAB31172338FE72001DBF24 /* StorageKeys.swift in Sources */,
 				5D55F51422DDFF5600A1643E /* TangemException.swift in Sources */,
 				5D11115222F0691E009919D1 /* recovery.swift in Sources */,
 				806C4FAC21DE9BC00002E967 /* EthereumNetworkBalanceOperation.swift in Sources */,
@@ -943,6 +970,7 @@
 				5DBD00B822FC08910017E3CC /* BlockcypherResponse.swift in Sources */,
 				806C4FA221DE9BC00002E967 /* RIPEMD160.swift in Sources */,
 				5DF1765922E849AD00B17491 /* EthereumNetworkTxCountOperation.swift in Sources */,
+				5DAB31182338FE74001DBF24 /* StorageManagerType.swift in Sources */,
 				5D11114C22F0691E009919D1 /* hash_impl.swift in Sources */,
 				806C4F8421DE9BC00002E967 /* TLVExtentions.swift in Sources */,
 			);

@@ -8,7 +8,7 @@ load 'pods_define'
 
 target 'TangemKit' do
    tangemioskit_pods
-End
+end
 
 target 'TangemKitTests' do
   use_frameworks!
