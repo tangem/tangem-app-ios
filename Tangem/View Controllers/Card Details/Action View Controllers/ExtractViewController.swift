@@ -129,10 +129,10 @@ class ExtractViewController: ModalActionViewController {
                                             self?.removeLoadingView()
                                             
                                             switch signError {
-                                            case .missingIssuerSignature:
-                                                self?.handleTXNotSignedByIssuer()
-                                            case .nfcError(let nfcError):
-                                                self?.handleGenericError(nfcError)
+                                                case .missingIssuerSignature:
+                                                    self?.handleTXNotSignedByIssuer()
+                                                case .nfcError(let nfcError):
+                                                    self?.handleGenericError(nfcError)
                                             }                                            
                                         }
         }
@@ -199,27 +199,12 @@ class ExtractViewController: ModalActionViewController {
         btnSend.showActivityIndicator()
         addLoadingView()
         
-        if let asyncCoinProvider = coinProvider as? CoinProviderAsync {
-            asyncCoinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) { [weak self] hash in
-                
-                guard let hash = hash else {
-                    self?.handleTXBuildError()
-                    return
-                }
-                
-                DispatchQueue.main.async {
-                    self?.signSession.start(dataToSign: hash)
-                }
-            }
+        guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
+            self.handleTXBuildError()
+            return
         }
-        else {
-            guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
-                self.handleTXBuildError()
-                return
-            }
-            
-            signSession.start(dataToSign: dataToSign)
-        }
+        
+        signSession.start(dataToSign: dataToSign)
     }
     
     func addLoadingView() {
@@ -593,7 +578,7 @@ extension ExtractViewController: UITextFieldDelegate {
         if string == "," {
             if let text = textField.text {
                 textField.text = text + "."
-                return false
+                     return false
             }
         }
         
