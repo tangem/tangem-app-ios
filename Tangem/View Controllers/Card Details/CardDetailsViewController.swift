@@ -61,10 +61,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-         self.isBalanceLoading = true
-        self.viewModel.setWalletInfoLoading(true)
-    fetchWalletBalance(card: card)
-       
+        if card.hasPendingTransactions  {
+            self.isBalanceLoading = true
+            self.viewModel.setWalletInfoLoading(true)
+            fetchWalletBalance(card: card)
+        }
     }
     
     func setupWithCardDetails(card: Card) {
@@ -195,11 +196,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             // Ripple reserve
             balanceTitle = card.walletValue + " " + card.walletUnits
             balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
-        } else if let xlmEngine = card.cardEngine as? XlmEngine, let walletReserve = xlmEngine.walletReserve {
-            balanceTitle = card.walletValue + " " + card.walletUnits
-            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
-        }
-        else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
+        } else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
             balanceTitle = walletTokenValue + " " + walletTokenUnits
             balanceSubtitle = "\n+ " + card.walletValue + " " + card.walletUnits
@@ -508,7 +505,7 @@ extension CardDetailsViewController {
             verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
         }
         
-        let strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
+        var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
             "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
             "\(Localizations.detailsValidationNode): \(cardDetails.node)",
             "\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)",
@@ -519,6 +516,11 @@ extension CardDetailsViewController {
             "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)",
             "\(Localizations.detailsTitleCardId): \(cardDetails.cardID)",
             "\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)"]
+        
+        if cardDetails.isLinked {
+            strings.append("\(Localizations.detailsLinkedCard): \(Localizations.generalYes)")
+        }
+        
         viewController.contentText = strings.joined(separator: "\n")
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
