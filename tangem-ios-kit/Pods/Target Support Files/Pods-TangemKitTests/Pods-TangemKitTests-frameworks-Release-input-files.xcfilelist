@@ -9,4 +9,5 @@ ${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework
 ${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework
 ${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework
 ${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework
+${BUILT_PRODUCTS_DIR}/stellar-ios-mac-sdk/stellarsdk.framework
 ${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework
