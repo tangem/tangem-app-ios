@@ -7,6 +7,7 @@
 //
 
 import UIKit
+
 #if canImport(CoreNFC)
 import CoreNFC
 #endif
@@ -36,6 +37,11 @@ public class CardSignSession: NSObject {
     private let cardId: String
     private let supportedSignMethods: [SignMethod]
     private let issuerSignature: Data?
+    private lazy var terminalKeysManager:TerminalKeysManager = {
+           let manager = TerminalKeysManager()
+           return manager
+       }()
+    
     public  var isBusy: Bool {
         return state != .none
     }
@@ -90,14 +96,17 @@ public class CardSignSession: NSObject {
     
     public func start(dataToSign: Data) {
         state = .active
-        guard let signApdu = buildSignApdu(dataToSign) else {
-            state = .none
-            return
+        
+        DispatchQueue.global().async {
+            guard let signApdu = self.buildSignApdu(dataToSign) else {
+                self.state = .none
+                return
+            }
+            self.signApdu = signApdu
+            self.readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
+            self.readerSession!.alertMessage = Localizations.nfcAlertDefault
+            self.readerSession!.begin()
         }
-        self.signApdu = signApdu
-        readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
-        readerSession!.alertMessage = Localizations.nfcAlertDefault
-        readerSession!.begin()
     }
     
 
@@ -112,6 +121,11 @@ public class CardSignSession: NSObject {
             CardTLV(.transactionOutHashSize, value: hSize),
             CardTLV(.transactionOutHash, value: dataToSign.bytes)]
     
+        if let keys = terminalKeysManager.getKeys(),
+            let signedData = CryptoUtils.sign(dataToSign.sha256(), with: keys.privateKey) {
+            tlvData.append(CardTLV(.terminalTransactionSignature, value: signedData.bytes))
+            tlvData.append(CardTLV(.terminalPublicKey, value: keys.publicKey.bytes))
+        }
         
         if supportedSignMethods.contains(.signHashValidatedByIssuer) {
             if let issuerSignature = issuerSignature {
