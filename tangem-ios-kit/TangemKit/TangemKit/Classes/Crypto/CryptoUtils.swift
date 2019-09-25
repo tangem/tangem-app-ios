@@ -9,7 +9,7 @@
 import Foundation
 import secp256k1
 
-struct KeyPair {
+struct CryptoKeyPair {
     let privateKey: Data
     let publicKey: Data
 }
@@ -26,7 +26,7 @@ class CryptoUtils {
         }
     }
     
-    static func getCryproKeyPair() -> KeyPair? {
+    static func getCryproKeyPair() -> CryptoKeyPair? {
         var context = secp256k1_context_create([SECP256K1_FLAGS.SECP256K1_CONTEXT_SIGN])!
         defer {
              secp256k1_context_destroy(&context)
@@ -40,7 +40,7 @@ class CryptoUtils {
             return nil
         }
         
-        return KeyPair(privateKey: privateKeyData, publicKey: publicKeyData)
+        return CryptoKeyPair(privateKey: privateKeyData, publicKey: publicKeyData)
     }
     
     static func verifyPrivateKey(_ context: secp256k1_context, privateKey: Data) -> Bool {
