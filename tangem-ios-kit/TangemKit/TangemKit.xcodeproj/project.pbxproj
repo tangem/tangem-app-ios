@@ -95,6 +95,10 @@
 		5DF1765922E849AD00B17491 /* EthereumNetworkTxCountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF1765822E849AD00B17491 /* EthereumNetworkTxCountOperation.swift */; };
 		5DF1765A22E849AD00B17491 /* EthereumNetworkTxCountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF1765822E849AD00B17491 /* EthereumNetworkTxCountOperation.swift */; };
 		5DF43C062334D7D900074485 /* XlmEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF43C052334D7D900074485 /* XlmEngine.swift */; };
+		5DFFC496233A666D004964E8 /* StorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC492233A666D004964E8 /* StorageKeys.swift */; };
+		5DFFC497233A666D004964E8 /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC493233A666D004964E8 /* StorageManagerType.swift */; };
+		5DFFC498233A666D004964E8 /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC494233A666D004964E8 /* SecureStorageManager.swift */; };
+		5DFFC499233A666D004964E8 /* TerminalKeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC495233A666D004964E8 /* TerminalKeysManager.swift */; };
 		8013A66422FA2B04007896A6 /* CardanoUnspentOutputsOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8013A66322FA2B04007896A6 /* CardanoUnspentOutputsOperation.swift */; };
 		8013A66623020A10007896A6 /* CardanoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8013A66523020A10007896A6 /* CardanoTests.swift */; };
 		8013A66923020AE2007896A6 /* CardanoTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8013A66823020AE2007896A6 /* CardanoTransaction.swift */; };
@@ -222,6 +226,10 @@
 		5DEF97ED22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkSendOperation.swift; sourceTree = "<group>"; };
 		5DF1765822E849AD00B17491 /* EthereumNetworkTxCountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkTxCountOperation.swift; sourceTree = "<group>"; };
 		5DF43C052334D7D900074485 /* XlmEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XlmEngine.swift; sourceTree = "<group>"; };
+		5DFFC492233A666D004964E8 /* StorageKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageKeys.swift; sourceTree = "<group>"; };
+		5DFFC493233A666D004964E8 /* StorageManagerType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageManagerType.swift; sourceTree = "<group>"; };
+		5DFFC494233A666D004964E8 /* SecureStorageManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureStorageManager.swift; sourceTree = "<group>"; };
+		5DFFC495233A666D004964E8 /* TerminalKeysManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TerminalKeysManager.swift; sourceTree = "<group>"; };
 		8013A66322FA2B04007896A6 /* CardanoUnspentOutputsOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutputsOperation.swift; sourceTree = "<group>"; };
 		8013A66523020A10007896A6 /* CardanoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTests.swift; sourceTree = "<group>"; };
 		8013A66823020AE2007896A6 /* CardanoTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTransaction.swift; sourceTree = "<group>"; };
@@ -445,6 +453,25 @@
 			path = CardOperations;
 			sourceTree = "<group>";
 		};
+		5DFFC490233A666D004964E8 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				5DFFC491233A666D004964E8 /* StorageManager */,
+				5DFFC495233A666D004964E8 /* TerminalKeysManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		5DFFC491233A666D004964E8 /* StorageManager */ = {
+			isa = PBXGroup;
+			children = (
+				5DFFC492233A666D004964E8 /* StorageKeys.swift */,
+				5DFFC493233A666D004964E8 /* StorageManagerType.swift */,
+				5DFFC494233A666D004964E8 /* SecureStorageManager.swift */,
+			);
+			path = StorageManager;
+			sourceTree = "<group>";
+		};
 		8013A66222FA2ADC007896A6 /* Cardano */ = {
 			isa = PBXGroup;
 			children = (
@@ -524,6 +551,7 @@
 		806C4F4221DE9BC00002E967 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				5DFFC490233A666D004964E8 /* Services */,
 				5D028B08232A391E00E0F9D2 /* Localizations */,
 				5DE10AE522D609DA00BC45B9 /* CardOperations */,
 				5DBD00B922FC238E0017E3CC /* BitkoinKit */,
@@ -946,6 +974,7 @@
 				806C4FA921DE9BC00002E967 /* CardDetailsNetworkOperation.swift in Sources */,
 				5DC4E2402338AE3800D58E43 /* BtcBalanceOperation.swift in Sources */,
 				80C14C912263C457008E4818 /* ed25519_sc.swift in Sources */,
+				5DFFC499233A666D004964E8 /* TerminalKeysManager.swift in Sources */,
 				8067A24322B2F2720080ECF1 /* BinanceNetworkBalanceOperation.swift in Sources */,
 				806C4FAE21DE9BC00002E967 /* CoinMarketOperation.swift in Sources */,
 				8067A24122B2F22D0080ECF1 /* BNBCardBalanceOperation.swift in Sources */,
@@ -954,6 +983,7 @@
 				5D9C62EB22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift in Sources */,
 				5D11115022F0691E009919D1 /* group.swift in Sources */,
 				80B956FF2225D91600CFE276 /* RootstockNetworkBalanceOperation.swift in Sources */,
+				5DFFC498233A666D004964E8 /* SecureStorageManager.swift in Sources */,
 				5DC4E23B2338AE3800D58E43 /* BtcNetworkApi.swift in Sources */,
 				5D11114922F0691E009919D1 /* field_impl.swift in Sources */,
 				80EABF0A222DD32800E1302A /* RootstockEngine.swift in Sources */,
@@ -972,6 +1002,7 @@
 				806C4FB321DE9BC00002E967 /* TokenCardBalanceOperation.swift in Sources */,
 				80C14C8E2263C457008E4818 /* ed25519_ge.swift in Sources */,
 				5DC4E2412338AE3800D58E43 /* EstimateFeeOperation.swift in Sources */,
+				5DFFC497233A666D004964E8 /* StorageManagerType.swift in Sources */,
 				5DE10AEB22D609DA00BC45B9 /* Instruction.swift in Sources */,
 				5DEF97EC22F0729D004E0CC5 /* CoinProvider.swift in Sources */,
 				8013A66B230215F3007896A6 /* CardanoSendTransactionOperation.swift in Sources */,
@@ -983,6 +1014,7 @@
 				5D48752722DC9E2400F690BE /* CardSW.swift in Sources */,
 				80EABF0B222DD32800E1302A /* CardanoEngine.swift in Sources */,
 				80C80EDC230B544A00333AB3 /* TransactionInfo.swift in Sources */,
+				5DFFC496233A666D004964E8 /* StorageKeys.swift in Sources */,
 				5D3DBF5C2310194F0065D96A /* CardanoUnspentOutput.swift in Sources */,
 				5D11114222F0691E009919D1 /* lax_der_privatekey_parsing.swift in Sources */,
 				5DE995D5232298EB00623148 /* CryptoUtils.swift in Sources */,
