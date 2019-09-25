@@ -99,6 +99,7 @@
 		5DFFC497233A666D004964E8 /* StorageManagerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC493233A666D004964E8 /* StorageManagerType.swift */; };
 		5DFFC498233A666D004964E8 /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC494233A666D004964E8 /* SecureStorageManager.swift */; };
 		5DFFC499233A666D004964E8 /* TerminalKeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC495233A666D004964E8 /* TerminalKeysManager.swift */; };
+		5DFFC49B233A6B4E004964E8 /* CardanoBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC49A233A6B4E004964E8 /* CardanoBackend.swift */; };
 		8013A66422FA2B04007896A6 /* CardanoUnspentOutputsOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8013A66322FA2B04007896A6 /* CardanoUnspentOutputsOperation.swift */; };
 		8013A66623020A10007896A6 /* CardanoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8013A66523020A10007896A6 /* CardanoTests.swift */; };
 		8013A66923020AE2007896A6 /* CardanoTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8013A66823020AE2007896A6 /* CardanoTransaction.swift */; };
@@ -230,6 +231,7 @@
 		5DFFC493233A666D004964E8 /* StorageManagerType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageManagerType.swift; sourceTree = "<group>"; };
 		5DFFC494233A666D004964E8 /* SecureStorageManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureStorageManager.swift; sourceTree = "<group>"; };
 		5DFFC495233A666D004964E8 /* TerminalKeysManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TerminalKeysManager.swift; sourceTree = "<group>"; };
+		5DFFC49A233A6B4E004964E8 /* CardanoBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoBackend.swift; sourceTree = "<group>"; };
 		8013A66322FA2B04007896A6 /* CardanoUnspentOutputsOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutputsOperation.swift; sourceTree = "<group>"; };
 		8013A66523020A10007896A6 /* CardanoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTests.swift; sourceTree = "<group>"; };
 		8013A66823020AE2007896A6 /* CardanoTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTransaction.swift; sourceTree = "<group>"; };
@@ -479,6 +481,7 @@
 				8013A66A230215F3007896A6 /* CardanoSendTransactionOperation.swift */,
 				8013A66322FA2B04007896A6 /* CardanoUnspentOutputsOperation.swift */,
 				5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */,
+				5DFFC49A233A6B4E004964E8 /* CardanoBackend.swift */,
 			);
 			path = Cardano;
 			sourceTree = "<group>";
@@ -1064,6 +1067,7 @@
 				806C4FA221DE9BC00002E967 /* RIPEMD160.swift in Sources */,
 				5DC4E23F2338AE3800D58E43 /* BtcFeeOperation.swift in Sources */,
 				5DF1765922E849AD00B17491 /* EthereumNetworkTxCountOperation.swift in Sources */,
+				5DFFC49B233A6B4E004964E8 /* CardanoBackend.swift in Sources */,
 				5DC4E23E2338AE3800D58E43 /* BtcSendOperation.swift in Sources */,
 				5D11114C22F0691E009919D1 /* hash_impl.swift in Sources */,
 				806C4F8421DE9BC00002E967 /* TLVExtentions.swift in Sources */,
