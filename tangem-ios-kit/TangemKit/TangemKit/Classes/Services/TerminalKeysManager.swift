@@ -12,14 +12,14 @@ struct TerminalKeysManager {
     public static let enabled = false
     private let secureStorage = SecureStorageManager()
     
-    func getKeys() -> KeyPair? {
+    func getKeys() -> CryptoKeyPair? {
         guard TerminalKeysManager.enabled else {
             return nil
         }
         
         if let privateKey = secureStorage.get(key: StorageKey.terminalPrivateKey.rawValue) as? Data,
             let publicKey = secureStorage.get(key: StorageKey.terminalPublicKey.rawValue) as? Data {
-            return KeyPair(privateKey: privateKey, publicKey: publicKey)
+            return CryptoKeyPair(privateKey: privateKey, publicKey: publicKey)
         }
         
         if let newKeys = CryptoUtils.getCryproKeyPair() {
