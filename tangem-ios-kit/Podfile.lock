@@ -15,6 +15,7 @@ PODS:
   - secp256k1.c (0.1.2)
   - Sodium (0.8.0)
   - Starscream (3.1.0)
+  - stellar-ios-mac-sdk (1.6.7)
   - SwiftCBOR (0.3.0)
   - SwiftLint (0.27.0)
   - SwiftyJSON (4.2.0)
@@ -31,6 +32,7 @@ DEPENDENCIES:
   - GBAsyncOperation
   - KeychainSwift
   - Sodium
+  - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftLint
   - SwiftyJSON
@@ -46,6 +48,7 @@ SPEC REPOS:
     - secp256k1.c
     - Sodium
     - Starscream
+    - stellar-ios-mac-sdk
     - SwiftCBOR
     - SwiftLint
     - SwiftyJSON
@@ -60,11 +63,12 @@ SPEC CHECKSUMS:
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 08172b481e145289c4930cb567230fb55897cfa4
+  stellar-ios-mac-sdk: 9e2aa01b9f63af27ea3cbc012facfaada8e542bc
   SwiftCBOR: 0b6b686bf24b77d06d35a2a6298713358c761bf8
   SwiftLint: 3207c1faa2240bf8973b191820a116113cd11073
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
   web3.swift.pod: 66048c11416c2e7a9a4b35fe42254d0f0d9db4b1
 
-PODFILE CHECKSUM: ee84ae3f7e9c1c7fb2729dc9d7dfb4155d01008f
+PODFILE CHECKSUM: ffabbabb8f4e9903f8ce19041061d81cd8711f63
 
 COCOAPODS: 1.7.5
