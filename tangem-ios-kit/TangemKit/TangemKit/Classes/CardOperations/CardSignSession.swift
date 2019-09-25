@@ -7,7 +7,6 @@
 //
 
 import UIKit
-
 #if canImport(CoreNFC)
 import CoreNFC
 #endif
@@ -69,6 +68,14 @@ public class CardSignSession: NSObject {
     }
     
     private var tagTimer: Timer?
+    
+    private lazy var delayFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = .second
+        return formatter
+    }()
+    
     private func startTagTimer() {
         DispatchQueue.main.async {
             self.tagTimer?.invalidate()
@@ -159,7 +166,9 @@ public class CardSignSession: NSObject {
                 switch cardState {
                 case .needPause:
                     if let remainingMilliseconds = respApdu.tlv[.pause]?.value?.intValue {
-                        self.readerSession?.alertMessage = "\(Localizations.dialogSecurityDelay): \(remainingMilliseconds/100) \(Localizations.secondsLeft)"
+                        if let timeString = self.delayFormatter.string(from: TimeInterval(remainingMilliseconds/100)) {
+                            self.readerSession?.alertMessage = Localizations.secondsLeft(timeString)
+                        }
                     }
                 
                     if respApdu.tlv[.flash] != nil {
