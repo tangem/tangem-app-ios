@@ -7,5 +7,6 @@ def tangemioskit_pods
     pod 'SwiftCBOR'
     pod 'Sodium'
     pod 'web3.swift.pod'
+    pod 'stellar-ios-mac-sdk'
     pod 'KeychainSwift'
 end
