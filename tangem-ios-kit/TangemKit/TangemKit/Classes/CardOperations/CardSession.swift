@@ -23,6 +23,10 @@ public class CardSession: NSObject {
     private let completion: (CardSessionResult<[CardTag : CardTLV]>) -> Void
     private var readerSession: NFCTagReaderSession?
     private var cardHandled: Bool = false
+    private lazy var terminalKeysManager:TerminalKeysManager = {
+        let manager = TerminalKeysManager()
+        return manager
+    }()
     public private(set) var isBusy: Bool = false
     
     public init(completion: @escaping (CardSessionResult<[CardTag : CardTLV]>) -> Void) {
@@ -38,7 +42,11 @@ public class CardSession: NSObject {
     }
     
     private func buildReadApdu() -> NFCISO7816APDU {
-        let tlvData = [CardTLV(.pin, value: "000000".sha256().asciiHexToData())]
+        var tlvData = [CardTLV(.pin, value: "000000".sha256().asciiHexToData())]
+        if let keys = terminalKeysManager.getKeys() {
+            tlvData.append(CardTLV(.terminalPublicKey, value: Array(keys.publicKey)))
+        }
+        
         let commandApdu = CommandApdu(with: .read, tlv: tlvData)
         let signApduBytes = commandApdu.buildCommand()
         let apdu = NFCISO7816APDU(data: Data(bytes: signApduBytes))!
@@ -144,6 +152,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
             session.connect(to: nfcTag) {[unowned self] error in
                 guard error == nil else {
                     session.invalidate(errorMessage: error!.localizedDescription)
+                    self.completion(.failure(error!))
                     return
                 }
                 
@@ -183,14 +192,13 @@ extension CardSession: NFCTagReaderSessionDelegate {
                                 } else {
                                     self.completion(.failure("Card verification failed"))
                                 }
-                                break
                             default:
-                                break
+                                session.restartPolling()
                             }
                         }
                         break
-                    default:
-                        break
+                     default:
+                         session.restartPolling()
                     }
                 }
             }
