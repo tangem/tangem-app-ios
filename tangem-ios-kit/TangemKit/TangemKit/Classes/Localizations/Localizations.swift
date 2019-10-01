@@ -9,7 +9,16 @@
 import Foundation
 
 class Localizations {
-    private static let bundle = Bundle(for: Localizations.self)
+    
+    private static var bundle: Bundle = {
+        let selfBundle = Bundle(for: Localizations.self)
+        if let path = selfBundle.path(forResource: "TangemKit", ofType: "bundle"),
+            let bundle = Bundle(path: path) {
+            return bundle
+        } else {
+            return selfBundle
+        }
+    }()
     
     static let dialogSecurityDelay = translate("dialog_security_delay")
     static let unknownCardState = translate("nfc_unknown_card_state")
