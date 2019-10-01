@@ -26,6 +26,8 @@ protocol NFCReaderSessionAdapter {
 
 @available(iOS 13.0, *)
 public class NFCReader: NSObject {
+    public let enableSessionInvalidateByTimer = true
+    
     private let connectedTag = CurrentValueSubject<NFCISO7816Tag?,NFCReaderError>(nil)
     private let readerSession = CurrentValueSubject<NFCTagReaderSession?,NFCReaderError>(nil)
     private var subscription: AnyCancellable?
@@ -38,6 +40,8 @@ public class NFCReader: NSObject {
     private var tagTimer: Timer?
     
     private func startSessionTimer() {
+        guard enableSessionInvalidateByTimer else { return }
+        
         DispatchQueue.global().async {
             self.sessionTimer?.invalidate()
             self.sessionTimer = Timer.scheduledTimer(timeInterval: Constants.sessionTimeout, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
@@ -45,6 +49,8 @@ public class NFCReader: NSObject {
     }
     
     private func startTagTimer() {
+        guard enableSessionInvalidateByTimer else { return }
+        
         DispatchQueue.global().async {
             self.tagTimer?.invalidate()
             self.tagTimer = Timer.scheduledTimer(timeInterval: Constants.tagTimeout, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
