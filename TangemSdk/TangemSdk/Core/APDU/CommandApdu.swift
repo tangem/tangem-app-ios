@@ -23,34 +23,31 @@ public struct CommandApdu {
     private let data: Data
     private let le: Byte = 0x00 //  Estiamted response length. Not used
     
-    public init(_ instruction: Instruction, tlv: [Tlv]) {
-        self.init(instruction: instruction.rawValue, tlv: tlv )
+    /// Optional encryption
+    private let encryptionKey: Data?
+    
+    public init(_ instruction: Instruction, tlv: [Tlv], encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) {
+        self.init(instruction: instruction.rawValue, tlv: tlv, p1: encryptionMode.rawValue, p2: 0x0, encryptionKey: encryptionKey)
     }
     
-    public init(instruction: Byte, tlv: [Tlv]) {
-           cla = Constants.isoCLA
-           ins = instruction
-           p1 = 0
-           p2 = 0
-           data = tlv.bytes //serizalize tlv array
+    public init(instruction: Byte, tlv: [Tlv], p1: Byte = 0x0, p2: Byte = 0x0, encryptionKey: Data? = nil) {
+        cla = Constants.isoCLA
+        ins = instruction
+        self.p1 = p1
+        self.p2 = p2
+        self.encryptionKey = encryptionKey
+        data = tlv.serialize() //serialize tlv array
     }
     
     /// Serialize command apdu to raw Data
     /// - Parameter encryptionKey: encrypt if key exist
-    public func serizalize(encryptionKey: Data? = nil) -> NFCISO7816APDU? {
-        //calculate length for efficient reserve capacity
-        var length = 4 // CLA, INS, P1, P2
+    public func serizalize() -> NFCISO7816APDU? {
         let lc = data.count
-        if lc > 0 { //if has data
-            length += 1 // reserve for LC
-            if lc >= 256 {
-                length += 2 //long length format
-            }
-            length += lc // DATA length
-        }
-        
         var apdu = Data()
-        apdu.reserveCapacity(length)
+        
+        let apduLength = calculateApduLength(for: lc)
+        apdu.reserveCapacity(apduLength)
+        
         apdu.append(cla)
         apdu.append(ins)
         apdu.append(p1)
@@ -67,6 +64,22 @@ public struct CommandApdu {
         }
         
         return NFCISO7816APDU(data: apdu)
+    }
+    
+    /// calculate length for efficient reserve capacity
+    /// - Parameter dataLength: data  count
+    private func calculateApduLength(for dataLength: Int) -> Int {
+        var length = 4 // CLA, INS, P1, P2
+        
+        if dataLength > 0 { //if has data
+            length += 1 // reserve for LC
+            if dataLength >= 256 {
+                length += 2 //long length format
+            }
+            length += dataLength // DATA length
+        }
+        
+        return length
     }
 }
 
