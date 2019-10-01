@@ -48,6 +48,8 @@ public struct Tlv {
         return bytes
     }
     
+    /// Try to deserialize raw data to array of tlv items
+    /// - Parameter data: raw TLV-array
     fileprivate static func deserialize(_ data: Data) -> [Tlv]? {
         let dataStream = InputStream(data: data)
         dataStream.open()
@@ -76,7 +78,9 @@ public struct Tlv {
         return tags
     }
     
-    private func readTagLength(_ dataStream: InputStream) -> Int? {
+    /// Helper method. Try to read length from dataStream
+    /// - Parameter dataStream: dataStream initialized with raw tlv
+    private static func readTagLength(_ dataStream: InputStream) -> Int? {
         guard let shortLengthBytes = dataStream.readByte() else {
             print("Failed to read tag lenght")
             return nil
@@ -96,11 +100,20 @@ public struct Tlv {
 }
 
 extension Array where Element == Tlv {
+    
+    /// Serialize array of tlv items to Data
+    /// - Parameter array: tlv array
     public func serialize(_ array: [Tlv]) -> Data {
         return Data(array.reduce([], { $0 + $1.serialize() }))
     }
     
+    /// Deserialize raw tlv data to array of tlv items
+    /// - Parameter data: Raw TLV data
     public init?(_ data: Data) {
-        self = Tlv.deserialize(data)
+        guard let tlvArray = Tlv.deserialize(data) else {
+            return nil
+        }
+        
+        self = tlvArray
     }
 }
