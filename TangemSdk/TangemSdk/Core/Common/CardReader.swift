@@ -7,13 +7,10 @@
 //
 
 import Foundation
-#if canImport(CoreNFC)
-import CoreNFC
-#endif
 
 @available(iOS 13.0, *)
 public protocol CardReader {
     func startSession()
     func stopSession()
-    func send(command: NFCISO7816APDU, completion: @escaping (TangemResult<ResponseApdu>) -> Void)
+    func send(command: CommandApdu, completion: @escaping (TangemResult<ResponseApdu>) -> Void)
 }
