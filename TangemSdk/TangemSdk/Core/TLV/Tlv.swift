@@ -99,12 +99,11 @@ public struct Tlv {
     }
 }
 
-extension Array where Element == Tlv {
-    
+extension Array where Element == Tlv {    
     /// Serialize array of tlv items to Data
     /// - Parameter array: tlv array
-    public func serialize(_ array: [Tlv]) -> Data {
-        return Data(array.reduce([], { $0 + $1.serialize() }))
+    public func serialize() -> Data {
+        return Data(self.reduce([], { $0 + $1.serialize() }))
     }
     
     /// Deserialize raw tlv data to array of tlv items
