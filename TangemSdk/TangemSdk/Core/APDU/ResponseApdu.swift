@@ -24,16 +24,16 @@ public struct ResponseApdu {
         self.data = data
     }
     
-    /// Deserialize raw apdu Data
+    /// Deserialize raw apdu data
     /// - Parameter encryptionKey: decrypt if key exist
     public func deserialize(encryptionKey: Data? = nil) -> [Tlv]? {
-        guard let commonTlv = Tlv.deserialize(data) else {
+        guard let commonTlv = [Tlv](data) else {
             return nil
         }
         
         //flatten cardData tlv if exist
         if let cardData = commonTlv.first(where: { $0.tag == .cardData })?.value {
-            guard let cardDataTlv = Tlv.deserialize(cardData) else {
+            guard let cardDataTlv = [Tlv](cardData) else {
                 return nil
             }
             
