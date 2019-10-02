@@ -59,3 +59,35 @@ class ReadCardCommand: Command {
         return cApdu
     }
 }
+
+//MARK: Sign command
+struct SignResult: TlvConvertible {
+    init?(from tlv: [Tlv]) {
+        <#code#>
+    }
+}
+
+@available(iOS 13.0, *)
+class SignCommand: Command {
+    typealias CommandResult = SignResult
+    
+    func serialize(with environment: CardEnvironment) -> CommandApdu {
+        <#code#>
+    }
+}
+
+//MARK: CheckWallet command
+struct CheckWalletResult: TlvConvertible {
+    init?(from tlv: [Tlv]) {
+        <#code#>
+    }
+}
+
+@available(iOS 13.0, *)
+class CheckWalletCommand: Command {
+    typealias CommandResult = CheckWalletResult
+    
+    func serialize(with environment: CardEnvironment) -> CommandApdu {
+        <#code#>
+    }
+}
