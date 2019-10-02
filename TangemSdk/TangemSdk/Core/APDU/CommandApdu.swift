@@ -12,7 +12,7 @@ import CoreNFC
 #endif
 
 @available(iOS 13.0, *)
-public struct CommandApdu {
+public class CommandApdu {
     //MARK: Header
     let cla: Byte
     let ins: Byte
