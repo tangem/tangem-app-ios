@@ -7,10 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5D58B4BD233E465300F33764 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4BC233E465300F33764 /* Error.swift */; };
 		5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4BE233E4C6B00F33764 /* InputStream+.swift */; };
 		5D58B4C1233E54A400F33764 /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4C0233E54A400F33764 /* Int+.swift */; };
+		5D6A92D82344E2D700158457 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D6A92DA2344E2D700158457 /* Localizable.strings */; };
+		5D6A92DC2344E3A500158457 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92DB2344E3A500158457 /* Localizations.swift */; };
 		5D7D5FB02343598500058D69 /* EncryptionMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FAF2343598500058D69 /* EncryptionMode.swift */; };
+		5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB123449D4000058D69 /* CardEnvironment.swift */; };
+		5D7D5FB423449F2300058D69 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB323449F2300058D69 /* Command.swift */; };
 		5DA5B611233E11950058C720 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B610233E11950058C720 /* CommandApdu.swift */; };
 		5DA5B613233E11A50058C720 /* ResponseApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B612233E11A50058C720 /* ResponseApdu.swift */; };
 		5DA5B616233E12170058C720 /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B615233E12170058C720 /* Instruction.swift */; };
@@ -37,10 +40,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		5D58B4BC233E465300F33764 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		5D58B4BE233E4C6B00F33764 /* InputStream+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		5D58B4C0233E54A400F33764 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
+		5D6A92D92344E2D700158457 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5D6A92DB2344E3A500158457 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		5D7D5FAF2343598500058D69 /* EncryptionMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionMode.swift; sourceTree = "<group>"; };
+		5D7D5FB123449D4000058D69 /* CardEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnvironment.swift; sourceTree = "<group>"; };
+		5D7D5FB323449F2300058D69 /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		5DA5B610233E11950058C720 /* CommandApdu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandApdu.swift; sourceTree = "<group>"; };
 		5DA5B612233E11A50058C720 /* ResponseApdu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseApdu.swift; sourceTree = "<group>"; };
 		5DA5B615233E12170058C720 /* Instruction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
@@ -78,6 +84,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5D6A92D52344E2B400158457 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5D6A92DA2344E2D700158457 /* Localizable.strings */,
+				5D6A92DB2344E3A500158457 /* Localizations.swift */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		5DA5B614233E11DD0058C720 /* APDU */ = {
 			isa = PBXGroup;
 			children = (
@@ -140,7 +155,8 @@
 			children = (
 				5DF7CFCB233D03BD00461F4D /* TangemResult.swift */,
 				5DF7CFCD233D058D00461F4D /* CardReader.swift */,
-				5D58B4BC233E465300F33764 /* Error.swift */,
+				5D7D5FB123449D4000058D69 /* CardEnvironment.swift */,
+				5D7D5FB323449F2300058D69 /* Command.swift */,
 				5D7D5FAF2343598500058D69 /* EncryptionMode.swift */,
 			);
 			path = Common;
@@ -149,6 +165,7 @@
 		5DFFC49C233B9D43004964E8 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				5D6A92D52344E2B400158457 /* Resources */,
 				5DA5B61F233E13180058C720 /* TLV */,
 				5DA5B614233E11DD0058C720 /* APDU */,
 				5DF7CFCA233D034E00461F4D /* Common */,
@@ -269,6 +286,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D6A92D82344E2D700158457 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,11 +310,13 @@
 				5DF7CFCE233D058D00461F4D /* CardReader.swift in Sources */,
 				5D7D5FB02343598500058D69 /* EncryptionMode.swift in Sources */,
 				5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */,
-				5D58B4BD233E465300F33764 /* Error.swift in Sources */,
+				5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */,
 				5DA5B613233E11A50058C720 /* ResponseApdu.swift in Sources */,
 				5DA5B618233E124A0058C720 /* Status.swift in Sources */,
 				5DA5B616233E12170058C720 /* Instruction.swift in Sources */,
+				5D6A92DC2344E3A500158457 /* Localizations.swift in Sources */,
 				5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */,
+				5D7D5FB423449F2300058D69 /* Command.swift in Sources */,
 				5DF7CFCC233D03BD00461F4D /* TangemResult.swift in Sources */,
 				5DFFC49F233B9D69004964E8 /* NFCReader.swift in Sources */,
 				5DFFC4A2233BA5E0004964E8 /* Byte+.swift in Sources */,
@@ -320,6 +340,17 @@
 			targetProxy = 5DA80CA5231D247A00A50A10 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		5D6A92DA2344E2D700158457 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5D6A92D92344E2D700158457 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		5DA80CAC231D247A00A50A10 /* Debug */ = {
