@@ -12,5 +12,5 @@ import Foundation
 public protocol CardReader {
     func startSession()
     func stopSession()
-    func send(command: CommandApdu, completion: @escaping (TangemResult<ResponseApdu>) -> Void)
+    func send(command: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu>) -> Void)
 }
