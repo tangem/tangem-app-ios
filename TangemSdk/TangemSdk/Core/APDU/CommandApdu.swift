@@ -14,14 +14,14 @@ import CoreNFC
 @available(iOS 13.0, *)
 public class CommandApdu {
     //MARK: Header
-    let cla: Byte
-    let ins: Byte
-    let p1:  Byte
-    let p2:  Byte
+    fileprivate let cla: Byte
+    fileprivate let ins: Byte
+    fileprivate let p1:  Byte
+    fileprivate let p2:  Byte
     
     //MARK: Body
-    let data: Data
-    let le: Int
+    fileprivate let data: Data
+    fileprivate let le: Int
     
     /// Optional encryption
     private let encryptionKey: Data?
@@ -31,7 +31,7 @@ public class CommandApdu {
     /// - Parameter tlv: data
     /// - Parameter encryptionMode:  optional encryption mode. Default to none
     /// - Parameter encryptionKey:  optional encryption
-    public init(_ instruction: Instruction, tlv: [Tlv], encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) {
+    public convenience init(_ instruction: Instruction, tlv: [Tlv], encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) {
         self.init(ins: instruction.rawValue,
                   p1: encryptionMode.rawValue,
                   tlv: tlv,
