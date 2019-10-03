@@ -78,4 +78,13 @@ public enum TlvTag: Byte {
     case isLinked = 0x58
     case terminalPublicKey = 0x5C
     case terminalTransactionSignature = 0x57
+    
+    var hasNestedTlv: Bool {
+        switch self {
+        case .cardData:
+            return true
+        default:
+            return false
+        }
+    }
 }

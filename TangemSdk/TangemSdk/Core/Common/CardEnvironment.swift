@@ -8,10 +8,13 @@
 
 import Foundation
 
-struct CardEnvironment {
-    let pin1: String = "000000"
-    let pin2: String = "000"
-    let terminalPrivateKey: Data?
-    let terminalPublicKey: Data?
-    let encryptionKey: Data?
+public struct CardEnvironment {
+    static let defaultPin1 = "000000"
+    static let defaultPin2 = "000"
+    
+    let pin1: String = defaultPin1
+    let pin2: String = defaultPin2
+    let terminalPrivateKey: Data? = nil
+    let terminalPublicKey: Data? = nil
+    let encryptionKey: Data? = nil
 }
