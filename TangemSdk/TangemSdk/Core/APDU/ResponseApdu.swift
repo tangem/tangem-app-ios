@@ -27,19 +27,17 @@ public class ResponseApdu {
     /// Deserialize raw apdu data
     /// - Parameter encryptionKey: decrypt if key exist
     public func deserialize(encryptionKey: Data? = nil) -> [Tlv]? {
-        guard let commonTlv = [Tlv](data) else {
+        guard let tlv = Array<Tlv>.init(data) else {
             return nil
         }
         
-        //flatten cardData tlv if exist
-        if let cardData = commonTlv.first(where: { $0.tag == .cardData })?.value {
-            guard let cardDataTlv = [Tlv](cardData) else {
-                return nil
+        let allTlv = tlv.compactMap { tlv -> [Tlv]? in
+            if tlv.tag.hasNestedTlv, let nestedTlv = Array<Tlv>.init(tlv.value) {
+                return nestedTlv
             }
-            
-            return commonTlv + cardDataTlv
-        } else {
-            return commonTlv
-        }
+            return nil
+        }.flatMap { $0 }
+        
+        return allTlv
     }
 }
