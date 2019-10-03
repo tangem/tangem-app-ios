@@ -8,17 +8,17 @@
 
 import Foundation
 
-typealias Card = ReadCardResponse
+typealias Card = ReadResponse
 
-struct ReadCardResponse: TlvMapable {
+struct ReadResponse: TlvMapable {
     init?(from tlv: [Tlv]) {
         return nil
     }
 }
 
 @available(iOS 13.0, *)
-class ReadCardCommand: Command {
-    typealias CommandResponse = ReadCardResponse
+class ReadCommand: Command {
+    typealias CommandResponse = ReadResponse
     
     init() {
         //[REDACTED_TODO_COMMENT]
