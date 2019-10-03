@@ -43,7 +43,6 @@ public class NFCReader: NSObject {
     
     private func startSessionTimer() {
         guard enableSessionInvalidateByTimer else { return }
-        
         DispatchQueue.global().async {
             self.sessionTimer?.invalidate()
             self.sessionTimer = Timer.scheduledTimer(timeInterval: NFCReader.sessionTimeout, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
@@ -61,7 +60,9 @@ public class NFCReader: NSObject {
     
     /// Invalidate session before session will close automatically
     @objc private func timerTimeout() {
-        stopSession()
+        guard let session = readerSession.value,
+            session.isReady else { return }
+        readerSession.value?.invalidate(errorMessage: Localizations.nfcSessionTimeout)
     }
 }
 
@@ -83,7 +84,7 @@ extension NFCReader: CardReader {
     /// Send apdu command to connected tag
     /// - Parameter command: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCReaderError otherwise
-    public func send(command: CommandApdu, completion: @escaping (TangemResult<ResponseApdu>) -> Void) {
+    public func send(command: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu>) -> Void) {
         subscription = Publishers.CombineLatest(readerSession, connectedTag) //because of readerSession and connectedTag bouth can produce errors
             .compactMap({ (session, tag) -> (NFCTagReaderSession, NFCISO7816Tag)? in  //ignore initial nil values
                 guard let s = session, let t = tag else {
@@ -112,7 +113,7 @@ extension NFCReader: CardReader {
                     } else {
                         let responseApdu = ResponseApdu(data, sw1 ,sw2)
                         completion(.success(responseApdu))
-                        self?.connectedTag.send(completion: Subscribers.Completion<NFCReaderError>.finished)
+                        self?.subscription?.cancel()
                     }
                 }
             })
@@ -128,6 +129,8 @@ extension NFCReader: NFCTagReaderSessionDelegate {
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
         let nfcError = error as! NFCReaderError
+        tagTimer?.invalidate()
+        sessionTimer?.invalidate()        
         readerSession.send(completion: Subscribers.Completion<NFCReaderError>.failure(nfcError))
     }
     
