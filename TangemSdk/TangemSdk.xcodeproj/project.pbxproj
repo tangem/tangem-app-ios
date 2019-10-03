@@ -16,6 +16,8 @@
 		5D6A92E32345F2A300158457 /* ReadCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92E22345F2A300158457 /* ReadCommand.swift */; };
 		5D6A92E52345F2B200158457 /* SignCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92E42345F2B200158457 /* SignCommand.swift */; };
 		5D6A92E72345F2D600158457 /* CheckWalletCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92E62345F2D600158457 /* CheckWalletCommand.swift */; };
+		5D6A92EA2345FF2200158457 /* SingleCommandTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92E92345FF2200158457 /* SingleCommandTask.swift */; };
+		5D6A92EC2346069700158457 /* CardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92EB2346069700158457 /* CardManager.swift */; };
 		5D7D5FB02343598500058D69 /* EncryptionMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FAF2343598500058D69 /* EncryptionMode.swift */; };
 		5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB123449D4000058D69 /* CardEnvironment.swift */; };
 		5D7D5FB423449F2300058D69 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB323449F2300058D69 /* Command.swift */; };
@@ -54,6 +56,8 @@
 		5D6A92E22345F2A300158457 /* ReadCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadCommand.swift; sourceTree = "<group>"; };
 		5D6A92E42345F2B200158457 /* SignCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignCommand.swift; sourceTree = "<group>"; };
 		5D6A92E62345F2D600158457 /* CheckWalletCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckWalletCommand.swift; sourceTree = "<group>"; };
+		5D6A92E92345FF2200158457 /* SingleCommandTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCommandTask.swift; sourceTree = "<group>"; };
+		5D6A92EB2346069700158457 /* CardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardManager.swift; sourceTree = "<group>"; };
 		5D7D5FAF2343598500058D69 /* EncryptionMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionMode.swift; sourceTree = "<group>"; };
 		5D7D5FB123449D4000058D69 /* CardEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnvironment.swift; sourceTree = "<group>"; };
 		5D7D5FB323449F2300058D69 /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
@@ -111,6 +115,14 @@
 				5D6A92E62345F2D600158457 /* CheckWalletCommand.swift */,
 			);
 			path = Commands;
+			sourceTree = "<group>";
+		};
+		5D6A92E82345FF1300158457 /* Tasks */ = {
+			isa = PBXGroup;
+			children = (
+				5D6A92E92345FF2200158457 /* SingleCommandTask.swift */,
+			);
+			path = Tasks;
 			sourceTree = "<group>";
 		};
 		5DA5B614233E11DD0058C720 /* APDU */ = {
@@ -180,6 +192,7 @@
 				5D7D5FAF2343598500058D69 /* EncryptionMode.swift */,
 				5D6A92DD2344F1DC00158457 /* Task.swift */,
 				5D6A92DF2344F2F900158457 /* CardManagerDelegate.swift */,
+				5D6A92EB2346069700158457 /* CardManager.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -187,6 +200,7 @@
 		5DFFC49C233B9D43004964E8 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				5D6A92E82345FF1300158457 /* Tasks */,
 				5D6A92E12345F28F00158457 /* Commands */,
 				5D6A92D52344E2B400158457 /* Resources */,
 				5DA5B61F233E13180058C720 /* TLV */,
@@ -327,6 +341,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D6A92EA2345FF2200158457 /* SingleCommandTask.swift in Sources */,
 				5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */,
 				5DA5B611233E11950058C720 /* CommandApdu.swift in Sources */,
 				5D6A92E02344F2F900158457 /* CardManagerDelegate.swift in Sources */,
@@ -344,6 +359,7 @@
 				5D6A92DC2344E3A500158457 /* Localizations.swift in Sources */,
 				5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */,
 				5D7D5FB423449F2300058D69 /* Command.swift in Sources */,
+				5D6A92EC2346069700158457 /* CardManager.swift in Sources */,
 				5DF7CFCC233D03BD00461F4D /* CompletionResult.swift in Sources */,
 				5DFFC49F233B9D69004964E8 /* NFCReader.swift in Sources */,
 				5D6A92DE2344F1DC00158457 /* Task.swift in Sources */,
