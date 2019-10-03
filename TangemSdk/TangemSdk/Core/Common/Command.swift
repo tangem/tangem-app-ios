@@ -12,82 +12,26 @@ import Foundation
 import CoreNFC
 #endif
 
-protocol TlvConvertible {
+public protocol TlvMapable {
     init?(from tlv: [Tlv])
 }
 
 @available(iOS 13.0, *)
-protocol Command {
-    associatedtype CommandResult: TlvConvertible
+public protocol Command {
+    associatedtype CommandResponse: TlvMapable
     
     func serialize(with environment: CardEnvironment) -> CommandApdu
-    func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) -> CommandResult?
+    func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) -> CommandResponse?
 }
 
 @available(iOS 13.0, *)
-extension Command {
-    func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) -> CommandResult? {
+public extension Command {
+    func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) -> CommandResponse? {
         guard let tlv = apdu.deserialize(encryptionKey: environment.encryptionKey),
-            let readResult = CommandResult(from: tlv) else {
+            let commandResponse = CommandResponse(from: tlv) else {
                 return nil
         }
         
-        return readResult
-    }
-}
-
-//MARK: Read command
-typealias Card = ReadCardResult
-
-struct ReadCardResult: TlvConvertible {
-    init?(from tlv: [Tlv]) {
-        return nil
-    }
-}
-
-@available(iOS 13.0, *)
-class ReadCardCommand: Command {
-    typealias CommandResult = ReadCardResult
-    
-    init() {
-        //[REDACTED_TODO_COMMENT]
-    }
-    
-    func serialize(with environment: CardEnvironment) -> CommandApdu {
-        let tlv = [Tlv]()
-        let cApdu = CommandApdu(.read, tlv: tlv)
-        return cApdu
-    }
-}
-
-//MARK: Sign command
-struct SignResult: TlvConvertible {
-    init?(from tlv: [Tlv]) {
-        <#code#>
-    }
-}
-
-@available(iOS 13.0, *)
-class SignCommand: Command {
-    typealias CommandResult = SignResult
-    
-    func serialize(with environment: CardEnvironment) -> CommandApdu {
-        <#code#>
-    }
-}
-
-//MARK: CheckWallet command
-struct CheckWalletResult: TlvConvertible {
-    init?(from tlv: [Tlv]) {
-        <#code#>
-    }
-}
-
-@available(iOS 13.0, *)
-class CheckWalletCommand: Command {
-    typealias CommandResult = CheckWalletResult
-    
-    func serialize(with environment: CardEnvironment) -> CommandApdu {
-        <#code#>
+        return commandResponse
     }
 }
