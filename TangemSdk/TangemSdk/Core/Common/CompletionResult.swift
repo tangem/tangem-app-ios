@@ -1,5 +1,5 @@
 //
-//  TangemResult.swift
+//  CompletionResult.swift
 //  TangemSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum TangemResult<T> {
+public enum CompletionResult<T> {
     case success(T)
     case failure(Error)
 }
