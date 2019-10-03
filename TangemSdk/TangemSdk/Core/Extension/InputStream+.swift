@@ -10,7 +10,7 @@ import Foundation
 
 extension InputStream {
     func readBytes(count: Int) -> Data? {
-        var buffer: [UInt8] = Array(repeating: 0x00, count: count)
+        var buffer: [Byte] = Array(repeating: 0x00, count: count)
         let bytesRead = self.read(&buffer, maxLength: count)
         return bytesRead > 0 ? Data(buffer) : nil
     }
