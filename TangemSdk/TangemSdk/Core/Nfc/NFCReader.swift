@@ -70,6 +70,10 @@ public class NFCReader: NSObject {
 extension NFCReader: CardReader {
     /// Start session and try to connect with tag
     public func startSession() {
+        if let existingSession = readerSession.value, existingSession.isReady {
+            return
+        }
+        
         let session = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
         session.alertMessage = Localizations.nfcAlertDefault
         session.begin()
