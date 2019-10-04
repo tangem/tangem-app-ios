@@ -8,23 +8,23 @@
 
 import Foundation
 
-typealias Card = ReadResponse
+public typealias Card = ReadResponse
 
-struct ReadResponse: TlvMapable {
-    init?(from tlv: [Tlv]) {
+public struct ReadResponse: TlvMapable {
+    public init?(from tlv: [Tlv]) {
         return nil
     }
 }
 
 @available(iOS 13.0, *)
-class ReadCommand: Command {
-    typealias CommandResponse = ReadResponse
+public class ReadCommand: Command {
+    public typealias CommandResponse = ReadResponse
     
     init() {
         //[REDACTED_TODO_COMMENT]
     }
     
-    func serialize(with environment: CardEnvironment) -> CommandApdu {
+    public func serialize(with environment: CardEnvironment) -> CommandApdu {
         let tlv = [Tlv]()
         let cApdu = CommandApdu(.read, tlv: tlv)
         return cApdu
