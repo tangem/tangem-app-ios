@@ -19,6 +19,7 @@
 		5D6A92EA2345FF2200158457 /* SingleCommandTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92E92345FF2200158457 /* SingleCommandTask.swift */; };
 		5D6A92EC2346069700158457 /* CardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92EB2346069700158457 /* CardManager.swift */; };
 		5D6A92EE23463D1200158457 /* ScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92ED23463D1200158457 /* ScanTask.swift */; };
+		5D6A92F12347796200158457 /* SignTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92F02347796200158457 /* SignTask.swift */; };
 		5D7D5FB02343598500058D69 /* EncryptionMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FAF2343598500058D69 /* EncryptionMode.swift */; };
 		5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB123449D4000058D69 /* CardEnvironment.swift */; };
 		5D7D5FB423449F2300058D69 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB323449F2300058D69 /* Command.swift */; };
@@ -60,6 +61,7 @@
 		5D6A92E92345FF2200158457 /* SingleCommandTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCommandTask.swift; sourceTree = "<group>"; };
 		5D6A92EB2346069700158457 /* CardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardManager.swift; sourceTree = "<group>"; };
 		5D6A92ED23463D1200158457 /* ScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTask.swift; sourceTree = "<group>"; };
+		5D6A92F02347796200158457 /* SignTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTask.swift; sourceTree = "<group>"; };
 		5D7D5FAF2343598500058D69 /* EncryptionMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionMode.swift; sourceTree = "<group>"; };
 		5D7D5FB123449D4000058D69 /* CardEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnvironment.swift; sourceTree = "<group>"; };
 		5D7D5FB323449F2300058D69 /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 			children = (
 				5D6A92E92345FF2200158457 /* SingleCommandTask.swift */,
 				5D6A92ED23463D1200158457 /* ScanTask.swift */,
+				5D6A92F02347796200158457 /* SignTask.swift */,
 			);
 			path = Tasks;
 			sourceTree = "<group>";
@@ -354,6 +357,7 @@
 				5DF7CFCE233D058D00461F4D /* CardReader.swift in Sources */,
 				5D7D5FB02343598500058D69 /* EncryptionMode.swift in Sources */,
 				5D6A92E72345F2D600158457 /* CheckWalletCommand.swift in Sources */,
+				5D6A92F12347796200158457 /* SignTask.swift in Sources */,
 				5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */,
 				5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */,
 				5DA5B613233E11A50058C720 /* ResponseApdu.swift in Sources */,
