@@ -7,7 +7,7 @@
 
 public struct CommandApdu {
     private let isoCLA: UInt8 = 0x00
-    private let legacyModeTlv = CardTLV(.legacyMode, value: [UInt8(4)])
+    private let legacyModeTlv = CardTLV(.legacyMode, value: [UInt8(2)])
     
     //MARK: Header
     private let cla: UInt8
