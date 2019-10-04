@@ -19,19 +19,19 @@ public protocol Task {
     var cardReader: CardReader {get set}
     var delegate: CardManagerDelegate? {get set}
 
-    func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>) -> Void )
+    func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>, CardEnvironment?) -> Void )
 }
 
 @available(iOS 13.0, *)
 extension Task {
-    func executeCommand<AnyCommand>(_ command: AnyCommand, reader: CardReader, environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>) -> Void)
+    func executeCommand<AnyCommand>(_ command: AnyCommand, reader: CardReader, environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>, CardEnvironment?) -> Void)
         where AnyCommand: Command {
             let commandApdu = command.serialize(with: environment)
             reader.send(command: commandApdu) { commandResult in
                 switch commandResult {
                 case .success(let responseApdu):
                     guard let status = responseApdu.status else {
-                        completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
+                        completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw), nil))
                         return
                     }
                     
