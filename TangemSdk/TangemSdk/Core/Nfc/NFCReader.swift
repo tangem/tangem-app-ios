@@ -16,7 +16,7 @@ import CoreNFC
 typealias IOSNFCReader = CardReader & NFCReaderText & NFCReaderSessionAdapter
 
 /// For setting alertMessage into NFC popup
-public protocol NFCReaderText {
+public protocol NFCReaderText: class {
     var alertMessage: String {get set}
 }
 
