@@ -22,7 +22,7 @@ public class SingleCommandTask<TCommand, TResult>: Task where TCommand: Command 
     }
     
     public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TResult>) -> Void) {
-        executeCommand(command, reader: cardReader, environment: environment) { result in
+        executeCommand(command, reader: cardReader, environment: environment) { result, environment in
             switch result {
             case .success(let taskResult):
                 completion(.success(taskResult))
