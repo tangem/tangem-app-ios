@@ -12,3 +12,18 @@ public protocol CardManagerDelegate: class {
     func showSecurityDelay(remainingSeconds: Int)
     func requestPin(completion: @escaping () -> CompletionResult<String>)
 }
+
+class DefaultCardManagerDelegate: CardManagerDelegate {
+    private let reader: NFCReaderText
+    
+    init(reader: NFCReaderText) {
+        self.reader = reader
+    }
+    
+    func showSecurityDelay(remainingSeconds: Int) {
+        reader.alertMessage = "\(remainingSeconds)"
+    }
+    
+    func requestPin(completion: @escaping () -> CompletionResult<String>) {
+    }
+}
