@@ -13,3 +13,16 @@ public enum ScanTaskResult {
     case onVerify
     case failure(Error)
 }
+
+
+@available(iOS 13.0, *)
+public class ScanTask: Task {
+    public typealias TaskResult = ScanTaskResult
+    
+    public var cardReader: CardReader?
+    public var delegate: CardManagerDelegate?
+    
+    public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<ScanTaskResult>, CardEnvironment?) -> Void) {
+        
+    }
+}
