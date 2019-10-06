@@ -10,13 +10,14 @@ import Foundation
 
 public enum TaskError: Error {
     case unknownStatus(sw: UInt16)
+    case cardReaderNotSet
 }
 
 @available(iOS 13.0, *)
-public protocol Task {
+public protocol Task: class {
     associatedtype TaskResult
     
-    var cardReader: CardReader {get set}
+    var cardReader: CardReader? {get set}
     var delegate: CardManagerDelegate? {get set}
 
     func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>, CardEnvironment?) -> Void )
@@ -24,14 +25,19 @@ public protocol Task {
 
 @available(iOS 13.0, *)
 extension Task {
-    func executeCommand<AnyCommand>(_ command: AnyCommand, reader: CardReader, environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>, CardEnvironment?) -> Void)
+    func executeCommand<AnyCommand>(_ command: AnyCommand, environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>, CardEnvironment?) -> Void)
         where AnyCommand: Command {
+            guard let reader = cardReader else {
+                completion(.failure(TaskError.cardReaderNotSet), nil)
+                return
+            }
+               
             let commandApdu = command.serialize(with: environment)
             reader.send(command: commandApdu) { commandResult in
                 switch commandResult {
                 case .success(let responseApdu):
                     guard let status = responseApdu.status else {
-                        completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw), nil))
+                        completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)), nil)
                         return
                     }
                     
