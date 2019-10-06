@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-public protocol CardReader {
+public protocol CardReader: class {
     func startSession()
     func stopSession()
     func send(command: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu>) -> Void)
