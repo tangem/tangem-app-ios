@@ -24,15 +24,21 @@ public class CardManager{
     }
     
     public func scanCard(completion: @escaping (ScanTaskResult) -> Void) {
-        
+        let task = ScanTask()
+        runTask(task) { completionResult in
+            
+        }
     }
     
     public func sign(completion: @escaping (SignTaskResult) -> Void) {
-        
+        //[REDACTED_TODO_COMMENT]
     }
     
     func runTask<AnyTask>(_ task: AnyTask, environment: CardEnvironment? = nil,
                           completion: @escaping (CompletionResult<AnyTask.TaskResult>) -> Void) where AnyTask: Task {
+        task.cardReader = cardReader
+        task.delegate = cardManagerDelegate
+        
         task.run(with: environment ?? cardEnvironmentRepository.cardEnvironment) { completionResult, returnedEnvironment in
             switch completionResult {
             case .success(let taskResult):
@@ -46,6 +52,9 @@ public class CardManager{
     func runCommand<AnyCommand>(_ command: AnyCommand, environment: CardEnvironment? = nil, completion: (CompletionResult<AnyCommand.CommandResponse>) -> Void)
         where AnyCommand: Command {
             let task = SingleCommandTask<AnyCommand,AnyCommand.CommandResponse>(command: command)
+            task.cardReader = cardReader
+            task.delegate = cardManagerDelegate
+            
             runTask(task, environment: environment) { result in
                 switch result {
                 case.success(let commandResponse):
