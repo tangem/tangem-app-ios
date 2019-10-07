@@ -10,15 +10,22 @@ import Foundation
 
 struct CheckWalletResponse: TlvMapable {
     init?(from tlv: [Tlv]) {
-        <#code#>
+        //[REDACTED_TODO_COMMENT]
     }
 }
 
 @available(iOS 13.0, *)
-class CheckWalletCommand: Command {
+class CheckWalletCommand: CommandSerializer {
     typealias CommandResponse = CheckWalletResponse
     
+    init() {
+             //[REDACTED_TODO_COMMENT]
+    }
+    
     func serialize(with environment: CardEnvironment) -> CommandApdu {
-        <#code#>
+       let tlv = [Tlv]()
+        //[REDACTED_TODO_COMMENT]
+        let cApdu = CommandApdu(.checkWallet, tlv: tlv)
+        return cApdu
     }
 }
