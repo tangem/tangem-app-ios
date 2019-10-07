@@ -13,11 +13,12 @@ public typealias Card = ReadResponse
 public struct ReadResponse: TlvMapable {
     public init?(from tlv: [Tlv]) {
         return nil
+        //[REDACTED_TODO_COMMENT]
     }
 }
 
 @available(iOS 13.0, *)
-public class ReadCommand: Command {
+public class ReadCommand: CommandSerializer {
     public typealias CommandResponse = ReadResponse
     
     init() {
@@ -26,6 +27,7 @@ public class ReadCommand: Command {
     
     public func serialize(with environment: CardEnvironment) -> CommandApdu {
         let tlv = [Tlv]()
+        //[REDACTED_TODO_COMMENT]
         let cApdu = CommandApdu(.read, tlv: tlv)
         return cApdu
     }
