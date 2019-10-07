@@ -17,7 +17,7 @@ public protocol TlvMapable {
 }
 
 @available(iOS 13.0, *)
-public protocol Command {
+public protocol CommandSerializer {
     associatedtype CommandResponse: TlvMapable
     
     func serialize(with environment: CardEnvironment) -> CommandApdu
@@ -25,7 +25,7 @@ public protocol Command {
 }
 
 @available(iOS 13.0, *)
-public extension Command {
+public extension CommandSerializer {
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) -> CommandResponse? {
         guard let tlv = apdu.deserialize(encryptionKey: environment.encryptionKey),
             let commandResponse = CommandResponse(from: tlv) else {
