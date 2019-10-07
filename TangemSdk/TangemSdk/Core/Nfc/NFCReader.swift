@@ -88,7 +88,7 @@ extension NFCReader: CardReader {
     /// Send apdu command to connected tag
     /// - Parameter command: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCReaderError otherwise
-    public func send(command: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu>) -> Void) {
+    public func send(commandApdu: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu>) -> Void) {
         subscription = Publishers.CombineLatest(readerSession, connectedTag) //because of readerSession and connectedTag bouth can produce errors
             .compactMap({ (session, tag) -> (NFCTagReaderSession, NFCISO7816Tag)? in  //ignore initial nil values
                 guard let s = session, let t = tag else {
@@ -105,7 +105,7 @@ extension NFCReader: CardReader {
                 }
             }, receiveValue: { value in
                 let tag = value.1  // get connected tag
-                tag.sendCommand(apdu: NFCISO7816APDU(command)) {[weak self] (data, sw1, sw2, error) in
+                tag.sendCommand(apdu: NFCISO7816APDU(commandApdu)) {[weak self] (data, sw1, sw2, error) in
                     if let nfcError = error as? NFCReaderError {
                         if nfcError.code == .readerTransceiveErrorTagConnectionLost {
                             DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
