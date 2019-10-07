@@ -25,19 +25,20 @@ public class ResponseApdu {
     }
     
     /// Deserialize raw apdu data
-    /// - Parameter encryptionKey: decrypt if key exist
-    public func deserialize(encryptionKey: Data? = nil) -> [Tlv]? {
-        guard let tlv = Array<Tlv>.init(data) else {
+    /// - Parameter encryptionKey: decrypt if key exist - not implemented
+    public func getTlvData(encryptionKey: Data? = nil) -> [Tlv]? {
+        guard let tlv = Array<Tlv>.init(data) else { // Initialize TLV array with raw data from card response
             return nil
         }
         
+        //handle nested tlv. Refactoring needed?
         let allTlv = tlv.compactMap { tlv -> [Tlv]? in
             if tlv.tag.hasNestedTlv, let nestedTlv = Array<Tlv>.init(tlv.value) {
                 return nestedTlv
             }
             return nil
         }.flatMap { $0 }
-        
+        //[REDACTED_TODO_COMMENT]
         return allTlv
     }
 }
