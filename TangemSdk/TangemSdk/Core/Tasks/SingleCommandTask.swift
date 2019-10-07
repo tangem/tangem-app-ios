@@ -9,26 +9,19 @@
 import Foundation
 
 @available(iOS 13.0, *)
-public class SingleCommandTask<TCommand, TResult>: Task where TCommand: Command {
+public class SingleCommandTask<TCommandSerializer, TResult>: Task where TCommandSerializer: CommandSerializer {
     public typealias TaskResult = TResult
     
-    public var cardReader: CardReader
+    public var cardReader: CardReader?
     public var delegate: CardManagerDelegate?
     
-    private let command: TCommand
+    private let commandSerializer: TCommandSerializer
     
-    public init(command: TCommand) {
-        self.command = command
+    public init(_ commandSerializer: TCommandSerializer) {
+        self.commandSerializer = commandSerializer
     }
     
     public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TResult>, CardEnvironment?) -> Void) {
-        executeCommand(command, reader: cardReader, environment: environment) { result, environment in
-            switch result {
-            case .success(let taskResult):
-                completion(.success(taskResult), environment)
-            case .failure(let error):
-                completion(.failure(error), environment)
-            }
-        }
+        sendCommand(commandSerializer, environment: environment, completion: completion)
     }
 }
