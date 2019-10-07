@@ -31,7 +31,7 @@ public class ResponseApdu {
             return nil
         }
         
-        //handle nested tlv. Refactoring needed?
+        //handle nested tlv here to facilitate further response mapping
         let allTlv = tlv.compactMap { tlv -> [Tlv]? in
             if tlv.tag.hasNestedTlv, let nestedTlv = Array<Tlv>.init(tlv.value) {
                 return nestedTlv
