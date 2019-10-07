@@ -45,7 +45,7 @@ public class CommandApdu {
     /// - Parameter p2:  P2 parameter byte
     /// - Parameter le:  Le byte
     /// - Parameter tlv: data
-    /// - Parameter encryptionKey: optional encryption
+    /// - Parameter encryptionKey: optional encryption - not implemented
     public init(cla: Byte = 0x00,
                 ins: Byte,
                 p1: Byte = 0x0,
@@ -60,6 +60,8 @@ public class CommandApdu {
         self.le = le
         self.encryptionKey = encryptionKey
         data = tlv.serialize() //serialize tlv array
+        
+        //[REDACTED_TODO_COMMENT]
     }
 }
 
