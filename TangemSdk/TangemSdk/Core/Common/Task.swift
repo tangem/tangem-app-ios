@@ -25,23 +25,23 @@ public protocol Task: class {
 
 @available(iOS 13.0, *)
 extension Task {
-    func executeCommand<AnyCommand>(_ command: AnyCommand, environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>, CardEnvironment?) -> Void)
-        where AnyCommand: Command {
+    func sendCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>, CardEnvironment?) -> Void)
+        where AnyCommandSerializer: CommandSerializer {
             guard let reader = cardReader else {
                 completion(.failure(TaskError.cardReaderNotSet), nil)
                 return
             }
                
-            let commandApdu = command.serialize(with: environment)
-            reader.send(command: commandApdu) { commandResult in
-                switch commandResult {
+            let commandApdu = commandSerializer.serialize(with: environment)
+            reader.send(commandApdu: commandApdu) { commandResponse in
+                switch commandResponse {
                 case .success(let responseApdu):
                     guard let status = responseApdu.status else {
                         completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)), nil)
                         return
                     }
-                    
-                    switch status {
+                    //[REDACTED_TODO_COMMENT]
+                   /* switch status {
                         
                     case .processCompleted:
                         <#code#>
@@ -67,10 +67,11 @@ extension Task {
                         <#code#>
                     }
                     
-                    //completion(.success())
+                    completion(.success())
+                     */
                     break
                 case .failure(let error):
-                    completion(.failure(error))
+                    completion(.failure(error), nil)
                 }
             }
     }
