@@ -9,8 +9,8 @@
 import Foundation
 
 @available(iOS 13.0, *)
-public class SingleCommandTask<TCommandSerializer, TResult>: Task where TCommandSerializer: CommandSerializer {
-    public typealias TaskResult = TResult
+public class SingleCommandTask<TCommandSerializer>: Task where TCommandSerializer: CommandSerializer {
+    public typealias TaskResult = TCommandSerializer.CommandResponse
     
     public var cardReader: CardReader?
     public var delegate: CardManagerDelegate?
@@ -21,7 +21,7 @@ public class SingleCommandTask<TCommandSerializer, TResult>: Task where TCommand
         self.commandSerializer = commandSerializer
     }
     
-    public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TResult>, CardEnvironment?) -> Void) {
+    public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TCommandSerializer.CommandResponse>, CardEnvironment?) -> Void) {
         sendCommand(commandSerializer, environment: environment, completion: completion)
     }
 }
