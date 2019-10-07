@@ -23,14 +23,15 @@ public class CardManager{
         cardEnvironmentRepository = CardEnvironmentRepository(dataStorage: dataStorage)
     }
     
-    public func scanCard(completion: @escaping (ScanTaskResult) -> Void) {
+    public func scanCard(completion: @escaping (ScanResult) -> Void) {
+        //[REDACTED_TODO_COMMENT]
         let task = ScanTask()
         runTask(task) { completionResult in
             
         }
     }
     
-    public func sign(completion: @escaping (SignTaskResult) -> Void) {
+    public func sign(completion: @escaping (SignResult) -> Void) {
         //[REDACTED_TODO_COMMENT]
     }
     
@@ -39,9 +40,12 @@ public class CardManager{
         task.cardReader = cardReader
         task.delegate = cardManagerDelegate
         
-        task.run(with: environment ?? cardEnvironmentRepository.cardEnvironment) { completionResult, returnedEnvironment in
+        task.run(with: environment ?? cardEnvironmentRepository.cardEnvironment) {[weak self] completionResult, returnedEnvironment in
             switch completionResult {
             case .success(let taskResult):
+                if let newEnvironment = returnedEnvironment {
+                    self?.cardEnvironmentRepository.cardEnvironment = newEnvironment
+                }
                 completion(.success(taskResult))
             case .failure(let error):
                 completion(.failure(error))
@@ -49,20 +53,11 @@ public class CardManager{
         }
     }
     
-    func runCommand<AnyCommand>(_ command: AnyCommand, environment: CardEnvironment? = nil, completion: (CompletionResult<AnyCommand.CommandResponse>) -> Void)
-        where AnyCommand: Command {
-            let task = SingleCommandTask<AnyCommand,AnyCommand.CommandResponse>(command: command)
+    func runCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, environment: CardEnvironment? = nil, completion: @escaping (CompletionResult<AnyCommandSerializer.CommandResponse>) -> Void)
+        where AnyCommandSerializer: CommandSerializer {
+            let task = SingleCommandTask<AnyCommandSerializer,AnyCommandSerializer.CommandResponse>(commandSerializer)
             task.cardReader = cardReader
             task.delegate = cardManagerDelegate
-            
-            runTask(task, environment: environment) { result in
-                switch result {
-                case.success(let commandResponse):
-                    completion(.success(commandResponse))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
+            runTask(task, environment: environment,completion: completion)
     }
-    
 }
