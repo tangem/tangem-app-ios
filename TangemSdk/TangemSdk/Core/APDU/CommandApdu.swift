@@ -13,6 +13,8 @@ import CoreNFC
 
 @available(iOS 13.0, *)
 public class CommandApdu {
+    private static let legacyMode = Tlv(.legacyMode, value: Data([Byte(4)]))
+    
     //MARK: Header
     fileprivate let cla: Byte
     fileprivate let ins: Byte
@@ -59,9 +61,28 @@ public class CommandApdu {
         self.p2 = p2
         self.le = le
         self.encryptionKey = encryptionKey
-        data = tlv.serialize() //serialize tlv array
+        data = CommandApdu.applyAdditionalParams(tlv: tlv).serialize() //serialize tlv array
         
         //[REDACTED_TODO_COMMENT]
+    }
+    
+    private static func applyAdditionalParams(tlv: [Tlv]) -> [Tlv] {
+        var modifiedTlv = tlv
+        if needLegacyMode {
+            modifiedTlv.append(legacyMode)
+        }
+        return modifiedTlv
+    }
+    
+    private static var needLegacyMode: Bool {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        let identifier = machineMirror.children.reduce("") { identifier, element in
+            guard let value = element.value as? Int8, value != 0 else { return identifier }
+            return identifier + String(UnicodeScalar(UInt8(value)))
+        }
+        return identifier == "iPhone9,1" || identifier == "iPhone9,2" || identifier == "iPhone9,3" || identifier == "iPhone9,4"
     }
 }
 
