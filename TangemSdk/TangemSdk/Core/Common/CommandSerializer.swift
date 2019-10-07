@@ -26,8 +26,8 @@ public protocol CommandSerializer {
 
 @available(iOS 13.0, *)
 public extension CommandSerializer {
-    func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) -> CommandResponse? {
-        guard let tlv = apdu.deserialize(encryptionKey: environment.encryptionKey),
+    func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> CommandResponse? {
+        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
             let commandResponse = CommandResponse(from: tlv) else {
                 return nil
         }
