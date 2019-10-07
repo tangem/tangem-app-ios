@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ScanTaskResult {
+public enum ScanResult {
     case onRead
     case onVerify
     case failure(Error)
@@ -17,12 +17,12 @@ public enum ScanTaskResult {
 
 @available(iOS 13.0, *)
 public class ScanTask: Task {
-    public typealias TaskResult = ScanTaskResult
+    public typealias TaskResult = ScanResult
     
     public var cardReader: CardReader?
     public var delegate: CardManagerDelegate?
     
-    public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<ScanTaskResult>, CardEnvironment?) -> Void) {
-        
+    public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<ScanResult>, CardEnvironment?) -> Void) {
+        //[REDACTED_TODO_COMMENT]
     }
 }
