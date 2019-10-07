@@ -10,15 +10,22 @@ import Foundation
 
 struct SignResponse: TlvMapable {
     init?(from tlv: [Tlv]) {
-        <#code#>
+        //[REDACTED_TODO_COMMENT]
     }
 }
 
 @available(iOS 13.0, *)
-class SignCommand: Command {
+class SignCommand: CommandSerializer {
     typealias CommandResponse = SignResponse
     
+    init() {
+          //[REDACTED_TODO_COMMENT]
+      }
+    
     func serialize(with environment: CardEnvironment) -> CommandApdu {
-        <#code#>
+        let tlv = [Tlv]()
+        //[REDACTED_TODO_COMMENT]
+        let cApdu = CommandApdu(.sign, tlv: tlv)
+        return cApdu
     }
 }
