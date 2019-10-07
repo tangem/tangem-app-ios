@@ -8,12 +8,12 @@
 
 import Foundation
 
-public struct KeyPair {
+public struct KeyPair: Equatable {
     let privateKey: Data
     let publicKey: Data
 }
 
-public struct CardEnvironment {
+public struct CardEnvironment: Equatable {
     static let defaultPin1 = "000000"
     static let defaultPin2 = "000"
     
@@ -38,29 +38,29 @@ public protocol DataStorage {
 class CardEnvironmentRepository {
     var cardEnvironment: CardEnvironment {
         didSet {
-            if cardEnvironment == oldValue {
+            if cardEnvironment != oldValue {
                 save(cardEnvironment)
             }
         }
     }
-        
-    private var encryptionKey: Data? = nil
+    
     private let dataStorage: DataStorage
     
     init(dataStorage: DataStorage) {
         self.dataStorage = dataStorage
+        
+        let terminalKeys: KeyPair? = {
+            if let terminalPrivateKey = dataStorage.getTerminalPrivateKey(),
+                let terminalPublicKey = dataStorage.getTerminalPublicKey() {
+                return KeyPair(privateKey: terminalPrivateKey, publicKey: terminalPublicKey)
+            }
+            return nil
+        }()
+        
         self.cardEnvironment = CardEnvironment(pin1: dataStorage.getPin1() ?? CardEnvironment.defaultPin1,
                                                pin2: dataStorage.getPin2() ?? CardEnvironment.defaultPin2,
-                                               terminalKeys: getTerminalKeys(),
-                                               encryptionKey: self.encryptionKey)
-    }
-    
-    private func getTerminalKeys() -> KeyPair? {
-        if let terminalPrivateKey = dataStorage.getTerminalPrivateKey(),
-            let terminalPublicKey = dataStorage.getTerminalPublicKey() {
-            return KeyPair(privateKey: terminalPrivateKey, publicKey: terminalPublicKey)
-        }
-        return nil
+                                               terminalKeys: terminalKeys,
+                                               encryptionKey: nil)
     }
     
     private func save(_ cardEnvironment: CardEnvironment) {
