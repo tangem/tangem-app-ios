@@ -9,7 +9,7 @@
 import Foundation
 
 extension Data {
-    public func toHex() -> String {
+    public func toHexString() -> String {
         return self.map { return String(format: "%02X", $0) }.joined()
     }
     
