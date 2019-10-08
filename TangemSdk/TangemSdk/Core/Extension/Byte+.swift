@@ -9,3 +9,10 @@
 import Foundation
 
 public typealias Byte = UInt8
+
+extension UInt8 {
+    public func toHex() -> String {
+        let temp = self
+        return String(format: "%02X", temp)
+    }
+}
