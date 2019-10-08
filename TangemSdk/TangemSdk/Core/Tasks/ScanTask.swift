@@ -16,13 +16,10 @@ public enum ScanResult {
 
 
 @available(iOS 13.0, *)
-public class ScanTask: Task {
-    public typealias TaskResult = ScanResult
-    
-    public var cardReader: CardReader?
-    public var delegate: CardManagerDelegate?
-    
-    public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<ScanResult>, CardEnvironment?) -> Void) {
+public class ScanTask: Task<ScanResult> {
+    override public func run(with environment: CardEnvironment, completion: @escaping (ScanResult) -> Void) {
+         super.run(with: environment, completion: completion)
         //[REDACTED_TODO_COMMENT]
+        
     }
 }
