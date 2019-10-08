@@ -32,7 +32,6 @@
 		5DA80CA4231D247A00A50A10 /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA80C9A231D247A00A50A10 /* TangemSdk.framework */; };
 		5DA80CA9231D247A00A50A10 /* TangemSdkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA80CA8231D247A00A50A10 /* TangemSdkTests.swift */; };
 		5DA80CAB231D247A00A50A10 /* TangemSdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 5DA80C9D231D247A00A50A10 /* TangemSdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		5DB4406B234B70E500AC39F1 /* TlvMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB4406A234B70E500AC39F1 /* TlvMapper.swift */; };
 		5DB4406D234B740B00AC39F1 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB4406C234B740B00AC39F1 /* Data+.swift */; };
 		5DB4406F234B750200AC39F1 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB4406E234B750200AC39F1 /* String+.swift */; };
 		5DF7CFCC233D03BD00461F4D /* CompletionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF7CFCB233D03BD00461F4D /* CompletionResult.swift */; };
@@ -80,7 +79,6 @@
 		5DA80CA3231D247A00A50A10 /* TangemSdkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemSdkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DA80CA8231D247A00A50A10 /* TangemSdkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkTests.swift; sourceTree = "<group>"; };
 		5DA80CAA231D247A00A50A10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5DB4406A234B70E500AC39F1 /* TlvMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvMapper.swift; sourceTree = "<group>"; };
 		5DB4406C234B740B00AC39F1 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
 		5DB4406E234B750200AC39F1 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		5DF7CFCB233D03BD00461F4D /* CompletionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionResult.swift; sourceTree = "<group>"; };
@@ -151,7 +149,6 @@
 		5DA5B61F233E13180058C720 /* TLV */ = {
 			isa = PBXGroup;
 			children = (
-				5DB44069234B70C700AC39F1 /* Mapping */,
 				5DA5B619233E12780058C720 /* TlvTag.swift */,
 				5DA5B61B233E12B30058C720 /* Tlv.swift */,
 			);
@@ -193,14 +190,6 @@
 				5DA80CAA231D247A00A50A10 /* Info.plist */,
 			);
 			path = TangemSdkTests;
-			sourceTree = "<group>";
-		};
-		5DB44069234B70C700AC39F1 /* Mapping */ = {
-			isa = PBXGroup;
-			children = (
-				5DB4406A234B70E500AC39F1 /* TlvMapper.swift */,
-			);
-			path = Mapping;
 			sourceTree = "<group>";
 		};
 		5DF7CFCA233D034E00461F4D /* Common */ = {
@@ -369,7 +358,6 @@
 				5DA5B611233E11950058C720 /* CommandApdu.swift in Sources */,
 				5D6A92E02344F2F900158457 /* CardManagerDelegate.swift in Sources */,
 				5D6A92E32345F2A300158457 /* ReadCommand.swift in Sources */,
-				5DB4406B234B70E500AC39F1 /* TlvMapper.swift in Sources */,
 				5D6A92E52345F2B200158457 /* SignCommand.swift in Sources */,
 				5D58B4C1233E54A400F33764 /* Int+.swift in Sources */,
 				5DF7CFCE233D058D00461F4D /* CardReader.swift in Sources */,
