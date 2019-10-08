@@ -20,7 +20,7 @@ struct CheckWalletResponse: TlvMapable {
                 return nil
         }
         
-        self.cardId = cardIdData.toHex()
+        self.cardId = cardIdData.toHexString()
         self.salt = saltData
         self.walletSignature = walletSignature
     }
