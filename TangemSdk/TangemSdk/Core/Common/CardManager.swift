@@ -24,40 +24,29 @@ public class CardManager{
     }
     
     public func scanCard(completion: @escaping (ScanResult) -> Void) {
-        //[REDACTED_TODO_COMMENT]
         let task = ScanTask()
-        runTask(task) { completionResult in
-            
-        }
+        runTask(task, completion: completion)
     }
     
     public func sign(completion: @escaping (SignResult) -> Void) {
+        
+        
         //[REDACTED_TODO_COMMENT]
     }
     
-    func runTask<AnyTask>(_ task: AnyTask, environment: CardEnvironment? = nil,
-                          completion: @escaping (CompletionResult<AnyTask.TaskResult>) -> Void) where AnyTask: Task {
+    func runTask<TaskResult>(_ task: Task<TaskResult>, completion: @escaping (TaskResult) -> Void) {
         task.cardReader = cardReader
         task.delegate = cardManagerDelegate
-        
-        task.run(with: environment ?? cardEnvironmentRepository.cardEnvironment) {[weak self] completionResult, returnedEnvironment in
-            switch completionResult {
-            case .success(let taskResult):
-                if let newEnvironment = returnedEnvironment {
-                    self?.cardEnvironmentRepository.cardEnvironment = newEnvironment
-                }
-                completion(.success(taskResult))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+        task.cardEnvironmentRepository = cardEnvironmentRepository
+        task.run(with: cardEnvironmentRepository.cardEnvironment, completion: completion)
     }
     
-    func runCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, environment: CardEnvironment? = nil, completion: @escaping (CompletionResult<AnyCommandSerializer.CommandResponse>) -> Void)
+    func runCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, completion: @escaping (CompletionResult<AnyCommandSerializer.CommandResponse>) -> Void)
         where AnyCommandSerializer: CommandSerializer {
             let task = SingleCommandTask<AnyCommandSerializer>(commandSerializer)
             task.cardReader = cardReader
             task.delegate = cardManagerDelegate
-            runTask(task, environment: environment,completion: completion)
+            task.cardEnvironmentRepository = cardEnvironmentRepository
+            runTask(task, completion: completion)
     }
 }
