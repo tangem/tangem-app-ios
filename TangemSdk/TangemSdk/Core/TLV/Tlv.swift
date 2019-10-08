@@ -115,4 +115,10 @@ extension Array where Element == Tlv {
         
         self = tlvArray
     }
+    
+    /// Convinience getter for tlv
+    /// - Parameter tag: tag to find
+    public func value(for tag: TlvTag) -> Data? {
+        return self.first(where: {$0.tag == tag})?.value
+    }
 }

@@ -16,7 +16,7 @@ public enum TlvTag: Byte {
     case pin2 = 0x11
     case transactionOutHash = 0x50
     case transactionOutHashSize = 0x51
-    case signature = 0x61
+    case walletSignature = 0x61
     case walletRemainingSignatures = 0x62
     case walletSignedHashes = 0x63
     case pause = 0x1C
