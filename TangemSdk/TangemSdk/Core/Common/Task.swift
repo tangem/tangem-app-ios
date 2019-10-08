@@ -10,7 +10,6 @@ import Foundation
 
 public enum TaskError: Error {
     case unknownStatus(sw: UInt16)
-    case cardReaderNotSet
     case mappingError
     case errorProcessingCommand
     case invalidState
@@ -18,30 +17,36 @@ public enum TaskError: Error {
 }
 
 @available(iOS 13.0, *)
-public protocol Task: class {
-    associatedtype TaskResult
+open class Task<TaskResult> {
+    var cardReader: CardReader!
+    var delegate: CardManagerDelegate?
+    var cardEnvironmentRepository: CardEnvironmentRepository!
     
-    var cardReader: CardReader? {get set}
-    var delegate: CardManagerDelegate? {get set}
+    deinit {
+        cardReader.stopSession()
+    }
     
-    func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TaskResult>, CardEnvironment?) -> Void )
-}
-
-@available(iOS 13.0, *)
-extension Task {
-    func sendCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, environment: CardEnvironment, completion: @escaping (CompletionResult<AnyCommandSerializer.CommandResponse>, CardEnvironment?) -> Void)
+    public func run(with environment: CardEnvironment, completion: @escaping (TaskResult) -> Void) {
+        guard cardReader != nil else {
+            fatalError("Card reader is nil")
+        }
+        
+        guard cardEnvironmentRepository != nil else {
+            fatalError("CardEnvironmentRepository reader is nil")
+        }
+        
+        cardReader.startSession()
+    }
+        
+    func sendCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, completion: @escaping (CompletionResult<AnyCommandSerializer.CommandResponse>) -> Void)
         where AnyCommandSerializer: CommandSerializer {
-            guard let reader = cardReader else {
-                completion(.failure(TaskError.cardReaderNotSet), nil)
-                return
-            }
             
-            let commandApdu = commandSerializer.serialize(with: environment)
-            reader.send(commandApdu: commandApdu) { commandResponse in
+            let commandApdu = commandSerializer.serialize(with: cardEnvironmentRepository.cardEnvironment)
+            cardReader.send(commandApdu: commandApdu) { [unowned self] commandResponse in
                 switch commandResponse {
                 case .success(let responseApdu):
                     guard let status = responseApdu.status else {
-                        completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)), nil)
+                        completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
                         return
                     }
                     
@@ -54,22 +59,26 @@ extension Task {
                         break
                     case .invalidParams:
                         //[REDACTED_TODO_COMMENT]
+                        //            if let newEnvironment = returnedEnvironment {
+                        //                self?.cardEnvironmentRepository.cardEnvironment = newEnvironment
+                        //            }
+
                         break
                     case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed, .pinsNotChanged:
-                        if let responseData = commandSerializer.deserialize(with: environment, from: responseApdu) {
-                            completion(.success(responseData), nil)
+                        if let responseData = commandSerializer.deserialize(with: self.cardEnvironmentRepository.cardEnvironment, from: responseApdu) {
+                            completion(.success(responseData))
                         } else {
-                            completion(.failure(TaskError.mappingError), nil)
+                            completion(.failure(TaskError.mappingError))
                         }
                     case .errorProcessingCommand:
-                        completion(.failure(TaskError.errorProcessingCommand), nil)
+                        completion(.failure(TaskError.errorProcessingCommand))
                     case .invalidState:
-                        completion(.failure(TaskError.invalidState), nil)
+                        completion(.failure(TaskError.invalidState))
                     case .insNotSupported:
-                        completion(.failure(TaskError.insNotSupported), nil)
+                        completion(.failure(TaskError.insNotSupported))
                     }
                 case .failure(let error):
-                    completion(.failure(error), nil)
+                    completion(.failure(error))
                 }
             }
     }
