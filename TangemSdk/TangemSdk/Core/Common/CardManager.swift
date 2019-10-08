@@ -10,14 +10,14 @@ import Foundation
 
 
 @available(iOS 13.0, *)
-public class CardManager{
+public class CardManager {
     public private(set) var card: Card? =  nil
     
     private let cardReader: CardReader
-    private let cardManagerDelegate: CardManagerDelegate?
+    private let cardManagerDelegate: CardManagerDelegate
     private let cardEnvironmentRepository: CardEnvironmentRepository
     
-    public init(cardReader: CardReader, dataStorage: DataStorage, cardManagerDelegate: CardManagerDelegate? = nil) {
+    public init(cardReader: CardReader, dataStorage: DataStorage? = nil, cardManagerDelegate: CardManagerDelegate) {
         self.cardReader = cardReader
         self.cardManagerDelegate = cardManagerDelegate
         cardEnvironmentRepository = CardEnvironmentRepository(dataStorage: dataStorage)
@@ -48,5 +48,13 @@ public class CardManager{
             task.delegate = cardManagerDelegate
             task.cardEnvironmentRepository = cardEnvironmentRepository
             runTask(task, completion: completion)
+    }
+}
+
+@available(iOS 13.0, *)
+extension CardManager {
+    public convenience init(cardReader: CardReader = NFCReader(), dataStorage: DataStorage? = DefaultDataStorage(), cardManagerDelegate: CardManagerDelegate? = nil) {
+        let delegate = cardManagerDelegate ?? DefaultCardManagerDelegate(reader: cardReader as! NFCReaderText)
+        self.init(cardReader: cardReader, dataStorage: dataStorage, cardManagerDelegate: delegate  )
     }
 }
