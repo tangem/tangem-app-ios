@@ -17,22 +17,33 @@ public struct CardEnvironment: Equatable {
     static let defaultPin1 = "000000"
     static let defaultPin2 = "000"
     
-    let pin1: String
-    let pin2: String
-    let terminalKeys: KeyPair?
-    let encryptionKey: Data?
+    var pin1: String = CardEnvironment.defaultPin1
+    var pin2: String = CardEnvironment.defaultPin2
+    var terminalKeys: KeyPair? = nil
+    var encryptionKey: Data? = nil
 }
 
 public protocol DataStorage {
-    func getTerminalPublicKey() -> Data?
-    func getTerminalPrivateKey() -> Data?
-    func getPin1() -> String?
-    func getPin2() -> String?
+    func object(forKey: String) -> Any?
+    func set(_ value: Any, forKey: String)
+}
+
+enum DataStorageKey: String {
+    case terminalPrivateKey
+    case terminalPublicKey
+    case pin1
+    case pin2
+}
+
+public class DefaultDataStorage: DataStorage {
+    public func object(forKey: String) -> Any? {
+        //[REDACTED_TODO_COMMENT]
+        return nil
+    }
     
-    func storeTerminalPublicKey(_ data: Data)
-    func storeTerminalPrivateKey(_ data: Data)
-    func storePin1(_ string: String)
-    func storePin2(_ string: String)
+    public func set(_ value: Any, forKey: String) {
+        //[REDACTED_TODO_COMMENT]
+    }
 }
 
 class CardEnvironmentRepository {
@@ -44,23 +55,29 @@ class CardEnvironmentRepository {
         }
     }
     
-    private let dataStorage: DataStorage
+    private let dataStorage: DataStorage?
     
-    init(dataStorage: DataStorage) {
+    init(dataStorage: DataStorage?) {
         self.dataStorage = dataStorage
         
-        let terminalKeys: KeyPair? = {
-            if let terminalPrivateKey = dataStorage.getTerminalPrivateKey(),
-                let terminalPublicKey = dataStorage.getTerminalPublicKey() {
-                return KeyPair(privateKey: terminalPrivateKey, publicKey: terminalPublicKey)
+        var environment = CardEnvironment()
+        if let storage = dataStorage {
+            if let pin1 = storage.object(forKey: DataStorageKey.pin1.rawValue) as? String {
+                environment.pin1 = pin1
             }
-            return nil
-        }()
+            
+            if let pin2 = storage.object(forKey: DataStorageKey.pin2.rawValue) as? String {
+                environment.pin2 = pin2
+            }
+            
+            if let terminalPrivateKey = storage.object(forKey: DataStorageKey.terminalPrivateKey.rawValue) as? Data,
+                let terminalPublicKey = storage.object(forKey: DataStorageKey.terminalPublicKey.rawValue) as? Data {
+                let keyPair = KeyPair(privateKey: terminalPrivateKey, publicKey: terminalPublicKey)
+                environment.terminalKeys = keyPair
+            }
+        }
         
-        self.cardEnvironment = CardEnvironment(pin1: dataStorage.getPin1() ?? CardEnvironment.defaultPin1,
-                                               pin2: dataStorage.getPin2() ?? CardEnvironment.defaultPin2,
-                                               terminalKeys: terminalKeys,
-                                               encryptionKey: nil)
+        self.cardEnvironment = environment
     }
     
     private func save(_ cardEnvironment: CardEnvironment) {
