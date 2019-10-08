@@ -9,19 +9,16 @@
 import Foundation
 
 @available(iOS 13.0, *)
-public class SingleCommandTask<TCommandSerializer>: Task where TCommandSerializer: CommandSerializer {
-    public typealias TaskResult = TCommandSerializer.CommandResponse
-    
-    public var cardReader: CardReader?
-    public var delegate: CardManagerDelegate?
-    
+public class SingleCommandTask<TCommandSerializer>: Task<CompletionResult<TCommandSerializer.CommandResponse>>
+    where TCommandSerializer: CommandSerializer {
+
     private let commandSerializer: TCommandSerializer
     
     public init(_ commandSerializer: TCommandSerializer) {
         self.commandSerializer = commandSerializer
     }
     
-    public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TCommandSerializer.CommandResponse>, CardEnvironment?) -> Void) {
-        sendCommand(commandSerializer, environment: environment, completion: completion)
+    override public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<TCommandSerializer.CommandResponse>) -> Void) {
+        sendCommand(commandSerializer, completion: completion)
     }
 }
