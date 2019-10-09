@@ -14,6 +14,7 @@ public enum TaskError: Error {
     case errorProcessingCommand
     case invalidState
     case insNotSupported
+    case generateChallengeFailed
 }
 
 @available(iOS 13.0, *)
@@ -52,6 +53,7 @@ open class Task<TaskResult> {
                     
                     switch status {
                     case .needPause:
+                        
                         //[REDACTED_TODO_COMMENT]
                         break
                     case .needEcryption:
