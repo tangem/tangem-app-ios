@@ -8,11 +8,12 @@
 
 import Foundation
 
-class Localizations {
+public class Localizations {
     
-    private static var bundle: Bundle = {
+    public static var localizationsBundle: Bundle = defaultBundle
+    private static var defaultBundle: Bundle = {
         let selfBundle = Bundle(for: Localizations.self)
-        if let path = selfBundle.path(forResource: "TangemKit", ofType: "bundle"),
+        if let path = selfBundle.path(forResource: "TangemKit", ofType: "bundle"), //for pods
             let bundle = Bundle(path: path) {
             return bundle
         } else {
@@ -32,7 +33,7 @@ class Localizations {
 
 extension Localizations {
     private static func translate( _ key: String, _ args: CVarArg...) -> String {
-        let format = NSLocalizedString(key,  bundle: bundle, comment: "")
+        let format = NSLocalizedString(key,  bundle: localizationsBundle, comment: "")
         return String(format: format, locale: Locale.current, arguments: args)
     }
 }
