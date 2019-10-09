@@ -36,6 +36,7 @@
 		5DB4406F234B750200AC39F1 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB4406E234B750200AC39F1 /* String+.swift */; };
 		5DF7CFCC233D03BD00461F4D /* CompletionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF7CFCB233D03BD00461F4D /* CompletionResult.swift */; };
 		5DF7CFCE233D058D00461F4D /* CardReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF7CFCD233D058D00461F4D /* CardReader.swift */; };
+		5DFFC1A1234DC715001C2F35 /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC1A0234DC715001C2F35 /* CryptoUtils.swift */; };
 		5DFFC49F233B9D69004964E8 /* NFCReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC49E233B9D69004964E8 /* NFCReader.swift */; };
 		5DFFC4A2233BA5E0004964E8 /* Byte+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC4A1233BA5E0004964E8 /* Byte+.swift */; };
 /* End PBXBuildFile section */
@@ -83,6 +84,7 @@
 		5DB4406E234B750200AC39F1 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		5DF7CFCB233D03BD00461F4D /* CompletionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionResult.swift; sourceTree = "<group>"; };
 		5DF7CFCD233D058D00461F4D /* CardReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardReader.swift; sourceTree = "<group>"; };
+		5DFFC1A0234DC715001C2F35 /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
 		5DFFC49E233B9D69004964E8 /* NFCReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCReader.swift; sourceTree = "<group>"; };
 		5DFFC4A1233BA5E0004964E8 /* Byte+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Byte+.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -203,13 +205,22 @@
 				5D6A92DD2344F1DC00158457 /* Task.swift */,
 				5D6A92DF2344F2F900158457 /* CardManagerDelegate.swift */,
 				5D6A92EB2346069700158457 /* CardManager.swift */,
+				5DFFC1A0234DC715001C2F35 /* CryptoUtils.swift */,
 			);
 			path = Common;
+			sourceTree = "<group>";
+		};
+		5DFFC1A2234DC969001C2F35 /* Crypto */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Crypto;
 			sourceTree = "<group>";
 		};
 		5DFFC49C233B9D43004964E8 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				5DFFC1A2234DC969001C2F35 /* Crypto */,
 				5D6A92E82345FF1300158457 /* Tasks */,
 				5D6A92E12345F28F00158457 /* Serializers */,
 				5D6A92D52344E2B400158457 /* Resources */,
@@ -371,6 +382,7 @@
 				5DA5B618233E124A0058C720 /* Status.swift in Sources */,
 				5DA5B616233E12170058C720 /* Instruction.swift in Sources */,
 				5D6A92DC2344E3A500158457 /* Localizations.swift in Sources */,
+				5DFFC1A1234DC715001C2F35 /* CryptoUtils.swift in Sources */,
 				5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */,
 				5D6A92EE23463D1200158457 /* ScanTask.swift in Sources */,
 				5D7D5FB423449F2300058D69 /* CommandSerializer.swift in Sources */,
