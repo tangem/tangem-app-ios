@@ -9,6 +9,8 @@
 import Foundation
 
 struct SignResponse: TlvMapable {
+    
+    
     init?(from tlv: [Tlv]) {
         //[REDACTED_TODO_COMMENT]
     }
