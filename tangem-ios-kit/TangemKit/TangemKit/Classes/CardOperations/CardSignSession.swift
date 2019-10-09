@@ -31,15 +31,18 @@ enum NFCState {
 
 @available(iOS 13.0, *)
 public class CardSignSession: NSObject {
+    fileprivate static let maxRetryCount = 20
+    
+    private var retryCount = CardSignSession.maxRetryCount
     private let completion: (CardSignSessionResult<[UInt8]>) -> Void
     private var readerSession: NFCTagReaderSession?
     private let cardId: String
     private let supportedSignMethods: [SignMethod]
     private let issuerSignature: Data?
     private lazy var terminalKeysManager:TerminalKeysManager = {
-           let manager = TerminalKeysManager()
-           return manager
-       }()
+        let manager = TerminalKeysManager()
+        return manager
+    }()
     
     public  var isBusy: Bool {
         return state != .none
@@ -116,7 +119,7 @@ public class CardSignSession: NSObject {
         }
     }
     
-
+    
     func buildSignApdu(_ dataToSign: Data) -> NFCISO7816APDU? {
         let cardIdData = cardId.asciiHexToData()!
         let hSize = [UInt8(dataToSign.count)]
@@ -127,7 +130,7 @@ public class CardSignSession: NSObject {
             CardTLV(.pin2, value: "000".sha256().asciiHexToData()),
             CardTLV(.transactionOutHashSize, value: hSize),
             CardTLV(.transactionOutHash, value: dataToSign.bytes)]
-    
+        
         if let keys = terminalKeysManager.getKeys(),
             let signedData = CryptoUtils.sign(dataToSign.sha256(), with: keys.privateKey) {
             tlvData.append(CardTLV(.terminalTransactionSignature, value: signedData.bytes))
@@ -136,7 +139,7 @@ public class CardSignSession: NSObject {
         
         if supportedSignMethods.contains(.signHashValidatedByIssuer) {
             if let issuerSignature = issuerSignature {
-                 tlvData.append(CardTLV(.issuerTxSignature, value: Array(issuerSignature)))
+                tlvData.append(CardTLV(.issuerTxSignature, value: Array(issuerSignature)))
             } else {
                 if !supportedSignMethods.contains(.signHashValidatedByIssuer) {
                     completion(.failure(CardSignError.missingIssuerSignature))
@@ -152,12 +155,21 @@ public class CardSignSession: NSObject {
     }
     
     private func sendSignRequest(to tag: NFCISO7816Tag, with session: NFCTagReaderSession, _ apdu: NFCISO7816APDU) {
-        tag.sendCommand(apdu: apdu) {[unowned self] (data, sw1, sw2, apduError) in
+        tag.sendCommand(apdu: apdu) {[weak self] (data, sw1, sw2, apduError) in
+            guard let self = self else { return }
+            
             guard apduError == nil else {
-                session.alertMessage = Localizations.nfcAlertDefault
-                session.restartPolling()
+                if self.retryCount == 0 {
+                    session.alertMessage = Localizations.nfcAlertDefault
+                    session.restartPolling()
+                } else {
+                    self.retryCount -= 1
+                    self.sendSignRequest(to: tag, with: session, apdu)
+                }
                 return
             }
+            
+            self.retryCount = CardSignSession.maxRetryCount
             self.state = .processing
             
             let respApdu = ResponseApdu(with: data, sw1: sw1, sw2: sw2)
@@ -170,7 +182,7 @@ public class CardSignSession: NSObject {
                             self.readerSession?.alertMessage = Localizations.secondsLeft(timeString)
                         }
                     }
-                
+                    
                     if respApdu.tlv[.flash] != nil {
                         self.readerSession?.restartPolling()
                     } else {
@@ -211,15 +223,15 @@ extension CardSignSession: NFCTagReaderSessionDelegate {
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
         guard state != .signed else {
-             state = .none
+            state = .none
             return
         }
         state = .none
         DispatchQueue.main.async {
             guard let nfcError = error as? NFCReaderError,
                 nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
-                      self.completion(.cancelled)
-                      return
+                    self.completion(.cancelled)
+                    return
             }
             self.completion(.failure(CardSignError.nfcError(error: nfcError)))            
         }
