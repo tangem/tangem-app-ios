@@ -240,6 +240,7 @@ extension CardSignSession: NFCTagReaderSessionDelegate {
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
         if case let .iso7816(tag7816) = tags.first {
             let nfcTag = tags.first!
+            retryCount = CardSignSession.maxRetryCount
             session.connect(to: nfcTag) {[unowned self] error in
                 guard error == nil else {
                     session.invalidate(errorMessage: error!.localizedDescription)
