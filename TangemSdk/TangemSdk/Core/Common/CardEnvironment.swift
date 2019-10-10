@@ -35,7 +35,7 @@ enum DataStorageKey: String {
     case pin2
 }
 
-public class DefaultDataStorage: DataStorage {
+public final class DefaultDataStorage: DataStorage {
     public func object(forKey: String) -> Any? {
         //[REDACTED_TODO_COMMENT]
         return nil
@@ -49,7 +49,7 @@ public class DefaultDataStorage: DataStorage {
     }
 }
 
-class CardEnvironmentRepository {
+final class CardEnvironmentRepository {
     var cardEnvironment: CardEnvironment {
         didSet {
             if cardEnvironment != oldValue {
