@@ -13,7 +13,7 @@ public protocol CardManagerDelegate: class {
     func requestPin(completion: @escaping () -> CompletionResult<String>)
 }
 
-class DefaultCardManagerDelegate: CardManagerDelegate {
+final class DefaultCardManagerDelegate: CardManagerDelegate {
     private let reader: NFCReaderText
     
     init(reader: NFCReaderText) {
