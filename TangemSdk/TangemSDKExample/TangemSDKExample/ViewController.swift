@@ -8,6 +8,7 @@
 
 import UIKit
 import TangemSdk
+import CoreNFC
 
 class ViewController: UIViewController {
     
@@ -17,7 +18,13 @@ class ViewController: UIViewController {
         cardManager.scanCard {[unowned self] scanResult in
             switch scanResult {
             case .failure(let error):
-                print("error: \(error)")
+                print("error: \(error.localizedDescription)")
+                
+                if case let .nfcError(nfcError) = error, nfcError.code == .readerSessionInvalidationErrorUserCanceled {
+                    //silence error
+                    return
+                }
+                
                 let alertController = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
                 alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
                 self.show(alertController, sender: nil)
