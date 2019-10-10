@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-public class SingleCommandTask<TCommandSerializer>: Task<CompletionResult<TCommandSerializer.CommandResponse>>
+public final class SingleCommandTask<TCommandSerializer>: Task<CompletionResult<TCommandSerializer.CommandResponse>>
     where TCommandSerializer: CommandSerializer {
 
     private let commandSerializer: TCommandSerializer
