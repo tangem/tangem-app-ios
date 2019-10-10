@@ -44,6 +44,9 @@ public class DefaultDataStorage: DataStorage {
     public func set(_ value: Any, forKey: String) {
         //[REDACTED_TODO_COMMENT]
     }
+    
+    public init() {
+    }
 }
 
 class CardEnvironmentRepository {
