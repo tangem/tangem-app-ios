@@ -20,4 +20,11 @@ public extension String {
         let digest = SHA256.hash(data: data)
         return Data(digest)
     }
+    
+    @available(iOS 13.0, *)
+    func sha512() -> Data {
+        let data = Array(utf8)
+        let digest = SHA512.hash(data: data)
+        return Data(digest)
+    }
 }
