@@ -10,5 +10,5 @@ import Foundation
 
 public enum SignResult {
     case success(Data)
-    case failure(Error)
+    case failure(TaskError)
 }
