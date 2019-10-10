@@ -7,14 +7,25 @@
 //
 
 import Foundation
+import CoreNFC
 
-public enum TaskError: Error {
+public enum TaskError: Error, LocalizedError {
     case unknownStatus(sw: UInt16)
     case mappingError
     case errorProcessingCommand
     case invalidState
     case insNotSupported
     case generateChallengeFailed
+    case nfcError(NFCReaderError)
+    
+    public var localizedDescription: String {
+        switch self {
+        case .nfcError(let nfcError):
+            return nfcError.localizedDescription
+        default:
+             return "\(self)"
+        }
+    }
 }
 
 @available(iOS 13.0, *)
@@ -38,16 +49,20 @@ open class Task<TaskResult> {
         
         cardReader.startSession()
     }
-        
-    func sendCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, completion: @escaping (CompletionResult<AnyCommandSerializer.CommandResponse>) -> Void)
+    
+    func sendCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, completion: @escaping (TaskCompletionResult<AnyCommandSerializer.CommandResponse>) -> Void)
         where AnyCommandSerializer: CommandSerializer {
             
             let commandApdu = commandSerializer.serialize(with: cardEnvironmentRepository.cardEnvironment)
-            cardReader.send(commandApdu: commandApdu) { [unowned self] commandResponse in
+            cardReader.send(commandApdu: commandApdu) { [weak self] commandResponse in
+                guard let self = self else { return }
+                
                 switch commandResponse {
                 case .success(let responseApdu):
                     guard let status = responseApdu.status else {
-                        completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
+                        DispatchQueue.main.async {
+                            completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
+                        }
                         return
                     }
                     
@@ -64,23 +79,35 @@ open class Task<TaskResult> {
                         //            if let newEnvironment = returnedEnvironment {
                         //                self?.cardEnvironmentRepository.cardEnvironment = newEnvironment
                         //            }
-
+                        
                         break
                     case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed, .pinsNotChanged:
                         if let responseData = commandSerializer.deserialize(with: self.cardEnvironmentRepository.cardEnvironment, from: responseApdu) {
-                            completion(.success(responseData))
+                            DispatchQueue.main.async {
+                                completion(.success(responseData))
+                            }
                         } else {
-                            completion(.failure(TaskError.mappingError))
+                            DispatchQueue.main.async {
+                                completion(.failure(TaskError.mappingError))
+                            }
                         }
                     case .errorProcessingCommand:
-                        completion(.failure(TaskError.errorProcessingCommand))
+                        DispatchQueue.main.async {
+                            completion(.failure(TaskError.errorProcessingCommand))
+                        }
                     case .invalidState:
-                        completion(.failure(TaskError.invalidState))
+                        DispatchQueue.main.async {
+                            completion(.failure(TaskError.invalidState))
+                        }
                     case .insNotSupported:
-                        completion(.failure(TaskError.insNotSupported))
+                        DispatchQueue.main.async {
+                            completion(.failure(TaskError.insNotSupported))
+                        }
                     }
                 case .failure(let error):
-                    completion(.failure(error))
+                    DispatchQueue.main.async {
+                        completion(.failure(.nfcError(error)))
+                    }
                 }
             }
     }
