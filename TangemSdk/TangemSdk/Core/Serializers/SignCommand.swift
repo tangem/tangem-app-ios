@@ -17,7 +17,7 @@ struct SignResponse: TlvMapable {
 }
 
 @available(iOS 13.0, *)
-class SignCommand: CommandSerializer {
+final class SignCommand: CommandSerializer {
     typealias CommandResponse = SignResponse
     
     init() {
