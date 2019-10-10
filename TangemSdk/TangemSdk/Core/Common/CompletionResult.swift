@@ -7,8 +7,19 @@
 //
 
 import Foundation
+import CoreNFC
 
 public enum CompletionResult<T> {
     case success(T)
     case failure(Error)
+}
+
+public enum TaskCompletionResult<T> {
+    case success(T)
+    case failure(TaskError)
+}
+
+public enum CardReaderCompletionResult<T> {
+    case success(T)
+    case failure(NFCReaderError)
 }
