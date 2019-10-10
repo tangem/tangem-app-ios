@@ -8,9 +8,7 @@
 
 import Foundation
 import Combine
-#if canImport(CoreNFC)
 import CoreNFC
-#endif
 
 @available(iOS 13.0, *)
 typealias IOSNFCReader = CardReader & NFCReaderText & NFCReaderSessionAdapter
@@ -31,7 +29,7 @@ enum NFCTagWrapper {
 }
 
 @available(iOS 13.0, *)
-public class NFCReader: NSObject {
+public final class NFCReader: NSObject {
     static let tagTimeout = 19.0
     static let sessionTimeout = 59.0
     

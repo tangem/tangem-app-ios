@@ -27,7 +27,7 @@ struct CheckWalletResponse: TlvMapable {
 }
 
 @available(iOS 13.0, *)
-class CheckWalletCommand: CommandSerializer {
+final class CheckWalletCommand: CommandSerializer {
     typealias CommandResponse = CheckWalletResponse
     
     let pin1: String
