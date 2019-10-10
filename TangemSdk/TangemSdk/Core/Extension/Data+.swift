@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CryptoKit
 
 extension Data {
     public func toHexString() -> String {
@@ -93,5 +94,21 @@ extension Data {
         if let b = buffer {
             append(b)
         }
+    }
+    
+    @available(iOS 13.0, *)
+    func sha256() -> Data {
+        let digest = SHA256.hash(data: self)
+        return Data(digest)
+    }
+    
+    @available(iOS 13.0, *)
+    func sha512() -> Data {
+        let digest = SHA512.hash(data: self)
+        return Data(digest)
+    }
+    
+    var bytes: [Byte] {
+        return Array(self)
     }
 }
