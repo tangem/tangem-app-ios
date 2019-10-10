@@ -1,6 +1,6 @@
 //import CEd25519
 
-public class Seed {
+public final class Seed {
     private let buffer: [UInt8]
 
     init(unchecked bytes: [UInt8]) {
