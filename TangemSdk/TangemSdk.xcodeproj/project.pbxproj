@@ -3,10 +3,34 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5D2739DB234F22A800ACDA11 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 5D2739DA234F22A800ACDA11 /* secp256k1 */; };
+		5D2739F7234F270200ACDA11 /* precomp_data.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739DE234F270200ACDA11 /* precomp_data.h */; };
+		5D2739F8234F270200ACDA11 /* ed25519.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739E0234F270200ACDA11 /* ed25519.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5D2739F9234F270200ACDA11 /* seed.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E1234F270200ACDA11 /* seed.c */; };
+		5D2739FA234F270200ACDA11 /* fe.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E2234F270200ACDA11 /* fe.c */; };
+		5D2739FB234F270200ACDA11 /* verify.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E3234F270200ACDA11 /* verify.c */; };
+		5D2739FC234F270200ACDA11 /* ge.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E4234F270200ACDA11 /* ge.c */; };
+		5D2739FD234F270200ACDA11 /* sc.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E5234F270200ACDA11 /* sc.c */; };
+		5D2739FE234F270200ACDA11 /* sign.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E6234F270200ACDA11 /* sign.c */; };
+		5D2739FF234F270200ACDA11 /* sha512.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739E7234F270200ACDA11 /* sha512.h */; };
+		5D273A00234F270200ACDA11 /* key_exchange.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E8234F270200ACDA11 /* key_exchange.c */; };
+		5D273A01234F270200ACDA11 /* add_scalar.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E9234F270200ACDA11 /* add_scalar.c */; };
+		5D273A02234F270200ACDA11 /* fe.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739EA234F270200ACDA11 /* fe.h */; };
+		5D273A03234F270200ACDA11 /* license.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5D2739EB234F270200ACDA11 /* license.txt */; };
+		5D273A04234F270200ACDA11 /* keypair.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739EC234F270200ACDA11 /* keypair.c */; };
+		5D273A05234F270200ACDA11 /* fixedint.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739ED234F270200ACDA11 /* fixedint.h */; };
+		5D273A06234F270200ACDA11 /* sha512.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739EE234F270200ACDA11 /* sha512.c */; };
+		5D273A07234F270200ACDA11 /* sc.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739EF234F270200ACDA11 /* sc.h */; };
+		5D273A08234F270200ACDA11 /* ge.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739F0234F270200ACDA11 /* ge.h */; };
+		5D273A09234F270200ACDA11 /* KeyPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F2234F270200ACDA11 /* KeyPair.swift */; };
+		5D273A0A234F270200ACDA11 /* PublicKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F3234F270200ACDA11 /* PublicKey.swift */; };
+		5D273A0B234F270200ACDA11 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F4234F270200ACDA11 /* Error.swift */; };
+		5D273A0C234F270200ACDA11 /* PrivateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F5234F270200ACDA11 /* PrivateKey.swift */; };
+		5D273A0D234F270200ACDA11 /* Seed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F6234F270200ACDA11 /* Seed.swift */; };
 		5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4BE233E4C6B00F33764 /* InputStream+.swift */; };
 		5D58B4C1233E54A400F33764 /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4C0233E54A400F33764 /* Int+.swift */; };
 		5D6A92D82344E2D700158457 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D6A92DA2344E2D700158457 /* Localizable.strings */; };
@@ -52,6 +76,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5D2739DE234F270200ACDA11 /* precomp_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = precomp_data.h; sourceTree = "<group>"; };
+		5D2739E0234F270200ACDA11 /* ed25519.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ed25519.h; sourceTree = "<group>"; };
+		5D2739E1234F270200ACDA11 /* seed.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = seed.c; sourceTree = "<group>"; };
+		5D2739E2234F270200ACDA11 /* fe.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fe.c; sourceTree = "<group>"; };
+		5D2739E3234F270200ACDA11 /* verify.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = verify.c; sourceTree = "<group>"; };
+		5D2739E4234F270200ACDA11 /* ge.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ge.c; sourceTree = "<group>"; };
+		5D2739E5234F270200ACDA11 /* sc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sc.c; sourceTree = "<group>"; };
+		5D2739E6234F270200ACDA11 /* sign.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sign.c; sourceTree = "<group>"; };
+		5D2739E7234F270200ACDA11 /* sha512.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha512.h; sourceTree = "<group>"; };
+		5D2739E8234F270200ACDA11 /* key_exchange.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = key_exchange.c; sourceTree = "<group>"; };
+		5D2739E9234F270200ACDA11 /* add_scalar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = add_scalar.c; sourceTree = "<group>"; };
+		5D2739EA234F270200ACDA11 /* fe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fe.h; sourceTree = "<group>"; };
+		5D2739EB234F270200ACDA11 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		5D2739EC234F270200ACDA11 /* keypair.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = keypair.c; sourceTree = "<group>"; };
+		5D2739ED234F270200ACDA11 /* fixedint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fixedint.h; sourceTree = "<group>"; };
+		5D2739EE234F270200ACDA11 /* sha512.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sha512.c; sourceTree = "<group>"; };
+		5D2739EF234F270200ACDA11 /* sc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sc.h; sourceTree = "<group>"; };
+		5D2739F0234F270200ACDA11 /* ge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ge.h; sourceTree = "<group>"; };
+		5D2739F2234F270200ACDA11 /* KeyPair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyPair.swift; sourceTree = "<group>"; };
+		5D2739F3234F270200ACDA11 /* PublicKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PublicKey.swift; sourceTree = "<group>"; };
+		5D2739F4234F270200ACDA11 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		5D2739F5234F270200ACDA11 /* PrivateKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivateKey.swift; sourceTree = "<group>"; };
+		5D2739F6234F270200ACDA11 /* Seed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Seed.swift; sourceTree = "<group>"; };
 		5D58B4BE233E4C6B00F33764 /* InputStream+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		5D58B4C0233E54A400F33764 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		5D6A92D92344E2D700158457 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -94,6 +141,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D2739DB234F22A800ACDA11 /* secp256k1 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,6 +156,60 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5D2739DC234F270200ACDA11 /* Ed25519 */ = {
+			isa = PBXGroup;
+			children = (
+				5D2739DD234F270200ACDA11 /* CEd25519 */,
+				5D2739F1234F270200ACDA11 /* Ed25519 */,
+			);
+			path = Ed25519;
+			sourceTree = "<group>";
+		};
+		5D2739DD234F270200ACDA11 /* CEd25519 */ = {
+			isa = PBXGroup;
+			children = (
+				5D2739DE234F270200ACDA11 /* precomp_data.h */,
+				5D2739DF234F270200ACDA11 /* include */,
+				5D2739E1234F270200ACDA11 /* seed.c */,
+				5D2739E2234F270200ACDA11 /* fe.c */,
+				5D2739E3234F270200ACDA11 /* verify.c */,
+				5D2739E4234F270200ACDA11 /* ge.c */,
+				5D2739E5234F270200ACDA11 /* sc.c */,
+				5D2739E6234F270200ACDA11 /* sign.c */,
+				5D2739E7234F270200ACDA11 /* sha512.h */,
+				5D2739E8234F270200ACDA11 /* key_exchange.c */,
+				5D2739E9234F270200ACDA11 /* add_scalar.c */,
+				5D2739EA234F270200ACDA11 /* fe.h */,
+				5D2739EB234F270200ACDA11 /* license.txt */,
+				5D2739EC234F270200ACDA11 /* keypair.c */,
+				5D2739ED234F270200ACDA11 /* fixedint.h */,
+				5D2739EE234F270200ACDA11 /* sha512.c */,
+				5D2739EF234F270200ACDA11 /* sc.h */,
+				5D2739F0234F270200ACDA11 /* ge.h */,
+			);
+			path = CEd25519;
+			sourceTree = "<group>";
+		};
+		5D2739DF234F270200ACDA11 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				5D2739E0234F270200ACDA11 /* ed25519.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		5D2739F1234F270200ACDA11 /* Ed25519 */ = {
+			isa = PBXGroup;
+			children = (
+				5D2739F2234F270200ACDA11 /* KeyPair.swift */,
+				5D2739F3234F270200ACDA11 /* PublicKey.swift */,
+				5D2739F4234F270200ACDA11 /* Error.swift */,
+				5D2739F5234F270200ACDA11 /* PrivateKey.swift */,
+				5D2739F6234F270200ACDA11 /* Seed.swift */,
+			);
+			path = Ed25519;
+			sourceTree = "<group>";
+		};
 		5D6A92D52344E2B400158457 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -213,6 +315,7 @@
 		5DFFC1A2234DC969001C2F35 /* Crypto */ = {
 			isa = PBXGroup;
 			children = (
+				5D2739DC234F270200ACDA11 /* Ed25519 */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -261,6 +364,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5DA80CAB231D247A00A50A10 /* TangemSdk.h in Headers */,
+				5D2739F8234F270200ACDA11 /* ed25519.h in Headers */,
+				5D273A07234F270200ACDA11 /* sc.h in Headers */,
+				5D2739F7234F270200ACDA11 /* precomp_data.h in Headers */,
+				5D273A02234F270200ACDA11 /* fe.h in Headers */,
+				5D273A05234F270200ACDA11 /* fixedint.h in Headers */,
+				5D2739FF234F270200ACDA11 /* sha512.h in Headers */,
+				5D273A08234F270200ACDA11 /* ge.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,6 +391,9 @@
 			dependencies = (
 			);
 			name = TangemSdk;
+			packageProductDependencies = (
+				5D2739DA234F22A800ACDA11 /* secp256k1 */,
+			);
 			productName = TangemSdk;
 			productReference = 5DA80C9A231D247A00A50A10 /* TangemSdk.framework */;
 			productType = "com.apple.product-type.framework";
@@ -331,6 +444,9 @@
 				Base,
 			);
 			mainGroup = 5DA80C90231D247A00A50A10;
+			packageReferences = (
+				5D2739D9234F22A800ACDA11 /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
+			);
 			productRefGroup = 5DA80C9B231D247A00A50A10 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -346,6 +462,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D273A03234F270200ACDA11 /* license.txt in Resources */,
 				5D6A92D82344E2D700158457 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -366,23 +483,37 @@
 			files = (
 				5D6A92EA2345FF2200158457 /* SingleCommandTask.swift in Sources */,
 				5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */,
+				5D2739FA234F270200ACDA11 /* fe.c in Sources */,
+				5D2739F9234F270200ACDA11 /* seed.c in Sources */,
 				5DA5B611233E11950058C720 /* CommandApdu.swift in Sources */,
 				5D6A92E02344F2F900158457 /* CardManagerDelegate.swift in Sources */,
 				5D6A92E32345F2A300158457 /* ReadCommand.swift in Sources */,
+				5D273A01234F270200ACDA11 /* add_scalar.c in Sources */,
 				5D6A92E52345F2B200158457 /* SignCommand.swift in Sources */,
+				5D273A06234F270200ACDA11 /* sha512.c in Sources */,
+				5D273A0A234F270200ACDA11 /* PublicKey.swift in Sources */,
+				5D2739FD234F270200ACDA11 /* sc.c in Sources */,
+				5D273A0B234F270200ACDA11 /* Error.swift in Sources */,
 				5D58B4C1233E54A400F33764 /* Int+.swift in Sources */,
 				5DF7CFCE233D058D00461F4D /* CardReader.swift in Sources */,
 				5DB4406D234B740B00AC39F1 /* Data+.swift in Sources */,
 				5D7D5FB02343598500058D69 /* EncryptionMode.swift in Sources */,
+				5D273A09234F270200ACDA11 /* KeyPair.swift in Sources */,
 				5D6A92E72345F2D600158457 /* CheckWalletCommand.swift in Sources */,
+				5D2739FE234F270200ACDA11 /* sign.c in Sources */,
 				5D6A92F12347796200158457 /* SignTask.swift in Sources */,
+				5D273A04234F270200ACDA11 /* keypair.c in Sources */,
 				5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */,
 				5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */,
 				5DA5B613233E11A50058C720 /* ResponseApdu.swift in Sources */,
+				5D2739FC234F270200ACDA11 /* ge.c in Sources */,
+				5D2739FB234F270200ACDA11 /* verify.c in Sources */,
+				5D273A0D234F270200ACDA11 /* Seed.swift in Sources */,
 				5DA5B618233E124A0058C720 /* Status.swift in Sources */,
 				5DA5B616233E12170058C720 /* Instruction.swift in Sources */,
 				5D6A92DC2344E3A500158457 /* Localizations.swift in Sources */,
 				5DFFC1A1234DC715001C2F35 /* CryptoUtils.swift in Sources */,
+				5D273A00234F270200ACDA11 /* key_exchange.c in Sources */,
 				5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */,
 				5D6A92EE23463D1200158457 /* ScanTask.swift in Sources */,
 				5D7D5FB423449F2300058D69 /* CommandSerializer.swift in Sources */,
@@ -392,6 +523,7 @@
 				5D6A92DE2344F1DC00158457 /* Task.swift in Sources */,
 				5DB4406F234B750200AC39F1 /* String+.swift in Sources */,
 				5DFFC4A2233BA5E0004964E8 /* Byte+.swift in Sources */,
+				5D273A0C234F270200ACDA11 /* PrivateKey.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -669,6 +801,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5D2739D9234F22A800ACDA11 /* XCRemoteSwiftPackageReference "secp256k1.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Boilertalk/secp256k1.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5D2739DA234F22A800ACDA11 /* secp256k1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5D2739D9234F22A800ACDA11 /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
+			productName = secp256k1;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5DA80C91231D247A00A50A10 /* Project object */;
 }
