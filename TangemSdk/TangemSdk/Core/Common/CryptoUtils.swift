@@ -9,7 +9,7 @@
 import Foundation
 import secp256k1
 
-class CryptoUtils {
+final class CryptoUtils {
     static func generateRandomBytes(count: Int) -> Data? {
         var bytes = Data(repeating: 0, count: count)
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
