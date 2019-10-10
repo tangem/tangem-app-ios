@@ -10,17 +10,39 @@ import Foundation
 
 public typealias Card = ReadResponse
 
+public enum SigningMethod: Int {
+    case signHash = 0
+    case signRaw = 1
+    case signHashValidatedByIssuer = 2
+    case signRawValidatedByIssuer = 3
+    case signHashValidatedByIssuerAndWriteIssuerData = 4
+    case SignRawValidatedByIssuerAndWriteIssuerData = 5
+    case signPos = 6
+}
+
+public enum EllipticCurve: String {
+    case secp256k1
+    case ed25519
+}
+
+public enum CardStatus: Int {
+    case notPersonalized = 0
+    case empty = 1
+    case loaded = 2
+    case purged = 3
+}
+
 public struct ReadResponse: TlvMapable {
     let cardId: String
     let manufacturerName: String
-    //let status: CardStatus
+    let status: CardStatus
     let firmwareVersion: String
     let cardPublicKey: String
    // let settingsMask: SettingsMask
     let issuerPublicKey: String
-    //let curve: Curve
+    let curve: EllipticCurve
     let maxSignatures: Int
-   // let signingMethpod: SigningMethod
+    let signingMethpod: SigningMethod
     let pauseBeforePin2: Int
     let walletPublicKey: Data
     let walletRemainingSignatures: Int
