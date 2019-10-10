@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:TangemSDKExample/../TangemSdk.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:TangemSDKExample/TangemSDKExample.xcodeproj">
+   </FileRef>
+</Workspace>
