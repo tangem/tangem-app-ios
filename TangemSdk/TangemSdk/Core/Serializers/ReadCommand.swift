@@ -78,7 +78,7 @@ public struct ReadResponse: TlvMapable {
 }
 
 @available(iOS 13.0, *)
-public class ReadCommand: CommandSerializer {
+public final class ReadCommand: CommandSerializer {
     public typealias CommandResponse = ReadResponse
     
     let pin1: String
