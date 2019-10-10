@@ -8,9 +8,7 @@
 //
 
 import Foundation
-#if canImport(CoreNFC)
 import CoreNFC
-#endif
 
 public protocol TlvMapable {
     init?(from tlv: [Tlv])
