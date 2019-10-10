@@ -8,9 +8,9 @@
 
 import Foundation
 
-
 @available(iOS 13.0, *)
-public class CardManager {
+public final class CardManager {
+    
     public private(set) var card: Card? =  nil
     
     private let cardReader: CardReader
