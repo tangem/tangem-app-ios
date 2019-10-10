@@ -16,7 +16,7 @@ public enum ScanResult {
 
 
 @available(iOS 13.0, *)
-public class ScanTask: Task<ScanResult> {
+public final class ScanTask: Task<ScanResult> {
     override public func run(with environment: CardEnvironment, completion: @escaping (ScanResult) -> Void) {
         super.run(with: environment, completion: completion)
         

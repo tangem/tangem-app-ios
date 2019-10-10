@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Localizations {
+final class Localizations {
     public static var localizationsBundle: Bundle = defaultBundle
     
     static let dialogSecurityDelay = translate("dialog_security_delay")
