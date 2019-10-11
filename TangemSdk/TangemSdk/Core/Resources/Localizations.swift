@@ -11,11 +11,11 @@ import Foundation
 final class Localizations {
     public static var localizationsBundle: Bundle = defaultBundle
     
-    static let dialogSecurityDelay = translate("dialog_security_delay")
-    static let unknownCardState = translate("nfc_unknown_card_state")
-    static let nfcAlertSignCompleted = translate("nfc_alert_sign_completed")
-    static let nfcSessionTimeout = translate("nfc_session_timeout")
-    static let nfcAlertDefault = translate("nfc_alert_default")
+    static let dialogSecurityDelay = string("dialog_security_delay")
+    static let unknownCardState = string("nfc_unknown_card_state")
+    static let nfcAlertSignCompleted = string("nfc_alert_sign_completed")
+    static let nfcSessionTimeout = string("nfc_session_timeout")
+    static let nfcAlertDefault = string("nfc_alert_default")
     
     private static var defaultBundle: Bundle = {
         let selfBundle = Bundle(for: Localizations.self)
@@ -29,10 +29,10 @@ final class Localizations {
     
     
     static func secondsLeft(_ p1: String) -> String {
-        return translate("nfc_seconds_left", p1)
+        return string("nfc_seconds_left", p1)
     }
     
-    private static func translate( _ key: String, _ args: CVarArg...) -> String {
+    private static func string( _ key: String, _ args: CVarArg...) -> String {
         let format = NSLocalizedString(key,  bundle: localizationsBundle, comment: "")
         return String(format: format, locale: Locale.current, arguments: args)
     }
