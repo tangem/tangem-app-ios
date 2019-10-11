@@ -55,6 +55,12 @@ public class TangemSession {
                 DispatchQueue.main.async {
                     self?.delegate?.tangemSessionDidFailWith(error: .userCancelled)
                 }
+            case .pending(let tlv):
+                let card = Card(tags: Array(tlv.values))
+                 card.genuinityState = .pending
+                DispatchQueue.main.async {
+                    self?.delegate?.tangemSessionDidRead(card: card)
+                }
             }
         }
         return session
