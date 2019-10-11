@@ -20,7 +20,7 @@ class ViewController: UIViewController {
             case .failure(let error):
                 print("error: \(error.localizedDescription)")
                 
-                if case let .nfcError(nfcError) = error, nfcError.code == .readerSessionInvalidationErrorUserCanceled {
+                if case let .readerError(nfcError) = error, nfcError.code == .readerSessionInvalidationErrorUserCanceled {
                     //silence error
                     return
                 }
