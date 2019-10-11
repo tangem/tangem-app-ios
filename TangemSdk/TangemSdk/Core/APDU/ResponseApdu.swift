@@ -32,12 +32,12 @@ public final class ResponseApdu {
         }
         
         //handle nested tlv here to facilitate further response mapping
-        let allTlv = tlv.compactMap { tlv -> [Tlv]? in
+        let allTlv = tlv.flatMap { tlv -> [Tlv] in
             if tlv.tag.hasNestedTlv, let nestedTlv = Array<Tlv>.init(tlv.value) {
                 return nestedTlv
             }
-            return nil
-        }.flatMap { $0 }
+            return [tlv]
+        }
         //[REDACTED_TODO_COMMENT]
         return allTlv
     }

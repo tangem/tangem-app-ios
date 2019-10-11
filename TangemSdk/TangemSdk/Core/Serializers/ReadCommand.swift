@@ -34,46 +34,54 @@ public enum CardStatus: Int {
 
 public struct ReadResponse: TlvMapable {
     let cardId: String
-    let manufacturerName: String
-    let status: CardStatus
-    let firmwareVersion: String
-    let cardPublicKey: String
+   // let manufacturerName: String
+ //   let status: CardStatus
+  //  let firmwareVersion: String
+  //  let cardPublicKey: String
    // let settingsMask: SettingsMask
-    let issuerPublicKey: String
+  //  let issuerPublicKey: String
     let curve: EllipticCurve
-    let maxSignatures: Int
-    let signingMethpod: SigningMethod
-    let pauseBeforePin2: Int
+  //  let maxSignatures: Int
+  //  let signingMethpod: SigningMethod
+  //  let pauseBeforePin2: Int
     let walletPublicKey: Data
-    let walletRemainingSignatures: Int
-    let walletSignedHashes: Int
-    let health: Int
-    let isActivated: Bool
-    let activationSeed: Data?
-    let paymentFlowVersion: Data
-    let userCounter: UInt32
+   // let walletRemainingSignatures: Int
+   // let walletSignedHashes: Int
+   // let health: Int
+   // let isActivated: Bool
+   // let activationSeed: Data?
+   // let paymentFlowVersion: Data
+   // let userCounter: UInt32
     
     //Card Data
     
-    let batchId: Int
-    let manufactureDateTime: String
-    let issuerName: String
-    let blockchainName: String
-    let manufacturerSignature: Data?
+//    let batchId: Int
+//    let manufactureDateTime: String
+//    let issuerName: String
+//    let blockchainName: String
+//    let manufacturerSignature: Data?
     //let productMask: ProductMask?
     
-    let tokenSymbol: String?
-    let tokenContractAddress: String?
-    let tokenDecimal: Int?
+//    let tokenSymbol: String?
+//    let tokenContractAddress: String?
+//    let tokenDecimal: Int?
     
     //Dynamic NDEF
 
-    let remainingSignatures: Int?
-    let signedHashes: Int?
+//    let remainingSignatures: Int?
+//    let signedHashes: Int?
     
     public init?(from tlv: [Tlv]) {
-        return nil
-        //[REDACTED_TODO_COMMENT]
+        
+            guard let cardIdData = tlv.value(for: .cardId),
+                let curveId = tlv.value(for: .curveId)?.toUtf8String(),
+            let walletPublicKey = tlv.value(for: .walletPublicKey) else {
+                return nil
+        }
+        
+        self.cardId = cardIdData.toHexString()
+        self.walletPublicKey = walletPublicKey
+        self.curve = EllipticCurve(rawValue: curveId)!
     }
 }
 
