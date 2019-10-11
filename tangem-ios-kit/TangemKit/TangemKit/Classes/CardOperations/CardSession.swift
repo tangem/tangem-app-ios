@@ -13,6 +13,7 @@ import CoreNFC
 @available(iOS 13.0, *)
 public enum CardSessionResult<T> {
     case success(T)
+    case pending(T)
     case failure(Error)
     case cancelled
 }
@@ -175,8 +176,9 @@ extension CardSession: NFCTagReaderSessionDelegate {
                     self.completion(.failure(error))
                     return
                 }
-                
+               
                 self.sendCardRequest(to: tag7816, apdu: readApdu, session: session) { result in
+            
                     switch result {
                     case .success(let readResult):
                         
@@ -190,7 +192,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                         
                         let cardId = readResult[.cardId]?.value
                         let checkWalletApdu = self.buildCheckWalletApdu(with: challenge, cardId: cardId! )
-                        
+                        self.completion(.pending(readResult))
                         self.sendCardRequest(to: tag7816, apdu: checkWalletApdu, session: session) {[unowned self] result in
                             switch result {
                             case .success(let checkWalletResult):
