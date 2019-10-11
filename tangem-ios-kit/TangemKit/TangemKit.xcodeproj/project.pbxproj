@@ -222,6 +222,7 @@
 		5DE10B0022D8D0CD00BC45B9 /* TLVReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */; };
 		5DE10B0122D8D0CD00BC45B9 /* TLVReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */; };
 		5DE995D5232298EB00623148 /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D4232298EB00623148 /* CryptoUtils.swift */; };
+		5DEEACC4235082CC00101062 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEEACC3235082CC00101062 /* Utils.swift */; };
 		5DEF97EA22F071E3004E0CC5 /* EthereumTransaction+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEF97E922F071E3004E0CC5 /* EthereumTransaction+.swift */; };
 		5DEF97EC22F0729D004E0CC5 /* CoinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEF97EB22F0729D004E0CC5 /* CoinProvider.swift */; };
 		5DEF97EE22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEF97ED22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift */; };
@@ -351,6 +352,7 @@
 		5DE10AFC22D884B500BC45B9 /* ResponseApdu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseApdu.swift; sourceTree = "<group>"; };
 		5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLVReader.swift; sourceTree = "<group>"; };
 		5DE995D4232298EB00623148 /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
+		5DEEACC3235082CC00101062 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		5DEF97E922F071E3004E0CC5 /* EthereumTransaction+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EthereumTransaction+.swift"; sourceTree = "<group>"; };
 		5DEF97EB22F0729D004E0CC5 /* CoinProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinProvider.swift; sourceTree = "<group>"; };
 		5DEF97ED22F0850E004E0CC5 /* EthereumNetworkSendOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkSendOperation.swift; sourceTree = "<group>"; };
@@ -701,6 +703,7 @@
 				806C4F6821DE9BC00002E967 /* Models */,
 				806C4F6D21DE9BC00002E967 /* Operations */,
 				806C4F4321DE9BC00002E967 /* TLV */,
+				5DEEACC3235082CC00101062 /* Utils.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1313,6 +1316,7 @@
 				5D5658D122FD689900DE016B /* UnspentTransaction.swift in Sources */,
 				80B956FD2225D90700CFE276 /* RSKCardBalanceOperation.swift in Sources */,
 				5D78745722F065AE00AE196A /* CardEngine.swift in Sources */,
+				5DEEACC4235082CC00101062 /* Utils.swift in Sources */,
 				5DE10AFD22D884B500BC45B9 /* ResponseApdu.swift in Sources */,
 				5D11114E22F0691E009919D1 /* secp256k1.swift in Sources */,
 				806C4FB021DE9BC00002E967 /* ETHCardBalanceOperation.swift in Sources */,
