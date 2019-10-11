@@ -34,7 +34,11 @@ class CardanoCardBalanceOperation: GBAsyncOperation {
         let balanceOperation = CardanoNetworkBalanceOperation(address: card.address) { (result) in
             switch result {
             case .success(let response):
-                self.card.walletValue = response.balance
+                if let balanceDecimal = Decimal(string: response.balance) {
+                     self.card.walletValue =  "\(balanceDecimal.rounded(blockchain: .cardano))"
+                } else {
+                     self.card.walletValue = response.balance
+                }
                 CardanoPendingTransactionsStorage.shared.cleanup(existingTransactionsIds: response.transactionList, card: self.card)
             case .failure(let error):
                 self.failOperationWith(error: error)
