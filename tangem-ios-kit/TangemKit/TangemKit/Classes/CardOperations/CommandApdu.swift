@@ -26,7 +26,7 @@ public struct CommandApdu {
         ins = instruction.rawValue
         p1 = 0
         p2 = 0
-        data = (CommandApdu.needLegacyMode ? tlv + [legacyModeTlv] : tlv).bytes
+        data = (Utils.needLegacyMode ? tlv + [legacyModeTlv] : tlv).bytes
         lc = data.count
     }
     
@@ -61,14 +61,5 @@ public struct CommandApdu {
         return apdu
     }
     
-    private static var needLegacyMode: Bool {
-        var systemInfo = utsname()
-        uname(&systemInfo)
-        let machineMirror = Mirror(reflecting: systemInfo.machine)
-        let identifier = machineMirror.children.reduce("") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { return identifier }
-            return identifier + String(UnicodeScalar(UInt8(value)))
-        }
-        return identifier == "iPhone9,1" || identifier == "iPhone9,2" || identifier == "iPhone9,3" || identifier == "iPhone9,4"
-    }
+
 }
