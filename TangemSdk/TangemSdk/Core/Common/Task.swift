@@ -16,11 +16,11 @@ public enum TaskError: Error, LocalizedError {
     case invalidState
     case insNotSupported
     case generateChallengeFailed
-    case nfcError(NFCReaderError)
+    case readerError(NFCReaderError)
     
     public var localizedDescription: String {
         switch self {
-        case .nfcError(let nfcError):
+        case .readerError(let nfcError):
             return nfcError.localizedDescription
         default:
              return "\(self)"
@@ -50,8 +50,7 @@ open class Task<TaskResult> {
         cardReader.startSession()
     }
     
-    func sendCommand<AnyCommandSerializer>(_ commandSerializer: AnyCommandSerializer, completion: @escaping (TaskCompletionResult<AnyCommandSerializer.CommandResponse>) -> Void)
-        where AnyCommandSerializer: CommandSerializer {
+    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, completion: @escaping (TaskCompletionResult<T.CommandResponse>) -> Void) {
             
             let commandApdu = commandSerializer.serialize(with: cardEnvironmentRepository.cardEnvironment)
             cardReader.send(commandApdu: commandApdu) { [weak self] commandResponse in
@@ -106,7 +105,7 @@ open class Task<TaskResult> {
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        completion(.failure(.nfcError(error)))
+                        completion(.failure(.readerError(error)))
                     }
                 }
             }
