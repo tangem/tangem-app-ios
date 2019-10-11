@@ -53,7 +53,7 @@ class EstimateOperation: GBAsyncOperation {
         })
         operationQueue.addOperation(operationMin)
         
-        let operationNormal: BtcRequestOperation<String> = BtcRequestOperation(endpoint: EstimateFeeEndpoint.minimal, completion: { [weak self] (result) in
+        let operationNormal: BtcRequestOperation<String> = BtcRequestOperation(endpoint: EstimateFeeEndpoint.normal, completion: { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.normalFee = value
@@ -64,7 +64,7 @@ class EstimateOperation: GBAsyncOperation {
         })
         operationQueue.addOperation(operationNormal)
         
-        let operationPriority: BtcRequestOperation<String> = BtcRequestOperation(endpoint: EstimateFeeEndpoint.minimal, completion: { [weak self] (result) in
+        let operationPriority: BtcRequestOperation<String> = BtcRequestOperation(endpoint: EstimateFeeEndpoint.priority, completion: { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.priorityFee = value
