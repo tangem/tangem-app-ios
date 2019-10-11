@@ -8,6 +8,14 @@
 
 import Foundation
 
+public enum TlvValueType {
+    case hexString
+    case utf8String
+    case intValue
+    case data
+    case ellipticCurve
+}
+
 /// Tags, supported by card
 public enum TlvTag: Byte {
     case unknown = 0x00
@@ -86,6 +94,18 @@ public enum TlvTag: Byte {
             return true
         default:
             return false
+        }
+    }
+    
+    //[REDACTED_TODO_COMMENT]
+    var valueType: TlvValueType {
+        switch self {
+        case .cardId:
+            return .hexString
+        case .curveId:
+            return .ellipticCurve
+        default:
+            return .data
         }
     }
 }
