@@ -34,7 +34,7 @@ public final class ScanTask: Task<ScanResult> {
                 completion(.onRead(readResponse))
                 guard let challenge = CryptoUtils.generateRandomBytes(count: 16) else {
                     self.cardReader.stopSession()
-                    completion(.failure(TaskError.generateChallengeFailed))
+                    completion(.failure(TaskError.vefificationFailed))
                     return
                 }
                 
@@ -45,11 +45,15 @@ public final class ScanTask: Task<ScanResult> {
                     case .failure(let error):
                         completion(.failure(error))
                     case .success(let checkWalletResponse):
-                        let verifyResult = CryptoUtils.vefify(curve: readResponse.curve,
+                        if let verifyResult = CryptoUtils.vefify(curve: readResponse.curve,
                                                               publicKey: readResponse.walletPublicKey,
                                                               message: challenge + checkWalletResponse.salt,
-                                                              signature: checkWalletResponse.walletSignature)
-                        completion(.onVerify(verifyResult))
+                                                              signature: checkWalletResponse.walletSignature) {
+                            completion(.onVerify(verifyResult))
+                        } else {
+                             completion(.failure(TaskError.vefificationFailed))
+                        }
+                        
                     }
                 }
             }
