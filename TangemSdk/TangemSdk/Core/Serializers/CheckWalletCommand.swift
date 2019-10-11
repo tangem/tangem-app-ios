@@ -14,15 +14,15 @@ struct CheckWalletResponse: TlvMapable {
     let walletSignature: Data
     
     init?(from tlv: [Tlv]) {
-        guard let cardIdData = tlv.value(for: .cardId),
-            let saltData = tlv.value(for: .salt),
-            let walletSignature = tlv.value(for: .walletSignature) else {
-                return nil
+        let mapper = TlvMapper(tlv: tlv)
+        do {
+            self.cardId = try mapper.map(.cardId)
+            self.salt = try mapper.map(.salt)
+            self.walletSignature = try mapper.map(.walletSignature)
+        } catch {
+            print(error)
+            return nil
         }
-        
-        self.cardId = cardIdData.toHexString()
-        self.salt = saltData
-        self.walletSignature = walletSignature
     }
 }
 
