@@ -61,10 +61,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-         self.isBalanceLoading = true
+        self.isBalanceLoading = true
         self.viewModel.setWalletInfoLoading(true)
-    fetchWalletBalance(card: card)
-       
+        fetchWalletBalance(card: card)
+        
     }
     
     func setupWithCardDetails(card: Card) {
@@ -358,7 +358,9 @@ extension CardDetailsViewController : TangemSessionDelegate {
         case .pending:
             self.isBalanceLoading = true
             self.viewModel.setWalletInfoLoading(true)
-            self.viewModel.doubleScanHintLabel.isHidden = false
+            if #available(iOS 13.0, *) {} else {
+                viewModel.doubleScanHintLabel.isHidden = false
+            }
         case .nonGenuine:
             self.handleNonGenuineTangemCard(card)
         default:
@@ -378,7 +380,7 @@ extension CardDetailsViewController : TangemSessionDelegate {
                 self.navigationController?.popViewController(animated: true)
             }
         case .userCancelled:
-                      break
+            break
         }
     }
     
@@ -456,7 +458,7 @@ extension CardDetailsViewController {
                 
                 if card.hasPendingTransactions  {
                     self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
-            
+                    
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
                         self?.updateBalance()
                     }
