@@ -9,11 +9,15 @@
 import Foundation
 
 struct TerminalKeysManager {
-    public static let enabled = false
+    public static let enabled = true
     private let secureStorage = SecureStorageManager()
     
     func getKeys() -> CryptoKeyPair? {
         guard TerminalKeysManager.enabled else {
+            return nil
+        }
+        
+        guard !Utils.needLegacyMode else {
             return nil
         }
         
