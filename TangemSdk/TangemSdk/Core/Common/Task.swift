@@ -15,7 +15,7 @@ public enum TaskError: Error, LocalizedError {
     case errorProcessingCommand
     case invalidState
     case insNotSupported
-    case generateChallengeFailed
+    case vefificationFailed
     case readerError(NFCReaderError)
     
     public var localizedDescription: String {
