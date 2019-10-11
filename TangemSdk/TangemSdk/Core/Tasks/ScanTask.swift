@@ -32,7 +32,6 @@ public final class ScanTask: Task<ScanResult> {
                 completion(.failure(error))
             case .success(let readResponse):
                 completion(.onRead(readResponse))
-                
                 guard let challenge = CryptoUtils.generateRandomBytes(count: 16) else {
                     self.cardReader.stopSession()
                     completion(.failure(TaskError.generateChallengeFailed))
@@ -41,9 +40,9 @@ public final class ScanTask: Task<ScanResult> {
                 
                 let checkWalletCommand = CheckWalletCommand(pin1: environment.pin1, cardId: readResponse.cardId, challenge: challenge)
                 self.sendCommand(checkWalletCommand) {checkWalletResult in
-                     self.cardReader.stopSession()
+                    self.cardReader.stopSession()
                     switch checkWalletResult {
-                    case .failure(let error):                       
+                    case .failure(let error):
                         completion(.failure(error))
                     case .success(let checkWalletResponse):
                         let verifyResult = CryptoUtils.vefify(curve: readResponse.curve,
