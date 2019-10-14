@@ -23,6 +23,10 @@ public final class TlvMapper {
     
     public func map<T>(_ tag: TlvTag) throws -> T {
         guard let tagValue = tlv.value(for: tag) else {
+            if tag.valueType == .boolValue {
+                return false as! T
+            }
+            
             throw TlvMapperError.missingTag
         }
         
@@ -71,6 +75,9 @@ public final class TlvMapper {
             }
             
             return curve as! T
+        case .boolValue:
+            return true as! T
         }
+        
     }
 }
