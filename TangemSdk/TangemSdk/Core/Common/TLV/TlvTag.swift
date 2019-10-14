@@ -12,8 +12,11 @@ public enum TlvValueType {
     case hexString
     case utf8String
     case intValue
+    case boolValue
     case data
     case ellipticCurve
+    case dateTime
+    case productMask
 }
 
 /// Tags, supported by card
@@ -52,7 +55,7 @@ public enum TlvTag: Byte {
     case cvc = 0x19
     case sessionKeyA = 0x1A
     case sessionKeyB = 0x1B
-    case manufactureId = 0x20
+    case manufacturerName = 0x20
     case manufacturerSignature = 0x21
     case issuerDataPublicKey = 0x30
     case issuerTransactionPublicKey = 0x31
@@ -61,17 +64,19 @@ public enum TlvTag: Byte {
     case issuerDataCounter = 0x35
     case isActivated = 0x3A
     case activationSeed = 0x3B
+    case paymentFlowVersion = 0x54
+    case userCounter = 0x2C
     case resetPin = 0x36
     case codePageAddress = 0x40
     case codePageCount = 0x41
     case codeHash = 0x42
     case trOutRaw = 0x52
     case walletPublicKey = 0x60
-    case firmware = 0x80
-    case batch = 0x81
+    case firmwareVersion = 0x80
+    case batchId = 0x81
     case manufactureDateTime = 0x82
-    case issuerId = 0x83
-    case blockchainId = 0x84
+    case issuerName = 0x83
+    case blockchainName = 0x84
     case manufacturerPublicKey = 0x85
     case cardIDManufacturerSignature = 0x86
     case tokenSymbol = 0xA0
@@ -100,10 +105,21 @@ public enum TlvTag: Byte {
     //[REDACTED_TODO_COMMENT]
     var valueType: TlvValueType {
         switch self {
-        case .cardId:
+        case .cardId, .pin, .batchId:
             return .hexString
+        case .manufacturerName, .firmwareVersion, .issuerName, .blockchainName, .tokenSymbol, .tokenContractAddress:
+            return .utf8String
         case .curveId:
             return .ellipticCurve
+        case .status, .maxSignatures, .signingMethod, .pauseBeforePin2,
+             .walletRemainingSignatures, .walletSignedHashes, .health, .userCounter, .tokenDecimal:
+            return .intValue
+        case .isActivated:
+            return .boolValue
+        case .manufactureDateTime:
+            return .dateTime
+        case .productMask:
+            return .productMask
         default:
             return .data
         }
