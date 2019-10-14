@@ -17,10 +17,6 @@ public enum ScanResult {
 
 @available(iOS 13.0, *)
 public final class ScanTask: Task<ScanResult> {
-    deinit {
-        print("deinit")
-    }
-    
     override public func run(with environment: CardEnvironment, completion: @escaping (ScanResult) -> Void) {
         super.run(with: environment, completion: completion)
         
