@@ -92,7 +92,7 @@ extension NFCReader: CardReader {
     /// Send apdu command to connected tag
     /// - Parameter command: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCReaderError otherwise
-    public func send(commandApdu: CommandApdu, completion: @escaping (CardReaderCompletionResult<ResponseApdu>) -> Void) {
+    public func send(commandApdu: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
         subscription = Publishers.CombineLatest(readerSessionError, connectedTag) //because of readerSession and connectedTag bouth can produce errors
             .sink(receiveValue: {[weak self] value in
                 guard let self = self else { return }
