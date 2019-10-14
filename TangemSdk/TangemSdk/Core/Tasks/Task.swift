@@ -50,7 +50,7 @@ open class Task<TaskResult> {
         cardReader.startSession()
     }
     
-    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, completion: @escaping (TaskCompletionResult<T.CommandResponse>) -> Void) {
+    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>) -> Void) {
             
             let commandApdu = commandSerializer.serialize(with: cardEnvironmentRepository.cardEnvironment)
             cardReader.send(commandApdu: commandApdu) { [weak self] commandResponse in

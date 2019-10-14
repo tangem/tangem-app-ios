@@ -8,6 +8,13 @@
 
 import Foundation
 
+//All encryption modes
+public enum EncryptionMode: Byte {
+    case none = 0x0
+    case fast = 0x1
+    case strong = 0x2
+}
+
 public struct KeyPair: Equatable {
     let privateKey: Data
     let publicKey: Data
