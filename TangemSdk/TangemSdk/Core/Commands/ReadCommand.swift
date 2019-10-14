@@ -32,6 +32,12 @@ public enum CardStatus: Int {
     case purged = 3
 }
 
+public enum ProductMask: Byte {
+    case note = 0x01
+    case tag = 0x02
+    case card = 0x04
+}
+
 public struct ReadResponse: TlvMapable {
     let cardId: String
     // let manufacturerName: String
