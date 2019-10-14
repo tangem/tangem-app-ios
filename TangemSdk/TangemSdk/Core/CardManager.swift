@@ -7,9 +7,21 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
+import CoreNFC
+#endif
 
 @available(iOS 13.0, *)
 public final class CardManager {
+    public static var isNFCAvailable: Bool {
+        #if canImport(CoreNFC)
+        if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
+        
+        return NFCNDEFReaderSession.readingAvailable
+        #else
+        return false
+        #endif
+    }
     
     public private(set) var card: Card? =  nil
     
@@ -41,7 +53,7 @@ public final class CardManager {
         task.run(with: cardEnvironmentRepository.cardEnvironment, completion: completion)
     }
     
-    func runCommand<T: CommandSerializer>(_ commandSerializer: T, completion: @escaping (TaskCompletionResult<T.CommandResponse>) -> Void) {
+    func runCommand<T: CommandSerializer>(_ commandSerializer: T, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>) -> Void) {
             let task = SingleCommandTask<T>(commandSerializer)
             task.cardReader = cardReader
             task.delegate = cardManagerDelegate
