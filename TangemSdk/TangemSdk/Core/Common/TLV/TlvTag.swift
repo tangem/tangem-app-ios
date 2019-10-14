@@ -17,6 +17,9 @@ public enum TlvValueType {
     case ellipticCurve
     case dateTime
     case productMask
+    case settingsMask
+    case cardStatus
+    case signingMethod
 }
 
 /// Tags, supported by card
@@ -57,7 +60,7 @@ public enum TlvTag: Byte {
     case sessionKeyB = 0x1B
     case manufacturerName = 0x20
     case manufacturerSignature = 0x21
-    case issuerDataPublicKey = 0x30
+    case issuerPublicKey = 0x30
     case issuerTransactionPublicKey = 0x31
     case issuerData = 0x32
     case issuerDataSignature = 0x33
@@ -111,7 +114,7 @@ public enum TlvTag: Byte {
             return .utf8String
         case .curveId:
             return .ellipticCurve
-        case .status, .maxSignatures, .signingMethod, .pauseBeforePin2,
+        case .maxSignatures, .pauseBeforePin2,
              .walletRemainingSignatures, .walletSignedHashes, .health, .userCounter, .tokenDecimal:
             return .intValue
         case .isActivated:
@@ -120,6 +123,12 @@ public enum TlvTag: Byte {
             return .dateTime
         case .productMask:
             return .productMask
+        case .settingsMask:
+            return .settingsMask
+        case .status:
+            return .cardStatus
+        case .signingMethod:
+            return .signingMethod
         default:
             return .data
         }
