@@ -31,7 +31,6 @@
 		5D273A0B234F270200ACDA11 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F4234F270200ACDA11 /* Error.swift */; };
 		5D273A0C234F270200ACDA11 /* PrivateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F5234F270200ACDA11 /* PrivateKey.swift */; };
 		5D273A0D234F270200ACDA11 /* Seed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F6234F270200ACDA11 /* Seed.swift */; };
-		5D48C486234F787600B32379 /* TangemSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D48C485234F787600B32379 /* TangemSdk.swift */; };
 		5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4BE233E4C6B00F33764 /* InputStream+.swift */; };
 		5D58B4C1233E54A400F33764 /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4C0233E54A400F33764 /* Int+.swift */; };
 		5D6A92D82344E2D700158457 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D6A92DA2344E2D700158457 /* Localizable.strings */; };
@@ -45,7 +44,6 @@
 		5D6A92EC2346069700158457 /* CardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92EB2346069700158457 /* CardManager.swift */; };
 		5D6A92EE23463D1200158457 /* ScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92ED23463D1200158457 /* ScanTask.swift */; };
 		5D6A92F12347796200158457 /* SignTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92F02347796200158457 /* SignTask.swift */; };
-		5D7D5FB02343598500058D69 /* EncryptionMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FAF2343598500058D69 /* EncryptionMode.swift */; };
 		5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB123449D4000058D69 /* CardEnvironment.swift */; };
 		5D7D5FB423449F2300058D69 /* CommandSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB323449F2300058D69 /* CommandSerializer.swift */; };
 		5DA5B611233E11950058C720 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B610233E11950058C720 /* CommandApdu.swift */; };
@@ -101,7 +99,6 @@
 		5D2739F4234F270200ACDA11 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		5D2739F5234F270200ACDA11 /* PrivateKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivateKey.swift; sourceTree = "<group>"; };
 		5D2739F6234F270200ACDA11 /* Seed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Seed.swift; sourceTree = "<group>"; };
-		5D48C485234F787600B32379 /* TangemSdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdk.swift; sourceTree = "<group>"; };
 		5D58B4BE233E4C6B00F33764 /* InputStream+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		5D58B4C0233E54A400F33764 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		5D6A92D92344E2D700158457 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -115,7 +112,6 @@
 		5D6A92EB2346069700158457 /* CardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardManager.swift; sourceTree = "<group>"; };
 		5D6A92ED23463D1200158457 /* ScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTask.swift; sourceTree = "<group>"; };
 		5D6A92F02347796200158457 /* SignTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTask.swift; sourceTree = "<group>"; };
-		5D7D5FAF2343598500058D69 /* EncryptionMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionMode.swift; sourceTree = "<group>"; };
 		5D7D5FB123449D4000058D69 /* CardEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnvironment.swift; sourceTree = "<group>"; };
 		5D7D5FB323449F2300058D69 /* CommandSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandSerializer.swift; sourceTree = "<group>"; };
 		5DA5B610233E11950058C720 /* CommandApdu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandApdu.swift; sourceTree = "<group>"; };
@@ -163,8 +159,12 @@
 		5D2739DC234F270200ACDA11 /* Ed25519 */ = {
 			isa = PBXGroup;
 			children = (
+				5D2739F2234F270200ACDA11 /* KeyPair.swift */,
+				5D2739F3234F270200ACDA11 /* PublicKey.swift */,
+				5D2739F4234F270200ACDA11 /* Error.swift */,
+				5D2739F5234F270200ACDA11 /* PrivateKey.swift */,
+				5D2739F6234F270200ACDA11 /* Seed.swift */,
 				5D2739DD234F270200ACDA11 /* CEd25519 */,
-				5D2739F1234F270200ACDA11 /* Ed25519 */,
 			);
 			path = Ed25519;
 			sourceTree = "<group>";
@@ -202,18 +202,6 @@
 			path = include;
 			sourceTree = "<group>";
 		};
-		5D2739F1234F270200ACDA11 /* Ed25519 */ = {
-			isa = PBXGroup;
-			children = (
-				5D2739F2234F270200ACDA11 /* KeyPair.swift */,
-				5D2739F3234F270200ACDA11 /* PublicKey.swift */,
-				5D2739F4234F270200ACDA11 /* Error.swift */,
-				5D2739F5234F270200ACDA11 /* PrivateKey.swift */,
-				5D2739F6234F270200ACDA11 /* Seed.swift */,
-			);
-			path = Ed25519;
-			sourceTree = "<group>";
-		};
 		5D6A92D52344E2B400158457 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -223,19 +211,21 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		5D6A92E12345F28F00158457 /* Serializers */ = {
+		5D6A92E12345F28F00158457 /* Commands */ = {
 			isa = PBXGroup;
 			children = (
+				5D7D5FB323449F2300058D69 /* CommandSerializer.swift */,
 				5D6A92E22345F2A300158457 /* ReadCommand.swift */,
 				5D6A92E42345F2B200158457 /* SignCommand.swift */,
 				5D6A92E62345F2D600158457 /* CheckWalletCommand.swift */,
 			);
-			path = Serializers;
+			path = Commands;
 			sourceTree = "<group>";
 		};
 		5D6A92E82345FF1300158457 /* Tasks */ = {
 			isa = PBXGroup;
 			children = (
+				5D6A92DD2344F1DC00158457 /* Task.swift */,
 				5D6A92E92345FF2200158457 /* SingleCommandTask.swift */,
 				5D6A92ED23463D1200158457 /* ScanTask.swift */,
 				5D6A92F02347796200158457 /* SignTask.swift */,
@@ -304,16 +294,14 @@
 		5DF7CFCA233D034E00461F4D /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				5DA5B61F233E13180058C720 /* TLV */,
+				5DA5B614233E11DD0058C720 /* APDU */,
+				5DFFC49D233B9D4C004964E8 /* NFC */,
+				5DFFC4A0233BA5D2004964E8 /* Extensions */,
+				5D6A92D52344E2B400158457 /* Resources */,
 				5DF7CFCB233D03BD00461F4D /* CompletionResult.swift */,
 				5DF7CFCD233D058D00461F4D /* CardReader.swift */,
 				5D7D5FB123449D4000058D69 /* CardEnvironment.swift */,
-				5D7D5FB323449F2300058D69 /* CommandSerializer.swift */,
-				5D7D5FAF2343598500058D69 /* EncryptionMode.swift */,
-				5D6A92DD2344F1DC00158457 /* Task.swift */,
-				5D6A92DF2344F2F900158457 /* CardManagerDelegate.swift */,
-				5D6A92EB2346069700158457 /* CardManager.swift */,
-				5DFFC1A0234DC715001C2F35 /* CryptoUtils.swift */,
-				5D48C485234F787600B32379 /* TangemSdk.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -321,6 +309,7 @@
 		5DFFC1A2234DC969001C2F35 /* Crypto */ = {
 			isa = PBXGroup;
 			children = (
+				5DFFC1A0234DC715001C2F35 /* CryptoUtils.swift */,
 				5D2739DC234F270200ACDA11 /* Ed25519 */,
 			);
 			path = Crypto;
@@ -329,28 +318,25 @@
 		5DFFC49C233B9D43004964E8 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				5DFFC1A2234DC969001C2F35 /* Crypto */,
+				5D6A92EB2346069700158457 /* CardManager.swift */,
+				5D6A92DF2344F2F900158457 /* CardManagerDelegate.swift */,
 				5D6A92E82345FF1300158457 /* Tasks */,
-				5D6A92E12345F28F00158457 /* Serializers */,
-				5D6A92D52344E2B400158457 /* Resources */,
-				5DA5B61F233E13180058C720 /* TLV */,
-				5DA5B614233E11DD0058C720 /* APDU */,
+				5D6A92E12345F28F00158457 /* Commands */,
 				5DF7CFCA233D034E00461F4D /* Common */,
-				5DFFC4A0233BA5D2004964E8 /* Extension */,
-				5DFFC49D233B9D4C004964E8 /* Nfc */,
+				5DFFC1A2234DC969001C2F35 /* Crypto */,
 			);
 			path = Core;
 			sourceTree = "<group>";
 		};
-		5DFFC49D233B9D4C004964E8 /* Nfc */ = {
+		5DFFC49D233B9D4C004964E8 /* NFC */ = {
 			isa = PBXGroup;
 			children = (
 				5DFFC49E233B9D69004964E8 /* NFCReader.swift */,
 			);
-			path = Nfc;
+			path = NFC;
 			sourceTree = "<group>";
 		};
-		5DFFC4A0233BA5D2004964E8 /* Extension */ = {
+		5DFFC4A0233BA5D2004964E8 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
 				5DFFC4A1233BA5E0004964E8 /* Byte+.swift */,
@@ -359,7 +345,7 @@
 				5DB4406C234B740B00AC39F1 /* Data+.swift */,
 				5DB4406E234B750200AC39F1 /* String+.swift */,
 			);
-			path = Extension;
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -504,7 +490,6 @@
 				5D58B4C1233E54A400F33764 /* Int+.swift in Sources */,
 				5DF7CFCE233D058D00461F4D /* CardReader.swift in Sources */,
 				5DB4406D234B740B00AC39F1 /* Data+.swift in Sources */,
-				5D7D5FB02343598500058D69 /* EncryptionMode.swift in Sources */,
 				5D273A09234F270200ACDA11 /* KeyPair.swift in Sources */,
 				5D6A92E72345F2D600158457 /* CheckWalletCommand.swift in Sources */,
 				5D2739FE234F270200ACDA11 /* sign.c in Sources */,
@@ -512,7 +497,6 @@
 				5D273A04234F270200ACDA11 /* keypair.c in Sources */,
 				5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */,
 				5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */,
-				5D48C486234F787600B32379 /* TangemSdk.swift in Sources */,
 				5DA5B613233E11A50058C720 /* ResponseApdu.swift in Sources */,
 				5D2739FC234F270200ACDA11 /* ge.c in Sources */,
 				5D2739FB234F270200ACDA11 /* verify.c in Sources */,
