@@ -10,7 +10,7 @@ import Foundation
 
 public protocol CardManagerDelegate: class {
     func showSecurityDelay(remainingSeconds: Int)
-    func requestPin(completion: @escaping () -> CompletionResult<String>)
+    func requestPin(completion: @escaping () -> CompletionResult<String, Error>)
 }
 
 final class DefaultCardManagerDelegate: CardManagerDelegate {
@@ -24,6 +24,6 @@ final class DefaultCardManagerDelegate: CardManagerDelegate {
         reader.alertMessage = "\(remainingSeconds)"
     }
     
-    func requestPin(completion: @escaping () -> CompletionResult<String>) {
+    func requestPin(completion: @escaping () -> CompletionResult<String, Error>) {
     }
 }
