@@ -17,8 +17,7 @@ public final class SingleCommandTask<T: CommandSerializer>: Task<CompletionResul
         self.commandSerializer = commandSerializer
     }
     
-    override public func run(with environment: CardEnvironment, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>) -> Void) {
-        super.run(with: environment, completion: completion)
-        sendCommand(commandSerializer, completion: completion)
+    override public func onRun(environment: CardEnvironment, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
+        sendCommand(commandSerializer, environment: environment, completion: completion)
     }
 }
