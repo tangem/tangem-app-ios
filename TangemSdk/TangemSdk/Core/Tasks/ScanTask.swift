@@ -17,47 +17,45 @@ public enum ScanResult {
 
 @available(iOS 13.0, *)
 public final class ScanTask: Task<ScanResult> {
-    override public func run(with environment: CardEnvironment, completion: @escaping (ScanResult) -> Void) {
-        super.run(with: environment, completion: completion)
-        
+    override public func onRun(environment: CardEnvironment, completion: @escaping (ScanResult, CardEnvironment) -> Void) {
         let readCommand = ReadCommand(pin1: environment.pin1)
-        sendCommand(readCommand) {readResult in
+        sendCommand(readCommand, environment: environment) {readResult, environment  in
             switch readResult {
             case .failure(let error):
                 self.cardReader.stopSession()
-                completion(.failure(error))
+                completion(.failure(error), environment)
             case .success(let readResponse):
-                completion(.onRead(readResponse))
+                completion(.onRead(readResponse), environment)
                 
                 guard readResponse.status == .loaded else {
                     return
                 }
                 
                 guard let curve = readResponse.curve, let publicKey = readResponse.walletPublicKey else {
-                    completion(.failure(TaskError.cardError))
+                    completion(.failure(TaskError.cardError), environment)
                     return
                 }
                 
                 guard let challenge = CryptoUtils.generateRandomBytes(count: 16) else {
                     self.cardReader.stopSession()
-                    completion(.failure(TaskError.vefificationFailed))
+                    completion(.failure(TaskError.vefificationFailed), environment)
                     return
                 }
                 
                 let checkWalletCommand = CheckWalletCommand(pin1: environment.pin1, cardId: readResponse.cardId, challenge: challenge)
-                self.sendCommand(checkWalletCommand) {checkWalletResult in
+                self.sendCommand(checkWalletCommand, environment: environment) {checkWalletResult, environment in
                     self.cardReader.stopSession()
                     switch checkWalletResult {
                     case .failure(let error):
-                        completion(.failure(error))
+                        completion(.failure(error), environment)
                     case .success(let checkWalletResponse):
                         if let verifyResult = CryptoUtils.vefify(curve: curve,
-                                                              publicKey: publicKey,
-                                                              message: challenge + checkWalletResponse.salt,
-                                                              signature: checkWalletResponse.walletSignature) {
-                            completion(.onVerify(verifyResult))
+                                                                 publicKey: publicKey,
+                                                                 message: challenge + checkWalletResponse.salt,
+                                                                 signature: checkWalletResponse.walletSignature) {
+                            completion(.onVerify(verifyResult), environment)
                         } else {
-                             completion(.failure(TaskError.vefificationFailed))
+                            completion(.failure(TaskError.vefificationFailed), environment)
                         }
                         
                     }

@@ -15,7 +15,7 @@ class ViewController: UIViewController {
     var cardManager: CardManager = CardManager()
     
     @IBAction func scanCardTapped(_ sender: Any) {
-        cardManager.scanCard {[unowned self] scanResult in
+        cardManager.scanCard {[unowned self] scanResult, cardEnvironment in
             switch scanResult {
             case .failure(let error):
                 print("error: \(error.localizedDescription)")
