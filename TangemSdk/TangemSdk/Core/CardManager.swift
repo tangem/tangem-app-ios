@@ -23,46 +23,39 @@ public final class CardManager {
         #endif
     }
     
-    public private(set) var card: Card? =  nil
-    
     private let cardReader: CardReader
     private let cardManagerDelegate: CardManagerDelegate
-    private let cardEnvironmentRepository: CardEnvironmentRepository
     
-    public init(cardReader: CardReader, dataStorage: DataStorage? = nil, cardManagerDelegate: CardManagerDelegate) {
+    public init(cardReader: CardReader, cardManagerDelegate: CardManagerDelegate) {
         self.cardReader = cardReader
         self.cardManagerDelegate = cardManagerDelegate
-        cardEnvironmentRepository = CardEnvironmentRepository(dataStorage: dataStorage)
     }
     
-    public func scanCard(completion: @escaping (ScanResult) -> Void) {
+    public func scanCard(with environment: CardEnvironment? = nil, completion: @escaping (ScanResult, CardEnvironment) -> Void) {
         let task = ScanTask()
-        runTask(task, completion: completion)
+        runTask(task, environment: environment, completion: completion)
     }
     
-    public func sign(completion: @escaping (SignResult) -> Void) {
-        
-        
+    public func sign(with environment: CardEnvironment?, completion: @escaping (SignResult) -> Void) {
         //[REDACTED_TODO_COMMENT]
     }
     
-    func runTask<TaskResult>(_ task: Task<TaskResult>, completion: @escaping (TaskResult) -> Void) {
+    func runTask<TaskResult>(_ task: Task<TaskResult>, environment: CardEnvironment?, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
         task.cardReader = cardReader
         task.delegate = cardManagerDelegate
-        task.cardEnvironmentRepository = cardEnvironmentRepository
-        task.run(with: cardEnvironmentRepository.cardEnvironment, completion: completion)
+        task.run(with: environment ?? CardEnvironment(), completion: completion)
     }
     
-    func runCommand<T: CommandSerializer>(_ commandSerializer: T, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>) -> Void) {
-            let task = SingleCommandTask<T>(commandSerializer)
-            runTask(task, completion: completion)
+    func runCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment?, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
+        let task = SingleCommandTask<T>(commandSerializer)
+        runTask(task, environment: environment, completion: completion)
     }
 }
 
 @available(iOS 13.0, *)
 extension CardManager {
-    public convenience init(cardReader: CardReader = NFCReader(), dataStorage: DataStorage? = DefaultDataStorage(), cardManagerDelegate: CardManagerDelegate? = nil) {
+    public convenience init(cardReader: CardReader = NFCReader(), cardManagerDelegate: CardManagerDelegate? = nil) {
         let delegate = cardManagerDelegate ?? DefaultCardManagerDelegate(reader: cardReader as! NFCReaderText)
-        self.init(cardReader: cardReader, dataStorage: dataStorage, cardManagerDelegate: delegate  )
+        self.init(cardReader: cardReader, cardManagerDelegate: delegate)
     }
 }
