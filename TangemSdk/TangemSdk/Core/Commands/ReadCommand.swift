@@ -67,7 +67,7 @@ public struct SettingsMask: OptionSet {
     static let checkPIN3OnCard = SettingsMask(rawValue: 0x04000000)
 }
 
-public struct ReadResponse: TlvMapable {
+public struct ReadResponse: TlvMappable {
     let cardId: String
     let manufacturerName: String
     let status: CardStatus
