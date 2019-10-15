@@ -71,4 +71,8 @@ public enum CardTag: UInt8 {
     case denominationText = 0xC3
     case checkWalletCounter = 0x64
     case productMask = 0x8A
+    case isLinked = 0x58
+    case terminalPublicKey = 0x5C
+    case terminalTransactionSignature = 0x57
+    case legacyMode = 0x29
 }
