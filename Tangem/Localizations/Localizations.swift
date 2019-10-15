@@ -511,6 +511,7 @@ class Localizations {
     static let doubleScanHint = translate("common_double_scan_hint")
     static let alertStart2CoinMessage = translate("alert_start2coin")
     static let goToLink = translate("common_go_link")
+    static let detailsLinkedCard = translate("details_linked_card_title")
 }
 // MARK: - Implementation Details
 
