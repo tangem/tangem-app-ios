@@ -29,6 +29,10 @@ Check the values and details of your Tangem notes — special NFC smart cards th
   s.frameworks = 'CoreNFC'
 
   s.resources = "TangemKit/TangemKit/Assets/*.xcassets"
+  
+  s.resource_bundles = {
+            'TangemKit' => ['TangemKit/TangemKit/Classes/Localizations/*.lproj/*.strings']
+        }
 
   s.dependency 'BigInt'
   s.dependency 'CryptoSwift'
@@ -38,4 +42,6 @@ Check the values and details of your Tangem notes — special NFC smart cards th
   s.dependency 'SwiftCBOR'
   s.dependency 'Sodium'
   s.dependency 'web3.swift.pod'
+  s.dependency 'stellar-ios-mac-sdk'
+  s.dependency 'KeychainSwift'
 end
