@@ -17,11 +17,12 @@ public protocol BlockchainTxOperation: GBAsyncOperation {
 class CardanoSendTransactionOperation: GBAsyncOperation {
     
     private struct Constants {
-        static let mainNetURL = "https://explorer2.adalite.io/api/v2/txs/signed"
+        static let mainNetURL = "/api/v2/txs/signed"
     }
     
     var httpBody: Data?
     var completion: ((TangemObjectResult<Bool>) -> Void)?
+    var retryCount = 1
     
     init(bytes: [UInt8]) {
         super.init()
@@ -35,7 +36,7 @@ class CardanoSendTransactionOperation: GBAsyncOperation {
     }
     
     override func main() {
-        let url = URL(string: Constants.mainNetURL)
+        let url = URL(string: CardanoBackend.current.rawValue + Constants.mainNetURL)
         var urlRequest = URLRequest(url: url!)
         urlRequest.httpMethod = "POST"
         urlRequest.httpBody = httpBody
@@ -54,7 +55,7 @@ class CardanoSendTransactionOperation: GBAsyncOperation {
                      self.failOperationWith(error: "Empty response")
                 }                
             case .failure(let error):
-                self.failOperationWith(error: error)
+                self.handleError(error)
             }
         }
         
@@ -82,5 +83,9 @@ class CardanoSendTransactionOperation: GBAsyncOperation {
 
 
 extension CardanoSendTransactionOperation: BlockchainTxOperation {
+    
+}
+
+extension CardanoSendTransactionOperation: CardanoBackendHandler {
     
 }
