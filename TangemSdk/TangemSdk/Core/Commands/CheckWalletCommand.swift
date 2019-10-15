@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CheckWalletResponse: TlvMapable {
+struct CheckWalletResponse: TlvMappable {
     let cardId: String
     let salt: Data
     let walletSignature: Data
