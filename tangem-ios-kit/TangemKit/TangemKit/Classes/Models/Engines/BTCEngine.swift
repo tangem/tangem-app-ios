@@ -245,11 +245,17 @@ extension BTCEngine: CoinProvider {
     func buildSignedScripts(signFromCard: [UInt8], publicKey: [UInt8], outputsCount: Int) -> [[UInt8]]? {
         var scripts = [[UInt8]](reserveCapacity: outputsCount)
         for index in 0..<outputsCount {
-            let offset = index*64
-            let sig = signFromCard[offset..<offset+64]
+            let offsetMin = index*64
+            let offsetMax = offsetMin+64
+            guard offsetMax <= signFromCard.count else {
+                return nil
+            }
+            
+            let sig = signFromCard[offsetMin..<offsetMax]
             guard let signDer = serializeSignature(for: Array(sig)) else {
                 return nil
             }
+            
             var script = [UInt8]()
             script.append((signDer.count+1).byte)
             script.append(contentsOf: signDer)
@@ -266,13 +272,12 @@ extension BTCEngine: CoinProvider {
         defer {secp256k1_context_destroy(&ctx)}
         var sig = secp256k1_ecdsa_signature()
         var normalized = secp256k1_ecdsa_signature()
-        _ = secp256k1_ecdsa_signature_parse_compact(ctx, &sig, sign)
-        _ = secp256k1_ecdsa_signature_normalize(ctx, &normalized, sig)
+        guard secp256k1_ecdsa_signature_parse_compact(ctx, &sig, sign) else { return nil }
         
+        _ = secp256k1_ecdsa_signature_normalize(ctx, &normalized, sig)
         var length: UInt = 128
         var der = [UInt8].init(repeating: UInt8(0x0), count: Int(length))
-        let res = secp256k1_ecdsa_signature_serialize_der(ctx, &der, &length, normalized)
-        guard res else { return nil }
+        guard secp256k1_ecdsa_signature_serialize_der(ctx, &der, &length, normalized)  else { return nil }
         
         return Array(der[0..<Int(length)])
     }
