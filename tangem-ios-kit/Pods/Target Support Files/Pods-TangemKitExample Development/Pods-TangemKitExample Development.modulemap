@@ -1,6 +1,0 @@
-framework module Pods_TangemKitExample_Development {
-  umbrella header "Pods-TangemKitExample Development-umbrella.h"
-
-  export *
-  module * { export * }
-}
