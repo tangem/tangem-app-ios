@@ -17,6 +17,7 @@ public enum TaskError: Error, LocalizedError {
     case insNotSupported
     case vefificationFailed
     case cardError
+    case nfcUnavailable
     case readerError(NFCReaderError)
     
     public var localizedDescription: String {
@@ -39,7 +40,7 @@ open class Task<TaskResult> {
         cardReader.stopSession()
     }
     
-    public func run(with environment: CardEnvironment, completion: @escaping (TaskResult) -> Void) {
+    public final func run(with environment: CardEnvironment, completion: @escaping (TaskResult) -> Void) {
         guard cardReader != nil else {
             fatalError("Card reader is nil")
         }
@@ -49,6 +50,7 @@ open class Task<TaskResult> {
         }
         
         cardReader.startSession()
+        onRun()
     }
     
     func sendCommand<T: CommandSerializer>(_ commandSerializer: T, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>) -> Void) {
