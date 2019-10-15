@@ -34,28 +34,22 @@ public enum TaskError: Error, LocalizedError {
 open class Task<TaskResult> {
     var cardReader: CardReader!
     var delegate: CardManagerDelegate?
-    var cardEnvironmentRepository: CardEnvironmentRepository!
-    
-    deinit {
-        cardReader.stopSession()
-    }
-    
-    public final func run(with environment: CardEnvironment, completion: @escaping (TaskResult) -> Void) {
+
+    public final func run(with environment: CardEnvironment, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
         guard cardReader != nil else {
             fatalError("Card reader is nil")
         }
         
-        guard cardEnvironmentRepository != nil else {
-            fatalError("CardEnvironmentRepository reader is nil")
-        }
-        
         cardReader.startSession()
-        onRun()
+        onRun(environment: environment, completion: completion)
     }
     
-    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>) -> Void) {
-            
-            let commandApdu = commandSerializer.serialize(with: cardEnvironmentRepository.cardEnvironment)
+    public func onRun(environment: CardEnvironment, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
+        
+    }
+    
+    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
+            let commandApdu = commandSerializer.serialize(with: environment)
             cardReader.send(commandApdu: commandApdu) { [weak self] commandResponse in
                 guard let self = self else { return }
                 
@@ -63,7 +57,7 @@ open class Task<TaskResult> {
                 case .success(let responseApdu):
                     guard let status = responseApdu.status else {
                         DispatchQueue.main.async {
-                            completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
+                            completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)), environment)
                         }
                         return
                     }
@@ -84,31 +78,31 @@ open class Task<TaskResult> {
                         
                         break
                     case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed, .pinsNotChanged:
-                        if let responseData = commandSerializer.deserialize(with: self.cardEnvironmentRepository.cardEnvironment, from: responseApdu) {
+                        if let responseData = commandSerializer.deserialize(with: environment, from: responseApdu) {
                             DispatchQueue.main.async {
-                                completion(.success(responseData))
+                                completion(.success(responseData), environment)
                             }
                         } else {
                             DispatchQueue.main.async {
-                                completion(.failure(TaskError.mappingError))
+                                completion(.failure(TaskError.mappingError), environment)
                             }
                         }
                     case .errorProcessingCommand:
                         DispatchQueue.main.async {
-                            completion(.failure(TaskError.errorProcessingCommand))
+                            completion(.failure(TaskError.errorProcessingCommand), environment)
                         }
                     case .invalidState:
                         DispatchQueue.main.async {
-                            completion(.failure(TaskError.invalidState))
+                            completion(.failure(TaskError.invalidState), environment)
                         }
                     case .insNotSupported:
                         DispatchQueue.main.async {
-                            completion(.failure(TaskError.insNotSupported))
+                            completion(.failure(TaskError.insNotSupported), environment)
                         }
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        completion(.failure(.readerError(error)))
+                        completion(.failure(.readerError(error)), environment)
                     }
                 }
             }
