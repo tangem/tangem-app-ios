@@ -68,7 +68,7 @@ public final class NFCReader: NSObject {
         guard let session = readerSession,
             session.isReady else { return }
         
-        session.invalidate(errorMessage: Localizations.nfcSessionTimeout)
+        session.invalidate(errorMessage: Localization.nfcSessionTimeout)
     }
 }
 
@@ -79,7 +79,7 @@ extension NFCReader: CardReader {
         if let existingSession = readerSession, existingSession.isReady { return }
         
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
-        readerSession!.alertMessage = Localizations.nfcAlertDefault
+        readerSession!.alertMessage = Localization.nfcAlertDefault
         readerSession!.begin()
     }
     
