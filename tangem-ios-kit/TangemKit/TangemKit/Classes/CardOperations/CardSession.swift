@@ -13,16 +13,23 @@ import CoreNFC
 @available(iOS 13.0, *)
 public enum CardSessionResult<T> {
     case success(T)
+    case pending(T)
     case failure(Error)
     case cancelled
 }
 
 @available(iOS 13.0, *)
 public class CardSession: NSObject {
+    fileprivate static let maxRetryCount = 20
     
+    private var retryCount = CardSession.maxRetryCount
     private let completion: (CardSessionResult<[CardTag : CardTLV]>) -> Void
     private var readerSession: NFCTagReaderSession?
     private var cardHandled: Bool = false
+    private lazy var terminalKeysManager:TerminalKeysManager = {
+        let manager = TerminalKeysManager()
+        return manager
+    }()
     public private(set) var isBusy: Bool = false
     
     public init(completion: @escaping (CardSessionResult<[CardTag : CardTLV]>) -> Void) {
@@ -38,7 +45,11 @@ public class CardSession: NSObject {
     }
     
     private func buildReadApdu() -> NFCISO7816APDU {
-        let tlvData = [CardTLV(.pin, value: "000000".sha256().asciiHexToData())]
+        var tlvData = [CardTLV(.pin, value: "000000".sha256().asciiHexToData())]
+        if let keys = terminalKeysManager.getKeys() {
+            tlvData.append(CardTLV(.terminalPublicKey, value: Array(keys.publicKey)))
+        }
+        
         let commandApdu = CommandApdu(with: .read, tlv: tlvData)
         let signApduBytes = commandApdu.buildCommand()
         let apdu = NFCISO7816APDU(data: Data(bytes: signApduBytes))!
@@ -92,12 +103,19 @@ public class CardSession: NSObject {
                                  apdu: NFCISO7816APDU,
                                  session: NFCTagReaderSession,
                                  completionHandler:  @escaping (CardSessionResult<[CardTag : CardTLV]>) -> Void) {
-        tag7816.sendCommand(apdu: apdu) {(data, sw1, sw2, apduError) in
-            if let apduError = apduError {
-                completionHandler(.failure(apduError))
+        tag7816.sendCommand(apdu: apdu) {[weak self](data, sw1, sw2, apduError) in
+            guard let self = self else { return }
+            
+            if let _ = apduError {
+                if self.retryCount == 0 {
+                    session.restartPolling()
+                } else {
+                    self.retryCount -= 1
+                    self.sendCardRequest(to: tag7816, apdu: apdu, session: session, completionHandler: completionHandler)
+                }
                 return
             }
-            
+            self.retryCount = CardSession.maxRetryCount
             let respApdu = ResponseApdu(with: data, sw1: sw1, sw2: sw2)
             if let cardState = respApdu.state {
                 switch cardState {
@@ -144,8 +162,11 @@ extension CardSession: NFCTagReaderSessionDelegate {
             session.connect(to: nfcTag) {[unowned self] error in
                 guard error == nil else {
                     session.invalidate(errorMessage: error!.localizedDescription)
+                    self.completion(.failure(error!))
                     return
                 }
+                
+                self.retryCount = CardSession.maxRetryCount
                 
                 let readApdu = self.buildReadApdu()
                 guard let challenge = CryptoUtils.getRandomBytes(count: 16) else {
@@ -155,8 +176,9 @@ extension CardSession: NFCTagReaderSessionDelegate {
                     self.completion(.failure(error))
                     return
                 }
-                
+               
                 self.sendCardRequest(to: tag7816, apdu: readApdu, session: session) { result in
+            
                     switch result {
                     case .success(let readResult):
                         
@@ -170,7 +192,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                         
                         let cardId = readResult[.cardId]?.value
                         let checkWalletApdu = self.buildCheckWalletApdu(with: challenge, cardId: cardId! )
-                        
+                        self.completion(.pending(readResult))
                         self.sendCardRequest(to: tag7816, apdu: checkWalletApdu, session: session) {[unowned self] result in
                             switch result {
                             case .success(let checkWalletResult):
@@ -183,14 +205,13 @@ extension CardSession: NFCTagReaderSessionDelegate {
                                 } else {
                                     self.completion(.failure("Card verification failed"))
                                 }
-                                break
                             default:
-                                break
+                                session.restartPolling()
                             }
                         }
                         break
-                    default:
-                        break
+                     default:
+                         session.restartPolling()
                     }
                 }
             }
