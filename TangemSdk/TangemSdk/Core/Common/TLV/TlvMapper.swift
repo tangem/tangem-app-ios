@@ -32,7 +32,7 @@ public final class TlvMapper {
     
     public func map<T>(_ tag: TlvTag) throws -> T {
         guard let tagValue = tlv.value(for: tag) else {
-            if tag.valueType == .boolValue {
+            if tag.valueType == .boolValue { //todo: check tyope
                 return false as! T
             }
             
@@ -67,7 +67,7 @@ public final class TlvMapper {
             }
             
             guard let intValue = tagValue.toInt() else {
-                print("Mapping error. Failed convert \(tag) to int")
+                print("Mapping error. Failed convert \(tag) to Int")
                 throw TlvMapperError.convertError
             }
             
@@ -93,6 +93,7 @@ public final class TlvMapper {
             
             return curve as! T
         case .boolValue:
+            //[REDACTED_TODO_COMMENT]
             return true as! T
         case .dateTime:
             guard String.self == T.self else {
@@ -111,7 +112,7 @@ public final class TlvMapper {
             
             guard let byte = tagValue.bytes.first,
                 let productMask = ProductMask(rawValue: byte) else {
-                    print("Mapping error. Failed convert \(tag) to productMask")
+                    print("Mapping error. Failed convert \(tag) to ProductMask")
                     throw TlvMapperError.convertError
             }
             
@@ -123,7 +124,7 @@ public final class TlvMapper {
             }
             
             guard let intValue = tagValue.toInt() else {
-                print("Mapping error. Failed convert \(tag) to int")
+                print("Mapping error. Failed convert \(tag) to Int")
                 throw TlvMapperError.convertError
             }
             
