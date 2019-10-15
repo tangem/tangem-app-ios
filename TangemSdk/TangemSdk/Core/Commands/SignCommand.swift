@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct SignResponse: TlvMapable {
+struct SignResponse: TlvMappable {
     
     
     init?(from tlv: [Tlv]) {
