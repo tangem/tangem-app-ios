@@ -10,13 +10,13 @@
 import Foundation
 import CoreNFC
 
-public protocol TlvMapable {
+public protocol TlvMappable {
     init?(from tlv: [Tlv])
 }
 
 @available(iOS 13.0, *)
 public protocol CommandSerializer {
-    associatedtype CommandResponse: TlvMapable
+    associatedtype CommandResponse: TlvMappable
     
     func serialize(with environment: CardEnvironment) -> CommandApdu
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) -> CommandResponse?
