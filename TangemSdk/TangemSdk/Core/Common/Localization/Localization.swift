@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class Localizations {
+final class Localization {
     public static var localizationsBundle: Bundle = defaultBundle
     
     static let dialogSecurityDelay = string("dialog_security_delay")
@@ -18,7 +18,7 @@ final class Localizations {
     static let nfcAlertDefault = string("nfc_alert_default")
     
     private static var defaultBundle: Bundle = {
-        let selfBundle = Bundle(for: Localizations.self)
+        let selfBundle = Bundle(for: Localization.self)
         if let path = selfBundle.path(forResource: "TangemSdk", ofType: "bundle"), //for pods
             let bundle = Bundle(path: path) {
             return bundle
