@@ -20,19 +20,20 @@ struct CardanoBalanceResponse {
 class CardanoNetworkBalanceOperation: GBAsyncOperation {
 
     private struct Constants {
-        static let mainNetURL = "https://explorer2.adalite.io/api/addresses/summary/"
+        static let mainNetURL = "/api/addresses/summary/"
     }
 
     var address: String
     var completion: (TangemObjectResult<CardanoBalanceResponse>) -> Void
-
+    var retryCount = 1
+    
     init(address: String, completion: @escaping (TangemObjectResult<CardanoBalanceResponse>) -> Void) {
         self.address = address
         self.completion = completion
     }
 
     override func main() {
-        let url = URL(string: Constants.mainNetURL + address)
+        let url = URL(string: CardanoBackend.current.rawValue + Constants.mainNetURL + address)
         let urlRequest = URLRequest(url: url!)
         
         let task = TangemAPIClient.dataDask(request: urlRequest) { [weak self] (result) in
@@ -61,13 +62,12 @@ class CardanoNetworkBalanceOperation: GBAsyncOperation {
                 }
                 
             case .failure(let error):
-                self.failOperationWith(error: error)
+                self.handleError(error)
             }
         }
         
         task.resume()
     }
-
     func completeOperationWith(response: CardanoBalanceResponse) {
         guard !isCancelled else {
             return
@@ -85,4 +85,8 @@ class CardanoNetworkBalanceOperation: GBAsyncOperation {
         completion(.failure(error))
         cancel()
     }
+}
+
+extension CardanoNetworkBalanceOperation: CardanoBackendHandler {
+    
 }
