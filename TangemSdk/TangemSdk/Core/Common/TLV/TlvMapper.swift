@@ -32,7 +32,12 @@ public final class TlvMapper {
     
     public func map<T>(_ tag: TlvTag) throws -> T {
         guard let tagValue = tlv.value(for: tag) else {
-            if tag.valueType == .boolValue { //todo: check tyope
+            if tag.valueType == .boolValue {
+                guard Bool.self == T.self else {
+                    print("Mapping error. Type for tag: \(tag) must be Bool")
+                    throw TlvMapperError.wrongType
+                }
+                
                 return false as! T
             }
             
@@ -93,7 +98,11 @@ public final class TlvMapper {
             
             return curve as! T
         case .boolValue:
-            //[REDACTED_TODO_COMMENT]
+            guard Bool.self == T.self else {
+                print("Mapping error. Type for tag: \(tag) must be Bool")
+                throw TlvMapperError.wrongType
+            }
+            
             return true as! T
         case .dateTime:
             guard String.self == T.self else {
