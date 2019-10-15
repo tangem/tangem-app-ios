@@ -13,11 +13,12 @@ import GBAsyncOperation
 class CardanoUnspentOutputsOperation: GBAsyncOperation {
     
     private struct Constants {
-        static let mainNetURL = "https://explorer2.adalite.io/api/bulk/addresses/utxo"
+        static let mainNetURL = "/api/bulk/addresses/utxo"
     }
     
     var address: String
     var completion: (TangemObjectResult<[CardanoUnspentOutput]>) -> Void
+    var retryCount = 1
     
     init(address: String, completion: @escaping (TangemObjectResult<[CardanoUnspentOutput]>) -> Void) {
         self.address = address
@@ -25,7 +26,7 @@ class CardanoUnspentOutputsOperation: GBAsyncOperation {
     }
     
     override func main() {
-        let url = URL(string: Constants.mainNetURL)
+        let url = URL(string: CardanoBackend.current.rawValue + Constants.mainNetURL)
         var urlRequest = URLRequest(url: url!)
         urlRequest.httpMethod = "POST"
         urlRequest.httpBody = "[\"\(address)\"]".data(using: .utf8)
@@ -52,7 +53,7 @@ class CardanoUnspentOutputsOperation: GBAsyncOperation {
                 }
                 
             case .failure(let error):
-                self.failOperationWith(error: error)
+                self.handleError(error)
             }
         }
         
@@ -76,4 +77,8 @@ class CardanoUnspentOutputsOperation: GBAsyncOperation {
         completion(.failure(error))
         cancel()
     }
+}
+
+extension CardanoUnspentOutputsOperation: CardanoBackendHandler {
+    
 }
