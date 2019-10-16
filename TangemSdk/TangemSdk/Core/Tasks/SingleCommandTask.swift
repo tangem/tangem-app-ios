@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-public final class SingleCommandTask<T: CommandSerializer>: Task<CompletionResult<T.CommandResponse, TaskError>> {
+public final class SingleCommandTask<T: CommandSerializer>: Task<CancellableCompletionResult<T.CommandResponse, TaskError>> {
 
     private let commandSerializer: T
     
@@ -17,7 +17,7 @@ public final class SingleCommandTask<T: CommandSerializer>: Task<CompletionResul
         self.commandSerializer = commandSerializer
     }
     
-    override public func onRun(environment: CardEnvironment, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
+    override public func onRun(environment: CardEnvironment, completion: @escaping (CancellableCompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
         sendCommand(commandSerializer, environment: environment, completion: completion)
     }
 }

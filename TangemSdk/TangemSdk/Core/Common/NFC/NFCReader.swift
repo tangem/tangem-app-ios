@@ -32,6 +32,7 @@ enum NFCTagWrapper {
 public final class NFCReader: NSObject {
     static let tagTimeout = 19.0
     static let sessionTimeout = 59.0
+    static let retryCount = 20
     
     public let enableSessionInvalidateByTimer = true
     
@@ -39,13 +40,13 @@ public final class NFCReader: NSObject {
     private let readerSessionError = CurrentValueSubject<NFCReaderError?,Never>(nil)
     private var readerSession: NFCTagReaderSession?
     private var subscription: AnyCancellable?
+    private var currentRetryCount = NFCReader.retryCount
     
     /// Workaround for session timeout error (60 sec)
     private var sessionTimer: Timer?
     
     /// Workaround for tag timeout connection error (20 sec)
     private var tagTimer: Timer?
-    
     private func startSessionTimer() {
         guard enableSessionInvalidateByTimer else { return }
         DispatchQueue.global().async {
@@ -113,20 +114,30 @@ extension NFCReader: CardReader {
                     return
                 }
                 
-                tag.sendCommand(apdu: NFCISO7816APDU(commandApdu)) {[weak self] (data, sw1, sw2, error) in
-                    if let nfcError = error as? NFCReaderError {
-                        if nfcError.code == .readerTransceiveErrorTagConnectionLost {
-                            self?.readerSession?.restartPolling()
-                        } else {
-                            self?.connectedTag.send(.error(nfcError)) // Complere subscription and invoke error handler
-                        }
-                    } else {
-                        let responseApdu = ResponseApdu(data, sw1 ,sw2)
-                        completion(.success(responseApdu))
-                        self?.subscription?.cancel()
-                    }
-                }
+                let apdu = NFCISO7816APDU(commandApdu)
+                self.sendCommand(apdu: apdu, to: tag, completion: completion)
             })
+    }
+    
+    func sendCommand(apdu: NFCISO7816APDU, to tag: NFCISO7816Tag, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
+        tag.sendCommand(apdu: apdu) {[weak self] (data, sw1, sw2, error) in
+            guard let self = self else { return }
+            
+            if error != nil {
+                if self.currentRetryCount > 0 {
+                    self.currentRetryCount -= 1
+                    self.sendCommand(apdu: apdu, to: tag, completion: completion)
+                } else {
+                    self.currentRetryCount = NFCReader.retryCount
+                    self.readerSession?.restartPolling()
+                }
+            } else {
+                self.currentRetryCount = NFCReader.retryCount
+                let responseApdu = ResponseApdu(data, sw1 ,sw2)
+                completion(.success(responseApdu))
+                self.subscription?.cancel()
+            }
+        }
     }
 }
 
