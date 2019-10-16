@@ -71,7 +71,7 @@ extension ETHEngine: CoinProvider {
            return CoinTrait.all
        }
     
-    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> Data? {
+    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
         let nonceValue = BigUInt(txCount)
         
         
@@ -87,7 +87,7 @@ extension ETHEngine: CoinProvider {
         
         self.transaction = transaction
         self.hashForSign = hashForSign
-        return hashForSign
+        return [hashForSign]
     }
     
     func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
