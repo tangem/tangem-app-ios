@@ -11,6 +11,7 @@ import Foundation
 public enum ScanResult {
     case onRead(Card)
     case onVerify(Bool)
+    case usedCancelled
     case failure(TaskError)
 }
 
@@ -58,8 +59,12 @@ public final class ScanTask: Task<ScanResult> {
                             completion(.failure(TaskError.vefificationFailed), environment)
                         }
                         
+                    case .userCancelled:
+                        completion(.usedCancelled, environment)
                     }
                 }
+            case .userCancelled:
+                  completion(.usedCancelled, environment)
             }
         }
     }
