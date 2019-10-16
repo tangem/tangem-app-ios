@@ -46,7 +46,7 @@ public final class CardManager {
         task.run(with: environment ?? CardEnvironment(), completion: completion)
     }
     
-    func runCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment?, completion: @escaping (CompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
+    func runCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment?, completion: @escaping (CancellableCompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
         let task = SingleCommandTask<T>(commandSerializer)
         runTask(task, environment: environment, completion: completion)
     }
