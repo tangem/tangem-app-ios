@@ -141,8 +141,8 @@ public struct ReadResponse: TlvMappable {
             tokenContractAddress = try mapper.mapOptional(.tokenContractAddress)
             tokenDecimal = try mapper.mapOptional(.tokenDecimal)
             
-            remainingSignatures = try mapper.mapOptional(.walletRemainingSignatures)
-            signedHashes = try mapper.mapOptional(.walletSignedHashes)
+            remainingSignatures = nil
+            signedHashes = nil
         } catch {
             print(error)
             return nil
