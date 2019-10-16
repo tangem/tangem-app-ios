@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ScanResult {
+public enum ScanEvent {
     case onRead(Card)
     case onVerify(Bool)
     case usedCancelled
@@ -17,8 +17,8 @@ public enum ScanResult {
 
 
 @available(iOS 13.0, *)
-public final class ScanTask: Task<ScanResult> {
-    override public func onRun(environment: CardEnvironment, completion: @escaping (ScanResult, CardEnvironment) -> Void) {
+public final class ScanTask: Task<ScanEvent> {
+    override public func onRun(environment: CardEnvironment, completion: @escaping (ScanEvent, CardEnvironment) -> Void) {
         let readCommand = ReadCommand(pin1: environment.pin1)
         sendCommand(readCommand, environment: environment) {readResult, environment  in
             switch readResult {
