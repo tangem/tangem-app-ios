@@ -14,6 +14,9 @@ import CoreNFC
 public enum CardSignError: Error {
     case missingIssuerSignature
     case nfcError(error: Error)
+    case emptyDataToSign
+    case allHashesLengthMustBeEqual
+    case failedBuldDataToSign
 }
 
 public enum CardSignSessionResult<T> {
@@ -104,14 +107,35 @@ public class CardSignSession: NSObject {
         self.supportedSignMethods = supportedSignMethods
     }
     
-    public func start(dataToSign: Data) {
+    public func start(dataToSign: [Data]) {
         state = .active
         
+        guard let hashSize = dataToSign.first?.count else {
+            self.state = .none
+            completion(.failure(CardSignError.emptyDataToSign))
+            return
+        }
+
+    
         DispatchQueue.global().async {
-            guard let signApdu = self.buildSignApdu(dataToSign) else {
+           var flattenHashes = [UInt8]()
+           flattenHashes.reserveCapacity(hashSize*dataToSign.count)
+           
+           for data in dataToSign {
+               guard data.count == hashSize else {
+                   self.state = .none
+                self.completion(.failure(CardSignError.allHashesLengthMustBeEqual))
+                   return
+               }
+            flattenHashes.append(contentsOf: data.bytes)
+           }
+            
+            guard let signApdu = self.buildSignApdu(Data(flattenHashes), hashSize: hashSize) else {
                 self.state = .none
+                self.completion(.failure(CardSignError.failedBuldDataToSign))
                 return
             }
+            
             self.signApdu = signApdu
             self.readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
             self.readerSession!.alertMessage = Localizations.nfcAlertDefault
@@ -120,9 +144,9 @@ public class CardSignSession: NSObject {
     }
     
     
-    func buildSignApdu(_ dataToSign: Data) -> NFCISO7816APDU? {
+    func buildSignApdu(_ dataToSign: Data, hashSize: Int) -> NFCISO7816APDU? {
         let cardIdData = cardId.asciiHexToData()!
-        let hSize = [UInt8(dataToSign.count)]
+        let hSize = [UInt8(hashSize)]
         
         var tlvData = [
             CardTLV(.pin, value: "000000".sha256().asciiHexToData()),
