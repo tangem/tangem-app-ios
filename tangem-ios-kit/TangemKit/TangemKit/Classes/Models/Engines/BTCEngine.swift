@@ -142,7 +142,7 @@ extension BTCEngine: CoinProvider {
         return unspentTransactions
     }
     
-    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> Data? {
+    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
         guard let txRefs = addressResponse?.txrefs else {
             return nil
         }
@@ -174,18 +174,17 @@ extension BTCEngine: CoinProvider {
         self.amount = amountSatoshi
         self.change = change
         
-        var hashes = [UInt8]()
+        var hashes = [Data]()
         
         for index in 0..<unspentTransactions.count {
             guard var txToSign = buildTxBody(unspentTransactions: unspentTransactions, amount: amountSatoshi, change: change, targetAddress: targetAddress, index: index) else {
                 return nil
             }
             txToSign.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
-            hashes.append(contentsOf: txToSign.sha256().sha256())
+            hashes.append(Data(txToSign.sha256().sha256()))
         }
         
-        let returnData = Data(hashes)
-        return returnData
+        return hashes
     }
     
     func buildTxBody(unspentTransactions: [UnspentTransaction], amount: Decimal, change: Decimal, targetAddress: String, index: Int?) -> [UInt8]? {
