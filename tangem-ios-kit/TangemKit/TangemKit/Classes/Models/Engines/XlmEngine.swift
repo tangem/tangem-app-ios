@@ -97,7 +97,7 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         }
     }
     
-    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping (Data?) -> Void) {
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping ([Data]?) -> Void) {
         guard let amountDecimal = Decimal(string: amount),
             let feeDecimal = Decimal(string: fee),
             let sourceKeyPair = self.sourceKeyPair,
@@ -143,11 +143,11 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
                 return
             }
             self.transaction = tx
-            completion(hash)
+            completion([hash])
         }
     }
     
-    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> Data? {
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
         return nil
     }
     
