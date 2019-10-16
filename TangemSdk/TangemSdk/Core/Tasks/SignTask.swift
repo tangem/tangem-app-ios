@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum SignResult {
+public enum SignEvent {
     case success(Data)
     case failure(TaskError)
 }
