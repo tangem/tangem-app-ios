@@ -31,24 +31,24 @@ public final class CardManager {
         self.cardManagerDelegate = cardManagerDelegate
     }
     
-    public func scanCard(with environment: CardEnvironment? = nil, completion: @escaping (ScanResult, CardEnvironment) -> Void) {
+    public func scanCard(with environment: CardEnvironment? = nil, callback: @escaping (ScanEvent, CardEnvironment) -> Void) {
         let task = ScanTask()
-        runTask(task, environment: environment, completion: completion)
+        runTask(task, environment: environment, callback: callback)
     }
     
-    public func sign(with environment: CardEnvironment?, completion: @escaping (SignResult) -> Void) {
+    public func sign(with environment: CardEnvironment?, callback: @escaping (SignEvent) -> Void) {
         //[REDACTED_TODO_COMMENT]
     }
     
-    func runTask<TaskResult>(_ task: Task<TaskResult>, environment: CardEnvironment?, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
+    func runTask<TaskEvent>(_ task: Task<TaskEvent>, environment: CardEnvironment?, callback: @escaping (TaskEvent, CardEnvironment) -> Void) {
         task.cardReader = cardReader
         task.delegate = cardManagerDelegate
-        task.run(with: environment ?? CardEnvironment(), completion: completion)
+        task.run(with: environment ?? CardEnvironment(), completion: callback)
     }
     
     func runCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment?, completion: @escaping (CancellableCompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
         let task = SingleCommandTask<T>(commandSerializer)
-        runTask(task, environment: environment, completion: completion)
+        runTask(task, environment: environment, callback: completion)
     }
 }
 
