@@ -13,3 +13,9 @@ public enum CompletionResult<TSuccess, TError> {
     case success(TSuccess)
     case failure(TError)
 }
+
+public enum CancellableCompletionResult<TSuccess, TError> {
+    case success(TSuccess)
+    case failure(TError)
+    case userCancelled
+}
