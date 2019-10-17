@@ -31,4 +31,21 @@ class ViewController: UIViewController {
             }
         }
     }
+    
+    @IBAction func signHashesTapped(_ sender: Any) {
+        let hash1 = Data(repeating: 1, count: 32)
+        let hash2 = Data(repeating: 2, count: 32)
+        let hashes = [hash1, hash2]
+        let cardId = "CB05000000017715"
+        cardManager.sign(hashes: hashes, environment: CardEnvironment(cardId: cardId)) { result, cardEnvironment in
+            switch result {
+            case .success(let signResponse):
+                print(signResponse)
+            case .failure(let error):
+                print(error.localizedDescription)
+            case .userCancelled:
+                  print("user cancelled")
+            }
+        }
+    }
 }
