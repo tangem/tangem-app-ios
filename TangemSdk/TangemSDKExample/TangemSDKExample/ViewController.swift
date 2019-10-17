@@ -18,16 +18,19 @@ class ViewController: UIViewController {
     
     @IBAction func scanCardTapped(_ sender: Any) {
         cardManager.scanCard {[unowned self] scanResult, cardEnvironment in
+            var date = Date()
             switch scanResult {
             case .failure(let error):
-                print("error: \(error.localizedDescription)")
                 let alertController = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
                 alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
                 self.show(alertController, sender: nil)
             case .onRead(let card):
+                date = Date()
                 self.card = card
                 print("read result: \(card)")
             case .onVerify(let isGenuine):
+                  let dateDiff = Calendar.current.dateComponents([.second,.nanosecond], from: date, to: Date())
+                print("Verify time is: \(dateDiff.second ?? 0).\(dateDiff.nanosecond ?? 0) sec.")
                 print("verify result: \(isGenuine)")
             case .userCancelled:
                 print("user cancelled")
