@@ -29,6 +29,13 @@ public struct CardEnvironment: Equatable {
     public var pin2: String = CardEnvironment.defaultPin2
     public var terminalKeys: KeyPair? = nil
     public var encryptionKey: Data? = nil
+    
+}
+
+public extension CardEnvironment {
+    init(cardId: String) {
+        cid = cardId
+    }
 }
 
 //public protocol DataStorage {
