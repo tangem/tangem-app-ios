@@ -15,9 +15,13 @@ public enum TaskError: Error, LocalizedError {
     case errorProcessingCommand
     case invalidState
     case insNotSupported
+    case invalidParams
+    case needEncryption
     case vefificationFailed
     case cardError
-    case nfcUnavailable
+    case tooMuchHashesInOneTransaction
+    case emptyHashes
+    case hashSizeMustBeEqual
     case readerError(NFCReaderError)
     
     public var localizedDescription: String {
@@ -32,7 +36,7 @@ public enum TaskError: Error, LocalizedError {
 
 @available(iOS 13.0, *)
 open class Task<TaskResult> {
-    var cardReader: CardReader!
+    var cardReader: (CardReader & NFCReaderSessionAdapter)!
     var delegate: CardManagerDelegate?
     
     public final func run(with environment: CardEnvironment, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
@@ -64,19 +68,27 @@ open class Task<TaskResult> {
                 
                 switch status {
                 case .needPause:
+                    let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey)
+                    if let ms = tlv?.value(for: .pause)?.toInt() {
+                        self.delegate?.showSecurityDelay(remainingMilliseconds: ms)
+                    }
                     
-                    //[REDACTED_TODO_COMMENT]
-                    break
+                    if tlv?.value(for: .flash) != nil {
+                        self.cardReader.restartPolling()
+                    } else {
+                        self.sendCommand(commandSerializer, environment: environment, completion: completion)
+                    }
+                    
                 case .needEcryption:
                     //[REDACTED_TODO_COMMENT]
-                    break
+                    DispatchQueue.main.async {
+                        completion(.failure(TaskError.needEncryption), environment)
+                    }
                 case .invalidParams:
                     //[REDACTED_TODO_COMMENT]
-                    //            if let newEnvironment = returnedEnvironment {
-                    //                self?.cardEnvironmentRepository.cardEnvironment = newEnvironment
-                    //            }
-                    
-                    break
+                    DispatchQueue.main.async {
+                        completion(.failure(TaskError.invalidParams), environment)
+                    }
                 case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed, .pinsNotChanged:
                     if let responseData = commandSerializer.deserialize(with: environment, from: responseApdu) {
                         DispatchQueue.main.async {
