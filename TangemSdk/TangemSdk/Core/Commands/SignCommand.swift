@@ -14,7 +14,7 @@ public struct SignResponse: TlvMappable {
     public let walletRemainingSignatures: Int
     public let walletSignedHashes: Int
     
-    public init?(from tlv: [Tlv]) {
+    public init(from tlv: [Tlv]) throws {
         let mapper = TlvMapper(tlv: tlv)
         do {
             cardId = try mapper.map(.cardId)
@@ -23,8 +23,7 @@ public struct SignResponse: TlvMappable {
             walletSignedHashes = try mapper.map(.walletSignedHashes)
         }
         catch {
-            print(error)
-            return nil
+            throw error
         }
     }
 }
@@ -57,10 +56,14 @@ final class SignHashesCommand: CommandSerializer {
         dataToSign = Data(flattenHashes)
     }
     
-    func serialize(with environment: CardEnvironment) -> CommandApdu {
+    func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+        guard let cid = environment.cid else {
+            throw TaskError.cardIdMissing
+        }
+        
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
                        Tlv(.pin2, value: environment.pin2.sha256()),
-                       Tlv(.cardId, value: Data(hex: environment.cid)),
+                       Tlv(.cardId, value: Data(hex: cid)),
                        Tlv(.transactionOutHashSize, value: hashSize.byte),
                        Tlv(.transactionOutHash, value: dataToSign)]
         
