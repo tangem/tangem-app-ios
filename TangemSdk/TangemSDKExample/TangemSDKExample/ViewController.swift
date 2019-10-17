@@ -26,7 +26,7 @@ class ViewController: UIViewController {
                 print("read result: \(card)")
             case .onVerify(let isGenuine):
                 print("verify result: \(isGenuine)")
-            case .usedCancelled:
+            case .userCancelled:
                 print("user cancelled")
             }
         }
