@@ -74,9 +74,7 @@ open class Task<TaskResult> {
             return
         }
         
-        cardReader.send(commandApdu: commandApdu) { [weak self] commandResponse in
-            guard let self = self else { return }
-            
+        cardReader.send(commandApdu: commandApdu) {commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
                 guard let status = responseApdu.status else {
