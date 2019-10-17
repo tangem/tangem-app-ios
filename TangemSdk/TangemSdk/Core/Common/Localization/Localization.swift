@@ -9,7 +9,7 @@
 import Foundation
 
 final class Localization {
-    public static var localizationsBundle: Bundle = defaultBundle
+    public static var localizationsBundle: Bundle?
     
     static let dialogSecurityDelay = string("dialog_security_delay")
     static let unknownCardState = string("nfc_unknown_card_state")
@@ -33,7 +33,18 @@ final class Localization {
     }
     
     private static func string( _ key: String, _ args: CVarArg...) -> String {
-        let format = NSLocalizedString(key,  bundle: localizationsBundle, comment: "")
+        let format = getFormat(for: key)
         return String(format: format, locale: Locale.current, arguments: args)
+    }
+    
+    private static func getFormat(for key: String) -> String {
+        if let overridedBundle = localizationsBundle {
+            let format = NSLocalizedString(key,  bundle: overridedBundle, comment: "")
+            if format != key {
+                return format
+            }
+        }
+        let format = NSLocalizedString(key,  bundle: defaultBundle, comment: "")
+        return format
     }
 }
