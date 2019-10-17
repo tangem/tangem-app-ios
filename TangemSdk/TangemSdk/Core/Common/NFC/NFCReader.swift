@@ -72,6 +72,9 @@ extension NFCReader: CardReader {
     public func startSession() {
         if let existingSession = readerSession, existingSession.isReady { return }
         
+        readerSessionError.send(nil)
+        connectedTag.send(nil)
+        
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
         readerSession!.alertMessage = Localization.nfcAlertDefault
         readerSession!.begin()
@@ -109,7 +112,7 @@ extension NFCReader: CardReader {
                 
                 let apdu = NFCISO7816APDU(commandApdu)
                 self.sendCommand(apdu: apdu, to: tag, completion: completion)
-            })
+                } )
     }
     
     public func restartPolling() {
@@ -153,7 +156,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
         let nfcError = error as! NFCReaderError
         tagTimer?.invalidate()
-        sessionTimer?.invalidate()        
+        sessionTimer?.invalidate()
         readerSessionError.send(nfcError)
     }
     
