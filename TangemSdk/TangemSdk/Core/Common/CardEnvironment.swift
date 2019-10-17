@@ -24,19 +24,21 @@ public struct CardEnvironment: Equatable {
     static let defaultPin1 = "000000"
     static let defaultPin2 = "000"
     
-    public internal(set) var cid: String = ""
+    public var cid: String? = nil
     public var pin1: String = CardEnvironment.defaultPin1
     public var pin2: String = CardEnvironment.defaultPin2
     public var terminalKeys: KeyPair? = nil
     public var encryptionKey: Data? = nil
     
-}
-
-public extension CardEnvironment {
-    init(cardId: String) {
+    public init() {
+        
+    }
+    
+    public init(cardId: String) {
         cid = cardId
     }
 }
+
 
 //public protocol DataStorage {
 //    func object(forKey: String) -> Any?
