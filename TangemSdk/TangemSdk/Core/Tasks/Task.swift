@@ -12,6 +12,8 @@ import CoreNFC
 public enum TaskError: Error, LocalizedError {
     case unknownStatus(sw: UInt16)
     case mappingError
+    case serializeCommandError
+    case cardIdMissing
     case errorProcessingCommand
     case invalidState
     case insNotSupported
@@ -36,7 +38,7 @@ public enum TaskError: Error, LocalizedError {
 
 @available(iOS 13.0, *)
 open class Task<TaskResult> {
-    var cardReader: (CardReader & NFCReaderSessionAdapter)!
+    var cardReader: CardReader!
     var delegate: CardManagerDelegate?
     
     public final func run(with environment: CardEnvironment, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
@@ -52,8 +54,18 @@ open class Task<TaskResult> {
         
     }
     
-    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, completion: @escaping (CancellableCompletionResult<T.CommandResponse, TaskError>, CardEnvironment) -> Void) {
-        let commandApdu = commandSerializer.serialize(with: environment)
+    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, completion: @escaping (CommandEvent<T.CommandResponse>, CardEnvironment) -> Void) {
+        
+        var commandApdu: CommandApdu
+        do {
+            commandApdu = try commandSerializer.serialize(with: environment)
+        } catch {
+            DispatchQueue.main.async {
+                completion(.failure(error), environment)
+            }
+            return
+        }
+        
         cardReader.send(commandApdu: commandApdu) { [weak self] commandResponse in
             guard let self = self else { return }
             
@@ -90,13 +102,14 @@ open class Task<TaskResult> {
                         completion(.failure(TaskError.invalidParams), environment)
                     }
                 case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed, .pinsNotChanged:
-                    if let responseData = commandSerializer.deserialize(with: environment, from: responseApdu) {
+                    do {
+                        let responseData = try commandSerializer.deserialize(with: environment, from: responseApdu)
                         DispatchQueue.main.async {
                             completion(.success(responseData), environment)
                         }
-                    } else {
+                    } catch {
                         DispatchQueue.main.async {
-                            completion(.failure(TaskError.mappingError), environment)
+                            completion(.failure(error), environment)
                         }
                     }
                 case .errorProcessingCommand:
@@ -117,7 +130,7 @@ open class Task<TaskResult> {
                     if error.code == .readerSessionInvalidationErrorUserCanceled {
                         completion(.userCancelled, environment)
                     } else {
-                        completion(.failure(.readerError(error)), environment)
+                        completion(.failure(TaskError.readerError(error)), environment)
                     }
                 }
             }
