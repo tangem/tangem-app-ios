@@ -158,12 +158,12 @@ public final class TlvMapper {
                 throw TlvMapperError.wrongType
             }
             
-            guard let intValue = tagValue.toInt(),
-                let signingMethod = SigningMethod(rawValue: intValue) else {
-                    print("Mapping error. Failed convert \(tag) to int and SigningMethod")
-                    throw TlvMapperError.convertError
+            guard let intValue = tagValue.toInt() else {
+                print("Mapping error. Failed convert \(tag) to Int")
+                throw TlvMapperError.convertError
             }
             
+            let signingMethod = SigningMethod(rawValue: intValue)
             return signingMethod as! T
         }
     }
