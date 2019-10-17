@@ -22,11 +22,20 @@
                                     <action selector="scanCardTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5q3-xp-MIr"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3cw-s5-our">
+                                <rect key="frame" x="166" y="114" width="82" height="30"/>
+                                <state key="normal" title="SignHashes"/>
+                                <connections>
+                                    <action selector="signHashesTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HQP-az-Wwj"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
+                            <constraint firstItem="3cw-s5-our" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="3hc-Fw-PIl"/>
                             <constraint firstItem="DCJ-Zk-Ede" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="CS5-RD-bA8"/>
                             <constraint firstItem="DCJ-Zk-Ede" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="dRS-i8-Do2"/>
+                            <constraint firstItem="3cw-s5-our" firstAttribute="top" secondItem="DCJ-Zk-Ede" secondAttribute="bottom" constant="20" id="doB-re-mFA"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
