@@ -10,16 +10,9 @@ import Foundation
 import Combine
 import CoreNFC
 
-@available(iOS 13.0, *)
-public typealias IOSNFCReader = CardReader & NFCReaderText & NFCReaderSessionAdapter
-
 /// For setting alertMessage into NFC popup
 public protocol NFCReaderText: class {
     var alertMessage: String {get set}
-}
-
-public protocol NFCReaderSessionAdapter {
-    func restartPolling()
 }
 
 @available(iOS 13.0, *)
@@ -119,6 +112,16 @@ extension NFCReader: CardReader {
             })
     }
     
+    public func restartPolling() {
+        guard let session = readerSession, session.isReady else { return }
+        
+        DispatchQueue.global().async {
+            self.tagTimer?.invalidate()
+        }
+        
+        session.restartPolling()
+    }
+    
     func sendCommand(apdu: NFCISO7816APDU, to tag: NFCISO7816Tag, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
         tag.sendCommand(apdu: apdu) {[weak self] (data, sw1, sw2, error) in
             guard let self = self else { return }
@@ -174,18 +177,5 @@ extension NFCReader: NFCReaderText {
     public var alertMessage: String {
         get { return readerSession?.alertMessage ?? "" }
         set { readerSession?.alertMessage = newValue }
-    }
-}
-
-@available(iOS 13.0, *)
-extension NFCReader: NFCReaderSessionAdapter {
-    public func restartPolling() {
-        guard let session = readerSession, session.isReady else { return }
-        
-        DispatchQueue.global().async {
-            self.tagTimer?.invalidate()
-        }
-        
-        session.restartPolling()
     }
 }

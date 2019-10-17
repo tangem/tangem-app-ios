@@ -12,7 +12,7 @@ public enum ScanEvent {
     case onRead(Card)
     case onVerify(Bool)
     case userCancelled
-    case failure(TaskError)
+    case failure(Error)
 }
 
 
