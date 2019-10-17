@@ -51,4 +51,21 @@ final class CryptoUtils {
             return result
         }
     }
+    
+    static func sign(_ data: Data, with key: Data) -> Data? {
+        guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_VERIFY)) else { return nil }
+        
+        defer { secp256k1_context_destroy(ctx) }
+        
+        var signature = secp256k1_ecdsa_signature()
+        let result = secp256k1_ecdsa_sign(ctx, &signature, Array(data), Array(key), nil, nil)
+        guard result == 1 else {
+            return nil
+        }
+        
+        var signatureData = [Byte](repeating: 0, count: 65)
+        _ = secp256k1_ecdsa_signature_serialize_compact(ctx, &signatureData, &signature)
+        
+        return Data(signatureData)
+    }
 }
