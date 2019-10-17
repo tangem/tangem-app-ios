@@ -16,18 +16,19 @@ public enum EncryptionMode: Byte {
 }
 
 public struct KeyPair: Equatable {
-    let privateKey: Data
-    let publicKey: Data
+    public let privateKey: Data
+    public let publicKey: Data
 }
 
 public struct CardEnvironment: Equatable {
     static let defaultPin1 = "000000"
     static let defaultPin2 = "000"
     
-    var pin1: String = CardEnvironment.defaultPin1
-    var pin2: String = CardEnvironment.defaultPin2
-    var terminalKeys: KeyPair? = nil
-    var encryptionKey: Data? = nil
+    public internal(set) var cid: String = ""
+    public var pin1: String = CardEnvironment.defaultPin1
+    public var pin2: String = CardEnvironment.defaultPin2
+    public var terminalKeys: KeyPair? = nil
+    public var encryptionKey: Data? = nil
 }
 
 //public protocol DataStorage {
