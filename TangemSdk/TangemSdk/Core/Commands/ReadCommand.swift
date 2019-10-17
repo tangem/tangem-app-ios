@@ -10,14 +10,20 @@ import Foundation
 
 public typealias Card = ReadResponse
 
-public enum SigningMethod: Int {
-    case signHash = 0
-    case signRaw = 1
-    case signHashValidatedByIssuer = 2
-    case signRawValidatedByIssuer = 3
-    case signHashValidatedByIssuerAndWriteIssuerData = 4
-    case SignRawValidatedByIssuerAndWriteIssuerData = 5
-    case signPos = 6
+public struct SigningMethod: OptionSet {
+    public let rawValue: Int
+       
+       public init(rawValue: Int) {
+           self.rawValue = rawValue
+       }
+    
+    static let signHash = SigningMethod(rawValue: 1 << 0)
+    static let signRaw = SigningMethod(rawValue: 1 << 1)
+    static let signHashValidatedByIssuer = SigningMethod(rawValue: 1 << 2)
+    static let signRawValidatedByIssuer = SigningMethod(rawValue: 1 << 3)
+    static let signHashValidatedByIssuerAndWriteIssuerData = SigningMethod(rawValue: 1 << 4)
+    static let SignRawValidatedByIssuerAndWriteIssuerData = SigningMethod(rawValue: 1 << 5)
+    static let signPos = SigningMethod(rawValue: 1 << 6)
 }
 
 public enum EllipticCurve: String {
@@ -78,7 +84,7 @@ public struct ReadResponse: TlvMappable {
     let issuerPublicKey: String?
     let curve: EllipticCurve?
     let maxSignatures: Int?
-    let signingMethpod: SigningMethod?
+    let signingMethod: SigningMethod?
     let pauseBeforePin2: Int?
     let walletPublicKey: Data?
     let walletRemainingSignatures: Int?
@@ -121,7 +127,7 @@ public struct ReadResponse: TlvMappable {
             settingsMask = try mapper.mapOptional(.settingsMask)
             issuerPublicKey = try mapper.mapOptional(.issuerPublicKey)
             maxSignatures = try mapper.mapOptional(.maxSignatures)
-            signingMethpod = try mapper.mapOptional(.signingMethod)
+            signingMethod = try mapper.mapOptional(.signingMethod)
             pauseBeforePin2 = try mapper.mapOptional(.pauseBeforePin2)
             walletRemainingSignatures = try mapper.mapOptional(.walletRemainingSignatures)
             walletSignedHashes = try mapper.mapOptional(.walletSignedHashes)
