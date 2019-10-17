@@ -14,6 +14,8 @@ class ViewController: UIViewController {
     
     var cardManager: CardManager = CardManager()
     
+    var card: Card?
+    
     @IBAction func scanCardTapped(_ sender: Any) {
         cardManager.scanCard {[unowned self] scanResult, cardEnvironment in
             switch scanResult {
@@ -23,6 +25,7 @@ class ViewController: UIViewController {
                 alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
                 self.show(alertController, sender: nil)
             case .onRead(let card):
+                self.card = card
                 print("read result: \(card)")
             case .onVerify(let isGenuine):
                 print("verify result: \(isGenuine)")
@@ -33,10 +36,14 @@ class ViewController: UIViewController {
     }
     
     @IBAction func signHashesTapped(_ sender: Any) {
-        let hash1 = Data(repeating: 1, count: 32)
+        let hash1 = Data(repeating: 1, count: 32) //dummy hashes
         let hash2 = Data(repeating: 2, count: 32)
         let hashes = [hash1, hash2]
-        let cardId = "CB05000000017715"
+        guard let cardId = card?.cardId else {
+            print("Please, scan card before")
+            return
+        }
+        
         cardManager.sign(hashes: hashes, environment: CardEnvironment(cardId: cardId)) { result, cardEnvironment in
             switch result {
             case .success(let signResponse):

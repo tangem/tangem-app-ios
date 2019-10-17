@@ -74,44 +74,44 @@ public struct SettingsMask: OptionSet {
 }
 
 public struct ReadResponse: TlvMappable {
-    let cardId: String
-    let manufacturerName: String
-    let status: CardStatus
+    public let cardId: String
+    public let manufacturerName: String
+    public let status: CardStatus
     
-    let firmwareVersion: String?
-    let cardPublicKey: String?
-    let settingsMask: SettingsMask?
-    let issuerPublicKey: String?
-    let curve: EllipticCurve?
-    let maxSignatures: Int?
-    let signingMethod: SigningMethod?
-    let pauseBeforePin2: Int?
-    let walletPublicKey: Data?
-    let walletRemainingSignatures: Int?
-    let walletSignedHashes: Int?
-    let health: Int?
-    let isActivated: Bool?
-    let activationSeed: Data?
-    let paymentFlowVersion: Data?
-    let userCounter: UInt32?
+    public let firmwareVersion: String?
+    public let cardPublicKey: Data?
+    public let settingsMask: SettingsMask?
+    public let issuerPublicKey: Data?
+    public let curve: EllipticCurve?
+    public let maxSignatures: Int?
+    public let signingMethod: SigningMethod?
+    public let pauseBeforePin2: Int?
+    public let walletPublicKey: Data?
+    public let walletRemainingSignatures: Int?
+    public let walletSignedHashes: Int?
+    public let health: Int?
+    public let isActivated: Bool?
+    public let activationSeed: Data?
+    public let paymentFlowVersion: Data?
+    public let userCounter: UInt32?
     
     //Card Data
     
-    let batchId: Int?
-    let manufactureDateTime: String?
-    let issuerName: String?
-    let blockchainName: String?
-    let manufacturerSignature: Data?
-    let productMask: ProductMask?
+    public let batchId: String?
+    public let manufactureDateTime: String?
+    public let issuerName: String?
+    public let blockchainName: String?
+    public let manufacturerSignature: Data?
+    public let productMask: ProductMask?
     
-    let tokenSymbol: String?
-    let tokenContractAddress: String?
-    let tokenDecimal: Int?
+    public let tokenSymbol: String?
+    public let tokenContractAddress: String?
+    public let tokenDecimal: Int?
     
     //Dynamic NDEF
     
-    let remainingSignatures: Int?
-    let signedHashes: Int?
+    public let remainingSignatures: Int?
+    public let signedHashes: Int?
     
     public init(from tlv: [Tlv]) throws {
         let mapper = TlvMapper(tlv: tlv)
