@@ -11,14 +11,14 @@ import Combine
 import CoreNFC
 
 @available(iOS 13.0, *)
-typealias IOSNFCReader = CardReader & NFCReaderText & NFCReaderSessionAdapter
+public typealias IOSNFCReader = CardReader & NFCReaderText & NFCReaderSessionAdapter
 
 /// For setting alertMessage into NFC popup
 public protocol NFCReaderText: class {
     var alertMessage: String {get set}
 }
 
-protocol NFCReaderSessionAdapter {
+public protocol NFCReaderSessionAdapter {
     func restartPolling()
 }
 
@@ -179,7 +179,7 @@ extension NFCReader: NFCReaderText {
 
 @available(iOS 13.0, *)
 extension NFCReader: NFCReaderSessionAdapter {
-    func restartPolling() {
+    public func restartPolling() {
         guard let session = readerSession, session.isReady else { return }
         
         DispatchQueue.global().async {
