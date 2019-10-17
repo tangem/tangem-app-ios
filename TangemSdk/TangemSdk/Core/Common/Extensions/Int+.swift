@@ -19,8 +19,8 @@ extension Int {
     }
     
     /// Convert int to byte, truncatingIfNeeded
-    var byte: Byte {
-        return Byte(truncatingIfNeeded: self)
+    var byte: Data {
+        return Data([Byte(truncatingIfNeeded: self)])
     }
     
     /// return 2 bytes of integer. little Endian format
