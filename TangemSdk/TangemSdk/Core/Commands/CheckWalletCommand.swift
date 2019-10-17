@@ -13,15 +13,14 @@ struct CheckWalletResponse: TlvMappable {
     let salt: Data
     let walletSignature: Data
     
-    init?(from tlv: [Tlv]) {
+    init(from tlv: [Tlv]) throws {
         let mapper = TlvMapper(tlv: tlv)
         do {
             self.cardId = try mapper.map(.cardId)
             self.salt = try mapper.map(.salt)
             self.walletSignature = try mapper.map(.walletSignature)
         } catch {
-            print(error)
-            return nil
+            throw error
         }
     }
 }
@@ -40,7 +39,7 @@ final class CheckWalletCommand: CommandSerializer {
         self.challenge = challenge
     }
     
-    func serialize(with environment: CardEnvironment) -> CommandApdu {
+    func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
                        Tlv(.cardId, value: Data(hex: cardId)),
                        Tlv(.challenge, value: challenge)]
