@@ -10,20 +10,28 @@ import Foundation
 import CoreNFC
 
 public enum TaskError: Error, LocalizedError {
-    case unknownStatus(sw: UInt16)
-    case mappingError
+    //Serialize apdu errors
     case serializeCommandError
     case cardIdMissing
+    
+    //Card errors
+    case unknownStatus(sw: UInt16)
     case errorProcessingCommand
     case invalidState
     case insNotSupported
     case invalidParams
     case needEncryption
+    
+    //Scan errors
     case vefificationFailed
     case cardError
+    
+    //Sign errors
     case tooMuchHashesInOneTransaction
     case emptyHashes
     case hashSizeMustBeEqual
+    
+    //NFC error
     case readerError(NFCReaderError)
     
     public var localizedDescription: String {
