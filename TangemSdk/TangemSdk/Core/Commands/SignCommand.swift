@@ -9,10 +9,10 @@
 import Foundation
 
 public struct SignResponse: TlvMappable {
-    let cardId: String
-    let signature: Data
-    let walletRemainingSignatures: Int
-    let walletSignedHashes: Int
+    public let cardId: String
+    public let signature: Data
+    public let walletRemainingSignatures: Int
+    public let walletSignedHashes: Int
     
     public init?(from tlv: [Tlv]) {
         let mapper = TlvMapper(tlv: tlv)
