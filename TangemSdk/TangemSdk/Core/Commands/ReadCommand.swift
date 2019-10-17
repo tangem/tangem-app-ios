@@ -113,7 +113,7 @@ public struct ReadResponse: TlvMappable {
     let remainingSignatures: Int?
     let signedHashes: Int?
     
-    public init?(from tlv: [Tlv]) {
+    public init(from tlv: [Tlv]) throws {
         let mapper = TlvMapper(tlv: tlv)
         do {
             cardId = try mapper.map(.cardId)
@@ -150,8 +150,7 @@ public struct ReadResponse: TlvMappable {
             remainingSignatures = nil
             signedHashes = nil
         } catch {
-            print(error)
-            return nil
+            throw error
         }
     }
 }
@@ -166,7 +165,7 @@ public final class ReadCommand: CommandSerializer {
         self.pin1 = pin1
     }
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256())]
         if let keys = environment.terminalKeys {
             tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
