@@ -90,11 +90,11 @@ public struct ReadResponse: TlvMappable {
     public let walletRemainingSignatures: Int?
     public let walletSignedHashes: Int?
     public let health: Int?
-    public let isActivated: Bool?
+    public let isActivated: Bool
     public let activationSeed: Data?
     public let paymentFlowVersion: Data?
     public let userCounter: UInt32?
-    
+    public let terminalIsLinked: Bool
     //Card Data
     
     public let batchId: String?
@@ -132,7 +132,7 @@ public struct ReadResponse: TlvMappable {
             walletRemainingSignatures = try mapper.mapOptional(.walletRemainingSignatures)
             walletSignedHashes = try mapper.mapOptional(.walletSignedHashes)
             health = try mapper.mapOptional(.health)
-            isActivated = try mapper.mapOptional(.isActivated)
+            isActivated = try mapper.map(.isActivated)
             activationSeed = try mapper.mapOptional(.activationSeed)
             paymentFlowVersion = try mapper.mapOptional(.paymentFlowVersion)
             userCounter = try mapper.mapOptional(.userCounter)
@@ -142,6 +142,7 @@ public struct ReadResponse: TlvMappable {
             blockchainName = try mapper.mapOptional(.blockchainName)
             manufacturerSignature = try mapper.mapOptional(.manufacturerSignature)
             productMask = try mapper.mapOptional(.productMask)
+            terminalIsLinked = try mapper.map(.isLinked)
             
             tokenSymbol = try mapper.mapOptional(.tokenSymbol)
             tokenContractAddress = try mapper.mapOptional(.tokenContractAddress)
