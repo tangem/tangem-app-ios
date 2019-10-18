@@ -23,14 +23,19 @@ public final class TlvMapper {
     
     public func mapOptional<T>(_ tag: TlvTag) throws -> T? {
         do {
-            let mapped: T = try map(tag)
+            let mapped: T = try innerMap(tag, asOptional: true)
             return mapped
         } catch TlvMapperError.missingTag {
             return nil
         }
     }
-    
+
     public func map<T>(_ tag: TlvTag) throws -> T {
+        return try innerMap(tag, asOptional: false)
+    }
+    
+    
+    private func innerMap<T>(_ tag: TlvTag, asOptional: Bool) throws -> T {
         guard let tagValue = tlv.value(for: tag) else {
             if tag.valueType == .boolValue {
                 guard Bool.self == T.self else {
@@ -39,6 +44,9 @@ public final class TlvMapper {
                 }
                 
                 return false as! T
+            }
+            if !asOptional {
+                print("Mapping error. Missing tag: \(tag)")
             }
             
             throw TlvMapperError.missingTag
