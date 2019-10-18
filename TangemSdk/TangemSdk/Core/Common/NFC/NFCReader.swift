@@ -25,14 +25,14 @@ enum NFCTagWrapper {
 public final class NFCReader: NSObject {
     static let tagTimeout = 19.0
     static let sessionTimeout = 59.0
-    static let retryCount = 20
-    
+    static let retryCount = 10
     public let enableSessionInvalidateByTimer = true
     
     private let connectedTag = CurrentValueSubject<NFCTagWrapper?,Never>(nil)
     private let readerSessionError = CurrentValueSubject<NFCReaderError?,Never>(nil)
     private var readerSession: NFCTagReaderSession?
-    private var subscription: AnyCancellable?
+    private var sessionSubscription: AnyCancellable?
+    private var tagSubscription: AnyCancellable?
     private var currentRetryCount = NFCReader.retryCount
     
     /// Workaround for session timeout error (60 sec)
@@ -42,7 +42,7 @@ public final class NFCReader: NSObject {
     private var tagTimer: Timer?
     private func startSessionTimer() {
         guard enableSessionInvalidateByTimer else { return }
-        DispatchQueue.global().async {
+        DispatchQueue.main.async {
             self.sessionTimer?.invalidate()
             self.sessionTimer = Timer.scheduledTimer(timeInterval: NFCReader.sessionTimeout, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
         }
@@ -51,7 +51,7 @@ public final class NFCReader: NSObject {
     private func startTagTimer() {
         guard enableSessionInvalidateByTimer else { return }
         
-        DispatchQueue.global().async {
+        DispatchQueue.main.async {
             self.tagTimer?.invalidate()
             self.tagTimer = Timer.scheduledTimer(timeInterval: NFCReader.tagTimeout, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
         }
@@ -71,7 +71,6 @@ extension NFCReader: CardReader {
     /// Start session and try to connect with tag
     public func startSession() {
         if let existingSession = readerSession, existingSession.isReady { return }
-        
         readerSessionError.send(nil)
         connectedTag.send(nil)
         
@@ -90,45 +89,51 @@ extension NFCReader: CardReader {
     /// - Parameter command: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCReaderError otherwise
     public func send(commandApdu: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
-        subscription = Publishers.CombineLatest(readerSessionError, connectedTag) //because of readerSession and connectedTag bouth can produce errors
-            .sink(receiveValue: {[weak self] value in
-                guard let self = self else { return }
-                
-                if case let .error(tagError) = value.1  {
+         print("Create subscriptions")
+        sessionSubscription = readerSessionError
+            .compactMap { $0 }
+            .sink(receiveValue: { [weak self] error in
+                print("Receive session error")
+                completion(.failure(error))
+                self?.cancelSubscriptions()
+            })
+        
+        tagSubscription = connectedTag
+            .compactMap({ $0 })
+            .sink(receiveValue: { [weak self] tagWrapper in
+                print("Receive tag")
+                switch tagWrapper {
+                case .error(let tagError):
                     completion(.failure(tagError))
-                    self.subscription?.cancel()
-                    return
+                    self?.cancelSubscriptions()
+                case .tag(let tag):
+                    let apdu = NFCISO7816APDU(commandApdu)
+                    self?.sendCommand(apdu: apdu, to: tag, completion: completion)
                 }
-                
-                if let sessionError = value.0  {
-                    completion(.failure(sessionError))
-                    self.subscription?.cancel()
-                    return
-                }
-                
-                guard case let .tag(tag) = value.1 else { //skip initial tag value
-                    return
-                }
-                
-                let apdu = NFCISO7816APDU(commandApdu)
-                self.sendCommand(apdu: apdu, to: tag, completion: completion)
-                } )
+            })
     }
     
     public func restartPolling() {
         guard let session = readerSession, session.isReady else { return }
         
-        DispatchQueue.global().async {
+        readerSessionError.send(nil)
+        connectedTag.send(nil)
+        
+        DispatchQueue.main.async {
             self.tagTimer?.invalidate()
         }
-        
+        print("Restart polling")
         session.restartPolling()
     }
     
-    func sendCommand(apdu: NFCISO7816APDU, to tag: NFCISO7816Tag, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
+    private func sendCommand(apdu: NFCISO7816APDU, to tag: NFCISO7816Tag, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
         tag.sendCommand(apdu: apdu) {[weak self] (data, sw1, sw2, error) in
-            guard let self = self else { return }
-            
+            guard let self = self,
+                let session = self.readerSession,
+                session.isReady else {
+                    return
+            }
+
             if error != nil {
                 if self.currentRetryCount > 0 {
                     self.currentRetryCount -= 1
@@ -140,11 +145,18 @@ extension NFCReader: CardReader {
             } else {
                 self.currentRetryCount = NFCReader.retryCount
                 let responseApdu = ResponseApdu(data, sw1 ,sw2)
+                self.cancelSubscriptions()
                 completion(.success(responseApdu))
-                self.subscription?.cancel()
             }
         }
     }
+    
+    private func cancelSubscriptions() {
+        print("Cancel subscriptions")
+        sessionSubscription?.cancel()
+        tagSubscription?.cancel()
+    }
+   
 }
 
 @available(iOS 13.0, *)
