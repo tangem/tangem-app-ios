@@ -16,3 +16,5 @@
 "nfc_seconds_left" = "%@ left";
 
 "nfc_unknown_card_state" = "Unknown card state";
+
+"nfc_alert_default_done" = "Done";
