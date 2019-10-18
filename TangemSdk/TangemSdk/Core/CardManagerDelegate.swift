@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 public protocol CardManagerDelegate: class {
     func showAlertMessage(_ text: String)
@@ -34,6 +35,8 @@ final class DefaultCardManagerDelegate: CardManagerDelegate {
     
     func showSecurityDelay(remainingMilliseconds: Int) {
         if let timeString = delayFormatter.string(from: TimeInterval(remainingMilliseconds/100)) {
+            let generator = UIImpactFeedbackGenerator(style: UIImpactFeedbackGenerator.FeedbackStyle.light)
+            generator.impactOccurred()
             showAlertMessage(Localization.secondsLeft(timeString))
         }
     }
