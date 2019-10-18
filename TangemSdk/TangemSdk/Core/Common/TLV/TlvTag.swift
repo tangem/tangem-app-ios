@@ -117,7 +117,7 @@ public enum TlvTag: Byte {
         case .maxSignatures, .pauseBeforePin2,
              .walletRemainingSignatures, .walletSignedHashes, .health, .userCounter, .tokenDecimal:
             return .intValue
-        case .isActivated:
+        case .isActivated, .isLinked:
             return .boolValue
         case .manufactureDateTime:
             return .dateTime
