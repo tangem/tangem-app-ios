@@ -47,7 +47,13 @@ public enum TaskError: Error, LocalizedError {
 @available(iOS 13.0, *)
 open class Task<TaskResult> {
     var cardReader: CardReader!
-    var delegate: CardManagerDelegate?
+    weak var delegate: CardManagerDelegate?
+    
+    deinit {
+        print("task deinit")
+        delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
+        cardReader.stopSession()
+    }
     
     public final func run(with environment: CardEnvironment, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
         guard cardReader != nil else {
@@ -74,7 +80,12 @@ open class Task<TaskResult> {
             return
         }
         
-        cardReader.send(commandApdu: commandApdu) {commandResponse in
+        sendRequest(commandSerializer, apdu: commandApdu, environment: environment, completion: completion)
+    }
+    
+    
+    func sendRequest<T: CommandSerializer>(_ commandSerializer: T, apdu: CommandApdu, environment: CardEnvironment, completion: @escaping (CommandEvent<T.CommandResponse>, CardEnvironment) -> Void) {
+        cardReader.send(commandApdu: apdu) { commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
                 guard let status = responseApdu.status else {
@@ -88,15 +99,16 @@ open class Task<TaskResult> {
                 case .needPause:
                     let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey)
                     if let ms = tlv?.value(for: .pause)?.toInt() {
-                        self.delegate?.showSecurityDelay(remainingMilliseconds: ms)
+                        DispatchQueue.main.async {
+                            self.delegate?.showSecurityDelay(remainingMilliseconds: ms)
+                        }
                     }
                     
                     if tlv?.value(for: .flash) != nil {
+                        print("Save flash")
                         self.cardReader.restartPolling()
-                    } else {
-                        self.sendCommand(commandSerializer, environment: environment, completion: completion)
                     }
-                    
+                    self.sendRequest(commandSerializer, apdu: apdu, environment: environment, completion: completion)
                 case .needEcryption:
                     //[REDACTED_TODO_COMMENT]
                     DispatchQueue.main.async {
