@@ -45,6 +45,7 @@ public final class ScanTask: Task<ScanEvent> {
                 
                 let checkWalletCommand = CheckWalletCommand(pin1: environment.pin1, cardId: readResponse.cardId, challenge: challenge)
                 self.sendCommand(checkWalletCommand, environment: environment) {checkWalletResult, environment in
+                    self.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
                     self.cardReader.stopSession()
                     switch checkWalletResult {
                     case .failure(let error):
