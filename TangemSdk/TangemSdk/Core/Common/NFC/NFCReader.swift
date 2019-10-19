@@ -137,7 +137,9 @@ extension NFCReader: CardReader {
             if error != nil {
                 if self.currentRetryCount > 0 {
                     self.currentRetryCount -= 1
-                    self.sendCommand(apdu: apdu, to: tag, completion: completion)
+                    self.readerSession?.sessionQueue.async {
+                        self.sendCommand(apdu: apdu, to: tag, completion: completion)
+                    }
                 } else {
                     self.currentRetryCount = NFCReader.retryCount
                     self.readerSession?.restartPolling()
