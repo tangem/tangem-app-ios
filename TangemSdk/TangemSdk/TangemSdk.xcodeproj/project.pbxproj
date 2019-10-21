@@ -120,7 +120,6 @@
 		5DA5B61B233E12B30058C720 /* Tlv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tlv.swift; sourceTree = "<group>"; };
 		5DA80C9A231D247A00A50A10 /* TangemSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DA80C9D231D247A00A50A10 /* TangemSdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemSdk.h; sourceTree = "<group>"; };
-		5DA80C9E231D247A00A50A10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5DA80CA3231D247A00A50A10 /* TangemSdkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemSdkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DA80CA8231D247A00A50A10 /* TangemSdkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkTests.swift; sourceTree = "<group>"; };
 		5DA80CAA231D247A00A50A10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -272,9 +271,13 @@
 		5DA80C9C231D247A00A50A10 /* TangemSdk */ = {
 			isa = PBXGroup;
 			children = (
-				5DFFC49C233B9D43004964E8 /* Core */,
 				5DA80C9D231D247A00A50A10 /* TangemSdk.h */,
-				5DA80C9E231D247A00A50A10 /* Info.plist */,
+				5D6A92EB2346069700158457 /* CardManager.swift */,
+				5D6A92DF2344F2F900158457 /* CardManagerDelegate.swift */,
+				5D6A92E82345FF1300158457 /* Tasks */,
+				5D6A92E12345F28F00158457 /* Commands */,
+				5DF7CFCA233D034E00461F4D /* Common */,
+				5DFFC1A2234DC969001C2F35 /* Crypto */,
 			);
 			path = TangemSdk;
 			sourceTree = "<group>";
@@ -310,19 +313,6 @@
 				5D2739DC234F270200ACDA11 /* Ed25519 */,
 			);
 			path = Crypto;
-			sourceTree = "<group>";
-		};
-		5DFFC49C233B9D43004964E8 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				5D6A92EB2346069700158457 /* CardManager.swift */,
-				5D6A92DF2344F2F900158457 /* CardManagerDelegate.swift */,
-				5D6A92E82345FF1300158457 /* Tasks */,
-				5D6A92E12345F28F00158457 /* Commands */,
-				5DF7CFCA233D034E00461F4D /* Common */,
-				5DFFC1A2234DC969001C2F35 /* Crypto */,
-			);
-			path = Core;
 			sourceTree = "<group>";
 		};
 		5DFFC49D233B9D4C004964E8 /* NFC */ = {
@@ -677,7 +667,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = TangemSdk/Info.plist;
+				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -704,7 +694,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = TangemSdk/Info.plist;
+				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
