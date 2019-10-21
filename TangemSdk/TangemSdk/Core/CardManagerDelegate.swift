@@ -11,7 +11,10 @@ import UIKit
 
 public protocol CardManagerDelegate: class {
     func showAlertMessage(_ text: String)
+    
+    @available(iOS 13.0, *)
     func showSecurityDelay(remainingMilliseconds: Int)
+    
     func requestPin(completion: @escaping () -> CompletionResult<String, Error>)
 }
 
