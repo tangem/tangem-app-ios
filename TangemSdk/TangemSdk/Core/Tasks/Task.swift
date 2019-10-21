@@ -99,11 +99,8 @@ open class Task<TaskResult> {
                 case .needPause:
                     let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey)
                     if let ms = tlv?.value(for: .pause)?.toInt() {
-                        DispatchQueue.main.async {
                             self.delegate?.showSecurityDelay(remainingMilliseconds: ms)
-                        }
                     }
-                    
                     if tlv?.value(for: .flash) != nil {
                         print("Save flash")
                         self.cardReader.restartPolling()
