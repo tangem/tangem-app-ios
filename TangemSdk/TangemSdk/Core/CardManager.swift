@@ -11,7 +11,7 @@ import Foundation
 import CoreNFC
 #endif
 
-@available(iOS 13.0, *)
+
 public final class CardManager {
     public static var isNFCAvailable: Bool {
         #if canImport(CoreNFC)
@@ -32,10 +32,16 @@ public final class CardManager {
     }
     
     public func scanCard(with environment: CardEnvironment? = nil, callback: @escaping (ScanEvent, CardEnvironment) -> Void) {
-        let task = ScanTask()
-        runTask(task, environment: environment, callback: callback)
+        if #available(iOS 13.0, *) {
+            let task = ScanTask()
+            runTask(task, environment: environment, callback: callback)
+        } else {
+            // Fallback on earlier versions
+        }
+       
     }
     
+    @available(iOS 13.0, *)
     public func sign(hashes: [Data], environment: CardEnvironment, callback: @escaping (CommandEvent<SignResponse>, CardEnvironment) -> Void) {
         var signHashesCommand: SignHashesCommand
         do {
@@ -49,12 +55,14 @@ public final class CardManager {
         runTask(task, environment: environment, callback: callback)        
     }
     
+    @available(iOS 13.0, *)
     func runTask<TaskEvent>(_ task: Task<TaskEvent>, environment: CardEnvironment? = nil, callback: @escaping (TaskEvent, CardEnvironment) -> Void) {
         task.cardReader = cardReader
         task.delegate = cardManagerDelegate
         task.run(with: environment ?? CardEnvironment(), completion: callback)
     }
     
+    @available(iOS 13.0, *)
     func runCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment? = nil, completion: @escaping (CommandEvent<T.CommandResponse>, CardEnvironment) -> Void) {
         let task = SingleCommandTask<T>(commandSerializer)
         runTask(task, environment: environment, callback: completion)
