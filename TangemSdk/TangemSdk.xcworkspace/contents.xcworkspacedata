@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:TangemSDKExample/../TangemSdk.xcodeproj">
+      location = "group:TangemSdk/TangemSdk.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:TangemSDKExample/TangemSDKExample.xcodeproj">
+      location = "group:Example/TangemSDKExample.xcodeproj">
    </FileRef>
 </Workspace>
