@@ -13,9 +13,3 @@ public enum CompletionResult<TSuccess, TError> {
     case success(TSuccess)
     case failure(TError)
 }
-
-public enum CommandEvent<TSuccess> {
-    case success(TSuccess)
-    case failure(Error)
-    case userCancelled
-}
