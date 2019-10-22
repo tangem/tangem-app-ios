@@ -9,6 +9,12 @@
 import Foundation
 import CoreNFC
 
+public enum TaskEvent<TEvent> {
+    case event(TEvent)
+    case success(CardEnvironment)
+    case failure(TaskError)
+}
+
 public enum TaskError: Error, LocalizedError {
     //Serialize apdu errors
     case serializeCommandError
@@ -31,6 +37,9 @@ public enum TaskError: Error, LocalizedError {
     case emptyHashes
     case hashSizeMustBeEqual
     
+    case busy
+    case userCancelled
+    case genericError(Error)
     //NFC error
     case readerError(NFCReaderError)
     
@@ -45,7 +54,7 @@ public enum TaskError: Error, LocalizedError {
 }
 
 @available(iOS 13.0, *)
-open class Task<TaskResult> {
+open class Task<TEvent> {
     var cardReader: CardReader!
     weak var delegate: CardManagerDelegate?
     
@@ -55,7 +64,7 @@ open class Task<TaskResult> {
         cardReader.stopSession()
     }
     
-    public final func run(with environment: CardEnvironment, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
+    public final func run(with environment: CardEnvironment, completion: @escaping (TaskEvent<TEvent>) -> Void) {
         guard cardReader != nil else {
             fatalError("Card reader is nil")
         }
@@ -64,34 +73,29 @@ open class Task<TaskResult> {
         onRun(environment: environment, completion: completion)
     }
     
-    public func onRun(environment: CardEnvironment, completion: @escaping (TaskResult, CardEnvironment) -> Void) {
-        
-    }
+    public func onRun(environment: CardEnvironment, completion: @escaping (TaskEvent<TEvent>) -> Void) {}
     
-    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, completion: @escaping (CommandEvent<T.CommandResponse>, CardEnvironment) -> Void) {
-        
+    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, completion: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
         var commandApdu: CommandApdu
         do {
             commandApdu = try commandSerializer.serialize(with: environment)
         } catch {
-            DispatchQueue.main.async {
-                completion(.failure(error), environment)
+            if let taskError = error as? TaskError {
+                completion(.failure(taskError))
+            } else {
+                completion(.failure(TaskError.genericError(error)))
             }
             return
         }
-        
         sendRequest(commandSerializer, apdu: commandApdu, environment: environment, completion: completion)
     }
     
-    
-    func sendRequest<T: CommandSerializer>(_ commandSerializer: T, apdu: CommandApdu, environment: CardEnvironment, completion: @escaping (CommandEvent<T.CommandResponse>, CardEnvironment) -> Void) {
+    func sendRequest<T: CommandSerializer>(_ commandSerializer: T, apdu: CommandApdu, environment: CardEnvironment, completion: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
         cardReader.send(commandApdu: apdu) { commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
                 guard let status = responseApdu.status else {
-                    DispatchQueue.main.async {
-                        completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)), environment)
-                    }
+                    completion(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
                     return
                 }
                 
@@ -99,7 +103,7 @@ open class Task<TaskResult> {
                 case .needPause:
                     let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey)
                     if let ms = tlv?.value(for: .pause)?.toInt() {
-                            self.delegate?.showSecurityDelay(remainingMilliseconds: ms)
+                        self.delegate?.showSecurityDelay(remainingMilliseconds: ms)
                     }
                     if tlv?.value(for: .flash) != nil {
                         print("Save flash")
@@ -108,45 +112,39 @@ open class Task<TaskResult> {
                     self.sendRequest(commandSerializer, apdu: apdu, environment: environment, completion: completion)
                 case .needEcryption:
                     //[REDACTED_TODO_COMMENT]
-                    DispatchQueue.main.async {
-                        completion(.failure(TaskError.needEncryption), environment)
-                    }
+                    
+                    completion(.failure(TaskError.needEncryption))
+                    
                 case .invalidParams:
                     //[REDACTED_TODO_COMMENT]
-                    DispatchQueue.main.async {
-                        completion(.failure(TaskError.invalidParams), environment)
-                    }
+                    
+                    completion(.failure(TaskError.invalidParams))
+                    
                 case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed, .pinsNotChanged:
                     do {
                         let responseData = try commandSerializer.deserialize(with: environment, from: responseApdu)
-                        DispatchQueue.main.async {
-                            completion(.success(responseData), environment)
-                        }
+                        completion(.event(responseData))
+                        completion(.success(environment))
                     } catch {
-                        DispatchQueue.main.async {
-                            completion(.failure(error), environment)
+                        if let taskError = error as? TaskError {
+                            completion(.failure(taskError))
+                        } else {
+                            completion(.failure(TaskError.genericError(error)))
                         }
                     }
                 case .errorProcessingCommand:
-                    DispatchQueue.main.async {
-                        completion(.failure(TaskError.errorProcessingCommand), environment)
-                    }
+                    completion(.failure(TaskError.errorProcessingCommand))
                 case .invalidState:
-                    DispatchQueue.main.async {
-                        completion(.failure(TaskError.invalidState), environment)
-                    }
+                    completion(.failure(TaskError.invalidState))
+                    
                 case .insNotSupported:
-                    DispatchQueue.main.async {
-                        completion(.failure(TaskError.insNotSupported), environment)
-                    }
+                    completion(.failure(TaskError.insNotSupported))
                 }
             case .failure(let error):
-                DispatchQueue.main.async {
-                    if error.code == .readerSessionInvalidationErrorUserCanceled {
-                        completion(.userCancelled, environment)
-                    } else {
-                        completion(.failure(TaskError.readerError(error)), environment)
-                    }
+                if error.code == .readerSessionInvalidationErrorUserCanceled {
+                    completion(.failure(TaskError.userCancelled))
+                } else {
+                    completion(.failure(TaskError.readerError(error)))
                 }
             }
         }
