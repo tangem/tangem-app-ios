@@ -35,5 +35,3 @@ Carthage/Build
 # `pod install` in .travis.yml
 # 
 Pods/
-
-TangemSdk.xcworkspace
