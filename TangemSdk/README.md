@@ -59,7 +59,7 @@ iOS 11+ (CoreNFC is required)
 For the Tangem SDK, use the following entry in your Podfile:
 
 ```rb
-pod 'TangemSdk', '~> 0.1'
+pod 'TangemSdk'
 ```
 
 Then run `pod install`.
