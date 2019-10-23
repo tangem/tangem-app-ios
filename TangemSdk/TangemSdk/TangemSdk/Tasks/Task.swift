@@ -53,7 +53,6 @@ public enum TaskError: Error, LocalizedError {
     }
 }
 
-@available(iOS 13.0, *)
 open class Task<TEvent> {
     var cardReader: CardReader!
     weak var delegate: CardManagerDelegate?
