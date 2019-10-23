@@ -12,10 +12,10 @@ public typealias Card = ReadResponse
 
 public struct SigningMethod: OptionSet {
     public let rawValue: Int
-       
-       public init(rawValue: Int) {
-           self.rawValue = rawValue
-       }
+    
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
     
     static let signHash = SigningMethod(rawValue: 1 << 0)
     static let signRaw = SigningMethod(rawValue: 1 << 1)
@@ -75,8 +75,8 @@ public struct SettingsMask: OptionSet {
 
 public struct ReadResponse: TlvMappable {
     public let cardId: String
-    public let manufacturerName: String
-    public let status: CardStatus
+    public let manufacturerName: String?
+    public let status: CardStatus?
     
     public let firmwareVersion: String?
     public let cardPublicKey: Data?
@@ -111,14 +111,17 @@ public struct ReadResponse: TlvMappable {
     //Dynamic NDEF
     
     public let remainingSignatures: Int?
-    public let signedHashes: Int?
+    public var signedHashes: Int?
+    public let challenge: Data?
+    public let salt: Data?
+    public let walletSignature: Data?
     
     public init(from tlv: [Tlv]) throws {
         let mapper = TlvMapper(tlv: tlv)
         do {
             cardId = try mapper.map(.cardId)
-            manufacturerName = try mapper.map(.manufacturerName)
-            status = try mapper.map(.status)
+            manufacturerName = try mapper.mapOptional(.manufacturerName)
+            status = try mapper.mapOptional(.status)
             
             curve = try mapper.mapOptional(.curveId)
             walletPublicKey = try mapper.mapOptional(.walletPublicKey)
@@ -148,8 +151,11 @@ public struct ReadResponse: TlvMappable {
             tokenContractAddress = try mapper.mapOptional(.tokenContractAddress)
             tokenDecimal = try mapper.mapOptional(.tokenDecimal)
             
-            remainingSignatures = nil
-            signedHashes = nil
+            remainingSignatures = try mapper.mapOptional(.walletRemainingSignatures)
+            signedHashes = try mapper.mapOptional(.walletSignedHashes)
+            challenge = try mapper.mapOptional(.challenge)
+            salt = try mapper.mapOptional(.salt)
+            walletSignature = try mapper.mapOptional(.walletSignature)            
         } catch {
             throw error
         }
@@ -175,4 +181,14 @@ public final class ReadCommand: CommandSerializer {
         let cApdu = CommandApdu(.read, tlv: tlvData)
         return cApdu
     }
+}
+
+public final class ReadCommandNdef: CommandSerializer {
+    public typealias CommandResponse = ReadResponse
+    
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+        let cApdu = CommandApdu(.read, tlv: [])
+        return cApdu
+    }
+    
 }
