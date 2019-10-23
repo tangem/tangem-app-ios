@@ -11,15 +11,12 @@ import UIKit
 
 public protocol CardManagerDelegate: class {
     func showAlertMessage(_ text: String)
-    
-    @available(iOS 13.0, *)
-    func showSecurityDelay(remainingMilliseconds: Int)
-    
+    func showSecurityDelay(remainingMilliseconds: Int)    
     func requestPin(completion: @escaping () -> CompletionResult<String, Error>)
 }
 
 final class DefaultCardManagerDelegate: CardManagerDelegate {
-    private let reader: NFCReaderText
+    private let reader: CardReader
     
     private lazy var delayFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
@@ -28,7 +25,7 @@ final class DefaultCardManagerDelegate: CardManagerDelegate {
         return formatter
     }()
     
-    init(reader: NFCReaderText) {
+    init(reader: CardReader) {
         self.reader = reader
     }
     
