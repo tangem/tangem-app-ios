@@ -8,6 +8,7 @@
 
 import Foundation
 import CryptoKit
+import CommonCrypto
 
 extension Data {
     public func toHexString() -> String {
@@ -19,7 +20,7 @@ extension Data {
     }
     
     public func toInt() -> Int? {
-        return Int(lengthValue: self)
+        return Int(hexData: self)
     }
     
     public func toDateString() -> String {
@@ -59,7 +60,7 @@ extension Data {
     public init(hex: String) {
         self = Data()
         reserveCapacity(hex.unicodeScalars.lazy.underestimatedCount)
-
+        
         var buffer: UInt8?
         var skip = hex.hasPrefix("0x") ? 2 : 0
         for char in hex.unicodeScalars.lazy {
@@ -96,16 +97,30 @@ extension Data {
         }
     }
     
-    @available(iOS 13.0, *)
     func sha256() -> Data {
-        let digest = SHA256.hash(data: self)
-        return Data(digest)
+        if #available(iOS 13.0, *) {
+            let digest = SHA256.hash(data: self)
+            return Data(digest)
+        } else {
+            guard let res = NSMutableData(length: Int(CC_SHA256_DIGEST_LENGTH)) else {
+                return Data()
+            }
+            CC_SHA256((self as NSData).bytes, CC_LONG(count), res.mutableBytes.assumingMemoryBound(to: UInt8.self))
+            return res as Data
+        }
     }
     
-    @available(iOS 13.0, *)
     func sha512() -> Data {
-        let digest = SHA512.hash(data: self)
-        return Data(digest)
+        if #available(iOS 13.0, *) {
+            let digest = SHA512.hash(data: self)
+            return Data(digest)
+        } else {
+            guard let res = NSMutableData(length: Int(CC_SHA512_DIGEST_LENGTH)) else {
+                return Data()
+            }
+            CC_SHA512((self as NSData).bytes, CC_LONG(count), res.mutableBytes.assumingMemoryBound(to: UInt8.self))
+            return res as Data
+        }
     }
     
     var bytes: [Byte] {
