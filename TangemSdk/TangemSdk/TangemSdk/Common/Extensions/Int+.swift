@@ -9,10 +9,10 @@
 import Foundation
 
 extension Int {
-    /// Convert TLV-length to Integer
-    /// - Parameter lengthValue: length bytes from TLV-format
-    init?(lengthValue: Data) {
-        let value = lengthValue.reduce(0) { v, byte in
+    /// Convert hex data  to Integer
+    /// - Parameter hexData: length bytes
+    init?(hexData: Data) {
+        let value = hexData.reduce(0) { v, byte in
             return v << 8 | Int(byte)
         }
         self = value

@@ -14,7 +14,6 @@ public protocol TlvMappable {
     init(from tlv: [Tlv]) throws
 }
 
-@available(iOS 13.0, *)
 public protocol CommandSerializer {
     associatedtype CommandResponse: TlvMappable
     
@@ -22,7 +21,6 @@ public protocol CommandSerializer {
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
-@available(iOS 13.0, *)
 public extension CommandSerializer {
     func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> CommandResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
