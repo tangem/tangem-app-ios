@@ -10,11 +10,6 @@ import Foundation
 import Combine
 import CoreNFC
 
-/// For setting alertMessage into NFC popup
-public protocol NFCReaderText: class {
-    var alertMessage: String {get set}
-}
-
 @available(iOS 13.0, *)
 enum NFCTagWrapper {
     case tag(NFCISO7816Tag)
@@ -68,6 +63,11 @@ public final class NFCReader: NSObject {
 
 @available(iOS 13.0, *)
 extension NFCReader: CardReader {
+    public var alertMessage: String {
+        get { return readerSession?.alertMessage ?? "" }
+        set { readerSession?.alertMessage = newValue }
+    }
+    
     /// Start session and try to connect with tag
     public func startSession() {
         if let existingSession = readerSession, existingSession.isReady { return }
@@ -186,13 +186,5 @@ extension NFCReader: NFCTagReaderSessionDelegate {
                 self?.connectedTag.send(.tag(tag7816))
             }
         }
-    }
-}
-
-@available(iOS 13.0, *)
-extension NFCReader: NFCReaderText {
-    public var alertMessage: String {
-        get { return readerSession?.alertMessage ?? "" }
-        set { readerSession?.alertMessage = newValue }
     }
 }
