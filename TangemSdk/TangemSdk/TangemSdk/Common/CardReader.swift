@@ -9,14 +9,22 @@
 import Foundation
 import CoreNFC
 
-
 public protocol CardReader: class {
+    /// For setting alertMessage into NFC popup
+    var alertMessage: String {get set}
+    
     func startSession()
     func stopSession()
-    
-    @available(iOS 13.0, *)
     func send(commandApdu: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu,NFCReaderError>) -> Void)
-    
-    @available(iOS 13.0, *)
     func restartPolling()
+}
+
+class CardReaderFactory {
+    static func createDefaultReader() -> CardReader {
+        if #available(iOS 13.0, *) {
+            return NFCReader()
+        } else {
+            return NDEFReader()
+        }
+    }
 }
