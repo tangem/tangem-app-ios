@@ -21,7 +21,6 @@ final class CryptoUtils {
         }
     }
     
-    @available(iOS 13.0, *)
     static func vefify(curve: EllipticCurve, publicKey: Data, message: Data, signature: Data) -> Bool? {
         switch curve {
         case .secp256k1:
