@@ -92,9 +92,9 @@ public struct Tlv {
                 return nil
             }
             
-            return Int(lengthValue: longLengthBytes)
+            return Int(hexData: longLengthBytes)
         } else {
-            return Int(lengthValue: Data([shortLengthBytes]))
+            return Int(hexData: Data([shortLengthBytes]))
         }
     }
 }
