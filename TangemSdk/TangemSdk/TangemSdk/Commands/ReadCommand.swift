@@ -165,13 +165,7 @@ public struct ReadResponse: TlvMappable {
 @available(iOS 13.0, *)
 public final class ReadCommand: CommandSerializer {
     public typealias CommandResponse = ReadResponse
-    
-    let pin1: String
-    
-    init(pin1: String) {
-        self.pin1 = pin1
-    }
-    
+
     public func serialize(with environment: CardEnvironment) -> CommandApdu {
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256())]
         if let keys = environment.terminalKeys {
