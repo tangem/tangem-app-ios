@@ -83,7 +83,7 @@ public final class ScanTask: Task<ScanEvent> {
     
     @available(iOS 13.0, *)
     func scanWithNfc(environment: CardEnvironment, callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
-        let readCommand = ReadCommand(pin1: environment.pin1)
+        let readCommand = ReadCommand()
         sendCommand(readCommand, environment: environment) { readResult in
             switch readResult {
             case .completion(let error):
