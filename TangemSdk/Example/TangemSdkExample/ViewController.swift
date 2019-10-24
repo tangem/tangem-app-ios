@@ -49,7 +49,7 @@ class ViewController: UIViewController {
             return
         }
         
-        cardManager.sign(hashes: hashes, environment: CardEnvironment(cardId: cardId)) { signResult  in
+        cardManager.sign(hashes: hashes, cardId: cardId) { signResult  in
             switch signResult {
             case .event(let signResponse):
                 print(signResponse)

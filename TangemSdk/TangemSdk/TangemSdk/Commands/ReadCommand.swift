@@ -172,7 +172,7 @@ public final class ReadCommand: CommandSerializer {
         self.pin1 = pin1
     }
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+    public func serialize(with environment: CardEnvironment) -> CommandApdu {
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256())]
         if let keys = environment.terminalKeys {
             tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
@@ -186,7 +186,7 @@ public final class ReadCommand: CommandSerializer {
 public final class ReadCommandNdef: CommandSerializer {
     public typealias CommandResponse = ReadResponse
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+    public func serialize(with environment: CardEnvironment) -> CommandApdu {
         let cApdu = CommandApdu(.read, tlv: [])
         return cApdu
     }
