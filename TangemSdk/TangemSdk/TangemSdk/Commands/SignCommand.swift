@@ -36,7 +36,7 @@ final class SignHashesCommand: CommandSerializer {
     private let dataToSign: Data
     private let cardId: String
     
-    init(hashes: [Data], cardId: String) throws {
+    public init(hashes: [Data], cardId: String) throws {
         guard hashes.count > 0 else {
             throw TaskError.emptyHashes
         }
