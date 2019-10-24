@@ -34,8 +34,9 @@ final class SignHashesCommand: CommandSerializer {
     
     private let hashSize: Int
     private let dataToSign: Data
+    private let cardId: String
     
-    init(hashes: [Data]) throws {
+    init(hashes: [Data], cardId: String) throws {
         guard hashes.count > 0 else {
             throw TaskError.emptyHashes
         }
@@ -53,17 +54,14 @@ final class SignHashesCommand: CommandSerializer {
             
             flattenHashes.append(contentsOf: hash.bytes)
         }
+        self.cardId = cardId
         dataToSign = Data(flattenHashes)
     }
     
-    func serialize(with environment: CardEnvironment) throws -> CommandApdu {
-        guard let cid = environment.cid else {
-            throw TaskError.cardIdMissing
-        }
-        
+    func serialize(with environment: CardEnvironment) -> CommandApdu {
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
                        Tlv(.pin2, value: environment.pin2.sha256()),
-                       Tlv(.cardId, value: Data(hex: cid)),
+                       Tlv(.cardId, value: Data(hex: cardId)),
                        Tlv(.transactionOutHashSize, value: hashSize.byte),
                        Tlv(.transactionOutHash, value: dataToSign)]
         
