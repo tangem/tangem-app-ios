@@ -26,22 +26,23 @@ public final class CardManager {
     
     private let cardReader: CardReader
     private let cardManagerDelegate: CardManagerDelegate
+    private var cardEnvironmentRepository: [String:CardEnvironment] = [:]
     
     public init(cardReader: CardReader, cardManagerDelegate: CardManagerDelegate) {
         self.cardReader = cardReader
         self.cardManagerDelegate = cardManagerDelegate
     }
     
-    public func scanCard(with environment: CardEnvironment? = nil, callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
+    public func scanCard(callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
         let task = ScanTask()
-        runTask(task, environment: environment, callback: callback)
+        runTask(task, callback: callback)
     }
     
     @available(iOS 13.0, *)
-    public func sign(hashes: [Data], environment: CardEnvironment, callback: @escaping (TaskEvent<SignResponse>) -> Void) {
+    public func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void) {
         var signHashesCommand: SignHashesCommand
         do {
-            signHashesCommand = try SignHashesCommand(hashes: hashes)
+            signHashesCommand = try SignHashesCommand(hashes: hashes, cardId: cardId)
         } catch {
             if let taskError = error as? TaskError {
                 callback(.completion(taskError))
@@ -52,19 +53,20 @@ public final class CardManager {
         }
         
         let task = SingleCommandTask(signHashesCommand)
-        runTask(task, environment: environment, callback: callback)        
+        runTask(task, cardId: cardId, callback: callback)
     }
     
-    public func runTask<T>(_ task: Task<T>, environment: CardEnvironment? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
+    public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
         guard !isBusy else {
             callback(.completion(TaskError.busy))
             return
         }
         
+        let environment = fetchCardEnvironment(for: cardId)
         isBusy = true
         task.cardReader = cardReader
         task.delegate = cardManagerDelegate
-        task.run(with: environment ?? CardEnvironment()) {taskResult in
+        task.run(with: environment) {taskResult in
             DispatchQueue.main.async {
                 switch taskResult {
                 case .event(let event):
@@ -77,10 +79,18 @@ public final class CardManager {
         }
     }
     
+    private func fetchCardEnvironment(for cardId: String?) -> CardEnvironment {
+        guard let cardId = cardId else {
+            return CardEnvironment()
+        }
+        
+        return cardEnvironmentRepository[cardId] ?? CardEnvironment()
+    }
+    
     @available(iOS 13.0, *)
-    public func runCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+    public func runCommand<T: CommandSerializer>(_ commandSerializer: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
         let task = SingleCommandTask<T>(commandSerializer)
-        runTask(task, environment: environment, callback: callback)
+        runTask(task, cardId: cardId, callback: callback)
     }
 }
 
