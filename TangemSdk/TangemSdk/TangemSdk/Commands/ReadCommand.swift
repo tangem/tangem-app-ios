@@ -166,6 +166,8 @@ public struct ReadResponse: TlvMappable {
 public final class ReadCommand: CommandSerializer {
     public typealias CommandResponse = ReadResponse
 
+    public init() {}
+    
     public func serialize(with environment: CardEnvironment) -> CommandApdu {
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256())]
         if let keys = environment.terminalKeys {
