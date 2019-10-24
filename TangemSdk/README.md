@@ -94,12 +94,11 @@ To start using any card, you first need to read it using the ` scanCard()` metho
 Example:
 
 ```swift
-cardManager.scanCard {[unowned self] taskEvent in
+cardManager.scanCard { taskEvent in
     switch taskEvent {  
     case .event(let scanEvent):
         switch scanEvent {
         case .onRead(let card):
-            self.card = card
             print("Read result: \(card)")
         case .onVerify(let isGenuine):
             print("Verication result: \(isGenuine)")
@@ -109,7 +108,7 @@ cardManager.scanCard {[unowned self] taskEvent in
             if case .userCancelled = error {
                 // If user canceled operation manually, then do nothing
             } else {
-                print("completed with error: \(error.localizedDescription)")
+                print("Completed with error: \(error.localizedDescription)")
             }
         }
         //Handle completion. Unlock UI, etc.
