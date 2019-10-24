@@ -17,8 +17,8 @@ class ViewController: UIViewController {
     var card: Card?
     
     @IBAction func scanCardTapped(_ sender: Any) {
-        cardManager.scanCard {[unowned self] scanResult in
-            switch scanResult {
+        cardManager.scanCard {[unowned self] taskEvent in
+            switch taskEvent {
             case .event(let scanEvent):
                 switch scanEvent {
                 case .onRead(let card):
@@ -49,8 +49,8 @@ class ViewController: UIViewController {
             return
         }
         
-        cardManager.sign(hashes: hashes, cardId: cardId) { signResult  in
-            switch signResult {
+        cardManager.sign(hashes: hashes, cardId: cardId) { taskEvent  in
+            switch taskEvent {
             case .event(let signResponse):
                 print(signResponse)
             case .completion(let error):
