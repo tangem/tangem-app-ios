@@ -17,7 +17,6 @@ public enum TaskEvent<TEvent> {
 public enum TaskError: Error, LocalizedError {
     //Serialize apdu errors
     case serializeCommandError
-    case cardIdMissing
     
     //Card errors
     case unknownStatus(sw: UInt16)
@@ -59,7 +58,7 @@ open class Task<TEvent> {
     deinit {
         print("task deinit")
         delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
-        cardReader.stopSession()
+        cardReader?.stopSession()
     }
     
     public final func run(with environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {
@@ -74,17 +73,7 @@ open class Task<TEvent> {
     public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
     func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
-        var commandApdu: CommandApdu
-        do {
-            commandApdu = try commandSerializer.serialize(with: environment)
-        } catch {
-            if let taskError = error as? TaskError {
-                callback(.completion(taskError))
-            } else {
-                callback(.completion(TaskError.genericError(error)))
-            }
-            return
-        }
+        let commandApdu = commandSerializer.serialize(with: environment)
         sendRequest(commandSerializer, apdu: commandApdu, environment: environment, callback: callback)
     }
     
