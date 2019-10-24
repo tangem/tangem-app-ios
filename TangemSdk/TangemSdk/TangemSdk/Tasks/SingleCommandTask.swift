@@ -10,13 +10,13 @@ import Foundation
 
 @available(iOS 13.0, *)
 public final class SingleCommandTask<T: CommandSerializer>: Task<T.CommandResponse> {
-    private let commandSerializer: T
+    private let command: T
     
-    public init(_ commandSerializer: T) {
-        self.commandSerializer = commandSerializer
+    public init(_ command: T) {
+        self.command = command
     }
     
     override public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
-        sendCommand(commandSerializer, environment: environment, callback: callback)
+        sendCommand(command, environment: environment, callback: callback)
     }
 }
