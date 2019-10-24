@@ -33,7 +33,8 @@ final class CheckWalletCommand: CommandSerializer {
     let cardId: String
     let challenge: Data
     
-    init(pin1: String, cardId: String, challenge: Data) {
+    
+    public init(pin1: String, cardId: String, challenge: Data) {
         self.pin1 = pin1
         self.cardId = cardId
         self.challenge = challenge
