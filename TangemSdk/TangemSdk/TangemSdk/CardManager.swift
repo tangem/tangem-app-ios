@@ -44,9 +44,9 @@ public final class CardManager {
             signHashesCommand = try SignHashesCommand(hashes: hashes)
         } catch {
             if let taskError = error as? TaskError {
-                callback(.failure(taskError))
+                callback(.completion(taskError))
             } else {
-                callback(.failure(TaskError.genericError(error)))
+                callback(.completion(TaskError.genericError(error)))
             }
             return
         }
@@ -55,9 +55,9 @@ public final class CardManager {
         runTask(task, environment: environment, callback: callback)        
     }
     
-    func runTask<T>(_ task: Task<T>, environment: CardEnvironment? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
+    public func runTask<T>(_ task: Task<T>, environment: CardEnvironment? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
         guard !isBusy else {
-            callback(.failure(TaskError.busy))
+            callback(.completion(TaskError.busy))
             return
         }
         
@@ -69,11 +69,8 @@ public final class CardManager {
                 switch taskResult {
                 case .event(let event):
                     callback(.event(event))
-                case .success(let environment):
-                    callback(.success(environment))
-                    self.isBusy = false
-                case .failure(let error):
-                    callback(.failure(error))
+                case .completion(let error):
+                    callback(.completion(error))
                     self.isBusy = false
                 }
             }
@@ -81,9 +78,9 @@ public final class CardManager {
     }
     
     @available(iOS 13.0, *)
-    func runCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment? = nil, completion: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+    public func runCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
         let task = SingleCommandTask<T>(commandSerializer)
-        runTask(task, environment: environment, callback: completion)
+        runTask(task, environment: environment, callback: callback)
     }
 }
 
