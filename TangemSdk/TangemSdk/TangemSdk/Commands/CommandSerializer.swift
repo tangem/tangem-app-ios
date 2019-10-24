@@ -17,7 +17,7 @@ public protocol TlvMappable {
 public protocol CommandSerializer {
     associatedtype CommandResponse: TlvMappable
     
-    func serialize(with environment: CardEnvironment) throws -> CommandApdu
+    func serialize(with environment: CardEnvironment) -> CommandApdu
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
