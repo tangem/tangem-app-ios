@@ -80,9 +80,7 @@ extension NFCReader: CardReader {
     }
     
     public func stopSession() {
-        guard let session = readerSession, session.isReady else { return }
-        
-        session.invalidate()
+        readerSession?.invalidate()
     }
     
     /// Send apdu command to connected tag
