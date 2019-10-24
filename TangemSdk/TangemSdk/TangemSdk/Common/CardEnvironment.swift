@@ -24,7 +24,6 @@ public struct CardEnvironment: Equatable {
     static let defaultPin1 = "000000"
     static let defaultPin2 = "000"
     
-    public var cid: String? = nil
     public var pin1: String = CardEnvironment.defaultPin1
     public var pin2: String = CardEnvironment.defaultPin2
     public var terminalKeys: KeyPair? = nil
@@ -32,10 +31,6 @@ public struct CardEnvironment: Equatable {
     
     public init() {
         
-    }
-    
-    public init(cardId: String) {
-        cid = cardId
     }
 }
 
