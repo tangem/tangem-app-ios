@@ -88,8 +88,8 @@ public final class CardManager {
     }
     
     @available(iOS 13.0, *)
-    public func runCommand<T: CommandSerializer>(_ commandSerializer: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
-        let task = SingleCommandTask<T>(commandSerializer)
+    public func runCommand<T: CommandSerializer>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+        let task = SingleCommandTask<T>(command)
         runTask(task, cardId: cardId, callback: callback)
     }
 }
