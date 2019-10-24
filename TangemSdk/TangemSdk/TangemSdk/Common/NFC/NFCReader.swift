@@ -58,6 +58,7 @@ public final class NFCReader: NSObject {
             session.isReady else { return }
         
         session.invalidate(errorMessage: Localization.nfcSessionTimeout)
+        readerSessionError.send(NFCReaderError(.readerSessionInvalidationErrorSessionTimeout))
     }
 }
 
@@ -87,11 +88,10 @@ extension NFCReader: CardReader {
     /// - Parameter command: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCReaderError otherwise
     public func send(commandApdu: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
-         print("Create subscriptions")
+        print("Create subscriptions")
         sessionSubscription = readerSessionError
             .compactMap { $0 }
             .sink(receiveValue: { [weak self] error in
-                print("Receive session error")
                 completion(.failure(error))
                 self?.cancelSubscriptions()
             })
@@ -99,7 +99,6 @@ extension NFCReader: CardReader {
         tagSubscription = connectedTag
             .compactMap({ $0 })
             .sink(receiveValue: { [weak self] tagWrapper in
-                print("Receive tag")
                 switch tagWrapper {
                 case .error(let tagError):
                     completion(.failure(tagError))
