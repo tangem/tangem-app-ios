@@ -79,18 +79,18 @@ public final class CardManager {
         }
     }
     
+    @available(iOS 13.0, *)
+    public func runCommand<T: CommandSerializer>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+        let task = SingleCommandTask<T>(command)
+        runTask(task, cardId: cardId, callback: callback)
+    }
+    
     private func fetchCardEnvironment(for cardId: String?) -> CardEnvironment {
         guard let cardId = cardId else {
             return CardEnvironment()
         }
         
         return cardEnvironmentRepository[cardId] ?? CardEnvironment()
-    }
-    
-    @available(iOS 13.0, *)
-    public func runCommand<T: CommandSerializer>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
-        let task = SingleCommandTask<T>(command)
-        runTask(task, cardId: cardId, callback: callback)
     }
 }
 
