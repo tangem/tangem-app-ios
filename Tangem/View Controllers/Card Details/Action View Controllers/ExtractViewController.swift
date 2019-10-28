@@ -287,7 +287,7 @@ class ExtractViewController: ModalActionViewController {
             !amount.isEmpty,
             let amountValue = Decimal(string: amount),
             amountValue > 0,
-            let total = Decimal(string: card.walletValue),
+            let total = Decimal(string: card.balance),
             amountValue <= total else {
                 setError(true, for: amountText )
                 btnSendSetEnabled(false)
@@ -351,7 +351,7 @@ class ExtractViewController: ModalActionViewController {
         btnSend.layer.cornerRadius = 8.0
         btnSendSetEnabled(false)
         cardLabel.text = card.cardID
-        amountLabel.text = "\(card.walletValue) \(card.cardEngine.walletUnits)"
+        amountLabel.text = "\(card.balance) \(card.units)"
         
         
         includeFeeSwitch.transform = CGAffineTransform.identity.translatedBy(x: -0.1*includeFeeSwitch.frame.width, y: 0).scaledBy(x: 0.8, y: 0.8)
@@ -361,14 +361,14 @@ class ExtractViewController: ModalActionViewController {
         
         addressLabel.text = card.address
         feeLabel.text = Localizations.commonFeeStub
-        amountText.text = card.walletValue
+        amountText.text = card.balance
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
         includeFeeSwitch.isHidden = !traits.contains(CoinTrait.allowsFeeInclude)
         feeControl.isHidden = !traits.contains(CoinTrait.allowsFeeSelector)
         
         blockchainNameLabel.text = card.blockchain.rawValue.uppercased()
-        amountUnitsLabel.text = card.walletUnits.uppercased()
+        amountUnitsLabel.text = card.units.uppercased()
         view.addGestureRecognizer(recognizer)
         
         topStackView.setCustomSpacing(20.0, after: amountStackView)
@@ -431,7 +431,7 @@ class ExtractViewController: ModalActionViewController {
                                                                   NSAttributedString.Key.font: subtitleFont]
         
         let titleText = NSMutableAttributedString(string: "\(Localizations.confirmTransactionBtnSend)", attributes: titleAttributes)
-        let subtitleText = NSMutableAttributedString(string: "\(valueToSend) \(card.walletUnits)", attributes: subtitleAttributes)
+        let subtitleText = NSMutableAttributedString(string: "\(valueToSend) \(card.units)", attributes: subtitleAttributes)
         titleText.append(NSAttributedString(string: "\n"))
         titleText.append(subtitleText)
         
