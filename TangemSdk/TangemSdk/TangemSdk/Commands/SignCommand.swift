@@ -29,8 +29,8 @@ public struct SignResponse: TlvMappable {
 }
 
 @available(iOS 13.0, *)
-final class SignHashesCommand: CommandSerializer {
-    typealias CommandResponse = SignResponse
+public final class SignHashesCommand: CommandSerializer {
+    public typealias CommandResponse = SignResponse
     
     private let hashSize: Int
     private let dataToSign: Data
@@ -58,7 +58,7 @@ final class SignHashesCommand: CommandSerializer {
         dataToSign = Data(flattenHashes)
     }
     
-    func serialize(with environment: CardEnvironment) -> CommandApdu {
+    public func serialize(with environment: CardEnvironment) -> CommandApdu {
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
                        Tlv(.pin2, value: environment.pin2.sha256()),
                        Tlv(.cardId, value: Data(hex: cardId)),
