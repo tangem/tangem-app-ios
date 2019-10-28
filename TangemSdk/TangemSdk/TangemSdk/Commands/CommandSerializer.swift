@@ -29,4 +29,14 @@ public extension CommandSerializer {
         
         return try CommandResponse(from: tlv)
     }
+    
+    func deserializeSecurityDelay(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
+        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
+            let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
+                return nil
+        }
+        
+        let saveToFlash = tlv.contains(tag: .flash)
+        return (remainingMilliseconds, saveToFlash)
+    }
 }
