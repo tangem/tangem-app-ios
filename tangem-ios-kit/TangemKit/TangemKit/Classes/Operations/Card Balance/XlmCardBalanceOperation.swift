@@ -93,7 +93,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
             let decimalAssetBalance = Decimal(string: assetBalance) {
             engine.assetBalance = decimalAssetBalance
             engine.assetCode = self.assetCode
-            card.walletTokenValue = "\(decimalAssetBalance)"
+            card.walletTokenValue = decimalAssetBalance > 0 ? "\(decimalAssetBalance)" : "0"
             let fullReserve = baseReserve * Decimal(3.0)
             let balanceWithoutReserve = decimalBalance - fullReserve
             card.walletValue = "\(balanceWithoutReserve)"
