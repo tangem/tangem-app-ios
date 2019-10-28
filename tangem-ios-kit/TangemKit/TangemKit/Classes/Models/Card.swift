@@ -185,6 +185,22 @@ public class Card {
         return nil
     }
     
+    public var units: String {
+       if let tokenValue = walletTokenValue, tokenValue != "0" {
+            return (walletTokenUnits ?? tokenSymbol) ?? walletUnits
+        } else {
+            return walletUnits
+        }
+    }
+    
+    public var balance: String {
+        if let tokenValue = walletTokenValue, tokenValue != "0" {
+            return tokenValue
+        } else {
+            return walletValue
+        }
+    }
+    
     public var walletValue: String = "0"
     public var walletTokenValue: String?
     public var usdWalletValue: String?
