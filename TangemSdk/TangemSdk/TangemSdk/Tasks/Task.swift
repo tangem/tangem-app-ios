@@ -72,7 +72,7 @@ open class Task<TEvent> {
     
     public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
-    func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+    public final func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
         let commandApdu = commandSerializer.serialize(with: environment)
         sendRequest(commandSerializer, apdu: commandApdu, environment: environment, callback: callback)
     }
@@ -88,13 +88,11 @@ open class Task<TEvent> {
                 
                 switch status {
                 case .needPause:
-                    let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey)
-                    if let ms = tlv?.value(for: .pause)?.toInt() {
-                        self.delegate?.showSecurityDelay(remainingMilliseconds: ms)
-                    }
-                    if tlv?.value(for: .flash) != nil {
-                        print("Save flash")
-                        self.cardReader.restartPolling()
+                    if let securityDelayResponse = commandSerializer.deserializeSecurityDelay(with: environment, from: responseApdu) {
+                        self.delegate?.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
+                        if securityDelayResponse.saveToFlash {
+                             self.cardReader.restartPolling()
+                        }
                     }
                     self.sendRequest(commandSerializer, apdu: apdu, environment: environment, callback: callback)
                 case .needEcryption:
