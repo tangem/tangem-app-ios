@@ -87,7 +87,7 @@ extension NFCReader: CardReader {
     /// Send apdu command to connected tag
     /// - Parameter command: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCReaderError otherwise
-    public func send(commandApdu: CommandApdu, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
+    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, NFCReaderError>) -> Void) {
         print("Create subscriptions")
         sessionSubscription = readerSessionError
             .compactMap { $0 }
@@ -123,7 +123,7 @@ extension NFCReader: CardReader {
         session.restartPolling()
     }
     
-    private func sendCommand(apdu: NFCISO7816APDU, to tag: NFCISO7816Tag, completion: @escaping (CompletionResult<ResponseApdu, NFCReaderError>) -> Void) {
+    private func sendCommand(apdu: NFCISO7816APDU, to tag: NFCISO7816Tag, completion: @escaping (Result<ResponseApdu, NFCReaderError>) -> Void) {
         tag.sendCommand(apdu: apdu) {[weak self] (data, sw1, sw2, error) in
             guard let self = self,
                 let session = self.readerSession,
