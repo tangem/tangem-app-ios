@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias Card = ReadResponse
+public typealias ReadResponse = Card
 
 public struct SigningMethod: OptionSet {
     public let rawValue: Int
@@ -73,7 +73,7 @@ public struct SettingsMask: OptionSet {
     static let checkPIN3OnCard = SettingsMask(rawValue: 0x04000000)
 }
 
-public struct ReadResponse: TlvMappable {
+public struct Card: TlvMappable {
     public let cardId: String
     public let manufacturerName: String?
     public let status: CardStatus?
