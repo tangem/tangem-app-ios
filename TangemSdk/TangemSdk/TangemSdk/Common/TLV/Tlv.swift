@@ -121,4 +121,9 @@ extension Array where Element == Tlv {
     public func value(for tag: TlvTag) -> Data? {
         return self.first(where: {$0.tag == tag})?.value
     }
+    
+    /// - Parameter tag: tag to check
+    public func contains(tag: TlvTag) -> Bool {
+        return value(for: tag) != nil
+    }
 }

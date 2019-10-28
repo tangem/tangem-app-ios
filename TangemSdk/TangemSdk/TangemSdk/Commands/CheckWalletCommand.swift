@@ -8,12 +8,12 @@
 
 import Foundation
 
-struct CheckWalletResponse: TlvMappable {
+public struct CheckWalletResponse: TlvMappable {
     let cardId: String
     let salt: Data
     let walletSignature: Data
     
-    init(from tlv: [Tlv]) throws {
+    public init(from tlv: [Tlv]) throws {
         let mapper = TlvMapper(tlv: tlv)
         do {
             self.cardId = try mapper.map(.cardId)
@@ -26,8 +26,8 @@ struct CheckWalletResponse: TlvMappable {
 }
 
 @available(iOS 13.0, *)
-final class CheckWalletCommand: CommandSerializer {
-    typealias CommandResponse = CheckWalletResponse
+public final class CheckWalletCommand: CommandSerializer {
+    public typealias CommandResponse = CheckWalletResponse
     
     let pin1: String
     let cardId: String
@@ -40,7 +40,7 @@ final class CheckWalletCommand: CommandSerializer {
         self.challenge = challenge
     }
     
-    func serialize(with environment: CardEnvironment) -> CommandApdu {
+    public func serialize(with environment: CardEnvironment) -> CommandApdu {
         let tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
                        Tlv(.cardId, value: Data(hex: cardId)),
                        Tlv(.challenge, value: challenge)]
