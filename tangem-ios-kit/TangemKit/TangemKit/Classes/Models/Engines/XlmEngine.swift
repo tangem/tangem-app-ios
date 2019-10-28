@@ -8,7 +8,6 @@
 
 import Foundation
 import stellarsdk
-
 public class XlmEngine: CardEngine {
     unowned public var card: Card
     
@@ -17,7 +16,7 @@ public class XlmEngine: CardEngine {
     }()
     
     public var blockchainDisplayName: String {
-        return "Stellar"
+        return card.tokenSymbol ?? "Stellar"
     }
     
     public var walletType: WalletType {
@@ -40,6 +39,9 @@ public class XlmEngine: CardEngine {
     var baseFee: Decimal?
     var latestTxDate: Date?
     var transaction: TransactionXDR?
+    
+    public var assetBalance: Decimal?
+    public var assetCode: String?
     
     var sourceKeyPair: KeyPair?
     
@@ -101,51 +103,67 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         guard let amountDecimal = Decimal(string: amount),
             let feeDecimal = Decimal(string: fee),
             let sourceKeyPair = self.sourceKeyPair,
-            let seqNumber = self.sequence,
             let destinationKeyPair = try? KeyPair(accountId: targetAddress) else {
                 completion(nil)
                 return
         }
+        let assetBalance = self.assetBalance ?? 0
+        let finalAmountDecimal = includeFee && assetBalance == 0  ? amountDecimal - feeDecimal : amountDecimal
         
-        let finalAmountDecimal = includeFee ? amountDecimal - feeDecimal : amountDecimal
-        
-        
-        checkIfAccountCreated(targetAddress) {[weak self] isCreated in
-            guard let self = self else {
-                return
+        if card.tokenSymbol == nil || (card.tokenSymbol != nil && self.assetBalance != nil && self.assetBalance! <= 0) {
+            checkIfAccountCreated(targetAddress) { [weak self] isCreated in
+                let operation = isCreated ? PaymentOperation(sourceAccount: sourceKeyPair,
+                                                             destination: destinationKeyPair,
+                                                             asset: Asset(type: AssetType.ASSET_TYPE_NATIVE)!,
+                                                             amount: finalAmountDecimal) :
+                    CreateAccountOperation(destination: destinationKeyPair, startBalance: finalAmountDecimal)
+                
+                self?.serializeOperation(operation, completion: completion)
+            }
+        } else { //if asset
+            guard let contractAddress = card.tokenContractAddress, let keyPair = try? KeyPair(accountId: contractAddress),
+                let asset = createNonNativeAsset(code: card.tokenSymbol!, issuer: keyPair) else {
+                    completion(nil)
+                    return
             }
             
-            let operation = isCreated ? PaymentOperation(sourceAccount: sourceKeyPair,
-                                                         destination: destinationKeyPair,
-                                                         asset: Asset(type: AssetType.ASSET_TYPE_NATIVE)!,
-                                                         amount: finalAmountDecimal) :
-                CreateAccountOperation(destination: destinationKeyPair, startBalance: finalAmountDecimal)
+            let operation = self.assetBalance == nil ? ChangeTrustOperation(sourceAccount: sourceKeyPair, asset: asset, limit: Decimal(string: "900000000000.0000000")) :
+                PaymentOperation(sourceAccount: sourceKeyPair,
+                                 destination: destinationKeyPair,
+                                 asset: asset,
+                                 amount: finalAmountDecimal)
             
-            
-            guard let xdrOperation = try? operation.toXDR() else {
-                completion(nil)
-                return
-            }
-            
-            
-            let minTime = Date().timeIntervalSince1970
-            let maxTime = minTime + 60.0
-            
-            let tx = TransactionXDR(sourceAccount: sourceKeyPair.publicKey,
-                                    seqNum: seqNumber + 1,
-                                    timeBounds: TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime)),
-                                    memo: Memo.none.toXDR(),
-                                    operations: [xdrOperation])
-            
-            let network = self.card.isTestBlockchain ? Network.testnet : Network.public
-            guard let hash = try? tx.hash(network: network) else {
-                completion(nil)
-                return
-            }
-            self.transaction = tx
-            completion([hash])
+            serializeOperation(operation, completion: completion)
         }
     }
+    
+    private func serializeOperation(_ operation: stellarsdk.Operation, completion: @escaping ([Data]?) -> Void ) {
+        guard let xdrOperation = try? operation.toXDR(),
+            let seqNumber = self.sequence,
+            let sourceKeyPair = self.sourceKeyPair else {
+                completion(nil)
+                return
+        }
+        
+        let minTime = Date().timeIntervalSince1970
+        let maxTime = minTime + 60.0
+        
+        let tx = TransactionXDR(sourceAccount: sourceKeyPair.publicKey,
+                                seqNum: seqNumber + 1,
+                                timeBounds: TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime)),
+                                memo: Memo.none.toXDR(),
+                                operations: [xdrOperation])
+        
+        let network = self.card.isTestBlockchain ? Network.testnet : Network.public
+        guard let hash = try? tx.hash(network: network) else {
+            completion(nil)
+            return
+        }
+        self.transaction = tx
+        completion([hash])
+    }
+    
+    
     
     public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
         return nil
@@ -197,5 +215,15 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
     public func validate(address: String) -> Bool {
         let keyPair = try? KeyPair(accountId: address)
         return keyPair != nil
+    }
+    
+    private func createNonNativeAsset(code: String, issuer: KeyPair) -> Asset? {
+        if code.count >= 1 && code.count <= 4 {
+            return Asset(type: AssetType.ASSET_TYPE_CREDIT_ALPHANUM4, code: code, issuer: issuer)
+        } else if code.count >= 5 && code.count <= 12 {
+            return Asset(type: AssetType.ASSET_TYPE_CREDIT_ALPHANUM12, code: code, issuer: issuer)
+        } else {
+            return nil
+        }
     }
 }
