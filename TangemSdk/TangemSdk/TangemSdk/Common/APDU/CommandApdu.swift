@@ -9,7 +9,7 @@
 import Foundation
 import CoreNFC
 
-public final class CommandApdu {
+public struct CommandApdu {
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
     /// 4 - Timeout setting for ping nfc-module
     private static let legacyMode = Tlv(.legacyMode, value: Data([Byte(4)]))
@@ -32,7 +32,7 @@ public final class CommandApdu {
     /// - Parameter tlv: data
     /// - Parameter encryptionMode:  optional encryption mode. Default to none
     /// - Parameter encryptionKey:  optional encryption
-    public convenience init(_ instruction: Instruction, tlv: [Tlv], encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) {
+    public init(_ instruction: Instruction, tlv: [Tlv], encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) {
         self.init(ins: instruction.rawValue,
                   p1: encryptionMode.rawValue,
                   tlv: tlv,

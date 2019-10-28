@@ -14,7 +14,9 @@ import CoreNFC
 public final class CardManager {
     public static var isNFCAvailable: Bool {
         #if canImport(CoreNFC)
-        if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
+        if NSClassFromString("NFCNDEFReaderSession") == nil {
+            return false
+        }
         
         return NFCNDEFReaderSession.readingAvailable
         #else
@@ -96,7 +98,7 @@ public final class CardManager {
 
 extension CardManager {
     public convenience init(cardReader: CardReader? = nil, cardManagerDelegate: CardManagerDelegate? = nil) {
-        let reader = cardReader ?? CardReaderFactory.createDefaultReader()
+        let reader = cardReader ?? CardReaderFactory().createDefaultReader()
         let delegate = cardManagerDelegate ?? DefaultCardManagerDelegate(reader: reader)
         self.init(cardReader: reader, cardManagerDelegate: delegate)
     }
