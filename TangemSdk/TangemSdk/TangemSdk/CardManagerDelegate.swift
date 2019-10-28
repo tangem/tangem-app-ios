@@ -12,7 +12,7 @@ import UIKit
 public protocol CardManagerDelegate: class {
     func showAlertMessage(_ text: String)
     func showSecurityDelay(remainingMilliseconds: Int)    
-    func requestPin(completion: @escaping () -> CompletionResult<String, Error>)
+    func requestPin(completion: @escaping () -> Result<String, Error>)
 }
 
 final class DefaultCardManagerDelegate: CardManagerDelegate {
@@ -41,7 +41,7 @@ final class DefaultCardManagerDelegate: CardManagerDelegate {
         }
     }
     
-    func requestPin(completion: @escaping () -> CompletionResult<String, Error>) {
+    func requestPin(completion: @escaping () -> Result<String, Error>) {
         //[REDACTED_TODO_COMMENT]
     }
 }
