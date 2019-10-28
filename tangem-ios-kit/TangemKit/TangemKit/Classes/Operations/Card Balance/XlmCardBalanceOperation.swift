@@ -14,6 +14,8 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
     private let lock = DispatchSemaphore(value: 1)
     
     private var balance: String?
+    private var assetBalance: String?
+    private var assetCode: String?
     private var sequence: Int64?
     private var baseReserveStroops: Int?
     private var baseFeeStroops: Int?
@@ -29,12 +31,15 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
         stellarSdk.accounts.getAccountDetails(accountId: card.address) {[weak self] response -> (Void) in
             switch response {
             case .success(let accountResponse):
-                guard let xlmBalance = accountResponse.balances.first(where: {$0.assetType == AssetTypeAsString.NATIVE}) else {
-                    self?.card.mult = 0
-                    self?.failOperationWith(error: "Empty balance")
-                    return
+                if let xlmBalance = accountResponse.balances.first(where: {$0.assetType == AssetTypeAsString.NATIVE}) {
+                    self?.balance = xlmBalance.balance
                 }
-                self?.balance = xlmBalance.balance
+                
+                if let xlmAssetBalance = accountResponse.balances.first(where: {$0.assetType != AssetTypeAsString.NATIVE}) {
+                    self?.assetBalance = xlmAssetBalance.balance
+                    self?.assetCode = xlmAssetBalance.assetCode
+                }
+                
                 self?.sequence = accountResponse.sequenceNumber
                 self?.handleRequestComplete()
             case .failure(let horizonRequestError):
@@ -77,18 +82,35 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
                 return
         }
         
-       
         engine.sequence = sequence
         
         let divider =  Decimal(10000000)
         let baseFee = Decimal(baseFeeS)/divider
         let baseReserve = Decimal(baseReserveS)/divider
-        let fullReserve = baseReserve * Decimal(2.0)
-        let balanceWithoutReserve = decimalBalance - fullReserve
+        
+        
+        if let assetBalance = self.assetBalance,
+            let decimalAssetBalance = Decimal(string: assetBalance) {
+            engine.assetBalance = decimalAssetBalance
+            engine.assetCode = self.assetCode
+            card.walletTokenValue = "\(decimalAssetBalance)"
+            let fullReserve = baseReserve * Decimal(3.0)
+            let balanceWithoutReserve = decimalBalance - fullReserve
+            card.walletValue = "\(balanceWithoutReserve)"
+            engine.walletReserve = "\(fullReserve)"
+        } else {
+            let fullReserve = baseReserve * Decimal(2.0)
+            let balanceWithoutReserve = decimalBalance - fullReserve
+            card.walletValue = "\(balanceWithoutReserve)"
+            engine.walletReserve = "\(fullReserve)"
+        }
+        
+        
+        
         engine.baseReserve = baseReserve
         engine.baseFee = baseFee
-        card.walletValue = "\(balanceWithoutReserve)"
-        engine.walletReserve = "\(fullReserve)"
+        
+        
         completeOperation()
     }
     
