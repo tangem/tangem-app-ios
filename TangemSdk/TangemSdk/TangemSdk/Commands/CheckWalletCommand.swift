@@ -8,21 +8,10 @@
 
 import Foundation
 
-public struct CheckWalletResponse: TlvMappable {
+public struct CheckWalletResponse {
     let cardId: String
     let salt: Data
     let walletSignature: Data
-    
-    public init(from tlv: [Tlv]) throws {
-        let mapper = TlvMapper(tlv: tlv)
-        do {
-            self.cardId = try mapper.map(.cardId)
-            self.salt = try mapper.map(.salt)
-            self.walletSignature = try mapper.map(.walletSignature)
-        } catch {
-            throw error
-        }
-    }
 }
 
 @available(iOS 13.0, *)
@@ -47,5 +36,17 @@ public final class CheckWalletCommand: CommandSerializer {
         
         let cApdu = CommandApdu(.checkWallet, tlv: tlvData)
         return cApdu
+    }
+    
+    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> CheckWalletResponse {
+        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+            throw TaskError.serializeCommandError
+        }
+        
+        let mapper = TlvMapper(tlv: tlv)
+        return CheckWalletResponse(
+            cardId: try mapper.map(.cardId),
+            salt: try mapper.map(.salt),
+            walletSignature: try mapper.map(.walletSignature))
     }
 }
