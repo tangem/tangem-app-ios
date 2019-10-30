@@ -15,6 +15,7 @@ public protocol CardReader: class {
     
     func startSession()
     func stopSession()
+    func stopSession(errorMessage: String)
     func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu,NFCReaderError>) -> Void)
     func restartPolling()
 }
