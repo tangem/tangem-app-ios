@@ -63,9 +63,11 @@ extension NDEFReader: CardReader {
     
     public func stopSession() {
         completion = nil
-        guard let session = readerSession, session.isReady else { return }
-        
-        session.invalidate()
+        readerSession?.invalidate()
+    }
+    
+    public func stopSession(errorMessage: String) {
+        stopSession()
     }
     
     public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, NFCReaderError>) -> Void) {
