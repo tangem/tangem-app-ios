@@ -23,7 +23,7 @@ public final class ScanTask: Task<ScanEvent> {
     }
     
     func scanWithNdef(environment: CardEnvironment, callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
-        let readCommand = ReadCommandNdef()
+        let readCommand = ReadCommand()
         sendCommand(readCommand, environment: environment) { firstResult in
             switch firstResult {
             case .completion(let error):
