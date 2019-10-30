@@ -72,17 +72,17 @@ open class Task<TEvent> {
     
     public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
-    public final func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+    public final func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
         let commandApdu = commandSerializer.serialize(with: environment)
         sendRequest(commandSerializer, apdu: commandApdu, environment: environment, callback: callback)
     }
     
-    func sendRequest<T: CommandSerializer>(_ commandSerializer: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+    func sendRequest<T: CommandSerializer>(_ commandSerializer: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
         cardReader.send(commandApdu: apdu) { commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
                 guard let status = responseApdu.status else {
-                    callback(.completion(TaskError.unknownStatus(sw: responseApdu.sw)))
+                    callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
                     return
                 }
                 
@@ -98,38 +98,37 @@ open class Task<TEvent> {
                 case .needEcryption:
                     //[REDACTED_TODO_COMMENT]
                     
-                    callback(.completion(TaskError.needEncryption))
+                    callback(.failure(TaskError.needEncryption))
                     
                 case .invalidParams:
                     //[REDACTED_TODO_COMMENT]
                     
-                    callback(.completion(TaskError.invalidParams))
+                    callback(.failure(TaskError.invalidParams))
                     
                 case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed, .pinsNotChanged:
                     do {
                         let responseData = try commandSerializer.deserialize(with: environment, from: responseApdu)
-                        callback(.event(responseData))
-                        callback(.completion())
+                        callback(.success(responseData))
                     } catch {
                         if let taskError = error as? TaskError {
-                            callback(.completion(taskError))
+                            callback(.failure(taskError))
                         } else {
-                            callback(.completion(TaskError.genericError(error)))
+                            callback(.failure(TaskError.genericError(error)))
                         }
                     }
                 case .errorProcessingCommand:
-                    callback(.completion(TaskError.errorProcessingCommand))
+                    callback(.failure(TaskError.errorProcessingCommand))
                 case .invalidState:
-                    callback(.completion(TaskError.invalidState))
+                    callback(.failure(TaskError.invalidState))
                     
                 case .insNotSupported:
-                    callback(.completion(TaskError.insNotSupported))
+                    callback(.failure(TaskError.insNotSupported))
                 }
             case .failure(let error):
                 if error.code == .readerSessionInvalidationErrorUserCanceled {
-                    callback(.completion(TaskError.userCancelled))
+                    callback(.failure(TaskError.userCancelled))
                 } else {
-                    callback(.completion(TaskError.readerError(error)))
+                    callback(.failure(TaskError.readerError(error)))
                 }
             }
         }
