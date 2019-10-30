@@ -89,9 +89,7 @@ public final class ScanTask: Task<ScanEvent> {
         sendCommand(readCommand, environment: environment) { readResult in
             switch readResult {
             case .failure(let error):
-                if case TaskError.readerError(_) = error {
-                    self.cardReader.stopSession()
-                } else {
+                if case TaskError.readerError(_) = error {} else {
                     self.cardReader.stopSession(errorMessage: error.localizedDescription)
                 }
                 callback(.completion(error))
@@ -122,9 +120,7 @@ public final class ScanTask: Task<ScanEvent> {
                 self.sendCommand(checkWalletCommand, environment: environment) { checkWalletResult in
                     switch checkWalletResult {
                     case .failure(let error):
-                        if case TaskError.readerError(_) = error {
-                            self.cardReader.stopSession()
-                        } else {
+                        if case TaskError.readerError(_) = error {} else {
                             self.cardReader.stopSession(errorMessage: error.localizedDescription)
                         }
                         callback(.completion(error))
