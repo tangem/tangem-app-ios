@@ -196,8 +196,15 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             balanceTitle = card.walletValue + " " + card.walletUnits
             balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
         } else if let xlmEngine = card.cardEngine as? XlmEngine, let walletReserve = xlmEngine.walletReserve {
-            balanceTitle = card.walletValue + " " + card.walletUnits
-            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
+            
+            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = xlmEngine.assetCode, let assetBalance = xlmEngine.assetBalance,
+            assetBalance > 0 {
+                 balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
+                 balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee + " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
+            } else {
+                balanceTitle = card.walletValue + " " + card.walletUnits
+                balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
+            }
         }
         else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
@@ -460,7 +467,11 @@ extension CardDetailsViewController {
                     self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
-                        self?.updateBalance()
+                        guard let self = self, !self.isBalanceVerified else {
+                            return
+                        }
+                        
+                        self.updateBalance()
                     }
                 }
             }
