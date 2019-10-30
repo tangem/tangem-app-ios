@@ -12,7 +12,7 @@ public struct ResponseApdu {
     /// Raw status from combined sw1 and sw2
     public var sw: UInt16 { return UInt16( (UInt16(sw1) << 8) | UInt16(sw2) ) }
     /// Status from combined sw1 and sw2
-    public var status: Status? { return Status(rawValue: sw) }
+    public var status: StatusWord? { return StatusWord(rawValue: sw) }
     
     private let sw1: Byte
     private let sw2: Byte
@@ -31,14 +31,7 @@ public struct ResponseApdu {
             return nil
         }
         
-        //handle nested tlv here to facilitate further response mapping
-        let allTlv = tlv.flatMap { tlv -> [Tlv] in
-            if tlv.tag.hasNestedTlv, let nestedTlv = Array<Tlv>.init(tlv.value) {
-                return nestedTlv
-            }
-            return [tlv]
-        }
         //[REDACTED_TODO_COMMENT]
-        return allTlv
+        return tlv
     }
 }
