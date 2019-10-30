@@ -10,26 +10,14 @@
 import Foundation
 import CoreNFC
 
-public protocol TlvMappable {
-    init(from tlv: [Tlv]) throws
-}
-
 public protocol CommandSerializer {
-    associatedtype CommandResponse: TlvMappable
+    associatedtype CommandResponse
     
     func serialize(with environment: CardEnvironment) -> CommandApdu
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
 public extension CommandSerializer {
-    func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> CommandResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.serializeCommandError
-        }
-        
-        return try CommandResponse(from: tlv)
-    }
-    
     func deserializeSecurityDelay(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
             let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {

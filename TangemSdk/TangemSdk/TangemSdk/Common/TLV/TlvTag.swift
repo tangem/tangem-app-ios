@@ -96,15 +96,6 @@ public enum TlvTag: Byte {
     case terminalTransactionSignature = 0x57
     case legacyMode = 0x29
     
-    var hasNestedTlv: Bool {
-        switch self {
-        case .cardData:
-            return true
-        default:
-            return false
-        }
-    }
-    
     //[REDACTED_TODO_COMMENT]
     var valueType: TlvValueType {
         switch self {
