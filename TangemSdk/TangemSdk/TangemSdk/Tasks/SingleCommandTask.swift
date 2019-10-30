@@ -17,6 +17,14 @@ public final class SingleCommandTask<T: CommandSerializer>: Task<T.CommandRespon
     }
     
     override public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
-        sendCommand(command, environment: environment, callback: callback)
+        sendCommand(command, environment: environment) { result in
+            switch result {
+            case .success(let commandResponse):
+                callback(.event(commandResponse))
+                callback(.completion(nil))
+            case  .failure(let error):
+                callback(.completion(error))
+            }
+        }
     }
 }
