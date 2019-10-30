@@ -57,7 +57,7 @@ public final class NFCReader: NSObject {
         guard let session = readerSession,
             session.isReady else { return }
         
-        session.invalidate(errorMessage: Localization.nfcSessionTimeout)
+        stopSession(errorMessage: Localization.nfcSessionTimeout)
         readerSessionError.send(NFCReaderError(.readerSessionInvalidationErrorSessionTimeout))
     }
 }
