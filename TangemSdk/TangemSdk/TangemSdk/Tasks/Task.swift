@@ -57,8 +57,6 @@ open class Task<TEvent> {
     
     deinit {
         print("task deinit")
-        delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
-        cardReader?.stopSession()
     }
     
     public final func run(with environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {
