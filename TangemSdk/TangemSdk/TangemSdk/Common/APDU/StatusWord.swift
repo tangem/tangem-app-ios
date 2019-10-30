@@ -9,7 +9,7 @@
 import Foundation
 
 /// Card response status (combined sw1 and sw2)
-public enum Status: UInt16 {
+public enum StatusWord: UInt16 {
     case processCompleted, pinsNotChanged = 0x9000
     case invalidParams = 0x6A86
     case errorProcessingCommand = 0x6286
