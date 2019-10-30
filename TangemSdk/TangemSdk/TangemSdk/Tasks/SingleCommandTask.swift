@@ -25,7 +25,7 @@ public final class SingleCommandTask<T: CommandSerializer>: Task<T.CommandRespon
                 callback(.event(commandResponse))
                 callback(.completion(nil))
                 self.cardReader.stopSession()
-            case  .failure(let error):
+            case .failure(let error):
                 if case TaskError.readerError(_) = error {} else {
                     self.cardReader.stopSession(errorMessage: error.localizedDescription)
                 }
