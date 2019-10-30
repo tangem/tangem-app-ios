@@ -84,11 +84,14 @@ extension NFCReader: CardReader {
         readerSession?.invalidate()
     }
     
+    public func stopSession(errorMessage: String) {
+        readerSession?.invalidate(errorMessage: errorMessage)
+    }
+    
     /// Send apdu command to connected tag
     /// - Parameter command: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCReaderError otherwise
     public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, NFCReaderError>) -> Void) {
-        print("Create subscriptions")
         sessionSubscription = readerSessionError
             .compactMap { $0 }
             .sink(receiveValue: { [weak self] error in
@@ -151,7 +154,6 @@ extension NFCReader: CardReader {
     }
     
     private func cancelSubscriptions() {
-        print("Cancel subscriptions")
         sessionSubscription?.cancel()
         tagSubscription?.cancel()
     }
