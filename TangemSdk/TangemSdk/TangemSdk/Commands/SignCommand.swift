@@ -8,24 +8,11 @@
 
 import Foundation
 
-public struct SignResponse: TlvMappable {
+public struct SignResponse {
     public let cardId: String
     public let signature: Data
     public let walletRemainingSignatures: Int
     public let walletSignedHashes: Int
-    
-    public init(from tlv: [Tlv]) throws {
-        let mapper = TlvMapper(tlv: tlv)
-        do {
-            cardId = try mapper.map(.cardId)
-            signature = try mapper.map(.walletSignature)
-            walletRemainingSignatures = try mapper.map(.walletRemainingSignatures)
-            walletSignedHashes = try mapper.map(.walletSignedHashes)
-        }
-        catch {
-            throw error
-        }
-    }
 }
 
 @available(iOS 13.0, *)
@@ -73,5 +60,18 @@ public final class SignHashesCommand: CommandSerializer {
         
         let cApdu = CommandApdu(.sign, tlv: tlvData)
         return cApdu
+    }
+    
+    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> SignResponse {
+        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+            throw TaskError.serializeCommandError
+        }
+        
+        let mapper = TlvMapper(tlv: tlv)
+        return SignResponse(
+            cardId: try mapper.map(.cardId),
+            signature: try mapper.map(.walletSignature),
+            walletRemainingSignatures: try mapper.map(.walletRemainingSignatures),
+            walletSignedHashes: try mapper.map(.walletSignedHashes))
     }
 }

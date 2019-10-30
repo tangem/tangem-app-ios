@@ -73,7 +73,20 @@ public struct SettingsMask: OptionSet {
     static let checkPIN3OnCard = SettingsMask(rawValue: 0x04000000)
 }
 
-public struct Card: TlvMappable {
+public struct CardData {
+    public let batchId: String?
+    public let manufactureDateTime: String?
+    public let issuerName: String?
+    public let blockchainName: String?
+    public let manufacturerSignature: Data?
+    public let productMask: ProductMask?
+    
+    public let tokenSymbol: String?
+    public let tokenContractAddress: String?
+    public let tokenDecimal: Int?
+}
+
+public struct Card {
     public let cardId: String
     public let manufacturerName: String?
     public let status: CardStatus?
@@ -95,77 +108,19 @@ public struct Card: TlvMappable {
     public let paymentFlowVersion: Data?
     public let userCounter: UInt32?
     public let terminalIsLinked: Bool
-    //Card Data
-    
-    public let batchId: String?
-    public let manufactureDateTime: String?
-    public let issuerName: String?
-    public let blockchainName: String?
-    public let manufacturerSignature: Data?
-    public let productMask: ProductMask?
-    
-    public let tokenSymbol: String?
-    public let tokenContractAddress: String?
-    public let tokenDecimal: Int?
+    public let cardData: CardData?
     
     //Dynamic NDEF
-    
     public let remainingSignatures: Int?
     public var signedHashes: Int?
     public let challenge: Data?
     public let salt: Data?
     public let walletSignature: Data?
-    
-    public init(from tlv: [Tlv]) throws {
-        let mapper = TlvMapper(tlv: tlv)
-        do {
-            cardId = try mapper.map(.cardId)
-            manufacturerName = try mapper.mapOptional(.manufacturerName)
-            status = try mapper.mapOptional(.status)
-            
-            curve = try mapper.mapOptional(.curveId)
-            walletPublicKey = try mapper.mapOptional(.walletPublicKey)
-            firmwareVersion = try mapper.mapOptional(.firmwareVersion)
-            cardPublicKey = try mapper.mapOptional(.cardPublicKey)
-            settingsMask = try mapper.mapOptional(.settingsMask)
-            issuerPublicKey = try mapper.mapOptional(.issuerPublicKey)
-            maxSignatures = try mapper.mapOptional(.maxSignatures)
-            signingMethod = try mapper.mapOptional(.signingMethod)
-            pauseBeforePin2 = try mapper.mapOptional(.pauseBeforePin2)
-            walletRemainingSignatures = try mapper.mapOptional(.walletRemainingSignatures)
-            walletSignedHashes = try mapper.mapOptional(.walletSignedHashes)
-            health = try mapper.mapOptional(.health)
-            isActivated = try mapper.map(.isActivated)
-            activationSeed = try mapper.mapOptional(.activationSeed)
-            paymentFlowVersion = try mapper.mapOptional(.paymentFlowVersion)
-            userCounter = try mapper.mapOptional(.userCounter)
-            batchId = try mapper.mapOptional(.batchId)
-            manufactureDateTime = try mapper.mapOptional(.manufactureDateTime)
-            issuerName = try mapper.mapOptional(.issuerName)
-            blockchainName = try mapper.mapOptional(.blockchainName)
-            manufacturerSignature = try mapper.mapOptional(.manufacturerSignature)
-            productMask = try mapper.mapOptional(.productMask)
-            terminalIsLinked = try mapper.map(.isLinked)
-            
-            tokenSymbol = try mapper.mapOptional(.tokenSymbol)
-            tokenContractAddress = try mapper.mapOptional(.tokenContractAddress)
-            tokenDecimal = try mapper.mapOptional(.tokenDecimal)
-            
-            remainingSignatures = try mapper.mapOptional(.walletRemainingSignatures)
-            signedHashes = try mapper.mapOptional(.walletSignedHashes)
-            challenge = try mapper.mapOptional(.challenge)
-            salt = try mapper.mapOptional(.salt)
-            walletSignature = try mapper.mapOptional(.walletSignature)            
-        } catch {
-            throw error
-        }
-    }
 }
 
-@available(iOS 13.0, *)
 public final class ReadCommand: CommandSerializer {
     public typealias CommandResponse = ReadResponse
-
+    
     public init() {}
     
     public func serialize(with environment: CardEnvironment) -> CommandApdu {
@@ -177,14 +132,63 @@ public final class ReadCommand: CommandSerializer {
         let cApdu = CommandApdu(.read, tlv: tlvData)
         return cApdu
     }
-}
-
-public final class ReadCommandNdef: CommandSerializer {
-    public typealias CommandResponse = ReadResponse
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
-        let cApdu = CommandApdu(.read, tlv: [])
-        return cApdu
+    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> ReadResponse {
+        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+            throw TaskError.serializeCommandError
+        }
+        
+        let mapper = TlvMapper(tlv: tlv)
+        
+        let card = Card(
+            cardId: try mapper.map(.cardId),
+            manufacturerName: try mapper.mapOptional(.manufacturerName),
+            status: try mapper.mapOptional(.status),
+            firmwareVersion: try mapper.mapOptional(.firmwareVersion),
+            cardPublicKey: try mapper.mapOptional(.cardPublicKey),
+            settingsMask: try mapper.mapOptional(.settingsMask),
+            issuerPublicKey: try mapper.mapOptional(.issuerPublicKey),
+            curve: try mapper.mapOptional(.curveId),
+            maxSignatures: try mapper.mapOptional(.maxSignatures),
+            signingMethod: try mapper.mapOptional(.signingMethod),
+            pauseBeforePin2: try mapper.mapOptional(.pauseBeforePin2),
+            walletPublicKey: try mapper.mapOptional(.walletPublicKey),
+            walletRemainingSignatures: try mapper.mapOptional(.walletRemainingSignatures),
+            walletSignedHashes: try mapper.mapOptional(.walletSignedHashes),
+            health: try mapper.mapOptional(.health),
+            isActivated: try mapper.map(.isActivated),
+            activationSeed: try mapper.mapOptional(.activationSeed),
+            paymentFlowVersion: try mapper.mapOptional(.paymentFlowVersion),
+            userCounter: try mapper.mapOptional(.userCounter),
+            terminalIsLinked: try mapper.map(.isLinked),
+            cardData: try deserializeCardData(tlv: tlv),
+            remainingSignatures: try mapper.mapOptional(.walletRemainingSignatures),
+            signedHashes: try mapper.mapOptional(.walletSignedHashes),
+            challenge: try mapper.mapOptional(.challenge),
+            salt: try mapper.mapOptional(.salt),
+            walletSignature: try mapper.mapOptional(.walletSignature))
+        
+        return card
     }
     
+    private func deserializeCardData(tlv: [Tlv]) throws -> CardData? {
+        guard let cardDataValue = tlv.value(for: .cardData),
+            let cardDataTlv = Array<Tlv>.init(cardDataValue) else {
+                return nil
+        }
+        
+        let mapper = TlvMapper(tlv: cardDataTlv)
+        let cardData = CardData(
+            batchId: try mapper.mapOptional(.batchId),
+            manufactureDateTime: try mapper.mapOptional(.manufactureDateTime),
+            issuerName: try mapper.mapOptional(.issuerName),
+            blockchainName: try mapper.mapOptional(.blockchainName),
+            manufacturerSignature: try mapper.mapOptional(.manufacturerSignature),
+            productMask: try mapper.mapOptional(.productMask),
+            tokenSymbol: try mapper.mapOptional(.tokenSymbol),
+            tokenContractAddress: try mapper.mapOptional(.tokenContractAddress),
+            tokenDecimal: try mapper.mapOptional(.tokenDecimal))
+        
+        return cardData
+    }
 }
