@@ -133,7 +133,9 @@ class ExtractViewController: ModalActionViewController {
                                                 self?.handleTXNotSignedByIssuer()
                                             case .nfcError(let nfcError):
                                                 self?.handleGenericError(nfcError)
-                                            }                                            
+                                            default:
+                                                self?.handleGenericError(signError)
+                                            }
                                         }
         }
         
