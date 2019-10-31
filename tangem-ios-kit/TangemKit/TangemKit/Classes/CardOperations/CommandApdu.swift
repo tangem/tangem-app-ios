@@ -7,6 +7,7 @@
 
 public struct CommandApdu {
     private let isoCLA: UInt8 = 0x00
+    private let legacyModeTlv = CardTLV(.legacyMode, value: [UInt8(2)])
     
     //MARK: Header
     private let cla: UInt8
@@ -19,12 +20,13 @@ public struct CommandApdu {
     private let data: [UInt8]
     private let le: UInt8 = 0x00
     
+    
     public init(with instruction: Instruction, tlv: [CardTLV]) {
         cla = isoCLA
         ins = instruction.rawValue
         p1 = 0
         p2 = 0
-        data = tlv.bytes
+        data = (Utils.needLegacyMode ? tlv + [legacyModeTlv] : tlv).bytes
         lc = data.count
     }
     
@@ -48,14 +50,16 @@ public struct CommandApdu {
         apdu.append(p2)
         
         if lc != 0 {
-           if lc < 256 {
-            apdu.append(lc.byte)
+            if lc < 256 {
+                apdu.append(lc.byte)
             } else {
                 apdu.append(0)
-               apdu.append(contentsOf: lc.tlvBytes)
+                apdu.append(contentsOf: lc.tlvBytes)
             }
             apdu.append(contentsOf: data)
         }
         return apdu
     }
+    
+
 }
