@@ -7,8 +7,12 @@
 //
 
 import Foundation
+#if canImport(Combine)
 import Combine
+#endif
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 
 @available(iOS 13.0, *)
 enum NFCTagWrapper {
@@ -81,11 +85,17 @@ extension NFCReader: CardReader {
     }
     
     public func stopSession() {
+        readerSessionError.send(nil)
+        connectedTag.send(nil)
         readerSession?.invalidate()
+        readerSession = nil
     }
     
     public func stopSession(errorMessage: String) {
+        readerSessionError.send(nil)
+        connectedTag.send(nil)
         readerSession?.invalidate(errorMessage: errorMessage)
+        readerSession = nil
     }
     
     /// Send apdu command to connected tag
@@ -98,7 +108,7 @@ extension NFCReader: CardReader {
                 completion(.failure(error))
                 self?.cancelSubscriptions()
             })
-        
+
         tagSubscription = connectedTag
             .compactMap({ $0 })
             .sink(receiveValue: { [weak self] tagWrapper in
