@@ -63,7 +63,7 @@ public class CardSession: NSObject {
         let commandApdu = CommandApdu(with: .checkWallet, tlv: tlvData)
         let signApduBytes = commandApdu.buildCommand()
         let apdu = NFCISO7816APDU(data: Data(bytes: signApduBytes))!
-        return apdu
+        return apduz
     }
     
     private func verifyWallet(readResult: [CardTag : CardTLV],
