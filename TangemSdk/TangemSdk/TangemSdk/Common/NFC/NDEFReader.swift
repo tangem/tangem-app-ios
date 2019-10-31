@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 
 public final class NDEFReader: NSObject {
     static let tangemWalletRecordType = "tangem.com:wallet"
