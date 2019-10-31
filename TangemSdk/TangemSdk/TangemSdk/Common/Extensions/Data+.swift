@@ -120,7 +120,7 @@ extension Data {
         return Array(self)
     }
     
-    private func sha256Old() -> Data {
+    func sha256Old() -> Data {
         guard let res = NSMutableData(length: Int(CC_SHA256_DIGEST_LENGTH)) else {
             return Data()
         }
@@ -128,7 +128,7 @@ extension Data {
         return res as Data
     }
     
-    private func sha512Old() -> Data {
+    func sha512Old() -> Data {
         guard let res = NSMutableData(length: Int(CC_SHA512_DIGEST_LENGTH)) else {
             return Data()
         }
