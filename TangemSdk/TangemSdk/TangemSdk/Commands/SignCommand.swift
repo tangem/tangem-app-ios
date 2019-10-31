@@ -53,7 +53,7 @@ public final class SignHashesCommand: CommandSerializer {
                        Tlv(.transactionOutHash, value: dataToSign)]
         
         if let keys = environment.terminalKeys,
-            let signedData = CryptoUtils.sign(dataToSign.sha256(), with: keys.privateKey) {
+            let signedData = CryptoUtils.signSecp256k1(dataToSign, with: keys.privateKey) {
             tlvData.append(Tlv(.terminalTransactionSignature, value: signedData))
             tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
         }
