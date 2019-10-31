@@ -8,7 +8,7 @@
 
 "nfc_session_timeout" = "Session timeout";
 
-"nfc_alert_default" = "Hold your iPhone near a Tangem card";
+"nfc_alert_default" = "Hold your iPhone near a card";
 
 "nfc_alert_sign_completed" = "Transaction has been successfully signed";
 
