@@ -49,14 +49,13 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         self.hintLabel.text = Localizations.readerHintDefault
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
+    override func viewDidLoad() {
+        super.viewDidLoad()
         _ = {
             self.showFeatureRestrictionAlertIfNeeded()
         }()
     }
-    
+
     // MARK: Actions
     
     @IBAction func infoButtonPressed(_ sender: Any) {
