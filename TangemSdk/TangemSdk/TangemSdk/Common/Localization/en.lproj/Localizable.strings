@@ -1,0 +1,20 @@
+/* 
+  Localizable.strings
+  TangemSdk
+
+  Created by Alexander Osokin on 02/10/2019.
+  Copyright © 2019 Tangem AG. All rights reserved.
+*/
+"nfc_session_timeout" = "Session timeout. Please, try again";
+
+"nfc_alert_default" = "Hold your iPhone near a card";
+
+"nfc_alert_sign_completed" = "Transaction has been successfully signed";
+
+"dialog_security_delay" = "Security delay";
+
+"nfc_seconds_left" = "%@ left";
+
+"nfc_unknown_card_state" = "Unknown card state";
+
+"nfc_alert_default_done" = "Done";
