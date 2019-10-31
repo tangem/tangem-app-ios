@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5D2739DB234F22A800ACDA11 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 5D2739DA234F22A800ACDA11 /* secp256k1 */; settings = {ATTRIBUTES = (Required, ); }; };
+		5D2739DB234F22A800ACDA11 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 5D2739DA234F22A800ACDA11 /* secp256k1 */; settings = {ATTRIBUTES = (Required, ); }; };
 		5D2739F7234F270200ACDA11 /* precomp_data.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739DE234F270200ACDA11 /* precomp_data.h */; };
 		5D2739F8234F270200ACDA11 /* ed25519.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739E0234F270200ACDA11 /* ed25519.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5D2739F9234F270200ACDA11 /* seed.c in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739E1234F270200ACDA11 /* seed.c */; };
