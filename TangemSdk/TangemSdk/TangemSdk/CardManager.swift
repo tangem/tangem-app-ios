@@ -12,10 +12,7 @@ import CoreNFC
 public final class CardManager {
     public static var isNFCAvailable: Bool {
         #if canImport(CoreNFC)
-        if NSClassFromString("NFCNDEFReaderSession") == nil {
-            return false
-        }
-        
+        if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
         return NFCNDEFReaderSession.readingAvailable
         #else
         return false
@@ -58,6 +55,11 @@ public final class CardManager {
     }
     
     public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
+        guard CardManager.isNFCAvailable else {
+            callback(.completion(TaskError.unsupported))
+            return
+        }
+        
         guard !isBusy else {
             callback(.completion(TaskError.busy))
             return
