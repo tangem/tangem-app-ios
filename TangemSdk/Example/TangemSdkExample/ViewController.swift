@@ -8,7 +8,6 @@
 
 import UIKit
 import TangemSdk
-import CoreNFC
 
 class ViewController: UIViewController {
     
@@ -41,28 +40,33 @@ class ViewController: UIViewController {
     }
     
     @IBAction func signHashesTapped(_ sender: Any) {
-        let hash1 = Data(repeating: 1, count: 32) //dummy hashes
-        let hash2 = Data(repeating: 2, count: 32)
-        let hashes = [hash1, hash2]
-        guard let cardId = card?.cardId else {
-            print("Please, scan card before")
-            return
-        }
-        
-        cardManager.sign(hashes: hashes, cardId: cardId) { taskEvent  in
-            switch taskEvent {
-            case .event(let signResponse):
-                print(signResponse)
-            case .completion(let error):
-                if let error = error {
-                    if case .userCancelled = error {
-                        //silence user cancelled
-                    } else {
-                        print("completed with error: \(error.localizedDescription)")
-                    }
-                }
-                //handle completion. Unlock UI, etc.
+        if #available(iOS 13.0, *) {
+            let hash1 = Data(repeating: 1, count: 32) //dummy hashes
+            let hash2 = Data(repeating: 2, count: 32)
+            let hashes = [hash1, hash2]
+            guard let cardId = card?.cardId else {
+                print("Please, scan card before")
+                return
             }
+            
+            cardManager.sign(hashes: hashes, cardId: cardId) { taskEvent  in
+                switch taskEvent {
+                case .event(let signResponse):
+                    print(signResponse)
+                case .completion(let error):
+                    if let error = error {
+                        if case .userCancelled = error {
+                            //silence user cancelled
+                        } else {
+                            print("completed with error: \(error.localizedDescription)")
+                        }
+                    }
+                    //handle completion. Unlock UI, etc.
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            print("Only iOS 13+")
         }
     }
 }
