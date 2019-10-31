@@ -61,10 +61,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-         self.isBalanceLoading = true
+        self.isBalanceLoading = true
         self.viewModel.setWalletInfoLoading(true)
-    fetchWalletBalance(card: card)
-       
+        fetchWalletBalance(card: card)
+        
     }
     
     func setupWithCardDetails(card: Card) {
@@ -196,8 +196,15 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             balanceTitle = card.walletValue + " " + card.walletUnits
             balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
         } else if let xlmEngine = card.cardEngine as? XlmEngine, let walletReserve = xlmEngine.walletReserve {
-            balanceTitle = card.walletValue + " " + card.walletUnits
-            balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
+            
+            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = xlmEngine.assetCode, let assetBalance = xlmEngine.assetBalance,
+            assetBalance > 0 {
+                 balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
+                 balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee + " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
+            } else {
+                balanceTitle = card.walletValue + " " + card.walletUnits
+                balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
+            }
         }
         else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
@@ -358,7 +365,9 @@ extension CardDetailsViewController : TangemSessionDelegate {
         case .pending:
             self.isBalanceLoading = true
             self.viewModel.setWalletInfoLoading(true)
-            self.viewModel.doubleScanHintLabel.isHidden = false
+            if #available(iOS 13.0, *) {} else {
+                viewModel.doubleScanHintLabel.isHidden = false
+            }
         case .nonGenuine:
             self.handleNonGenuineTangemCard(card)
         default:
@@ -378,7 +387,7 @@ extension CardDetailsViewController : TangemSessionDelegate {
                 self.navigationController?.popViewController(animated: true)
             }
         case .userCancelled:
-                      break
+            break
         }
     }
     
@@ -456,9 +465,13 @@ extension CardDetailsViewController {
                 
                 if card.hasPendingTransactions  {
                     self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
-            
+                    
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
-                        self?.updateBalance()
+                        guard let self = self, !self.isBalanceVerified else {
+                            return
+                        }
+                        
+                        self.updateBalance()
                     }
                 }
             }
