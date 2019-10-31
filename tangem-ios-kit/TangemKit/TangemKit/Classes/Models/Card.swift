@@ -377,6 +377,10 @@ public class Card {
             return "card_ff32"
         case 0x0034:
             return "card-start2coin"
+        case 0x0036:
+            return "card-xlm"
+        case 0x0037:
+            return "card-nodl"
         default:
             return "card-default"
         }
