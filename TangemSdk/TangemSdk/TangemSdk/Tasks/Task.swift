@@ -42,6 +42,7 @@ public enum TaskError: Error, LocalizedError {
     case busy
     case userCancelled
     case genericError(Error)
+    case unsupported
     //NFC error
     case readerError(NFCReaderError)
     
