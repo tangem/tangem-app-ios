@@ -7,7 +7,13 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
+
+public protocol AnyTask {
+    
+}
 
 public enum TaskEvent<TEvent> {
     case event(TEvent)
@@ -51,7 +57,7 @@ public enum TaskError: Error, LocalizedError {
     }
 }
 
-open class Task<TEvent> {
+open class Task<TEvent>: AnyTask {
     var cardReader: CardReader!
     weak var delegate: CardManagerDelegate?
     
@@ -76,7 +82,7 @@ open class Task<TEvent> {
     }
     
     func sendRequest<T: CommandSerializer>(_ commandSerializer: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
-        cardReader.send(commandApdu: apdu) { commandResponse in
+        cardReader.send(commandApdu: apdu) { [weak self] commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
                 guard let status = responseApdu.status else {
@@ -87,12 +93,12 @@ open class Task<TEvent> {
                 switch status {
                 case .needPause:
                     if let securityDelayResponse = commandSerializer.deserializeSecurityDelay(with: environment, from: responseApdu) {
-                        self.delegate?.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
+                        self?.delegate?.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
                         if securityDelayResponse.saveToFlash {
-                             self.cardReader.restartPolling()
+                             self?.cardReader.restartPolling()
                         }
                     }
-                    self.sendRequest(commandSerializer, apdu: apdu, environment: environment, callback: callback)
+                    self?.sendRequest(commandSerializer, apdu: apdu, environment: environment, callback: callback)
                 case .needEcryption:
                     //[REDACTED_TODO_COMMENT]
                     
