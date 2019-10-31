@@ -64,11 +64,13 @@ public final class CardManager {
             callback(.completion(TaskError.busy))
             return
         }
+        
         currentTask = task
-        let environment = fetchCardEnvironment(for: cardId)
         isBusy = true
         task.cardReader = cardReader
         task.delegate = cardManagerDelegate
+        let environment = fetchCardEnvironment(for: cardId)
+        
         task.run(with: environment) {[weak self] taskResult in
             switch taskResult {
             case .event(let event):
