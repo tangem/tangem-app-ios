@@ -7,8 +7,11 @@
 //
 
 import Foundation
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
 import CommonCrypto
+
 
 extension Data {
     public func toHexString() -> String {

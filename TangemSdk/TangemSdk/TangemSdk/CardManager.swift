@@ -29,6 +29,7 @@ public final class CardManager {
     private let cardReader: CardReader
     private let cardManagerDelegate: CardManagerDelegate
     private var cardEnvironmentRepository: [String:CardEnvironment] = [:]
+    private var currentTask: AnyTask?
     
     public init(cardReader: CardReader, cardManagerDelegate: CardManagerDelegate) {
         self.cardReader = cardReader
@@ -63,20 +64,23 @@ public final class CardManager {
             callback(.completion(TaskError.busy))
             return
         }
-        
+        currentTask = task
         let environment = fetchCardEnvironment(for: cardId)
         isBusy = true
         task.cardReader = cardReader
         task.delegate = cardManagerDelegate
-        task.run(with: environment) {taskResult in
-            DispatchQueue.main.async {
-                switch taskResult {
-                case .event(let event):
+        task.run(with: environment) {[weak self] taskResult in
+            switch taskResult {
+            case .event(let event):
+                DispatchQueue.main.async {
                     callback(.event(event))
-                case .completion(let error):
-                    callback(.completion(error))
-                    self.isBusy = false
                 }
+            case .completion(let error):
+                DispatchQueue.main.async {
+                    callback(.completion(error))
+                }
+                self?.isBusy = false
+                self?.currentTask = nil
             }
         }
     }
