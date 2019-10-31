@@ -74,4 +74,5 @@ public enum CardTag: UInt8 {
     case isLinked = 0x58
     case terminalPublicKey = 0x5C
     case terminalTransactionSignature = 0x57
+    case legacyMode = 0x29
 }

@@ -106,7 +106,7 @@ open class CardanoEngine: CardEngine {
         return CardanoPendingTransactionsStorage.shared.hasPendingTransactions(card)
     }
     
-    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> Data? {
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
         guard let unspentOutputs = unspentOutputs else {
             assertionFailure()
             return nil
@@ -125,7 +125,7 @@ open class CardanoEngine: CardEngine {
         
         self.transaction = transaction
         
-        return Data(bytes: transactionHash)
+        return [Data(bytes: transactionHash)]
     }
     
     open func builTxForSign(unspentOutputs: [CardanoUnspentOutput], targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool) -> CardanoTransaction {
