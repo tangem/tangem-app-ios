@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 
 public struct CommandApdu {
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
