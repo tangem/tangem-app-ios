@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(CoreNFC)
 import CoreNFC
-#endif
 
 public protocol AnyTask {
     
