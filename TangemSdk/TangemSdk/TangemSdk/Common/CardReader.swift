@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(CoreNFC)
 import CoreNFC
-#endif
 
 public protocol CardReader: class {
     /// For setting alertMessage into NFC popup
