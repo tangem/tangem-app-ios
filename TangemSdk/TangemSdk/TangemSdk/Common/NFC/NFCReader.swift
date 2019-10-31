@@ -7,12 +7,8 @@
 //
 
 import Foundation
-#if canImport(Combine)
 import Combine
-#endif
-#if canImport(CoreNFC)
 import CoreNFC
-#endif
 
 @available(iOS 13.0, *)
 enum NFCTagWrapper {
