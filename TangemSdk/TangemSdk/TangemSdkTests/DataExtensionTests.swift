@@ -55,6 +55,14 @@ class DataExtensionTests: XCTestCase {
         let testData = Data(hex: "07E2071B")
         let testDate = "Jul 27, 2018"
         XCTAssert(testDate == testData.toDateString())
+        
+        let testData1 = Data(hex: "07E2071B1E")
+        let testDate1 = "Jul 27, 2018"
+        XCTAssert(testDate1 == testData1.toDateString())
+        
+        let testData2 = Data(hex: "07E207")
+        let testDate2 = ""
+        XCTAssert(testDate2 == testData2.toDateString())
     }
     
     func testFromHexConversion() {
@@ -66,5 +74,20 @@ class DataExtensionTests: XCTestCase {
         let testData = Data([UInt8(0x07),UInt8(0xE2),UInt8(0x07),UInt8(0x1B)])
         let hex = testData.toHexString()
         XCTAssert(hex == "07E2071B")
+    }
+    
+    func testToUtf8Conversion() {
+        let testData = Data(hex: "736563703235366B3100")
+        let testString = "secp256k1"
+        let converted = testData.toUtf8String()
+        XCTAssertNotNil(converted)
+        XCTAssert(converted! == testString)
+    }
+    
+    func testToIntConversion() {
+        let testData = Data(hex: "00026A03")
+        let intData = 158211
+        let converted = testData.toInt()
+        XCTAssert(converted == intData)
     }
 }
