@@ -6,6 +6,7 @@
 //  Copyright © 2019 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import XCTest
 @testable import TangemSdk
 
@@ -19,11 +20,13 @@ class ByteUtilsTests: XCTestCase {
     func testInputStream() {
         let data = Data(hex: "00010203040506")
         let inputStream = InputStream(data: data)
-        let bytes = inputStream.readBytes(count: 2)
+        inputStream.open()
+        let bytes = inputStream.readBytes(count: 4)
         XCTAssertNotNil(bytes)
-        XCTAssert(bytes! == Data(hex: "00010203"))
+        XCTAssertEqual(bytes!, Data(hex: "00010203"))
         let oneMoreByte = inputStream.readByte()
         XCTAssertNotNil(oneMoreByte)
-        XCTAssert(bytes! == Data(hex: "04"))
+        XCTAssertEqual(oneMoreByte!, UInt8(0x04))
+        inputStream.close()
     }
 }
