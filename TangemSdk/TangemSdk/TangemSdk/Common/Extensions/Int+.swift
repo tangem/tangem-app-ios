@@ -11,7 +11,7 @@ import Foundation
 extension Int {
     /// Convert hex data  to Integer
     /// - Parameter hexData: length bytes
-    init?(hexData: Data) {
+    init(hexData: Data) {
         let value = hexData.reduce(0) { v, byte in
             return v << 8 | Int(byte)
         }
