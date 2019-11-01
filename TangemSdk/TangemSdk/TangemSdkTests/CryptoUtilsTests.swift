@@ -22,7 +22,7 @@ class CryptoUtilsTests: XCTestCase {
     func testGeneratePrivateKey() {
         let privateKey = CryptoUtils.generateRandomBytes(count: 32)
         XCTAssertNotNil(privateKey)
-        XCTAssert(privateKey!.count == 32)
+        XCTAssertEqual(privateKey!.count, 32)
     }
     
     func testSecp256k1Sign() {
@@ -35,7 +35,7 @@ class CryptoUtilsTests: XCTestCase {
         
         let verify = CryptoUtils.vefify(curve: .secp256k1, publicKey: publicKey, message: dummyData, signature: signature!)
         XCTAssertNotNil(verify)
-        XCTAssert(verify! == true)
+        XCTAssertEqual(verify!, true)
     }
     
     func testEd25519Verify() {
@@ -45,6 +45,6 @@ class CryptoUtilsTests: XCTestCase {
         
         let verify = CryptoUtils.vefify(curve: .ed25519, publicKey: publicKey, message: message, signature: signature)
         XCTAssertNotNil(verify)
-        XCTAssert(verify! == true)
+        XCTAssertEqual(verify!, true)
     }
 }
