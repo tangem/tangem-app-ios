@@ -54,6 +54,7 @@
 		5DA5B618233E124A0058C720 /* StatusWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B617233E124A0058C720 /* StatusWord.swift */; };
 		5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B619233E12780058C720 /* TlvTag.swift */; };
 		5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B61B233E12B30058C720 /* Tlv.swift */; };
+		5DA7942A236C64D100B33DB5 /* IntUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA79429236C64D100B33DB5 /* IntUtilsTests.swift */; };
 		5DA80CA4231D247A00A50A10 /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA80C9A231D247A00A50A10 /* TangemSdk.framework */; };
 		5DA80CA9231D247A00A50A10 /* CryptoUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA80CA8231D247A00A50A10 /* CryptoUtilsTests.swift */; };
 		5DA80CAB231D247A00A50A10 /* TangemSdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 5DA80C9D231D247A00A50A10 /* TangemSdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -125,6 +126,7 @@
 		5DA5B617233E124A0058C720 /* StatusWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusWord.swift; sourceTree = "<group>"; };
 		5DA5B619233E12780058C720 /* TlvTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvTag.swift; sourceTree = "<group>"; };
 		5DA5B61B233E12B30058C720 /* Tlv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tlv.swift; sourceTree = "<group>"; };
+		5DA79429236C64D100B33DB5 /* IntUtilsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntUtilsTests.swift; sourceTree = "<group>"; };
 		5DA80C9A231D247A00A50A10 /* TangemSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DA80C9D231D247A00A50A10 /* TangemSdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemSdk.h; sourceTree = "<group>"; };
 		5DA80CA3231D247A00A50A10 /* TangemSdkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemSdkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -308,6 +310,7 @@
 				5DAD449D236B2435006C38F8 /* DataExtensionTests.swift */,
 				5D713B2C236C3F6400E4F6FC /* StringUtilsTest.swift */,
 				5D713B2E236C53E300E4F6FC /* ByteUtilsTest.swift */,
+				5DA79429236C64D100B33DB5 /* IntUtilsTests.swift */,
 			);
 			path = TangemSdkTests;
 			sourceTree = "<group>";
@@ -530,6 +533,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DA7942A236C64D100B33DB5 /* IntUtilsTests.swift in Sources */,
 				5DA80CA9231D247A00A50A10 /* CryptoUtilsTests.swift in Sources */,
 				5D713B2D236C3F6400E4F6FC /* StringUtilsTest.swift in Sources */,
 				5DAD449E236B2435006C38F8 /* DataExtensionTests.swift in Sources */,
