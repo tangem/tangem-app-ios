@@ -23,30 +23,23 @@ extension Int {
         return Data([Byte(truncatingIfNeeded: self)])
     }
     
-    /// return 2 bytes of integer. little Endian format
+    /// return 2 bytes of integer. BigEndian format
     var bytes2: Data {
-        let clamped = UInt16(clamping: self)
-        let data = withUnsafeBytes(of: clamped) { Data($0) }
-        return data
-    }
-    
-    /// return 2 bytes of integer in bigEndian format. Used for TLV serialization
-    var bytes2bigEndian: Data {
         let clamped = UInt16(clamping: self).bigEndian
         let data = withUnsafeBytes(of: clamped) { Data($0) }
         return data
     }
     
-    /// return 4 bytes of integer. little Endian format
+    /// return 4 bytes of integer. BigEndian format
     var bytes4: Data {
-        let clamped = UInt32(clamping: self)
+        let clamped = UInt32(clamping: self).bigEndian
         let data = withUnsafeBytes(of: clamped) { Data($0) }
         return data
     }
     
-    /// return 8 bytes of integer. little Endian format
+    /// return 8 bytes of integer. BigEndian  format
     var bytes8: Data {
-        let data = withUnsafeBytes(of: self) { Data($0) }
+        let data = withUnsafeBytes(of: self.bigEndian) { Data($0) }
         return data
     }
 }
