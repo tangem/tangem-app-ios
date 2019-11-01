@@ -10,19 +10,19 @@ import XCTest
 @testable import TangemSdk
 
 class CryptoUtilsTests: XCTestCase {
-
+    
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
-
+    
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
-
+    
     func testGeneratePrivateKey() {
-           let privateKey = CryptoUtils.generateRandomBytes(count: 32)
-           XCTAssertNotNil(privateKey)
-           XCTAssert(privateKey!.count == 32)
+        let privateKey = CryptoUtils.generateRandomBytes(count: 32)
+        XCTAssertNotNil(privateKey)
+        XCTAssert(privateKey!.count == 32)
     }
     
     func testSecp256k1Sign() {
@@ -37,11 +37,14 @@ class CryptoUtilsTests: XCTestCase {
         XCTAssertNotNil(verify)
         XCTAssert(verify! == true)
     }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    
+    func testEd25519Verify() {
+        let publicKey = Data(hex:"1C985027CBDD3326E58BF01311828588616855CBDFA15E46A20325AAE8BABE9A")
+        let message = Data(hex:"0DA5A5EDA1F8B4F52DA5F92C2DC40346AAFE8C180DA3AD811F6F5AE7CCFB387D")
+        let signature = Data(hex: "47F4C419E28013589433DBD771D618D990F4564BDAF6135039A8DF6A0803A3E3D84C3702514512C22E928C875495CA0EAC186AF0B23663924179D41830D6BF09")
+        
+        let verify = CryptoUtils.vefify(curve: .ed25519, publicKey: publicKey, message: message, signature: signature)
+        XCTAssertNotNil(verify)
+        XCTAssert(verify! == true)
     }
 }
