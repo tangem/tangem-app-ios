@@ -79,11 +79,7 @@ public final class TlvMapper {
                 throw TlvMapperError.wrongType
             }
             
-            guard let intValue = tagValue.toInt() else {
-                print("Mapping error. Failed convert \(tag) to Int")
-                throw TlvMapperError.convertError
-            }
-            
+            let intValue = tagValue.toInt()
             return intValue as! T
         case .data:
             guard Data.self == T.self else {
@@ -140,11 +136,7 @@ public final class TlvMapper {
                 throw TlvMapperError.wrongType
             }
             
-            guard let intValue = tagValue.toInt() else {
-                print("Mapping error. Failed convert \(tag) to Int")
-                throw TlvMapperError.convertError
-            }
-            
+            let intValue = tagValue.toInt()
             let settingsMask = SettingsMask(rawValue: intValue)
             return settingsMask as! T
         case .cardStatus:
@@ -152,9 +144,8 @@ public final class TlvMapper {
                 print("Mapping error. Type for tag: \(tag) must be CardStatus")
                 throw TlvMapperError.wrongType
             }
-            
-            guard let intValue = tagValue.toInt(),
-                let cardStatus = CardStatus(rawValue: intValue) else {
+            let intValue = tagValue.toInt()
+            guard let cardStatus = CardStatus(rawValue: intValue) else {
                     print("Mapping error. Failed convert \(tag) to int and CardStatus")
                     throw TlvMapperError.convertError
             }
@@ -166,11 +157,7 @@ public final class TlvMapper {
                 throw TlvMapperError.wrongType
             }
             
-            guard let intValue = tagValue.toInt() else {
-                print("Mapping error. Failed convert \(tag) to Int")
-                throw TlvMapperError.convertError
-            }
-            
+            let intValue = tagValue.toInt()
             let signingMethod = SigningMethod(rawValue: intValue)
             return signingMethod as! T
         }
