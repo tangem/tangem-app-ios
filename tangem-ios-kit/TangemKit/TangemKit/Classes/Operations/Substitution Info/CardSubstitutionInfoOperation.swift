@@ -50,8 +50,11 @@ public class CardSubstitutionInfoOperation: GBAsyncOperation {
         }
         
         card.substituteDataFrom(result)
-        
-        if let cardImage = card.image, let appArtworkHash = sha256(cardImage), appArtworkHash == result.artwork?.hash {
+       
+        if let hashesPath = Bundle(for: Card.self).path(forResource: "hashes", ofType: "plist"),
+            let hashes = NSDictionary(contentsOfFile: hashesPath) as? [String : String],
+            let appArtworkHash = hashes[card.imageName],
+            appArtworkHash == result.artwork?.hash {
             completeOperation()
         } else {
             guard let artworkId = result.artwork?.artworkId else {
@@ -60,7 +63,6 @@ public class CardSubstitutionInfoOperation: GBAsyncOperation {
             }
             fetchArtwork(artworkId: artworkId)
         }
-
     }
     
     func fetchArtwork(artworkId: String) {
