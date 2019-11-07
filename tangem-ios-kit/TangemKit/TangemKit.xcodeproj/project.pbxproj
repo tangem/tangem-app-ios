@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -185,6 +185,7 @@
 		5D56590222FDB27200DE016B /* ETHTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D56590122FDB27200DE016B /* ETHTest.swift */; };
 		5D56590422FDB28300DE016B /* BTCTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D56590322FDB28300DE016B /* BTCTest.swift */; };
 		5D5C028F22EAD7E50036A601 /* TangemAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6921DE9BC00002E967 /* TangemAPIClient.swift */; };
+		5D765E63237445CD009BB2A2 /* hashes.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D765E62237445CD009BB2A2 /* hashes.plist */; };
 		5D78745722F065AE00AE196A /* CardEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80EABF00222DC8A800E1302A /* CardEngine.swift */; };
 		5D84A80622E0B7790049B9D1 /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84A80522E0B7790049B9D1 /* Array+.swift */; };
 		5D84A80722E0B7790049B9D1 /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84A80522E0B7790049B9D1 /* Array+.swift */; };
@@ -325,6 +326,7 @@
 		5D5658D022FD689900DE016B /* UnspentTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnspentTransaction.swift; sourceTree = "<group>"; };
 		5D56590122FDB27200DE016B /* ETHTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETHTest.swift; sourceTree = "<group>"; };
 		5D56590322FDB28300DE016B /* BTCTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTCTest.swift; sourceTree = "<group>"; };
+		5D765E62237445CD009BB2A2 /* hashes.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = hashes.plist; sourceTree = "<group>"; };
 		5D84A80522E0B7790049B9D1 /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		5D9C62EA22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkPendingTxCount.swift; sourceTree = "<group>"; };
 		5DC25BEC2302FB310047871B /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
@@ -666,6 +668,7 @@
 		806C4F2721DE9B870002E967 /* TangemKit */ = {
 			isa = PBXGroup;
 			children = (
+				5D765E62237445CD009BB2A2 /* hashes.plist */,
 				806C4F3F21DE9BC00002E967 /* Assets */,
 				806C4F4221DE9BC00002E967 /* Classes */,
 				806C4F2821DE9B870002E967 /* TangemKit.h */,
@@ -955,6 +958,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 806C4F3921DE9B870002E967 /* Build configuration list for PBXNativeTarget "TangemKit" */;
 			buildPhases = (
+				5D765E6423744CFF009BB2A2 /* ShellScript */,
 				888A89EE107D0F72D00A8387 /* [CP] Check Pods Manifest.lock */,
 				806C4F2021DE9B870002E967 /* Headers */,
 				806C4F2121DE9B870002E967 /* Sources */,
@@ -1050,6 +1054,7 @@
 				806C4FE621DE9FC90002E967 /* README.md in Resources */,
 				806C4FE721DE9FC90002E967 /* TangemKit.podspec in Resources */,
 				806C4FE521DE9FC90002E967 /* LICENSE in Resources */,
+				5D765E63237445CD009BB2A2 /* hashes.plist in Resources */,
 				806C4F8221DE9BC00002E967 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1102,6 +1107,25 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TangemKitTests/Pods-TangemKitTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		5D765E6423744CFF009BB2A2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../../imageHashesBuilder/bin/imageHashesBuilder",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/TangemKit/hashes.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$SCRIPT_INPUT_FILE_0 \"${PROJECT_DIR}/TangemKit/Assets/\" $SCRIPT_OUTPUT_FILE_0\n";
 		};
 		888A89EE107D0F72D00A8387 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
