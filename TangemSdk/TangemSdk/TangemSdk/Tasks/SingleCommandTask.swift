@@ -21,12 +21,12 @@ public final class SingleCommandTask<T: CommandSerializer>: Task<T.CommandRespon
             switch result {
             case .success(let commandResponse):
                 self.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
-                self.cardReader.stopSession()
+                self.reader.stopSession()
                 callback(.event(commandResponse))
                 callback(.completion(nil))
-                self.cardReader.stopSession()
+                self.reader.stopSession()
             case .failure(let error):
-                self.cardReader.stopSession(errorMessage: error.localizedDescription)
+                self.reader.stopSession(errorMessage: error.localizedDescription)
                 callback(.completion(error))
             }
         }
