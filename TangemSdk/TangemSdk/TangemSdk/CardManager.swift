@@ -38,9 +38,9 @@ public final class CardManager {
     
     @available(iOS 13.0, *)
     public func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void) {
-        var signHashesCommand: SignHashesCommand
+        var signHashesCommand: SignCommand
         do {
-            signHashesCommand = try SignHashesCommand(hashes: hashes, cardId: cardId)
+            signHashesCommand = try SignCommand(hashes: hashes, cardId: cardId)
         } catch {
             if let taskError = error as? TaskError {
                 callback(.completion(taskError))
