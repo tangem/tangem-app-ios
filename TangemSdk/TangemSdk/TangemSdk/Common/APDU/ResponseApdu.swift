@@ -12,7 +12,7 @@ public struct ResponseApdu {
     /// Raw status from combined sw1 and sw2
     public var sw: UInt16 { return UInt16( (UInt16(sw1) << 8) | UInt16(sw2) ) }
     /// Status from combined sw1 and sw2
-    public var statusWord: StatusWord? { return StatusWord(rawValue: sw) }
+    public var statusWord: StatusWord { return StatusWord(rawValue: sw) ?? .unknown }
     
     private let sw1: Byte
     private let sw2: Byte
