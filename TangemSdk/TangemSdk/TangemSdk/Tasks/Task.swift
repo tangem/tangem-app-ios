@@ -84,7 +84,7 @@ open class Task<TEvent>: AnyTask {
         reader.send(commandApdu: apdu) { [weak self] commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
-                guard let status = responseApdu.status else {
+                guard let status = responseApdu.statusWord else {
                     callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
                     return
                 }
