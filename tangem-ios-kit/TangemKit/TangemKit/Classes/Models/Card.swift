@@ -264,7 +264,7 @@ public class Card {
             }
         }
     }
-    
+    ///
     var substitutionImage: UIImage?
     public var image: UIImage? {
         if substitutionImage != nil {
