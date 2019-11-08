@@ -57,7 +57,7 @@ public enum TaskError: Error, LocalizedError {
 }
 
 open class Task<TEvent>: AnyTask {
-    var cardReader: CardReader!
+    var reader: CardReader!
     weak var delegate: CardManagerDelegate?
     
     deinit {
@@ -65,11 +65,11 @@ open class Task<TEvent>: AnyTask {
     }
     
     public final func run(with environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {
-        guard cardReader != nil else {
+        guard reader != nil else {
             fatalError("Card reader is nil")
         }
         
-        cardReader.startSession()
+        reader.startSession()
         onRun(environment: environment, callback: callback)
     }
     
@@ -81,7 +81,7 @@ open class Task<TEvent>: AnyTask {
     }
     
     func sendRequest<T: CommandSerializer>(_ commandSerializer: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
-        cardReader.send(commandApdu: apdu) { [weak self] commandResponse in
+        reader.send(commandApdu: apdu) { [weak self] commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
                 guard let status = responseApdu.status else {
@@ -94,7 +94,7 @@ open class Task<TEvent>: AnyTask {
                     if let securityDelayResponse = commandSerializer.deserializeSecurityDelay(with: environment, from: responseApdu) {
                         self?.delegate?.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
                         if securityDelayResponse.saveToFlash {
-                             self?.cardReader.restartPolling()
+                             self?.reader.restartPolling()
                         }
                     }
                     self?.sendRequest(commandSerializer, apdu: apdu, environment: environment, callback: callback)
