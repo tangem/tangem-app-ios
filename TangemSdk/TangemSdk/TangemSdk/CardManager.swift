@@ -67,7 +67,7 @@ public final class CardManager {
         
         currentTask = task
         isBusy = true
-        task.cardReader = cardReader
+        task.reader = cardReader
         task.delegate = cardManagerDelegate
         let environment = fetchCardEnvironment(for: cardId)
         
