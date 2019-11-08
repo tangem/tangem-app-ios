@@ -16,7 +16,7 @@ public struct SignResponse {
 }
 
 @available(iOS 13.0, *)
-public final class SignHashesCommand: CommandSerializer {
+public final class SignCommand: CommandSerializer {
     public typealias CommandResponse = SignResponse
     
     private let hashSize: Int
