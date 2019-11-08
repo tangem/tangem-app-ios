@@ -75,29 +75,25 @@ open class Task<TEvent>: AnyTask {
     
     public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
-    public final func sendCommand<T: CommandSerializer>(_ commandSerializer: T, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
-        let commandApdu = commandSerializer.serialize(with: environment)
-        sendRequest(commandSerializer, apdu: commandApdu, environment: environment, callback: callback)
+    public final func sendCommand<T: CommandSerializer>(_ command: T, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
+        //[REDACTED_TODO_COMMENT]
+        let commandApdu = command.serialize(with: environment)
+        sendRequest(command, apdu: commandApdu, environment: environment, callback: callback)
     }
     
-    func sendRequest<T: CommandSerializer>(_ commandSerializer: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
+    private func sendRequest<T: CommandSerializer>(_ command: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
         reader.send(commandApdu: apdu) { [weak self] commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
-                guard let status = responseApdu.statusWord else {
-                    callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
-                    return
-                }
-                
-                switch status {
+                switch responseApdu.statusWord {
                 case .needPause:
-                    if let securityDelayResponse = commandSerializer.deserializeSecurityDelay(with: environment, from: responseApdu) {
+                    if let securityDelayResponse = command.deserializeSecurityDelay(with: environment, from: responseApdu) {
                         self?.delegate?.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
                         if securityDelayResponse.saveToFlash {
                              self?.reader.restartPolling()
                         }
                     }
-                    self?.sendRequest(commandSerializer, apdu: apdu, environment: environment, callback: callback)
+                    self?.sendRequest(command, apdu: apdu, environment: environment, callback: callback)
                 case .needEcryption:
                     //[REDACTED_TODO_COMMENT]
                     
@@ -108,9 +104,9 @@ open class Task<TEvent>: AnyTask {
                     
                     callback(.failure(TaskError.invalidParams))
                     
-                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed, .pinsNotChanged:
+                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
                     do {
-                        let responseData = try commandSerializer.deserialize(with: environment, from: responseApdu)
+                        let responseData = try command.deserialize(with: environment, from: responseApdu)
                         callback(.success(responseData))
                     } catch {
                         if let taskError = error as? TaskError {
@@ -126,6 +122,8 @@ open class Task<TEvent>: AnyTask {
                     
                 case .insNotSupported:
                     callback(.failure(TaskError.insNotSupported))
+                case .unknown:
+                    callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
                 }
             case .failure(let error):
                 if error.code == .readerSessionInvalidationErrorUserCanceled {
