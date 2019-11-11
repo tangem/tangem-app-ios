@@ -88,6 +88,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             self.viewModel.setSubstitutionInfoLoading(false)
             self.card = card
             self.fetchWalletBalance(card: card)
+            self.viewModel.cardImageView.image = card.image
         }
         self.viewModel.cardImageView.image = card.image
         operationQueue.addOperation(operation)
