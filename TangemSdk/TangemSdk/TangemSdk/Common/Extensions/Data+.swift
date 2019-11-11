@@ -20,42 +20,25 @@ extension Data {
         return String(bytes: self, encoding: .utf8)?.remove("\0")
     }
     
-    public func toInt() -> Int? {
+    public func toInt() -> Int {
         return Int(hexData: self)
     }
     
     public func toDateString() -> String {
-        let hexYear = self[0].toHex() + self[1].toHex()
+        guard self.count >= 4 else { return "" }
         
-        //Hex -> Int16
-        let year = UInt16(hexYear.withCString {strtoul($0, nil, 16)})
-        var mm = ""
-        var dd = ""
-        
-        if (self[2] < 10) {
-            mm = "0" + "\(self[2])"
-        } else {
-            mm = "\(self[2])"
-        }
-        
-        if (self[3] < 10) {
-            dd = "0" + "\(self[3])"
-        } else {
-            dd = "\(self[3])"
-        }
-        
-        let components = DateComponents(year: Int(year), month: Int(self[2]), day: Int(self[3]))
+        let year = Int(hexData: self[0...1])
+        let month = Int(self[2])
+        let day = Int(self[3])
+
+        let components = DateComponents(year: year, month: month, day: day)
         let calendar = Calendar(identifier: .gregorian)
-        let date = calendar.date(from: components)
+        guard let date = calendar.date(from: components) else { return "" }
         
         let manFormatter = DateFormatter()
         manFormatter.dateStyle = DateFormatter.Style.medium
-        if let date = date {
-            let dateString = manFormatter.string(from: date)
-            return dateString
-        }
-        
-        return "\(year)" + "." + mm + "." + dd
+        let dateString = manFormatter.string(from: date)
+        return dateString
     }
     
     public init(hex: String) {
