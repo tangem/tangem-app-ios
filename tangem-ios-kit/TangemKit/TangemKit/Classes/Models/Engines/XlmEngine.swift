@@ -46,7 +46,7 @@ public class XlmEngine: CardEngine {
     var sourceKeyPair: KeyPair?
     
     public var exploreLink: String {
-        let baseUrl = card.isTestBlockchain ? "http://testnet.stellarchain.io/address/" : "http://stellarchain.io/address/"
+        let baseUrl = card.isTestBlockchain ? "https://stellar.expert/explorer/testnet/account/" : "https://stellar.expert/explorer/public/account/"
         return baseUrl + walletAddress
     }
     
