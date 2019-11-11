@@ -124,7 +124,7 @@ extension BTCEngine: CoinProvider {
         }
         //P2SH
         if(first == 5 || first == 0xc4 || first == 50) { //5 for BTC/BCH/LTC 3 address | 50 for LTC M address
-            return [Op.hash160.rawValue] + data + [Op.equal.rawValue]
+            return [Op.hash160.rawValue] + buildPrefix(for: data) + data + [Op.equal.rawValue]
         }        
         return nil
     }
