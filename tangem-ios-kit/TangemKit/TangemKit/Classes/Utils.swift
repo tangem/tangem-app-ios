@@ -7,9 +7,19 @@
 //
 
 import Foundation
+import UIKit
 
-class Utils {
+public class Utils {
+    struct SettingsKeys {
+        static let legacyMode = "legacymode_preference"
+        static let isInitialized = "preference_initialized"
+    }
+    
     static var needLegacyMode: Bool {
+        UserDefaults.standard.bool(forKey: SettingsKeys.legacyMode)
+    }
+    
+    static var shouldEnableLegacyMode: Bool {
         var systemInfo = utsname()
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
@@ -18,5 +28,12 @@ class Utils {
             return identifier + String(UnicodeScalar(UInt8(value)))
         }
         return identifier == "iPhone9,1" || identifier == "iPhone9,2" || identifier == "iPhone9,3" || identifier == "iPhone9,4"
+    }
+    
+    public static func initialize() {
+        if !UserDefaults.standard.bool(forKey: SettingsKeys.isInitialized) {
+            UserDefaults.standard.set(Utils.shouldEnableLegacyMode, forKey: SettingsKeys.legacyMode)
+            UserDefaults.standard.set(true, forKey: SettingsKeys.isInitialized)
+        }
     }
 }
