@@ -96,13 +96,13 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
 extension ReaderViewController : TangemSessionDelegate {
     
     func tangemSessionDidRead(card: Card) {
-        guard card.isBlockchainKnown /*&& !card.isTestBlockchain*/ else {
-            handleUnknownBlockchainCard()
-            DispatchQueue.main.async {
-                self.hintLabel.text = Localizations.readerHintDefault
-            }
-            return
-        }
+//        guard card.isBlockchainKnown /*&& !card.isTestBlockchain*/ else {
+//            handleUnknownBlockchainCard()
+//            DispatchQueue.main.async {
+//                self.hintLabel.text = Localizations.readerHintDefault
+//            }
+//            return
+//        }
         
         switch card.genuinityState {
         case .pending:
@@ -112,6 +112,11 @@ extension ReaderViewController : TangemSessionDelegate {
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
             }
         case .genuine:
+            guard card.isBlockchainKnown else {
+                handleUnknownBlockchainCard()
+                return
+            }
+            
             UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
         }
     }
