@@ -35,7 +35,7 @@ public struct Tlv {
         //serialize length
         if length > 0xFE { //long format
             bytes.append(0xFF)
-            bytes.append(contentsOf: length.bytes2bigEndian)
+            bytes.append(contentsOf: length.bytes2)
         } else if length > 0 { //short format
             let lengthAsByte = length.byte
             bytes.append(lengthAsByte)
