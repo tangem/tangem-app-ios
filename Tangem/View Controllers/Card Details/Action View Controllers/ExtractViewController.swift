@@ -28,6 +28,12 @@ class ExtractViewController: ModalActionViewController {
         didSet {
             amountText.delegate = self
             amountText.placeholder = Localizations.generalAmount.lowercased()
+            
+            let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 0, height: 34))
+            toolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+                             UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))]
+            
+            amountText.inputAccessoryView = toolbar
         }
     }
     
@@ -372,6 +378,10 @@ class ExtractViewController: ModalActionViewController {
         view.addGestureRecognizer(recognizer)
         
         topStackView.setCustomSpacing(20.0, after: amountStackView)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func validate(address: String) -> Bool {
