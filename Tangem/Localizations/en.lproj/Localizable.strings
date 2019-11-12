@@ -659,7 +659,7 @@
 
 "alert_failed_attest" = "Your iPhone device does not allow to attest the card. Please check elsewhere if possible";
 
-"alert_unknown_blockchain" = "This card is not supported";
+"alert_unknown_blockchain" = "This is a genuine Tangem card. Please follow instructions written on the card to install the official app";
 
 "alert_no_issuer_sign" = "Transaction must be signed by issuer";
 
