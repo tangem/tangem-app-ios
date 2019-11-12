@@ -114,7 +114,64 @@ extension BTCEngine: CoinProvider {
         }
     }
     
+    private func getOpCode(for data: Data) -> UInt8? {
+        var opcode: UInt8
+        
+        if data.count == 0 {
+            opcode = Op.op0.rawValue
+        } else if data.count == 1 {
+            let byte = data[0]
+            if byte >= 1 && byte <= 16 {
+                opcode = byte - 1 + Op.op1.rawValue
+            } else {
+                opcode = 1
+            }
+        } else if data.count < Op.pushData1.rawValue {
+            opcode = data.count.byte
+        } else if data.count < 256 {
+            opcode = Op.pushData1.rawValue
+        } else if data.count < 65536 {
+            opcode = Op.pushData2.rawValue
+        } else {
+            return nil
+        }
+        
+        return opcode
+    }
+    
     func buildOutputScript(address: String) -> [UInt8]? {
+        //segwit bech32
+        if address.starts(with: "bc1") || address.starts(with: "tb1") {
+            let networkPrefix = card.isTestBlockchain ? "tb" : "bc"
+            guard let segWitData = try? SegWitBech32.decode(hrp: networkPrefix, addr: address) else { return nil }
+            
+            let version = segWitData.version
+            guard version >= 0 && version <= 16 else { return nil }
+            
+            var script = [UInt8]()
+            script.append(version == 0 ? Op.op0.rawValue : version - 1 + Op.op1.rawValue) //smallNum
+            let program = segWitData.program
+            if program.count == 0 {
+                script.append(Op.op0.rawValue) //smallNum
+            } else {
+                guard let opCode = getOpCode(for: program) else { return nil }
+                if opCode < Op.pushData1.rawValue {
+                    script.append(opCode)
+                } else if opCode == Op.pushData1.rawValue {
+                    script.append(Op.pushData1.rawValue)
+                    script.append(program.count.byte)
+                } else if opCode == Op.pushData2.rawValue {
+                    script.append(Op.pushData2.rawValue)
+                    script.append(contentsOf: program.count.bytes2) //little endian
+                } else if opCode == Op.pushData4.rawValue {
+                    script.append(Op.pushData4.rawValue)
+                    script.append(contentsOf: program.count.bytes4)
+                }
+                script.append(contentsOf: program)
+            }
+            return script
+        }
+        
         let decoded = address.base58DecodedData!
         let first = decoded[0]
         let data = decoded[1...20]
@@ -372,13 +429,18 @@ extension BTCEngine: CoinProvider {
     }
     
     func validate(address: String) -> Bool {
+        guard !address.isEmpty else { return false }
+        
         let possibleFirstCharacters = ["1","2","3","n","m"]
-       
-        guard !address.isEmpty,
-            (26...35) ~= address.count,
-            possibleFirstCharacters.contains(String(address.first!))
+        if possibleFirstCharacters.contains(String(address.first!)) {
+            guard (26...35) ~= address.count else { return false }
+            
+        }
         else {
-            return false
+            let networkPrefix = card.isTestBlockchain ? "tb" : "bc"
+            guard let _ = try? SegWitBech32.decode(hrp: networkPrefix, addr: address) else { return false }
+            
+            return true
         }
     
         guard let decoded = address.base58DecodedData,
@@ -413,4 +475,6 @@ enum Op: UInt8 {
     case pushData1 = 0x4c
     case pushData2 = 0x4d
     case pushData4 = 0x4e
+    case op0 = 0x00
+    case op1 = 0x51
 }
