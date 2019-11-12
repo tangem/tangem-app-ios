@@ -29,7 +29,7 @@ class ExtractViewController: ModalActionViewController {
             amountText.delegate = self
             amountText.placeholder = Localizations.generalAmount.lowercased()
             
-            let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 0, height: 34))
+            let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
             toolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
                              UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))]
             
@@ -90,6 +90,12 @@ class ExtractViewController: ModalActionViewController {
         didSet {
             targetAddressText.delegate = self
             targetAddressText.placeholder = Localizations.address.lowercased()
+            
+            let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
+                       toolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+                                        UIBarButtonItem(title: Localizations.commonNext, style: UIBarButtonItemStyle.done, target: self, action: #selector(nextInputField))]
+                       
+            targetAddressText.inputAccessoryView = toolbar
         }
     }
     @IBOutlet weak var includeFeeSwitch: UISwitch!
@@ -382,6 +388,9 @@ class ExtractViewController: ModalActionViewController {
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+    @objc private func nextInputField() {
+        amountText.becomeFirstResponder()
     }
     
     private func validate(address: String) -> Bool {
