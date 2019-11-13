@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Tlv {
+public struct Tlv: Equatable {
     public let tag: TlvTag
     public let tagRaw: Byte
     public let value: Data
@@ -50,7 +50,7 @@ public struct Tlv {
     
     /// Try to deserialize raw data to array of tlv items
     /// - Parameter data: raw TLV-array
-    fileprivate static func deserialize(_ data: Data) -> [Tlv]? {
+    public static func deserialize(_ data: Data) -> [Tlv]? {
         let dataStream = InputStream(data: data)
         dataStream.open()
         
@@ -62,6 +62,7 @@ public struct Tlv {
             }
             
             guard let dataLength = readTagLength(dataStream) else {
+                 print("Failed to read tag: \(tagCode)")
                 return nil
             }
             
@@ -82,7 +83,7 @@ public struct Tlv {
     /// - Parameter dataStream: dataStream initialized with raw tlv
     private static func readTagLength(_ dataStream: InputStream) -> Int? {
         guard let shortLengthBytes = dataStream.readByte() else {
-            print("Failed to read tag lenght")
+             print("Failed to read tag lenght")
             return nil
         }
         
