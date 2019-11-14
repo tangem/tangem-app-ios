@@ -14,16 +14,20 @@ public struct SigningMethod: OptionSet {
     public let rawValue: Int
     
     public init(rawValue: Int) {
-        self.rawValue = rawValue
+        if rawValue & 0x80 != 0 {
+            self.rawValue = rawValue
+        } else {
+            self.rawValue = 0b10000000|(1 << rawValue)
+        }
     }
     
-    static let signHash = SigningMethod(rawValue: 1 << 0)
-    static let signRaw = SigningMethod(rawValue: 1 << 1)
-    static let signHashValidatedByIssuer = SigningMethod(rawValue: 1 << 2)
-    static let signRawValidatedByIssuer = SigningMethod(rawValue: 1 << 3)
-    static let signHashValidatedByIssuerAndWriteIssuerData = SigningMethod(rawValue: 1 << 4)
-    static let SignRawValidatedByIssuerAndWriteIssuerData = SigningMethod(rawValue: 1 << 5)
-    static let signPos = SigningMethod(rawValue: 1 << 6)
+    static let signHash = SigningMethod(rawValue: 0b10000000|(1 << 0))
+    static let signRaw = SigningMethod(rawValue: 0b10000000|(1 << 1))
+    static let signHashSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 2))
+    static let signRawSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 3))
+    static let signHashSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 4))
+    static let signRawSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 5))
+    static let signPos = SigningMethod(rawValue: 0b10000000|(1 << 6))
 }
 
 public enum EllipticCurve: String {
@@ -75,7 +79,7 @@ public struct SettingsMask: OptionSet {
 
 public struct CardData {
     public let batchId: String?
-    public let manufactureDateTime: String?
+    public let manufactureDateTime: Date?
     public let issuerName: String?
     public let blockchainName: String?
     public let manufacturerSignature: Data?
