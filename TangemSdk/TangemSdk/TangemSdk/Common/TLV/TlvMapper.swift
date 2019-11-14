@@ -109,13 +109,17 @@ public final class TlvMapper {
             
             return true as! T
         case .dateTime:
-            guard String.self == T.self || String?.self == T.self else {
-                print("Mapping error. Type for tag: \(tag) must be String")
+            guard Date.self == T.self || Date?.self == T.self else {
+                print("Mapping error. Type for tag: \(tag) must be Date")
                 throw TlvMapperError.wrongType
             }
+
+            guard let date = tagValue.toDate() else {
+                print("Mapping error. Failed convert \(tag) to date")
+                throw TlvMapperError.convertError
+            }
             
-            let dateString = tagValue.toDateString()
-            return dateString as! T
+            return date as! T
             
         case .productMask:
             guard ProductMask.self == T.self || ProductMask?.self == T.self else {

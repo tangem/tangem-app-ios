@@ -54,15 +54,13 @@ class DataExtensionTests: XCTestCase {
     func testToDateString() {
         let testData = Data(hex: "07E2071B")
         let testDate = "Jul 27, 2018"
-        XCTAssertEqual(testDate, testData.toDateString())
+        XCTAssertEqual(testDate, testData.toDate()?.toString())
         
         let testData1 = Data(hex: "07E2071B1E")
         let testDate1 = "Jul 27, 2018"
-        XCTAssertEqual(testDate1, testData1.toDateString())
+        XCTAssertEqual(testDate1, testData1.toDate()?.toString())
         
-        let testData2 = Data(hex: "07E207")
-        let testDate2 = ""
-        XCTAssertEqual(testDate2, testData2.toDateString())
+        XCTAssertNil(Data(hex: "07E207").toDate())
     }
     
     func testFromHexConversion() {
