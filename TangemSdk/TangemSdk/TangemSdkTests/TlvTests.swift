@@ -60,18 +60,35 @@ class TlvTests: XCTestCase {
         
         let tlv = Tlv.deserialize(testData)!
         let mapper = TlvMapper(tlv: tlv)
+        
+        //test map to optional
         let optinalHexString: String? = try? mapper.map(.cardId)
         XCTAssertNotNil(optinalHexString)
         
+        //test map
         let hexString: String = try! mapper.map(.cardId)
-        XCTAssertNotNil(hexString)
+        XCTAssertEqual(hexString, "FF00000000000111")
         
+        let hexStringWrongType: Data? = try? mapper.map(.cardId)
+        XCTAssertNil(hexStringWrongType)
+        
+        //test map optional parameter to optional
         let optionalParameter: String? = try! mapper.mapOptional(.manufacturerName)
         XCTAssertNotNil(optionalParameter)
         
+        //test missing optional
         let missing: String? = try! mapper.mapOptional(.tokenSymbol)
         XCTAssertNil(missing)
         
+        //test missing not optional
+        do {
+            let _: String = try mapper.map(.blockchainName)
+            XCTAssertTrue(false)
+        } catch {
+            XCTAssertTrue(true)
+        }
+        
+        //test wrong type
         do {
             let _: String = try mapper.map(.isActivated)
             XCTAssertTrue(false)
@@ -86,14 +103,90 @@ class TlvTests: XCTestCase {
             XCTAssertTrue(true)
         }
         
+        //test false bool
         let falseBool: Bool = try! mapper.map(.isLinked)
         XCTAssertFalse(falseBool)
         
-        do {
-            let _: String = try mapper.map(.blockchainName)
-            XCTAssertTrue(false)
-        } catch {
-            XCTAssertTrue(true)
-        }
+        //test utf8String
+        let utf8String: String = try! mapper.map(.manufacturerName)
+        XCTAssertEqual(utf8String, "SMART CASH")
+        
+        let utf8StringWrongType: Data? = try? mapper.map(.manufacturerName)
+        XCTAssertNil(utf8StringWrongType)
+        
+        //test int
+        let maxSignatures: Int = try! mapper.map(.maxSignatures)
+        XCTAssertEqual(maxSignatures, 100)
+        
+        let maxSignaturesWrong: String? = try? mapper.map(.maxSignatures)
+        XCTAssertNil(maxSignaturesWrong)
+        
+        //test data
+        let walletPublicKey: Data = try! mapper.map(.walletPublicKey)
+        XCTAssertEqual(walletPublicKey, Data(hex:"04B45FF0D628E1B59F7AEFA1D5B45AB9D7C47FC090D8B29ACCB515431BDBAD2802DDB3AC5E83A06BD8F13ABB84A465CA3C0FA0B44301F80295A9B4C5E35D5FDFE5"))
+        
+        let walletPublicKeyWrong: String? = try? mapper.map(.walletPublicKey)
+        XCTAssertNil(walletPublicKeyWrong)
+        
+        //test curve
+        let curve: EllipticCurve = try! mapper.map(.curveId)
+        XCTAssertEqual(curve, EllipticCurve.secp256k1)
+        
+        let curveWrong: String? = try? mapper.map(.curveId)
+        XCTAssertNil(curveWrong)
+        
+        //test settings mask
+        let settings: SettingsMask = try! mapper.map(.settingsMask)
+        XCTAssertEqual(settings, SettingsMask(rawValue: 32305))
+        XCTAssertTrue(settings.contains(.isReusable))
+        XCTAssertTrue(settings.contains(.allowSetPIN2))
+        XCTAssertTrue(!settings.contains(.checkPIN3OnCard))
+        XCTAssertTrue(!settings.contains(.useOneCommandAtTime))
+        
+        let settingsWrong: Bool? = try? mapper.map(.settingsMask)
+        XCTAssertNil(settingsWrong)
+        
+        //card status
+        let status: CardStatus = try! mapper.map(.status)
+        XCTAssertEqual(status, CardStatus.loaded)
+        
+        let statusWrong: String? = try? mapper.map(.status)
+        XCTAssertNil(statusWrong)
+        //signing method
+        let method: SigningMethod = try! mapper.map(.signingMethod)
+        XCTAssertTrue(method.contains(.signHash))
+        XCTAssertFalse(method.contains(.signRawSignedByIssuer))
+        
+        let methodWrong: String? = try? mapper.map(.signingMethod)
+        XCTAssertNil(methodWrong)
+        
+        let someMethods: SigningMethod = Data(hex: "070195").mapTlv(tag: .signingMethod)!
+        XCTAssertTrue(someMethods.contains(.signHash))
+        XCTAssertFalse(someMethods.contains(.signRaw))
+        XCTAssertFalse(someMethods.contains(.signRawSignedByIssuer))
+        XCTAssertTrue(someMethods.contains(.signHashSignedByIssuer))
+        XCTAssertTrue(someMethods.contains(.signHashSignedByIssuerAndUpdateIssuerData))
+        XCTAssertFalse(someMethods.contains(.signRawSignedByIssuerAndUpdateIssuerData))
+        XCTAssertFalse(someMethods.contains(.signPos))
+        
+        //get cardData
+        let cardData = tlv.value(for: .cardData)!
+        let cardDataTlv = Tlv.deserialize(cardData)!
+        let cardDataMapper = TlvMapper(tlv: cardDataTlv)
+        
+        //test dateTime
+        let date: Date = try! cardDataMapper.map(.manufactureDateTime)
+        let dateString =  date.toString(style: .short)
+        XCTAssertEqual(dateString, "7/27/18")
+        
+        let dateWrong: Int? = try? cardDataMapper.map(.manufactureDateTime)
+        XCTAssertNil(dateWrong)
+        
+        //test productMask
+        let productMask: ProductMask = Data(hex: "8A0102").mapTlv(tag: .productMask)!
+        XCTAssertEqual(productMask, ProductMask.tag)
+        
+        let productMaskWrong: String? = Data(hex: "8A0102").mapTlv(tag: .productMask)
+        XCTAssertNil(productMaskWrong)
     }
 }
