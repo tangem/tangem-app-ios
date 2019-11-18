@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// The data converted to the Tag Length Value protocol.
 public struct Tlv: Equatable {
     public let tag: TlvTag
     public let tagRaw: Byte
