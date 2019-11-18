@@ -14,13 +14,25 @@ enum TlvMapperError: Error {
     case convertError
 }
 
+/// Maps value fields in `Tlv` from raw bytes to concrete classes
+/// according to their `TlvTag` and corresponding `TlvValueType`.
 public final class TlvMapper {
     let tlv: [Tlv]
     
+    /// Initializer
+    /// - Parameter tlv: array of TLVs, which values are to be converted to particular classes.
     public init(tlv: [Tlv]) {
         self.tlv = tlv
     }
     
+    /**
+     * Finds `Tlv` by its `TlvTag`.
+     * Returns nil if `Tlv` is not found, otherwise converts its value to `T`.
+     *
+     * - Parameter tag: `TlvTag` of a `Tlv` which value is to be returned.
+     *
+     * - Returns: Value converted to an optional type `T`.
+     */
     public func mapOptional<T>(_ tag: TlvTag) throws -> T? {
         do {
             let mapped: T = try innerMap(tag, asOptional: true)
@@ -30,6 +42,16 @@ public final class TlvMapper {
         }
     }
 
+    /**
+     * Finds `Tlv` by its `TlvTag`.
+     * Throws `TlvMapperError.missingTag` if `Tlv` is not found,
+     * otherwise converts `Tlv` value to `T`. Can throw any of a `TlvMapperError`
+     *
+     * - Parameter tag: `TlvTag` of a `Tlv` which value is to be returned.
+     *
+     * - Returns: Value converted to a type `T`.  You can use try? and map to optional type `T?` without exception handling
+     *
+     */
     public func map<T>(_ tag: TlvTag) throws -> T {
         return try innerMap(tag, asOptional: false)
     }
