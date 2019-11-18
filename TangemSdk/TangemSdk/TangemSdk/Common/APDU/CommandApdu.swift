@@ -10,6 +10,8 @@ import Foundation
 import CoreNFC
 
 
+/// Class that provides conversion of serialized request and Instruction code
+/// to a raw data that can be sent to the card.
 public struct CommandApdu: Equatable {
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
     /// 4 - Timeout setting for ping nfc-module
@@ -17,11 +19,13 @@ public struct CommandApdu: Equatable {
     
     //MARK: Header
     fileprivate let cla: Byte
+    /// Instruction code that determines the type of request for the card.
     fileprivate let ins: Byte
     fileprivate let p1:  Byte
     fileprivate let p2:  Byte
     
     //MARK: Body
+    /// An array of  serialized TLVs that are to be sent to the card
     fileprivate let data: Data
     fileprivate let le: Int
     

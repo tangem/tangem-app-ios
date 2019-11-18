@@ -9,15 +9,24 @@
 import Foundation
 import CoreNFC
 
-public protocol AnyTask {
+protocol AnyTask {
     
 }
 
+/**
+* Events that are are sent in callbacks from `Task`.
+* `event(TEvent)`:  A callback that is triggered by a `Task`.
+* `completion(TaskError? = nil)` A callback that is triggered when a `Task` is completed. `TaskError` is nil if it's a successful completion of a `Task`
+*/
 public enum TaskEvent<TEvent> {
     case event(TEvent)
     case completion(TaskError? = nil)
 }
 
+/**
+* An error class that represent typical errors that may occur when performing Tangem SDK tasks.
+* Errors are propagated back to the caller in callbacks.
+*/
 public enum TaskError: Error, LocalizedError {
     //Serialize apdu errors
     case serializeCommandError
@@ -56,6 +65,11 @@ public enum TaskError: Error, LocalizedError {
     }
 }
 
+/**
+* Allows to perform a group of commands interacting between the card and the application.
+* A task opens an NFC session, sends commands to the card and receives its responses,
+* repeats the commands if needed, and closes session after receiving the last answer.
+*/
 open class Task<TEvent>: AnyTask {
     var reader: CardReader!
     weak var delegate: CardManagerDelegate?
@@ -64,6 +78,12 @@ open class Task<TEvent>: AnyTask {
         print("task deinit")
     }
     
+    /**
+     * This method should be called to run the `Task` and perform all its operations.
+     *
+     * - Parameter environment: Relevant current version of a card environment
+     * - Parameter callback: It will be triggered during the performance of the `Task`
+     */
     public final func run(with environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {
         guard reader != nil else {
             fatalError("Card reader is nil")
@@ -73,8 +93,15 @@ open class Task<TEvent>: AnyTask {
         onRun(environment: environment, callback: callback)
     }
     
+    /**
+     * In this method the individual Tasks' logic should be implemented.
+     */
     public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
+    /**
+     * This method should be called by Tasks in their `onRun` method wherever
+     * they need to communicate with the Tangem Card by launching commands.
+     */
     public final func sendCommand<T: CommandSerializer>(_ command: T, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
         //[REDACTED_TODO_COMMENT]
         let commandApdu = command.serialize(with: environment)
