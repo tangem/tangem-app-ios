@@ -10,15 +10,27 @@
 import Foundation
 import CoreNFC
 
-
+/// Abstract class for all Tangem card commands.
 public protocol CommandSerializer {
+    /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse
     
+    /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
+    /// - Parameter environment: `CardEnvironment` of the current card
+    /// - Returns: Command data that can be converted to `NFCISO7816APDU` with appropriate initializer
     func serialize(with environment: CardEnvironment) -> CommandApdu
+    
+    /// Deserializes data, received from a card and stored in `ResponseApdu`  into an array of `Tlv`. Then this method maps it into a `CommandResponse`.
+    /// - Parameters:
+    ///   - environment: `CardEnvironment` of the current card
+    ///   - apdu: Received data
+    /// - Returns: Card response, converted to a `CommandResponse` of a type `T`.
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
 public extension CommandSerializer {
+    /// Helper method to parse security delay information received from a card.
+    /// - Returns: Remaining security delay in milliseconds.
     func deserializeSecurityDelay(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
             let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
