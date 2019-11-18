@@ -10,6 +10,7 @@ import Foundation
 
 public typealias ReadResponse = Card
 
+/// Determines which type of data is required for signing.
 public struct SigningMethod: OptionSet {
     public let rawValue: Int
     
@@ -30,11 +31,13 @@ public struct SigningMethod: OptionSet {
     static let signPos = SigningMethod(rawValue: 0b10000000|(1 << 6))
 }
 
+/// Elliptic curve used for wallet key operations.
 public enum EllipticCurve: String {
     case secp256k1
     case ed25519
 }
 
+/// Status of the card and its wallet.
 public enum CardStatus: Int {
     case notPersonalized = 0
     case empty = 1
@@ -48,6 +51,7 @@ public enum ProductMask: Byte {
     case card = 0x04
 }
 
+/// Stores and maps Tangem card settings.
 public struct SettingsMask: OptionSet {
     public let rawValue: Int
     
@@ -77,6 +81,7 @@ public struct SettingsMask: OptionSet {
     static let checkPIN3OnCard = SettingsMask(rawValue: 0x04000000)
 }
 
+/// Detailed information about card contents.
 public struct CardData {
     public let batchId: String?
     public let manufactureDateTime: Date?
@@ -90,6 +95,7 @@ public struct CardData {
     public let tokenDecimal: Int?
 }
 
+///Response for `ReadCommand`. Contains detailed card information.
 public struct Card {
     public let cardId: String
     public let manufacturerName: String?
@@ -122,12 +128,18 @@ public struct Card {
     public let walletSignature: Data?
 }
 
+/// This command receives from the Tangem Card all the data about the card and the wallet,
+///  including unique card number (CID or cardId) that has to be submitted while calling all other commands.
 public final class ReadCommand: CommandSerializer {
     public typealias CommandResponse = ReadResponse
     
     public init() {}
     
     public func serialize(with environment: CardEnvironment) -> CommandApdu {
+        /// `CardEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
+        /// default value of ‘000000’.
+        /// In order to obtain card’s data, [ReadCommand] should use the correct pin 1 value.
+        /// The card will not respond if wrong pin 1 has been submitted.
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256())]
         if let keys = environment.terminalKeys {
             tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
