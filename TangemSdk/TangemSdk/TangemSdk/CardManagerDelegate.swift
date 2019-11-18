@@ -9,9 +9,15 @@
 import Foundation
 import UIKit
 
+/// Allows interaction with users and shows visual elements.
+/// Its default implementation, `DefaultCardManagerDelegate`, is in our  module.
 public protocol CardManagerDelegate: class {
     func showAlertMessage(_ text: String)
-    func showSecurityDelay(remainingMilliseconds: Int)    
+    
+    /// It is called when security delay is triggered by the card. A user is expected to hold the card until the security delay is over.
+    func showSecurityDelay(remainingMilliseconds: Int)
+    
+    /// It is called when a user is expected to enter pin code.
     func requestPin(completion: @escaping () -> Result<String, Error>)
 }
 
