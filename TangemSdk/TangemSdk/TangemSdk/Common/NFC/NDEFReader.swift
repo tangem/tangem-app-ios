@@ -9,6 +9,7 @@
 import Foundation
 import CoreNFC
 
+/// Provides NFC communication between an  application and Tangem card (iOS 12 and earlier)
 public final class NDEFReader: NSObject {
     static let tangemWalletRecordType = "tangem.com:wallet"
     

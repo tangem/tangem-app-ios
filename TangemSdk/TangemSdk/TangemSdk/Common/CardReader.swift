@@ -9,6 +9,8 @@
 import Foundation
 import CoreNFC
 
+/// Allows interaction between the phone or any other terminal and Tangem card.
+/// Its default implementation, `NfcReader`, is in our module.
 public protocol CardReader: class {
     /// For setting alertMessage into NFC popup
     var alertMessage: String {get set}
