@@ -51,6 +51,11 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if #available(iOS 13.0, *) {
+            infoButton.isHidden = true
+        } else {
+            infoButton.isHidden = false
+        }
         _ = {
             self.showFeatureRestrictionAlertIfNeeded()
         }()
