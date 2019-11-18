@@ -20,6 +20,9 @@ public struct KeyPair: Equatable {
     public let publicKey: Data
 }
 
+
+/// Contains data relating to a Tangem card. It is used in constructing all the commands,
+/// and commands can return modified `CardEnvironment`.
 public struct CardEnvironment: Equatable {
     static let defaultPin1 = "000000"
     static let defaultPin2 = "000"
