@@ -8,13 +8,19 @@
 
 import Foundation
 
+/// Response for `SignCommand`.
 public struct SignResponse {
+    /// CID, Unique Tangem card ID number
     public let cardId: String
+    /// Signed hashes (array of resulting signatures)
     public let signature: Data
+    /// Remaining number of sign operations before the wallet will stop signing transactions.
     public let walletRemainingSignatures: Int
+    /// Total number of signed single hashes returned by the card in sign command responses.
     public let walletSignedHashes: Int
 }
 
+/// Signs transaction hashes using a wallet private key, stored on the card.
 @available(iOS 13.0, *)
 public final class SignCommand: CommandSerializer {
     public typealias CommandResponse = SignResponse
@@ -23,6 +29,10 @@ public final class SignCommand: CommandSerializer {
     private let dataToSign: Data
     private let cardId: String
     
+    /// Command initializer
+    /// - Parameters:
+    ///   - hashes: Array of transaction hashes.
+    ///   - cardId: CID, Unique Tangem card ID number
     public init(hashes: [Data], cardId: String) throws {
         guard hashes.count > 0 else {
             throw TaskError.emptyHashes
@@ -52,6 +62,13 @@ public final class SignCommand: CommandSerializer {
                        Tlv(.transactionOutHashSize, value: hashSize.byte),
                        Tlv(.transactionOutHash, value: dataToSign)]
         
+        /**
+         * Application can optionally submit a public key Terminal_PublicKey in [SignCommand].
+         * Submitted key is stored by the Tangem card if it differs from a previous submitted Terminal_PublicKey.
+         * The Tangem card will not enforce security delay if [SignCommand] will be called with
+         * TerminalTransactionSignature parameter containing a correct signature of raw data to be signed made with TerminalPrivateKey
+         * (this key should be generated and securily stored by the application).
+         */
         if let keys = environment.terminalKeys,
             let signedData = CryptoUtils.signSecp256k1(dataToSign, with: keys.privateKey) {
             tlvData.append(Tlv(.terminalTransactionSignature, value: signedData))
