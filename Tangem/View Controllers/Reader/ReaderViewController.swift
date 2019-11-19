@@ -33,9 +33,8 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         didSet {
             scanButton.layer.cornerRadius = 30.0
             scanButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
-            
             scanButton.setTitle(Localizations.scanButtonTitle, for: .normal)
-            
+            scanButton.setImage(UIImage(), for: .disabled)
             scanButton.layer.shadowRadius = 5.0
             scanButton.layer.shadowOffset = CGSize(width: 0, height: 5)
             scanButton.layer.shadowColor = UIColor.black.cgColor
@@ -60,7 +59,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
             self.showFeatureRestrictionAlertIfNeeded()
         }()
     }
-
+    
     // MARK: Actions
     
     @IBAction func infoButtonPressed(_ sender: Any) {
@@ -71,6 +70,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        scanButton.showActivityIndicator()
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
@@ -101,22 +101,27 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
 extension ReaderViewController : TangemSessionDelegate {
     
     func tangemSessionDidRead(card: Card) {
-//        guard card.isBlockchainKnown /*&& !card.isTestBlockchain*/ else {
-//            handleUnknownBlockchainCard()
-//            DispatchQueue.main.async {
-//                self.hintLabel.text = Localizations.readerHintDefault
-//            }
-//            return
-//        }
-        
+        //        guard card.isBlockchainKnown /*&& !card.isTestBlockchain*/ else {
+        //            handleUnknownBlockchainCard()
+        //            DispatchQueue.main.async {
+        //                self.hintLabel.text = Localizations.readerHintDefault
+        //            }
+        //            return
+        //        }
         switch card.genuinityState {
         case .pending:
             self.hintLabel.text = Localizations.readerHintScan
         case .nonGenuine:
+            DispatchQueue.main.async {
+                self.scanButton.hideActivityIndicator()
+            }
             handleNonGenuineTangemCard(card) {
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
             }
         case .genuine:
+            DispatchQueue.main.async {
+                self.scanButton.hideActivityIndicator()
+            }
             guard card.isBlockchainKnown else {
                 handleUnknownBlockchainCard()
                 return
@@ -127,18 +132,20 @@ extension ReaderViewController : TangemSessionDelegate {
     }
     
     func tangemSessionDidFailWith(error: TangemSessionError) {
+        
         switch error {
         case .locked:
             handleCardParserLockedCard()
         case .payloadError:
             handleCardParserWrongTLV()
-        case .readerSessionError:
-            handleReaderSessionError()
+        case .readerSessionError(let error):
+            handleGenericError(error)
         case .userCancelled:
             break
         }
         
         DispatchQueue.main.async {
+            self.scanButton.hideActivityIndicator()
             self.hintLabel.text = Localizations.readerHintDefault
         }
     }
