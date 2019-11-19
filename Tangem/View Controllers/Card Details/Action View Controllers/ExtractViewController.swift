@@ -79,6 +79,8 @@ class ExtractViewController: ModalActionViewController {
             feeControl.setTitle(Localizations.confirmTransactionBtnFeeNormal, forSegmentAt: 1)
             
             feeControl.setTitle(Localizations.confirmTransactionBtnFeePriority, forSegmentAt: 2)
+            
+            feeControl.selectedSegmentIndex = 1
         }
     }
     @IBOutlet weak var cardLabel: UILabel!
