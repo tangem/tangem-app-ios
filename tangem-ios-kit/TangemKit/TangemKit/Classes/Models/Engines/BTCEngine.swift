@@ -255,7 +255,7 @@ extension BTCEngine: CoinProvider {
         //hex str hash prev btc
         
         
-        for (inputIndex, input) in unspentTransactions.reversed().enumerated() {
+        for (inputIndex, input) in unspentTransactions.enumerated() {
             let hashKey: [UInt8] = input.hash.reversed()
             txToSign.append(contentsOf: hashKey)
             txToSign.append(contentsOf: input.outputIndex.bytes4)
