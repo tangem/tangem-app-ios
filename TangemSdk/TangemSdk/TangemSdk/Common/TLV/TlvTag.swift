@@ -107,7 +107,7 @@ public enum TlvTag: Byte {
         case .curveId:
             return .ellipticCurve
         case .maxSignatures, .pauseBeforePin2,
-             .walletRemainingSignatures, .walletSignedHashes, .health, .userCounter, .tokenDecimal:
+             .walletRemainingSignatures, .walletSignedHashes, .health, .userCounter, .tokenDecimal, .issuerDataCounter:
             return .intValue
         case .isActivated, .isLinked:
             return .boolValue
