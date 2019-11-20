@@ -16,7 +16,7 @@
 "general_no" = "No";
 
 /*  */
-"general_error" = "Error!";
+"general_error" = "Error";
 
 /*  */
 "general_error_no_connection" = "No connection with blockchain nodes";
@@ -722,3 +722,5 @@
 "alert_start2coin" = "Load is prohibited. Please, go to Start2Coin website";
 
 "common_go_link" = "Open in Safari";
+
+"common_next" = "Next";
