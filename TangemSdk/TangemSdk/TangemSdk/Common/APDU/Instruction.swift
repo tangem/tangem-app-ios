@@ -8,7 +8,8 @@
 
 import Foundation
 
-/// Card command instruction
+/// Instruction code that determines the type of the command that is sent to the Tangem card.
+/// It is used in the construction of `CommandApdu`.
 public enum Instruction: Byte {
     case unknown = 0x00
     case read = 0xF2

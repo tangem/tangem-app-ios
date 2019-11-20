@@ -8,10 +8,11 @@
 
 import Foundation
 
+/// Stores response data from the card and parses it to `Tlv` and `StatusWord`.
 public struct ResponseApdu {
-    /// Raw status from combined sw1 and sw2
+    /// Status word code, reflecting the status of the response
     public var sw: UInt16 { return UInt16( (UInt16(sw1) << 8) | UInt16(sw2) ) }
-    /// Status from combined sw1 and sw2
+    /// Parsed status word.
     public var statusWord: StatusWord { return StatusWord(rawValue: sw) ?? .unknown }
     
     private let sw1: Byte
@@ -24,8 +25,9 @@ public struct ResponseApdu {
         self.data = data
     }
     
-    /// Deserialize raw apdu data
-    /// - Parameter encryptionKey: decrypt if key exist - not implemented
+    /// Converts raw response data  to the array of TLVs.
+    /// - Parameter encryptionKey: key to decrypt response.
+    /// (Encryption / decryption functionality is not implemented yet.)
     public func getTlvData(encryptionKey: Data? = nil) -> [Tlv]? {
         guard let tlv = Array<Tlv>.init(data) else { // Initialize TLV array with raw data from card response
             return nil
