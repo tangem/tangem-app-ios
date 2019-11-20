@@ -31,8 +31,10 @@
 		5D273A0B234F270200ACDA11 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F4234F270200ACDA11 /* Error.swift */; };
 		5D273A0C234F270200ACDA11 /* PrivateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F5234F270200ACDA11 /* PrivateKey.swift */; };
 		5D273A0D234F270200ACDA11 /* Seed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F6234F270200ACDA11 /* Seed.swift */; };
+		5D437EEB237BE980009C82A8 /* TlvTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D437EEA237BE980009C82A8 /* TlvTests.swift */; };
 		5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4BE233E4C6B00F33764 /* InputStream+.swift */; };
 		5D58B4C1233E54A400F33764 /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4C0233E54A400F33764 /* Int+.swift */; };
+		5D6795B2237AEFB60075A330 /* ApduTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6795B1237AEFB60075A330 /* ApduTests.swift */; };
 		5D6A92D82344E2D700158457 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D6A92DA2344E2D700158457 /* Localizable.strings */; };
 		5D6A92DC2344E3A500158457 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92DB2344E3A500158457 /* Localization.swift */; };
 		5D6A92DE2344F1DC00158457 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92DD2344F1DC00158457 /* Task.swift */; };
@@ -48,6 +50,7 @@
 		5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB123449D4000058D69 /* CardEnvironment.swift */; };
 		5D7D5FB423449F2300058D69 /* CommandSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB323449F2300058D69 /* CommandSerializer.swift */; };
 		5D7F6644235F30B5008149B1 /* NDEFReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7F6643235F30B5008149B1 /* NDEFReader.swift */; };
+		5D974B7E237D672F00DCDF21 /* Date+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D974B7D237D672F00DCDF21 /* Date+.swift */; };
 		5DA5B611233E11950058C720 /* CommandApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B610233E11950058C720 /* CommandApdu.swift */; };
 		5DA5B613233E11A50058C720 /* ResponseApdu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B612233E11A50058C720 /* ResponseApdu.swift */; };
 		5DA5B616233E12170058C720 /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5B615233E12170058C720 /* Instruction.swift */; };
@@ -102,9 +105,11 @@
 		5D2739F4234F270200ACDA11 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		5D2739F5234F270200ACDA11 /* PrivateKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivateKey.swift; sourceTree = "<group>"; };
 		5D2739F6234F270200ACDA11 /* Seed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Seed.swift; sourceTree = "<group>"; };
+		5D437EEA237BE980009C82A8 /* TlvTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvTests.swift; sourceTree = "<group>"; };
 		5D53A4092369D7D10021DAF6 /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		5D58B4BE233E4C6B00F33764 /* InputStream+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		5D58B4C0233E54A400F33764 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
+		5D6795B1237AEFB60075A330 /* ApduTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApduTests.swift; sourceTree = "<group>"; };
 		5D6A92D92344E2D700158457 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D6A92DB2344E3A500158457 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		5D6A92DD2344F1DC00158457 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
@@ -120,6 +125,7 @@
 		5D7D5FB123449D4000058D69 /* CardEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnvironment.swift; sourceTree = "<group>"; };
 		5D7D5FB323449F2300058D69 /* CommandSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandSerializer.swift; sourceTree = "<group>"; };
 		5D7F6643235F30B5008149B1 /* NDEFReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NDEFReader.swift; sourceTree = "<group>"; };
+		5D974B7D237D672F00DCDF21 /* Date+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+.swift"; sourceTree = "<group>"; };
 		5DA5B610233E11950058C720 /* CommandApdu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandApdu.swift; sourceTree = "<group>"; };
 		5DA5B612233E11A50058C720 /* ResponseApdu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseApdu.swift; sourceTree = "<group>"; };
 		5DA5B615233E12170058C720 /* Instruction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
@@ -311,6 +317,8 @@
 				5D713B2C236C3F6400E4F6FC /* StringUtilsTest.swift */,
 				5D713B2E236C53E300E4F6FC /* ByteUtilsTest.swift */,
 				5DA79429236C64D100B33DB5 /* IntUtilsTests.swift */,
+				5D6795B1237AEFB60075A330 /* ApduTests.swift */,
+				5D437EEA237BE980009C82A8 /* TlvTests.swift */,
 			);
 			path = TangemSdkTests;
 			sourceTree = "<group>";
@@ -355,6 +363,7 @@
 				5D58B4C0233E54A400F33764 /* Int+.swift */,
 				5DB4406C234B740B00AC39F1 /* Data+.swift */,
 				5DB4406E234B750200AC39F1 /* String+.swift */,
+				5D974B7D237D672F00DCDF21 /* Date+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -495,6 +504,7 @@
 				5D273A01234F270200ACDA11 /* add_scalar.c in Sources */,
 				5D6A92E52345F2B200158457 /* SignCommand.swift in Sources */,
 				5D273A06234F270200ACDA11 /* sha512.c in Sources */,
+				5D974B7E237D672F00DCDF21 /* Date+.swift in Sources */,
 				5D273A0A234F270200ACDA11 /* PublicKey.swift in Sources */,
 				5D2739FD234F270200ACDA11 /* sc.c in Sources */,
 				5D273A0B234F270200ACDA11 /* Error.swift in Sources */,
@@ -537,7 +547,9 @@
 				5DA80CA9231D247A00A50A10 /* CryptoUtilsTests.swift in Sources */,
 				5D713B2D236C3F6400E4F6FC /* StringUtilsTest.swift in Sources */,
 				5DAD449E236B2435006C38F8 /* DataExtensionTests.swift in Sources */,
+				5D6795B2237AEFB60075A330 /* ApduTests.swift in Sources */,
 				5D713B2F236C53E300E4F6FC /* ByteUtilsTest.swift in Sources */,
+				5D437EEB237BE980009C82A8 /* TlvTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
