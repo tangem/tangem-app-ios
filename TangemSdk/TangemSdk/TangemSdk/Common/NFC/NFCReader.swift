@@ -16,6 +16,7 @@ enum NFCTagWrapper {
     case error(NFCReaderError)
 }
 
+/// Provides NFC communication between an application and Tangem card.
 @available(iOS 13.0, *)
 public final class NFCReader: NSObject {
     static let tagTimeout = 19.0
