@@ -165,10 +165,10 @@ open class CardanoEngine: CardEngine {
         return txForSend
     }
     
-    public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void) {
+    public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
         guard let txForSend = buildTxForSend(signFromCard: signFromCard) else {
             assertionFailure()
-            completion(false)
+            completion(false, "Empty transaction. Try again")
             return
         }
         
@@ -177,23 +177,23 @@ open class CardanoEngine: CardEngine {
             switch result {
             case .success(let success):
                 guard success else {
-                    completion(false)
+                    completion(false, "Operation failed")
                     return
                 }
         
                 guard let transactionId = self.transaction?.transactionHash?.hexDescription() else {
                     assertionFailure()
-                    completion(false)
+                    completion(false, "Empty transaction id. Try again")
                     return
                 }
                 
                 CardanoPendingTransactionsStorage.shared.append(transactionId: transactionId,
                                                                 card: self.card,
                                                                 expirationTimeoutSeconds: CardanoEngine.kPendingTransactionTimeoutSeconds)
-                completion(true)
+                completion(true, nil)
             case .failure(let error):
                // print(error)
-                completion(false)
+                completion(false, error)
             }
         }
         
@@ -245,5 +245,7 @@ open class CardanoEngine: CardEngine {
 }
 
 extension CardanoEngine: CoinProvider {
-    
+    public func getApiDescription() -> String {
+        return CardanoBackend.current == CardanoBackend.adaliteURL1 ? "1" : "2"
+    }
 }
