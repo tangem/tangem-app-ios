@@ -137,8 +137,8 @@ extension ReaderViewController : TangemSessionDelegate {
             handleCardParserLockedCard()
         case .payloadError:
             handleCardParserWrongTLV()
-        case .readerSessionError(let error):
-            handleGenericError(error)
+        case .readerSessionError(let readerError):
+            handleGenericError(readerError)
         case .userCancelled:
             break
         }
