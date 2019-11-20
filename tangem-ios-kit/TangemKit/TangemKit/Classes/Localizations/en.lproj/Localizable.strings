@@ -17,3 +17,5 @@
 "nfc_seconds_left" = "%@ left";
 
 "nfc_unknown_card_state" = "Unknown card state";
+
+"nfc_stuck_error" = "It seems that NFC does not work properly on your iPhone.";
