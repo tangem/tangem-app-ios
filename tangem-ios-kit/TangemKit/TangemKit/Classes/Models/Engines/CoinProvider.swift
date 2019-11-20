@@ -12,9 +12,10 @@ public protocol CoinProvider {
     var hasPendingTransactions: Bool {get}
     var coinTraitCollection: CoinTrait {get}
     func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]?
-    func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void)
+    func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void)
     func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void)
     func validate(address: String) -> Bool
+    func getApiDescription() -> String
 }
 
 public protocol CoinProviderAsync {
