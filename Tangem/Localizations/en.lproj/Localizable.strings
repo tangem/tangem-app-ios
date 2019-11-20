@@ -16,7 +16,7 @@
 "general_no" = "No";
 
 /*  */
-"general_error" = "Error!";
+"general_error" = "Error";
 
 /*  */
 "general_error_no_connection" = "No connection with blockchain nodes";
