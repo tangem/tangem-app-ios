@@ -234,9 +234,14 @@ public class Card {
      */
     
     public var canExtract: Bool {
+        if blockchain == .ethereum && tokenSymbol == "SEED" {
+            return false
+        }
+        
         if batchId == 38 { //old cardano cards
             return true
         }
+        
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
         return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum || blockchain == .cardano || blockchain == .stellar)

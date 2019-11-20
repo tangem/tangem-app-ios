@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Contains all possible value types that value for `TlvTag` can contain.
 public enum TlvValueType {
     case hexString
     case utf8String
@@ -22,7 +23,7 @@ public enum TlvValueType {
     case signingMethod
 }
 
-/// Tags, supported by card
+/// Contains all TLV tags, with their code and descriptive name.
 public enum TlvTag: Byte {
     case unknown = 0x00
     case cardId = 0x01
@@ -96,7 +97,7 @@ public enum TlvTag: Byte {
     case terminalTransactionSignature = 0x57
     case legacyMode = 0x29
     
-    //[REDACTED_TODO_COMMENT]
+    /// `TlvValueType` associated with a `TlvTag`
     var valueType: TlvValueType {
         switch self {
         case .cardId, .pin, .batchId:
