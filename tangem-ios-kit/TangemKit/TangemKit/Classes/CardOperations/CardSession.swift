@@ -30,7 +30,46 @@ public class CardSession: NSObject {
         let manager = TerminalKeysManager()
         return manager
     }()
+    
+   
+    private var errorTimeoutTimer: Timer?
+    private func startErrorTimeoutTimer() {
+           DispatchQueue.main.async {
+               self.errorTimeoutTimer?.invalidate()
+               self.errorTimeoutTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.errorTimerTimeout), userInfo: nil, repeats: false)
+           }
+       }
+    private var sessionTimer: Timer?
+    private func startSessionTimer() {
+        DispatchQueue.main.async {
+            self.sessionTimer?.invalidate()
+            self.sessionTimer = Timer.scheduledTimer(timeInterval: 59.0, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
+        }
+    }
+    
+    private var tagTimer: Timer?
+    private func startTagTimer() {
+        DispatchQueue.main.async {
+            self.tagTimer?.invalidate()
+            self.tagTimer = Timer.scheduledTimer(timeInterval: 19.0, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
+        }
+    }
+    
     public private(set) var isBusy: Bool = false
+    
+    @objc func timerTimeout() {
+        guard let session = self.readerSession,
+            session.isReady  else { return }
+        
+        session.invalidate(errorMessage: Localizations.nfcSessionTimeout)
+    }
+    
+     @objc func errorTimerTimeout() {
+        isBusy = false
+        cardHandled = false
+        readerSession?.invalidate()
+        completion(.failure(Localizations.nfcStuckError))
+    }
     
     public init(completion: @escaping (CardSessionResult<[CardTag : CardTLV]>) -> Void) {
         self.completion = completion
@@ -42,6 +81,7 @@ public class CardSession: NSObject {
         readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
         readerSession!.alertMessage = Localizations.nfcAlertDefault
         readerSession!.begin()
+        startErrorTimeoutTimer()
     }
     
     private func buildReadApdu() -> NFCISO7816APDU {
@@ -137,7 +177,10 @@ public class CardSession: NSObject {
 @available(iOS 13.0, *)
 extension CardSession: NFCTagReaderSessionDelegate {
     public func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
-        print("CardSession active")
+        DispatchQueue.main.async {
+            self.errorTimeoutTimer?.invalidate()
+        }
+        startSessionTimer()
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
@@ -165,7 +208,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                     self.completion(.failure(error!))
                     return
                 }
-                
+                self.startTagTimer()
                 self.retryCount = CardSession.maxRetryCount
                 
                 let readApdu = self.buildReadApdu()

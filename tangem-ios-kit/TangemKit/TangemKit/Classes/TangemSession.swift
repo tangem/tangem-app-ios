@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TangemSessionError: Error {
+public enum TangemSessionError: Error, LocalizedError {
     case readerSessionError(error: Error)
     case payloadError
     case locked
