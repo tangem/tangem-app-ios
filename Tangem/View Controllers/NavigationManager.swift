@@ -10,6 +10,9 @@ import Foundation
 import TangemKit
 
 class NavigationManager {
+    public var rootViewController: ReaderViewController? {
+        return navigationController.viewControllers.first as? ReaderViewController
+    }
     
     public private(set) var navigationController: UINavigationController = {
         let navigationController = UINavigationController()
