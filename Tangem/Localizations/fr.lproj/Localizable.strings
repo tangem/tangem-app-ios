@@ -16,7 +16,7 @@
 "general_no" = "Non";
 
 /*  */
-"general_error" = "Erreur!";
+"general_error" = "Erreur";
 
 /*  */
 "general_error_no_connection" = "Pas de connexion avec les nœuds de la chaîne de blocage";
