@@ -34,7 +34,7 @@ public class EthereumNetworkSendOperation: GBAsyncOperation {
         do {
             urlRequest.httpBody = try JSONSerialization.data(withJSONObject: jsonDict, options: [])
         } catch {
-            self.failOperationWith(error: String(describing: error))
+            self.failOperationWith(error: error)
         }
         
         let task = TangemAPIClient.dataDask(request: urlRequest) { [weak self] (result) in
@@ -54,7 +54,7 @@ public class EthereumNetworkSendOperation: GBAsyncOperation {
                 
                 self.completeOperationWith(tx: txHashString)
             case .failure(let error):
-                self.failOperationWith(error: String(describing: error))
+                self.failOperationWith(error: error)
             }
         }
         
