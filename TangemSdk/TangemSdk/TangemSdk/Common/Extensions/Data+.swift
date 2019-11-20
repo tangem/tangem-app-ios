@@ -24,8 +24,8 @@ extension Data {
         return Int(hexData: self)
     }
     
-    public func toDateString() -> String {
-        guard self.count >= 4 else { return "" }
+    public func toDate() -> Date? {
+        guard self.count >= 4 else { return nil }
         
         let year = Int(hexData: self[0...1])
         let month = Int(self[2])
@@ -33,12 +33,7 @@ extension Data {
 
         let components = DateComponents(year: year, month: month, day: day)
         let calendar = Calendar(identifier: .gregorian)
-        guard let date = calendar.date(from: components) else { return "" }
-        
-        let manFormatter = DateFormatter()
-        manFormatter.dateStyle = DateFormatter.Style.medium
-        let dateString = manFormatter.string(from: date)
-        return dateString
+        return calendar.date(from: components)
     }
     
     public init(hex: String) {
@@ -117,5 +112,14 @@ extension Data {
         }
         CC_SHA512((self as NSData).bytes, CC_LONG(count), res.mutableBytes.assumingMemoryBound(to: UInt8.self))
         return res as Data
+    }
+    
+    func mapTlv<T>(tag: TlvTag) -> T? {
+        guard let tlv = Tlv.deserialize(self) else{
+            return nil
+        }
+        
+        let mapper = TlvMapper(tlv: tlv)
+        return try? mapper.map(tag)
     }
 }
