@@ -94,6 +94,10 @@ class BTCEngine: CardEngine {
 }
 
 extension BTCEngine: CoinProvider {
+    func getApiDescription() -> String {
+        return currentBackend == BtcBackend.blockchainInfo ? "bi" : "bc"
+    }
+    
     var coinTraitCollection: CoinTrait {
         return CoinTrait.all
     }
@@ -361,10 +365,10 @@ extension BTCEngine: CoinProvider {
         return txToSign
     }
     
-    func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void) {
+    func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
         guard let txRefs = addressResponse?.txrefs,
             let txToSend = buildTxForSend(signFromCard: signFromCard, txRefs: txRefs, publicKey: card.walletPublicKeyBytesArray) else {
-                completion(false)
+                completion(false, "Empty transaction. Try again")
                 return
         }
         
@@ -375,10 +379,10 @@ extension BTCEngine: CoinProvider {
             case .success(let sendResponse):
                 self?.unconfirmedBalance = nil
                // print(sendResponse?.tx)
-                completion(true)
+                completion(true, nil)
             case .failure(let error):
               //  print(error)
-                completion(false)
+                completion(false, error)
             }
         })
         operationQueue.addOperation(sendOp)
