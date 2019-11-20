@@ -28,6 +28,12 @@ class ExtractViewController: ModalActionViewController {
         didSet {
             amountText.delegate = self
             amountText.placeholder = Localizations.generalAmount.lowercased()
+            
+            let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
+            toolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+                             UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))]
+            
+            amountText.inputAccessoryView = toolbar
         }
     }
     
@@ -73,6 +79,8 @@ class ExtractViewController: ModalActionViewController {
             feeControl.setTitle(Localizations.confirmTransactionBtnFeeNormal, forSegmentAt: 1)
             
             feeControl.setTitle(Localizations.confirmTransactionBtnFeePriority, forSegmentAt: 2)
+            
+            feeControl.selectedSegmentIndex = 1
         }
     }
     @IBOutlet weak var cardLabel: UILabel!
@@ -84,6 +92,12 @@ class ExtractViewController: ModalActionViewController {
         didSet {
             targetAddressText.delegate = self
             targetAddressText.placeholder = Localizations.address.lowercased()
+            
+            let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
+                       toolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+                                        UIBarButtonItem(title: Localizations.commonNext, style: UIBarButtonItemStyle.done, target: self, action: #selector(nextInputField))]
+                       
+            targetAddressText.inputAccessoryView = toolbar
         }
     }
     @IBOutlet weak var includeFeeSwitch: UISwitch!
@@ -374,6 +388,13 @@ class ExtractViewController: ModalActionViewController {
         topStackView.setCustomSpacing(20.0, after: amountStackView)
     }
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    @objc private func nextInputField() {
+        amountText.becomeFirstResponder()
+    }
+    
     private func validate(address: String) -> Bool {
         guard !address.isEmpty,
             address != card.cardEngine.walletAddress,
@@ -535,7 +556,7 @@ class ExtractViewController: ModalActionViewController {
     }
     
     private func handleSuccessSign(with signature: [UInt8]) {
-        coinProvider.sendToBlockchain(signFromCard: signature) {[weak self] result in
+        coinProvider.sendToBlockchain(signFromCard: signature) {[weak self] result, error in
             DispatchQueue.main.async {
                 self?.removeLoadingView()
                 self?.btnSend.hideActivityIndicator()
@@ -547,7 +568,9 @@ class ExtractViewController: ModalActionViewController {
                         }
                     })
                 } else {
-                    self?.handleTXSendError(message:"")
+                    let errMsg = (error as? String ?? error?.localizedDescription) ?? ""
+                    let apiMsg = self?.coinProvider.getApiDescription() ?? ""
+                    self?.handleTXSendError(message: "\(errMsg) (\(apiMsg))")
                 }
             }
         }

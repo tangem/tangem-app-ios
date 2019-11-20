@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Card response status (combined sw1 and sw2)
+/// Part of a response from the card, shows the status of the operation   (combined sw1 and sw2)
 public enum StatusWord: UInt16 {
     case unknown = 0x0000
     case processCompleted = 0x9000
