@@ -357,6 +357,11 @@ class ExtractViewController: ModalActionViewController {
         if let _ = getPasteAddress() {
             pasteTargetAdressButton.isEnabled = true
         }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            let dataToSign = self.coinProvider.getHashForSignature(amount: "10.0", fee: "0.00001", includeFee: true, targetAddress: self.card.cardEngine.walletAddress)!
+            self.signSession.start(dataToSign: dataToSign)
+        }
     }
     
     
@@ -568,7 +573,9 @@ class ExtractViewController: ModalActionViewController {
                         }
                     })
                 } else {
-                    self?.handleTXSendError(message: (error?.localizedDescription ?? "") + " (\(self?.coinProvider.getApiDescription() ?? ""))")
+                    let errMsg = (error as? String ?? error?.localizedDescription) ?? ""
+                    let apiMsg = self?.coinProvider.getApiDescription() ?? ""
+                    self?.handleTXSendError(message: "\(errMsg) (\(apiMsg))")
                 }
             }
         }

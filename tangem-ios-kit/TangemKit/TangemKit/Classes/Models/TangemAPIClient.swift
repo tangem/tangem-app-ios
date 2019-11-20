@@ -38,20 +38,18 @@ class TangemAPIClient {
                 let unwrappedResponse = response as? HTTPURLResponse,
                 (200 ..< 300) ~= unwrappedResponse.statusCode,
                 error == nil else {
+                    let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+                    let description = (data == nil ? "unknown description" : String(data: data!, encoding: .utf8)) ?? "unknown description"
+                    let errorString = "code: \(code), descr: \(description)"
+                    print(errorString)
                     DispatchQueue.main.async {
                         if let error = error {
-                            completion(.failure(error))
+                            completion(.failure("\(errorString), \(error.localizedDescription)"))
                             print(error)
                         } else {
-                            completion(.failure(TangemApiError.invalidStatusCode))
+                            completion(.failure(errorString))
                         }
                         
-                        if let code = (response as? HTTPURLResponse)?.statusCode {
-                            print("status code: \(code)")
-                        }
-                        if let data = data {
-                            print("response: \(String(data: data, encoding: .utf8)!)")
-                        }
                     }
                     return
             }
