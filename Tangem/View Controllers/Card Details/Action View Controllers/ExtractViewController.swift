@@ -556,7 +556,7 @@ class ExtractViewController: ModalActionViewController {
     }
     
     private func handleSuccessSign(with signature: [UInt8]) {
-        coinProvider.sendToBlockchain(signFromCard: signature) {[weak self] result in
+        coinProvider.sendToBlockchain(signFromCard: signature) {[weak self] result, error in
             DispatchQueue.main.async {
                 self?.removeLoadingView()
                 self?.btnSend.hideActivityIndicator()
@@ -568,7 +568,7 @@ class ExtractViewController: ModalActionViewController {
                         }
                     })
                 } else {
-                    self?.handleTXSendError(message:"")
+                    self?.handleTXSendError(message: (error?.localizedDescription ?? "") + " (\(self?.coinProvider.getApiDescription() ?? ""))")
                 }
             }
         }
