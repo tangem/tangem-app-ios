@@ -15,6 +15,7 @@ class ViewController: UIViewController {
     var cardManager: CardManager = CardManager()
     
     var card: Card?
+    var issuerDataResponse: ReadIssuerDataResponse?
     
     @IBAction func scanCardTapped(_ sender: Any) {
         cardManager.scanCard {[unowned self] taskEvent in
@@ -51,7 +52,7 @@ class ViewController: UIViewController {
                 return
             }
             
-            cardManager.sign(hashes: hashes, cardId: cardId) { taskEvent  in
+            cardManager.sign(hashes: hashes, cardId: cardId) {[unowned self] taskEvent  in
                 switch taskEvent {
                 case .event(let signResponse):
                     self.log(signResponse)
@@ -78,10 +79,12 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            let getIssuerDataCommand = GetIssuerDataCommand(cardId: cardId)
-            cardManager.runCommand(getIssuerDataCommand) { taskEvent in
+            let getIssuerDataCommand = ReadIssuerDataCommand(cardId: cardId)
+            
+            cardManager.runCommand(getIssuerDataCommand) { [unowned self] taskEvent in
                 switch taskEvent {
                 case .event(let issuerDataResponse):
+                    self.issuerDataResponse = issuerDataResponse
                     self.log(issuerDataResponse)
                 case .completion(let error):
                     if let error = error {
@@ -101,7 +104,38 @@ class ViewController: UIViewController {
     }
     
     @IBAction func writeIssuerDataTapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+                   self.log("Please, scan card before")
+                   return
+               }
         
+        guard let issuerDataResponse = issuerDataResponse else {
+                  self.log("Please, run GetIssuerData before")
+                  return
+              }
+        
+        if #available(iOS 13.0, *) {
+            let writeIssuerDataCommand = WriteIssuerDataCommand(cardId: cardId, issuerData: issuerDataResponse.issuerData, issuerDataSignature: issuerDataResponse.issuerDataSignature)
+            
+            cardManager.runCommand(writeIssuerDataCommand) { [unowned self] taskEvent in
+                switch taskEvent {
+                case .event(let issuerDataResponse):
+                    self.log(issuerDataResponse)
+                case .completion(let error):
+                    if let error = error {
+                        if case .userCancelled = error {
+                            //silence user cancelled
+                        } else {
+                            self.log("completed with error: \(error.localizedDescription)")
+                        }
+                    }
+                    //handle completion. Unlock UI, etc.
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
     }
     
     private func log(_ object: Any) {
