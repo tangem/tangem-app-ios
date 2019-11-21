@@ -121,10 +121,10 @@
 "dialog_title_money_is_at_risk" = "Your money is at risk!";
 
 /*  */
-"dialog_this_banknote_has_enforced_security_delay" = "This banknote has enforced security delay";
+"dialog_this_banknote_has_enforced_security_delay" = "This card has enforced security delay";
 
 /*  */
-"dialog_hold_banknote" = "Please hold the banknote firmly\n until the operation is completed…";
+"dialog_hold_banknote" = "Please hold the card firmly\n until the operation is completed…";
 
 /*  */
 "dialog_you_may_be_required_to_repeat" = "You may be required to repeat this operation a few times depending on the NFC performance of your smartphone.\n This is made for safety of your funds.";
@@ -172,7 +172,7 @@
 "main_screen_tap_card" = "Tap Tangem card with your smartphone";
 
 /*  */
-"main_screen_scan_banknote" = "Scan a banknote with your \n %@ \n as shown above";
+"main_screen_scan_banknote" = "Scan a  with your \n %@ \n as shown above";
 
 /*  */
 "main_screen_phone" = "phone";
@@ -665,7 +665,7 @@
 
 "alert_failed_build_transaction" = "Can't build transaction with provided data. Please, try to rescan card and try again";
 
-"reader_hint_label_default" = "Press Scan and touch banknote with your iPhone as shown above";
+"reader_hint_label_default" = "Press Scan and touch a card with your iPhone as shown below";
 
 "reader_hint_label_scan" = "Hold the card close to the reader";
 
