@@ -23,10 +23,17 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     @IBOutlet weak var warningLabel: UILabel!
     @IBOutlet weak var hintLabel: UILabel! {
         didSet {
-            hintLabel.font = UIFont.tgm_maaxFontWith(size: 16.0, weight: .medium)
+            hintLabel.font = UIFont.tgm_maaxFontWith(size: 17.0, weight: .regular)
         }
     }
     
+    @IBOutlet weak var storeView: UIView! {
+        didSet {
+            let recognizer = UITapGestureRecognizer(target: self, action: #selector(storeViewDidTap))
+            recognizer.numberOfTouchesRequired = 1
+            storeView.addGestureRecognizer(recognizer)
+        }
+    }
     @IBOutlet weak var infoButton: UIButton!
     @IBOutlet weak var warningLabelButton: UIButton!
     @IBOutlet weak var scanButton: UIButton! {
@@ -61,11 +68,14 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     
     // MARK: Actions
     
-    @IBAction func infoButtonPressed(_ sender: Any) {
+    @IBAction func infoButtonPressed() {
         UIView.animate(withDuration: 0.3) {
             self.infoButton.alpha = fabs(self.infoButton.alpha - 1)
             self.warningLabel.alpha = fabs(self.warningLabel.alpha - 1)
         }
+    }
+    @objc func storeViewDidTap(_ sender: Any) {
+        UIApplication.shared.open(URL(string: "https://tangemcards.com")!, options: [:], completionHandler: nil)
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
