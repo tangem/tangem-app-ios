@@ -1,5 +1,5 @@
 //
-//  GetIssuerDataCommand.swift
+//  ReadIssuerDataCommand.swift
 //  TangemSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Foundation
 /// Deserialized response from the Tangem card after `WriteIssuerDataCommand`.
 public struct WriteIssuerDataResponse {
     /// Unique Tangem card ID number
-    let cardId: String
+    public let cardId: String
 }
 
 /// This command returns 512-byte issuerData field and its issuer’s signature
@@ -19,19 +19,19 @@ public struct WriteIssuerDataResponse {
 public final class WriteIssuerDataCommand: CommandSerializer {
     public typealias CommandResponse = WriteIssuerDataResponse
     /// Unique Tangem card ID number
-    let cardId: String
+    public let cardId: String
     /// Data defined by issuer
-    let issuerData: Data
+    public let issuerData: Data
     /// Issuer’s signature of `issuerData` with `ISSUER_DATA_PRIVATE_KEY`
     /// Version 1.19 and earlier:
     /// Issuer’s signature of SHA256-hashed card ID concatenated with `issuerData`: SHA256(card ID | issuerData)
     /// Version 1.21 and later:
     /// When flag `Protect_Issuer_Data_Against_Replay` set in `SettingsMask` then signature of SHA256-hashed card ID concatenated with
     /// `issuerData`  and `issuerDataCounter`: SHA256(card ID | issuerData | issuerDataCounter)
-    let issuerDataSignature: Data
+    public let issuerDataSignature: Data
     /// An optional counter that protect issuer data against replay attack. When flag `Protect_Issuer_Data_Against_Replay` set in `SettingsMask`
     /// then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
-    let issuerDataCounter: Data?
+    public let issuerDataCounter: Data?
     
     /// - Parameters:
     ///   - cardId: CID
