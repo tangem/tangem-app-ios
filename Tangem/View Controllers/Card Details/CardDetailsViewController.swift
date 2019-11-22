@@ -383,8 +383,8 @@ extension CardDetailsViewController : TangemSessionDelegate {
             handleCardParserLockedCard()
         case .payloadError:
             handleCardParserWrongTLV()
-        case .readerSessionError:
-            handleReaderSessionError() {
+        case .readerSessionError(let readerError):
+            handleGenericError(readerError) {
                 self.navigationController?.popViewController(animated: true)
             }
         case .userCancelled:
