@@ -20,9 +20,7 @@ extension EthereumTransaction {
         return RLP.encode(fields)
     }
     
-    init?(amount: BigUInt, fee: BigUInt, targetAddress: String, nonce: BigUInt, v: BigUInt = 0, r: BigUInt = 0, s: BigUInt = 0) {
-        
-        let gasLimit = BigUInt(21000)
+    init?(amount: BigUInt, fee: BigUInt, targetAddress: String, nonce: BigUInt, gasLimit: BigUInt = 21000, data: Data, v: BigUInt = 0, r: BigUInt = 0, s: BigUInt = 0) {
         let gasPrice = fee / gasLimit
         
         guard let ethAddress = EthereumAddress(targetAddress) else {
@@ -34,7 +32,7 @@ extension EthereumTransaction {
                    gasLimit: gasLimit,
                    to: ethAddress,
                    value: amount,
-                   data: Data(),
+                   data: data,
                    v: v,
                    r: r,
                    s: s)
