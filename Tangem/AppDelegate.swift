@@ -72,9 +72,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         if #available(iOS 12, *) {
-            return checkUserActivityForBackgroundNFC(userActivity)
+            if checkUserActivityForBackgroundNFC(userActivity) {
+                self.navigationManager?.navigationController.popToRootViewController(animated: false)
+                DispatchQueue.main.async {
+                    self.navigationManager?.rootViewController?.scanButtonPressed(self)
+                }
+                return true
+            } else {
+                return false
+            }
         }
-        
+
         return true
     }
     
