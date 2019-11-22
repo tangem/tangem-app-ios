@@ -53,6 +53,7 @@ public final class NFCReader: NSObject {
         }
     }
     
+    
     /// Invalidate session before session will close automatically
     @objc private func timerTimeout() {
         guard let session = readerSession,
@@ -60,6 +61,13 @@ public final class NFCReader: NSObject {
         
         stopSession(errorMessage: Localization.nfcSessionTimeout)
         readerSessionError.send(NFCReaderError(.readerSessionInvalidationErrorSessionTimeout))
+    }
+    
+    private func stopTimers() {
+        DispatchQueue.main.async {
+            self.sessionTimer?.invalidate()
+            self.tagTimer?.invalidate()
+        }
     }
 }
 
@@ -82,6 +90,7 @@ extension NFCReader: CardReader {
     }
     
     public func stopSession() {
+        stopTimers()
         readerSessionError.send(nil)
         connectedTag.send(nil)
         readerSession?.invalidate()
@@ -89,6 +98,7 @@ extension NFCReader: CardReader {
     }
     
     public func stopSession(errorMessage: String) {
+        stopTimers()
         readerSessionError.send(nil)
         connectedTag.send(nil)
         readerSession?.invalidate(errorMessage: errorMessage)
@@ -174,6 +184,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
+        stopTimers()
         let nfcError = error as! NFCReaderError
         tagTimer?.invalidate()
         sessionTimer?.invalidate()
