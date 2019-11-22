@@ -33,9 +33,9 @@ public final class NFCReader: NSObject {
     
     /// Workaround for session timeout error (60 sec)
     private var sessionTimer: Timer?
-    
     /// Workaround for tag timeout connection error (20 sec)
     private var tagTimer: Timer?
+
     private func startSessionTimer() {
         guard enableSessionInvalidateByTimer else { return }
         DispatchQueue.main.async {
@@ -52,7 +52,6 @@ public final class NFCReader: NSObject {
             self.tagTimer = Timer.scheduledTimer(timeInterval: NFCReader.tagTimeout, target: self, selector: #selector(self.timerTimeout), userInfo: nil, repeats: false)
         }
     }
-    
     
     /// Invalidate session before session will close automatically
     @objc private func timerTimeout() {
