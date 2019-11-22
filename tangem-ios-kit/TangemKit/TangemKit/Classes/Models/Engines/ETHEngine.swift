@@ -67,6 +67,10 @@ class ETHEngine: CardEngine {
 
 
 extension ETHEngine: CoinProvider {
+    func getApiDescription() -> String {
+        return "main"
+    }
+    
     var coinTraitCollection: CoinTrait {
            return CoinTrait.all
        }
@@ -121,10 +125,10 @@ extension ETHEngine: CoinProvider {
         
     }
     
-    func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void) {
+    func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
         
         guard let tx = getHashForSend(signFromCard: signFromCard) else {
-            completion(false)
+            completion(false, "Empty hashes. Try again")
             return
         }
         let txHexString = "0x\(tx.toHexString())"
@@ -134,10 +138,10 @@ extension ETHEngine: CoinProvider {
             case .success(let value):
                 self?.txCount += 1
                 //print(value)
-                completion(true)
+                completion(true, nil)
             case .failure(let error):
               //  print(error)
-                completion(false)
+                completion(false, error)
             }
         }
         
