@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait" appearance="dark"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -10,39 +11,76 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="TangemSDKExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="TangemSdkExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DCJ-Zk-Ede">
-                                <rect key="frame" x="173.5" y="64" width="67" height="30"/>
-                                <state key="normal" title="ScanCard"/>
-                                <connections>
-                                    <action selector="scanCardTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5q3-xp-MIr"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3cw-s5-our">
-                                <rect key="frame" x="166" y="114" width="82" height="30"/>
-                                <state key="normal" title="SignHashes"/>
-                                <connections>
-                                    <action selector="signHashesTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HQP-az-Wwj"/>
-                                </connections>
-                            </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="18" translatesAutoresizingMaskIntoConstraints="NO" id="sLk-h8-mlg">
+                                <rect key="frame" x="16" y="16" width="343" height="635"/>
+                                <subviews>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="249" verticalCompressionResistancePriority="751" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="NXv-gc-biR">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="427"/>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                        <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                    </textView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DCJ-Zk-Ede">
+                                        <rect key="frame" x="132" y="445" width="79" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="ScanCard"/>
+                                        <connections>
+                                            <action selector="scanCardTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5q3-xp-MIr"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3cw-s5-our">
+                                        <rect key="frame" x="123" y="497" width="97" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="SignHashes"/>
+                                        <connections>
+                                            <action selector="signHashesTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HQP-az-Wwj"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ODg-Sx-gZi">
+                                        <rect key="frame" x="113.5" y="549" width="116" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="GetIssuerData"/>
+                                        <connections>
+                                            <action selector="getIssuerDataTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="szB-8Y-xFF"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tsW-CE-Zkw">
+                                        <rect key="frame" x="106.5" y="601" width="130" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="WriteIssuerData"/>
+                                        <connections>
+                                            <action selector="writeIssuerDataTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="FZv-BM-HXh"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="NXv-gc-biR" firstAttribute="leading" secondItem="sLk-h8-mlg" secondAttribute="leading" id="Ytv-Yw-0qo"/>
+                                    <constraint firstAttribute="trailing" secondItem="NXv-gc-biR" secondAttribute="trailing" id="jIm-xx-IPW"/>
+                                </constraints>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="3cw-s5-our" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="3hc-Fw-PIl"/>
-                            <constraint firstItem="DCJ-Zk-Ede" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="CS5-RD-bA8"/>
-                            <constraint firstItem="DCJ-Zk-Ede" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="dRS-i8-Do2"/>
-                            <constraint firstItem="3cw-s5-our" firstAttribute="top" secondItem="DCJ-Zk-Ede" secondAttribute="bottom" constant="20" id="doB-re-mFA"/>
+                            <constraint firstItem="sLk-h8-mlg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="DiK-XB-Ts6"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="sLk-h8-mlg" secondAttribute="bottom" constant="16" id="bbz-j9-3yW"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="sLk-h8-mlg" secondAttribute="trailing" constant="16" id="duM-UU-1eV"/>
+                            <constraint firstItem="sLk-h8-mlg" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="v5N-wp-Fmx"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="logView" destination="NXv-gc-biR" id="Aem-1d-Q0r"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="139" y="138"/>
+            <point key="canvasLocation" x="137.68115942028987" y="137.94642857142856"/>
         </scene>
     </scenes>
 </document>
