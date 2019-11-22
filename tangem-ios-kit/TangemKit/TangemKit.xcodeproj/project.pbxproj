@@ -170,6 +170,7 @@
 		5D11115822F0691E009919D1 /* secp256k1.h in Headers */ = {isa = PBXBuildFile; fileRef = 806C4F6221DE9BC00002E967 /* secp256k1.h */; };
 		5D11115922F0691E009919D1 /* ecmult_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6321DE9BC00002E967 /* ecmult_impl.swift */; };
 		5D11115A22F0691E009919D1 /* PBInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6421DE9BC00002E967 /* PBInt.swift */; };
+		5D379F19237AA5D80093B074 /* SegWitBech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D379F18237AA5D80093B074 /* SegWitBech32.swift */; };
 		5D3DBF5C2310194F0065D96A /* CardanoUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */; };
 		5D48752122DC6B1D00F690BE /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D48752022DC6B1D00F690BE /* InputStream+.swift */; };
 		5D48752222DC6B1D00F690BE /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D48752022DC6B1D00F690BE /* InputStream+.swift */; };
@@ -316,6 +317,7 @@
 		5D028B06232A25BB00E0F9D2 /* CardSignSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSignSession.swift; sourceTree = "<group>"; };
 		5D028B0B232A396000E0F9D2 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		5D0733E32342590E0033AD6F /* TangemKitPod.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemKitPod.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D379F18237AA5D80093B074 /* SegWitBech32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegWitBech32.swift; sourceTree = "<group>"; };
 		5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutput.swift; sourceTree = "<group>"; };
 		5D48752022DC6B1D00F690BE /* InputStream+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		5D48752322DC78A100F690BE /* Dictionary+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+.swift"; sourceTree = "<group>"; };
@@ -515,6 +517,14 @@
 				5D028B0B232A396000E0F9D2 /* Localizations.swift */,
 			);
 			path = Localizations;
+			sourceTree = "<group>";
+		};
+		5D379F17237AA5B30093B074 /* SegWit */ = {
+			isa = PBXGroup;
+			children = (
+				5D379F18237AA5D80093B074 /* SegWitBech32.swift */,
+			);
+			path = SegWit;
 			sourceTree = "<group>";
 		};
 		5D4B31B32334E3CF00D3B92E /* Stellar */ = {
@@ -887,6 +897,7 @@
 		80EABF0C222DD83600E1302A /* Engines */ = {
 			isa = PBXGroup;
 			children = (
+				5D379F17237AA5B30093B074 /* SegWit */,
 				80EABF02222DCEBE00E1302A /* BTCEngine.swift */,
 				80EABF09222DD32800E1302A /* CardanoEngine.swift */,
 				80EABF00222DC8A800E1302A /* CardEngine.swift */,
@@ -1403,6 +1414,7 @@
 				5D11115922F0691E009919D1 /* ecmult_impl.swift in Sources */,
 				5D11114F22F0691E009919D1 /* ecmult_const_impl.swift in Sources */,
 				5D028B0C232A396000E0F9D2 /* Localizations.swift in Sources */,
+				5D379F19237AA5D80093B074 /* SegWitBech32.swift in Sources */,
 				5D028B07232A25BB00E0F9D2 /* CardSignSession.swift in Sources */,
 				80EABF07222DCEDC00E1302A /* TokenEngine.swift in Sources */,
 				5D11114522F0691E009919D1 /* field_10x26.swift in Sources */,
