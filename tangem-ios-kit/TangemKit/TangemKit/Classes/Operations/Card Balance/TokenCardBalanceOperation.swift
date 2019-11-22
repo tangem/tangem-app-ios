@@ -43,24 +43,21 @@ class TokenCardBalanceOperation: BaseCardBalanceOperation {
         
         card.walletTokenValue = balanceValue        
 
-        let mainBalanceOperation = EthereumNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+        let mainBalanceOperation = ETHCardBalanceOperation(card: card) { [weak self] (result) in
             switch result {
-            case .success(let value):
-                self?.handleMainBalanceLoaded(balanceValue: value)
+            case .success(_):
+                self?.handleMainBalanceLoaded()
             case .failure(let error):
-                self?.card.mult = 0
                 self?.failOperationWith(error: error)
             }
         }
         operationQueue.addOperation(mainBalanceOperation)
     }
     
-    func handleMainBalanceLoaded(balanceValue: String) {
+    func handleMainBalanceLoaded() {
         guard !isCancelled else {
             return
         }
-        
-        card.walletValue = balanceValue
         
         completeOperation()
     }
