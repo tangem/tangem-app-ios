@@ -12,7 +12,7 @@ extension InputStream {
     func readBytes(count: Int) -> Data? {
         var buffer: [Byte] = Array(repeating: 0x00, count: count)
         let bytesRead = self.read(&buffer, maxLength: count)
-        return bytesRead > 0 ? Data(buffer) : nil
+        return bytesRead == count ? Data(buffer) : nil
     }
     
     func readByte() -> Byte? {
