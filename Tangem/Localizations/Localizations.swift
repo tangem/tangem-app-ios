@@ -512,6 +512,7 @@ class Localizations {
     static let alertStart2CoinMessage = translate("alert_start2coin")
     static let goToLink = translate("common_go_link")
     static let detailsLinkedCard = translate("details_linked_card_title")
+    static let commonNext = translate("common_next")
 }
 // MARK: - Implementation Details
 
