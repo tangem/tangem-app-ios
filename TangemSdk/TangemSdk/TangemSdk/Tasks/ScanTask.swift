@@ -7,12 +7,20 @@
 //
 
 import Foundation
-
+/**
+  * Events that `ScanTask` returns on completion of its commands.
+  * `onRead(Card)`: Contains data from a Tangem card after successful completion of `ReadCommand`.
+  * `onVerify(Bool)`: Shows whether the Tangem card was verified on completion of `CheckWalletCommand`.
+*/
 public enum ScanEvent {
     case onRead(Card)
     case onVerify(Bool)
 }
 
+/**
+* Task that allows to read Tangem card and verify its private key.
+  It performs two commands, `ReadCommand` and `CheckWalletCommand`, subsequently.
+*/
 public final class ScanTask: Task<ScanEvent> {
     override public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
         if #available(iOS 13.0, *) {
