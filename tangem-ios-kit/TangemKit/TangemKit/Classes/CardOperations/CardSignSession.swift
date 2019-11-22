@@ -119,7 +119,6 @@ public class CardSignSession: NSObject {
         
         guard let hashSize = dataToSign.first?.count else {
             self.state = .none
-            self.stopTimers()
             completion(.failure(CardSignError.emptyDataToSign))
             return
         }
@@ -132,7 +131,6 @@ public class CardSignSession: NSObject {
            for data in dataToSign {
                guard data.count == hashSize else {
                    self.state = .none
-                self.stopTimers()
                 self.completion(.failure(CardSignError.allHashesLengthMustBeEqual))
                    return
                }
@@ -141,7 +139,6 @@ public class CardSignSession: NSObject {
             
             guard let signApdu = self.buildSignApdu(Data(flattenHashes), hashSize: hashSize) else {
                 self.state = .none
-                self.stopTimers()
                 self.completion(.failure(CardSignError.failedBuldDataToSign))
                 return
             }
@@ -176,7 +173,6 @@ public class CardSignSession: NSObject {
                 tlvData.append(CardTLV(.issuerTxSignature, value: Array(issuerSignature)))
             } else {
                 if !supportedSignMethods.contains(.signHashValidatedByIssuer) {
-                    stopTimers()
                     completion(.failure(CardSignError.missingIssuerSignature))
                     return nil
                 }
@@ -232,7 +228,6 @@ public class CardSignSession: NSObject {
                     self.state = .signed
                     session.alertMessage = Localizations.nfcAlertSignCompleted
                     session.invalidate()
-                    self.stopTimers()
                     if let sign = respApdu.tlv[.signature]?.value {
                         DispatchQueue.main.async {
                             self.completion(.success(sign))
@@ -258,12 +253,13 @@ extension CardSignSession: NFCTagReaderSessionDelegate {
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
+        self.stopTimers()
         guard state != .signed else {
             state = .none
             return
         }
         state = .none
-        self.stopTimers()
+        
         DispatchQueue.main.async {
             guard let nfcError = error as? NFCReaderError,
                 nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
@@ -281,7 +277,6 @@ extension CardSignSession: NFCTagReaderSessionDelegate {
             retryCount = CardSignSession.maxRetryCount
             session.connect(to: nfcTag) {[unowned self] error in
                 guard error == nil else {
-                    self.stopTimers()
                     session.invalidate(errorMessage: error!.localizedDescription)
                     return
                 }
