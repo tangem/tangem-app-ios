@@ -10,6 +10,14 @@ import Foundation
 import secp256k1
 
 final class CryptoUtils {
+    
+    /**
+     * Generates array of random bytes.
+     * It is used, among other things, to generate helper private keys
+     * (not the one for the blockchains, that one is generated on the card and does not leave the card).
+     *
+     * - Parameter count: length of the array that is to be generated.
+     */
     static func generateRandomBytes(count: Int) -> Data? {
         var bytes = [Byte](repeating: 0, count: count)
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
@@ -21,6 +29,14 @@ final class CryptoUtils {
         }
     }
     
+    /**
+     * Helper function to verify that the data was signed with a private key that corresponds
+     * to the provided public key.
+     *  - Parameter curve: Elliptic curve used
+     *  - Parameter publicKey: Corresponding to the private key that was used to sing a message
+     *  - Parameter message: The data that was signed
+     *  - Parameter signature: Signed data
+     */
     static func vefify(curve: EllipticCurve, publicKey: Data, message: Data, signature: Data) -> Bool? {
         switch curve {
         case .secp256k1:
@@ -51,6 +67,14 @@ final class CryptoUtils {
         }
     }
     
+    /**
+     * Extension function to sign a byte array with the `Secp256k1` elliptic curve cryptography.
+     *
+     * - Parameter key: Key to sign data
+     * - Parameter data: Data to sign
+     *
+     * - Returns: Signed data
+     */
     static func signSecp256k1(_ data: Data, with key: Data) -> Data? {
         guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN)) else { return nil }
         

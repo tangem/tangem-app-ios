@@ -29,7 +29,10 @@ extension UIButton {
         guard views.isEmpty else { return }
         
         isEnabled = false
-        fadeTransition(0.25)
+    
+        imageView?.isHidden = true
+        imageView?.setNeedsLayout()
+        fadeTransition(0.15)
         let activityIndicator = createActivityIndicator()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         addSubview(activityIndicator)
@@ -41,7 +44,8 @@ extension UIButton {
     
     public func hideActivityIndicator() {
         let activityArray = subviews.filter{ $0 is UIActivityIndicatorView }
-        
+         imageView?.isHidden = false
+         imageView?.setNeedsLayout()
         var textColor : UIColor?
         for each in activityArray {
             guard let activity = each as? UIActivityIndicatorView else { continue }
@@ -50,8 +54,8 @@ extension UIButton {
             activity.removeFromSuperview()
         }
         isEnabled = true
-        fadeTransition(0.5)
-        textColor = backgroundColor == UIColor.white ? .blue : .white
+        fadeTransition(0.15)
+        textColor = backgroundColor == UIColor.white ? .black : .white
         setTitleColor(textColor, for: .normal)
     }
 }
@@ -61,7 +65,7 @@ extension UILabel {
         let views = subviews.filter{ $0 is UIActivityIndicatorView }
         guard views.isEmpty else { return }
         //isEnabled = false
-        fadeTransition(0.25)
+        fadeTransition(0.15)
         let activityIndicator = createActivityIndicator()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         addSubview(activityIndicator)
@@ -85,7 +89,7 @@ extension UILabel {
             return
         }
        //isEnabled = true
-        fadeTransition(0.5)
+        fadeTransition(0.15)
         textColor = .lightGray
     }
 }
