@@ -69,6 +69,10 @@ public class XlmEngine: CardEngine {
 }
 
 extension XlmEngine: CoinProvider, CoinProviderAsync {
+    public func getApiDescription() -> String {
+        return "main"
+    }
+    
     public var hasPendingTransactions: Bool {
         guard let txDate = latestTxDate else {
             return false
@@ -169,9 +173,9 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         return nil
     }
     
-    public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool) -> Void) {
+    public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
         guard transaction != nil else {
-            completion(false)
+            completion(false, "Empty transaction. Try again")
             return
         }
         
@@ -181,7 +185,7 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         transaction!.addSignature(signature: decoratedSignature)
         
         guard let envelope = try? transaction!.encodedEnvelope() else {
-            completion(false)
+            completion(false, "Failed to encode envelope. Try again")
             return
         }
         
@@ -190,15 +194,15 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
             case .success(let submitTransactionResponse):
                 if submitTransactionResponse.transactionResult.code == .success {
                     self?.latestTxDate = Date()
-                    completion(true)
+                    completion(true, nil)
                 } else {
                     print(submitTransactionResponse.transactionResult.code)
-                    completion(false)
+                    completion(false, "Result code: \(submitTransactionResponse.transactionResult.code)")
                 }
                 break
             case .failure(let horizonRequestError):
                 print(horizonRequestError.localizedDescription)
-                completion(false)
+                completion(false, horizonRequestError)
             }
         }
     }

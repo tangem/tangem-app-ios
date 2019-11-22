@@ -8,15 +8,19 @@
 
 import Foundation
 
+/**
+* Allows to perform a single command
+* `TCommand` -  a command that will be performed.
+*/
 @available(iOS 13.0, *)
-public final class SingleCommandTask<T: CommandSerializer>: Task<T.CommandResponse> {
-    private let command: T
+public final class SingleCommandTask<TCommand: CommandSerializer>: Task<TCommand.CommandResponse> {
+    private let command: TCommand
     
-    public init(_ command: T) {
+    public init(_ command: TCommand) {
         self.command = command
     }
     
-    override public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+    override public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TCommand.CommandResponse>) -> Void) {
         sendCommand(command, environment: environment) { result in
             switch result {
             case .success(let commandResponse):
