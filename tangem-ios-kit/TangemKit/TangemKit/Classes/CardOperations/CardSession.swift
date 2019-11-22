@@ -55,6 +55,14 @@ public class CardSession: NSObject {
         }
     }
     
+    private func stopTimers() {
+          DispatchQueue.main.async {
+              self.sessionTimer?.invalidate()
+              self.tagTimer?.invalidate()
+              self.errorTimeoutTimer?.invalidate()
+          }
+      }
+    
     public private(set) var isBusy: Bool = false
     
     @objc func timerTimeout() {
@@ -68,6 +76,7 @@ public class CardSession: NSObject {
         isBusy = false
         cardHandled = false
         readerSession?.invalidate()
+        stopTimers()
         completion(.failure(Localizations.nfcStuckError))
     }
     
@@ -157,6 +166,7 @@ public class CardSession: NSObject {
             }
             self.retryCount = CardSession.maxRetryCount
             let respApdu = ResponseApdu(with: data, sw1: sw1, sw2: sw2)
+            self.stopTimers()
             if let cardState = respApdu.state {
                 switch cardState {
                 case .processCompleted:
@@ -189,13 +199,13 @@ extension CardSession: NFCTagReaderSessionDelegate {
         }
         
         self.isBusy = false
-        
+        stopTimers()
         guard let nfcError = error as? NFCReaderError,
             nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
                 completion(.cancelled)
                 return
         }
-        
+
         completion(.failure(error))
     }
     
@@ -205,6 +215,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
             session.connect(to: nfcTag) {[unowned self] error in
                 guard error == nil else {
                     session.invalidate(errorMessage: error!.localizedDescription)
+                    self.stopTimers()
                     self.completion(.failure(error!))
                     return
                 }
@@ -216,6 +227,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                     let error = "Failed to generate challenge"
                     session.invalidate(errorMessage: error)
                     self.isBusy = false
+                    self.stopTimers()
                     self.completion(.failure(error))
                     return
                 }
@@ -229,6 +241,7 @@ extension CardSession: NFCTagReaderSessionDelegate {
                             let status = CardStatus(rawValue: intStatus),
                             status == .loaded  else {
                                 session.invalidate()
+                                self.stopTimers()
                                 self.completion(.success(readResult))
                                 return
                         }
