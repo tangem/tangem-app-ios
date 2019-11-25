@@ -76,7 +76,7 @@ extension Data {
         }
     }
     
-    func sha256() -> Data {
+    public func sha256() -> Data {
         if #available(iOS 13.0, *) {
             let digest = SHA256.hash(data: self)
             return Data(digest)
@@ -85,7 +85,7 @@ extension Data {
         }
     }
     
-    func sha512() -> Data {
+    public func sha512() -> Data {
         if #available(iOS 13.0, *) {
             let digest = SHA512.hash(data: self)
             return Data(digest)
