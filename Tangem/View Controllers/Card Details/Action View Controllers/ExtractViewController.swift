@@ -471,7 +471,7 @@ class ExtractViewController: ModalActionViewController {
     private func addBgLayers(){
         
         let color = UIColor.init(red: 237.0/255.0, green: 237.0/255.0, blue: 237.0/255.0, alpha: 1.0).cgColor
-        let padding = CGFloat(16.0)
+        let padding = CGFloat(2.0)
         
         
         bgLayer.backgroundColor = color
@@ -481,7 +481,7 @@ class ExtractViewController: ModalActionViewController {
         let path = UIBezierPath()
         path.move(to: CGPoint(x: view.center.x-50, y: converted.maxY + padding))
         path.addLine(to: CGPoint(x: view.center.x+50, y: converted.maxY + padding))
-        path.addLine(to: CGPoint(x: view.center.x, y: converted.maxY + 16 + padding))
+        path.addLine(to: CGPoint(x: view.center.x, y: converted.maxY + 12.0 + padding))
         path.close()
         triangleLayer.fillColor = color
         triangleLayer.path = path.cgPath
