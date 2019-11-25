@@ -645,13 +645,6 @@
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="4mC-LX-D9L">
                                         <rect key="frame" x="0.0" y="10" width="375" height="40"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="agl-yI-2WI">
-                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" secondItem="agl-yI-2WI" secondAttribute="height" multiplier="1:1" id="cnT-bd-DuS"/>
-                                                </constraints>
-                                                <state key="normal" image="icon-help-small"/>
-                                            </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOAD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b7s-lc-UnO">
                                                 <rect key="frame" x="168.5" y="4.5" width="38" height="31.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
@@ -661,9 +654,6 @@
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
-                                            <constraint firstAttribute="trailing" secondItem="agl-yI-2WI" secondAttribute="trailing" constant="8" id="9kD-Tq-IHd"/>
-                                            <constraint firstAttribute="bottom" secondItem="agl-yI-2WI" secondAttribute="bottom" id="JKf-hS-NS7"/>
-                                            <constraint firstItem="agl-yI-2WI" firstAttribute="top" secondItem="4mC-LX-D9L" secondAttribute="top" id="Mck-Ua-H5q"/>
                                             <constraint firstItem="b7s-lc-UnO" firstAttribute="top" secondItem="4mC-LX-D9L" secondAttribute="top" constant="4.5" id="QL3-VX-8Lx"/>
                                             <constraint firstAttribute="bottom" secondItem="b7s-lc-UnO" secondAttribute="bottom" constant="4" id="WTM-fb-MSL"/>
                                             <constraint firstItem="b7s-lc-UnO" firstAttribute="centerX" secondItem="4mC-LX-D9L" secondAttribute="centerX" id="n4d-Zd-8fu"/>
@@ -738,13 +728,6 @@
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="CTT-kX-MD8">
                                         <rect key="frame" x="0.0" y="10" width="375" height="40"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Tt-b1-JEP">
-                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" secondItem="1Tt-b1-JEP" secondAttribute="height" multiplier="1:1" id="bi8-Pg-iuF"/>
-                                                </constraints>
-                                                <state key="normal" image="icon-help-small"/>
-                                            </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MORE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eUM-J5-RUS">
                                                 <rect key="frame" x="166" y="4.5" width="43" height="31.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
@@ -756,10 +739,7 @@
                                         <constraints>
                                             <constraint firstItem="eUM-J5-RUS" firstAttribute="top" secondItem="CTT-kX-MD8" secondAttribute="top" constant="4.5" id="5FI-17-BW5"/>
                                             <constraint firstItem="eUM-J5-RUS" firstAttribute="centerX" secondItem="CTT-kX-MD8" secondAttribute="centerX" id="Cjp-fO-IgH"/>
-                                            <constraint firstAttribute="trailing" secondItem="1Tt-b1-JEP" secondAttribute="trailing" constant="8" id="HRY-pi-y55"/>
-                                            <constraint firstItem="1Tt-b1-JEP" firstAttribute="top" secondItem="CTT-kX-MD8" secondAttribute="top" id="iyR-sh-ccM"/>
                                             <constraint firstAttribute="bottom" secondItem="eUM-J5-RUS" secondAttribute="bottom" constant="4" id="yiu-Dr-Woo"/>
-                                            <constraint firstAttribute="bottom" secondItem="1Tt-b1-JEP" secondAttribute="bottom" id="zu3-J3-3NZ"/>
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZGJ-w1-cTW">
@@ -823,13 +803,6 @@ Remaining signatures: 1,000,000</string>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="UTB-gB-ReA">
                                         <rect key="frame" x="0.0" y="10" width="375" height="40"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vkU-ZN-NRT">
-                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" secondItem="vkU-ZN-NRT" secondAttribute="height" multiplier="1:1" id="2nG-Mu-Fbi"/>
-                                                </constraints>
-                                                <state key="normal" image="icon-help-small"/>
-                                            </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LOAD" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="emL-8I-vTT">
                                                 <rect key="frame" x="168.5" y="4.5" width="38" height="31.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
@@ -839,9 +812,6 @@ Remaining signatures: 1,000,000</string>
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
-                                            <constraint firstAttribute="bottom" secondItem="vkU-ZN-NRT" secondAttribute="bottom" id="Djh-nu-e89"/>
-                                            <constraint firstItem="vkU-ZN-NRT" firstAttribute="top" secondItem="UTB-gB-ReA" secondAttribute="top" id="S2D-AI-fTs"/>
-                                            <constraint firstAttribute="trailing" secondItem="vkU-ZN-NRT" secondAttribute="trailing" constant="8" id="V9G-AH-M7Z"/>
                                             <constraint firstAttribute="bottom" secondItem="emL-8I-vTT" secondAttribute="bottom" constant="4" id="W7e-t8-B2j"/>
                                             <constraint firstItem="emL-8I-vTT" firstAttribute="top" secondItem="UTB-gB-ReA" secondAttribute="top" constant="4.5" id="geX-ej-zJW"/>
                                             <constraint firstItem="emL-8I-vTT" firstAttribute="centerX" secondItem="UTB-gB-ReA" secondAttribute="centerX" id="hvw-EK-jYu"/>
@@ -926,22 +896,12 @@ Remaining signatures: 1,000,000</string>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="trS-9k-CUk">
-                                                <rect key="frame" x="327" y="0.0" width="40" height="40"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" secondItem="trS-9k-CUk" secondAttribute="height" multiplier="1:1" id="t30-uG-pD7"/>
-                                                </constraints>
-                                                <state key="normal" image="icon-help-small"/>
-                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
-                                            <constraint firstAttribute="trailing" secondItem="trS-9k-CUk" secondAttribute="trailing" constant="8" id="Dii-1e-B61"/>
-                                            <constraint firstItem="trS-9k-CUk" firstAttribute="top" secondItem="ASr-1L-qmf" secondAttribute="top" id="Nuq-ZV-byu"/>
                                             <constraint firstItem="9Ks-mV-eZe" firstAttribute="top" secondItem="ASr-1L-qmf" secondAttribute="top" constant="4.5" id="R2g-71-s7X"/>
                                             <constraint firstItem="9Ks-mV-eZe" firstAttribute="centerX" secondItem="ASr-1L-qmf" secondAttribute="centerX" id="WID-p5-vCv"/>
                                             <constraint firstAttribute="bottom" secondItem="9Ks-mV-eZe" secondAttribute="bottom" constant="4" id="Z4U-Za-Czm"/>
-                                            <constraint firstAttribute="bottom" secondItem="trS-9k-CUk" secondAttribute="bottom" id="ml2-cN-fs9"/>
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999998807907104" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yob-Ty-lb9">
@@ -988,7 +948,6 @@ at this time</string>
     <resources>
         <image name="icon-copy" width="22" height="29"/>
         <image name="icon-explore" width="28" height="28"/>
-        <image name="icon-help-small" width="21" height="21"/>
         <image name="icon-paste" width="18" height="21"/>
         <image name="icon-scan-small" width="15" height="22"/>
         <image name="icon-tech-small" width="21" height="21"/>
