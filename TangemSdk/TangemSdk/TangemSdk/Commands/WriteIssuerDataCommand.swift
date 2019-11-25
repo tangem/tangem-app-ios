@@ -31,7 +31,7 @@ public final class WriteIssuerDataCommand: CommandSerializer {
     public let issuerDataSignature: Data
     /// An optional counter that protect issuer data against replay attack. When flag `Protect_Issuer_Data_Against_Replay` set in `SettingsMask`
     /// then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
-    public let issuerDataCounter: Data?
+    public let issuerDataCounter: Int?
     
     /// - Parameters:
     ///   - cardId: CID
@@ -39,7 +39,7 @@ public final class WriteIssuerDataCommand: CommandSerializer {
     ///   - issuerDataSignature: Signature to write
     ///   - issuerDataCounter: An optional counter that protect issuer data against replay attack. When flag `Protect_Issuer_Data_Against_Replay` set in `SettingsMask`
     /// then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
-    public init(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Data? = nil) {
+    public init(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil) {
         self.cardId = cardId
         self.issuerData = issuerData
         self.issuerDataSignature = issuerDataSignature
@@ -53,7 +53,7 @@ public final class WriteIssuerDataCommand: CommandSerializer {
                        Tlv(.issuerDataSignature, value: issuerDataSignature)]
         
         if let counter = issuerDataCounter {
-            tlvData.append(Tlv(.issuerDataCounter, value: counter))
+            tlvData.append(Tlv(.issuerDataCounter, value: counter.bytes4))
         }
         
         let cApdu = CommandApdu(.writeIssuerData, tlv: tlvData)
