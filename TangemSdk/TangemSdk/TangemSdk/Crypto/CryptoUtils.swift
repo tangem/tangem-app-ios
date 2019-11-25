@@ -9,7 +9,7 @@
 import Foundation
 import secp256k1
 
-final class CryptoUtils {
+public final class CryptoUtils {
     
     /**
      * Generates array of random bytes.
@@ -18,7 +18,7 @@ final class CryptoUtils {
      *
      * - Parameter count: length of the array that is to be generated.
      */
-    static func generateRandomBytes(count: Int) -> Data? {
+    public static func generateRandomBytes(count: Int) -> Data? {
         var bytes = [Byte](repeating: 0, count: count)
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
         
@@ -37,7 +37,7 @@ final class CryptoUtils {
      *  - Parameter message: The data that was signed
      *  - Parameter signature: Signed data
      */
-    static func vefify(curve: EllipticCurve, publicKey: Data, message: Data, signature: Data) -> Bool? {
+    public static func vefify(curve: EllipticCurve, publicKey: Data, message: Data, signature: Data) -> Bool? {
         switch curve {
         case .secp256k1:
             guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_VERIFY)) else { return nil }
@@ -75,7 +75,7 @@ final class CryptoUtils {
      *
      * - Returns: Signed data
      */
-    static func signSecp256k1(_ data: Data, with key: Data) -> Data? {
+    public static func signSecp256k1(_ data: Data, with key: Data) -> Data? {
         guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN)) else { return nil }
         
         defer { secp256k1_context_destroy(ctx) }
@@ -86,7 +86,7 @@ final class CryptoUtils {
             return nil
         }
         
-        var signatureData = [Byte](repeating: 0, count: 65)
+        var signatureData = [Byte](repeating: 0, count: 64)
         _ = secp256k1_ecdsa_signature_serialize_compact(ctx, &signatureData, &signature)
         
         return Data(signatureData)
