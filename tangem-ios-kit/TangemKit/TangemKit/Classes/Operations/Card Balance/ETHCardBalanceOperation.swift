@@ -28,7 +28,6 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
             case .success(let value):
                 self?.handleTxCountLoaded(txCount: value)
             case .failure(let error):
-                self?.cancel()
                 self?.failOperationWith(error: error)
             }
             
@@ -41,7 +40,6 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
             case .success(let value):
                 self?.handlePendingTxCountLoaded(txCount: value)
             case .failure(let error):
-                self?.cancel()
                 self?.failOperationWith(error: error)
             }
             
@@ -55,7 +53,6 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
             case .success(let value):
                 self?.handleBalanceLoaded(balanceValue: value)
             case .failure(let error):
-                self?.cancel()
                 self?.card.mult = 0
                 self?.failOperationWith(error: error)
             }
