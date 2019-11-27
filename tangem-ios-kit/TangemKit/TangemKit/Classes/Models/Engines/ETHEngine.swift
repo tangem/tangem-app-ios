@@ -71,7 +71,7 @@ extension ETHEngine: CoinProvider {
     }
     
     var coinTraitCollection: CoinTrait {
-           return CoinTrait.all
+        return card.tokenSymbol != nil ? CoinTrait.allowsFeeSelector : CoinTrait.all
        }
     
     func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
@@ -116,18 +116,15 @@ extension ETHEngine: CoinProvider {
             return Data()
         }
         
-        guard let amountDecimal = BigInt(amount) else {
-            return nil
-        }
-        
         guard let tokenDecimals = card.tokenDecimal else {
             return nil
         }
         
-        let p = BigInt(10).power(tokenDecimals)
-        let amountFinal = amountDecimal * p
+        guard let amountDecimal = Web3.Utils.parseToBigUInt(amount, decimals: tokenDecimals) else {
+            return nil
+        }
 
-        var amountString = String(amountFinal, radix: 16).remove("0X")
+        var amountString = String(amountDecimal, radix: 16).remove("0X")
         while amountString.count < 64 {
             amountString = "0" + amountString
         }
