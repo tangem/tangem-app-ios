@@ -17,7 +17,7 @@ public enum Instruction: Byte {
     case validateCard = 0xF4
     case verifyCode = 0xF5
     case writeIssuerData = 0xF6
-    case getIssuerData = 0xF7
+    case readIssuerData = 0xF7
     case createWallet = 0xF8
     case checkWallet = 0xF9
     case swapPin = 0xFA
