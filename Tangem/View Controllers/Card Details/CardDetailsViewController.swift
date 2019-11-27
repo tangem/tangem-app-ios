@@ -535,7 +535,7 @@ extension CardDetailsViewController {
             "\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)"]
         
         if cardDetails.isLinked {
-            strings.append("\(Localizations.detailsLinkedCard): \(Localizations.generalYes)")
+            strings.append(Localizations.detailsLinkedCard)
         }
         
         viewController.contentText = strings.joined(separator: "\n")
