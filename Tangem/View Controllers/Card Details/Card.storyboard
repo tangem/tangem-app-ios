@@ -617,6 +617,7 @@
                         <outlet property="feeControl" destination="Hg9-Lm-2zM" id="w7n-Km-Wuv"/>
                         <outlet property="feeLabel" destination="Sp6-ka-43A" id="uJd-2l-RDn"/>
                         <outlet property="feeTitleLabel" destination="7x8-18-YLd" id="QEB-8z-eae"/>
+                        <outlet property="includeFeeContainer" destination="KQ5-q9-hrh" id="HgQ-St-SUF"/>
                         <outlet property="includeFeeLabel" destination="bNo-sl-ySn" id="cjH-PL-dSG"/>
                         <outlet property="includeFeeSwitch" destination="thG-2d-9j2" id="i1i-nQ-h0C"/>
                         <outlet property="pasteTargetAdressButton" destination="pej-X6-HFk" id="FOp-zv-NqP"/>
