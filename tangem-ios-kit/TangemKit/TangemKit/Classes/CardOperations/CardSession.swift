@@ -55,6 +55,14 @@ public class CardSession: NSObject {
         }
     }
     
+    private func stopTimers() {
+          DispatchQueue.main.async {
+              self.sessionTimer?.invalidate()
+              self.tagTimer?.invalidate()
+              self.errorTimeoutTimer?.invalidate()
+          }
+      }
+    
     public private(set) var isBusy: Bool = false
     
     @objc func timerTimeout() {
@@ -184,18 +192,18 @@ extension CardSession: NFCTagReaderSessionDelegate {
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
+        stopTimers()
         guard !cardHandled else {
             return
         }
         
         self.isBusy = false
-        
         guard let nfcError = error as? NFCReaderError,
             nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
                 completion(.cancelled)
                 return
         }
-        
+
         completion(.failure(error))
     }
     
