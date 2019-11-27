@@ -37,6 +37,7 @@ class ExtractViewController: ModalActionViewController {
         }
     }
     
+    @IBOutlet weak var includeFeeContainer: UIView!
     @IBOutlet weak var feeTitleLabel: UILabel! {
         didSet {
             feeTitleLabel.text = Localizations.confirmTransactionFee
@@ -220,6 +221,9 @@ class ExtractViewController: ModalActionViewController {
                 
                 guard let hash = hash else {
                     self?.handleTXBuildError()
+                    self?.removeLoadingView()
+                    self?.btnSend.hideActivityIndicator()
+                    self?.updateSendButtonSubtitle()
                     return
                 }
                 
@@ -231,6 +235,9 @@ class ExtractViewController: ModalActionViewController {
         else {
             guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
                 self.handleTXBuildError()
+                self.removeLoadingView()
+                self.btnSend.hideActivityIndicator()
+                self.updateSendButtonSubtitle()
                 return
             }
             
@@ -378,7 +385,7 @@ class ExtractViewController: ModalActionViewController {
         amountText.text = card.balance
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
-        includeFeeSwitch.isHidden = !traits.contains(CoinTrait.allowsFeeInclude)
+        includeFeeContainer.isHidden = !traits.contains(CoinTrait.allowsFeeInclude)
         feeControl.isHidden = !traits.contains(CoinTrait.allowsFeeSelector)
         
         blockchainNameLabel.text = card.blockchain.rawValue.uppercased()
