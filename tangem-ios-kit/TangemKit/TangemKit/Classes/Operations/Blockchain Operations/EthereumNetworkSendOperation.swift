@@ -45,10 +45,15 @@ public class EthereumNetworkSendOperation: GBAsyncOperation {
             switch result {
             case .success(let data):
                 let txHashInfo = try? JSON(data: data)
-                
                 guard let txHashString = txHashInfo?["result"].stringValue,
                     txHashString.count > 0 else {
-                        self.failOperationWith(error: "Zero response")
+                        if let error = txHashInfo?["error"] {
+                              let msg = error["message"].stringValue
+                              self.failOperationWith(error: msg)
+                        } else {
+                            self.failOperationWith(error: "Zero response")
+                        }
+                      
                         return
                 }
                 
