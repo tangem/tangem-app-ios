@@ -71,8 +71,12 @@ extension ETHEngine: CoinProvider {
     }
     
     var coinTraitCollection: CoinTrait {
-        return card.tokenSymbol != nil ? CoinTrait.allowsFeeSelector : CoinTrait.all
+        return isToken ? CoinTrait.allowsFeeSelector : CoinTrait.all
        }
+    
+    var isToken: Bool {
+        return card.units != walletUnits
+    }
     
     func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
         let nonceValue = BigUInt(txCount)
@@ -87,11 +91,11 @@ extension ETHEngine: CoinProvider {
             return nil
         }
         
-        guard let targetAddr = card.tokenSymbol == nil ? targetAddress : card.tokenContractAddress else {
+        guard let targetAddr = !isToken ? targetAddress : card.tokenContractAddress else {
             return nil
         }
         
-        let amount = card.tokenSymbol == nil ? (includeFee ? amountValue - feeValue : amountValue) : BigUInt.zero
+        let amount = !isToken ? (includeFee ? amountValue - feeValue : amountValue) : BigUInt.zero
         
         guard let transaction = EthereumTransaction(amount: amount,
                                                     fee: feeValue,
@@ -112,7 +116,7 @@ extension ETHEngine: CoinProvider {
     }
     
     private func getData(amount: String, targetAddress: String) -> Data? {
-        if card.tokenSymbol == nil {
+        if !isToken {
             return Data()
         }
         
@@ -139,7 +143,7 @@ extension ETHEngine: CoinProvider {
     }
     
     private func getGasLimit() -> BigUInt {
-        if card.tokenSymbol == nil {
+        if !isToken {
             return 21000
         }
         
