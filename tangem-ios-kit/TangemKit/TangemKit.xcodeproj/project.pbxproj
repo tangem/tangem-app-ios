@@ -170,6 +170,7 @@
 		5D11115822F0691E009919D1 /* secp256k1.h in Headers */ = {isa = PBXBuildFile; fileRef = 806C4F6221DE9BC00002E967 /* secp256k1.h */; };
 		5D11115922F0691E009919D1 /* ecmult_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6321DE9BC00002E967 /* ecmult_impl.swift */; };
 		5D11115A22F0691E009919D1 /* PBInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6421DE9BC00002E967 /* PBInt.swift */; };
+		5D36645E238FC12B0089F442 /* CardReadSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D36645D238FC12B0089F442 /* CardReadSession.swift */; };
 		5D379F19237AA5D80093B074 /* SegWitBech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D379F18237AA5D80093B074 /* SegWitBech32.swift */; };
 		5D3DBF5C2310194F0065D96A /* CardanoUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */; };
 		5D48752122DC6B1D00F690BE /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D48752022DC6B1D00F690BE /* InputStream+.swift */; };
@@ -208,6 +209,7 @@
 		5DC4E2422338AE3800D58E43 /* EstimateFeeEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2352338AE3800D58E43 /* EstimateFeeEndpoint.swift */; };
 		5DC4E24C2338C5AC00D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24E2338C5AC00D58E43 /* Localizable.strings */; };
 		5DD88A44231D606E009BA4EA /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DD88A42231D6052009BA4EA /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		5DDA35AC238D6FDC00446080 /* TangemTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDA35AB238D6FDC00446080 /* TangemTimer.swift */; };
 		5DE10AE322D607F800BC45B9 /* SignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE222D607F800BC45B9 /* SignTests.swift */; };
 		5DE10AEB22D609DA00BC45B9 /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE622D609DA00BC45B9 /* Instruction.swift */; };
 		5DE10AEC22D609DA00BC45B9 /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AE622D609DA00BC45B9 /* Instruction.swift */; };
@@ -317,6 +319,7 @@
 		5D028B06232A25BB00E0F9D2 /* CardSignSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSignSession.swift; sourceTree = "<group>"; };
 		5D028B0B232A396000E0F9D2 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		5D0733E32342590E0033AD6F /* TangemKitPod.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemKitPod.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D36645D238FC12B0089F442 /* CardReadSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardReadSession.swift; sourceTree = "<group>"; };
 		5D379F18237AA5D80093B074 /* SegWitBech32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegWitBech32.swift; sourceTree = "<group>"; };
 		5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutput.swift; sourceTree = "<group>"; };
 		5D48752022DC6B1D00F690BE /* InputStream+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
@@ -349,6 +352,7 @@
 		5DC4E24D2338C5AC00D58E43 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DC4E24F2338C7DB00D58E43 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DD88A42231D6052009BA4EA /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
+		5DDA35AB238D6FDC00446080 /* TangemTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemTimer.swift; sourceTree = "<group>"; };
 		5DE10AE222D607F800BC45B9 /* SignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignTests.swift; sourceTree = "<group>"; };
 		5DE10AE622D609DA00BC45B9 /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
 		5DE10AE722D609DA00BC45B9 /* CommandApdu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandApdu.swift; sourceTree = "<group>"; };
@@ -608,6 +612,7 @@
 				5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */,
 				5D48752622DC9E2400F690BE /* CardSW.swift */,
 				5D028B06232A25BB00E0F9D2 /* CardSignSession.swift */,
+				5D36645D238FC12B0089F442 /* CardReadSession.swift */,
 			);
 			path = CardOperations;
 			sourceTree = "<group>";
@@ -867,6 +872,7 @@
 				5D84A80522E0B7790049B9D1 /* Array+.swift */,
 				5DEF97E922F071E3004E0CC5 /* EthereumTransaction+.swift */,
 				5DC25BEC2302FB310047871B /* Decimal+.swift */,
+				5DDA35AB238D6FDC00446080 /* TangemTimer.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -1318,6 +1324,7 @@
 				806C4FA821DE9BC00002E967 /* CardScanner.swift in Sources */,
 				5D11114622F0691E009919D1 /* ecdsa_impl.swift in Sources */,
 				5D11114022F0691E009919D1 /* eckey_impl.swift in Sources */,
+				5DDA35AC238D6FDC00446080 /* TangemTimer.swift in Sources */,
 				5D11115522F0691E009919D1 /* ecmult_gen_impl.swift in Sources */,
 				5D11114D22F0691E009919D1 /* util.swift in Sources */,
 				806C4FB721DE9BC00002E967 /* Base58.swift in Sources */,
@@ -1406,6 +1413,7 @@
 				806C4FB021DE9BC00002E967 /* ETHCardBalanceOperation.swift in Sources */,
 				806C4FA721DE9BC00002E967 /* CardNetworkDetails.swift in Sources */,
 				8013A66422FA2B04007896A6 /* CardanoUnspentOutputsOperation.swift in Sources */,
+				5D36645E238FC12B0089F442 /* CardReadSession.swift in Sources */,
 				80C14C932263C457008E4818 /* ed25519_verify.swift in Sources */,
 				80467DAA22510EDE00EDA8FD /* RippleEngine.swift in Sources */,
 				806C4FA521DE9BC00002E967 /* TangemAPIClient.swift in Sources */,
