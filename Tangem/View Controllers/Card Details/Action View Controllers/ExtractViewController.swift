@@ -37,6 +37,7 @@ class ExtractViewController: ModalActionViewController {
         }
     }
     
+    @IBOutlet weak var includeFeeContainer: UIView!
     @IBOutlet weak var feeTitleLabel: UILabel! {
         didSet {
             feeTitleLabel.text = Localizations.confirmTransactionFee
@@ -220,6 +221,9 @@ class ExtractViewController: ModalActionViewController {
                 
                 guard let hash = hash else {
                     self?.handleTXBuildError()
+                    self?.removeLoadingView()
+                    self?.btnSend.hideActivityIndicator()
+                    self?.updateSendButtonSubtitle()
                     return
                 }
                 
@@ -231,6 +235,9 @@ class ExtractViewController: ModalActionViewController {
         else {
             guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
                 self.handleTXBuildError()
+                self.removeLoadingView()
+                self.btnSend.hideActivityIndicator()
+                self.updateSendButtonSubtitle()
                 return
             }
             
@@ -378,7 +385,7 @@ class ExtractViewController: ModalActionViewController {
         amountText.text = card.balance
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
-        includeFeeSwitch.isHidden = !traits.contains(CoinTrait.allowsFeeInclude)
+        includeFeeContainer.isHidden = !traits.contains(CoinTrait.allowsFeeInclude)
         feeControl.isHidden = !traits.contains(CoinTrait.allowsFeeSelector)
         
         blockchainNameLabel.text = card.blockchain.rawValue.uppercased()
@@ -471,7 +478,7 @@ class ExtractViewController: ModalActionViewController {
     private func addBgLayers(){
         
         let color = UIColor.init(red: 237.0/255.0, green: 237.0/255.0, blue: 237.0/255.0, alpha: 1.0).cgColor
-        let padding = CGFloat(16.0)
+        let padding = CGFloat(2.0)
         
         
         bgLayer.backgroundColor = color
@@ -481,7 +488,7 @@ class ExtractViewController: ModalActionViewController {
         let path = UIBezierPath()
         path.move(to: CGPoint(x: view.center.x-50, y: converted.maxY + padding))
         path.addLine(to: CGPoint(x: view.center.x+50, y: converted.maxY + padding))
-        path.addLine(to: CGPoint(x: view.center.x, y: converted.maxY + 16 + padding))
+        path.addLine(to: CGPoint(x: view.center.x, y: converted.maxY + 12.0 + padding))
         path.close()
         triangleLayer.fillColor = color
         triangleLayer.path = path.cgPath
