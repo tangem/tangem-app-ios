@@ -83,6 +83,43 @@ public final class CardManager {
         let task = SingleCommandTask(signCommand)
         runTask(task, cardId: cardId, callback: callback)
     }
+        
+    /**
+     * This command returns 512-byte Issuer Data field and its issuer’s signature.
+     * Issuer Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
+     * format and payload of Issuer Data. For example, this field may contain information about
+     * wallet balance signed by the issuer or additional issuer’s attestation data.
+     * - Parameters:
+     *   - cardId: CID, Unique Tangem card ID number.
+     *   - callback: is triggered on the completion of the `ReadIssuerDataCommand`,
+     * provides card response in the form of `ReadIssuerDataResponse`.
+     */
+    @available(iOS 13.0, *)
+    public func readIssuerData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerDataResponse>) -> Void) {
+        let command = ReadIssuerDataCommand(cardId: cardId)
+        let task = SingleCommandTask(command)
+        runTask(task, cardId: cardId, callback: callback)
+    }
+    
+    /**
+     * This command writes 512-byte Issuer Data field and its issuer’s signature.
+     * Issuer Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
+     * format and payload of Issuer Data. For example, this field may contain information about
+     * wallet balance signed by the issuer or additional issuer’s attestation data.
+     * - Parameters:
+     *   - cardId:  CID, Unique Tangem card ID number.
+     *   - issuerData: Data provided by issuer.
+     *   - issuerDataSignature: Issuer’s signature of `issuerData` with Issuer Data Private Key (which is kept on card).
+     *   - issuerDataCounter: An optional counter that protect issuer data against replay attack.
+     *   - callback: is triggered on the completion of the `WriteIssuerDataCommand`,
+     * provides card response in the form of `[`WriteIssuerDataResponse`.
+     */
+    @available(iOS 13.0, *)
+    public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
+        let command = WriteIssuerDataCommand(cardId: cardId, issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
+        let task = SingleCommandTask(command)
+        runTask(task, cardId: cardId, callback: callback)
+    }
     
    /// Allows to run a custom task created outside of this SDK.
     public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {

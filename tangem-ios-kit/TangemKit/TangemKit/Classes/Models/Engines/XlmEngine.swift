@@ -8,6 +8,8 @@
 
 import Foundation
 import stellarsdk
+import SwiftyJSON
+
 public class XlmEngine: CardEngine {
     unowned public var card: Card
     
@@ -87,8 +89,12 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         return true
     }
     
-    public var coinTraitCollection: CoinTrait {
-        .allowsFeeInclude
+    public var coinTraitCollection: CoinTrait {        
+        if let assetBalance = self.assetBalance, assetBalance > 0 {
+             return .none
+        } else {
+            return .allowsFeeInclude
+        }
     }
     
     
@@ -149,12 +155,13 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
                 return
         }
         
-        let minTime = Date().timeIntervalSince1970
-        let maxTime = minTime + 60.0
+        let currentTime = Date().timeIntervalSince1970
+        let minTime = currentTime - 60.0
+        let maxTime = currentTime + 60.0
         
         let tx = TransactionXDR(sourceAccount: sourceKeyPair.publicKey,
                                 seqNum: seqNumber + 1,
-                                timeBounds: TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime)),
+                                timeBounds:  TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime)),
                                 memo: Memo.none.toXDR(),
                                 operations: [xdrOperation])
         
@@ -201,8 +208,13 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
                 }
                 break
             case .failure(let horizonRequestError):
-                print(horizonRequestError.localizedDescription)
-                completion(false, horizonRequestError)
+                let horizonMessage = horizonRequestError.message
+                let json = JSON(parseJSON: horizonMessage)
+                let detailMessage = json["detail"].stringValue
+                let extras = json["extras"]
+                let codes = extras["result_codes"].rawString() ?? ""
+                let errorMessage: String = (!detailMessage.isEmpty && !codes.isEmpty) ? "\(detailMessage). Codes: \(codes)" : horizonMessage
+                completion(false, errorMessage)
             }
         }
     }
@@ -228,6 +240,42 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
             return Asset(type: AssetType.ASSET_TYPE_CREDIT_ALPHANUM12, code: code, issuer: issuer)
         } else {
             return nil
+        }
+    }
+}
+
+
+extension HorizonRequestError {
+    var message: String {
+        switch self {
+        case .emptyResponse:
+            return "emptyResponse"
+        case .beforeHistory(let message, _):
+            return message
+        case .badRequest(let message, _):
+            return message
+        case .errorOnStreamReceive(let message):
+            return message
+        case .forbidden(let message, _):
+            return message
+        case .internalServerError(let message, _):
+            return message
+        case .notAcceptable(let message, _):
+            return message
+        case .notFound(let message, _):
+            return message
+        case .notImplemented(let message, _):
+            return message
+        case .parsingResponseFailed(let message):
+            return message
+        case .rateLimitExceeded(let message, _):
+            return message
+        case .requestFailed(let message):
+            return message
+        case .staleHistory(let message, _):
+            return message
+        case .unauthorized(let message):
+            return message
         }
     }
 }
