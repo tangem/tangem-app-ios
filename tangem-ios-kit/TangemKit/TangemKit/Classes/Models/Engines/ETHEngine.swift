@@ -18,7 +18,6 @@ class ETHEngine: CardEngine {
     private var transaction: EthereumTransaction?
     private var hashForSign: Data?
     private let operationQueue = OperationQueue()
-    private var cachedFee: (min: String, normal: String, max: String)?
     
     var blockchainDisplayName: String {
         return "Ethereum"
@@ -72,34 +71,90 @@ extension ETHEngine: CoinProvider {
     }
     
     var coinTraitCollection: CoinTrait {
-           return CoinTrait.all
+        return isToken ? CoinTrait.allowsFeeSelector : CoinTrait.all
        }
+    
+    var isToken: Bool {
+        return card.units != walletUnits
+    }
     
     func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
         let nonceValue = BigUInt(txCount)
         
-        
         guard let feeValue = Web3.Utils.parseToBigUInt(fee, units: .eth),
-            let amountValue = Web3.Utils.parseToBigUInt(amount, units: .eth),
-            let transaction = EthereumTransaction(amount: includeFee ? amountValue - feeValue : amountValue,
-                                                  fee: feeValue,
-                                                  targetAddress: targetAddress,
-                                                  nonce: nonceValue),
-            let hashForSign = transaction.hashForSignature(chainID: ETHEngine.chainId) else {
+            let amountValue = Web3.Utils.parseToBigUInt(amount, units: .eth) else {
                 return nil
         }
         
+        let gasLimit = getGasLimit()
+        guard let data = getData(amount: amount, targetAddress: targetAddress) else {
+            return nil
+        }
+        
+        guard let targetAddr = !isToken ? targetAddress : card.tokenContractAddress else {
+            return nil
+        }
+        
+        let amount = !isToken ? (includeFee ? amountValue - feeValue : amountValue) : BigUInt.zero
+        
+        guard let transaction = EthereumTransaction(amount: amount,
+                                                    fee: feeValue,
+                                                    targetAddress: targetAddr,
+                                                    nonce: nonceValue,
+                                                    gasLimit: gasLimit,
+                                                    data: data) else {
+                                                        return nil
+        }
+        
+        guard let hashForSign = transaction.hashForSignature(chainID: ETHEngine.chainId) else {
+            return nil
+        }
+      
         self.transaction = transaction
         self.hashForSign = hashForSign
         return [hashForSign]
     }
     
-    func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
-        
-        if let cachedFee = self.cachedFee {
-            completion(cachedFee)
-            return
+    private func getData(amount: String, targetAddress: String) -> Data? {
+        if !isToken {
+            return Data()
         }
+        
+        guard let tokenDecimals = card.tokenDecimal else {
+            return nil
+        }
+        
+        guard let amountDecimal = Web3.Utils.parseToBigUInt(amount, decimals: tokenDecimals) else {
+            return nil
+        }
+
+        var amountString = String(amountDecimal, radix: 16).remove("0X")
+        while amountString.count < 64 {
+            amountString = "0" + amountString
+        }
+        
+        let amountData = Data(hex: amountString)
+        
+        guard let addressData = EthereumAddress(targetAddress)?.addressData else {
+                return nil
+        }
+        let prefixData = Data(hex: "a9059cbb000000000000000000000000")
+        return prefixData + addressData + amountData
+    }
+    
+    private func getGasLimit() -> BigUInt {
+        if !isToken {
+            return 21000
+        }
+        
+        if card.tokenSymbol == "DGX" {
+            return 300000
+        }
+        
+        return 60000
+    }
+    
+    func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
         
         let web = web3(provider: InfuraProvider(Networks.Mainnet)!)
         
@@ -108,7 +163,7 @@ extension ETHEngine: CoinProvider {
                 completion(nil)
                 return
             }
-            let m = BigUInt(21000)
+            let m = self.getGasLimit()
             let decimalCount = Int(Blockchain.ethereum.decimalCount)
             let minValue = gasPrice * m
             let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
