@@ -131,26 +131,33 @@ class ExtractViewController: ModalActionViewController {
     private lazy var signSession: CardSignSession = {
         let session = CardSignSession(cardId: card.cardID,
                                       supportedSignMethods: card.supportedSignMethods) {[weak self] result in
+                                        DispatchQueue.main.async {
+                                        self?.btnSend.hideActivityIndicator()
+                                        self?.updateSendButtonSubtitle()
+                                        self?.removeLoadingView()
                                         switch result {
                                         case .cancelled:
-                                            self?.btnSend.hideActivityIndicator()
-                                            self?.updateSendButtonSubtitle()
-                                            self?.removeLoadingView()
-                                        case.success(let signature):
-                                            self?.handleSuccessSign(with: signature)
-                                        case .failure(let signError):
-                                            self?.btnSend.hideActivityIndicator()
-                                            self?.updateSendButtonSubtitle()
-                                            self?.removeLoadingView()
-                                            
-                                            switch signError {
-                                            case .missingIssuerSignature:
-                                                self?.handleTXNotSignedByIssuer()
-                                            case .nfcError(let nfcError):
-                                                self?.handleGenericError(nfcError)
-                                            default:
-                                                self?.handleGenericError(signError)
+                                            break
+                                        case.success(let tlv):
+                                            guard let signature = tlv[.signature]?.value else {
+                                                self?.handleGenericError("Missing signature from card")
+                                                return
                                             }
+                                            self?.handleSuccessSign(with: signature)
+                                        case .failure(let error):
+                                            if let signError = error as? CardSignError {
+                                                switch signError {
+                                                case .missingIssuerSignature:
+                                                    self?.handleTXNotSignedByIssuer()
+                                                case .nfcError(let nfcError):
+                                                    self?.handleGenericError(nfcError)
+                                                default:
+                                                    self?.handleGenericError(signError)
+                                                }
+                                            } else {
+                                                self?.handleGenericError(error)
+                                            }
+                                        }
                                         }
         }
         
