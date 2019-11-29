@@ -33,9 +33,9 @@ public final class NFCReader: NSObject {
     
     /// Workaround for session timeout error (60 sec)
     private var sessionTimer: Timer?
-    
     /// Workaround for tag timeout connection error (20 sec)
     private var tagTimer: Timer?
+
     private func startSessionTimer() {
         guard enableSessionInvalidateByTimer else { return }
         DispatchQueue.main.async {
@@ -61,6 +61,13 @@ public final class NFCReader: NSObject {
         stopSession(errorMessage: Localization.nfcSessionTimeout)
         readerSessionError.send(NFCReaderError(.readerSessionInvalidationErrorSessionTimeout))
     }
+    
+    private func stopTimers() {
+        DispatchQueue.main.async {
+            self.sessionTimer?.invalidate()
+            self.tagTimer?.invalidate()
+        }
+    }
 }
 
 @available(iOS 13.0, *)
@@ -82,6 +89,7 @@ extension NFCReader: CardReader {
     }
     
     public func stopSession() {
+        stopTimers()
         readerSessionError.send(nil)
         connectedTag.send(nil)
         readerSession?.invalidate()
@@ -89,6 +97,7 @@ extension NFCReader: CardReader {
     }
     
     public func stopSession(errorMessage: String) {
+        stopTimers()
         readerSessionError.send(nil)
         connectedTag.send(nil)
         readerSession?.invalidate(errorMessage: errorMessage)
@@ -174,6 +183,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
+        stopTimers()
         let nfcError = error as! NFCReaderError
         tagTimer?.invalidate()
         sessionTimer?.invalidate()
