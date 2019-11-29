@@ -27,7 +27,7 @@ public struct CoinTrait: OptionSet {
     public init(rawValue: Int) {
         self.rawValue = rawValue
     }
-    
+    public static let none = CoinTrait(rawValue: 0)
     public static let allowsFeeSelector = CoinTrait(rawValue: 1 << 0)
     public static let allowsFeeInclude = CoinTrait(rawValue: 1 << 1)
     
