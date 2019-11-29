@@ -37,13 +37,15 @@ public class CardSession: NSObject {
     private var errorTimeoutTimer: TangemTimer!
     private var sessionTimer: TangemTimer!
     private var tagTimer: TangemTimer!
-    private var pollingTimer: TangemTimer!
     private var invalidateByUser: Bool = false
+    private var cancelled: Bool = false
+    private var tag: NFCISO7816Tag?
+    private var requestTimestamp: Date?
     
     public private(set) var isBusy: Bool = false
     
     func stopTimers() {
-        TangemTimer.stopTimers([sessionTimer, tagTimer, errorTimeoutTimer, pollingTimer])
+        TangemTimer.stopTimers([sessionTimer, tagTimer, errorTimeoutTimer])
     }
     
     func timerTimeout() {
@@ -63,13 +65,6 @@ public class CardSession: NSObject {
         })
         sessionTimer = TangemTimer(timeInterval: 52.0, completionHandler: timerTimeout)
         tagTimer = TangemTimer(timeInterval: 18.0, completionHandler: timerTimeout)
-        pollingTimer = TangemTimer(timeInterval: 1.0, completionHandler: { [weak self] in
-            self?.readerSession?.alertMessage = Localizations.nfcAlertDefault
-            self?.retryCount = CardSession.maxRetryCount
-            self?.tagTimer.stop()
-            print("restart by timer")
-            self?.readerSession?.restartPolling()
-        })
     }
     
     public func start() {
@@ -81,23 +76,36 @@ public class CardSession: NSObject {
         errorTimeoutTimer.start()
     }
     
-    func sendCardRequest(to tag7816: NFCISO7816Tag,
-                         apdu: NFCISO7816APDU,
+    func sendCardRequest(apdu: NFCISO7816APDU,
                          completionHandler:  @escaping ([CardTag : CardTLV]) -> Void) {
-        tag7816.sendCommand(apdu: apdu) {[weak self](data, sw1, sw2, apduError) in
+        requestTimestamp = Date()
+        tag?.sendCommand(apdu: apdu) {[weak self](data, sw1, sw2, apduError) in
             guard let self = self else { return }
-            self.pollingTimer!.stop()
             
+            print("receive response")
+            guard !self.cancelled else {
+                print("skip cancelled")
+                return
+            }
+    
             if let _ = apduError {
+                if let requestTimestamp = self.requestTimestamp,
+                    requestTimestamp.distance(to: Date()) > 1.0 {
+                    self.cancelled = true
+                    print("invoke restart polling by timestamp")
+                    self.retryCount = CardSession.maxRetryCount
+                    self.restart()
+                    return
+                }
+                
                 if self.retryCount == 0 {
                     self.retryCount = CardSession.maxRetryCount
-                    self.tagTimer?.stop()
                     print("restart by retry")
-                    self.readerSession!.restartPolling()
+                    self.restart()
                 } else {
-                    self.pollingTimer!.start()
+                    print("retry")
                     self.retryCount -= 1
-                    self.sendCardRequest(to: tag7816, apdu: apdu, completionHandler: completionHandler)
+                    self.sendCardRequest(apdu: apdu, completionHandler: completionHandler)
                 }
                 return
             }
@@ -113,9 +121,10 @@ public class CardSession: NSObject {
                     }
                     
                     if respApdu.tlv[.flash] != nil {
-                        self.readerSession?.restartPolling()
+                        print("restart by flash")
+                        self.restart()
                     } else {
-                        self.sendCardRequest(to: tag7816, apdu: apdu, completionHandler: completionHandler)
+                        self.sendCardRequest(apdu: apdu, completionHandler: completionHandler)
                     }
                 case .processCompleted:
                     completionHandler(respApdu.tlv)
@@ -128,7 +137,7 @@ public class CardSession: NSObject {
         }
     }
     
-    func onTagConnected(tag: NFCISO7816Tag) {}
+    func onTagConnected() {}
     
     func invalidate(errorMessage: String?) {
         stopTimers()
@@ -141,8 +150,11 @@ public class CardSession: NSObject {
     }
     
     func restart() {
-       tagTimer.stop()
-       readerSession?.restartPolling()
+        DispatchQueue.main.async {
+            self.tag = nil
+            self.tagTimer.stop()
+            self.readerSession?.restartPolling()
+        }
     }
 }
 
@@ -157,6 +169,8 @@ extension CardSession: NFCTagReaderSessionDelegate {
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
         stopTimers()
         self.isBusy = false
+        self.cancelled = true
+        self.tag = nil
         guard !invalidateByUser else {
             return
         }
@@ -173,16 +187,20 @@ extension CardSession: NFCTagReaderSessionDelegate {
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
         print("didDetect tags")
         invalidateByUser = false
+        cancelled = false
+        requestTimestamp = nil
         if case let .iso7816(tag7816) = tags.first {
             let nfcTag = tags.first!
             session.connect(to: nfcTag) {[unowned self] error in
                 guard error == nil else {
+                    print("restart after error")
                     self.readerSession?.restartPolling()
                     return
                 }
                 self.tagTimer?.start()
                 self.retryCount = CardSession.maxRetryCount
-                self.onTagConnected(tag: tag7816)
+                self.tag = tag7816
+                self.onTagConnected()
             }
         }
     }
