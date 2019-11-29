@@ -337,13 +337,20 @@ class ExtractViewController: ModalActionViewController {
                 return false
             }
             
-            let valueToReceive = includeFeeSwitch.isOn ? amountValue - feeValue : amountValue + feeValue
-            guard valueToReceive > 0 else {
-                setError(true, for: amountText )
-                btnSendSetEnabled(false)
-                return false
+            if card.units == card.cardEngine.walletUnits {
+                let valueToReceive = includeFeeSwitch.isOn ? amountValue - feeValue : amountValue + feeValue
+                guard valueToReceive > 0 else {
+                    setError(true, for: amountText )
+                    btnSendSetEnabled(false)
+                    return false
+                }
+            } else {
+                if let forFee = Decimal(string: card.walletValue) {
+                    if forFee - feeValue < 0 {
+                        return false
+                    }
+                }
             }
-            
             
             validatedFee = fee
         }
