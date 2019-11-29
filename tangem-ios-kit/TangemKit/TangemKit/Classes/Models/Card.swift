@@ -234,10 +234,6 @@ public class Card {
      */
     
     public var canExtract: Bool {
-        if blockchain == .ethereum && tokenSymbol == "SEED" {
-            return false
-        }
-        
         if batchId == 38 { //old cardano cards
             return true
         }
