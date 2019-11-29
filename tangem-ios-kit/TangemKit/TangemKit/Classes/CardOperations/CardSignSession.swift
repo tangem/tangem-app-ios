@@ -95,8 +95,8 @@ public class CardSignSession: CardSession {
         return signApdu
     }
     
-    override func onTagConnected(tag: NFCISO7816Tag) {
-        sendCardRequest(to: tag, apdu: signApdu!) {[weak self] signResult in
+    override func onTagConnected() {
+        sendCardRequest(apdu: signApdu!) {[weak self] signResult in
              guard let self = self else { return }
             
             self.readerSession?.alertMessage = Localizations.nfcAlertSignCompleted
