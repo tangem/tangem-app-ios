@@ -75,14 +75,14 @@ public class CardReadSession: CardSession {
     }
     
     
-    override func onTagConnected(tag: NFCISO7816Tag) {
+    override func onTagConnected() {
         let readApdu = buildReadApdu()
         guard let challenge = CryptoUtils.getRandomBytes(count: 16) else {
             invalidate(errorMessage: "Failed to generate challenge")
             return
         }
         
-        self.sendCardRequest(to: tag, apdu: readApdu) {[weak self] readResult in
+        self.sendCardRequest(apdu: readApdu) {[weak self] readResult in
             guard let self = self else { return }
             
             guard let intStatus = readResult[.status]?.value?.intValue,
@@ -95,7 +95,7 @@ public class CardReadSession: CardSession {
             self.readHandler()
             let cardId = readResult[.cardId]?.value
             let checkWalletApdu = self.buildCheckWalletApdu(with: challenge, cardId: cardId! )
-            self.sendCardRequest(to: tag, apdu: checkWalletApdu) {[weak self] checkWalletResult in
+            self.sendCardRequest(apdu: checkWalletApdu) {[weak self] checkWalletResult in
                 guard let self = self else { return }
                 
                 self.invalidate(errorMessage: nil)
