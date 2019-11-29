@@ -100,6 +100,13 @@ public class CardSignSession: NSObject {
         session.invalidate(errorMessage: Localizations.nfcSessionTimeout)
     }
     
+    private func stopTimers() {
+        DispatchQueue.main.async {
+            self.sessionTimer?.invalidate()
+            self.tagTimer?.invalidate()
+        }
+    }
+    
     public init(cardId: String, supportedSignMethods: [SignMethod], issuerSignature: Data? = nil, completion: @escaping (CardSignSessionResult<[UInt8]>) -> Void) {
         self.completion = completion
         self.cardId = cardId
@@ -246,14 +253,17 @@ extension CardSignSession: NFCTagReaderSessionDelegate {
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
+        self.stopTimers()
         guard state != .signed else {
             state = .none
             return
         }
         state = .none
+        
         DispatchQueue.main.async {
             guard let nfcError = error as? NFCReaderError,
                 nfcError.code != .readerSessionInvalidationErrorUserCanceled else {
+                    
                     self.completion(.cancelled)
                     return
             }
