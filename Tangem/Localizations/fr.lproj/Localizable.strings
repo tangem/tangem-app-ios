@@ -856,3 +856,5 @@
 "common_go_link" = "Open in Safari";
 
 "common_next" = "Next";
+
+"details_linked_card_title" = "The card is linked to this phone";
