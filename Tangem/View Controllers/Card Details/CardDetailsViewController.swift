@@ -37,6 +37,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -50,6 +51,12 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         setupWithCardDetails(card: card)
     }
     
+    @objc func applicationDidBecomeActive() {
+        if let card = card {
+            isBalanceLoading = true
+            fetchWalletBalance(card: card)
+        }
+    }
     
     func updateBalance() {
         guard let card = card else {
@@ -58,6 +65,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
         
         guard !isBalanceLoading else {
+            self.viewModel.setWalletInfoLoading(true)
             return
         }
         
@@ -352,6 +360,15 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 extension CardDetailsViewController : TangemSessionDelegate {
     
     func tangemSessionDidRead(card: Card) {
+        guard card.genuinityState != .pending else {
+            self.isBalanceLoading = true
+            self.viewModel.setWalletInfoLoading(true)
+            if #available(iOS 13.0, *) {} else {
+                viewModel.doubleScanHintLabel.isHidden = false
+            }
+            return
+        }
+        
         guard /*!card.isTestBlockchain &&*/ card.isBlockchainKnown else {
             handleUnknownBlockchainCard {
                 self.navigationController?.popViewController(animated: true)
@@ -363,12 +380,6 @@ extension CardDetailsViewController : TangemSessionDelegate {
         self.setupWithCardDetails(card: card)
         
         switch card.genuinityState {
-        case .pending:
-            self.isBalanceLoading = true
-            self.viewModel.setWalletInfoLoading(true)
-            if #available(iOS 13.0, *) {} else {
-                viewModel.doubleScanHintLabel.isHidden = false
-            }
         case .nonGenuine:
             self.handleNonGenuineTangemCard(card)
         default:
