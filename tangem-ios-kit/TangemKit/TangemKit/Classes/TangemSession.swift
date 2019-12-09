@@ -38,8 +38,8 @@ public class TangemSession {
     var scanner: CardScanner?
     
     @available(iOS 13.0, *)
-    lazy var readSession: CardSession =  {
-        let session = CardSession() {[weak self] result in
+    lazy var readSession: CardReadSession = {
+        let session = CardReadSession(completion: { [weak self] result in
             switch result {
             case .success (let tlv):
                 let card = Card(tags: Array(tlv.values))
@@ -55,16 +55,17 @@ public class TangemSession {
                 DispatchQueue.main.async {
                     self?.delegate?.tangemSessionDidFailWith(error: .userCancelled)
                 }
-            case .pending(let tlv):
-                let card = Card(tags: Array(tlv.values))
-                 card.genuinityState = .pending
-                DispatchQueue.main.async {
-                    self?.delegate?.tangemSessionDidRead(card: card)
-                }
+            }
+        }) { [weak self] in
+            let card = Card()
+            card.genuinityState = .pending
+            DispatchQueue.main.async {
+                self?.delegate?.tangemSessionDidRead(card: card)
             }
         }
         return session
     }()
+    
     
     public init(payload: Data? = nil, delegate: TangemSessionDelegate) {
         self.delegate = delegate
