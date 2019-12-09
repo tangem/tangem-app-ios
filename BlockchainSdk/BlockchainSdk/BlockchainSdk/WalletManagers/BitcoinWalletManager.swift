@@ -28,3 +28,26 @@ class BitcoinWalletManager: WalletManager {
         
     }
 }
+
+extension BitcoinWalletManager: TransactionBuilder {
+    func getEstimateSize(for transaction: Transaction) -> Int {
+        <#code#>
+    }
+}
+
+extension BitcoinWalletManager: TransactionSender {
+    func send(_ transaction: Transaction, signer: TransactionSigner) {
+        <#code#>
+    }
+}
+
+extension BitcoinWalletManager: FeeProvider {
+    func getFee(amount: Amount, source: String, destination: String) -> [Amount]? {
+        <#code#>
+    }
+}
+
+
+class BitcoinTransactionBuilder {
+    
+}
