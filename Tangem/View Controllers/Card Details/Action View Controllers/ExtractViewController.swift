@@ -326,6 +326,7 @@ class ExtractViewController: ModalActionViewController {
             guard let fee = feeLabel.text?.remove(" \(card.walletUnits)"),
                 let feeValue = Decimal(string: fee),
                 !fee.isEmpty else {
+                    setError(true, for: feeLabel)
                     btnSendSetEnabled(false)
                     return false
             }
@@ -333,6 +334,7 @@ class ExtractViewController: ModalActionViewController {
             let valueToSend = includeFeeSwitch.isOn ? amountValue : amountValue + feeValue
             guard total >= valueToSend else {
                 setError(true, for: amountText )
+                setError(true, for: feeLabel)
                 btnSendSetEnabled(false)
                 return false
             }
@@ -341,12 +343,15 @@ class ExtractViewController: ModalActionViewController {
                 let valueToReceive = includeFeeSwitch.isOn ? amountValue - feeValue : amountValue + feeValue
                 guard valueToReceive > 0 else {
                     setError(true, for: amountText )
+                    setError(true, for: feeLabel)
                     btnSendSetEnabled(false)
                     return false
                 }
             } else {
                 if let forFee = Decimal(string: card.walletValue) {
-                    if forFee - feeValue < 0 {
+                    if forFee - feeValue <= 0 {
+                        setError(true, for: feeLabel)
+                        btnSendSetEnabled(false)
                         return false
                     }
                 }
@@ -354,7 +359,7 @@ class ExtractViewController: ModalActionViewController {
             
             validatedFee = fee
         }
-        
+        setError(false, for: feeLabel)
         setError(false, for: targetAddressText )
         setError(false, for: amountText )
         validatedAmount = amount
@@ -556,10 +561,6 @@ class ExtractViewController: ModalActionViewController {
         
         let separatorColor = UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
         let textColor = UIColor.init(red: 102.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1.0)
-        
-        //        textField.layer.borderColor = error ? UIColor.red.cgColor : UIColor.clear.cgColor
-        //        textField.layer.borderWidth = error ? 1.0 : 0.0
-        //        textField.layer.cornerRadius = error ? 8.0 : 0.0
         textField.textColor = error ? UIColor.red : textColor
         
         if textField == amountText {
@@ -567,6 +568,12 @@ class ExtractViewController: ModalActionViewController {
         } else if textField == targetAddressText {
             addressSeparator.backgroundColor = error ? UIColor.red : separatorColor
         }
+    }
+    
+    private func setError(_ error: Bool, for label: UILabel) {
+        let separatorColor = UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
+        let textColor = UIColor.init(red: 102.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1.0)
+        label.textColor = error ? UIColor.red : textColor
     }
     
     func btnSendSetEnabled(_ enabled: Bool) {
