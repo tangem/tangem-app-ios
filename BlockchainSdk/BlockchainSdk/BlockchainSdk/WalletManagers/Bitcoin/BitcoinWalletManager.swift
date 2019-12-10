@@ -15,17 +15,18 @@ class BitcoinWalletManager: WalletManager {
     
     private let _wallet: CurrencyWallet
     private let walletPublicKey: Data
+    private let txBuilder: BitcoinTransactionBuilder
     
-    init(walletPublicKey: Data, blockchain: Blockchain) {
+    init(walletPublicKey: Data, walletConfig: WalletConfig, isTestnet: Bool) {
+        self.blockchain = isTestnet ? .bitcoinTestnet : .bitcoin
         let address = blockchain.makeAddress(from: walletPublicKey)
-        let walletConfig = WalletConfig(allowFeeSelection: true, allowFeeInclusion: true)
         self._wallet = CurrencyWallet(config: walletConfig, address: address)
-        self.blockchain = blockchain
         self.walletPublicKey = walletPublicKey
+        self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, isTestnet: isTestnet)
     }
-  
+    
     func update() {
-        
+        //[REDACTED_TODO_COMMENT]
     }
 }
 
@@ -45,9 +46,4 @@ extension BitcoinWalletManager: FeeProvider {
     func getFee(amount: Amount, source: String, destination: String) -> [Amount]? {
         return nil
     }
-}
-
-
-class BitcoinTransactionBuilder {
-    
 }
