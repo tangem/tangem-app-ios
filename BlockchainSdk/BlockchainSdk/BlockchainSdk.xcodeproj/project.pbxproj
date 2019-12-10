@@ -21,6 +21,8 @@
 		5D304397239A6B960066B8D9 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D304396239A6B960066B8D9 /* String+.swift */; };
 		5D304399239A8C9C0066B8D9 /* AddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D304398239A8C9C0066B8D9 /* AddressFactory.swift */; };
 		5DAE73BF239AB4C800AC5543 /* AddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAE73BE239AB4C800AC5543 /* AddressValidator.swift */; };
+		5DE3BF97239E6DAB00E8815D /* RIPEMD160.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3BF96239E6DAB00E8815D /* RIPEMD160.swift */; };
+		5DE3BF99239E722400E8815D /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3BF98239E722400E8815D /* Base58.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +66,8 @@
 		5D304396239A6B960066B8D9 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		5D304398239A8C9C0066B8D9 /* AddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressFactory.swift; sourceTree = "<group>"; };
 		5DAE73BE239AB4C800AC5543 /* AddressValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressValidator.swift; sourceTree = "<group>"; };
+		5DE3BF96239E6DAB00E8815D /* RIPEMD160.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RIPEMD160.swift; sourceTree = "<group>"; };
+		5DE3BF98239E722400E8815D /* Base58.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base58.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,7 +93,6 @@
 		5D14E4642397B80F00C15FC8 = {
 			isa = PBXGroup;
 			children = (
-				5D304395239A6B880066B8D9 /* Extensions */,
 				5D14E4702397B80F00C15FC8 /* BlockchainSdk */,
 				5D14E47B2397B80F00C15FC8 /* BlockchainSdkTests */,
 				5D14E46F2397B80F00C15FC8 /* Products */,
@@ -109,6 +112,8 @@
 		5D14E4702397B80F00C15FC8 /* BlockchainSdk */ = {
 			isa = PBXGroup;
 			children = (
+				5DE3BF95239E6D8E00E8815D /* Crypto */,
+				5D304395239A6B880066B8D9 /* Extensions */,
 				5D14E49F2397B8F800C15FC8 /* Wallets */,
 				5D14E4892397B87000C15FC8 /* WalletManagers */,
 				5D14E48B2397B87000C15FC8 /* Common */,
@@ -170,6 +175,15 @@
 				5D304396239A6B960066B8D9 /* String+.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		5DE3BF95239E6D8E00E8815D /* Crypto */ = {
+			isa = PBXGroup;
+			children = (
+				5DE3BF96239E6DAB00E8815D /* RIPEMD160.swift */,
+				5DE3BF98239E722400E8815D /* Base58.swift */,
+			);
+			path = Crypto;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -283,7 +297,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DE3BF97239E6DAB00E8815D /* RIPEMD160.swift in Sources */,
 				5D304390239A58C90066B8D9 /* BitcoinWalletManager.swift in Sources */,
+				5DE3BF99239E722400E8815D /* Base58.swift in Sources */,
 				5D14E4992397B87000C15FC8 /* Wallet.swift in Sources */,
 				5D304394239A6A6B0066B8D9 /* WalletManagerFactory.swift in Sources */,
 				5D006ACD239950F9008BA04D /* CurrencyWallet.swift in Sources */,
