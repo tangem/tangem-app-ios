@@ -31,19 +31,19 @@ class BitcoinWalletManager: WalletManager {
 
 extension BitcoinWalletManager: TransactionBuilder {
     func getEstimateSize(for transaction: Transaction) -> Int {
-        <#code#>
+        return 0
     }
 }
 
 extension BitcoinWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) {
-        <#code#>
+        
     }
 }
 
 extension BitcoinWalletManager: FeeProvider {
     func getFee(amount: Amount, source: String, destination: String) -> [Amount]? {
-        <#code#>
+        return nil
     }
 }
 
