@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import TangemSdk
 @testable import BlockchainSdk
 
 class BlockchainSdkTests: XCTestCase {
@@ -31,4 +32,16 @@ class BlockchainSdkTests: XCTestCase {
         }
     }
 
+    func testBase58() {
+        let ethalonString = "1NS17iag9jJgTHD1VXjvLCEnZuQ3rJDE9L"
+        let testData = Data(hex: "00eb15231dfceb60925886b67d065299925915aeb172c06647")
+        let encoded = String(base58: testData)
+        XCTAssertEqual(ethalonString, encoded)
+    }
+    
+    func testBtcAddress() {
+        let btcAddress = "1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs"
+        let publicKey = Data(hex: "0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352")
+        XCTAssertEqual(BitcoinAddressFactory().makeAddress(from: publicKey, testnet: false), btcAddress)
+    }
 }
