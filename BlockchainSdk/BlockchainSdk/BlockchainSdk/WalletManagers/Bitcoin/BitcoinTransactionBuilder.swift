@@ -11,34 +11,38 @@ import Foundation
 class BitcoinTransactionBuilder {
     let isTestnet: Bool
     let walletAddress: String
+    let walletPublicKey: Data
+    var unspentOutputs: [BtcTx]?
     
-    init(walletAddress: String, isTestnet: Bool) {
+    init(walletAddress: String, walletPublicKey: Data, isTestnet: Bool) {
         self.walletAddress = walletAddress
+        self.walletPublicKey = walletPublicKey
         self.isTestnet = isTestnet
     }
     
-    public func buildForSign(amount: Decimal, fee: Decimal, targetAddress: String, txRefs: [BtcTx]) -> [Data]? {
+    public func buildForSign(transaction: Transaction) -> [Data]? {
+        guard let fee = transaction.fee?.value else {
+            return nil
+        }
+        
         guard let outputScript = buildOutputScript(address: walletAddress) else {
             return nil
         }
         
-        guard let unspents = buildUnspents(with: [outputScript], txRefs: txRefs) else {
+        guard let unspents = buildUnspents(with: [outputScript]) else {
             return nil
         }
         
-        let fullAmountSatoshi = Decimal(unspents.reduce(0, {$0 + $1.amount}))
-        let feeSatoshi = fee * Decimal(100000000)
-        let amountSatoshi = amount * Decimal(100000000)
-        let changeSatoshi = fullAmountSatoshi - amountSatoshi - feeSatoshi
+        let amountSatoshi = transaction.amount.value * Decimal(100000000)
+        let changeSatoshi = calculateChange(unspents: unspents, amount: transaction.amount.value, fee: fee)
         
         var hashes = [Data]()
         
-        
-        
         for index in 0..<unspents.count {
-            guard var tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: targetAddress, index: index) else {
+            guard var tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: transaction.destinationAddress, index: index) else {
                 return nil
             }
+            
             tx.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
             let hash = tx.sha256().sha256()
             hashes.append(hash)
@@ -47,16 +51,30 @@ class BitcoinTransactionBuilder {
         return hashes
     }
     
-    public func buildForSend(walletPublicKey: Data, signature: Data, txRefs: [BtcTx], amount: Decimal, change: Decimal, targetAddress: String) -> String? {
+    public func buildForSend(transaction: Transaction, signature: Data) -> Data? {
+        guard let fee = transaction.fee?.value, let unspentOutputs = unspentOutputs else {
+            return nil
+        }
+        
         guard let outputScripts = buildSignedScripts(signature: signature,
                                                      publicKey: walletPublicKey,
-                                                     outputsCount: txRefs.count),
-            let unspents = buildUnspents(with: outputScripts, txRefs: txRefs) else {
+                                                     outputsCount: unspentOutputs.count),
+            let unspents = buildUnspents(with: outputScripts) else {
                 return nil
         }
         
-        let tx = buildTxBody(unspents: unspents, amount: amount, change: change, targetAddress: targetAddress, index: nil)
-        return tx?.toHexString()
+        let amountSatoshi = transaction.amount.value * Decimal(100000000)
+        let changeSatoshi = calculateChange(unspents: unspents, amount: transaction.amount.value, fee: fee)
+        
+        let tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: transaction.destinationAddress, index: nil)
+        return tx
+    }
+    
+    private func calculateChange(unspents: [UnspentTransaction], amount: Decimal, fee: Decimal) -> Decimal {
+        let fullAmountSatoshi = Decimal(unspents.reduce(0, {$0 + $1.amount}))
+        let feeSatoshi = fee * Decimal(100000000)
+        let amountSatoshi = amount * Decimal(100000000)
+        return fullAmountSatoshi - amountSatoshi - feeSatoshi
     }
     
     private func buildPrefix(for data: Data) -> Data {
@@ -144,8 +162,8 @@ class BitcoinTransactionBuilder {
         return nil
     }
     
-    private func buildUnspents(with outputScripts:[Data], txRefs: [BtcTx]) -> [UnspentTransaction]? {
-        let unspentTransactions: [UnspentTransaction] = txRefs.enumerated().compactMap({ index, txRef  in
+    private func buildUnspents(with outputScripts:[Data]) -> [UnspentTransaction]? {
+        let unspentTransactions: [UnspentTransaction]? = unspentOutputs?.enumerated().compactMap({ index, txRef  in
             let hash = Data(hex: txRef.tx_hash)
             let outputScript = outputScripts.count == 1 ? outputScripts.first! : outputScripts[index]
             return UnspentTransaction(amount: txRef.value, outputIndex: txRef.tx_output_n, hash: hash, outputScript: outputScript)
@@ -163,7 +181,6 @@ class BitcoinTransactionBuilder {
         txToSign.append(unspents.count.byte)
         
         //hex str hash prev btc
-        
         
         for (inputIndex, input) in unspents.enumerated() {
             let hashKey: [UInt8] = input.hash.reversed()
