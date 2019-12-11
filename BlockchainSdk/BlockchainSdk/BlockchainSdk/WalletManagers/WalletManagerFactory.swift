@@ -18,7 +18,7 @@ public class WalletManagerFactory {
         
         if blockchainName.contains("btc") || blockchainName.contains("bitcoin") {
             let walletConfig = WalletConfig(allowFeeSelection: true, allowFeeInclusion: true)
-            return BitcoinWalletManager(walletPublicKey: walletPublicKey, walletConfig: walletConfig, isTestnet: blockchainName.contains("test") )
+            return BitcoinWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, isTestnet: blockchainName.contains("test") )
         }
         return nil
     }
