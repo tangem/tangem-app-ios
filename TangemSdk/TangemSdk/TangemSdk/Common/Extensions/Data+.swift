@@ -94,7 +94,7 @@ extension Data {
         }
     }
     
-    var bytes: [Byte] {
+    public var bytes: [Byte] {
         return Array(self)
     }
     
