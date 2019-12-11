@@ -16,17 +16,19 @@ public protocol WalletManager {
 }
 
 protocol TransactionBuilder {
-    func getEstimateSize(for transaction: Transaction) -> Int
+    func getEstimateSize(for transaction: Transaction) -> Int?
 }
 
+@available(iOS 13.0, *)
 protocol TransactionSender {
-    func send(_ transaction: Transaction, signer: TransactionSigner)
+    func send(_ transaction: Transaction, signer: TransactionSigner, completion: @escaping (Result<Bool, Error>) -> Void)
 }
 
+@available(iOS 13.0, *)
 protocol TransactionSigner {
-    
+    func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void)
 }
 
 protocol FeeProvider {
-    func getFee(amount: Amount, source: String, destination: String) -> [Amount]?
+    func getFee(amount: Amount, source: String, destination: String, completion: @escaping (Result<[Amount], Error>) -> Void)
 }
