@@ -16,13 +16,10 @@ public class WalletManagerFactory {
             return nil
         }
         
-        let blockchain = Blockchain.from(name: blockchainName)
-        
-        switch blockchain {
-        case .bitcoin:
-            return BitcoinWalletManager(walletPublicKey: walletPublicKey, blockchain: blockchain)
-        default:
-            fatalError("unsupported")
+        if blockchainName.contains("btc") || blockchainName.contains("bitcoin") {
+            let walletConfig = WalletConfig(allowFeeSelection: true, allowFeeInclusion: true)
+            return BitcoinWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, isTestnet: blockchainName.contains("test") )
         }
+        return nil
     }
 }
