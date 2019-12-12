@@ -1,0 +1,20 @@
+PODS:
+  - BigInt (5.0.0)
+  - stellar-ios-mac-sdk (1.7.0)
+
+DEPENDENCIES:
+  - BigInt
+  - stellar-ios-mac-sdk
+
+SPEC REPOS:
+  trunk:
+    - BigInt
+    - stellar-ios-mac-sdk
+
+SPEC CHECKSUMS:
+  BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
+  stellar-ios-mac-sdk: d4e826707d24d4c7d16089fe184e0b3a472790d3
+
+PODFILE CHECKSUM: a670722e1d1c69d8d94d76ef85605989ada335d4
+
+COCOAPODS: 1.8.4
