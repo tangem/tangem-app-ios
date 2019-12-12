@@ -10,9 +10,10 @@ import Foundation
 import TangemSdk
 
 public enum Blockchain: String {
-    case unknown
     case bitcoin
     case bitcoinTestnet
+    case stellar
+    case stellarTestnet
     //    case ethereum
     //    case rootstock
     //    case cardano
@@ -20,7 +21,7 @@ public enum Blockchain: String {
     //    case binance
     //    case stellar
     
-    public var decimalCount: Int16 {
+    public var decimalCount: Int {
         switch self {
         case .bitcoin, .bitcoinTestnet:
             return 8
@@ -29,12 +30,9 @@ public enum Blockchain: String {
             //        case .ripple, .cardano:
             //            return 6
             //        case .binance:
-            //            return 8
-            //        case .stellar:
-        //            return 7
-        case .unknown:
-            assertionFailure()
-            return 0
+        //            return 8
+        case .stellar, .stellarTestnet:
+            return 7
         }
     }
     
@@ -42,35 +40,40 @@ public enum Blockchain: String {
         switch self {
         case .bitcoin, .bitcoinTestnet://, .ethereum, .rootstock, .binance:
             return .down
+        case .stellar, .stellarTestnet:
+            return .plain
             //        case .cardano:
         //            return .up
-        case .unknown:
-            assertionFailure()
-            return .plain
+        }
+    }
+    public var currencySymbol: String {
+        switch self {
+        case .bitcoin, .bitcoinTestnet:
+            return "BTC"
+        case .stellar, .stellarTestnet:
+            return "XLM"
         }
     }
     
-    func makeAddress(from cardPublicKey: Data) -> String {
+    func makeAddress(from walletPublicKey: Data) -> String {
         switch self {
         case .bitcoin:
-            return BitcoinAddressFactory().makeAddress(from: cardPublicKey, testnet: false)
+            return BitcoinAddressFactory().makeAddress(from: walletPublicKey, testnet: false)
         case .bitcoinTestnet:
-            return BitcoinAddressFactory().makeAddress(from: cardPublicKey, testnet: true)
-        case .unknown:
-            assertionFailure()
-            return ""
+            return BitcoinAddressFactory().makeAddress(from: walletPublicKey, testnet: true)
+        case .stellar, .stellarTestnet:
+            return StellarAddressFactory().makeAddress(from: walletPublicKey)
         }
     }
     
     func validate(address: String) -> Bool {
         switch self {
         case .bitcoin:
-            return BitcoinAddressValidator().validate(address: address, testnet: false)
+            return BitcoinAddressValidator().validate(address, testnet: false)
         case .bitcoinTestnet:
-            return BitcoinAddressValidator().validate(address: address, testnet: true)
-        case .unknown:
-            assertionFailure()
-            return false
+            return BitcoinAddressValidator().validate(address, testnet: true)
+        case .stellar, .stellarTestnet:
+            return StellarAddressValidator().validate(address)
         }
     }
 }
