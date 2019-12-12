@@ -7,4 +7,5 @@ target 'BlockchainSdk' do
     
     pod 'stellar-ios-mac-sdk'
     pod 'BigInt'
+    pod 'SwiftyJSON'
 end
