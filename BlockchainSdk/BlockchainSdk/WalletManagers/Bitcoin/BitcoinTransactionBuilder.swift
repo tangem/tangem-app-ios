@@ -21,7 +21,7 @@ class BitcoinTransactionBuilder {
     }
     
     public func buildForSign(transaction: Transaction) -> [Data]? {
-        guard let fee = transaction.fee?.value else {
+        guard let fee = transaction.fee?.value, let amount = transaction.amount.value else {
             return nil
         }
         
@@ -33,8 +33,8 @@ class BitcoinTransactionBuilder {
             return nil
         }
         
-        let amountSatoshi = transaction.amount.value * Decimal(100000000)
-        let changeSatoshi = calculateChange(unspents: unspents, amount: transaction.amount.value, fee: fee)
+        let amountSatoshi = amount * Decimal(100000000)
+        let changeSatoshi = calculateChange(unspents: unspents, amount: amount, fee: fee)
         
         var hashes = [Data]()
         
@@ -52,7 +52,8 @@ class BitcoinTransactionBuilder {
     }
     
     public func buildForSend(transaction: Transaction, signature: Data) -> Data? {
-        guard let fee = transaction.fee?.value, let unspentOutputs = unspentOutputs else {
+        guard let fee = transaction.fee?.value, let unspentOutputs = unspentOutputs,
+            let amount = transaction.amount.value else {
             return nil
         }
         
@@ -63,8 +64,8 @@ class BitcoinTransactionBuilder {
                 return nil
         }
         
-        let amountSatoshi = transaction.amount.value * Decimal(100000000)
-        let changeSatoshi = calculateChange(unspents: unspents, amount: transaction.amount.value, fee: fee)
+        let amountSatoshi = amount * Decimal(100000000)
+        let changeSatoshi = calculateChange(unspents: unspents, amount: amount, fee: fee)
         
         let tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: transaction.destinationAddress, index: nil)
         return tx
