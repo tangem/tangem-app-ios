@@ -29,17 +29,17 @@ public class WalletManagerFactory {
         return nil
     }
     
-    private func getAsset(from card: Card) -> Asset? { //gettoken
+    private func getAsset(from card: Card) -> Token? { //gettoken
         if let symbol = card.cardData?.tokenSymbol,
             let contractAddress = card.cardData?.tokenContractAddress,
             let decimals = card.cardData?.tokenDecimal {
-            return Asset(symbol: symbol, contractAddress: contractAddress, decimals: decimals)
+            return Token(symbol: symbol, contractAddress: contractAddress, decimals: decimals)
         }
         return nil
     }
 }
 
-struct Asset { //token rename
+struct Token { //token rename
     let symbol: String
     let contractAddress: String
     let decimals: Int
