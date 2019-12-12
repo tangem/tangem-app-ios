@@ -1,20 +1,24 @@
 PODS:
   - BigInt (5.0.0)
   - stellar-ios-mac-sdk (1.7.0)
+  - SwiftyJSON (5.0.0)
 
 DEPENDENCIES:
   - BigInt
   - stellar-ios-mac-sdk
+  - SwiftyJSON
 
 SPEC REPOS:
   trunk:
     - BigInt
     - stellar-ios-mac-sdk
+    - SwiftyJSON
 
 SPEC CHECKSUMS:
   BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
   stellar-ios-mac-sdk: d4e826707d24d4c7d16089fe184e0b3a472790d3
+  SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
 
-PODFILE CHECKSUM: a670722e1d1c69d8d94d76ef85605989ada335d4
+PODFILE CHECKSUM: 0fd286080fe72460c76cf4c786a0983e3de47a93
 
 COCOAPODS: 1.8.4
