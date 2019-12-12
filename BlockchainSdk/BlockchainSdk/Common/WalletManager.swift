@@ -11,7 +11,6 @@ import TangemSdk
 
 public protocol WalletManager {
     var wallet: Wallet {get}
-    var blockchain: Blockchain {get}
     func update()
 }
 
