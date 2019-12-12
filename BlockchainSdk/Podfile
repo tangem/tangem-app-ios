@@ -1,0 +1,10 @@
+platform :ios, '11.0'
+use_frameworks!
+
+
+target 'BlockchainSdk' do
+    project 'BlockchainSdk.xcodeproj'
+    
+    pod 'stellar-ios-mac-sdk'
+    pod 'BigInt'
+end
