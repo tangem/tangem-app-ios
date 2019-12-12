@@ -23,7 +23,6 @@
 		5DAE73BF239AB4C800AC5543 /* BitcoinAddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAE73BE239AB4C800AC5543 /* BitcoinAddressValidator.swift */; };
 		5DE3BF97239E6DAB00E8815D /* RIPEMD160.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3BF96239E6DAB00E8815D /* RIPEMD160.swift */; };
 		5DE3BF99239E722400E8815D /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3BF98239E722400E8815D /* Base58.swift */; };
-		5DE3BF9C239F994C00E8815D /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = 5DE3BF9B239F994C00E8815D /* BigInt */; };
 		5DE3BF9E239FA2F400E8815D /* SegWitBech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3BF9D239FA2F400E8815D /* SegWitBech32.swift */; };
 		5DE3BFA0239FA33800E8815D /* Bech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3BF9F239FA33800E8815D /* Bech32.swift */; };
 		5DE3BFA4239FB4E500E8815D /* BitcoinNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3BFA3239FB4E500E8815D /* BitcoinNetworkManager.swift */; };
@@ -31,7 +30,11 @@
 		5DED72BA239FE2F8006D79AE /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72B9239FE2F8006D79AE /* Int+.swift */; };
 		5DED72BC239FEEEC006D79AE /* BitcoinTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72BB239FEEEC006D79AE /* BitcoinTransactionBuilder.swift */; };
 		5DED72BE239FF9F9006D79AE /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72BD239FF9F9006D79AE /* CryptoUtils.swift */; };
-		5DED72C1239FFA7D006D79AE /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 5DED72C0239FFA7D006D79AE /* secp256k1 */; };
+		5DED72C1239FFA7D006D79AE /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = 5DED72C0239FFA7D006D79AE /* SwiftPackageProductDependency */; };
+		5DED72C423A1315F006D79AE /* StellarWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72C323A1315F006D79AE /* StellarWalletManager.swift */; };
+		5DED72C623A13377006D79AE /* StellarAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72C523A13377006D79AE /* StellarAddressFactory.swift */; };
+		5DED72C823A13384006D79AE /* StellarAddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72C723A13384006D79AE /* StellarAddressValidator.swift */; };
+		7386FBD2F78EB76C53BCD1AE /* Pods_BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5879E1BF1F869A097665DCFC /* Pods_BlockchainSdk.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +62,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		438C3138ADC1FC1290BE3BA2 /* Pods-BlockchainSdk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlockchainSdk.release.xcconfig"; path = "Target Support Files/Pods-BlockchainSdk/Pods-BlockchainSdk.release.xcconfig"; sourceTree = "<group>"; };
+		5879E1BF1F869A097665DCFC /* Pods_BlockchainSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlockchainSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D006ACC239950F9008BA04D /* CurrencyWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyWallet.swift; sourceTree = "<group>"; };
 		5D14E46E2397B80F00C15FC8 /* BlockchainSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlockchainSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D14E4712397B80F00C15FC8 /* BlockchainSdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockchainSdk.h; sourceTree = "<group>"; };
@@ -84,6 +89,10 @@
 		5DED72B9239FE2F8006D79AE /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		5DED72BB239FEEEC006D79AE /* BitcoinTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinTransactionBuilder.swift; sourceTree = "<group>"; };
 		5DED72BD239FF9F9006D79AE /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
+		5DED72C323A1315F006D79AE /* StellarWalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarWalletManager.swift; sourceTree = "<group>"; };
+		5DED72C523A13377006D79AE /* StellarAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAddressFactory.swift; sourceTree = "<group>"; };
+		5DED72C723A13384006D79AE /* StellarAddressValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAddressValidator.swift; sourceTree = "<group>"; };
+		BE43CCCD58746DFCAA8B3BE2 /* Pods-BlockchainSdk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlockchainSdk.debug.xcconfig"; path = "Target Support Files/Pods-BlockchainSdk/Pods-BlockchainSdk.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,8 +101,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D14E49C2397B8B000C15FC8 /* TangemSdk.framework in Frameworks */,
-				5DED72C1239FFA7D006D79AE /* secp256k1 in Frameworks */,
-				5DE3BF9C239F994C00E8815D /* BigInt in Frameworks */,
+				5DED72C1239FFA7D006D79AE /* BuildFile in Frameworks */,
+				7386FBD2F78EB76C53BCD1AE /* Pods_BlockchainSdk.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +124,7 @@
 				5D14E47B2397B80F00C15FC8 /* BlockchainSdkTests */,
 				5D14E46F2397B80F00C15FC8 /* Products */,
 				5D14E49A2397B8B000C15FC8 /* Frameworks */,
+				C78C27BD063723008A1058A7 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -153,6 +163,7 @@
 		5D14E4892397B87000C15FC8 /* WalletManagers */ = {
 			isa = PBXGroup;
 			children = (
+				5DED72C223A13145006D79AE /* Stellar */,
 				5DE3BFA1239FB41100E8815D /* Bitcoin */,
 				5D304393239A6A6B0066B8D9 /* WalletManagerFactory.swift */,
 			);
@@ -173,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				5D14E49B2397B8B000C15FC8 /* TangemSdk.framework */,
+				5879E1BF1F869A097665DCFC /* Pods_BlockchainSdk.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -227,6 +239,26 @@
 			path = BitcoinNetwork;
 			sourceTree = "<group>";
 		};
+		5DED72C223A13145006D79AE /* Stellar */ = {
+			isa = PBXGroup;
+			children = (
+				5DED72C323A1315F006D79AE /* StellarWalletManager.swift */,
+				5DED72C523A13377006D79AE /* StellarAddressFactory.swift */,
+				5DED72C723A13384006D79AE /* StellarAddressValidator.swift */,
+			);
+			path = Stellar;
+			sourceTree = "<group>";
+		};
+		C78C27BD063723008A1058A7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				BE43CCCD58746DFCAA8B3BE2 /* Pods-BlockchainSdk.debug.xcconfig */,
+				438C3138ADC1FC1290BE3BA2 /* Pods-BlockchainSdk.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -245,6 +277,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5D14E4822397B80F00C15FC8 /* Build configuration list for PBXNativeTarget "BlockchainSdk" */;
 			buildPhases = (
+				F07968830759F68ED62ECE88 /* [CP] Check Pods Manifest.lock */,
 				5D14E4692397B80F00C15FC8 /* Headers */,
 				5D14E46A2397B80F00C15FC8 /* Sources */,
 				5D14E46B2397B80F00C15FC8 /* Frameworks */,
@@ -257,8 +290,7 @@
 			);
 			name = BlockchainSdk;
 			packageProductDependencies = (
-				5DE3BF9B239F994C00E8815D /* BigInt */,
-				5DED72C0239FFA7D006D79AE /* secp256k1 */,
+				5DED72C0239FFA7D006D79AE /* SwiftPackageProductDependency */,
 			);
 			productName = BlockchainSdk;
 			productReference = 5D14E46E2397B80F00C15FC8 /* BlockchainSdk.framework */;
@@ -311,8 +343,7 @@
 			);
 			mainGroup = 5D14E4642397B80F00C15FC8;
 			packageReferences = (
-				5DE3BF9A239F994C00E8815D /* XCRemoteSwiftPackageReference "BigInt" */,
-				5DED72BF239FFA7D006D79AE /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
+				5DED72BF239FFA7D006D79AE /* RemoteSwiftPackageReference */,
 			);
 			productRefGroup = 5D14E46F2397B80F00C15FC8 /* Products */;
 			projectDirPath = "";
@@ -341,6 +372,31 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		F07968830759F68ED62ECE88 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BlockchainSdk-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		5D14E46A2397B80F00C15FC8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -349,11 +405,13 @@
 				5DE3BF97239E6DAB00E8815D /* RIPEMD160.swift in Sources */,
 				5D304390239A58C90066B8D9 /* BitcoinWalletManager.swift in Sources */,
 				5DE3BF99239E722400E8815D /* Base58.swift in Sources */,
+				5DED72C623A13377006D79AE /* StellarAddressFactory.swift in Sources */,
 				5DED72BC239FEEEC006D79AE /* BitcoinTransactionBuilder.swift in Sources */,
 				5DE3BFA4239FB4E500E8815D /* BitcoinNetworkManager.swift in Sources */,
 				5DE3BF9E239FA2F400E8815D /* SegWitBech32.swift in Sources */,
 				5DE3BFA0239FA33800E8815D /* Bech32.swift in Sources */,
 				5D14E4992397B87000C15FC8 /* Wallet.swift in Sources */,
+				5DED72C423A1315F006D79AE /* StellarWalletManager.swift in Sources */,
 				5DED72BE239FF9F9006D79AE /* CryptoUtils.swift in Sources */,
 				5D304394239A6A6B0066B8D9 /* WalletManagerFactory.swift in Sources */,
 				5D006ACD239950F9008BA04D /* CurrencyWallet.swift in Sources */,
@@ -362,6 +420,7 @@
 				5DED72BA239FE2F8006D79AE /* Int+.swift in Sources */,
 				5D304397239A6B960066B8D9 /* String+.swift in Sources */,
 				5D304399239A8C9C0066B8D9 /* BitcoinAddressFactory.swift in Sources */,
+				5DED72C823A13384006D79AE /* StellarAddressValidator.swift in Sources */,
 				5D14E4982397B87000C15FC8 /* Blockchain.swift in Sources */,
 				5DED72B8239FE2E3006D79AE /* Decimal+.swift in Sources */,
 			);
@@ -508,6 +567,7 @@
 		};
 		5D14E4832397B80F00C15FC8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BE43CCCD58746DFCAA8B3BE2 /* Pods-BlockchainSdk.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -534,6 +594,7 @@
 		};
 		5D14E4842397B80F00C15FC8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 438C3138ADC1FC1290BE3BA2 /* Pods-BlockchainSdk.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -628,15 +689,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		5DE3BF9A239F994C00E8815D /* XCRemoteSwiftPackageReference "BigInt" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/attaswift/BigInt.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.0;
-			};
-		};
-		5DED72BF239FFA7D006D79AE /* XCRemoteSwiftPackageReference "secp256k1.swift" */ = {
+		5DED72BF239FFA7D006D79AE /* RemoteSwiftPackageReference */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Boilertalk/secp256k1.swift.git";
 			requirement = {
@@ -647,14 +700,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		5DE3BF9B239F994C00E8815D /* BigInt */ = {
+		5DED72C0239FFA7D006D79AE /* SwiftPackageProductDependency */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 5DE3BF9A239F994C00E8815D /* XCRemoteSwiftPackageReference "BigInt" */;
-			productName = BigInt;
-		};
-		5DED72C0239FFA7D006D79AE /* secp256k1 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5DED72BF239FFA7D006D79AE /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
+			package = 5DED72BF239FFA7D006D79AE /* RemoteSwiftPackageReference */;
 			productName = secp256k1;
 		};
 /* End XCSwiftPackageProductDependency section */
