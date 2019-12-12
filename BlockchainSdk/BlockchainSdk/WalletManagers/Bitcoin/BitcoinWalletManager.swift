@@ -17,17 +17,16 @@ enum BitcoinError: Error {
 
 class BitcoinWalletManager: WalletManager {
     var wallet: Wallet { return _wallet }
-    let blockchain: Blockchain
-    
+
     private let _wallet: CurrencyWallet
     private let txBuilder: BitcoinTransactionBuilder
     private let cardId: String
     
     init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, isTestnet: Bool) {
-        self.blockchain = isTestnet ? .bitcoinTestnet : .bitcoin
         self.cardId = cardId
+        let blockchain: Blockchain = isTestnet ? .bitcoinTestnet : .bitcoin
         let address = blockchain.makeAddress(from: walletPublicKey)
-        self._wallet = CurrencyWallet(config: walletConfig, address: address)
+        _wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
     }
     
