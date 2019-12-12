@@ -9,7 +9,7 @@
 import Foundation
 
 public class BitcoinAddressValidator {
-    func validate(address: String, testnet: Bool) -> Bool {
+    func validate(_ address: String, testnet: Bool) -> Bool {
         guard !address.isEmpty else { return false }
         
         let possibleFirstCharacters = ["1","2","3","n","m"]
