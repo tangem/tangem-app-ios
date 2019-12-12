@@ -9,6 +9,7 @@
 import Foundation
 
 public protocol Wallet {
+    var blockchain: Blockchain {get}
     var config: WalletConfig {get}
     var address: String {get}
     var exploreUrl: String? {get}
@@ -23,9 +24,11 @@ public struct WalletConfig {
 }
 
 public struct Amount {
-    var type: AmountType = .coin
-    var currencySymbol: String = ""
-    var value: Decimal = 0
+    let type: AmountType
+    let currencySymbol: String
+    let value: Decimal?
+    let address: String
+    let decimals: Int
 }
 
 public struct Transaction {
