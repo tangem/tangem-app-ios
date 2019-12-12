@@ -91,7 +91,7 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
     
     public var coinTraitCollection: CoinTrait {        
         if let assetBalance = self.assetBalance, assetBalance > 0 {
-             return .none
+            return .none
         } else {
             return .allowsFeeInclude
         }
