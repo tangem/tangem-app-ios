@@ -2,9 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:BlockchainSdk.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:../TangemSdk/TangemSdk/TangemSdk.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:BlockchainSdk/BlockchainSdk.xcodeproj">
+      location = "group:Pods/Pods.xcodeproj">
    </FileRef>
 </Workspace>
