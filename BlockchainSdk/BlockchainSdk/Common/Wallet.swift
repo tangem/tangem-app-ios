@@ -52,5 +52,5 @@ struct ValidationError: OptionSet {
 }
 
 protocol TransactionValidator {
-    func validateTransaction(amount: Amount?, fee: Amount?) -> ValidationError?
+    func validateTransaction(amount: Amount, fee: Amount?) -> ValidationError?
 }
