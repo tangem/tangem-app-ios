@@ -26,8 +26,35 @@ struct CurrencyWallet: Wallet, TransactionValidator {
         addAmount(coinAmount)
     }
     
-    func validateTransaction(amount: Amount?, fee: Amount?) -> ValidationError? {
+    func validateTransaction(amount: Amount, fee: Amount?) -> ValidationError? {
+        guard let amountValue = amount.value, validate(amount: amount) else {
+            return .wrongAmount
+        }
+        
+        guard let fee = fee else {
+            return nil
+        }
+        
+        guard let feeValue = fee.value, validate(amount: fee) else {
+            return .wrongFee
+        }
+        
+        if amount.type == fee.type,
+            !validate(amount: Amount(type: amount.type, currencySymbol: amount.currencySymbol, value: amountValue + feeValue, address: amount.address, decimals: amount.decimals)) {
+            return .wrongTotal
+        }
+        
         return nil
+    }
+    
+    private func validate(amount: Amount) -> Bool {
+        guard let amountValue = amount.value,
+            amountValue > 0,
+            let total = balances[amount.type]?.value, total >= amountValue else {
+                return false
+        }
+        
+        return true
     }
     
     mutating func addAmount(_ amount: Amount) {
