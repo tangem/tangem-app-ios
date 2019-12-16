@@ -26,6 +26,12 @@ public class WalletManagerFactory {
             let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: asset == nil)
             return StellarWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, asset: asset, isTestnet: blockchainName.contains("test"))
         }
+        
+        if blockchainName.contains("eth") {
+            let asset = getAsset(from: card)
+            let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: asset == nil)
+            return EthereumWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, asset: asset, isTestnet: blockchainName.contains("test"))
+        }
         return nil
     }
     
