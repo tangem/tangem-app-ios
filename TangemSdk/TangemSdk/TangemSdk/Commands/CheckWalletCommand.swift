@@ -34,7 +34,7 @@ public final class CheckWalletCommand: CommandSerializer {
     
     public func serialize(with environment: CardEnvironment) -> CommandApdu {
         let tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
-                       Tlv(.cardId, value: Data(hex: cardId)),
+                       Tlv(.cardId, value: Data(hexString: cardId)),
                        Tlv(.challenge, value: challenge)]
         
         let cApdu = CommandApdu(.checkWallet, tlv: tlvData)
