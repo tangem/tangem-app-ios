@@ -6,6 +6,7 @@ target 'BlockchainSdk' do
     project 'BlockchainSdk.xcodeproj'
     
     pod 'stellar-ios-mac-sdk'
-    pod 'BigInt'
+    pod 'BigInt', '~> 4.0'
     pod 'SwiftyJSON'
+    pod 'web3.swift.pod'
 end

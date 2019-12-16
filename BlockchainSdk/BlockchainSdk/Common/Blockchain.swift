@@ -14,7 +14,8 @@ public enum Blockchain: String {
     case bitcoinTestnet
     case stellar
     case stellarTestnet
-    //    case ethereum
+    case ethereum
+    case ethereumTestnet
     //    case rootstock
     //    case cardano
     //    case ripple
@@ -25,8 +26,8 @@ public enum Blockchain: String {
         switch self {
         case .bitcoin, .bitcoinTestnet:
             return 8
-            //        case .ethereum, .rootstock:
-            //            return 18
+        case .ethereum, .ethereumTestnet/*,  .rootstock*/:
+            return 18
             //        case .ripple, .cardano:
             //            return 6
             //        case .binance:
@@ -38,12 +39,12 @@ public enum Blockchain: String {
     
     public var roundingMode: NSDecimalNumber.RoundingMode {
         switch self {
-        case .bitcoin, .bitcoinTestnet://, .ethereum, .rootstock, .binance:
+        case .bitcoin, .bitcoinTestnet, .ethereum, .ethereumTestnet ://.rootstock, .binance:
             return .down
         case .stellar, .stellarTestnet:
             return .plain
             //        case .cardano:
-        //            return .up
+            //            return .up
         }
     }
     public var currencySymbol: String {
@@ -52,6 +53,8 @@ public enum Blockchain: String {
             return "BTC"
         case .stellar, .stellarTestnet:
             return "XLM"
+        case .ethereum, .ethereumTestnet:
+            return "ETH"
         }
     }
     
@@ -63,6 +66,8 @@ public enum Blockchain: String {
             return BitcoinAddressFactory().makeAddress(from: walletPublicKey, testnet: true)
         case .stellar, .stellarTestnet:
             return StellarAddressFactory().makeAddress(from: walletPublicKey)
+        case .ethereum, .ethereumTestnet:
+            return EthereumAddressFactory().makeAddress(from: walletPublicKey)
         }
     }
     
@@ -74,6 +79,8 @@ public enum Blockchain: String {
             return BitcoinAddressValidator().validate(address, testnet: true)
         case .stellar, .stellarTestnet:
             return StellarAddressValidator().validate(address)
+        case .ethereum, .ethereumTestnet:
+            return EthereumAddressValidator().validate(address)
         }
     }
 }

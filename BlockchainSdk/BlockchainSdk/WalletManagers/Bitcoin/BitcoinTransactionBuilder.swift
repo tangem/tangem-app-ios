@@ -237,7 +237,7 @@ class BitcoinTransactionBuilder {
             }
             
             let sig = signature[offsetMin..<offsetMax]
-            guard let signDer = CryptoUtils.serializeToDer(secp256k1Signature: sig) else {
+            guard let signDer = CryptoUtils().serializeToDer(secp256k1Signature: sig) else {
                 return nil
             }
             
