@@ -13,3 +13,7 @@ extension String {
         return self.range(of: string, options: ignoreCase ? .caseInsensitive : []) != nil
     }
 }
+
+extension String: Error {
+    
+}
