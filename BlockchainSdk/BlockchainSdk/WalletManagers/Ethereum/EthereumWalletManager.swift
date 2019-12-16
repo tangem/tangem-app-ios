@@ -36,99 +36,33 @@ class  EthereumWalletManager: WalletManager {
     }
 }
 
-
-class EthereumTransactionBuilder {
-    private let walletPublicKey: Data
-    private let isTestnet: Bool
-    private let chainId: BigUInt = 1
-    
-    init(walletPublicKey: Data, isTestnet: Bool) {
-        self.walletPublicKey = walletPublicKey
-        self.isTestnet = isTestnet
-    }
-    
-//    public func buildForSign(transaction: Transaction) -> (hash: Data?, transaction: EthereumTransaction) {
-//
-//    }
-    
-    public func buildForSend(transaction: EthereumTransaction, hash: Data, signature: Data) -> Data? {
-        var transaction = transaction
-        guard let unmarshalledSignature = CryptoUtils().unmarshal(secp256k1Signature: signature, hash: hash, publicKey: walletPublicKey) else {
-                return nil
+extension EthereumWalletManager: TransactionSender {
+    func send(_ transaction: Transaction, signer: TransactionSigner, completion: @escaping (Result<Bool, Error>) -> Void) {
+        guard let txForSign = txBuilder.buildForSign(transaction: transaction) else {
+            completion(.failure(EthereumError.failedToBuildHash))
+            return
         }
         
-        transaction.v = BigUInt(unmarshalledSignature.v)
-        transaction.r = BigUInt(unmarshalledSignature.r)
-        transaction.s = BigUInt(unmarshalledSignature.s)
-        
-        let encodedBytesToSend = transaction.encodeForSend(chainID: chainId)
-        return encodedBytesToSend
-    }
-    
-    func getGasLimit(for amount: Amount) -> BigUInt {
-        if amount.type == .coin {
-            return 21000
+        signer.sign(hashes: [txForSign.hash], cardId: self.cardId) {[weak self] result in
+            switch result {
+            case .event(let response):
+                guard let self = self else { return }
+                
+                guard let tx = self.txBuilder.buildForSend(transaction: txForSign.transaction, hash: txForSign.hash, signature: response.signature) else {
+                    completion(.failure(BitcoinError.failedToBuildTransaction))
+                    return
+                }
+                let txHexString = "0x\(tx.toHexString())"
+                //send tx
+                
+            case .completion(let error):
+                if let error = error {
+                    completion(.failure(error))
+                }
+            }
         }
-        
-        if amount.currencySymbol == "DGX" {
-            return 300000
-        }
-        
-        return 60000
     }
 }
-
-//extension EthereumWalletManager: TransactionSender {
-//    func send(_ transaction: Transaction, signer: TransactionSigner, completion: @escaping (Result<Bool, Error>) -> Void) {
-//        txBuilder.buildForSign(transaction: transaction) {[weak self] buildForSignResponse in
-//            guard let self = self else { return }
-//
-//            guard let buildForSignResponse = buildForSignResponse else {
-//                completion(.failure(StellarError.failedToBuildTransaction))
-//                return
-//            }
-//
-//            signer.sign(hashes: [buildForSignResponse.hash], cardId: self.cardId) {[weak self] result in
-//                switch result {
-//                case .event(let response):
-//                    guard let self = self else { return }
-//
-//                    guard let tx = self.txBuilder.buildForSend(signature: response.signature, transaction: buildForSignResponse.transaction) else {
-//                        completion(.failure(BitcoinError.failedToBuildTransaction))
-//                        return
-//                    }
-//
-//                    self.stellarSdk.transactions.postTransaction(transactionEnvelope: tx) {[weak self] postResponse -> Void in
-//                        switch postResponse {
-//                        case .success(let submitTransactionResponse):
-//                            if submitTransactionResponse.transactionResult.code == .success {
-//                                //self?.latestTxDate = Date()
-//                                completion(.success(true))
-//                            } else {
-//                                print(submitTransactionResponse.transactionResult.code)
-//                                completion(.failure("Result code: \(submitTransactionResponse.transactionResult.code)"))
-//                            }
-//                        case .failure(let horizonRequestError):
-//                            let horizonMessage = horizonRequestError.message
-//                            let json = JSON(parseJSON: horizonMessage)
-//                            let detailMessage = json["detail"].stringValue
-//                            let extras = json["extras"]
-//                            let codes = extras["result_codes"].rawString() ?? ""
-//                            let errorMessage: String = (!detailMessage.isEmpty && !codes.isEmpty) ? "\(detailMessage). Codes: \(codes)" : horizonMessage
-//                            completion(.failure(errorMessage))
-//                        }
-//                    }
-//
-//                case .completion(let error):
-//                    if let error = error {
-//                        completion(.failure(error))
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//}
 
 extension EthereumWalletManager: FeeProvider {
     func getFee(amount: Amount, source: String, destination: String, completion: @escaping (Result<[Amount], Error>) -> Void) {
@@ -170,6 +104,7 @@ extension EthereumWalletManager: FeeProvider {
 
 enum EthereumError: Error {
     case failedToGetFee
+    case failedToBuildHash
 }
 
 extension EthereumTransaction {
@@ -198,5 +133,101 @@ extension EthereumTransaction {
                    v: v,
                    r: r,
                    s: s)
+    }
+}
+
+class EthereumTransactionBuilder {
+    private let chainId: BigUInt = 1
+    private let walletPublicKey: Data
+    private let isTestnet: Bool
+
+    
+    public var txCount: Int = -1
+    public var pendingTxCount: Int = -1
+    
+    init(walletPublicKey: Data, isTestnet: Bool) {
+        self.walletPublicKey = walletPublicKey
+        self.isTestnet = isTestnet
+    }
+    
+    public func buildForSign(transaction: Transaction) -> (hash: Data, transaction: EthereumTransaction)? {
+        let nonceValue = BigUInt(txCount)
+        
+        guard let fee = transaction.fee,
+            let amountDecimal = transaction.amount.value,
+            let feeValue = Web3.Utils.parseToBigUInt("\(fee)", decimals: fee.decimals),
+            let amountValue = Web3.Utils.parseToBigUInt("\(amountDecimal)", decimals: transaction.amount.decimals) else {
+                return nil
+        }
+        
+        let gasLimit = getGasLimit(for: transaction.amount)
+        guard let data = getData(for: transaction.amount, targetAddress: transaction.destinationAddress) else {
+            return nil
+        }
+        
+        guard let transaction = EthereumTransaction(amount: transaction.amount.type == .coin ? amountValue : BigUInt.zero,
+                                                    fee: feeValue,
+                                                    targetAddress: transaction.destinationAddress,
+                                                    nonce: nonceValue,
+                                                    gasLimit: gasLimit,
+                                                    data: data) else {
+                                                        return nil
+        }
+        
+        guard let hashForSign = transaction.hashForSignature(chainID: chainId) else {
+            return nil
+        }
+    
+        return (hashForSign, transaction)
+    }
+    
+    public func buildForSend(transaction: EthereumTransaction, hash: Data, signature: Data) -> Data? {
+        var transaction = transaction
+        guard let unmarshalledSignature = CryptoUtils().unmarshal(secp256k1Signature: signature, hash: hash, publicKey: walletPublicKey) else {
+                return nil
+        }
+        
+        transaction.v = BigUInt(unmarshalledSignature.v)
+        transaction.r = BigUInt(unmarshalledSignature.r)
+        transaction.s = BigUInt(unmarshalledSignature.s)
+        
+        let encodedBytesToSend = transaction.encodeForSend(chainID: chainId)
+        return encodedBytesToSend
+    }
+    
+    fileprivate func getGasLimit(for amount: Amount) -> BigUInt {
+        if amount.type == .coin {
+            return 21000
+        }
+        
+        if amount.currencySymbol == "DGX" {
+            return 300000
+        }
+        
+        return 60000
+    }
+    
+    private func getData(for amount: Amount, targetAddress: String) -> Data? {
+        if amount.type != .token {
+            return Data()
+        }
+        
+        guard let amountDecimal = amount.value,
+            let amountValue = Web3.Utils.parseToBigUInt("\(amountDecimal)", decimals: amount.decimals) else {
+            return nil
+        }
+
+        var amountString = String(amountValue, radix: 16).remove("0X")
+        while amountString.count < 64 {
+            amountString = "0" + amountString
+        }
+        
+        let amountData = Data(hex: amountString)
+        
+        guard let addressData = EthereumAddress(targetAddress)?.addressData else {
+                return nil
+        }
+        let prefixData = Data(hex: "a9059cbb000000000000000000000000")
+        return prefixData + addressData + amountData
     }
 }
