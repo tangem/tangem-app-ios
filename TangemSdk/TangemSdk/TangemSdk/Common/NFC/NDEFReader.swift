@@ -36,7 +36,7 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
             
             return recordType == NDEFReader.tangemWalletRecordType
         }.flatMap { ndefPayload -> [Byte] in
-            return ndefPayload.payload.bytes
+            return ndefPayload.payload.toBytes
         }
         
         guard bytes.count > 2 else {
