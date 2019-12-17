@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import Combine
 
 public protocol WalletManager {
     var wallet: Wallet {get}
@@ -26,6 +27,7 @@ protocol TransactionSender {
 @available(iOS 13.0, *)
 protocol TransactionSigner {
     func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void)
+    func sign(hashes: [Data], cardId: String) -> AnyPublisher<SignResponse, Error>
 }
 
 protocol FeeProvider {
