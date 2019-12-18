@@ -22,8 +22,7 @@ struct CurrencyWallet: Wallet, TransactionValidator {
     init(address: String, blockchain: Blockchain, config: WalletConfig) {
         self.blockchain = blockchain
         self.config = config
-        let coinAmount = Amount(type: .coin, currencySymbol: blockchain.currencySymbol, value: nil, address: address, decimals: blockchain.decimalCount)
-        addAmount(coinAmount)
+        addAmount(Amount(with: blockchain, address: address))
     }
     
     func validateTransaction(amount: Amount, fee: Amount?) -> ValidationError? {
@@ -40,7 +39,7 @@ struct CurrencyWallet: Wallet, TransactionValidator {
         }
         
         if amount.type == fee.type,
-            !validate(amount: Amount(type: amount.type, currencySymbol: amount.currencySymbol, value: amountValue + feeValue, address: amount.address, decimals: amount.decimals)) {
+            !validate(amount: Amount(with: amount, value: amountValue + feeValue)) {
             return .wrongTotal
         }
         
