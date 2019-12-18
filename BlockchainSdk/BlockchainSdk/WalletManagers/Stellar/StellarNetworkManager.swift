@@ -32,8 +32,34 @@ class StellarNetwotkManager {
         .eraseToAnyPublisher()
     }
     
-    public func getInfo(accountId: String) -> AnyPublisher<(AccountResponse, LedgerResponse), Error> {
+    public func getInfo(accountId: String, assetCode: String?) -> AnyPublisher<StellarResponse, Error> {
         return Publishers.Zip(stellarSdk.accounts.getAccountDetails(accountId: accountId),
-                              stellarSdk.ledgers.getLatestLedger()).eraseToAnyPublisher()
+                              stellarSdk.ledgers.getLatestLedger())
+            .tryMap({ response throws -> StellarResponse in
+                guard let baseFeeStroops = Decimal(response.1.baseFeeInStroops),
+                    let baseReserveStroops = Decimal(response.1.baseReserveInStroops),
+                    let balance = Decimal(response.0.balances.first(where: {$0.assetType == AssetTypeAsString.NATIVE})?.balance) else {
+                        throw StellarError.requestFailed
+                }
+                
+                let sequence = response.0.sequenceNumber
+                let assetBalance = Decimal(assetCode == nil ? nil : response.0.balances.first(where: {$0.assetType != AssetTypeAsString.NATIVE && $0.assetCode == assetCode!})?.balance)
+                
+                let divider =  Decimal(10000000)
+                let baseFee = baseFeeStroops/divider
+                let baseReserve = baseReserveStroops/divider
+                
+                return StellarResponse(baseFee: baseFee, baseReserve: baseReserve, assetBalance: assetBalance, balance: balance, sequence: sequence)
+            })
+            .eraseToAnyPublisher()
     }
+}
+
+
+struct StellarResponse {
+    let baseFee: Decimal
+    let baseReserve: Decimal
+    let assetBalance: Decimal?
+    let balance: Decimal
+    let sequence: Int64
 }
