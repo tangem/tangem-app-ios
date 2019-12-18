@@ -20,7 +20,7 @@ enum StellarError: Error {
 class StellarWalletManager: WalletManager {    
     var wallet: CurrentValueSubject<Wallet, Error>
     
-    private var _wallet: CurrencyWallet
+    private var currencyWallet: CurrencyWallet
     private let cardId: String
     private var baseFee: Decimal?
     private let txBuilder: StellarTransactionBuilder
@@ -36,19 +36,19 @@ class StellarWalletManager: WalletManager {
         self.cardId = cardId
         let blockchain: Blockchain = isTestnet ? .stellarTestnet: .stellar
         let address = blockchain.makeAddress(from: walletPublicKey)
-        _wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
-        _wallet.add(amount: Amount(with: blockchain, address: address, type: .reserve))
+        currencyWallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
+        currencyWallet.add(amount: Amount(with: blockchain, address: address, type: .reserve))
         if let token = token {
-            _wallet.add(amount: Amount(with: token))
+            currencyWallet.add(amount: Amount(with: token))
         }
         
         self.txBuilder = StellarTransactionBuilder(stellarSdk: stellarSdk, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
         self.network = StellarNetwotkManager(stellarSdk: stellarSdk)
-        wallet = CurrentValueSubject(_wallet)
+        wallet = CurrentValueSubject(currencyWallet)
     }
     
     func update() {
-        let assetCode = _wallet.balances[.token]?.currencySymbol
+        let assetCode = currencyWallet.balances[.token]?.currencySymbol
         updateSubscription = network.getInfo(accountId: wallet.value.address, assetCode: assetCode)
             .sink(receiveCompletion: {[unowned self] completion in
                 if case let .failure(error) = completion {
@@ -62,17 +62,17 @@ class StellarWalletManager: WalletManager {
     private func updateWallet(with response: StellarResponse) {
         txBuilder.sequence = response.sequence
         let fullReserve = response.assetBalance == nil ? response.baseReserve * 2 : response.baseReserve * 3
-        _wallet.balances[.coin]?.value = response.balance - fullReserve
-        _wallet.balances[.token]?.value = response.assetBalance
-        _wallet.balances[.reserve]?.value = fullReserve
+        currencyWallet.balances[.coin]?.value = response.balance - fullReserve
+        currencyWallet.balances[.token]?.value = response.assetBalance
+        currencyWallet.balances[.reserve]?.value = fullReserve
         
         let currentDate = Date()
-        for  index in _wallet.pendingTransactions.indices {
-            if DateInterval(start: _wallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
-                _wallet.pendingTransactions[index].status = .confirmed
+        for  index in currencyWallet.pendingTransactions.indices {
+            if DateInterval(start: currencyWallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
+                currencyWallet.pendingTransactions[index].status = .confirmed
             }
         }
-        wallet.send(_wallet)
+        wallet.send(currencyWallet)
     }
 }
 
@@ -101,8 +101,8 @@ extension StellarWalletManager: TransactionSender {
                 completion(.failure(error))
             }
         }) {[unowned self] result in
-            self._wallet.add(transaction: transaction)
-            self.wallet.send(self._wallet)
+            self.currencyWallet.add(transaction: transaction)
+            self.wallet.send(self.currencyWallet)
             completion(.success(result))
         }
     }
@@ -111,7 +111,7 @@ extension StellarWalletManager: TransactionSender {
 extension StellarWalletManager: FeeProvider {
     func getFee(amount: Amount, source: String, destination: String, completion: @escaping (Result<[Amount], Error>) -> Void) {
         if let feeValue = self.baseFee {
-            let feeAmount = Amount(with: _wallet.blockchain, address: source, value: feeValue)
+            let feeAmount = Amount(with: currencyWallet.blockchain, address: source, value: feeValue)
             completion(.success([feeAmount]))
         } else {
             completion(.failure(StellarError.noFee))
