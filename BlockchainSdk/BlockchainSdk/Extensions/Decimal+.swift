@@ -31,4 +31,12 @@ extension Decimal {
         
         self.init(int)
     }
+    
+    init?(data: Data) {
+        guard let uint64 = UInt64(data: data) else {
+            return nil
+        }
+        
+        self.init(uint64)
+    }
 }
