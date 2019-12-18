@@ -11,7 +11,7 @@ import TangemSdk
 import Combine
 
 public protocol WalletManager {
-    var wallet: Wallet {get}
+    var wallet: CurrentValueSubject<Wallet, Error> {get}
     func update()
 }
 
