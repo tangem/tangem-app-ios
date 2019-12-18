@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import Combine
 
 enum BitcoinError: Error {
     case noUnspents
@@ -16,8 +17,8 @@ enum BitcoinError: Error {
 }
 
 class BitcoinWalletManager: WalletManager {
-    var wallet: Wallet { return _wallet }
-
+    var wallet: CurrentValueSubject<Wallet, Error>
+    
     private let _wallet: CurrencyWallet
     private let txBuilder: BitcoinTransactionBuilder
     private let cardId: String
@@ -28,6 +29,7 @@ class BitcoinWalletManager: WalletManager {
         let address = blockchain.makeAddress(from: walletPublicKey)
         _wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
+        wallet = CurrentValueSubject(_wallet)
     }
     
     func update() {
