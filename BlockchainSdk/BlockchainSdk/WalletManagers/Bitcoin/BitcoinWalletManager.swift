@@ -19,7 +19,7 @@ enum BitcoinError: Error {
 class BitcoinWalletManager: WalletManager {
     var wallet: CurrentValueSubject<Wallet, Error>
     
-    private let _wallet: CurrencyWallet
+    private let currencyWallet: CurrencyWallet
     private let txBuilder: BitcoinTransactionBuilder
     private let cardId: String
     
@@ -27,9 +27,9 @@ class BitcoinWalletManager: WalletManager {
         self.cardId = cardId
         let blockchain: Blockchain = isTestnet ? .bitcoinTestnet : .bitcoin
         let address = blockchain.makeAddress(from: walletPublicKey)
-        _wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
+        currencyWallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
-        wallet = CurrentValueSubject(_wallet)
+        wallet = CurrentValueSubject(currencyWallet)
     }
     
     func update() {
