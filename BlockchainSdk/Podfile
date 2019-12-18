@@ -9,4 +9,5 @@ target 'BlockchainSdk' do
     pod 'BigInt', '~> 4.0'
     pod 'SwiftyJSON'
     pod 'web3.swift.pod'
+    pod 'Moya'
 end
