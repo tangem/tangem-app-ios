@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CurrencyWallet: Wallet, TransactionValidator {
+class CurrencyWallet: Wallet, TransactionValidator {
     let blockchain: Blockchain
     let config: WalletConfig
     let exploreUrl: String? = nil
@@ -22,7 +22,7 @@ struct CurrencyWallet: Wallet, TransactionValidator {
     init(address: String, blockchain: Blockchain, config: WalletConfig) {
         self.blockchain = blockchain
         self.config = config
-        addAmount(Amount(with: blockchain, address: address))
+        add(amount: Amount(with: blockchain, address: address))
     }
     
     func validateTransaction(amount: Amount, fee: Amount?) -> ValidationError? {
@@ -56,7 +56,13 @@ struct CurrencyWallet: Wallet, TransactionValidator {
         return true
     }
     
-    mutating func addAmount(_ amount: Amount) {
+    func add(amount: Amount) {
         balances[amount.type] = amount
+    }
+    
+    func add(transaction: Transaction) {
+        var tx = transaction
+        tx.date = Date()
+        pendingTransactions.append(tx)
     }
 }
