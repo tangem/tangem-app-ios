@@ -9,26 +9,27 @@
 import Foundation
 import BigInt
 import web3swift
+import Combine
 
 class  EthereumWalletManager: WalletManager {
-    var wallet: Wallet { return _wallet }
+    var wallet: CurrentValueSubject<Wallet, Error>
     
     private var _wallet: CurrencyWallet
     private let cardId: String
     private let txBuilder: EthereumTransactionBuilder
     
-    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, asset: Token?, isTestnet: Bool) {
+    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, isTestnet: Bool) {
         self.cardId = cardId
         let blockchain: Blockchain = isTestnet ? .ethereumTestnet: .ethereum
         let address = blockchain.makeAddress(from: walletPublicKey)
         self._wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         
-        if let asset = asset {
-            let assetAmount = Amount(type: .token, currencySymbol: asset.symbol, value: nil, address: asset.contractAddress, decimals: asset.decimals)
-            _wallet.addAmount(assetAmount)
+        if let token = token {
+           _wallet.addAmount(Amount(with: token))
         }
         
         txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: isTestnet)
+        wallet = CurrentValueSubject(_wallet)
     }
     
     func update() {
@@ -75,7 +76,7 @@ extension EthereumWalletManager: FeeProvider {
             }
             
             let m = self.txBuilder.getGasLimit(for: amount)
-            let decimalCount = self.wallet.blockchain.decimalCount
+            let decimalCount = self._wallet.blockchain.decimalCount
             let minValue = gasPrice * m
             let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
@@ -92,9 +93,9 @@ extension EthereumWalletManager: FeeProvider {
                     return
             }
             
-            let minAmount = Amount(type: .coin, currencySymbol: self.wallet.blockchain.currencySymbol, value: minDecimal, address: self.wallet.address, decimals: self.wallet.blockchain.decimalCount)
-            let normalAmount = Amount(type: .coin, currencySymbol: self.wallet.blockchain.currencySymbol, value: normalDecimal, address: self.wallet.address, decimals: self.wallet.blockchain.decimalCount)
-            let maxAmount = Amount(type: .coin, currencySymbol: self.wallet.blockchain.currencySymbol, value: maxDecimal, address: self.wallet.address, decimals: self.wallet.blockchain.decimalCount)
+            let minAmount = Amount(with: self._wallet.blockchain, address: self._wallet.address, value: minDecimal)
+            let normalAmount = Amount(with: self._wallet.blockchain, address: self._wallet.address, value: normalDecimal)
+            let maxAmount = Amount(with: self._wallet.blockchain, address: self._wallet.address, value: maxDecimal)
             
             let fee = [minAmount, normalAmount, maxAmount]
             completion(.success(fee))

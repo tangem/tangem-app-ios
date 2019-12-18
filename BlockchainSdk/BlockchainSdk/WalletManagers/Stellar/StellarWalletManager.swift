@@ -9,6 +9,7 @@
 import Foundation
 import stellarsdk
 import SwiftyJSON
+import Combine
 
 enum StellarError: Error {
     case noFee
@@ -16,7 +17,7 @@ enum StellarError: Error {
 }
 
 class StellarWalletManager: WalletManager {    
-    var wallet: Wallet { return _wallet }
+    var wallet: CurrentValueSubject<Wallet, Error>
     
     private var _wallet: CurrencyWallet
     private let cardId: String
@@ -25,30 +26,32 @@ class StellarWalletManager: WalletManager {
     private let network: StellarNetwotkManager
     private let stellarSdk: StellarSDK
     
-    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, asset: Token?, isTestnet: Bool) {
+    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, isTestnet: Bool) {
         
         let url = isTestnet ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"
         self.stellarSdk = StellarSDK(withHorizonUrl: url)
         self.cardId = cardId
         let blockchain: Blockchain = isTestnet ? .stellarTestnet: .stellar
         let address = blockchain.makeAddress(from: walletPublicKey)
-        self._wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
-        
-        if let asset = asset {
-            let assetAmount = Amount(type: .token, currencySymbol: asset.symbol, value: nil, address: asset.contractAddress, decimals: asset.decimals)
-            _wallet.addAmount(assetAmount)
+        _wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
+        _wallet.addAmount(Amount(with: blockchain, address: address, type: .reserve))
+        if let token = token {
+            _wallet.addAmount(Amount(with: token))
         }
         
         self.txBuilder = StellarTransactionBuilder(stellarSdk: stellarSdk, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
         self.network = StellarNetwotkManager(stellarSdk: stellarSdk)
+        wallet = CurrentValueSubject(_wallet)
     }
     
     func update() {
-        network.getInfo(accountId: wallet.address)
-            .sink(receiveCompletion: { completion in
-            
-            }) { result in
-                
+        network.getInfo(accountId: wallet.value.address)
+            .sink(receiveCompletion: {[unowned self] completion in
+                if case let .failure(error) = completion {
+                    self.wallet.send(completion: .failure(error))
+                }
+            }) { [unowned self] result in
+                self.txBuilder.sequence = result.0.sequenceNumber
         }
     }
 }
@@ -85,8 +88,8 @@ extension StellarWalletManager: TransactionSender {
 
 extension StellarWalletManager: FeeProvider {
     func getFee(amount: Amount, source: String, destination: String, completion: @escaping (Result<[Amount], Error>) -> Void) {
-        if let fee = self.baseFee {
-            let feeAmount = Amount(type: .coin, currencySymbol: wallet.blockchain.currencySymbol, value: fee, address: source, decimals: wallet.blockchain.decimalCount)
+        if let feeValue = self.baseFee {
+            let feeAmount = Amount(with: _wallet.blockchain, address: source, value: feeValue)
             completion(.success([feeAmount]))
         } else {
             completion(.failure(StellarError.noFee))
