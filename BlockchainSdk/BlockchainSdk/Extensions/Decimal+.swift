@@ -15,4 +15,20 @@ extension Decimal {
         let bytes8 =  int64value.bytes8
         return Array(bytes8)
     }
+    
+    init?(_ string: String?) {
+        guard let string = string else {
+            return nil
+        }
+        
+        self.init(string: string)
+    }
+    
+    init?(_ int: Int?) {
+        guard let int = int else {
+            return nil
+        }
+        
+        self.init(int)
+    }
 }
