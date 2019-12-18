@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol Wallet {
+public protocol Wallet: class {
     var blockchain: Blockchain {get}
     var config: WalletConfig {get}
     var address: String {get}
@@ -26,7 +26,7 @@ public struct WalletConfig {
 public struct Amount {
     let type: AmountType
     let currencySymbol: String
-    let value: Decimal?
+    var value: Decimal?
     let address: String
     let decimals: Int
     
@@ -55,10 +55,17 @@ public struct Amount {
 }
 
 public struct Transaction {
-    let amount: Amount
-    let fee: Amount?
-    let sourceAddress: String
-    let destinationAddress: String
+    public let amount: Amount
+    public let fee: Amount?
+    public let sourceAddress: String
+    public let destinationAddress: String
+    public internal(set) var date: Date? = nil
+    public internal(set) var status: TransactionStatus = .unconfirmed
+}
+
+public enum TransactionStatus {
+    case unconfirmed
+    case confirmed
 }
 
 public enum AmountType {
