@@ -14,6 +14,7 @@ import Combine
 enum StellarError: Error {
     case noFee
     case failedToBuildTransaction
+    case requestFailed
 }
 
 class StellarWalletManager: WalletManager {    
@@ -25,6 +26,8 @@ class StellarWalletManager: WalletManager {
     private let txBuilder: StellarTransactionBuilder
     private let network: StellarNetwotkManager
     private let stellarSdk: StellarSDK
+    private var updateSubscription: AnyCancellable?
+    private var sendSubscription: AnyCancellable?
     
     init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, isTestnet: Bool) {
         
@@ -34,9 +37,9 @@ class StellarWalletManager: WalletManager {
         let blockchain: Blockchain = isTestnet ? .stellarTestnet: .stellar
         let address = blockchain.makeAddress(from: walletPublicKey)
         _wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
-        _wallet.addAmount(Amount(with: blockchain, address: address, type: .reserve))
+        _wallet.add(amount: Amount(with: blockchain, address: address, type: .reserve))
         if let token = token {
-            _wallet.addAmount(Amount(with: token))
+            _wallet.add(amount: Amount(with: token))
         }
         
         self.txBuilder = StellarTransactionBuilder(stellarSdk: stellarSdk, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
@@ -45,14 +48,31 @@ class StellarWalletManager: WalletManager {
     }
     
     func update() {
-        network.getInfo(accountId: wallet.value.address)
+        let assetCode = _wallet.balances[.token]?.currencySymbol
+        updateSubscription = network.getInfo(accountId: wallet.value.address, assetCode: assetCode)
             .sink(receiveCompletion: {[unowned self] completion in
                 if case let .failure(error) = completion {
                     self.wallet.send(completion: .failure(error))
                 }
-            }) { [unowned self] result in
-                self.txBuilder.sequence = result.0.sequenceNumber
+            }) { [unowned self] stellarResponse in
+                self.updateWallet(with: stellarResponse)
         }
+    }
+    
+    private func updateWallet(with response: StellarResponse) {
+        txBuilder.sequence = response.sequence
+        let fullReserve = response.assetBalance == nil ? response.baseReserve * 2 : response.baseReserve * 3
+        _wallet.balances[.coin]?.value = response.balance - fullReserve
+        _wallet.balances[.token]?.value = response.assetBalance
+        _wallet.balances[.reserve]?.value = fullReserve
+        
+        let currentDate = Date()
+        for  index in _wallet.pendingTransactions.indices {
+            if DateInterval(start: _wallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
+                _wallet.pendingTransactions[index].status = .confirmed
+            }
+        }
+        wallet.send(_wallet)
     }
 }
 
@@ -60,7 +80,7 @@ extension StellarWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner, completion: @escaping (Result<Bool, Error>) -> Void) {
         let cardId = self.cardId
         
-        let _ = txBuilder.buildForSign(transaction: transaction)
+        sendSubscription = txBuilder.buildForSign(transaction: transaction)
             .flatMap { buildForSignResponse in
                 signer.sign(hashes: [buildForSignResponse.hash], cardId: cardId)
                     .map { return ($0, buildForSignResponse) }.eraseToAnyPublisher()
@@ -80,7 +100,9 @@ extension StellarWalletManager: TransactionSender {
             case .failure(let error):
                 completion(.failure(error))
             }
-        }) { result in
+        }) {[unowned self] result in
+            self._wallet.add(transaction: transaction)
+            self.wallet.send(self._wallet)
             completion(.success(result))
         }
     }
