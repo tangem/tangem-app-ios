@@ -25,7 +25,7 @@ class  EthereumWalletManager: WalletManager {
         self._wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         
         if let token = token {
-           _wallet.addAmount(Amount(with: token))
+            _wallet.add(amount: Amount(with: token))
         }
         
         txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: isTestnet)
