@@ -22,31 +22,31 @@ public class WalletManagerFactory {
         }
         
         if blockchainName.contains("xlm") {
-            let asset = getAsset(from: card)
-            let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: asset == nil)
-            return StellarWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, asset: asset, isTestnet: blockchainName.contains("test"))
+            let token = getToken(from: card)
+            let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: token == nil)
+            return StellarWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, token: token, isTestnet: blockchainName.contains("test"))
         }
         
         if blockchainName.contains("eth") {
-            let asset = getAsset(from: card)
-            let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: asset == nil)
-            return EthereumWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, asset: asset, isTestnet: blockchainName.contains("test"))
+            let token = getToken(from: card)
+            let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: token == nil)
+            return EthereumWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, token: token, isTestnet: blockchainName.contains("test"))
         }
         return nil
     }
     
-    private func getAsset(from card: Card) -> Token? { //gettoken
+    private func getToken(from card: Card) -> Token? { //gettoken
         if let symbol = card.cardData?.tokenSymbol,
             let contractAddress = card.cardData?.tokenContractAddress,
             let decimals = card.cardData?.tokenDecimal {
-            return Token(symbol: symbol, contractAddress: contractAddress, decimals: decimals)
+            return Token(currencySymbol: symbol, contractAddress: contractAddress, decimalCount: decimals)
         }
         return nil
     }
 }
 
-struct Token { //token rename
-    let symbol: String
+public struct Token {
+    let currencySymbol: String
     let contractAddress: String
-    let decimals: Int
+    let decimalCount: Int
 }
