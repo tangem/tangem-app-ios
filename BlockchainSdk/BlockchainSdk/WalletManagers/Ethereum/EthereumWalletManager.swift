@@ -73,31 +73,48 @@ extension EthereumWalletManager: TransactionSender {
             return
         }
         
-        signer.sign(hashes: [txForSign.hash], cardId: self.cardId) { [unowned self] result in
-            switch result {
-            case .event(let response):
-                guard let tx = self.txBuilder.buildForSend(transaction: txForSign.transaction, hash: txForSign.hash, signature: response.signature) else {
-                    completion(.failure(BitcoinError.failedToBuildTransaction))
-                    return
+       sendSubscription =  signer.sign(hashes: [txForSign.hash], cardId: self.cardId)
+            .tryMap {[unowned self] signResponse throws -> AnyPublisher<String, Error> in
+                guard let tx = self.txBuilder.buildForSend(transaction: txForSign.transaction, hash: txForSign.hash, signature: signResponse.signature) else {
+                    throw BitcoinError.failedToBuildTransaction
                 }
                 let txHexString = "0x\(tx.toHexString())"
-                self.sendSubscription = self.network.send(transaction: txHexString)
-                    .sink(receiveCompletion: { sendCompletion in
-                        if case let .failure(error) = sendCompletion {
-                            completion(.failure(error))
-                        }
-                    }, receiveValue: {[unowned self] sendResponse in
-                        self.currencyWallet.add(transaction: transaction)
-                        self.wallet.send(self.currencyWallet)
-                        completion(.success(true))
-                    })
-                
-            case .completion(let error):
-                if let error = error {
+                return self.network.send(transaction: txHexString)}
+            .sink(receiveCompletion: { sendCompletion in
+                if case let .failure(error) = sendCompletion {
                     completion(.failure(error))
                 }
-            }
-        }
+            }, receiveValue: {[unowned self] sendResponse in
+                self.currencyWallet.add(transaction: transaction)
+                self.wallet.send(self.currencyWallet)
+                completion(.success(true))
+            })
+        
+//        signer.sign(hashes: [txForSign.hash], cardId: self.cardId) { [unowned self] result in
+//            switch result {
+//            case .event(let response):
+//                guard let tx = self.txBuilder.buildForSend(transaction: txForSign.transaction, hash: txForSign.hash, signature: response.signature) else {
+//                    completion(.failure(BitcoinError.failedToBuildTransaction))
+//                    return
+//                }
+//                let txHexString = "0x\(tx.toHexString())"
+//                self.sendSubscription = self.network.send(transaction: txHexString)
+//                    .sink(receiveCompletion: { sendCompletion in
+//                        if case let .failure(error) = sendCompletion {
+//                            completion(.failure(error))
+//                        }
+//                    }, receiveValue: {[unowned self] sendResponse in
+//                        self.currencyWallet.add(transaction: transaction)
+//                        self.wallet.send(self.currencyWallet)
+//                        completion(.success(true))
+//                    })
+//
+//            case .completion(let error):
+//                if let error = error {
+//                    completion(.failure(error))
+//                }
+//            }
+//        }
     }
 }
 
