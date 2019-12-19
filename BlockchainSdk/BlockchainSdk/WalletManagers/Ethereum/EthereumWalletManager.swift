@@ -17,6 +17,11 @@ class  EthereumWalletManager: WalletManager {
     private var currencyWallet: CurrencyWallet
     private let cardId: String
     private let txBuilder: EthereumTransactionBuilder
+    private let network: EthereumNetworkManager
+    private var updateSubscription: AnyCancellable?
+    private var sendSubscription: AnyCancellable?
+    public var txCount: Int = -1
+    public var pendingTxCount: Int = -1
     
     init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, isTestnet: Bool) {
         self.cardId = cardId
@@ -27,34 +32,65 @@ class  EthereumWalletManager: WalletManager {
         if let token = token {
             currencyWallet.add(amount: Amount(with: token))
         }
-        
+        network = EthereumNetworkManager()
         txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: isTestnet)
         wallet = CurrentValueSubject(currencyWallet)
     }
     
     func update() {
-        
+        updateSubscription = network.getInfo(address: currencyWallet.address, contractAddress: currencyWallet.balances[.token]!.address)
+            .sink(receiveCompletion: {[unowned self] completion in
+                if case let .failure(error) = completion {
+                    self.wallet.send(completion: .failure(error))
+                }
+            }) { [unowned self] response in
+                self.updateWallet(with: response)
+        }
+    }
+    
+    private func updateWallet(with response: EthereumResponse) {
+        currencyWallet.balances[.coin]?.value = response.balance
+        currencyWallet.balances[.token]?.value = response.tokenBalance
+        txCount = response.txCount
+        pendingTxCount = response.txCount
+        if txCount == pendingTxCount {
+            for  index in currencyWallet.pendingTransactions.indices {
+                currencyWallet.pendingTransactions[index].status = .confirmed
+            }
+        } else {
+            if currencyWallet.pendingTransactions.isEmpty {
+                currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: .ethereum, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
+            }
+        }
+        wallet.send(currencyWallet)
     }
 }
 
 extension EthereumWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner, completion: @escaping (Result<Bool, Error>) -> Void) {
-        guard let txForSign = txBuilder.buildForSign(transaction: transaction) else {
+        guard let txForSign = txBuilder.buildForSign(transaction: transaction, nonce: txCount) else {
             completion(.failure(EthereumError.failedToBuildHash))
             return
         }
         
-        signer.sign(hashes: [txForSign.hash], cardId: self.cardId) {[weak self] result in
+        signer.sign(hashes: [txForSign.hash], cardId: self.cardId) { [unowned self] result in
             switch result {
             case .event(let response):
-                guard let self = self else { return }
-                
                 guard let tx = self.txBuilder.buildForSend(transaction: txForSign.transaction, hash: txForSign.hash, signature: response.signature) else {
                     completion(.failure(BitcoinError.failedToBuildTransaction))
                     return
                 }
                 let txHexString = "0x\(tx.toHexString())"
-                //send tx
+                self.sendSubscription = self.network.send(transaction: txHexString)
+                    .sink(receiveCompletion: { sendCompletion in
+                        if case let .failure(error) = sendCompletion {
+                            completion(.failure(error))
+                        }
+                    }, receiveValue: {[unowned self] sendResponse in
+                        self.currencyWallet.add(transaction: transaction)
+                        self.wallet.send(self.currencyWallet)
+                        completion(.success(true))
+                    })
                 
             case .completion(let error):
                 if let error = error {
@@ -141,18 +177,14 @@ class EthereumTransactionBuilder {
     private let chainId: BigUInt = 1
     private let walletPublicKey: Data
     private let isTestnet: Bool
-
-    
-    public var txCount: Int = -1
-    public var pendingTxCount: Int = -1
     
     init(walletPublicKey: Data, isTestnet: Bool) {
         self.walletPublicKey = walletPublicKey
         self.isTestnet = isTestnet
     }
     
-    public func buildForSign(transaction: Transaction) -> (hash: Data, transaction: EthereumTransaction)? {
-        let nonceValue = BigUInt(txCount)
+    public func buildForSign(transaction: Transaction, nonce: Int) -> (hash: Data, transaction: EthereumTransaction)? {
+        let nonceValue = BigUInt(nonce)
         
         guard let fee = transaction.fee,
             let amountDecimal = transaction.amount.value,
@@ -178,14 +210,14 @@ class EthereumTransactionBuilder {
         guard let hashForSign = transaction.hashForSignature(chainID: chainId) else {
             return nil
         }
-    
+        
         return (hashForSign, transaction)
     }
     
     public func buildForSend(transaction: EthereumTransaction, hash: Data, signature: Data) -> Data? {
         var transaction = transaction
         guard let unmarshalledSignature = CryptoUtils().unmarshal(secp256k1Signature: signature, hash: hash, publicKey: walletPublicKey) else {
-                return nil
+            return nil
         }
         
         transaction.v = BigUInt(unmarshalledSignature.v)
@@ -215,9 +247,9 @@ class EthereumTransactionBuilder {
         
         guard let amountDecimal = amount.value,
             let amountValue = Web3.Utils.parseToBigUInt("\(amountDecimal)", decimals: amount.decimals) else {
-            return nil
+                return nil
         }
-
+        
         var amountString = String(amountValue, radix: 16).remove("0X")
         while amountString.count < 64 {
             amountString = "0" + amountString
@@ -226,7 +258,7 @@ class EthereumTransactionBuilder {
         let amountData = Data(hex: amountString)
         
         guard let addressData = EthereumAddress(targetAddress)?.addressData else {
-                return nil
+            return nil
         }
         let prefixData = Data(hex: "a9059cbb000000000000000000000000")
         return prefixData + addressData + amountData
