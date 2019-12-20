@@ -15,22 +15,15 @@ class EthereumNetworkManager {
     let provider = MoyaProvider<EthereumTarget>()
     
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        let future = Future<String, Error>() {[unowned self] promise in
-            self.provider.request(.send(transaction: transaction)) {[unowned self]  result in
-                switch result {
-                case .success(let response):
-                    if let hash = try? self.parseResult(response.data),
-                        hash.count > 0 {
-                        promise(.success(hash))
-                        return
-                    }
-                     promise(.failure("Empty response"))
-                case .failure(let error):
-                    promise(.failure(error))
-                }
-            }
+        return provider.requestCombine(.send(transaction: transaction))
+            .tryMap {[unowned self] response throws -> String in
+                if let hash = try? self.parseResult(response.data),
+                                       hash.count > 0 {
+                                      return hash
+                                   }
+                                    throw "Empty response"
         }
-        return AnyPublisher(future)
+        .eraseToAnyPublisher()
     }
     
     func getInfo(address: String, contractAddress: String?) -> AnyPublisher<EthereumResponse, Error> {
@@ -61,8 +54,9 @@ class EthereumNetworkManager {
     private func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> {
         return getTxCount(target: .pending(address: address))
     }
-    
+    //[REDACTED_TODO_COMMENT]
     private func getBalance(_ address: String) -> AnyPublisher<Decimal, Error> {
+        
         let future = Future<Decimal, Error>() {[unowned self] promise in
             self.provider.request(.balance(address: address)) {[unowned self] result in
                 switch result {
