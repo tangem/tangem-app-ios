@@ -14,6 +14,7 @@ enum BitcoinError: Error {
     case noUnspents
     case failedToBuildHash
     case failedToBuildTransaction
+    case failedToMapNetworkResponse
 }
 
 class BitcoinWalletManager: WalletManager {
