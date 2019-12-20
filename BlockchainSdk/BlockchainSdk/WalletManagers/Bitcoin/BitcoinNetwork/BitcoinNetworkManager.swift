@@ -9,6 +9,24 @@
 import Foundation
 import Moya
 import Combine
+import TangemSdk
+
+class BitcoinNetworkManager {
+    let providerRepo: BitcoinNetworkProviderRepository
+    
+    init(address: String, isTestNet:Bool) {
+        var providers = [BitcoinNetworkApi:BitcoinNetworkProvider]()
+        providers[.blockcypher] = BlockcypherProvider(address: address, isTestNet: isTestNet)
+        providers[.main] = BitcoinMainProvider(address: address)
+        providerRepo = BitcoinNetworkProviderRepository(isTestNet: isTestNet, providers: providers)
+    }
+    
+    
+    
+    //    func getInfo() -> AnyPublisher<BitcoinResponse, Error> {
+    //
+    //    }
+}
 
 struct BtcFee {
     let minimalKb: Decimal
@@ -33,13 +51,22 @@ enum BitcoinNetworkApi {
     case blockcypher
 }
 
-//class BitcoinNetworkManager {
-//    var networkApi: BitcoinNetworkApi = .main
-//    let blockchainInfoProvider = MoyaProvider<BlockchainInfoTarget>()
-//    let estimateFeeProvider = MoyaProvider<EstimateFeeTarget>()
-//    let blockcypherProvider = MoyaProvider<BlockcypherTarget>()
-//
-//    func getInfo() -> AnyPublisher<BitcoinResponse, Error> {
-//
-//    }
-//}
+protocol BitcoinNetworkProvider {
+    //    func getFee()
+    //    func getAddress()
+    //    func send()
+}
+
+struct BitcoinNetworkProviderRepository {
+    let isTestNet: Bool
+    var networkApi: BitcoinNetworkApi = .main
+    let providers:[BitcoinNetworkApi: BitcoinNetworkProvider]
+    
+    func getProvider() -> BitcoinNetworkProvider {
+        if isTestNet {
+            return providers[.blockcypher]!
+        }
+        
+        return providers[networkApi]!
+    }
+}
