@@ -54,64 +54,23 @@ class EthereumNetworkManager {
     private func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> {
         return getTxCount(target: .pending(address: address))
     }
-    //[REDACTED_TODO_COMMENT]
+
     private func getBalance(_ address: String) -> AnyPublisher<Decimal, Error> {
-        
-        let future = Future<Decimal, Error>() {[unowned self] promise in
-            self.provider.request(.balance(address: address)) {[unowned self] result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let balanceEth = try self.parseBalance(response.data)
-                        promise(.success(balanceEth))
-                    } catch {
-                        promise(.failure(error))
-                    }
-                case .failure(let moyaError):
-                    promise(.failure(moyaError))
-                }
-            }
-        }
-        return AnyPublisher(future)
+        return self.provider.requestCombine(.balance(address: address))
+            .tryMap {[unowned self] in try self.parseBalance($0.data)}
+        .eraseToAnyPublisher()
     }
     
     private func getTokenBalance(_ address: String, contractAddress: String) -> AnyPublisher<Decimal, Error> {
-        let future = Future<Decimal, Error>() {[unowned self] promise in
-            self.provider.request(.tokenBalance(address: address, contractAddress: contractAddress, tokenNetwork: .eth )) {[unowned self]  result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let balanceEth = try self.parseBalance(response.data)
-                        promise(.success(balanceEth))
-                    } catch {
-                        promise(.failure(error))
-                    }
-                case .failure(let moyaError):
-                    promise(.failure(moyaError))
-                }
-            }
-        }
-        return AnyPublisher(future)
+        return self.provider.requestCombine(.tokenBalance(address: address, contractAddress: contractAddress, tokenNetwork: .eth ))
+            .tryMap{[unowned self] in try self.parseBalance($0.data)}
+            .eraseToAnyPublisher()
     }
     
     private func getTxCount(target: EthereumTarget) -> AnyPublisher<Int, Error> {
-        let future = Future<Int, Error> {[unowned self] promise in
-            self.provider.request(target) {[unowned self] result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let txCount = try self.parseTxCount(response.data)
-                        promise(.success(txCount))
-                    } catch {
-                        promise(.failure(error))
-                    }
-                    break
-                case .failure(let error):
-                    promise(.failure(error))
-                }
-            }
-        }
-        return AnyPublisher(future)
+        return self.provider.requestCombine(target)
+            .tryMap{[unowned self] in try self.parseTxCount($0.data)}
+            .eraseToAnyPublisher()
     }
     
     private func parseResult(_ data: Data) throws -> String {
