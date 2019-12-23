@@ -11,7 +11,7 @@ import Moya
 import Combine
 import TangemSdk
 
-class BitcoinNetworkManager {
+class BitcoinNetworkManager: BitcoinNetworkProvider {
     let providerRepo: BitcoinNetworkProviderRepository
     
     init(address: String, isTestNet:Bool) {
@@ -21,11 +21,17 @@ class BitcoinNetworkManager {
         providerRepo = BitcoinNetworkProviderRepository(isTestNet: isTestNet, providers: providers)
     }
     
+    func getInfo() -> AnyPublisher<BitcoinResponse, Error> {
+        return providerRepo.getProvider().getInfo()
+    }
     
+    func getFee() -> AnyPublisher<BtcFee, Error> {
+        return providerRepo.getProvider().getFee()
+    }
     
-    //    func getInfo() -> AnyPublisher<BitcoinResponse, Error> {
-    //
-    //    }
+    func send(transaction: String) -> AnyPublisher<String, Error> {
+        return providerRepo.getProvider().send(transaction: transaction)
+    }
 }
 
 struct BtcFee {
@@ -36,7 +42,7 @@ struct BtcFee {
 
 struct BitcoinResponse {
     let balance: Decimal
-    let unconfirmed_balance: Int
+    let hacUnconfirmed: Bool
     let txrefs: [BtcTx]
 }
 
@@ -52,9 +58,9 @@ enum BitcoinNetworkApi {
 }
 
 protocol BitcoinNetworkProvider {
-    //    func getFee()
-    //    func getAddress()
-    //    func send()
+    func getInfo() -> AnyPublisher<BitcoinResponse, Error>
+    func getFee() -> AnyPublisher<BtcFee, Error>
+    func send(transaction: String) -> AnyPublisher<String, Error>
 }
 
 struct BitcoinNetworkProviderRepository {
