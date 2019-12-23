@@ -64,7 +64,7 @@ class BlockcypherProvider: BitcoinNetworkProvider {
                     return btx
                     } ?? []
                 
-                let btcResponse = BitcoinResponse(balance: satoshiBalance, unconfirmed_balance: uncBalance, txrefs: txs)
+                let btcResponse = BitcoinResponse(balance: satoshiBalance, hacUnconfirmed: balance != uncBalance, txrefs: txs)
                 return btcResponse
         }
         .eraseToAnyPublisher()
