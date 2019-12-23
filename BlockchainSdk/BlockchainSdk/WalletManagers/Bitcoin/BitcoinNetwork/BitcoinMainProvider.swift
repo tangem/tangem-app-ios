@@ -45,8 +45,7 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
                 
                 let satoshiBalance = Decimal(balance)/Decimal(100000000)
                 let hasUnconfirmed = txs.first(where: {$0.block_height == nil}) != nil
-                let unconfirmedBalance = hasUnconfirmed ? 1 : 0
-                return BitcoinResponse(balance: satoshiBalance, unconfirmed_balance: unconfirmedBalance, txrefs: utxs)
+                return BitcoinResponse(balance: satoshiBalance, hacUnconfirmed: hasUnconfirmed, txrefs: utxs)
         }
         .eraseToAnyPublisher()
     }
