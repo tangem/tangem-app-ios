@@ -19,7 +19,6 @@ class  EthereumWalletManager: WalletManager {
     private let txBuilder: EthereumTransactionBuilder
     private let network: EthereumNetworkManager
     private var updateSubscription: AnyCancellable?
-    private var sendSubscription: AnyCancellable?
     public var txCount: Int = -1
     public var pendingTxCount: Int = -1
     
@@ -59,7 +58,7 @@ class  EthereumWalletManager: WalletManager {
             }
         } else {
             if currencyWallet.pendingTransactions.isEmpty {
-                currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: .ethereum, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
+                currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: currencyWallet.blockchain, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
             }
         }
         wallet.send(currencyWallet)
@@ -67,92 +66,64 @@ class  EthereumWalletManager: WalletManager {
 }
 
 extension EthereumWalletManager: TransactionSender {
-    func send(_ transaction: Transaction, signer: TransactionSigner, completion: @escaping (Result<Bool, Error>) -> Void) {
+    func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
         guard let txForSign = txBuilder.buildForSign(transaction: transaction, nonce: txCount) else {
-            completion(.failure(EthereumError.failedToBuildHash))
-            return
+            return Fail(error: EthereumError.failedToBuildHash).eraseToAnyPublisher()
         }
         
-       sendSubscription =  signer.sign(hashes: [txForSign.hash], cardId: self.cardId)
+        return signer.sign(hashes: [txForSign.hash], cardId: self.cardId)
             .tryMap {[unowned self] signResponse throws -> AnyPublisher<String, Error> in
                 guard let tx = self.txBuilder.buildForSend(transaction: txForSign.transaction, hash: txForSign.hash, signature: signResponse.signature) else {
                     throw BitcoinError.failedToBuildTransaction
                 }
                 let txHexString = "0x\(tx.toHexString())"
                 return self.network.send(transaction: txHexString)}
-            .sink(receiveCompletion: { sendCompletion in
-                if case let .failure(error) = sendCompletion {
-                    completion(.failure(error))
-                }
-            }, receiveValue: {[unowned self] sendResponse in
+            .map {[unowned self] response in
                 self.currencyWallet.add(transaction: transaction)
                 self.wallet.send(self.currencyWallet)
-                completion(.success(true))
-            })
-        
-//        signer.sign(hashes: [txForSign.hash], cardId: self.cardId) { [unowned self] result in
-//            switch result {
-//            case .event(let response):
-//                guard let tx = self.txBuilder.buildForSend(transaction: txForSign.transaction, hash: txForSign.hash, signature: response.signature) else {
-//                    completion(.failure(BitcoinError.failedToBuildTransaction))
-//                    return
-//                }
-//                let txHexString = "0x\(tx.toHexString())"
-//                self.sendSubscription = self.network.send(transaction: txHexString)
-//                    .sink(receiveCompletion: { sendCompletion in
-//                        if case let .failure(error) = sendCompletion {
-//                            completion(.failure(error))
-//                        }
-//                    }, receiveValue: {[unowned self] sendResponse in
-//                        self.currencyWallet.add(transaction: transaction)
-//                        self.wallet.send(self.currencyWallet)
-//                        completion(.success(true))
-//                    })
-//
-//            case .completion(let error):
-//                if let error = error {
-//                    completion(.failure(error))
-//                }
-//            }
-//        }
+                return true
+        }
+    .eraseToAnyPublisher()
     }
 }
 
 extension EthereumWalletManager: FeeProvider {
-    func getFee(amount: Amount, source: String, destination: String, completion: @escaping (Result<[Amount], Error>) -> Void) {
-        DispatchQueue.global().async {
-            let web = web3(provider: InfuraProvider(Networks.Mainnet)!)
-            
-            guard let gasPrice = try? web.eth.getGasPrice() else {
-                completion(.failure(EthereumError.failedToGetFee))
-                return
-            }
-            
-            let m = self.txBuilder.getGasLimit(for: amount)
-            let decimalCount = self.currencyWallet.blockchain.decimalCount
-            let minValue = gasPrice * m
-            let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
-            
-            let normalValue = gasPrice * BigUInt(12) / BigUInt(10) * m
-            let normal = Web3.Utils.formatToEthereumUnits(normalValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
-            
-            let maxValue = gasPrice * BigUInt(15) / BigUInt(10) * m
-            let max = Web3.Utils.formatToEthereumUnits(maxValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
-            
-            guard let minDecimal = Decimal(string: min),
-                let normalDecimal = Decimal(string: normal),
-                let maxDecimal = Decimal(string: max) else {
-                    completion(.failure(EthereumError.failedToGetFee))
+    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount],Error> {
+        let future = Future<[Amount],Error> { promise in
+            DispatchQueue.global().async {
+                let web = web3(provider: InfuraProvider(Networks.Mainnet)!)
+                
+                guard let gasPrice = try? web.eth.getGasPrice() else {
+                    promise(.failure(EthereumError.failedToGetFee))
                     return
+                }
+                
+                let m = self.txBuilder.getGasLimit(for: amount)
+                let decimalCount = self.currencyWallet.blockchain.decimalCount
+                let minValue = gasPrice * m
+                let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
+                
+                let normalValue = gasPrice * BigUInt(12) / BigUInt(10) * m
+                let normal = Web3.Utils.formatToEthereumUnits(normalValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
+                
+                let maxValue = gasPrice * BigUInt(15) / BigUInt(10) * m
+                let max = Web3.Utils.formatToEthereumUnits(maxValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
+                
+                guard let minDecimal = Decimal(string: min),
+                    let normalDecimal = Decimal(string: normal),
+                    let maxDecimal = Decimal(string: max) else {
+                        promise(.failure(EthereumError.failedToGetFee))
+                        return
+                }
+                
+                let minAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: minDecimal)
+                let normalAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: normalDecimal)
+                let maxAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: maxDecimal)
+            
+                promise(.success([minAmount, normalAmount, maxAmount]))
             }
-            
-            let minAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: minDecimal)
-            let normalAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: normalDecimal)
-            let maxAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: maxDecimal)
-            
-            let fee = [minAmount, normalAmount, maxAmount]
-            completion(.success(fee))
         }
+        return AnyPublisher(future)
     }
 }
 
