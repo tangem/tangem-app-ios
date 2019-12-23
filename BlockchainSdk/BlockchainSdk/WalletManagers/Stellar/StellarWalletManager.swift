@@ -27,7 +27,6 @@ class StellarWalletManager: WalletManager {
     private let network: StellarNetwotkManager
     private let stellarSdk: StellarSDK
     private var updateSubscription: AnyCancellable?
-    private var sendSubscription: AnyCancellable?
     
     init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, isTestnet: Bool) {
         
@@ -77,10 +76,10 @@ class StellarWalletManager: WalletManager {
 }
 
 extension StellarWalletManager: TransactionSender {
-    func send(_ transaction: Transaction, signer: TransactionSigner, completion: @escaping (Result<Bool, Error>) -> Void) {
+    func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
         let cardId = self.cardId
         
-        sendSubscription = txBuilder.buildForSign(transaction: transaction)
+        return txBuilder.buildForSign(transaction: transaction)
             .flatMap { buildForSignResponse in
                 signer.sign(hashes: [buildForSignResponse.hash], cardId: cardId)
                     .map { return ($0, buildForSignResponse) }.eraseToAnyPublisher()
@@ -93,29 +92,22 @@ extension StellarWalletManager: TransactionSender {
             return tx
         }
         .flatMap {[unowned self] in self.network.send(transaction: $0)}
-        .sink(receiveCompletion: { completionResult in
-            switch completionResult {
-            case .finished:
-                break
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }) {[unowned self] result in
+        .map {[unowned self] in
             self.currencyWallet.add(transaction: transaction)
             self.wallet.send(self.currencyWallet)
-            completion(.success(result))
+            return $0
         }
+        .eraseToAnyPublisher()
     }
 }
 
 extension StellarWalletManager: FeeProvider {
-    func getFee(amount: Amount, source: String, destination: String, completion: @escaping (Result<[Amount], Error>) -> Void) {
+    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
         if let feeValue = self.baseFee {
             let feeAmount = Amount(with: currencyWallet.blockchain, address: source, value: feeValue)
-            completion(.success([feeAmount]))
+            return Result.Publisher([feeAmount]).eraseToAnyPublisher()
         } else {
-            completion(.failure(StellarError.noFee))
+            return Fail(error: StellarError.noFee).eraseToAnyPublisher()
         }
     }
 }
-
