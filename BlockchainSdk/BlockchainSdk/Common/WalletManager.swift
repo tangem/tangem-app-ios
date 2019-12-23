@@ -16,12 +16,12 @@ public protocol WalletManager {
 }
 
 protocol TransactionBuilder {
-    func getEstimateSize(for transaction: Transaction) -> Int?
+    func getEstimateSize(for transaction: Transaction) -> Decimal?
 }
 
 @available(iOS 13.0, *)
 protocol TransactionSender {
-    func send(_ transaction: Transaction, signer: TransactionSigner, completion: @escaping (Result<Bool, Error>) -> Void)
+    func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error>
 }
 
 @available(iOS 13.0, *)
@@ -31,5 +31,5 @@ protocol TransactionSigner {
 }
 
 protocol FeeProvider {
-    func getFee(amount: Amount, source: String, destination: String, completion: @escaping (Result<[Amount], Error>) -> Void)
+    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error>
 }
