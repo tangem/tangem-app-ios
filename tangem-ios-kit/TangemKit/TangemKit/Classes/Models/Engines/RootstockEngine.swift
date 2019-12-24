@@ -7,8 +7,16 @@
 //
 
 import Foundation
+import BigInt
 
 class RootstockEngine: TokenEngine {
+    override var chainId: BigUInt {
+        return 30
+    }
+    
+    override var blockchain: Blockchain {
+        return .rootstock
+    }
     
     override var blockchainDisplayName: String {
         return "Rootstock"
