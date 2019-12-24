@@ -35,7 +35,7 @@ public class WalletManagerFactory {
         return nil
     }
     
-    private func getToken(from card: Card) -> Token? { //gettoken
+    private func getToken(from card: Card) -> Token? {
         if let symbol = card.cardData?.tokenSymbol,
             let contractAddress = card.cardData?.tokenContractAddress,
             let decimals = card.cardData?.tokenDecimal {
