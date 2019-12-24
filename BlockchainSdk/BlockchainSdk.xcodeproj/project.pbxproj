@@ -204,7 +204,6 @@
 			children = (
 				5D14E48F2397B87000C15FC8 /* WalletManager.swift */,
 				5D14E4902397B87000C15FC8 /* Blockchain.swift */,
-				5D14E4912397B87000C15FC8 /* Wallet.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -221,6 +220,7 @@
 		5D14E49F2397B8F800C15FC8 /* Wallets */ = {
 			isa = PBXGroup;
 			children = (
+				5D14E4912397B87000C15FC8 /* Wallet.swift */,
 				5D006ACC239950F9008BA04D /* CurrencyWallet.swift */,
 			);
 			path = Wallets;
