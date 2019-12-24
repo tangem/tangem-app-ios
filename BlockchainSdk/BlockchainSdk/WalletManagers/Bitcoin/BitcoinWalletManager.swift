@@ -35,11 +35,12 @@ class BitcoinWalletManager: WalletManager {
         self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
         wallet = CurrentValueSubject(currencyWallet)
         network = BitcoinNetworkManager(address: address, isTestNet: isTestnet)
+        //[REDACTED_TODO_COMMENT]
     }
     
-    func update() {
+    func update() {//check it
         updateSubscription = network.getInfo()
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: {[unowned self] completion in
                 if case let .failure(error) = completion {
                     self.wallet.send(completion: .failure(error))
                 }
@@ -47,7 +48,7 @@ class BitcoinWalletManager: WalletManager {
                 self.updateWallet(with: $0)
             })
     }
-    
+    //[REDACTED_TODO_COMMENT]
     private func updateWallet(with response: BitcoinResponse) {
         currencyWallet.balances[.coin]?.value = response.balance
         txBuilder.unspentOutputs = response.txrefs
