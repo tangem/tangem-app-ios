@@ -45,6 +45,7 @@ public struct Amount {
         self.value = value
         self.address = token.contractAddress
     }
+    
     public init(with amount: Amount, value: Decimal? = nil) {
         type = amount.type
         currencySymbol = amount.currencySymbol
