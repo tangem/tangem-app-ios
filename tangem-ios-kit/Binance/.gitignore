@@ -1,0 +1,8 @@
+.DS_Store
+*DS_Store
+Build
+Index
+*.xcworkspace
+Pods/
+.build
+Package.resolved
