@@ -11,13 +11,20 @@ import web3swift
 import BigInt
 
 class ETHEngine: CardEngine {
-    static let chainId: BigUInt = 1 //Mainnet
+    var chainId: BigUInt {
+        return 1
+    }
+    
+    var blockchain: Blockchain {
+        return .ethereum
+    }
     
     unowned var card: Card
     
     private var transaction: EthereumTransaction?
     private var hashForSign: Data?
     private let operationQueue = OperationQueue()
+
     
     var blockchainDisplayName: String {
         return "Ethereum"
@@ -106,7 +113,7 @@ extension ETHEngine: CoinProvider {
                                                         return nil
         }
         
-        guard let hashForSign = transaction.hashForSignature(chainID: ETHEngine.chainId) else {
+        guard let hashForSign = transaction.hashForSignature(chainID: chainId) else {
             return nil
         }
       
@@ -156,7 +163,7 @@ extension ETHEngine: CoinProvider {
     
     func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
         
-        let web = web3(provider: InfuraProvider(Networks.Mainnet)!)
+        let web = web3(provider: InfuraProvider(Networks.Custom(networkID: chainId))!)
         
         DispatchQueue.global().async {
             guard let gasPrice = try? web.eth.getGasPrice() else {
@@ -164,7 +171,7 @@ extension ETHEngine: CoinProvider {
                 return
             }
             let m = self.getGasLimit()
-            let decimalCount = Int(Blockchain.ethereum.decimalCount)
+            let decimalCount = Int(self.blockchain.decimalCount)
             let minValue = gasPrice * m
             let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
@@ -221,7 +228,7 @@ extension ETHEngine: CoinProvider {
         transaction?.r = BigUInt(unmarshalledSignature.r)
         transaction?.s = BigUInt(unmarshalledSignature.s)
         
-        let encodedBytesToSend = transaction?.encodeForSend(chainID: ETHEngine.chainId)
+        let encodedBytesToSend = transaction?.encodeForSend(chainID: chainId)
         return encodedBytesToSend
     }
     
