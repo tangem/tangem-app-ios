@@ -14,6 +14,8 @@ class RootstockEngine: TokenEngine {
         return 30
     }
     
+    override var mainNetURL: String { TokenNetwork.rsk.rawValue }
+    
     override var blockchain: Blockchain {
         return .rootstock
     }
