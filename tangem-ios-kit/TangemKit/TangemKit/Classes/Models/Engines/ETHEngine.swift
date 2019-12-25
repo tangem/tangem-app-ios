@@ -19,6 +19,8 @@ class ETHEngine: CardEngine {
         return .ethereum
     }
     
+    var mainNetURL: String { TokenNetwork.eth.rawValue }
+    
     unowned var card: Card
     
     private var transaction: EthereumTransaction?
@@ -163,7 +165,10 @@ extension ETHEngine: CoinProvider {
     
     func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
         
-        let web = web3(provider: InfuraProvider(Networks.Custom(networkID: chainId))!)
+        let url = URL(string: mainNetURL)!
+        let network = chainId == 1 ? Networks.Mainnet : Networks.Custom(networkID: chainId)
+        let provider = Web3HttpProvider(url, network: network, keystoreManager: nil)!
+        let web = web3(provider: provider)
         
         DispatchQueue.global().async {
             guard let gasPrice = try? web.eth.getGasPrice() else {
@@ -195,7 +200,7 @@ extension ETHEngine: CoinProvider {
         }
         let txHexString = "0x\(tx.toHexString())"
         
-        let sendOperation = EthereumNetworkSendOperation(tx: txHexString) { [weak self] (result) in
+        let sendOperation = EthereumNetworkSendOperation(tx: txHexString, networkUrl: mainNetURL) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.txCount += 1
