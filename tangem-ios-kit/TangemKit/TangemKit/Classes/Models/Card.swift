@@ -240,7 +240,8 @@ public class Card {
         
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
-        return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum || blockchain == .cardano || blockchain == .stellar)
+        return /*ver >= 2.28 &&*/ (blockchain == .bitcoin || blockchain == .ethereum
+            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock)
     }
     
     public var supportedSignMethods: [SignMethod] = [.signHash]
@@ -651,7 +652,7 @@ public extension Card {
             if tokenSymbol != nil {
                 operation = TokenCardBalanceOperation(card: self, completion: onResult)
             } else {
-                operation = ETHCardBalanceOperation(card: self, completion: onResult)
+                operation = ETHCardBalanceOperation(card: self, networkUrl: TokenNetwork.eth.rawValue, completion: onResult)
             }
         case .rootstock:
             operation = RSKCardBalanceOperation(card: self, completion: onResult)
