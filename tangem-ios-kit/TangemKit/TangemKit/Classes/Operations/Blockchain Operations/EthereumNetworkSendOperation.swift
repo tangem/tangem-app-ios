@@ -17,17 +17,19 @@ public class EthereumNetworkSendOperation: GBAsyncOperation {
     }
     
     var tx: String
+    let networkUrl: String
     var completion: (TangemObjectResult<String>) -> Void
     
-    public init(tx: String, completion: @escaping (TangemObjectResult<String>) -> Void) {
+    public init(tx: String, networkUrl: String, completion: @escaping (TangemObjectResult<String>) -> Void) {
         self.tx = tx
         self.completion = completion
+        self.networkUrl = networkUrl
     }
     
     override public func main() {
         let jsonDict = ["jsonrpc": "2.0", "method": "eth_sendRawTransaction", "params": [tx], "id": 67] as [String: Any]
         
-        let url = URL(string: Constants.mainNetURL)
+        let url = URL(string: networkUrl)
         var urlRequest = URLRequest(url: url!)
         urlRequest.httpMethod = "POST"
         
