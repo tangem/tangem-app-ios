@@ -36,10 +36,10 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
         
         card.walletTokenValue = balanceValue        
         
-        let mainBalanceOperation = RootstockNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+        let mainBalanceOperation = ETHCardBalanceOperation(card: card, networkUrl: TokenNetwork.rsk.rawValue) { [weak self] (result) in
             switch result {
-            case .success(let value):
-                self?.handleMainBalanceLoaded(balanceValue: value)
+            case .success:
+                self?.handleMainBalanceLoaded()
             case .failure(let error):
                 self?.card.mult = 0
                 self?.failOperationWith(error: error)
@@ -48,13 +48,10 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
         operationQueue.addOperation(mainBalanceOperation)
     }
     
-    func handleMainBalanceLoaded(balanceValue: String) {
+    func handleMainBalanceLoaded() {
         guard !isCancelled else {
             return
         }
-        
-        card.walletValue = balanceValue
-        
         completeOperation()
     }
 
