@@ -192,6 +192,8 @@
 		5D84A80622E0B7790049B9D1 /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84A80522E0B7790049B9D1 /* Array+.swift */; };
 		5D84A80722E0B7790049B9D1 /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84A80522E0B7790049B9D1 /* Array+.swift */; };
 		5D9C62EB22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9C62EA22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift */; };
+		5D9D062723B4D1F1009A755E /* BCHCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9D062623B4D1F1009A755E /* BCHCardBalanceOperation.swift */; };
+		5D9D062923B4D222009A755E /* BCHEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9D062823B4D222009A755E /* BCHEngine.swift */; };
 		5DC25BED2302FB310047871B /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC25BEC2302FB310047871B /* Decimal+.swift */; };
 		5DC4E2362338AE3800D58E43 /* BlockchainInfoEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2272338AE3800D58E43 /* BlockchainInfoEndpoint.swift */; };
 		5DC4E2372338AE3800D58E43 /* BlockchainInfoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC4E2282338AE3800D58E43 /* BlockchainInfoResponse.swift */; };
@@ -332,6 +334,8 @@
 		5D765E62237445CD009BB2A2 /* hashes.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = hashes.plist; sourceTree = "<group>"; };
 		5D84A80522E0B7790049B9D1 /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		5D9C62EA22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkPendingTxCount.swift; sourceTree = "<group>"; };
+		5D9D062623B4D1F1009A755E /* BCHCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BCHCardBalanceOperation.swift; sourceTree = "<group>"; };
+		5D9D062823B4D222009A755E /* BCHEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BCHEngine.swift; sourceTree = "<group>"; };
 		5DC25BEC2302FB310047871B /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
 		5DC4E2272338AE3800D58E43 /* BlockchainInfoEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainInfoEndpoint.swift; sourceTree = "<group>"; };
 		5DC4E2282338AE3800D58E43 /* BlockchainInfoResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainInfoResponse.swift; sourceTree = "<group>"; };
@@ -850,6 +854,7 @@
 				80467DAD225934A200EDA8FD /* XRPCardBalanceOperation.swift */,
 				8067A24022B2F22D0080ECF1 /* BNBCardBalanceOperation.swift */,
 				5D4B31B12334E28A00D3B92E /* XlmCardBalanceOperation.swift */,
+				5D9D062623B4D1F1009A755E /* BCHCardBalanceOperation.swift */,
 			);
 			path = "Card Balance";
 			sourceTree = "<group>";
@@ -907,6 +912,7 @@
 				8067A23E22B2ED1B0080ECF1 /* BinanceEngine.swift */,
 				5DEF97EB22F0729D004E0CC5 /* CoinProvider.swift */,
 				5DF43C052334D7D900074485 /* XlmEngine.swift */,
+				5D9D062823B4D222009A755E /* BCHEngine.swift */,
 			);
 			path = Engines;
 			sourceTree = "<group>";
@@ -1336,6 +1342,7 @@
 				80EABF03222DCEBE00E1302A /* BTCEngine.swift in Sources */,
 				5D11114B22F0691E009919D1 /* scalar_impl.swift in Sources */,
 				5D11115422F0691E009919D1 /* lax_der_parsing.swift in Sources */,
+				5D9D062723B4D1F1009A755E /* BCHCardBalanceOperation.swift in Sources */,
 				80C14C902263C457008E4818 /* ed25519_fe.swift in Sources */,
 				5DC4E2372338AE3800D58E43 /* BlockchainInfoResponse.swift in Sources */,
 				5D11114822F0691E009919D1 /* group_impl.swift in Sources */,
@@ -1374,6 +1381,7 @@
 				5D11114F22F0691E009919D1 /* ecmult_const_impl.swift in Sources */,
 				5D028B0C232A396000E0F9D2 /* Localizations.swift in Sources */,
 				5D379F19237AA5D80093B074 /* SegWitBech32.swift in Sources */,
+				5D9D062923B4D222009A755E /* BCHEngine.swift in Sources */,
 				5D028B07232A25BB00E0F9D2 /* CardSignSession.swift in Sources */,
 				80EABF07222DCEDC00E1302A /* TokenEngine.swift in Sources */,
 				5D11114522F0691E009919D1 /* field_10x26.swift in Sources */,
