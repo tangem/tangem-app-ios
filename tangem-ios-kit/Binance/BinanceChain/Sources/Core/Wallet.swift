@@ -1,11 +1,11 @@
 import Foundation
 import CryptoSwift
 
-public class Wallet: CustomStringConvertible {
+open class Wallet: CustomStringConvertible {
 
     public var endpoint: String = BinanceChain.Endpoint.testnet.rawValue
     public var privateKey: Data { return self.key.raw }
-    public var publicKey: Data { return self.key.publicKey.data }
+    open var publicKey: Data { return self.key.publicKey.data }
     public var mnemonic: String = ""
     public var sequence: Int = 0
     public var accountNumber: Int = 0
@@ -143,7 +143,7 @@ public class Wallet: CustomStringConvertible {
         }
     }
     
-    public func sign(message: Data) -> Data {
+    open func sign(message: Data) -> Data {
         do {
             return try ECDSA.compactsign(message.sha256(), privateKey: self.privateKey)
         } catch let error {
