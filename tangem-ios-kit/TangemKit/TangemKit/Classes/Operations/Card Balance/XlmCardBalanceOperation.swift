@@ -48,7 +48,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
             }
         }
         
-        stellarSdk.ledgers.getLedgers(cursor: nil, order: Order.descending, limit: 1, response: { [weak self] response -> (Void) in
+        stellarSdk.ledgers.getLedgers(cursor: nil, order: stellarsdk.Order.descending, limit: 1, response: { [weak self] response -> (Void) in
             switch response {
             case .success(let page):
                 guard let lastLedger = page.records.first else {
