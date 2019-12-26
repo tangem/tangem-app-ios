@@ -15,6 +15,12 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
 
     private var txCountLoaded = -1
     private var pendingTxCountLoaded = -1
+    var networkUrl: String
+    
+    init(card: Card, networkUrl: String, completion: @escaping (TangemKitResult<Card>) -> Void) {
+        self.networkUrl = networkUrl
+        super.init(card: card, completion: completion)
+    }
     
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
@@ -23,7 +29,7 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        let txCountOperation = EthereumNetworkTxCountOperation(address: card.address) { [weak self] (result) in
+        let txCountOperation = EthereumNetworkTxCountOperation(address: card.address, networkUrl: networkUrl) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.handleTxCountLoaded(txCount: value)
@@ -35,7 +41,7 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
         addRequest()
         operationQueue.addOperation(txCountOperation)
         
-        let pendingTxCountOperation = EthereumNetworkPendingTxCountOperation(address: card.address) { [weak self] (result) in
+        let pendingTxCountOperation = EthereumNetworkPendingTxCountOperation(address: card.address, networkUrl: networkUrl) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.handlePendingTxCountLoaded(txCount: value)
@@ -48,7 +54,7 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
         operationQueue.addOperation(pendingTxCountOperation)
         
         
-        let operation = EthereumNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+        let operation = EthereumNetworkBalanceOperation(address: card.address, networkUrl: networkUrl) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.handleBalanceLoaded(balanceValue: value)
