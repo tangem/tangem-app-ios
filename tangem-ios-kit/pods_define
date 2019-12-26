@@ -9,4 +9,5 @@ def tangemioskit_pods
     pod 'web3.swift.pod'
     pod 'stellar-ios-mac-sdk'
     pod 'KeychainSwift'
+    pod 'BinanceChain', :path => 'tangem-ios-kit/Binance/'
 end
