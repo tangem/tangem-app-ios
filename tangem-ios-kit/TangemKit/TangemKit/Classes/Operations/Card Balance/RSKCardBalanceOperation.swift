@@ -10,12 +10,19 @@ import Foundation
 
 class RSKCardBalanceOperation: BaseCardBalanceOperation {
 
+     var hasToken: Bool = false
+    
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
             return
         }
 
         card.mult = priceUSD
+        
+        if !hasToken {
+            getMainBalance()
+            return
+        }
         
         let tokenBalanceOperation = TokenNetworkBalanceOperation(card: card, network: .rsk) { [weak self] (result) in
             switch result {
@@ -35,17 +42,20 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
         }
         
         card.walletTokenValue = balanceValue        
-        
+        getMainBalance()
+    }
+    
+    func getMainBalance() {
         let mainBalanceOperation = ETHCardBalanceOperation(card: card, networkUrl: TokenNetwork.rsk.rawValue) { [weak self] (result) in
-            switch result {
-            case .success:
-                self?.handleMainBalanceLoaded()
-            case .failure(let error):
-                self?.card.mult = 0
-                self?.failOperationWith(error: error)
-            }
-        }
-        operationQueue.addOperation(mainBalanceOperation)
+                  switch result {
+                  case .success:
+                      self?.handleMainBalanceLoaded()
+                  case .failure(let error):
+                      self?.card.mult = 0
+                      self?.failOperationWith(error: error)
+                  }
+              }
+              operationQueue.addOperation(mainBalanceOperation)
     }
     
     func handleMainBalanceLoaded() {
