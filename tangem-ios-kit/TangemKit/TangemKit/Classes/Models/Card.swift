@@ -52,10 +52,11 @@ public enum Blockchain: String {
     case binance
     case unknown
     case stellar
+    case bitcoinCash
     
     public var decimalCount: Int16 {
         switch self {
-        case .bitcoin:
+        case .bitcoin, .bitcoinCash:
             return 8
         case .ethereum, .rootstock:
             return 18
@@ -73,7 +74,7 @@ public enum Blockchain: String {
     
     public var roundingMode: NSDecimalNumber.RoundingMode {
         switch self {
-        case .bitcoin, .ethereum, .rootstock, .binance:
+        case .bitcoin, .ethereum, .rootstock, .binance, .bitcoinCash:
             return .down
         case .cardano:
             return .up
@@ -135,6 +136,8 @@ public class Card {
             return .binance
         case let blockchainName where blockchainName.containsIgnoringCase(find: "xlm"):
             return .stellar
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "bch"):
+            return .bitcoinCash
         default:
             return .unknown
         }
@@ -144,7 +147,7 @@ public class Card {
     }
     
     private var curve: EllipticCurve?
-
+    
     public var curveID: EllipticCurve {
         return curve ?? (walletPublicKeyBytesArray.count == 65 ? .secp256k1 : .ed25519)
     }
@@ -186,7 +189,7 @@ public class Card {
     }
     
     public var units: String {
-       if let tokenValue = walletTokenValue, tokenValue != "0" {
+        if let tokenValue = walletTokenValue, tokenValue != "0" {
             return (walletTokenUnits ?? tokenSymbol) ?? walletUnits
         } else {
             return walletUnits
@@ -523,7 +526,7 @@ public class Card {
                 }
             case .curveId:
                 if let curveId = $0.value?.utf8String {
-                curve = EllipticCurve(rawValue: curveId)
+                    curve = EllipticCurve(rawValue: curveId)
                 }
             case .settingsMask:
                 settingsMask = $0.value ?? []
@@ -559,6 +562,8 @@ public class Card {
             cardEngine = BinanceEngine(card: self)
         case .stellar:
             cardEngine = XlmEngine(card: self)
+        case .bitcoinCash:
+            cardEngine = BCHEngine(card: self)
         default:
             cardEngine = NoWalletCardEngine(card: self)
         }
@@ -636,12 +641,12 @@ public extension Card {
         
         let onResult = { (result: TangemKitResult<Card>) in            
             DispatchQueue.main.async {
-                 switch result {
-                           case .success(let card):
-                               onSuccess(card)
-                           case .failure(let error):
-                               onFailure(error)
-                           }
+                switch result {
+                case .success(let card):
+                    onSuccess(card)
+                case .failure(let error):
+                    onFailure(error)
+                }
             }
         }
         
@@ -666,6 +671,8 @@ public extension Card {
             operation = BNBCardBalanceOperation(card: self, completion: onResult)
         case .stellar:
             operation = XlmCardBalanceOperation(card: self, completion: onResult)
+        case .bitcoinCash:
+            operation = BCHCardBalanceOperation(card: self, completion: onResult)
         default:
             break
         }
