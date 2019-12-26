@@ -132,7 +132,7 @@ public class Message {
     
     public func encodeForSignature() -> Data {
         let json = self.json(for: .signature)
-        return Data(json.utf8)
+        return Data(json.utf8).sha256()
     }
     
     public func add(signature: Data) {
