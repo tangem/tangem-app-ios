@@ -37,6 +37,7 @@ public class Message {
     private var voteOption: VoteOption = .no
     private var source: Source = .broadcast
 
+    private var externalSignature: Data?
     // MARK: - Constructors
 
     private init(type: MessageType, wallet: Wallet) {
@@ -129,6 +130,15 @@ public class Message {
 
     }
     
+    public func encodeForSignature() -> Data {
+        let json = self.json(for: .signature)
+        return Data(json.utf8)
+    }
+    
+    public func add(signature: Data) {
+        self.externalSignature = signature
+    }
+    
     // MARK: - Private
 
     private func body(for type: MessageType) throws -> Data {
@@ -215,13 +225,17 @@ public class Message {
         }
 
     }
-
+    
     private func signature() -> Data {
+        if let signature = self.externalSignature {
+            return signature
+        }
+        
         let json = self.json(for: .signature)
         let data = Data(json.utf8)
         return self.wallet.sign(message: data)
     }
-
+    
     private func json(for type: MessageType) -> String {
 
         switch (type) {
