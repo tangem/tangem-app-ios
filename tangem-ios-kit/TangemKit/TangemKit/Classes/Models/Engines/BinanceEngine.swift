@@ -11,7 +11,7 @@ import BinanceChain
 
 class BinanceEngine: CardEngine {
     let txBuilder: BinanceTransactionBuilder
-    
+    private var latestTxDate: Date?
     unowned var card: Card
     var binance: BinanceChain!
     
@@ -73,8 +73,18 @@ class BinanceEngine: CardEngine {
 }
 
 extension BinanceEngine: CoinProvider {
-    var hasPendingTransactions: Bool {
-        return false
+    public var hasPendingTransactions: Bool {
+        guard let txDate = latestTxDate else {
+            return false
+        }
+        
+        let sinceTxInterval = DateInterval(start: txDate, end: Date()).duration
+        let expired = Int(sinceTxInterval) > 10
+        if expired {
+            latestTxDate = nil
+            return false
+        }
+        return true
     }
     
     var coinTraitCollection: CoinTrait {
@@ -98,11 +108,12 @@ extension BinanceEngine: CoinProvider {
             return
         }
    
-        binance.broadcast(message: msg, sync: true) { (response) in
+        binance.broadcast(message: msg, sync: true) {[weak self] (response) in
             if let error = response.error {
                 completion(false, error)
                 return
             }
+            self?.latestTxDate = Date()
             completion(true, nil)
             print(response.broadcast)
         }
@@ -158,7 +169,7 @@ class BinanceTransactionBuilder {
     private var message: Message?
     
     func buildForSign(amount: Decimal, targetAddress: String) -> Message {
-       message = Message.transfer(symbol: "BNB", amount: 200, to: targetAddress, wallet: bnbWallet)
+        message = Message.transfer(symbol: "BNB", amount: (amount as NSDecimalNumber).doubleValue, to: targetAddress, wallet: bnbWallet)
        return message!
     }
     
