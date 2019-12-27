@@ -20,7 +20,7 @@ import Foundation
 //}
 
 struct BlockchairTransaction: Codable {
-    let block_id: UInt64?
+    let block_id: Int64?
 }
 
 struct BlockchairUtxo: Codable {
