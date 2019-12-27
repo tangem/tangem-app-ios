@@ -69,7 +69,13 @@ enum BlockchairTarget: TargetType {
     }
     
     public var headers: [String: String]? {
-        return ["Content-Type": "application/json"]
+        switch self {
+        case .address, .fee:
+            return ["Content-Type": "application/json"]
+        case .send:
+            return ["Content-Type": "application/x-www-form-urlencoded"]
+        }
     }
     
 }
+
