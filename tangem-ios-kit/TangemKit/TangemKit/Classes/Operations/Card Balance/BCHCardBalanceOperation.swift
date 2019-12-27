@@ -62,7 +62,7 @@ class BCHCardBalanceOperation: BaseCardBalanceOperation {
                     return btx
                 }
                 
-                let hasUnconfirmed = transactions.first(where: {$0.block_id == nil}) != nil
+                let hasUnconfirmed = transactions.first(where: {$0.block_id == -1}) != nil
                 let unconfirmedBalance = hasUnconfirmed ? 1 : 0
                 
                 
