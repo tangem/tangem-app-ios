@@ -140,8 +140,8 @@ extension BCHEngine: CoinProvider {
                      return
                 }
                 
-                let transaction = Transaction(fee: Amount(value: Decimal(0.00000001)),
-                                              amount: Amount(value: amountValue * Decimal(100000000)),
+                let transaction = Transaction(fee: Amount(value: Decimal(0.00)),
+                                              amount: Amount(value: amountValue),
                                                              destinationAddress: targetAddress)
                 
                 guard let estimatedTx = self?.txBuilder.buildForSend(transaction: transaction,
@@ -207,7 +207,7 @@ class BitcoinCashTransactionBuilder {
             guard let tx = buildPreimage(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: legacyTargetAddress, index: index) else {
                 return nil
             }
-            
+            print(tx.hex.uppercased())
             // tx.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)]) for btc
             let hash = tx.sha256().sha256()
             hashes.append(hash)
@@ -237,6 +237,7 @@ class BitcoinCashTransactionBuilder {
         let changeSatoshi = calculateChange(unspents: unspents, amount: amount, fee: fee)
         
         let tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: legacyTargetAddress, index: nil)
+        print(tx!.hex)
         return tx
     }
     
@@ -351,9 +352,7 @@ class BitcoinCashTransactionBuilder {
         // version
         txToSign.append(contentsOf: [UInt8(0x02),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
         //txToSign.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)]) for btc
-        //01
-        txToSign.append(unspents.count.byte)
-        
+
         //hashPrevouts (32-byte hash)
         let prevouts = Data(unspents.map { Data($0.hash.reversed()) + $0.outputIndex.bytes4LE }
             .joined())
@@ -490,8 +489,8 @@ class BitcoinCashTransactionBuilder {
             var script = Data()
             script.append((signDer.count+1).byte)
             script.append(contentsOf: signDer)
-            script.append(UInt8(0x1))
             script.append(UInt8(0x41))
+            script.append(UInt8(0x21))
             script.append(contentsOf: publicKey)
             scripts.append(script)
         }
