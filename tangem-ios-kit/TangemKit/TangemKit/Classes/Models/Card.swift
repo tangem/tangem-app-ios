@@ -244,7 +244,7 @@ public class Card {
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
         return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum
-            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance)
+            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash)
     }
     
     public var supportedSignMethods: [SignMethod] = [.signHash]
