@@ -70,10 +70,10 @@ extension BCHEngine: CoinProvider {
                 return nil
         }
         
-        let feeSatoshi = feeValue * Decimal(100000000)
-        let amountSatoshi = amountValue * Decimal(100000000)
-        transaction = Transaction(fee: Amount(value: feeSatoshi),
-                                  amount: Amount(value: amountSatoshi),
+        //let feeSatoshi = feeValue * Decimal(100000000)
+       // let amountSatoshi = amountValue * Decimal(100000000)
+        transaction = Transaction(fee: Amount(value: feeValue),
+                                  amount: Amount(value: amountValue),
                                   destinationAddress: targetAddress)
         
         guard let hashes = txBuilder.buildForSign(transaction: transaction!) else {
@@ -91,7 +91,7 @@ extension BCHEngine: CoinProvider {
         }
         
         let txHexString = txToSend.toHexString()
-        
+        print(txHexString.uppercased())
         moyaProvider.request(.send(txHex:txHexString)) {[weak self] result in
             switch result {
             case .success(let response):
@@ -207,7 +207,6 @@ class BitcoinCashTransactionBuilder {
             guard let tx = buildPreimage(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: legacyTargetAddress, index: index) else {
                 return nil
             }
-            print(tx.hex.uppercased())
             // tx.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)]) for btc
             let hash = tx.sha256().sha256()
             hashes.append(hash)
@@ -237,7 +236,6 @@ class BitcoinCashTransactionBuilder {
         let changeSatoshi = calculateChange(unspents: unspents, amount: amount, fee: fee)
         
         let tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: legacyTargetAddress, index: nil)
-        print(tx!.hex)
         return tx
     }
     
