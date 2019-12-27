@@ -38,7 +38,7 @@ class BCHEngine: CardEngine {
     
     private var txBuilder: BitcoinCashTransactionBuilder!
     private var transaction: Transaction?
-    private let moyaProvider = MoyaProvider<BlockchairTarget>()
+    private let moyaProvider = MoyaProvider<BlockchairTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
     
     required init(card: Card) {
         self.card = card
@@ -59,7 +59,6 @@ extension BCHEngine: CoinProvider {
     var hasPendingTransactions: Bool {
         return unconfirmedBalance != 0
     }
-    
     var coinTraitCollection: CoinTrait {
         .allowsFeeInclude
     }
