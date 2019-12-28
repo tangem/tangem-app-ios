@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 class RSKCardBalanceOperation: BaseCardBalanceOperation {
 
      var hasToken: Bool = false
