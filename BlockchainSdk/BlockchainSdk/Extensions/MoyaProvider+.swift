@@ -11,6 +11,7 @@ import Combine
 import Moya
 
 extension MoyaProvider {
+    @available(iOS 13.0, *)
     func requestCombine(_ target: Target) -> AnyPublisher<Response, MoyaError> {
         let future = Future<Response, MoyaError> {[unowned self] promise in
             self.request(target) { result in
