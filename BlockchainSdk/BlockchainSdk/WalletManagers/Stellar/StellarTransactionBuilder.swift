@@ -10,6 +10,7 @@ import Foundation
 import stellarsdk
 import Combine
 
+
 class StellarTransactionBuilder {
     public var sequence: Int64?
     
@@ -23,6 +24,7 @@ class StellarTransactionBuilder {
         self.isTestnet = isTestnet
     }
     
+    @available(iOS 13.0, *)
     public func buildForSign(transaction: Transaction) -> AnyPublisher<(hash: Data, transaction: stellarsdk.TransactionXDR), Error> {
         let future = Future<(hash: Data, transaction: stellarsdk.TransactionXDR), Error> {[weak self] promise in
             self?.buildForSign(transaction: transaction, completion: { response in
@@ -37,6 +39,7 @@ class StellarTransactionBuilder {
         return AnyPublisher(future)
     }
     
+    @available(iOS 13.0, *)
     public func buildForSign(transaction: Transaction, completion: @escaping ((hash: Data, transaction: stellarsdk.TransactionXDR)?) -> Void ) {
         guard let destinationKeyPair = try? KeyPair(accountId: transaction.destinationAddress),
             let sourceKeyPair = try? KeyPair(accountId: transaction.sourceAddress) else {
@@ -82,6 +85,7 @@ class StellarTransactionBuilder {
         completion(nil)
     }
     
+    @available(iOS 13.0, *)
     public func buildForSend(signature: Data, transaction: TransactionXDR) -> String? {
         var transaction = transaction
         var publicKeyData = walletPublicKey
@@ -91,6 +95,7 @@ class StellarTransactionBuilder {
         let envelope = try? transaction.encodedEnvelope()
         return envelope
     }
+    
     
     private func createNonNativeAsset(code: String, issuer: KeyPair) -> Asset? {
         if code.count >= 1 && code.count <= 4 {
