@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import Combine
+import RxSwift
 
 struct BlockcypherAddressResponse : Codable {
     let address: String?
@@ -41,9 +42,11 @@ class BlockcypherProvider: BitcoinNetworkProvider {
         self.network = isTestNet ? .test3: .main
     }
     
-    func getInfo() -> AnyPublisher<BitcoinResponse, Error> {
-        return provider.requestCombine(.address(address: self.address, network: self.network))
-            .tryMap {response throws -> BitcoinResponse in
+    func getInfo() -> Single<BitcoinResponse> {
+        return provider
+            .rx
+            .request(.address(address: self.address, network: self.network))
+            .map {response throws -> BitcoinResponse in
                 let addressResponse = try response.map(BlockcypherAddressResponse.self)
                 
                 guard let balance = addressResponse.balance,
@@ -67,9 +70,10 @@ class BlockcypherProvider: BitcoinNetworkProvider {
                 let btcResponse = BitcoinResponse(balance: satoshiBalance, hacUnconfirmed: balance != uncBalance, txrefs: txs)
                 return btcResponse
         }
-        .eraseToAnyPublisher()
     }
     
+    
+    @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
         return provider.requestCombine(.fee(network: self.network))
             .tryMap { response throws -> BtcFee in
@@ -90,6 +94,7 @@ class BlockcypherProvider: BitcoinNetworkProvider {
         .eraseToAnyPublisher()
     }
     
+    @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
         return provider.requestCombine(.send(txHex: transaction, network: self.network, accessToken: self.randomToken))
             .tryMap { response throws -> String in
