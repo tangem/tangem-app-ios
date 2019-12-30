@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import Combine
+import RxSwift
 
 enum BitcoinError: Error {
     case noUnspents
@@ -19,13 +20,13 @@ enum BitcoinError: Error {
 }
 
 class BitcoinWalletManager: WalletManager {
-    var wallet: CurrentValueSubject<Wallet, Error>
-    
+    var wallet: PublishSubject<Wallet> = .init()
+    var loadingError = PublishSubject<Error>()
     private let currencyWallet: CurrencyWallet
     private let txBuilder: BitcoinTransactionBuilder
     private let network: BitcoinNetworkManager
     private let cardId: String
-    private var updateSubscription: AnyCancellable?
+    private var requestDisposable: Disposable?
     
     init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, isTestnet: Bool) {
         self.cardId = cardId
@@ -33,21 +34,21 @@ class BitcoinWalletManager: WalletManager {
         let address = blockchain.makeAddress(from: walletPublicKey)
         currencyWallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
-        wallet = CurrentValueSubject(currencyWallet)
+        wallet.onNext(currencyWallet)
         network = BitcoinNetworkManager(address: address, isTestNet: isTestnet)
         //[REDACTED_TODO_COMMENT]
     }
     
     func update() {//check it
-        updateSubscription = network.getInfo()
-            .sink(receiveCompletion: {[unowned self] completion in
-                if case let .failure(error) = completion {
-                    self.wallet.send(completion: .failure(error))
-                }
-            }, receiveValue: { [unowned self] in
-                self.updateWallet(with: $0)
+        requestDisposable = network
+            .getInfo()
+            .subscribe(onSuccess: {[unowned self] response in
+                self.updateWallet(with: response)
+                }, onError: {[unowned self] error in
+                    self.loadingError.onNext(error)
             })
     }
+    
     //[REDACTED_TODO_COMMENT]
     private func updateWallet(with response: BitcoinResponse) {
         currencyWallet.balances[.coin]?.value = response.balance
@@ -59,10 +60,11 @@ class BitcoinWalletManager: WalletManager {
         } else {
             currencyWallet.pendingTransactions = []
         }
-        wallet.send(currencyWallet)
+        wallet.onNext(currencyWallet)
     }
 }
 
+@available(iOS 13.0, *)
 extension BitcoinWalletManager: TransactionBuilder {
     func getEstimateSize(for transaction: Transaction) -> Decimal? {
         guard let unspentOutputsCount = txBuilder.unspentOutputs?.count else {
@@ -77,6 +79,7 @@ extension BitcoinWalletManager: TransactionBuilder {
     }
 }
 
+@available(iOS 13.0, *)
 extension BitcoinWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
         guard let hashes = txBuilder.buildForSign(transaction: transaction) else {
@@ -93,7 +96,7 @@ extension BitcoinWalletManager: TransactionSender {
         .flatMap {[unowned self] in
             self.network.send(transaction: $0).map {[unowned self] response in
                 self.currencyWallet.add(transaction: transaction)
-                self.wallet.send(self.currencyWallet)
+                self.wallet.onNext(self.currencyWallet)
                 return true
             }
         }
@@ -101,6 +104,7 @@ extension BitcoinWalletManager: TransactionSender {
     }
 }
 
+@available(iOS 13.0, *)
 extension BitcoinWalletManager: FeeProvider {
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
         return network.getFee()
