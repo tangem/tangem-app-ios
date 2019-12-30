@@ -9,17 +9,19 @@
 import Foundation
 import stellarsdk
 import Combine
+import RxSwift
 
 class StellarNetwotkManager {
     let stellarSdk: StellarSDK
     
-    let account = PassthroughSubject<AccountResponse, Error>()
-    let ledger = PassthroughSubject<LedgerResponse, Error>()
+//    let account = PassthroughSubject<AccountResponse, Error>()
+//    let ledger = PassthroughSubject<LedgerResponse, Error>()
     
     init(stellarSdk: StellarSDK) {
         self.stellarSdk = stellarSdk
     }
     
+    @available(iOS 13.0, *)
     public func send(transaction: String) -> AnyPublisher<Bool, Error> {
         return stellarSdk.transactions.postTransaction(transactionEnvelope: transaction)
             .tryMap{ submitTransactionResponse throws  -> Bool in
@@ -32,18 +34,17 @@ class StellarNetwotkManager {
         .eraseToAnyPublisher()
     }
     
-    public func getInfo(accountId: String, assetCode: String?) -> AnyPublisher<StellarResponse, Error> {
-        return Publishers.Zip(stellarSdk.accounts.getAccountDetails(accountId: accountId),
-                              stellarSdk.ledgers.getLatestLedger())
-            .tryMap({ response throws -> StellarResponse in
-                guard let baseFeeStroops = Decimal(response.1.baseFeeInStroops),
-                    let baseReserveStroops = Decimal(response.1.baseReserveInStroops),
-                    let balance = Decimal(response.0.balances.first(where: {$0.assetType == AssetTypeAsString.NATIVE})?.balance) else {
+    public func getInfo(accountId: String, assetCode: String?) -> Single<StellarResponse> {
+        return stellarData(accountId: accountId)
+            .map({ (accountResponse, ledgerResponse) throws -> StellarResponse in
+                guard let baseFeeStroops = Decimal(ledgerResponse.baseFeeInStroops),
+                    let baseReserveStroops = Decimal(ledgerResponse.baseReserveInStroops),
+                    let balance = Decimal(accountResponse.balances.first(where: {$0.assetType == AssetTypeAsString.NATIVE})?.balance) else {
                         throw StellarError.requestFailed
                 }
                 
-                let sequence = response.0.sequenceNumber
-                let assetBalance = Decimal(assetCode == nil ? nil : response.0.balances.first(where: {$0.assetType != AssetTypeAsString.NATIVE && $0.assetCode == assetCode!})?.balance)
+                let sequence = accountResponse.sequenceNumber
+                let assetBalance = Decimal(assetCode == nil ? nil : accountResponse.balances.first(where: {$0.assetType != AssetTypeAsString.NATIVE && $0.assetCode == assetCode!})?.balance)
                 
                 let divider =  Decimal(10000000)
                 let baseFee = baseFeeStroops/divider
@@ -51,7 +52,13 @@ class StellarNetwotkManager {
                 
                 return StellarResponse(baseFee: baseFee, baseReserve: baseReserve, assetBalance: assetBalance, balance: balance, sequence: sequence)
             })
-            .eraseToAnyPublisher()
+    }
+    
+    private func stellarData(accountId: String) -> Single<(AccountResponse, LedgerResponse)> {
+        return Observable.zip(
+            stellarSdk.accounts.getAccountDetails(accountId: accountId),
+            stellarSdk.ledgers.getLatestLedger())
+            .asSingle()
     }
 }
 
