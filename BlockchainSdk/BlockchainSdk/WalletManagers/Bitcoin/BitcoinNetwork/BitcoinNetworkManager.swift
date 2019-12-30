@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import Combine
 import TangemSdk
+import RxSwift
 
 class BitcoinNetworkManager: BitcoinNetworkProvider {
     let isTestNet: Bool
@@ -24,11 +25,10 @@ class BitcoinNetworkManager: BitcoinNetworkProvider {
         self.providers = providers
     }
     
-    func getInfo() -> AnyPublisher<BitcoinResponse, Error> {
+    func getInfo() -> Single<BitcoinResponse> {
         return getProvider()
-            .setFailureType(to: Error.self)
-            .flatMap{ $0.getInfo() }
-            .tryCatch {[unowned self] error throws -> AnyPublisher<BitcoinResponse, Error> in
+            .flatMap { $0.getInfo() }
+            .catchError { error in
                 if let moyaError = error as? MoyaError {
                     //[REDACTED_TODO_COMMENT]
                     if self.networkApi == .main {
@@ -39,29 +39,32 @@ class BitcoinNetworkManager: BitcoinNetworkProvider {
                 throw error
         }
         .retry(1)
-        .eraseToAnyPublisher()
     }
     
+    @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
-        return getProvider()
+        return getProviderCombine()
             .setFailureType(to: Error.self)
             .flatMap{ $0.getFee() }
             .eraseToAnyPublisher()
     }
     
+    @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        return getProvider()
+        return getProviderCombine()
             .setFailureType(to: Error.self)
             .flatMap{ $0.send(transaction: transaction) }
             .eraseToAnyPublisher()
     }
     
-    private func getProvider() -> Just<BitcoinNetworkProvider> {
-        if isTestNet {
-            return Just(providers[.blockcypher]!)
-        }
-        
-        return Just(providers[networkApi]!)
+    @available(iOS 13.0, *)
+    private func getProviderCombine() -> Just<BitcoinNetworkProvider> {
+        return isTestNet ? Just(providers[.blockcypher]!) : Just(providers[networkApi]!)
+    }
+    
+    func getProvider() -> Single<BitcoinNetworkProvider> {
+        return isTestNet ? Observable.just(providers[.blockcypher]!).asSingle()
+        : Observable.just(providers[networkApi]!).asSingle()
     }
 }
 
@@ -89,7 +92,11 @@ enum BitcoinNetworkApi {
 }
 
 protocol BitcoinNetworkProvider {
-    func getInfo() -> AnyPublisher<BitcoinResponse, Error>
+    func getInfo() -> Single<BitcoinResponse>
+    
+    @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error>
+    
+    @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error>
 }
