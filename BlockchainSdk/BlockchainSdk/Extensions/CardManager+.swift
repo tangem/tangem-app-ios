@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import Combine
 
+@available(iOS 13.0, *)
 extension CardManager: TransactionSigner {
     func sign(hashes: [Data], cardId: String) -> AnyPublisher<SignResponse, Error> {
         let future = Future<SignResponse, Error> {[unowned self] promise in
