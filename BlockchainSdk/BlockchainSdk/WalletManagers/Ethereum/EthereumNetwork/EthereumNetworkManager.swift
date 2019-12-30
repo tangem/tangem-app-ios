@@ -8,12 +8,14 @@
 
 import Foundation
 import Moya
+import RxSwift
 import Combine
 import SwiftyJSON
 
 class EthereumNetworkManager {
     let provider = MoyaProvider<EthereumTarget>()
     
+    @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
         return provider.requestCombine(.send(transaction: transaction))
             .tryMap {[unowned self] response throws -> String in
@@ -26,51 +28,56 @@ class EthereumNetworkManager {
         .eraseToAnyPublisher()
     }
     
-    func getInfo(address: String, contractAddress: String?) -> AnyPublisher<EthereumResponse, Error> {
+    func getInfo(address: String, contractAddress: String?) -> Single<EthereumResponse> {
         if let contractAddress = contractAddress {
-            return Publishers.Zip4(getBalance(address),
-                                   getTokenBalance(address, contractAddress: contractAddress),
-                                   getTxCount(address),
-                                   getPendingTxCount(address))
-                .map {
-                    return EthereumResponse(balance: $0.0, tokenBalance: $0.1, txCount: $0.2, pendingTxCount: $0.3)
-            }
-            .eraseToAnyPublisher()
+            return tokenData(address: address, contractAddress: contractAddress)
+                .map { return EthereumResponse(balance: $0.0, tokenBalance: $0.1, txCount: $0.2, pendingTxCount: $0.3) }
         } else {
-            return Publishers.Zip3(getBalance(address),
-                                   getTxCount(address),
-                                   getPendingTxCount(address))
-                .map {
-                    return EthereumResponse(balance: $0.0, tokenBalance: nil, txCount: $0.1, pendingTxCount: $0.2)
-            }
-            .eraseToAnyPublisher()
+            return coinData(address: address)
+                .map { return EthereumResponse(balance: $0.0, tokenBalance: nil, txCount: $0.1, pendingTxCount: $0.2) }
         }
     }
     
-    private func getTxCount(_ address: String) -> AnyPublisher<Int, Error> {
+    private func tokenData(address: String, contractAddress: String) -> Single<(Decimal,Decimal,Int,Int)> {
+        return Single.zip(getBalance(address),
+                              getTokenBalance(address, contractAddress: contractAddress),
+                              getTxCount(address),
+                              getPendingTxCount(address))
+    }
+    
+    private func coinData(address: String) -> Single<(Decimal,Int,Int)> {
+        return Single.zip(getBalance(address),
+                          getTxCount(address),
+                          getPendingTxCount(address))
+    }
+    
+    private func getTxCount(_ address: String) -> Single<Int> {
         return getTxCount(target: .transactions(address: address))
     }
     
-    private func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> {
+    private func getPendingTxCount(_ address: String) -> Single<Int> {
         return getTxCount(target: .pending(address: address))
     }
 
-    private func getBalance(_ address: String) -> AnyPublisher<Decimal, Error> {
-        return self.provider.requestCombine(.balance(address: address))
-            .tryMap {[unowned self] in try self.parseBalance($0.data)}
-        .eraseToAnyPublisher()
+    private func getBalance(_ address: String) -> Single<Decimal> {
+        return provider
+            .rx
+            .request(.balance(address: address))
+            .map {[unowned self] in try self.parseBalance($0.data)}
     }
     
-    private func getTokenBalance(_ address: String, contractAddress: String) -> AnyPublisher<Decimal, Error> {
-        return self.provider.requestCombine(.tokenBalance(address: address, contractAddress: contractAddress, tokenNetwork: .eth ))
-            .tryMap{[unowned self] in try self.parseBalance($0.data)}
-            .eraseToAnyPublisher()
+    private func getTokenBalance(_ address: String, contractAddress: String) -> Single<Decimal> {
+        return provider
+            .rx
+            .request(.tokenBalance(address: address, contractAddress: contractAddress, tokenNetwork: .eth ))
+            .map{[unowned self] in try self.parseBalance($0.data)}
     }
     
-    private func getTxCount(target: EthereumTarget) -> AnyPublisher<Int, Error> {
-        return self.provider.requestCombine(target)
-            .tryMap{[unowned self] in try self.parseTxCount($0.data)}
-            .eraseToAnyPublisher()
+    private func getTxCount(target: EthereumTarget) -> Single<Int> {
+        return provider
+            .rx
+            .request(target)
+            .map {[unowned self] in try self.parseTxCount($0.data)}
     }
     
     private func parseResult(_ data: Data) throws -> String {
@@ -102,7 +109,6 @@ class EthereumNetworkManager {
         return balanceEth
     }
 }
-
 
 struct EthereumResponse {
     let balance: Decimal

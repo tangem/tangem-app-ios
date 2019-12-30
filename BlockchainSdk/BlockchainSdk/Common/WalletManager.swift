@@ -9,12 +9,15 @@
 import Foundation
 import TangemSdk
 import Combine
+import RxSwift
 
 public protocol WalletManager {
-    var wallet: CurrentValueSubject<Wallet, Error> {get}
+    var wallet: PublishSubject<Wallet> {get}
+    var loadingError: PublishSubject<Error> {get}
     func update()
 }
 
+@available(iOS 13.0, *)
 protocol TransactionBuilder {
     func getEstimateSize(for transaction: Transaction) -> Decimal?
 }
@@ -30,6 +33,7 @@ protocol TransactionSigner {
     func sign(hashes: [Data], cardId: String) -> AnyPublisher<SignResponse, Error>
 }
 
+@available(iOS 13.0, *)
 protocol FeeProvider {
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error>
 }
