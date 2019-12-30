@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import Combine
+import RxSwift
 
 class BitcoinMainProvider: BitcoinNetworkProvider {
     let blockchainInfoProvider = MoyaProvider<BlockchainInfoTarget>()
@@ -20,13 +21,9 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
         self.address = address
     }
     
-    func getInfo() -> AnyPublisher<BitcoinResponse, Error> {
-        return Publishers.Zip(blockchainInfoProvider.requestCombine(.address(address: address)),
-                              blockchainInfoProvider.requestCombine(.unspents(address: address)))
-            .tryMap {response throws -> BitcoinResponse in
-                let addressResponse = try response.0.map(BlockchainInfoAddressResponse.self)
-                let unspentsResponse = try response.1.map(BlockchainInfoUnspentResponse.self)
-                
+    func getInfo() -> Single<BitcoinResponse> {
+        return addressData(address)
+            .map {(addressResponse, unspentsResponse) throws -> BitcoinResponse in
                 guard let balance = addressResponse.final_balance,
                     let txs = addressResponse.txs else {
                         throw "Fee request error"
@@ -47,10 +44,10 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
                 let hasUnconfirmed = txs.first(where: {$0.block_height == nil}) != nil
                 return BitcoinResponse(balance: satoshiBalance, hacUnconfirmed: hasUnconfirmed, txrefs: utxs)
         }
-        .eraseToAnyPublisher()
     }
     
     
+    @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
         return Publishers.Zip3(estimateFeeProvider.requestCombine(.minimal),
                                estimateFeeProvider.requestCombine(.normal),
@@ -67,6 +64,7 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
         .eraseToAnyPublisher()
     }
     
+    @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
         return blockchainInfoProvider.requestCombine(.send(txHex: transaction))
             .tryMap { response throws -> String in
@@ -79,6 +77,18 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
         .eraseToAnyPublisher()
     }
     
+    private func addressData(_ address: String) -> Single<(BlockchainInfoAddressResponse, BlockchainInfoUnspentResponse)> {
+        return Single.zip(
+            blockchainInfoProvider
+                .rx
+                .request(.address(address: address))
+                .map(BlockchainInfoAddressResponse.self),
+        
+            blockchainInfoProvider
+                .rx
+                .request(.unspents(address: address))
+                .map(BlockchainInfoUnspentResponse.self))
+    }
 }
 
 struct BlockchainInfoAddressResponse: Codable {
