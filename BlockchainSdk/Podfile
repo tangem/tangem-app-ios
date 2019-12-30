@@ -10,4 +10,6 @@ target 'BlockchainSdk' do
     pod 'SwiftyJSON'
     pod 'web3.swift.pod'
     pod 'Moya'
+    pod 'RxSwift'
+    pod 'Moya/RxSwift'
 end
