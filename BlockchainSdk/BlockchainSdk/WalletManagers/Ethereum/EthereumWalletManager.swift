@@ -10,17 +10,18 @@ import Foundation
 import BigInt
 import web3swift
 import Combine
+import RxSwift
 
 class  EthereumWalletManager: WalletManager {
-    var wallet: CurrentValueSubject<Wallet, Error>
-    
+    var wallet: PublishSubject<Wallet> = .init()
+    var loadingError = PublishSubject<Error>()
     private var currencyWallet: CurrencyWallet
     private let cardId: String
     private let txBuilder: EthereumTransactionBuilder
     private let network: EthereumNetworkManager
-    private var updateSubscription: AnyCancellable?
     public var txCount: Int = -1
     public var pendingTxCount: Int = -1
+    private var requestDisposable: Disposable?
     
     init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, isTestnet: Bool) {
         self.cardId = cardId
@@ -33,18 +34,17 @@ class  EthereumWalletManager: WalletManager {
         }
         network = EthereumNetworkManager()
         txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: isTestnet)
-        wallet = CurrentValueSubject(currencyWallet)
+        wallet.onNext(currencyWallet)
     }
     
     func update() {
-        updateSubscription = network.getInfo(address: currencyWallet.address, contractAddress: currencyWallet.balances[.token]!.address)
-            .sink(receiveCompletion: {[unowned self] completion in
-                if case let .failure(error) = completion {
-                    self.wallet.send(completion: .failure(error))
-                }
-            }) { [unowned self] response in
+        requestDisposable = network
+            .getInfo(address: currencyWallet.address, contractAddress: currencyWallet.balances[.token]!.address)
+            .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
-        }
+                }, onError: {[unowned self] error in
+                    self.loadingError.onNext(error)
+            })
     }
     
     private func updateWallet(with response: EthereumResponse) {
@@ -61,10 +61,11 @@ class  EthereumWalletManager: WalletManager {
                 currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: currencyWallet.blockchain, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
             }
         }
-        wallet.send(currencyWallet)
+        wallet.onNext(currencyWallet)
     }
 }
 
+@available(iOS 13.0, *)
 extension EthereumWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
         guard let txForSign = txBuilder.buildForSign(transaction: transaction, nonce: txCount) else {
@@ -80,13 +81,14 @@ extension EthereumWalletManager: TransactionSender {
                 return self.network.send(transaction: txHexString)}
             .map {[unowned self] response in
                 self.currencyWallet.add(transaction: transaction)
-                self.wallet.send(self.currencyWallet)
+                self.wallet.onNext(self.currencyWallet)
                 return true
         }
     .eraseToAnyPublisher()
     }
 }
 
+@available(iOS 13.0, *)
 extension EthereumWalletManager: FeeProvider {
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount],Error> {
         let future = Future<[Amount],Error> { promise in
