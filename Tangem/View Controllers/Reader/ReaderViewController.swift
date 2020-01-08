@@ -19,6 +19,17 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
         return TangemSession(delegate: self)
     }()
     
+    @IBOutlet weak var storeTitleLabel: UILabel! {
+        didSet {
+            storeTitleLabel.text = Localizations.storeTitle
+        }
+    }
+    
+    @IBOutlet weak var storeSubtitleLabel: UILabel! {
+        didSet {
+            storeTitleLabel.text = Localizations.storeSubtitle
+        }
+    }
     
     @IBOutlet weak var warningLabel: UILabel!
     @IBOutlet weak var hintLabel: UILabel! {
