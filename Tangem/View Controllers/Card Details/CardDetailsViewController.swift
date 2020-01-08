@@ -21,7 +21,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     var card: Card?
     var isBalanceVerified = false
     var isBalanceLoading = false
-    
+    var shouldIgnoreDidActive = false
     
     var customPresentationController: CustomPresentationController?
     
@@ -52,6 +52,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     @objc func applicationDidBecomeActive() {
+        guard !shouldIgnoreDidActive else {
+            shouldIgnoreDidActive = false
+            return
+        }
+        
         if let card = card {
             isBalanceLoading = true
             fetchWalletBalance(card: card)
@@ -76,9 +81,10 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     func setupWithCardDetails(card: Card) {
-        setupUI()
-        
-        guard card.genuinityState != .pending else {
+        setupBalanceIsBeingVerified()
+        viewModel.setSubstitutionInfoLoading(true)
+        viewModel.setWalletInfoLoading(true)
+             guard card.genuinityState != .pending else {
             viewModel.setSubstitutionInfoLoading(true)
             return
         }
@@ -92,11 +98,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             guard let self = self else {
                 return
             }
-            
-            self.viewModel.setSubstitutionInfoLoading(false)
             self.card = card
-            self.fetchWalletBalance(card: card)
+            self.setupUI()
             self.viewModel.cardImageView.image = card.image
+            self.viewModel.setSubstitutionInfoLoading(false)
+            self.fetchWalletBalance(card: card)
         }
         self.viewModel.cardImageView.image = card.image
         operationQueue.addOperation(operation)
@@ -110,11 +116,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             setupBalanceNoWallet()
             return
         }
-        
         let operation = card.balanceRequestOperation(onSuccess: { (card) in
-            self.isBalanceLoading = false
-            self.viewModel.setWalletInfoLoading(false)
-            
             self.card = card
             
             if card.cardEngine.walletType == .nft {
@@ -122,6 +124,9 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             } else {
                 self.handleBalanceLoaded()
             }
+            
+            self.isBalanceLoading = false
+            self.viewModel.setWalletInfoLoading(false)
             
         }, onFailure: { (error) in
             self.isBalanceLoading = false
@@ -263,12 +268,14 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
         
-        viewModel.qrCodeContainerView.isHidden = false
-        viewModel.walletAddressLabel.isHidden = false
-        
+        viewModel.qrCodeContainerView.isHidden = true
+        viewModel.walletAddressLabel.isHidden = true
+        viewModel.walletBlockchainLabel.isHidden = true
         viewModel.updateWalletBalanceIsBeingVerified()
         viewModel.loadButton.isEnabled = false
         viewModel.extractButton.isEnabled = false
+        viewModel.moreButton.isEnabled = false
+        viewModel.scanButton.isEnabled = false
         viewModel.buttonsAvailabilityView.isHidden = false
         
         viewModel.exploreButton.isEnabled = true
@@ -280,7 +287,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         viewModel.qrCodeContainerView.isHidden = false
         viewModel.walletAddressLabel.isHidden = false
-        
+        viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
         viewModel.loadButton.isEnabled = verified
         viewModel.extractButton.isEnabled = verified
@@ -288,7 +295,8 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
-        
+        viewModel.moreButton.isEnabled = true
+        viewModel.scanButton.isEnabled = true
         showUntrustedAlertIfNeeded()
     }
     
@@ -301,9 +309,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.loadButton.isEnabled = false
         viewModel.extractButton.isEnabled = false
         viewModel.buttonsAvailabilityView.isHidden = false
-        
+        viewModel.walletBlockchainLabel.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
+        viewModel.moreButton.isEnabled = true
+        viewModel.scanButton.isEnabled = true
     }
     
     // MARK: Simulator parsing Operation
@@ -363,6 +373,8 @@ extension CardDetailsViewController : TangemSessionDelegate {
         guard card.genuinityState != .pending else {
             self.isBalanceLoading = true
             self.viewModel.setWalletInfoLoading(true)
+            self.setupBalanceIsBeingVerified()
+            self.viewModel.setSubstitutionInfoLoading(true)
             if #available(iOS 13.0, *) {} else {
                 viewModel.doubleScanHintLabel.isHidden = false
             }
@@ -503,6 +515,7 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        shouldIgnoreDidActive = true
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
