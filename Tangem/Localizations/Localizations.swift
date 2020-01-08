@@ -513,6 +513,8 @@ class Localizations {
     static let goToLink = translate("common_go_link")
     static let detailsLinkedCard = translate("details_linked_card_title")
     static let commonNext = translate("common_next")
+    static let storeTitle = translate("main_store_title")
+    static let storeSubtitle = translate("main_store_subtitle")
 }
 // MARK: - Implementation Details
 
