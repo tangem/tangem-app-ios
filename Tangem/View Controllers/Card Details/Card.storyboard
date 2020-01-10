@@ -218,6 +218,17 @@
                                                     <action selector="extractButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="muc-V1-b69"/>
                                                 </connections>
                                             </button>
+                                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wYf-Ng-bn9">
+                                                <rect key="frame" x="335" y="0.0" width="0.0" height="60"/>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                                <state key="normal" title="Claim">
+                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="claimButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="vD7-3I-aze"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="60" id="7cx-xn-5vX"/>
@@ -314,6 +325,7 @@
                         <outlet property="cardImageView" destination="vgg-PE-syF" id="Qrf-L7-UJp"/>
                         <outlet property="cardWalletInfoLoadingView" destination="XFd-FO-m0e" id="1MD-Kt-iLo"/>
                         <outlet property="cardWalletInfoView" destination="uei-9H-Dqj" id="AXV-LY-yh8"/>
+                        <outlet property="claimButton" destination="wYf-Ng-bn9" id="V6N-BO-Xa3"/>
                         <outlet property="copyButton" destination="jVZ-aM-qHX" id="8w0-Jg-1lX"/>
                         <outlet property="doubleScanHintLabel" destination="wuf-Hj-EKQ" id="boi-nw-CdM"/>
                         <outlet property="exploreButton" destination="XaP-jA-mxL" id="EsO-IU-CwJ"/>
@@ -356,8 +368,8 @@
                                     <constraint firstItem="Jcc-qw-WQh" firstAttribute="centerX" secondItem="bQm-VT-pR3" secondAttribute="centerX" id="pwC-DY-Ncv"/>
                                 </constraints>
                             </view>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="7u7-MR-3OI">
-                                <rect key="frame" x="20" y="48" width="335" height="441.5"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="7u7-MR-3OI">
+                                <rect key="frame" x="20" y="48" width="335" height="448.5"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="eiA-sf-drp">
                                         <rect key="frame" x="0.0" y="0.0" width="335" height="112"/>
@@ -415,8 +427,8 @@
                                             </stackView>
                                         </subviews>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="pBi-ll-mXY">
-                                        <rect key="frame" x="0.0" y="116" width="335" height="79"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="pBi-ll-mXY">
+                                        <rect key="frame" x="0.0" y="116" width="335" height="86"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="TO WALLET" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hby-Nl-gBl">
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="35"/>
@@ -424,14 +436,14 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="8Up-yQ-wyc">
-                                                <rect key="frame" x="0.0" y="39" width="335" height="40"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="8Up-yQ-wyc">
+                                                <rect key="frame" x="0.0" y="39" width="335" height="47"/>
                                                 <subviews>
-                                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="dKM-8U-DJB">
-                                                        <rect key="frame" x="0.0" y="0.0" width="335" height="35"/>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="dKM-8U-DJB">
+                                                        <rect key="frame" x="0.0" y="0.0" width="335" height="42"/>
                                                         <subviews>
-                                                            <textField opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="address" minimumFontSize="15" translatesAutoresizingMaskIntoConstraints="NO" id="xvB-ev-yjz">
-                                                                <rect key="frame" x="0.0" y="0.0" width="313" height="35"/>
+                                                            <textField opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" ambiguous="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="address" minimumFontSize="15" translatesAutoresizingMaskIntoConstraints="NO" id="xvB-ev-yjz">
+                                                                <rect key="frame" x="0.0" y="0.0" width="295" height="42"/>
                                                                 <color key="textColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
                                                                 <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="22"/>
                                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
@@ -439,8 +451,8 @@
                                                                     <action selector="targetChanged:forEvent:" destination="KdO-lq-239" eventType="editingChanged" id="3O6-zf-gv0"/>
                                                                 </connections>
                                                             </textField>
-                                                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" enabled="NO" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pej-X6-HFk">
-                                                                <rect key="frame" x="317" y="0.0" width="18" height="35"/>
+                                                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" ambiguous="YES" enabled="NO" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pej-X6-HFk">
+                                                                <rect key="frame" x="299" y="0.0" width="36" height="42"/>
                                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
                                                                 <color key="tintColor" red="0.1058823529" green="0.60392156860000001" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 <inset key="titleEdgeInsets" minX="16" minY="0.0" maxX="-16" maxY="0.0"/>
@@ -454,8 +466,8 @@
                                                             </button>
                                                         </subviews>
                                                     </stackView>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xfo-xf-RFf">
-                                                        <rect key="frame" x="0.0" y="39" width="335" height="1"/>
+                                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xfo-xf-RFf">
+                                                        <rect key="frame" x="0.0" y="46" width="335" height="1"/>
                                                         <color key="backgroundColor" red="0.8862745098" green="0.8862745098" blue="0.8862745098" alpha="1" colorSpace="calibratedRGB"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="1" id="944-Eb-1GF"/>
@@ -465,8 +477,8 @@
                                             </stackView>
                                         </subviews>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Mnf-h3-kcj">
-                                        <rect key="frame" x="0.0" y="199" width="335" height="142"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Mnf-h3-kcj">
+                                        <rect key="frame" x="0.0" y="206" width="335" height="142"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="AMOUNT" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IDR-Xx-TAo">
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="35"/>
@@ -536,8 +548,8 @@
                                             </view>
                                         </subviews>
                                     </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Cta-eT-qRb">
-                                        <rect key="frame" x="0.0" y="345" width="335" height="96.5"/>
+                                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Cta-eT-qRb">
+                                        <rect key="frame" x="0.0" y="352" width="335" height="96.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="FEE" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7x8-18-YLd">
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="35"/>
