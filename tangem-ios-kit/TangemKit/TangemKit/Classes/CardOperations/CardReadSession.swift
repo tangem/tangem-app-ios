@@ -108,4 +108,8 @@ public class CardReadSession: CardSession {
             }
         }
     }
+    
+    override func slixDidRead(data: [CardTag : CardTLV]) {
+        self.completion(.success(data))
+    }
 }
