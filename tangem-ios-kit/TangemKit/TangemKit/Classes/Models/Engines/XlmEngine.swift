@@ -46,7 +46,8 @@ public class XlmEngine: CardEngine {
     var latestTxDate: Date?
     var transaction: TransactionXDR?
     var useTimebounds = true
-    
+    var hasIncomingTrustedTx: Bool = false
+    var hasOutgoingTrustedTx: Bool = false
     public var assetBalance: Decimal?
     public var assetCode: String?
     
@@ -285,6 +286,17 @@ extension HorizonRequestError {
 }
 
 extension XlmEngine: Claimable {
+    public var claimStatus: ClaimStatus {
+        let balance =  NSDecimalNumber(string: card.walletValue).doubleValue
+        if balance > 0.0 && hasIncomingTrustedTx {
+            return .genuine
+        } else if balance == 0.0 && hasIncomingTrustedTx && hasOutgoingTrustedTx {
+            return .claimed
+        }
+        
+        return .notGenuine
+    }
+    
     public func claim(amount: String, fee: String, targetAddress: String, signature: Data, completion: @escaping (Bool, Error?) -> Void) {
         useTimebounds = false
         getHashForSignature(amount: amount, fee: fee, includeFee: false, targetAddress: targetAddress) {[unowned self] _ in
