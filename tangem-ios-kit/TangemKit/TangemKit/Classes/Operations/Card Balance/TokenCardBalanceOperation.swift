@@ -43,7 +43,7 @@ class TokenCardBalanceOperation: BaseCardBalanceOperation {
         
         card.walletTokenValue = balanceValue        
 
-        let mainBalanceOperation = ETHCardBalanceOperation(card: card) { [weak self] (result) in
+        let mainBalanceOperation = ETHCardBalanceOperation(card: card, networkUrl: TokenNetwork.eth.rawValue) { [weak self] (result) in
             switch result {
             case .success(_):
                 self?.handleMainBalanceLoaded()

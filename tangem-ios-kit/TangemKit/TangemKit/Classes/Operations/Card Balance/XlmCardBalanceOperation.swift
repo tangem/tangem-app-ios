@@ -10,7 +10,7 @@ import Foundation
 import stellarsdk
 
 class XlmCardBalanceOperation: BaseCardBalanceOperation {
-    private var pendingRequests = 2
+    private var pendingRequests = 3
     private let lock = DispatchSemaphore(value: 1)
     
     private var balance: String?
@@ -19,7 +19,13 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
     private var sequence: Int64?
     private var baseReserveStroops: Int?
     private var baseFeeStroops: Int?
+    private var hasOutgoingTx: Bool?
+    private var hasIncomingTx: Bool?
+    private var operations: [OperationResponse] = []
     
+    private let trustedDestination = "GAYPZMHFZERB42ONEJ4CY6ADDVTINEXMY6OZ5G6CLR4HHVKOSNJSZGMM"
+    private let trustedSource = "GAZY7H4BWWEVB6QGB4RV3LW7DH5NO5CD5O6JCEQXA7N2UCGZSAPJFYW2"
+    private let paymentsLimit = 200
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
             return
@@ -48,7 +54,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
             }
         }
         
-        stellarSdk.ledgers.getLedgers(cursor: nil, order: Order.descending, limit: 1, response: { [weak self] response -> (Void) in
+        stellarSdk.ledgers.getLedgers(cursor: nil, order: stellarsdk.Order.descending, limit: 1, response: { [weak self] response -> (Void) in
             switch response {
             case .success(let page):
                 guard let lastLedger = page.records.first else {
@@ -60,12 +66,59 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
                 self?.handleRequestComplete()
             case .failure(let horizonRequestError):
                 self?.failOperationWith(error: horizonRequestError)
-                break
             }
             
         })
         
+        requestPayments()
+    }
+    
+    func requestPayments() {
+        let stellarSdk = (card.cardEngine as! XlmEngine).stellarSdk
+        stellarSdk.payments.getPayments(forAccount: card.address, from: nil, order: Order.descending, limit: paymentsLimit, includeFailed: false, join: nil) { [weak self]  response -> (Void) in
+            switch response {
+            case .success(let page):
+                self?.operations.append(contentsOf: page.records)
+                self?.requestAllPaymentPages(page)
+            case .failure(let horizonRequestError):
+                 self?.failOperationWith(error: horizonRequestError)
+            }
+        }
+    }
+    
+    func requestAllPaymentPages(_ page: PageResponse<OperationResponse>) {
+        if page.records.count == paymentsLimit  {
+            page.getNextPage {[weak self] nextPageResponse -> (Void) in
+                switch nextPageResponse {
+                case .success(let nextPage):
+                      self?.operations.append(contentsOf: nextPage.records)
+                      self?.requestAllPaymentPages(nextPage)
+                case .failure(let horizonRequestError):
+                    self?.failOperationWith(error: horizonRequestError)
+                }
+            }
+        } else {
+            parsePayments()
+        }
+    }
+    
+    func parsePayments() {
+        hasIncomingTx = operations.first(where: { operationResponse -> Bool in
+            if let paymentResponse = operationResponse as? PaymentOperationResponse {
+                return paymentResponse.from == trustedSource
+            }
+            return false
+        }) != nil
         
+        hasOutgoingTx = operations.first(where: { operationResponse -> Bool in
+                  if let paymentResponse = operationResponse as? PaymentOperationResponse {
+                      return paymentResponse.to == trustedDestination
+                  }
+                  return false
+              }) != nil
+        
+         
+        handleRequestComplete()
     }
     
     func complete() {
@@ -76,7 +129,9 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
             let baseReserveS = self.baseReserveStroops,
             let balance = self.balance,
             let decimalBalance = Decimal(string: balance),
-            let sequence = self.sequence else {
+            let sequence = self.sequence,
+            let incoming = self.hasIncomingTx,
+            let outgoing = self.hasOutgoingTx else {
                 card.mult = 0
                 failOperationWith(error: "Response error")
                 return
@@ -106,7 +161,8 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
         }
         
         
-        
+        engine.hasIncomingTrustedTx = incoming
+        engine.hasOutgoingTrustedTx = outgoing
         engine.baseReserve = baseReserve
         engine.baseFee = baseFee
         
