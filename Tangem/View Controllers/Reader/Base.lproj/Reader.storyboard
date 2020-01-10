@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -189,6 +189,8 @@
                         <outlet property="hintLabel" destination="d4K-pn-hOC" id="Eec-mQ-99C"/>
                         <outlet property="infoButton" destination="uie-cT-Q7h" id="sUa-LU-iMs"/>
                         <outlet property="scanButton" destination="gnc-6q-G1n" id="bJT-ZO-1es"/>
+                        <outlet property="storeSubtitleLabel" destination="YPv-FH-Rz0" id="OED-c7-X9Q"/>
+                        <outlet property="storeTitleLabel" destination="Rg9-EA-M4l" id="vzT-Zu-iSh"/>
                         <outlet property="storeView" destination="cad-fN-pwq" id="HQn-dx-aVO"/>
                         <outlet property="warningLabel" destination="OmG-A1-1OC" id="tN4-04-Q6l"/>
                         <outlet property="warningLabelButton" destination="U6I-XM-Aot" id="euR-7g-kHL"/>
