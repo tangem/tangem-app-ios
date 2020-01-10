@@ -41,7 +41,6 @@ public class CardSession: NSObject {
     private var cancelled: Bool = false
     private var tag: NFCISO7816Tag?
     private var requestTimestamp: Date?
-    
     public private(set) var isBusy: Bool = false
     
     func stopTimers() {
@@ -70,7 +69,7 @@ public class CardSession: NSObject {
     public func start() {
         isBusy = true
         invalidateByUser = false
-        readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
+        readerSession = NFCTagReaderSession(pollingOption: [.iso14443, .iso15693], delegate: self)!
         readerSession!.alertMessage = Localizations.nfcAlertDefault
         readerSession!.begin()
         errorTimeoutTimer.start()
@@ -138,6 +137,7 @@ public class CardSession: NSObject {
     }
     
     func onTagConnected() {}
+    func slixDidRead(data: [CardTag : CardTLV]) {}
     
     func invalidate(errorMessage: String?) {
         stopTimers()
@@ -185,10 +185,11 @@ extension CardSession: NFCTagReaderSessionDelegate {
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
-        print("didDetect tags")
+       // print("didDetect tags")
         invalidateByUser = false
         cancelled = false
         requestTimestamp = nil
+         self.retryCount = CardSession.maxRetryCount
         if case let .iso7816(tag7816) = tags.first {
             let nfcTag = tags.first!
             session.connect(to: nfcTag) {[unowned self] error in
@@ -198,10 +199,77 @@ extension CardSession: NFCTagReaderSessionDelegate {
                     return
                 }
                 self.tagTimer?.start()
-                self.retryCount = CardSession.maxRetryCount
                 self.tag = tag7816
                 self.onTagConnected()
             }
         }
+        
+        if case let .iso15693(tag15693) = tags.first {
+            
+            session.connect(to: tags.first!) { error in
+                 guard error == nil else {
+                                   print("restart after error")
+                                   self.readerSession?.restartPolling()
+                                   return
+                               }
+                tag15693.readMultipleBlocks(requestFlags: [.highDataRate], blockRange: NSRange(location: 0, length: 40)) {data1, error in
+                    if let error = error as NSError? {
+                        print(error.userInfo)
+                        session.restartPolling()
+                        print(error.localizedDescription)
+                    } else {
+                        tag15693.readMultipleBlocks(requestFlags: [.highDataRate], blockRange: NSRange(location: 40, length: 38)) {[unowned self] data2, error in
+                            if let error = error as NSError? {
+                                print(error.userInfo)
+                                session.restartPolling()
+                                print(error.localizedDescription)
+                            } else {
+                                let all = Data((data1 + data2).joined())
+                                //print(all.hexDescription())
+                                //cut: e1402801 03 ff010f CC + Tag Id + Tag length
+                                let ndef = all[4...] //cut CC
+                                let ndefTlv = TLVReader(Array(ndef)).read()
+                                if let ndefValue = ndefTlv[CardTag.cardPublicKey]?.value, //0x03 tag
+                                    let ndefMessage = NFCNDEFMessage(data: Data(ndefValue)) {
+                                    print(ndefValue.hexDescription())
+                                    self.handleMessage(ndefMessage)
+                                    session.invalidate()
+                                   // print(all.hex)
+                                } else {
+                                    if self.retryCount == 0 {
+                                        session.invalidate(errorMessage: Localizations.slixFailedToParse)
+                                        self.completion(.failure(Localizations.slixFailedToParse))
+                                    } else {
+                                        self.retryCount -= 1
+                                        session.restartPolling()
+                                    }
+                                }
+                              
+                            }
+                        }
+                    }
+                }
+                
+            }
+       }
     }
+    
+    func handleMessage(_ message: NFCNDEFMessage) {
+           let payloads = message.records.filter { (record) -> Bool in
+               guard let recordType = String(data: record.type, encoding: String.Encoding.utf8) else {
+                    print("false")
+                   return false
+               }
+             print(recordType)
+            
+               return recordType == CardScanner.tangemWalletRecordType
+           }
+
+           guard !payloads.isEmpty, let payload = payloads.first?.payload else {
+               completion(.failure(Localizations.slixFailedToParse))
+               return
+           }
+          let responseApdu = ResponseApdu(with: payload, sw1: UInt8(0), sw2: UInt8(0))
+          self.slixDidRead(data: responseApdu.tlv)
+       }
 }

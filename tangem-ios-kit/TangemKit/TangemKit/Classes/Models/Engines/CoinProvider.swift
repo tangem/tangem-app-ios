@@ -33,3 +33,7 @@ public struct CoinTrait: OptionSet {
     
     static let all: CoinTrait = [.allowsFeeInclude, .allowsFeeSelector]
 }
+
+public protocol Claimable {
+    func claim(amount: String, fee: String, targetAddress: String, signature: Data, completion: @escaping (Bool, Error?) -> Void)
+}
