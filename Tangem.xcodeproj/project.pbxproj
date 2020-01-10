@@ -64,6 +64,7 @@
 		5DBBA0B823716FB000E0181E /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBA0B723716FB000E0181E /* Settings.bundle */; };
 		5DC4E2472338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
 		5DC4E2482338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
+		5DCA821B23A7A54000B1B3EE /* RobotApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCA821A23A7A54000B1B3EE /* RobotApi.swift */; };
 		5DE995D92322C91A00623148 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D82322C91A00623148 /* Localizations.swift */; };
 		5DFB03D42326A35F00E278DD /* StubViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB03D32326A35F00E278DD /* StubViewController.swift */; };
 		8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000364321069C8E00C151E8 /* FontsExtensions.swift */; };
@@ -111,7 +112,7 @@
 		8D946D8E2018DA92006C73D9 /* Reader.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8C2018DA92006C73D9 /* Reader.storyboard */; };
 		8D946D902018DA92006C73D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8F2018DA92006C73D9 /* Assets.xcassets */; };
 		8D946D932018DA92006C73D9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */; };
-		B1FEF070153C749010F4F939 /* (null) in Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (Required, ); }; };
+		B1FEF070153C749010F4F939 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -163,6 +164,7 @@
 		5DBBA0B723716FB000E0181E /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		5DC4E2492338C4A700D58E43 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DC4E24B2338C4B700D58E43 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5DCA821A23A7A54000B1B3EE /* RobotApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RobotApi.swift; sourceTree = "<group>"; };
 		5DE995D82322C91A00623148 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		5DFB03D32326A35F00E278DD /* StubViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubViewController.swift; sourceTree = "<group>"; };
 		77E2B7C8760A2DFE44631F58 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -241,7 +243,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1FEF070153C749010F4F939 /* (null) in Frameworks */,
+				B1FEF070153C749010F4F939 /* BuildFile in Frameworks */,
 				5D4B31B92335072A00D3B92E /* TangemKit.framework in Frameworks */,
 				1B792C4A5B67552C41885260 /* Pods_Tangem.framework in Frameworks */,
 			);
@@ -391,6 +393,7 @@
 				8D946D942018DA92006C73D9 /* Info.plist */,
 				8D8E3F98203AF5F0002E6266 /* Fonts */,
 				5DFB03D02326554300E278DD /* Localizations */,
+				5DCA821A23A7A54000B1B3EE /* RobotApi.swift */,
 			);
 			path = Tangem;
 			sourceTree = "<group>";
@@ -714,32 +717,47 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Tangem beta/Pods-Tangem beta-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework",
 				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
+				"${BUILT_PRODUCTS_DIR}/ObjcExceptionBridging/ObjcExceptionBridging.framework",
 				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCode/QRCode.framework",
+				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/Sodium/Sodium.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftDate/SwiftDate.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftProtobuf/SwiftProtobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/XCGLogger/XCGLogger.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework",
+				"${BUILT_PRODUCTS_DIR}/secp256k1.swift/secp256k1.framework",
 				"${BUILT_PRODUCTS_DIR}/stellar-ios-mac-sdk/stellarsdk.framework",
 				"${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GBAsyncOperation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ObjcExceptionBridging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCode.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sodium.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftCBOR.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftDate.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftProtobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/XCGLogger.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/stellarsdk.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/web3swift.framework",
@@ -756,32 +774,47 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Tangem/Pods-Tangem-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework",
 				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
+				"${BUILT_PRODUCTS_DIR}/ObjcExceptionBridging/ObjcExceptionBridging.framework",
 				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCode/QRCode.framework",
+				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/Sodium/Sodium.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftCBOR/SwiftCBOR.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftDate/SwiftDate.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftProtobuf/SwiftProtobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/XCGLogger/XCGLogger.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework",
+				"${BUILT_PRODUCTS_DIR}/secp256k1.swift/secp256k1.framework",
 				"${BUILT_PRODUCTS_DIR}/stellar-ios-mac-sdk/stellarsdk.framework",
 				"${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GBAsyncOperation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ObjcExceptionBridging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCode.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sodium.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftCBOR.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftDate.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftProtobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/XCGLogger.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/stellarsdk.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/web3swift.framework",
@@ -857,6 +890,7 @@
 				80003687213C73BC00C151E8 /* LoadViewController.swift in Sources */,
 				8000364421069C8E00C151E8 /* FontsExtensions.swift in Sources */,
 				8D946D892018DA92006C73D9 /* AppDelegate.swift in Sources */,
+				5DCA821B23A7A54000B1B3EE /* RobotApi.swift in Sources */,
 				5DE995D92322C91A00623148 /* Localizations.swift in Sources */,
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
 				80EC113C229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift in Sources */,
