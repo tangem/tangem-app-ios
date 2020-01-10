@@ -175,7 +175,7 @@ public class Card {
     public var tokenSymbol: String?
     public var tokenDecimal: Int?
     
-    public var type: WalletType {
+    public var type: WalletType {        
         return cardEngine.walletType
     }
     public var walletUnits: String {
@@ -310,6 +310,10 @@ public class Card {
     
     var imageName: String {
         if cardEngine.walletType == .nft {
+            return "card-ruNFT"
+        }
+        
+        if cardEngine.walletType == .slix2 {
             return "card-ruNFT"
         }
         

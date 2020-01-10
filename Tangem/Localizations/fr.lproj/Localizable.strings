@@ -235,6 +235,9 @@
 "loaded_wallet_btn_extract" = "Retirer";
 
 /*  */
+"loaded_wallet_btn_claim"  = "Claim";
+
+/*  */
 "loaded_wallet_btn_load" = "Charger";
 
 /*  */
@@ -862,3 +865,7 @@
 "main_store_title"="Vous n’avez pas de carte?";
 
 "main_store_subtitle"="Visitez notre boutique sur";
+
+"common_not_genuine"="Not genuine";
+
+"already_claimed"="Already claimed";
