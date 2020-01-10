@@ -27,7 +27,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     
     @IBOutlet weak var storeSubtitleLabel: UILabel! {
         didSet {
-            storeTitleLabel.text = Localizations.storeSubtitle
+            storeSubtitleLabel.text = Localizations.storeSubtitle
         }
     }
     
