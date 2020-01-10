@@ -280,12 +280,20 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             assertionFailure()
             return
         }
-        
-        let hasBalance = NSDecimalNumber(string: card.walletValue).doubleValue > 0
-        let balanceTitle = hasBalance ? Localizations.genuine : Localizations.notgenuine
+        let claimer = card.cardEngine as! Claimable
+        var balanceTitle = ""
+        switch claimer.claimStatus {
+        case .genuine:
+            balanceTitle = Localizations.genuine
+        case .notGenuine:
+            balanceTitle = Localizations.notgenuine
+        case .claimed:
+            balanceTitle = Localizations.alreadyClaimed
+        }
+        let verifyed = claimer.claimStatus != .notGenuine
         viewModel.claimButton.isHidden = false
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
-        setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
+        setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
         
         viewModel.loadButton.isHidden = true
         viewModel.extractButton.isHidden = true
