@@ -105,15 +105,15 @@ extension BTCEngine: CoinProvider {
     func buildPrefix(for data: Data) -> Data {
         switch data.count {
         case 0..<Int(Op.pushData1.rawValue):
-            return Data([data.count.byte])
+            return data.count.byte.asData
         case Int(Op.pushData1.rawValue)..<Int(0xff):
-            let prefix = [Op.pushData1.rawValue] + [data.count.byte]
-            return Data(prefix)
+            let prefix = Data([Op.pushData1.rawValue]) + data.count.byte.asData
+            return prefix
         case Int(0xff)..<Int(0xffff):
-            let prefix = [Op.pushData2.rawValue] + data.count.bytes2
+            let prefix = Data([Op.pushData2.rawValue]) + data.count.bytes2LE
             return Data(prefix)
         default:
-            let prefix = [Op.pushData4.rawValue] + data.count.bytes4
+            let prefix = Data([Op.pushData4.rawValue]) + data.count.bytes4LE
             return Data(prefix)
         }
     }
@@ -166,10 +166,10 @@ extension BTCEngine: CoinProvider {
                     script.append(program.count.byte)
                 } else if opCode == Op.pushData2.rawValue {
                     script.append(Op.pushData2.rawValue)
-                    script.append(contentsOf: program.count.bytes2) //little endian
+                    script.append(contentsOf: program.count.bytes2LE) //little endian
                 } else if opCode == Op.pushData4.rawValue {
                     script.append(Op.pushData4.rawValue)
-                    script.append(contentsOf: program.count.bytes4)
+                    script.append(contentsOf: program.count.bytes4LE)
                 }
                 script.append(contentsOf: program)
             }
@@ -262,7 +262,7 @@ extension BTCEngine: CoinProvider {
         for (inputIndex, input) in unspentTransactions.enumerated() {
             let hashKey: [UInt8] = input.hash.reversed()
             txToSign.append(contentsOf: hashKey)
-            txToSign.append(contentsOf: input.outputIndex.bytes4)
+            txToSign.append(contentsOf: input.outputIndex.bytes4LE)
             if (index == nil) || (inputIndex == index) {
                 txToSign.append(input.outputScript.count.byte)
                 txToSign.append(contentsOf: input.outputScript)
@@ -278,7 +278,7 @@ extension BTCEngine: CoinProvider {
         txToSign.append(outputCount.byte)
         
         //8 bytes
-        txToSign.append(contentsOf: amount.bytes8)
+        txToSign.append(contentsOf: amount.bytes8LE)
         guard let outputScriptBytes = buildOutputScript(address: targetAddress) else {
             return nil
         }
@@ -288,7 +288,7 @@ extension BTCEngine: CoinProvider {
         
         if change != 0 {
             //8 bytes
-            txToSign.append(contentsOf: change.bytes8)
+            txToSign.append(contentsOf: change.bytes8LE)
             //hex str 1976a914....88ac
             guard let outputScriptChangeBytes = buildOutputScript(address: walletAddress) else {
                 return nil
