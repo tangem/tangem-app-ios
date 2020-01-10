@@ -52,10 +52,11 @@ public enum Blockchain: String {
     case binance
     case unknown
     case stellar
+    case bitcoinCash
     
     public var decimalCount: Int16 {
         switch self {
-        case .bitcoin:
+        case .bitcoin, .bitcoinCash:
             return 8
         case .ethereum, .rootstock:
             return 18
@@ -73,7 +74,7 @@ public enum Blockchain: String {
     
     public var roundingMode: NSDecimalNumber.RoundingMode {
         switch self {
-        case .bitcoin, .ethereum, .rootstock, .binance:
+        case .bitcoin, .ethereum, .rootstock, .binance, .bitcoinCash:
             return .down
         case .cardano:
             return .up
@@ -135,6 +136,8 @@ public class Card {
             return .binance
         case let blockchainName where blockchainName.containsIgnoringCase(find: "xlm"):
             return .stellar
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "bch"):
+            return .bitcoinCash
         default:
             return .unknown
         }
@@ -144,7 +147,7 @@ public class Card {
     }
     
     private var curve: EllipticCurve?
-
+    
     public var curveID: EllipticCurve {
         return curve ?? (walletPublicKeyBytesArray.count == 65 ? .secp256k1 : .ed25519)
     }
@@ -172,7 +175,7 @@ public class Card {
     public var tokenSymbol: String?
     public var tokenDecimal: Int?
     
-    public var type: WalletType {
+    public var type: WalletType {        
         return cardEngine.walletType
     }
     public var walletUnits: String {
@@ -186,7 +189,7 @@ public class Card {
     }
     
     public var units: String {
-       if let tokenValue = walletTokenValue, tokenValue != "0" {
+        if let tokenValue = walletTokenValue, tokenValue != "0" {
             return (walletTokenUnits ?? tokenSymbol) ?? walletUnits
         } else {
             return walletUnits
@@ -240,7 +243,8 @@ public class Card {
         
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
-        return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum || blockchain == .cardano || blockchain == .stellar)
+        return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum
+            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash)
     }
     
     public var supportedSignMethods: [SignMethod] = [.signHash]
@@ -306,6 +310,10 @@ public class Card {
     
     var imageName: String {
         if cardEngine.walletType == .nft {
+            return "card-ruNFT"
+        }
+        
+        if cardEngine.walletType == .slix2 {
             return "card-ruNFT"
         }
         
@@ -522,7 +530,7 @@ public class Card {
                 }
             case .curveId:
                 if let curveId = $0.value?.utf8String {
-                curve = EllipticCurve(rawValue: curveId)
+                    curve = EllipticCurve(rawValue: curveId)
                 }
             case .settingsMask:
                 settingsMask = $0.value ?? []
@@ -558,6 +566,8 @@ public class Card {
             cardEngine = BinanceEngine(card: self)
         case .stellar:
             cardEngine = XlmEngine(card: self)
+        case .bitcoinCash:
+            cardEngine = BCHEngine(card: self)
         default:
             cardEngine = NoWalletCardEngine(card: self)
         }
@@ -635,12 +645,12 @@ public extension Card {
         
         let onResult = { (result: TangemKitResult<Card>) in            
             DispatchQueue.main.async {
-                 switch result {
-                           case .success(let card):
-                               onSuccess(card)
-                           case .failure(let error):
-                               onFailure(error)
-                           }
+                switch result {
+                case .success(let card):
+                    onSuccess(card)
+                case .failure(let error):
+                    onFailure(error)
+                }
             }
         }
         
@@ -651,10 +661,12 @@ public extension Card {
             if tokenSymbol != nil {
                 operation = TokenCardBalanceOperation(card: self, completion: onResult)
             } else {
-                operation = ETHCardBalanceOperation(card: self, completion: onResult)
+                operation = ETHCardBalanceOperation(card: self, networkUrl: TokenNetwork.eth.rawValue, completion: onResult)
             }
         case .rootstock:
-            operation = RSKCardBalanceOperation(card: self, completion: onResult)
+            let rskOperation = RSKCardBalanceOperation(card: self, completion: onResult)
+            rskOperation.hasToken = tokenContractAddress != nil
+            operation = rskOperation
         case .cardano:
             operation = CardanoCardBalanceOperation(card: self, completion: onResult)
         case .ripple:
@@ -663,6 +675,8 @@ public extension Card {
             operation = BNBCardBalanceOperation(card: self, completion: onResult)
         case .stellar:
             operation = XlmCardBalanceOperation(card: self, completion: onResult)
+        case .bitcoinCash:
+            operation = BCHCardBalanceOperation(card: self, completion: onResult)
         default:
             break
         }
