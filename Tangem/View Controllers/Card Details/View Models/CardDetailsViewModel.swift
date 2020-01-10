@@ -67,6 +67,7 @@ class CardDetailsViewModel: NSObject {
             loadButton.layer.shadowColor = UIColor.black.cgColor
             loadButton.layer.shadowOpacity = 0.08
             loadButton.setTitle(Localizations.loadedWalletBtnLoad, for: .normal)
+            loadButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
@@ -80,6 +81,20 @@ class CardDetailsViewModel: NSObject {
             extractButton.layer.shadowColor = UIColor.black.cgColor
             extractButton.layer.shadowOpacity = 0.08
             extractButton.setTitle(Localizations.loadedWalletBtnExtract, for: .normal)
+            extractButton.setTitleColor(UIColor.lightGray, for: .disabled)
+        }
+    }
+    @IBOutlet weak var claimButton: UIButton! {
+        didSet {
+            claimButton.layer.cornerRadius = 30.0
+            claimButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
+            
+            claimButton.layer.shadowRadius = 5.0
+            claimButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+            claimButton.layer.shadowColor = UIColor.black.cgColor
+            claimButton.layer.shadowOpacity = 0.08
+            claimButton.setTitle(Localizations.loadedWalletBtnClaim, for: .normal)
+            claimButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
