@@ -9,10 +9,10 @@
 import Foundation
 
 extension Decimal {
-    var bytes8: [UInt8] {
+    var bytes8LE: Data {
         let int64value = (self as NSDecimalNumber).intValue
-        let bytes8 =  int64value.bytes8
-        return Array(bytes8)
+        let bytes8 =  int64value.bytes8LE
+        return bytes8
     }
     
     mutating func round(_ scale: Int, _ roundingMode: NSDecimalNumber.RoundingMode = .plain) {
