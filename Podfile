@@ -9,7 +9,6 @@ project 'tangem-ios-kit/TangemKit/TangemKit.xcodeproj'
 target 'Tangem' do
     project 'Tangem.xcodeproj'
     use_frameworks!
-    tangemioskit_pods
     pod 'QRCode', '2.0'
     pod 'Fabric'
     pod 'Crashlytics'
