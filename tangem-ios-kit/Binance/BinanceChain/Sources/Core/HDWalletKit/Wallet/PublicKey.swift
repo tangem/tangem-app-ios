@@ -8,7 +8,7 @@
 
 import Foundation
 import CryptoSwift
-import secp256k1
+//import secp256k1
 
 public struct PublicKey {
     public let compressedPublicKey: Data
@@ -16,8 +16,8 @@ public struct PublicKey {
     public let coin: Coin
     
     public init(privateKey: Data, coin: Coin) {
-        self.compressedPublicKey = Crypto.generatePublicKey(data: privateKey, compressed: true)
-        self.uncompressedPublicKey = Crypto.generatePublicKey(data: privateKey, compressed: false)
+        self.compressedPublicKey = Data() //Crypto.generatePublicKey(data: privateKey, compressed: true)
+        self.uncompressedPublicKey = Data()// Crypto.generatePublicKey(data: privateKey, compressed: false)
         self.coin = coin
     }
     

@@ -86,7 +86,7 @@ public struct OpCheckMultiSig: OpCodeProtocol {
             let pubkeyData: Data = publicKeys.removeFirst()
             let sigData: Data = signatures[0]
             do {
-                let valid = try Crypto.verifySigData(for: tx, inputIndex: Int(context.inputIndex), utxo: utxo, sigData: sigData, pubKeyData: pubkeyData)
+                let valid =  false //try Crypto.verifySigData(for: tx, inputIndex: Int(context.inputIndex), utxo: utxo, sigData: sigData, pubKeyData: pubkeyData)
                 if valid {
                     signatures.removeFirst()
                 }
