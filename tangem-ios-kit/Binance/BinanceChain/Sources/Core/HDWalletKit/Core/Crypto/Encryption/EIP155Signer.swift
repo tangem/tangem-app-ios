@@ -16,7 +16,7 @@ public struct EIP155Signer {
     
     public func sign(_ rawTransaction: EthereumRawTransaction, privateKey: Data) throws -> Data {
         let transactionHash = try hash(rawTransaction: rawTransaction)
-        let signature = try Crypto.sign(transactionHash, privateKey: privateKey)
+        let signature = Data() //try Crypto.sign(transactionHash, privateKey: privateKey)
         return try signTransaction(signature: signature, rawTransaction: rawTransaction)
     }
     
