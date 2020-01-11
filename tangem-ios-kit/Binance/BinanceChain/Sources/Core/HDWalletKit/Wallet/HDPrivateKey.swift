@@ -112,7 +112,7 @@ public struct HDPrivateKey {
             data += UInt8(0)
             data += raw
         case .notHardened:
-            data += Crypto.generatePublicKey(data: raw, compressed: true)
+            data += Data()// Crypto.generatePublicKey(data: raw, compressed: true)
         }
         
         let derivingIndex = CFSwapInt32BigToHost(node.hardens ? (edge | node.index) : node.index)
@@ -133,7 +133,8 @@ public struct HDPrivateKey {
     }
     
     public func sign(hash: Data) throws -> Data {
-        return try Crypto.sign(hash, privateKey: raw)
+        return Data()
+        //return try Crypto.sign(hash, privateKey: raw)
     }
 }
 
