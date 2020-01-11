@@ -29,7 +29,6 @@ Pod::Spec.new do |s|
     sub.dependency 'Starscream', '~> 3.1'
     sub.dependency 'XCGLogger', '~> 7.0'
     sub.dependency 'SwiftDate'
-    sub.dependency 'secp256k1.swift'
     sub.dependency 'CryptoSwift'
   end
 
