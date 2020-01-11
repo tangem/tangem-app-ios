@@ -64,7 +64,7 @@ PODS:
 
 DEPENDENCIES:
   - BigInt
-  - BinanceChain (from `tangem-ios-kit/Binance/`)
+  - BinanceChain (from `https://github.com/Tangem/binanceChain.git`, tag `0.1`)
   - Crashlytics
   - CryptoSwift
   - Fabric
@@ -107,12 +107,18 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   BinanceChain:
-    :path: tangem-ios-kit/Binance/
+    :git: https://github.com/Tangem/binanceChain.git
+    :tag: '0.1'
+
+CHECKOUT OPTIONS:
+  BinanceChain:
+    :git: https://github.com/Tangem/binanceChain.git
+    :tag: '0.1'
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
-  BinanceChain: 68d44121b12e13853ff7c889e169a3c7d55bacc7
+  BinanceChain: fe431fea49e3859fadbb32543ca1ce91d358278b
   Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
   CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
   Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
@@ -135,6 +141,6 @@ SPEC CHECKSUMS:
   web3.swift.pod: 66048c11416c2e7a9a4b35fe42254d0f0d9db4b1
   XCGLogger: 0434f15e3909cdc450bb63faf638b8792ab782ab
 
-PODFILE CHECKSUM: afa8a265cb55257d7dec619fa1abfe0f8a79ef2e
+PODFILE CHECKSUM: 9851ab9fbd5195265d6715c43b0b3bbc0f14c38b
 
 COCOAPODS: 1.8.4
