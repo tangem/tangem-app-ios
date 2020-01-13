@@ -14,7 +14,7 @@ class BinanceEngine: CardEngine {
     private var latestTxDate: Date?
     unowned var card: Card
     var binance: BinanceChain!
-    
+    private var hashesToSign: Data?
     var blockchainDisplayName: String {
         return "Binance"
     }
@@ -99,11 +99,37 @@ extension BinanceEngine: CoinProvider {
         
         let finalAmount = includeFee ? amountValue - feeValue : amountValue
         let msg = txBuilder.buildForSign(amount: finalAmount, targetAddress: targetAddress)
-        return [msg.encodeForSignature()]
+        let hash = msg.encodeForSignature()
+        hashesToSign = hash
+        return [hash]
     }
     
+    private func getNormalizedVerifyedSignature(for sign: [UInt8], publicKey: [UInt8], hashToSign: [UInt8]) -> Data? {
+        var vrfy: secp256k1_context = secp256k1_context_create(.SECP256K1_CONTEXT_VERIFY)!
+        defer {secp256k1_context_destroy(&vrfy)}
+        var sig = secp256k1_ecdsa_signature()
+        var normalizied = secp256k1_ecdsa_signature()
+        _ = secp256k1_ecdsa_signature_parse_compact(vrfy, &sig, sign)
+        _ = secp256k1_ecdsa_signature_normalize(vrfy, &normalizied, sig)
+        
+        var pubkey = secp256k1_pubkey()
+        _ = secp256k1_ec_pubkey_parse(vrfy, &pubkey, publicKey, 65)
+        if !secp256k1_ecdsa_verify(vrfy, normalizied, hashToSign, pubkey) {
+            return nil
+        }
+        return Data(normalizied.data)
+    }
+
+    
+    
     func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
-        guard let msg = txBuilder.buildForSend(signature: Data(signFromCard)) else {
+        guard let hashes = self.hashesToSign, let normalizedSignature = getNormalizedVerifyedSignature(for: signFromCard, publicKey: card.walletPublicKeyBytesArray, hashToSign: hashes.bytes) else {
+                       completion(false, "Failed to normalize sig" )
+                                  return
+               }
+        
+        
+        guard let msg = txBuilder.buildForSend(signature: normalizedSignature) else {
             completion(false, "Failed to build tx" )
             return
         }
