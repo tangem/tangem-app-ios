@@ -22,7 +22,7 @@ public class XlmEngine: CardEngine {
     }
     
     public var walletType: WalletType {
-        if card.batchId == 65535 { //slix tag
+        if card.productMask == .tag && card.signArr.count != 0 { //slix tag
             return .slix2
         }
         
