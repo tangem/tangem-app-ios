@@ -9,7 +9,6 @@ PODS:
     - BinanceChain/Protobuf
     - BinanceChain/Util
     - CryptoSwift
-    - secp256k1.swift
     - Starscream (~> 3.1)
     - SwiftDate
     - SwiftProtobuf (~> 1.4)
@@ -44,7 +43,6 @@ PODS:
   - QRCode (2.0)
   - Result (4.1.0)
   - secp256k1.c (0.1.2)
-  - secp256k1.swift (0.1.4)
   - Sodium (0.8.0)
   - Starscream (3.1.1)
   - stellar-ios-mac-sdk (1.6.7)
@@ -66,7 +64,7 @@ PODS:
 
 DEPENDENCIES:
   - BigInt
-  - BinanceChain (from `tangem-ios-kit/Binance/`)
+  - BinanceChain (from `https://github.com/Tangem/binanceChain.git`, tag `0.1`)
   - Crashlytics
   - CryptoSwift
   - Fabric
@@ -96,7 +94,6 @@ SPEC REPOS:
     - QRCode
     - Result
     - secp256k1.c
-    - secp256k1.swift
     - Sodium
     - Starscream
     - stellar-ios-mac-sdk
@@ -110,12 +107,18 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   BinanceChain:
-    :path: tangem-ios-kit/Binance/
+    :git: https://github.com/Tangem/binanceChain.git
+    :tag: '0.1'
+
+CHECKOUT OPTIONS:
+  BinanceChain:
+    :git: https://github.com/Tangem/binanceChain.git
+    :tag: '0.1'
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
-  BinanceChain: 6260890f5d5525f7bf99e4ea3285d88428014e07
+  BinanceChain: fe431fea49e3859fadbb32543ca1ce91d358278b
   Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
   CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
   Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
@@ -127,7 +130,6 @@ SPEC CHECKSUMS:
   QRCode: f98a1886c8f37523704a7512a4c0cd45b34c18a4
   Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
-  secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
   stellar-ios-mac-sdk: 9e2aa01b9f63af27ea3cbc012facfaada8e542bc
