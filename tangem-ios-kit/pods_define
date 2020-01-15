@@ -9,4 +9,6 @@ def tangemioskit_pods
     pod 'web3.swift.pod'
     pod 'stellar-ios-mac-sdk'
     pod 'KeychainSwift'
+    pod 'BinanceChain', :git => 'https://github.com/Tangem/binanceChain.git', :tag => '0.1'
+    pod 'Moya'
 end
