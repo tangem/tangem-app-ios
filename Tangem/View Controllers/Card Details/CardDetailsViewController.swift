@@ -9,6 +9,8 @@
 import UIKit
 import QRCode
 import TangemKit
+import BinanceChain
+import CryptoSwift
 
 class CardDetailsViewController: UIViewController, TestCardParsingCapable, DefaultErrorAlertsCapable {
     
@@ -21,7 +23,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     var card: Card?
     var isBalanceVerified = false
     var isBalanceLoading = false
-    
+    var shouldIgnoreDidActive = true
     
     var customPresentationController: CustomPresentationController?
     
@@ -52,6 +54,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     @objc func applicationDidBecomeActive() {
+        guard !shouldIgnoreDidActive else {
+            shouldIgnoreDidActive = false
+            return
+        }
+        
         if let card = card {
             isBalanceLoading = true
             fetchWalletBalance(card: card)
@@ -76,8 +83,9 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     }
     
     func setupWithCardDetails(card: Card) {
-        setupUI()
-        
+        setupBalanceIsBeingVerified()
+        viewModel.setSubstitutionInfoLoading(true)
+        viewModel.setWalletInfoLoading(true)
         guard card.genuinityState != .pending else {
             viewModel.setSubstitutionInfoLoading(true)
             return
@@ -92,11 +100,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             guard let self = self else {
                 return
             }
-            
-            self.viewModel.setSubstitutionInfoLoading(false)
             self.card = card
-            self.fetchWalletBalance(card: card)
+            self.setupUI()
             self.viewModel.cardImageView.image = card.image
+            self.viewModel.setSubstitutionInfoLoading(false)
+            self.fetchWalletBalance(card: card)
         }
         self.viewModel.cardImageView.image = card.image
         operationQueue.addOperation(operation)
@@ -110,28 +118,35 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             setupBalanceNoWallet()
             return
         }
-        
-        let operation = card.balanceRequestOperation(onSuccess: { (card) in
-            self.isBalanceLoading = false
-            self.viewModel.setWalletInfoLoading(false)
-            
+        let operation = card.balanceRequestOperation(onSuccess: {[unowned self] (card) in
             self.card = card
             
-            if card.cardEngine.walletType == .nft {
+            if card.type == .nft {
                 self.handleBalanceLoadedNFT()
+            } else if card.type == .slix2 {
+                self.handleBalanceLoadedSlix2()
             } else {
                 self.handleBalanceLoaded()
             }
             
-        }, onFailure: { (error) in
             self.isBalanceLoading = false
             self.viewModel.setWalletInfoLoading(false)
-            self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
             
-            let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
-            validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
-            self.present(validationAlert, animated: true, completion: nil)
-            self.setupBalanceVerified(false)
+            }, onFailure: { (error) in
+                self.isBalanceLoading = false
+                self.viewModel.setWalletInfoLoading(false)
+                
+                let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
+                validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+                self.present(validationAlert, animated: true, completion: nil)
+                
+                if card.productMask != .tag {
+                    self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
+                    self.setupBalanceVerified(false)
+                } else {
+                    self.viewModel.updateWalletBalance(title: "--")
+                    self.setupBalanceVerified(false, customText: Localizations.loadedWalletErrorObtainingBlockchainData)
+                }
         })
         
         guard operation != nil else {
@@ -207,9 +222,9 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         } else if let xlmEngine = card.cardEngine as? XlmEngine, let walletReserve = xlmEngine.walletReserve {
             
             if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = xlmEngine.assetCode, let assetBalance = xlmEngine.assetBalance,
-            assetBalance > 0 {
-                 balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
-                 balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee + " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
+                assetBalance > 0 {
+                balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
+                balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee + " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
             } else {
                 balanceTitle = card.walletValue + " " + card.walletUnits
                 balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
@@ -260,15 +275,41 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
     }
     
+    func handleBalanceLoadedSlix2() {
+        guard let card = card else {
+            assertionFailure()
+            return
+        }
+        let claimer = card.cardEngine as! Claimable
+        var balanceTitle = ""
+        switch claimer.claimStatus {
+        case .genuine:
+            balanceTitle = Localizations.genuine
+        case .notGenuine:
+            balanceTitle = Localizations.notgenuine
+        case .claimed:
+            balanceTitle = Localizations.alreadyClaimed
+        }
+        let verifyed = claimer.claimStatus != .notGenuine
+        viewModel.claimButton.isHidden = false
+        viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
+        setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
+        
+        viewModel.loadButton.isHidden = true
+        viewModel.extractButton.isHidden = true
+    }
+    
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
         
-        viewModel.qrCodeContainerView.isHidden = false
-        viewModel.walletAddressLabel.isHidden = false
-        
+        viewModel.qrCodeContainerView.isHidden = true
+        viewModel.walletAddressLabel.isHidden = true
+        viewModel.walletBlockchainLabel.isHidden = true
         viewModel.updateWalletBalanceIsBeingVerified()
         viewModel.loadButton.isEnabled = false
         viewModel.extractButton.isEnabled = false
+        viewModel.moreButton.isEnabled = false
+        viewModel.scanButton.isEnabled = false
         viewModel.buttonsAvailabilityView.isHidden = false
         
         viewModel.exploreButton.isEnabled = true
@@ -280,15 +321,22 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         viewModel.qrCodeContainerView.isHidden = false
         viewModel.walletAddressLabel.isHidden = false
-        
+        viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
-        viewModel.loadButton.isEnabled = verified
-        viewModel.extractButton.isEnabled = verified
-        viewModel.buttonsAvailabilityView.isHidden = verified
+        if let card = card, card.productMask == .note && card.type != .nft {
+            viewModel.loadButton.isEnabled = verified
+            viewModel.extractButton.isEnabled = verified
+            viewModel.buttonsAvailabilityView.isHidden = verified
+        } else {
+            viewModel.buttonsAvailabilityView.isHidden = false
+            viewModel.loadButton.isEnabled = false
+            viewModel.extractButton.isEnabled = false
+        }
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
-        
+        viewModel.moreButton.isEnabled = true
+        viewModel.scanButton.isEnabled = true
         showUntrustedAlertIfNeeded()
     }
     
@@ -301,9 +349,11 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         viewModel.loadButton.isEnabled = false
         viewModel.extractButton.isEnabled = false
         viewModel.buttonsAvailabilityView.isHidden = false
-        
+        viewModel.walletBlockchainLabel.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
+        viewModel.moreButton.isEnabled = true
+        viewModel.scanButton.isEnabled = true
     }
     
     // MARK: Simulator parsing Operation
@@ -363,6 +413,11 @@ extension CardDetailsViewController : TangemSessionDelegate {
         guard card.genuinityState != .pending else {
             self.isBalanceLoading = true
             self.viewModel.setWalletInfoLoading(true)
+            self.setupBalanceIsBeingVerified()
+            self.viewModel.setSubstitutionInfoLoading(true)
+            viewModel.claimButton.isHidden = true
+            viewModel.extractButton.isHidden = false
+            viewModel.loadButton.isHidden = false
             if #available(iOS 13.0, *) {} else {
                 viewModel.doubleScanHintLabel.isHidden = false
             }
@@ -403,6 +458,25 @@ extension CardDetailsViewController : TangemSessionDelegate {
         }
     }
     
+    func performClaim(password: String) {
+        if let claimer = card?.cardEngine as? Claimable,
+            let encryptedSignature  = card?.signArr,
+            let aes = try? AES(key: Array(password.sha256Hash),
+                               blockMode: CBC(iv: Array(repeating: 0, count: 16)),
+                               padding: .noPadding),
+            let decryptedSignature = try? aes.decrypt(encryptedSignature)
+        {
+            claimer.claim(amount: "0.001", fee: "0.00001", targetAddress: "GAYPZMHFZERB42ONEJ4CY6ADDVTINEXMY6OZ5G6CLR4HHVKOSNJSZGMM", signature: Data(decryptedSignature)) {[weak self] result, error in
+                if result {
+                    self?.handleSuccess()
+                    self?.viewModel.updateWalletBalance(title: Localizations.alreadyClaimed, subtitle: nil)
+                } else {
+                    self?.handleGenericError(error?.localizedDescription ?? "err")
+                    print(error?.localizedDescription ?? "err")
+                }
+            }
+        }
+    }
 }
 
 extension CardDetailsViewController {
@@ -466,6 +540,26 @@ extension CardDetailsViewController {
         self.present(viewController, animated: true, completion: nil)
     }
     
+    
+    @IBAction func claimButtonPressed(_ sender: Any)  {
+        let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
+            if let pswd = ac.textFields?.first?.text {
+                self.performClaim(password: pswd)
+            }
+        }))
+        
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
+           // ac.dismiss(animated: true, completion: nil)
+        }))
+        
+        ac.addTextField { textField in
+            textField.isSecureTextEntry = true
+        }
+        
+        self.present(ac, animated: true, completion: nil)
+    }
+    
     @IBAction func extractButtonPressed(_ sender: Any) {
         if #available(iOS 13.0, *), card!.canExtract  {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
@@ -503,6 +597,7 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        shouldIgnoreDidActive = true
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
