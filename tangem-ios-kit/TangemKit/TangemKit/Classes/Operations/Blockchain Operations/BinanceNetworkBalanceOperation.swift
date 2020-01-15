@@ -43,11 +43,7 @@ class BinanceNetworkBalanceOperation: GBAsyncOperation {
                     let balanceInfo = try JSON(data: data)
                     let balances = balanceInfo["balances"].array 
                     let bnbBalance = balances?.first(where: { $0["symbol"].stringValue == "BNB" })
-                    guard let balanceString = bnbBalance?["free"].stringValue else {
-                        self.failOperationWith(error: "No balance data")
-                        assertionFailure()
-                        return
-                    }
+                    let balanceString = bnbBalance?["free"].string ?? "0"
                     
                     let walletValue = NSDecimalNumber(string: balanceString)
                     let accountNumber = balanceInfo["account_number"].intValue
