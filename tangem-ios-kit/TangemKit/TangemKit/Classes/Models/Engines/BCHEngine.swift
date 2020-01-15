@@ -69,10 +69,11 @@ extension BCHEngine: CoinProvider {
                 return nil
         }
         
-        //let feeSatoshi = feeValue * Decimal(100000000)
-       // let amountSatoshi = amountValue * Decimal(100000000)
+            
+        let finalAmount = includeFee ? amountValue - feeValue : amountValue
+            
         transaction = Transaction(fee: Amount(value: feeValue),
-                                  amount: Amount(value: amountValue),
+                                  amount: Amount(value: finalAmount),
                                   destinationAddress: targetAddress)
         
         guard let hashes = txBuilder.buildForSign(transaction: transaction!) else {
