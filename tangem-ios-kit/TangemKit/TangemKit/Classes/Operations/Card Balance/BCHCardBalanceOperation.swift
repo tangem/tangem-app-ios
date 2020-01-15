@@ -18,7 +18,7 @@ class BCHCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        let provider = MoyaProvider<BlockchairTarget>()
+        let provider = MoyaProvider<BlockchairTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
         let bchEngine = card.cardEngine as! BCHEngine
 
         provider.request(.address(address: bchEngine.walletAddress)) {[weak self] result in
@@ -62,7 +62,7 @@ class BCHCardBalanceOperation: BaseCardBalanceOperation {
                     return btx
                 }
                 
-                let hasUnconfirmed = transactions.first(where: {$0.block_id == -1}) != nil
+                let hasUnconfirmed = transactions.first(where: {$0.block_id == -1 || $0.block_id == 1 }) != nil
                 let unconfirmedBalance = hasUnconfirmed ? 1 : 0
                 
                 
