@@ -10,6 +10,7 @@ import Foundation
 
 public enum WalletType {
     case btc
+    case ltc
     case bch
     case eth
     case seed
