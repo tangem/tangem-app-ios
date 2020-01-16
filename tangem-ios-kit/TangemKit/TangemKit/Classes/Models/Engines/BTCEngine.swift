@@ -10,6 +10,22 @@ import Foundation
 
 class BTCEngine: CardEngine {
     
+    var possibleFirstAddressCharacters: [String] {
+        return  ["1","2","3","n","m"]
+    }
+    
+    var fixedFee: String? {
+        nil
+    }
+    
+    var trait: CoinTrait {
+        .all
+    }
+    
+    var blockcyperApi: BlockcyperApi {
+        .btc
+    }
+    
     unowned var card: Card
     var currentBackend = BtcBackend.blockchainInfo
     
@@ -99,7 +115,7 @@ extension BTCEngine: CoinProvider {
     }
     
     var coinTraitCollection: CoinTrait {
-        return CoinTrait.all
+        return trait
     }
     
     func buildPrefix(for data: Data) -> Data {
@@ -374,7 +390,7 @@ extension BTCEngine: CoinProvider {
         
         let txHexString = txToSend.toHexString()
         
-        let sendOp = BtcSendOperation(with: self, txHex: txHexString, completion: {[weak self] result in
+        let sendOp = BtcSendOperation(with: self, blockcyperApi: blockcyperApi, txHex: txHexString, completion: {[weak self] result in
             switch result {
             case .success(let sendResponse):
                 self?.unconfirmedBalance = nil
@@ -389,6 +405,10 @@ extension BTCEngine: CoinProvider {
     }
     
     func getFee(targetAddress: String, amount: String, completion: @escaping ((min: String, normal: String, max: String)?) -> Void) {
+        if let fixedFee = self.fixedFee {
+            completion((fixedFee, fixedFee, fixedFee))
+            return
+        }
         
         let feeRequestOperation = BtcFeeOperation(with: self, completion: {[weak self] result in
                 switch result {
@@ -420,7 +440,7 @@ extension BTCEngine: CoinProvider {
                     completion(fee)
                 
                 case .failure(let error):
-                  //  print(error)
+                    print(error)
                     completion(nil)
                 }
         })
@@ -435,8 +455,7 @@ extension BTCEngine: CoinProvider {
     func validate(address: String) -> Bool {
         guard !address.isEmpty else { return false }
         
-        let possibleFirstCharacters = ["1","2","3","n","m"]
-        if possibleFirstCharacters.contains(String(address.first!)) {
+        if possibleFirstAddressCharacters.contains(String(address.lowercased().first!)) {
             guard (26...35) ~= address.count else { return false }
             
         }
