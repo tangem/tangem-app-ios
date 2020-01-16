@@ -145,10 +145,10 @@ class CardDetailsViewModel: NSObject {
     @IBOutlet weak var qrCodeContainerView: UIView!
     
     @objc func didTapBalance() {
-       onBalanceTap?()
+       onBalanceTap?(false)
     }
     
-    public var onBalanceTap: (() -> Void)?
+    public var onBalanceTap: ((Bool) -> Void)?
 }
 
 extension CardDetailsViewModel {
