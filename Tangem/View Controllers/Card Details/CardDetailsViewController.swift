@@ -23,7 +23,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     var card: Card?
     var isBalanceVerified = false
     var isBalanceLoading = false
-    var shouldIgnoreDidActive = true
     
     var customPresentationController: CustomPresentationController?
     
@@ -39,7 +38,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -53,12 +52,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         setupWithCardDetails(card: card)
     }
     
-    @objc func applicationDidBecomeActive() {
-        guard !shouldIgnoreDidActive else {
-            shouldIgnoreDidActive = false
-            return
-        }
-        
+    @objc func applicationWillEnterForeground() {
         if let card = card {
             isBalanceLoading = true
             fetchWalletBalance(card: card)
@@ -597,7 +591,6 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
-        shouldIgnoreDidActive = true
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
