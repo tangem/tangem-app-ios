@@ -7,11 +7,15 @@
 //
 
 import Foundation
+public enum BlockcyperApi: String {
+    case btc
+    case ltc
+}
 
 public enum BlockcypherEndpoint: BtcEndpoint  {
-    case address(address:String)
-    case fee
-    case send(txHex: String)
+    case address(address:String, api: BlockcyperApi)
+    case fee(api: BlockcyperApi)
+    case send(txHex: String, api: BlockcyperApi)
     
     private var randomToken: String {
         let tokens: [String] = ["aa8184b0e0894b88a5688e01b3dc1e82",
@@ -24,12 +28,12 @@ public enum BlockcypherEndpoint: BtcEndpoint  {
     
     public var url: String {
         switch self {
-        case .fee:
-            return "https://api.blockcypher.com/v1/btc/main"
-        case .send(_):
-            return "https://api.blockcypher.com/v1/btc/main/txs/push?token=\(randomToken)"
-        case .address(let address):
-            return "https://api.blockcypher.com/v1/btc/main/addrs/\(address)?unspentOnly=true&includeScript=true"
+        case .fee(let api):
+            return "https://api.blockcypher.com/v1/\(api.rawValue)/main"
+        case .send(_, let api):
+            return "https://api.blockcypher.com/v1/\(api.rawValue)/main/txs/push?token=\(randomToken)"
+        case .address(let address, let api):
+            return "https://api.blockcypher.com/v1/\(api.rawValue)/main/addrs/\(address)?unspentOnly=true&includeScript=true"
         }
     }
     
@@ -41,16 +45,16 @@ public enum BlockcypherEndpoint: BtcEndpoint  {
         switch self {
         case .fee:
             return "GET"
-        case .send(_):
+        case .send:
             return "POST"
-        case .address(_):
+        case .address:
             return "GET"
         }
     }
     
     public var body: Data? {
         switch self {
-        case .send(let txHex):
+        case .send(let txHex, _):
             let jsonDict = ["tx": txHex]
             let body = try? JSONSerialization.data(withJSONObject: jsonDict, options: [])
             return body
