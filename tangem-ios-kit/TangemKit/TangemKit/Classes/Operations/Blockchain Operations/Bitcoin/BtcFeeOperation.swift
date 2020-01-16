@@ -64,7 +64,7 @@ class BtcFeeOperation: GBAsyncOperation {
     
     func getBlockcypherRequest() -> GBAsyncOperation {
         let feeRequestOperation: BtcRequestOperation<BlockcypherFeeResponse> =
-            BtcRequestOperation(endpoint: BlockcypherEndpoint.fee) {[weak self] result in
+            BtcRequestOperation(endpoint: BlockcypherEndpoint.fee(api: .btc)) {[weak self] result in
                 switch result {
                 case .success(let feeResponse):
                     guard let minKb = feeResponse.low_fee_per_kb,
