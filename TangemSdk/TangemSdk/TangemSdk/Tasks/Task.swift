@@ -14,19 +14,19 @@ protocol AnyTask {
 }
 
 /**
-* Events that are are sent in callbacks from `Task`.
-* `event(TEvent)`:  A callback that is triggered by a `Task`.
-* `completion(TaskError? = nil)` A callback that is triggered when a `Task` is completed. `TaskError` is nil if it's a successful completion of a `Task`
-*/
+ * Events that are are sent in callbacks from `Task`.
+ * `event(TEvent)`:  A callback that is triggered by a `Task`.
+ * `completion(TaskError? = nil)` A callback that is triggered when a `Task` is completed. `TaskError` is nil if it's a successful completion of a `Task`
+ */
 public enum TaskEvent<TEvent> {
     case event(TEvent)
     case completion(TaskError? = nil)
 }
 
 /**
-* An error class that represent typical errors that may occur when performing Tangem SDK tasks.
-* Errors are propagated back to the caller in callbacks.
-*/
+ * An error class that represent typical errors that may occur when performing Tangem SDK tasks.
+ * Errors are propagated back to the caller in callbacks.
+ */
 public enum TaskError: Error, LocalizedError {
     //Serialize apdu errors
     case serializeCommandError
@@ -54,6 +54,7 @@ public enum TaskError: Error, LocalizedError {
     case unsupported
     //NFC error
     case readerError(NFCReaderError)
+    case nfcStuck
     
     public var localizedDescription: String {
         switch self {
@@ -66,10 +67,10 @@ public enum TaskError: Error, LocalizedError {
 }
 
 /**
-* Allows to perform a group of commands interacting between the card and the application.
-* A task opens an NFC session, sends commands to the card and receives its responses,
-* repeats the commands if needed, and closes session after receiving the last answer.
-*/
+ * Allows to perform a group of commands interacting between the card and the application.
+ * A task opens an NFC session, sends commands to the card and receives its responses,
+ * repeats the commands if needed, and closes session after receiving the last answer.
+ */
 open class Task<TEvent>: AnyTask {
     var reader: CardReader!
     weak var delegate: CardManagerDelegate?
@@ -117,7 +118,7 @@ open class Task<TEvent>: AnyTask {
                     if let securityDelayResponse = command.deserializeSecurityDelay(with: environment, from: responseApdu) {
                         self?.delegate?.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
                         if securityDelayResponse.saveToFlash {
-                             self?.reader.restartPolling()
+                            self?.reader.restartPolling()
                         }
                     }
                     self?.sendRequest(command, apdu: apdu, environment: environment, callback: callback)
@@ -153,10 +154,15 @@ open class Task<TEvent>: AnyTask {
                     callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
                 }
             case .failure(let error):
-                if error.code == .readerSessionInvalidationErrorUserCanceled {
-                    callback(.failure(TaskError.userCancelled))
-                } else {
-                    callback(.failure(TaskError.readerError(error)))
+                switch error {
+                case .stuck:
+                    callback(.failure(TaskError.nfcStuck))
+                case .readerError(let readerError):
+                    if readerError.code == .readerSessionInvalidationErrorUserCanceled {
+                        callback(.failure(TaskError.userCancelled))
+                    } else {
+                        callback(.failure(TaskError.readerError(readerError)))
+                    }
                 }
             }
         }
