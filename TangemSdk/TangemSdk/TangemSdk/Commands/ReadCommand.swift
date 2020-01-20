@@ -106,7 +106,7 @@ public struct CardData {
 ///Response for `ReadCommand`. Contains detailed card information.
 public struct Card {
     /// Unique Tangem card ID number.
-    public let cardId: String
+    public let cardId: String?
     /// Name of Tangem card manufacturer.
     public let manufacturerName: String?
     /// Current status of the card.
@@ -205,7 +205,7 @@ public final class ReadCommand: CommandSerializer {
         let mapper = TlvMapper(tlv: tlv)
         
         let card = Card(
-            cardId: try mapper.map(.cardId),
+            cardId: try mapper.mapOptional(.cardId),
             manufacturerName: try mapper.mapOptional(.manufacturerName),
             status: try mapper.mapOptional(.status),
             firmwareVersion: try mapper.mapOptional(.firmwareVersion),
