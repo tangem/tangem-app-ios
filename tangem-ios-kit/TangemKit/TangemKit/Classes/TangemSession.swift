@@ -16,7 +16,7 @@ public enum TangemSessionError: Error, LocalizedError {
 
 public protocol TangemSessionDelegate: class {
     
-    func tangemSessionDidRead(card: Card)
+    func tangemSessionDidRead(card: CardViewModel)
     func tangemSessionDidFailWith(error: TangemSessionError)
     
 }
@@ -34,7 +34,7 @@ public class TangemSession {
     }
     
     weak var delegate: TangemSessionDelegate?
-    var card: Card?
+    var card: CardViewModel?
     var scanner: CardScanner?
     
     @available(iOS 13.0, *)
@@ -42,7 +42,7 @@ public class TangemSession {
         let session = CardReadSession(completion: { [weak self] result in
             switch result {
             case .success (let tlv):
-                let card = Card(tags: Array(tlv.values))
+                let card = CardViewModel(tags: Array(tlv.values))
                 card.genuinityState = .genuine
                 DispatchQueue.main.async {
                     self?.delegate?.tangemSessionDidRead(card: card)
@@ -57,7 +57,7 @@ public class TangemSession {
                 }
             }
         }) { [weak self] in
-            let card = Card()
+            let card = CardViewModel()
             card.genuinityState = .pending
             DispatchQueue.main.async {
                 self?.delegate?.tangemSessionDidRead(card: card)
