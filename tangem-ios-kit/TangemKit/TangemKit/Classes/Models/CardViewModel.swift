@@ -85,7 +85,7 @@ public enum Blockchain: String {
     }
 }
 
-public class Card {
+public class CardViewModel {
     
     public var cardEngine: CardEngine!
     
@@ -279,7 +279,7 @@ public class Card {
             return substitutionImage
         }
         
-        guard let image = UIImage(named: imageName, in: Bundle(for: Card.self), compatibleWith: nil) else {
+        guard let image = UIImage(named: imageName, in: Bundle(for: CardViewModel.self), compatibleWith: nil) else {
             assertionFailure()
             return nil
         }
@@ -583,7 +583,7 @@ public class Card {
         }
     }
     
-    func updateWithVerificationCard(_ card: Card) {
+    func updateWithVerificationCard(_ card: CardViewModel) {
         genuinityState = .nonGenuine
         
         guard  card.isWallet else {
@@ -607,7 +607,7 @@ public class Card {
         }
     }
     
-    func invalidateSignedHashes(with card: Card) {
+    func invalidateSignedHashes(with card: CardViewModel) {
         guard card.isWallet else {
             return
         }
@@ -638,7 +638,7 @@ public class Card {
     
 }
 
-public extension Card {
+public extension CardViewModel {
     
     func signatureVerificationOperation(completion: @escaping (Bool) -> Void) throws -> GBAsyncOperation {
         guard let salt = salt, let challenge = challenge else {
@@ -650,10 +650,10 @@ public extension Card {
         }
     }
     
-    func balanceRequestOperation(onSuccess: @escaping (Card) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation? {
+    func balanceRequestOperation(onSuccess: @escaping (CardViewModel) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation? {
         var operation: GBAsyncOperation?
         
-        let onResult = { (result: TangemKitResult<Card>) in            
+        let onResult = { (result: TangemKitResult<CardViewModel>) in            
             DispatchQueue.main.async {
                 switch result {
                 case .success(let card):

@@ -20,7 +20,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
     }
     
-    var card: Card?
+    var card: CardViewModel?
     var isBalanceVerified = false
     var isBalanceLoading = false
     
@@ -76,7 +76,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
     }
     
-    func setupWithCardDetails(card: Card) {
+    func setupWithCardDetails(card: CardViewModel) {
         setupBalanceIsBeingVerified()
         viewModel.setSubstitutionInfoLoading(true)
         viewModel.setWalletInfoLoading(true)
@@ -89,7 +89,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         fetchSubstitutionInfo(card: card)
     }
     
-    func fetchSubstitutionInfo(card: Card) {
+    func fetchSubstitutionInfo(card: CardViewModel) {
         let operation = CardSubstitutionInfoOperation(card: card) { [weak self] (card) in
             guard let self = self else {
                 return
@@ -104,7 +104,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         operationQueue.addOperation(operation)
     }
     
-    func fetchWalletBalance(card: Card, forceUnverifyed: Bool = false) {
+    func fetchWalletBalance(card: CardViewModel, forceUnverifyed: Bool = false) {
         
         guard card.isWallet else {
             isBalanceLoading = false
@@ -181,7 +181,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
     }
     
-    func verifySignature(card: Card) {
+    func verifySignature(card: CardViewModel) {
         viewModel.balanceVerificationActivityIndicator.startAnimating()
         do {
             let operation = try card.signatureVerificationOperation { (isGenuineCard) in
@@ -403,7 +403,7 @@ extension CardDetailsViewController: LoadViewControllerDelegate {
 
 extension CardDetailsViewController : TangemSessionDelegate {
     
-    func tangemSessionDidRead(card: Card) {
+    func tangemSessionDidRead(card: CardViewModel) {
         guard card.genuinityState != .pending else {
             self.isBalanceLoading = true
             self.viewModel.setWalletInfoLoading(true)

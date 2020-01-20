@@ -120,7 +120,7 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
 
 extension ReaderViewController : TangemSessionDelegate {
     
-    func tangemSessionDidRead(card: Card) {
+    func tangemSessionDidRead(card: CardViewModel) {
         //        guard card.isBlockchainKnown /*&& !card.isTestBlockchain*/ else {
         //            handleUnknownBlockchainCard()
         //            DispatchQueue.main.async {
