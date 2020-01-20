@@ -24,7 +24,7 @@ class NavigationManager {
         navigationController.viewControllers = [rootViewController]
     }
     
-    func showCardDetailsViewControllerWith(cardDetails: Card) {
+    func showCardDetailsViewControllerWith(cardDetails: CardViewModel) {
         let storyBoard = UIStoryboard(name: "Card", bundle: nil)
         guard let cardDetailsViewController = storyBoard.instantiateViewController(withIdentifier: "CardDetailsViewController") as? CardDetailsViewController else {
             return
