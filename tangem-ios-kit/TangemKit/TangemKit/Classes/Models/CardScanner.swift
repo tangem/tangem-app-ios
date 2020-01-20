@@ -29,8 +29,8 @@ public class CardScanner: NSObject {
     public private(set) var isBusy: Bool = false
     
     enum CardScannerResult {
-        case pending(Card)
-        case finished(Card)
+        case pending(CardViewModel)
+        case finished(CardViewModel)
         case readerSessionError(NFCReaderError)
         case locked
         case cardChanged
@@ -41,7 +41,7 @@ public class CardScanner: NSObject {
     var completion: (CardScannerResult) -> Void
 
     var session: NFCReaderSession?
-    var savedCard: Card?
+    var savedCard: CardViewModel?
 
     init(payload: Data? = nil, completion: @escaping (CardScannerResult) -> Void) {
         self.completion = completion
@@ -104,7 +104,7 @@ public class CardScanner: NSObject {
         operationQueue.addOperation(operation)
     }
 
-    func handleDidParseCard(_ card: Card) {
+    func handleDidParseCard(_ card: CardViewModel) {
 
         guard let savedCard = savedCard else {
             self.savedCard = card
