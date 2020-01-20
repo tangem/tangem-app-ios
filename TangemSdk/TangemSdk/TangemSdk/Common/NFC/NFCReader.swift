@@ -25,7 +25,7 @@ public final class NFCReader: NSObject {
     static let nfcStuckTimeout = 5.0
     static let retryCount = 10
     private let loggingEnabled = true
-
+    
     public let enableSessionInvalidateByTimer = true
     
     private let connectedTag = CurrentValueSubject<NFCTagWrapper?,Never>(nil)
@@ -80,7 +80,7 @@ extension NFCReader: CardReader {
         readerSessionError.send(nil)
         connectedTag.send(nil)
         
-        readerSession = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)!
+        readerSession = NFCTagReaderSession(pollingOption: [.iso14443, .iso15693], delegate: self)!
         readerSession!.alertMessage = Localization.nfcAlertDefault
         readerSession!.begin()
         nfcStuckTimer.start()
@@ -108,7 +108,7 @@ extension NFCReader: CardReader {
                 completion(.failure(error))
                 self?.cancelSubscriptions()
             })
-
+        
         let tagSubscription = connectedTag
             .compactMap({ $0 })
             .sink(receiveValue: { [weak self] tagWrapper in
@@ -120,7 +120,12 @@ extension NFCReader: CardReader {
                     let apdu = NFCISO7816APDU(commandApdu)
                     self?.sendCommand(apdu: apdu, to: tag, completion: completion)
                 case .slix2Tag(let tag):
-                    guard commandApdu
+                    if let readInstruction = commandApdu.instruction, readInstruction == .read {
+                        self?.readSlix2Tag(tag, completion: completion)
+                    } else {
+                        completion(.failure(NFCError.unsupportedInstruction))
+                        return
+                    }
                 }
             })
         
@@ -150,7 +155,7 @@ extension NFCReader: CardReader {
                 self.log("skip cancelled")
                 return
             }
-
+            
             if error != nil {
                 if let requestTimestamp = self.requestTimestamp,
                     requestTimestamp.distance(to: Date()) > 1.0 {
@@ -174,6 +179,52 @@ extension NFCReader: CardReader {
                 let responseApdu = ResponseApdu(data, sw1 ,sw2)
                 self.cancelSubscriptions()
                 completion(.success(responseApdu))
+            }
+        }
+    }
+    
+    private func readSlix2Tag(_ tag: NFCISO15693Tag, completion: @escaping (Result<ResponseApdu, NFCError>) -> Void) {
+        tag.readMultipleBlocks(requestFlags: [.highDataRate], blockRange: NSRange(location: 0, length: 40)) { [weak self] data1, error in
+            guard let self = self,
+                let session = self.readerSession,
+                session.isReady else {
+                    return
+            }
+            
+            if let error = error as NSError? {
+                print(error.userInfo)
+                self.readSlix2Tag(tag, completion: completion)
+                print(error.localizedDescription)
+            } else {
+                tag.readMultipleBlocks(requestFlags: [.highDataRate], blockRange: NSRange(location: 40, length: 38)) {[weak self] data2, error in
+                   guard let self = self,
+                        let session = self.readerSession,
+                        session.isReady else {
+                            return
+                    }
+                    
+                    if let error = error as NSError? {
+                        print(error.userInfo)
+                        self.readSlix2Tag(tag, completion: completion)
+                        print(error.localizedDescription)
+                    } else {
+                        let jonedData = Data((data1 + data2).joined())
+                        if let responseApdu = ResponseApdu(slix2Data: jonedData)  {
+                            self.cancelSubscriptions()
+                            completion(.success(responseApdu))
+                        } else {
+                            if self.currentRetryCount > 0 {
+                                self.log("invoke restart by retry count")
+                                self.currentRetryCount -= 1
+                                self.readSlix2Tag(tag, completion: completion)
+                            } else {
+                                self.log("invoke restart by retry count")
+                                self.restartPolling()
+                            }
+                        }
+                        
+                    }
+                }
             }
         }
     }
@@ -213,7 +264,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
                 session.invalidate(errorMessage: nfcError.localizedDescription)
                 return
             }
-            self?.startTagTimer()
+            self?.tagTimer.start()
             switch nfcTag {
             case .iso7816(let tag7816):
                 self?.connectedTag.send(.tag(tag7816))
