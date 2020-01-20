@@ -13,6 +13,7 @@ import CoreNFC
 @available(iOS 13.0, *)
 enum NFCTagWrapper {
     case tag(NFCISO7816Tag)
+    case slix2Tag(NFCISO15693Tag)
     case error(NFCReaderError)
 }
 
@@ -118,6 +119,8 @@ extension NFCReader: CardReader {
                 case .tag(let tag):
                     let apdu = NFCISO7816APDU(commandApdu)
                     self?.sendCommand(apdu: apdu, to: tag, completion: completion)
+                case .slix2Tag(let tag):
+                    guard commandApdu
                 }
             })
         
@@ -205,15 +208,19 @@ extension NFCReader: NFCTagReaderSessionDelegate {
         currentRetryCount = NFCReader.retryCount
         cancelled = false
         let nfcTag = tags.first!
-        if case let .iso7816(tag7816) = nfcTag {
-            session.connect(to: nfcTag) {[weak self] error in
-                guard error == nil else {
-                    session.restartPolling()
-                    return
-                }
-                
-                self?.tagTimer.start()
+        session.connect(to: nfcTag) {[weak self] error in
+            if let nfcError = error as? NFCReaderError {
+                session.invalidate(errorMessage: nfcError.localizedDescription)
+                return
+            }
+            self?.startTagTimer()
+            switch nfcTag {
+            case .iso7816(let tag7816):
                 self?.connectedTag.send(.tag(tag7816))
+            case .iso15693(let tag15693):
+                self?.connectedTag.send(.slix2Tag(tag15693))
+            default:
+                fatalError("Unsupported tag")
             }
         }
     }
