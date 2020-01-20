@@ -322,7 +322,7 @@ public class Card {
         }
         
         if cardEngine.walletType == .slix2 {
-            return "card_tgSLIX"
+            return "card_tgslix"
         }
         
         if let nameFromCardId = imageNameFromCardId {
