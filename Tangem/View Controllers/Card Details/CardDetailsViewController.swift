@@ -266,7 +266,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         let balanceTitle = hasBalance ? Localizations.genuine : Localizations.notFound
         
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
-        setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
+        setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedTag : Localizations.unverifiedBalance)
     }
     
     func handleBalanceLoadedSlix2() {
@@ -287,7 +287,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         let verifyed = claimer.claimStatus != .notGenuine
         viewModel.claimButton.isHidden = false
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
-        setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
+        setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedTag : Localizations.unverifiedBalance)
         
         viewModel.loadButton.isHidden = true
         viewModel.extractButton.isHidden = true
