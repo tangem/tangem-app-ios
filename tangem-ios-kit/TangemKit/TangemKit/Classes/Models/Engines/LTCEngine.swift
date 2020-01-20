@@ -45,7 +45,7 @@ class LTCEngine: BTCEngine {
         return "https://live.blockcypher.com/ltc/address/" + walletAddress
     }
     
-    required init(card: Card) {
+    required init(card: CardViewModel) {
         super.init(card: card)
         currentBackend = .blockcypher
     }
