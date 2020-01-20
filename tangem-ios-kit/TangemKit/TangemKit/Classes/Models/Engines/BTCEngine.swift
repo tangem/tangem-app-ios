@@ -26,7 +26,7 @@ class BTCEngine: CardEngine {
         .btc
     }
     
-    unowned var card: Card
+    unowned var card: CardViewModel
     var currentBackend = BtcBackend.blockchainInfo
     
     private let operationQueue = OperationQueue()
@@ -57,7 +57,7 @@ class BTCEngine: CardEngine {
         return "https://blockchain.info/address/" + walletAddress
     }
     
-    required init(card: Card) {
+    required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
