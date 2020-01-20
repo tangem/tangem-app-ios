@@ -54,7 +54,7 @@ public enum TaskError: Error, LocalizedError {
     case unsupported
     //NFC error
     case readerError(NFCReaderError)
-    case nfcStuck
+    case nfcError(NFCError)
     
     public var localizedDescription: String {
         switch self {
@@ -155,14 +155,14 @@ open class Task<TEvent>: AnyTask {
                 }
             case .failure(let error):
                 switch error {
-                case .stuck:
-                    callback(.failure(TaskError.nfcStuck))
                 case .readerError(let readerError):
                     if readerError.code == .readerSessionInvalidationErrorUserCanceled {
                         callback(.failure(TaskError.userCancelled))
                     } else {
                         callback(.failure(TaskError.readerError(readerError)))
                     }
+                default:
+                      callback(.failure(TaskError.nfcError(error)))
                 }
             }
         }
