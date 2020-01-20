@@ -12,7 +12,7 @@ import TangemKit
 
 class QRCodeViewController: ModalActionViewController {
     
-    var cardDetails: Card?
+    var cardDetails: CardViewModel?
     
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var addressLabel: UILabel!

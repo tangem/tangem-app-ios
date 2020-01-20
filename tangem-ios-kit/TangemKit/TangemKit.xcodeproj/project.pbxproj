@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -77,7 +77,7 @@
 		5D07339A2342590E0033AD6F /* StellarRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B31B42334E3F400D3B92E /* StellarRequestOperation.swift */; };
 		5D07339B2342590E0033AD6F /* BTCCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F7921DE9BC00002E967 /* BTCCardBalanceOperation.swift */; };
 		5D07339C2342590E0033AD6F /* CardanoPendingTransactionsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C80ED92309DC9700333AB3 /* CardanoPendingTransactionsStorage.swift */; };
-		5D07339D2342590E0033AD6F /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6A21DE9BC00002E967 /* Card.swift */; };
+		5D07339D2342590E0033AD6F /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6A21DE9BC00002E967 /* CardViewModel.swift */; };
 		5D07339E2342590E0033AD6F /* TLVReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE10AFF22D8D0CD00BC45B9 /* TLVReader.swift */; };
 		5D07339F2342590E0033AD6F /* CardSW.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D48752622DC9E2400F690BE /* CardSW.swift */; };
 		5D0733A02342590E0033AD6F /* CardanoEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80EABF09222DD32800E1302A /* CardanoEngine.swift */; };
@@ -169,6 +169,7 @@
 		5D11115822F0691E009919D1 /* secp256k1.h in Headers */ = {isa = PBXBuildFile; fileRef = 806C4F6221DE9BC00002E967 /* secp256k1.h */; };
 		5D11115922F0691E009919D1 /* ecmult_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6321DE9BC00002E967 /* ecmult_impl.swift */; };
 		5D11115A22F0691E009919D1 /* PBInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6421DE9BC00002E967 /* PBInt.swift */; };
+		5D2B378B23D5E1140005DB96 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 5D2B378A23D5E1140005DB96 /* secp256k1 */; };
 		5D36645E238FC12B0089F442 /* CardReadSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D36645D238FC12B0089F442 /* CardReadSession.swift */; };
 		5D379F19237AA5D80093B074 /* SegWitBech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D379F18237AA5D80093B074 /* SegWitBech32.swift */; };
 		5D3DBF5C2310194F0065D96A /* CardanoUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */; };
@@ -265,7 +266,7 @@
 		806C4FA221DE9BC00002E967 /* RIPEMD160.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6521DE9BC00002E967 /* RIPEMD160.swift */; };
 		806C4FA321DE9BC00002E967 /* TangemSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6621DE9BC00002E967 /* TangemSession.swift */; };
 		806C4FA521DE9BC00002E967 /* TangemAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6921DE9BC00002E967 /* TangemAPIClient.swift */; };
-		806C4FA621DE9BC00002E967 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6A21DE9BC00002E967 /* Card.swift */; };
+		806C4FA621DE9BC00002E967 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6A21DE9BC00002E967 /* CardViewModel.swift */; };
 		806C4FA721DE9BC00002E967 /* CardNetworkDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6B21DE9BC00002E967 /* CardNetworkDetails.swift */; };
 		806C4FA821DE9BC00002E967 /* CardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6C21DE9BC00002E967 /* CardScanner.swift */; };
 		806C4FA921DE9BC00002E967 /* CardDetailsNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6F21DE9BC00002E967 /* CardDetailsNetworkOperation.swift */; };
@@ -435,7 +436,7 @@
 		806C4F6521DE9BC00002E967 /* RIPEMD160.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RIPEMD160.swift; sourceTree = "<group>"; };
 		806C4F6621DE9BC00002E967 /* TangemSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSession.swift; sourceTree = "<group>"; };
 		806C4F6921DE9BC00002E967 /* TangemAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemAPIClient.swift; sourceTree = "<group>"; };
-		806C4F6A21DE9BC00002E967 /* Card.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		806C4F6A21DE9BC00002E967 /* CardViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		806C4F6B21DE9BC00002E967 /* CardNetworkDetails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardNetworkDetails.swift; sourceTree = "<group>"; };
 		806C4F6C21DE9BC00002E967 /* CardScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardScanner.swift; sourceTree = "<group>"; };
 		806C4F6F21DE9BC00002E967 /* CardDetailsNetworkOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardDetailsNetworkOperation.swift; sourceTree = "<group>"; };
@@ -495,6 +496,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5DD88A44231D606E009BA4EA /* CoreNFC.framework in Frameworks */,
+				5D2B378B23D5E1140005DB96 /* secp256k1 in Frameworks */,
 				E3C96F326DCA2FF201BEAC33 /* Pods_TangemKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -809,7 +811,7 @@
 				8013A66723020AD8007896A6 /* Transactions */,
 				80EABF0C222DD83600E1302A /* Engines */,
 				806C4F6921DE9BC00002E967 /* TangemAPIClient.swift */,
-				806C4F6A21DE9BC00002E967 /* Card.swift */,
+				806C4F6A21DE9BC00002E967 /* CardViewModel.swift */,
 				806C4F6B21DE9BC00002E967 /* CardNetworkDetails.swift */,
 				806C4F6C21DE9BC00002E967 /* CardScanner.swift */,
 			);
@@ -1005,6 +1007,9 @@
 			dependencies = (
 			);
 			name = TangemKit;
+			packageProductDependencies = (
+				5D2B378A23D5E1140005DB96 /* secp256k1 */,
+			);
 			productName = TangemKit;
 			productReference = 806C4F2521DE9B870002E967 /* TangemKit.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1055,6 +1060,9 @@
 				fr,
 			);
 			mainGroup = 806C4F1B21DE9B870002E967;
+			packageReferences = (
+				5D2B378923D5E1140005DB96 /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
+			);
 			productRefGroup = 806C4F2621DE9B870002E967 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1216,7 +1224,7 @@
 				5D07339A2342590E0033AD6F /* StellarRequestOperation.swift in Sources */,
 				5D07339B2342590E0033AD6F /* BTCCardBalanceOperation.swift in Sources */,
 				5D07339C2342590E0033AD6F /* CardanoPendingTransactionsStorage.swift in Sources */,
-				5D07339D2342590E0033AD6F /* Card.swift in Sources */,
+				5D07339D2342590E0033AD6F /* CardViewModel.swift in Sources */,
 				5D07339E2342590E0033AD6F /* TLVReader.swift in Sources */,
 				5D07339F2342590E0033AD6F /* CardSW.swift in Sources */,
 				5D0733A02342590E0033AD6F /* CardanoEngine.swift in Sources */,
@@ -1352,7 +1360,7 @@
 				5D4B31B52334E3F400D3B92E /* StellarRequestOperation.swift in Sources */,
 				806C4FB121DE9BC00002E967 /* BTCCardBalanceOperation.swift in Sources */,
 				80C80EDA2309DC9700333AB3 /* CardanoPendingTransactionsStorage.swift in Sources */,
-				806C4FA621DE9BC00002E967 /* Card.swift in Sources */,
+				806C4FA621DE9BC00002E967 /* CardViewModel.swift in Sources */,
 				5DE10B0022D8D0CD00BC45B9 /* TLVReader.swift in Sources */,
 				5D48752722DC9E2400F690BE /* CardSW.swift in Sources */,
 				80EABF0B222DD32800E1302A /* CardanoEngine.swift in Sources */,
@@ -1791,6 +1799,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5D2B378923D5E1140005DB96 /* XCRemoteSwiftPackageReference "secp256k1.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Boilertalk/secp256k1.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5D2B378A23D5E1140005DB96 /* secp256k1 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5D2B378923D5E1140005DB96 /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
+			productName = secp256k1;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 806C4F1C21DE9B870002E967 /* Project object */;
 }
