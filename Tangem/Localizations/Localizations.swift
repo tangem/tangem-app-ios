@@ -468,6 +468,7 @@ class Localizations {
   // MARK: - IOS
     
     static let verifiedBalance = translate("common_verified_balance")
+    static let verifiedTag = translate("common_verified_tag")
     static let unverifiedBalance = translate("common_unverified_balance")
     static let disclamerNoWalletCreation = translate("disclamer_no_wallet_creation")
     
