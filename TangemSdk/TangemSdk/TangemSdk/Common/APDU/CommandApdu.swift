@@ -13,6 +13,7 @@ import CoreNFC
 /// Class that provides conversion of serialized request and Instruction code
 /// to a raw data that can be sent to the card.
 public struct CommandApdu: Equatable {
+    public var instruction: Instruction? { Instruction(rawValue: ins) }
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
     /// 4 - Timeout setting for ping nfc-module
     private static let legacyModeTlv = Tlv(.legacyMode, value: Data([Byte(4)]))
