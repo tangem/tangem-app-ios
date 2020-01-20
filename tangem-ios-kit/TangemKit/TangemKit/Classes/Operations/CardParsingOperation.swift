@@ -11,7 +11,7 @@ import UIKit
 class CardParsingOperation: Operation {
 
     enum CardParsingResult {
-        case success(Card)
+        case success(CardViewModel)
         case tlvError
         case locked
     }
@@ -75,7 +75,7 @@ class CardParsingOperation: Operation {
             tlvArray.append(tlv)
         }
 
-        let card = Card(tags: tlvArray)
+        let card = CardViewModel(tags: tlvArray)
         card.ribbonCase = checkRibbonCase(card)
 
         completeOperationWith(result: CardParsingResult.success(card))
