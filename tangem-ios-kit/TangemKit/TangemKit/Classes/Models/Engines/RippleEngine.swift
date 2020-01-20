@@ -11,7 +11,7 @@ import CryptoSwift
 
 public class RippleEngine: CardEngine {
     
-    unowned public var card: Card
+    unowned public var card: CardViewModel
     
     public var blockchainDisplayName: String {
         return "Ripple"
@@ -35,7 +35,7 @@ public class RippleEngine: CardEngine {
         return "https://xrpscan.com/account/" + walletAddress
     }
     
-    public required init(card: Card) {
+    public required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
