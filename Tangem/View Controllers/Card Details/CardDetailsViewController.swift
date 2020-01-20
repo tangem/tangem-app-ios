@@ -59,7 +59,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
     }
     
-    func updateBalance() {
+    func updateBalance(forceUnverifyed: Bool = false) {
         guard let card = card else {
             assertionFailure()
             return
@@ -72,7 +72,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         self.isBalanceLoading = true
         self.viewModel.setWalletInfoLoading(true)
-        fetchWalletBalance(card: card)
+        fetchWalletBalance(card: card, forceUnverifyed: forceUnverifyed)
         
     }
     
@@ -104,7 +104,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         operationQueue.addOperation(operation)
     }
     
-    func fetchWalletBalance(card: Card) {
+    func fetchWalletBalance(card: Card, forceUnverifyed: Bool = false) {
         
         guard card.isWallet else {
             isBalanceLoading = false
@@ -120,7 +120,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             } else if card.type == .slix2 {
                 self.handleBalanceLoadedSlix2()
             } else {
-                self.handleBalanceLoaded()
+                self.handleBalanceLoaded(forceUnverifyed)
             }
             
             self.isBalanceLoading = false
@@ -200,7 +200,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
     }
     
-    func handleBalanceLoaded() {
+    func handleBalanceLoaded(_ forceUnverifyed: Bool) {
         guard let card = card else {
             assertionFailure()
             return
@@ -239,7 +239,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        guard !card.hasPendingTransactions else {
+        guard !forceUnverifyed && !card.hasPendingTransactions else {
             setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
             return
         }
@@ -565,6 +565,7 @@ extension CardDetailsViewController {
                 
                 if card.hasPendingTransactions  {
                     self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+                    self.updateBalance(forceUnverifyed: true)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
                         guard let self = self, !self.isBalanceVerified else {
