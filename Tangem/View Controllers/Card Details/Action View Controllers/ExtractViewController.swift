@@ -16,7 +16,7 @@ import TangemKit
 
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
-    var card: Card!
+    var card: CardViewModel!
     var onDone: (()-> Void)?
     
     @IBOutlet weak var titleLabel: UILabel! {
