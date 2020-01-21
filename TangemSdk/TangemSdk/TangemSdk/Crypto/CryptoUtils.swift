@@ -44,22 +44,22 @@ public final class CryptoUtils {
             
             defer { secp256k1_context_destroy(ctx) }
             
-            let hashedMessage = message.sha256()
+            let hashedMessage = message.getSha256()
             var sig = secp256k1_ecdsa_signature()
             var normalized = secp256k1_ecdsa_signature()
-            guard secp256k1_ecdsa_signature_parse_compact(ctx, &sig, signature.bytes) == 1 else { return nil }
+            guard secp256k1_ecdsa_signature_parse_compact(ctx, &sig, signature.toBytes) == 1 else { return nil }
             
             _ = secp256k1_ecdsa_signature_normalize(ctx, &normalized, &sig)
             var pubkey = secp256k1_pubkey()
-            guard secp256k1_ec_pubkey_parse(ctx, &pubkey, publicKey.bytes, 65) == 1 else { return nil }
+            guard secp256k1_ec_pubkey_parse(ctx, &pubkey, publicKey.toBytes, 65) == 1 else { return nil }
             
-            let result = secp256k1_ecdsa_verify(ctx, &normalized, hashedMessage.bytes, &pubkey) == 1
+            let result = secp256k1_ecdsa_verify(ctx, &normalized, hashedMessage.toBytes, &pubkey) == 1
             return result
         case .ed25519:
-            guard let edPublicKey = try? PublicKey(publicKey.bytes) else { return nil }
+            guard let edPublicKey = try? PublicKey(publicKey.toBytes) else { return nil }
             
-            let hashedMessage = message.sha512()
-            guard let result = try? edPublicKey.verify(signature: signature.bytes, message: hashedMessage.bytes) else {
+            let hashedMessage = message.getSha512()
+            guard let result = try? edPublicKey.verify(signature: signature.toBytes, message: hashedMessage.toBytes) else {
                 return nil
             }
             
@@ -81,7 +81,7 @@ public final class CryptoUtils {
         defer { secp256k1_context_destroy(ctx) }
         
         var signature = secp256k1_ecdsa_signature()
-        let result = secp256k1_ecdsa_sign(ctx, &signature, Array(data.sha256()), Array(key), nil, nil)
+        let result = secp256k1_ecdsa_sign(ctx, &signature, Array(data.getSha256()), Array(key), nil, nil)
         guard result == 1 else {
             return nil
         }
