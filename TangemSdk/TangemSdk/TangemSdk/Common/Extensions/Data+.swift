@@ -12,7 +12,7 @@ import CommonCrypto
 
 
 extension Data {
-    public func getHexString() -> String {
+    public func asHexString() -> String {
         return self.map { return String(format: "%02X", $0) }.joined()
     }
     
