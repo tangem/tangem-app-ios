@@ -81,7 +81,7 @@ public final class TlvMapper {
                 throw TlvMapperError.wrongType
             }
             
-            let hexString = tagValue.getHexString()
+            let hexString = tagValue.asHexString()
             return hexString as! T
         case .utf8String:
             guard String.self == T.self || String?.self == T.self else {
