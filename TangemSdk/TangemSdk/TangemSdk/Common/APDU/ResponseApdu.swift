@@ -47,7 +47,7 @@ extension ResponseApdu {
         if let ndefTlv = Tlv.deserialize(ndefTlvData),
             let ndefValue = ndefTlv.value(for: .cardPublicKey),
             let ndefMessage = NFCNDEFMessage(data: Data(ndefValue)) {
-               print(ndefValue.toHexString())
+               print(ndefValue.asHexString())
             let payloads = ndefMessage.records.filter({ String(data: $0.type, encoding: String.Encoding.utf8) == NDEFReader.tangemWalletRecordType})
             if let payload = payloads.first?.payload  {
                 self.init(payload, Byte(0x90), Byte(0x00))
