@@ -116,10 +116,10 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                     }
                     
                     if self.card!.genuinityState == .genuine {
-                            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
                     } else {
-                        handleNonGenuineTangemCard(self.card!) {
-                            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+                        self.handleNonGenuineTangemCard(self.card!) {
+                            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
                         }
                     }
                     
