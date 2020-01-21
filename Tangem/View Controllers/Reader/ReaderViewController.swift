@@ -8,16 +8,14 @@
 
 import UIKit
 import TangemKit
+import TangemSdk
 
-class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErrorAlertsCapable {
+class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     
     var customPresentationController: CustomPresentationController?
     
-    let operationQueue = OperationQueue()
-    
-    lazy var tangemSession = {
-        return TangemSession(delegate: self)
-    }()
+    var cardManager = CardManager()
+    private var card: CardViewModel?
     
     @IBOutlet weak var storeTitleLabel: UILabel! {
         didSet {
@@ -90,83 +88,43 @@ class ReaderViewController: UIViewController, TestCardParsingCapable, DefaultErr
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        card = nil
+        hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
-        #if targetEnvironment(simulator)
-        showSimulationSheet()
-        #else
-        tangemSession.start()
-        #endif
-    }
-    
-    /* @IBAction func moreButtonPressed(_ sender: Any) {
-     guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ReaderMoreViewController") as? ReaderMoreViewController else {
-     return
-     }
-     
-     viewController.contentText = "Tangem for iOS\nVersion \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")!)"
-     
-     let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
-     self.customPresentationController = presentationController
-     viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
-     viewController.transitioningDelegate = presentationController
-     self.present(viewController, animated: true, completion: nil)
-     }*/
-    
-    func launchSimulationParsingOperationWith(payload: Data) {
-        tangemSession.payload = payload
-        tangemSession.start()
-    }
-}
-
-extension ReaderViewController : TangemSessionDelegate {
-    
-    func tangemSessionDidRead(card: CardViewModel) {
-        //        guard card.isBlockchainKnown /*&& !card.isTestBlockchain*/ else {
-        //            handleUnknownBlockchainCard()
-        //            DispatchQueue.main.async {
-        //                self.hintLabel.text = Localizations.readerHintDefault
-        //            }
-        //            return
-        //        }
-        switch card.genuinityState {
-        case .pending:
-            self.hintLabel.text = Localizations.readerHintScan
-        case .nonGenuine:
-            DispatchQueue.main.async {
+        cardManager.scanCard {[unowned self] taskEvent in
+            switch taskEvent {
+            case .event(let scanEvent):
+                switch scanEvent {
+                case .onRead(let card):
+                    self.card = CardViewModel(card)
+                case .onVerify(let isGenuine):
+                    self.card?.genuinityState = isGenuine ? .genuine : .nonGenuine
+                }
+            case .completion(let error):
                 self.scanButton.hideActivityIndicator()
+                self.hintLabel.text = Localizations.readerHintDefault
+                if let error = error {
+                    if case .userCancelled = error {
+                        //silence user cancelled
+                    } else {
+                        self.handleGenericError(error)
+                    }
+                } else {
+                    guard self.card!.isBlockchainKnown else {
+                        self.handleUnknownBlockchainCard()
+                        return
+                    }
+                    
+                    if self.card!.genuinityState == .genuine {
+                            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+                    } else {
+                        handleNonGenuineTangemCard(self.card!) {
+                            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
+                        }
+                    }
+                    
+                }
             }
-            handleNonGenuineTangemCard(card) {
-                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
-            }
-        case .genuine:
-            DispatchQueue.main.async {
-                self.scanButton.hideActivityIndicator()
-            }
-            guard card.isBlockchainKnown else {
-                handleUnknownBlockchainCard()
-                return
-            }
-            
-            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: card)
-        }
-    }
-    
-    func tangemSessionDidFailWith(error: TangemSessionError) {
-        
-        switch error {
-        case .locked:
-            handleCardParserLockedCard()
-        case .payloadError:
-            handleCardParserWrongTLV()
-        case .readerSessionError(let readerError):
-            handleGenericError(readerError)
-        case .userCancelled:
-            break
-        }
-        
-        DispatchQueue.main.async {
-            self.scanButton.hideActivityIndicator()
-            self.hintLabel.text = Localizations.readerHintDefault
         }
     }
     
