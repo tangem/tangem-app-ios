@@ -24,6 +24,7 @@ public final class NFCReader: NSObject {
     static let sessionTimeout = 52.0
     static let nfcStuckTimeout = 5.0
     static let retryCount = 10
+    static let timestampTolerance = 2.0
     private let loggingEnabled = true
     
     public let enableSessionInvalidateByTimer = true
@@ -151,6 +152,7 @@ extension NFCReader: CardReader {
                     return
             }
             
+            self.log("receive response")
             guard !self.cancelled else {
                 self.log("skip cancelled")
                 return
@@ -158,16 +160,15 @@ extension NFCReader: CardReader {
             
             if error != nil {
                 if let requestTimestamp = self.requestTimestamp,
-                    requestTimestamp.distance(to: Date()) > 1.0 {
-                    self.cancelled = true
+                    requestTimestamp.distance(to: Date()) > NFCReader.timestampTolerance {
                     self.log("invoke restart polling by timestamp")
                     self.restartPolling()
                     return
                 }
                 
                 if self.currentRetryCount > 0 {
-                    self.log("invoke restart by retry count")
                     self.currentRetryCount -= 1
+                    self.log("retry")
                     self.sendCommand(apdu: apdu, to: tag, completion: completion)
                 } else {
                     self.log("invoke restart by retry count")
@@ -175,6 +176,7 @@ extension NFCReader: CardReader {
                 }
                 
             } else {
+                self.log("success response")
                 self.currentRetryCount = NFCReader.retryCount
                 let responseApdu = ResponseApdu(data, sw1 ,sw2)
                 self.cancelSubscriptions()
@@ -214,7 +216,7 @@ extension NFCReader: CardReader {
                             completion(.success(responseApdu))
                         } else {
                             if self.currentRetryCount > 0 {
-                                self.log("invoke restart by retry count")
+                                self.log("retry")
                                 self.currentRetryCount -= 1
                                 self.readSlix2Tag(tag, completion: completion)
                             } else {
@@ -260,8 +262,8 @@ extension NFCReader: NFCTagReaderSessionDelegate {
         cancelled = false
         let nfcTag = tags.first!
         session.connect(to: nfcTag) {[weak self] error in
-            if let nfcError = error as? NFCReaderError {
-                session.invalidate(errorMessage: nfcError.localizedDescription)
+            guard error == nil else {
+                session.restartPolling()
                 return
             }
             self?.tagTimer.start()
