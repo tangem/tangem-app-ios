@@ -56,7 +56,7 @@ public final class WriteIssuerDataCommand: CommandSerializer {
     
     public func serialize(with environment: CardEnvironment) -> CommandApdu {
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
-                       Tlv(.cardId, value: Data(hex: cardId)),
+                       Tlv(.cardId, value: Data(hexString: cardId)),
                        Tlv(.issuerData, value: issuerData),
                        Tlv(.issuerDataSignature, value: issuerDataSignature)]
         
