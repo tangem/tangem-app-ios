@@ -22,13 +22,13 @@ public struct SigningMethod: OptionSet {
         }
     }
     
-    static let signHash = SigningMethod(rawValue: 0b10000000|(1 << 0))
-    static let signRaw = SigningMethod(rawValue: 0b10000000|(1 << 1))
-    static let signHashSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 2))
-    static let signRawSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 3))
-    static let signHashSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 4))
-    static let signRawSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 5))
-    static let signPos = SigningMethod(rawValue: 0b10000000|(1 << 6))
+    public static let signHash = SigningMethod(rawValue: 0b10000000|(1 << 0))
+    public static let signRaw = SigningMethod(rawValue: 0b10000000|(1 << 1))
+    public static let signHashSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 2))
+    public static let signRawSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 3))
+    public static let signHashSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 4))
+    public static let signRawSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 5))
+    public static let signPos = SigningMethod(rawValue: 0b10000000|(1 << 6))
 }
 
 /// Elliptic curve used for wallet key operations.
@@ -247,7 +247,7 @@ public final class ReadCommand: CommandSerializer {
             manufactureDateTime: try mapper.mapOptional(.manufactureDateTime),
             issuerName: try mapper.mapOptional(.issuerName),
             blockchainName: try mapper.mapOptional(.blockchainName),
-            manufacturerSignature: try mapper.mapOptional(.manufacturerSignature),
+            manufacturerSignature: try mapper.mapOptional(.cardIDManufacturerSignature),
             productMask: try mapper.mapOptional(.productMask),
             tokenSymbol: try mapper.mapOptional(.tokenSymbol),
             tokenContractAddress: try mapper.mapOptional(.tokenContractAddress),
