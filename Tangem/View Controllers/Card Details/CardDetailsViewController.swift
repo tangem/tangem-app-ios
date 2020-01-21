@@ -181,24 +181,24 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         }
     }
     
-    func verifySignature(card: CardViewModel) {
-        viewModel.balanceVerificationActivityIndicator.startAnimating()
-        do {
-            let operation = try card.signatureVerificationOperation { (isGenuineCard) in
-                self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
-                self.setupBalanceVerified(isGenuineCard)
-                
-                if !isGenuineCard {
-                    self.handleNonGenuineTangemCard(card)
-                }
-            }
-            
-            operationQueue.addOperation(operation)
-        } catch {
-            print("\(Localizations.signatureVerificationError): \(error)")
-        }
-        
-    }
+//    func verifySignature(card: CardViewModel) {
+//        viewModel.balanceVerificationActivityIndicator.startAnimating()
+//        do {
+//            let operation = try card.signatureVerificationOperation { (isGenuineCard) in
+//                self.viewModel.balanceVerificationActivityIndicator.stopAnimating()
+//                self.setupBalanceVerified(isGenuineCard)
+//
+//                if !isGenuineCard {
+//                    self.handleNonGenuineTangemCard(card)
+//                }
+//            }
+//
+//            operationQueue.addOperation(operation)
+//        } catch {
+//            print("\(Localizations.signatureVerificationError): \(error)")
+//        }
+//
+//    }
     
     func handleBalanceLoaded(_ forceUnverifyed: Bool) {
         guard let card = card else {
@@ -244,16 +244,16 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        if #available(iOS 13.0, *) {
+//        if #available(iOS 13.0, *) {
             setupBalanceVerified(true, customText: card.isTestBlockchain ? Localizations.testBlockchain: nil)
-        } else {            
-            if card.type == .cardano {
-                setupBalanceVerified(true, customText: card.isTestBlockchain ? Localizations.testBlockchain: nil)
-            } else {
-                verifySignature(card: card)
-                setupBalanceIsBeingVerified()
-            }
-        }
+//        } else {
+//            if card.type == .cardano {
+//                setupBalanceVerified(true, customText: card.isTestBlockchain ? Localizations.testBlockchain: nil)
+//            } else {
+//                verifySignature(card: card)
+//                setupBalanceIsBeingVerified()
+//            }
+//        }
     }
     
     func handleBalanceLoadedNFT() {
