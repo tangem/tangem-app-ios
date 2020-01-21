@@ -121,7 +121,7 @@ extension NFCReader: CardReader {
                     let apdu = NFCISO7816APDU(commandApdu)
                     self?.sendCommand(apdu: apdu, to: tag, completion: completion)
                 case .slix2Tag(let tag):
-                    if let readInstruction = commandApdu.instruction, readInstruction == .read {
+                    if let commandInstruction = commandApdu.instruction, commandInstruction == .read {
                         self?.readSlix2Tag(tag, completion: completion)
                     } else {
                         completion(.failure(NFCError.unsupportedInstruction))
