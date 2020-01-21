@@ -379,7 +379,7 @@ public class CardViewModel {
         return cardEngine.qrCodePreffix + address
     }
     
-    init(_ card: Card) {
+    public init(_ card: Card) {
         cardID = card.cardId ?? ""
         cardPublicKey = card.cardPublicKey?.hex ?? ""
         firmware = card.firmwareVersion  ?? ""
@@ -388,9 +388,9 @@ public class CardViewModel {
         issuer = card.cardData?.issuerName ?? ""
         manufactureId = card.manufacturerName ?? ""
         blockchainName = card.cardData?.blockchainName ?? ""
-        tokenSymbol = card.cardData?.tokenSymbol ?? ""
-        tokenContractAddressPrivate = card.cardData?.tokenContractAddress ?? ""
-        tokenDecimal = card.cardData?.tokenDecimal ?? 0
+        tokenSymbol = card.cardData?.tokenSymbol
+        tokenContractAddressPrivate = card.cardData?.tokenContractAddress
+        tokenDecimal = card.cardData?.tokenDecimal
         manufactureSignature = card.cardData?.manufacturerSignature?.hex ?? ""
         walletPublicKey = card.walletPublicKey?.hex ??  ""
         walletPublicKeyBytesArray = card.walletPublicKey?.bytes ?? []
