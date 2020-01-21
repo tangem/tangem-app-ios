@@ -81,7 +81,7 @@ public final class TlvMapper {
                 throw TlvMapperError.wrongType
             }
             
-            let hexString = tagValue.toHexString()
+            let hexString = tagValue.getHexString()
             return hexString as! T
         case .utf8String:
             guard String.self == T.self || String?.self == T.self else {
@@ -149,7 +149,7 @@ public final class TlvMapper {
                 throw TlvMapperError.wrongType
             }
             
-            guard let byte = tagValue.bytes.first,
+            guard let byte = tagValue.toBytes.first,
                 let productMask = ProductMask(rawValue: byte) else {
                     print("Mapping error. Failed convert \(tag) to ProductMask")
                     throw TlvMapperError.convertError
