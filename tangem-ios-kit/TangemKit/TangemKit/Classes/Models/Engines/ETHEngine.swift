@@ -21,7 +21,7 @@ class ETHEngine: CardEngine {
     
     var mainNetURL: String { TokenNetwork.eth.rawValue }
     
-    unowned var card: Card
+    unowned var card: CardViewModel
     
     private var transaction: EthereumTransaction?
     private var hashForSign: Data?
@@ -52,7 +52,7 @@ class ETHEngine: CardEngine {
         return "https://etherscan.io/address/" + walletAddress
     }
     
-    required init(card: Card) {
+    required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
