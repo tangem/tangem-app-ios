@@ -20,6 +20,8 @@ enum NFCTagWrapper {
 /// Provides NFC communication between an application and Tangem card.
 @available(iOS 13.0, *)
 public final class NFCReader: NSObject {
+    public var tagDidConnect: (() -> Void)?
+    
     static let tagTimeout = 18.0
     static let sessionTimeout = 52.0
     static let nfcStuckTimeout = 5.0
@@ -253,6 +255,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
+        tagDidConnect?()
         currentRetryCount = NFCReader.retryCount
         cancelled = false
         let nfcTag = tags.first!
