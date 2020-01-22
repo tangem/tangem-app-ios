@@ -14,12 +14,17 @@ import CoreNFC
 public protocol CardReader: class {
     /// For setting alertMessage into NFC popup
     var alertMessage: String {get set}
-    
+    var tagDidConnect: (() -> Void)? {get set}
     func startSession()
-    func stopSession()
-    func stopSession(errorMessage: String)
-    func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu,NFCReaderError>) -> Void)
+    func stopSession(errorMessage: String?)
+    func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu,NFCError>) -> Void)
     func restartPolling()
+}
+
+extension CardReader {
+    func stopSession(errorMessage: String? = nil) {
+        stopSession(errorMessage: nil)
+    }
 }
 
 class CardReaderFactory {
@@ -30,4 +35,9 @@ class CardReaderFactory {
             return NDEFReader()
         }
     }
+}
+
+public enum NFCError: Error {
+    case stuck
+    case readerError(underlyingError: NFCReaderError)
 }
