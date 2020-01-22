@@ -13,8 +13,10 @@ import CoreNFC
 public final class NDEFReader: NSObject {
     static let tangemWalletRecordType = "tangem.com:wallet"
     
+    public var tagDidConnect: (() -> Void)?
+    
     private var readerSession: NFCNDEFReaderSession?
-    private var completion: ((Result<ResponseApdu, NFCReaderError>) -> Void)?
+    private var completion: ((Result<ResponseApdu, NFCError>) -> Void)?
 }
 
 extension NDEFReader: NFCNDEFReaderSessionDelegate {
@@ -22,11 +24,12 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
         let nfcError = error as! NFCReaderError
         
         if nfcError.code != .readerSessionInvalidationErrorFirstNDEFTagRead {
-            completion?(.failure(nfcError))
+            completion?(.failure(NFCError.readerError(underlyingError: nfcError)))
         }
     }
     
     public func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
+        tagDidConnect?()
         let bytes: [Byte] = messages.flatMap { message -> [NFCNDEFPayload] in
             return message.records
         }.filter{ record -> Bool in
@@ -36,7 +39,7 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
             
             return recordType == NDEFReader.tangemWalletRecordType
         }.flatMap { ndefPayload -> [Byte] in
-            return ndefPayload.payload.bytes
+            return ndefPayload.payload.toBytes
         }
         
         guard bytes.count > 2 else {
@@ -62,16 +65,12 @@ extension NDEFReader: CardReader {
         set { readerSession?.alertMessage = newValue }
     }
     
-    public func stopSession() {
+    public func stopSession(errorMessage: String? = nil) {
         completion = nil
         readerSession?.invalidate()
     }
     
-    public func stopSession(errorMessage: String) {
-        stopSession()
-    }
-    
-    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, NFCReaderError>) -> Void) {
+    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, NFCError>) -> Void) {
         self.completion = completion
         readerSession = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: true)
         readerSession!.alertMessage = Localization.nfcAlertDefault
