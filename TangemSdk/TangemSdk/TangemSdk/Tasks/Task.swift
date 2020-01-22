@@ -94,6 +94,12 @@ open class Task<TEvent>: AnyTask {
             fatalError("Card reader is nil")
         }
         
+        if delegate != nil {
+            reader.tagDidConnect = { [weak self] in
+                self?.delegate?.tagDidConnect()
+            }
+        }
+        
         reader.startSession()
         onRun(environment: environment, callback: callback)
     }
