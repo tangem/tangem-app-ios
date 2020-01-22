@@ -18,7 +18,16 @@ public class XlmEngine: CardEngine {
     }()
     
     public var blockchainDisplayName: String {
-        return card.tokenSymbol ?? "Stellar"
+        if walletType == .slix2 {
+            return
+                """
+                Tangem TAG
+                Stellar NFT token
+                """
+        }
+        else {
+            return card.tokenSymbol ?? "Stellar"
+        }
     }
     
     public var walletType: WalletType {
