@@ -12,7 +12,7 @@ import BinanceChain
 class BinanceEngine: CardEngine {
     let txBuilder: BinanceTransactionBuilder
     private var latestTxDate: Date?
-    unowned var card: Card
+    unowned var card: CardViewModel
     var binance: BinanceChain!
     private var hashesToSign: Data?
     var blockchainDisplayName: String {
@@ -36,7 +36,7 @@ class BinanceEngine: CardEngine {
         return "https://explorer.binance.org/address/" + walletAddress
     }
     
-    required init(card: Card) {
+    required init(card: CardViewModel) {
         self.card = card
         txBuilder = BinanceTransactionBuilder()
         if card.isWallet {
