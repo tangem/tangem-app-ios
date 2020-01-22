@@ -60,6 +60,10 @@ public enum TaskError: Error, LocalizedError {
         switch self {
         case .readerError(let nfcError):
             return nfcError.localizedDescription
+        case .genericError(let error):
+            return error.localizedDescription
+        case .nfcError(let nfcError):
+            return nfcError.localizedDescription
         default:
             return "\(self)"
         }
