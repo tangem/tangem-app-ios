@@ -14,7 +14,7 @@ import GBAsyncOperation
 
 class CardanoTests: XCTestCase {
     
-    var currentValidationBlock: ((Card) -> Void)?
+    var currentValidationBlock: ((CardViewModel) -> Void)?
     var session: TangemSession?
     var currentExpectation: XCTestExpectation?
     let operationQueue = OperationQueue()
@@ -59,7 +59,7 @@ class CardanoTests: XCTestCase {
                                              walletBalance: "781667",
                                              feeValue: dummyFee,
                                              isIncludeFee: true)
-        let card = Card()
+        let card = CardViewModel()
         card.walletPublicKey = "8780FB9AA75982EFE9A3A2A33C95884171AB90A08EB6220C88F06085312B135E"
         card.walletPublicKeyBytesArray = Array(card.walletPublicKey.hexData()!)
         let engine = CardanoEngine(card: card)
@@ -116,8 +116,8 @@ class CardanoTests: XCTestCase {
     func testPendingTransactionsStorage() {
         let expectation = XCTestExpectation(description: "Card values parsing check")
         
-        var firstCard: Card!
-        var secondCard: Card!
+        var firstCard: CardViewModel!
+        var secondCard: CardViewModel!
         
         let storage = CardanoPendingTransactionsStorage.shared
         let expirationTimeoutSeconds: Int = 60
@@ -215,7 +215,7 @@ class CardanoTests: XCTestCase {
 
 extension CardanoTests {
     
-    func validateCardWith(payload: Data, validationBlock: @escaping (Card) -> Void) {
+    func validateCardWith(payload: Data, validationBlock: @escaping (CardViewModel) -> Void) {
         currentValidationBlock = validationBlock
         
         session = TangemSession(payload: payload, delegate: self)
@@ -226,7 +226,7 @@ extension CardanoTests {
 
 extension CardanoTests: TangemSessionDelegate {
     
-    func tangemSessionDidRead(card: Card) {
+    func tangemSessionDidRead(card: CardViewModel) {
         currentValidationBlock?(card)
     }
     
