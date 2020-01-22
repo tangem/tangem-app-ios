@@ -18,12 +18,12 @@ class ByteUtilsTests: XCTestCase {
     }
     
     func testInputStream() {
-        let data = Data(hex: "00010203040506")
+        let data = Data(hexString: "00010203040506")
         let inputStream = InputStream(data: data)
         inputStream.open()
         let bytes = inputStream.readBytes(count: 4)
         XCTAssertNotNil(bytes)
-        XCTAssertEqual(bytes!, Data(hex: "00010203"))
+        XCTAssertEqual(bytes!, Data(hexString: "00010203"))
         let oneMoreByte = inputStream.readByte()
         XCTAssertNotNil(oneMoreByte)
         XCTAssertEqual(oneMoreByte!, UInt8(0x04))
