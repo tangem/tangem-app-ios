@@ -57,10 +57,18 @@ public class CardSubstitutionInfoOperation: GBAsyncOperation {
             appArtworkHash == result.artwork?.hash {
             completeOperation()
         } else {
+            let cardId = result.cardId.lowercased()
+            if cardId.starts(with: "bc") {
+                let id =  "card_\(cardId[cardId.startIndex...cardId.index(cardId.startIndex, offsetBy: 3)])"
+                fetchArtwork(artworkId: id)
+                return
+            }
+            
             guard let artworkId = result.artwork?.artworkId else {
                 completeOperation()
                 return
             }
+            
             fetchArtwork(artworkId: artworkId)
         }
     }
