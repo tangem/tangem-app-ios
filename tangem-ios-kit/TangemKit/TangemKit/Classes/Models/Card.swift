@@ -289,6 +289,11 @@ public class Card {
     
     private var imageNameFromCardId: String? {
         let cardIdWithoutSpaces = cardID.replacingOccurrences(of: " ", with: "")
+        
+        if cardIdWithoutSpaces.lowercased().starts(with: "bc") {
+            return "card_bc00"
+        }
+        
         switch cardIdWithoutSpaces {
         case "AA01000000000000"..."AA01000000004999",
              "AE01000000000000"..."AE01000000004999",
@@ -311,13 +316,13 @@ public class Card {
         }
     }
     
-    var imageName: String {
+    var imageName: String {        
         if cardEngine.walletType == .nft {
             return "card-ruNFT"
         }
         
         if cardEngine.walletType == .slix2 {
-            return "card-ruNFT"
+            return "card_tgslix"
         }
         
         if let nameFromCardId = imageNameFromCardId {
