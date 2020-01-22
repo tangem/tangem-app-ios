@@ -14,7 +14,7 @@ import CoreNFC
 public protocol CardReader: class {
     /// For setting alertMessage into NFC popup
     var alertMessage: String {get set}
-    
+    var tagDidConnect: (() -> Void)? {get set}
     func startSession()
     func stopSession(errorMessage: String?)
     func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu,NFCError>) -> Void)
