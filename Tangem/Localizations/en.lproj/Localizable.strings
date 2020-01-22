@@ -631,6 +631,8 @@
 /*  */
 "kraken_please_confirm_withdraw" = "Please confirm withdraw";
 
+"common_verified_tag"="Verified in blockchain";
+
 //IOS only
 "common_verified_balance"="Verified balance";
 
