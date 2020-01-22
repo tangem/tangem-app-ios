@@ -40,5 +40,4 @@ class CardReaderFactory {
 public enum NFCError: Error {
     case stuck
     case readerError(underlyingError: NFCReaderError)
-    case unsupportedInstruction
 }
