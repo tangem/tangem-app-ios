@@ -13,6 +13,8 @@ import CoreNFC
 public final class NDEFReader: NSObject {
     static let tangemWalletRecordType = "tangem.com:wallet"
     
+    public var tagDidConnect: (() -> Void)?
+    
     private var readerSession: NFCNDEFReaderSession?
     private var completion: ((Result<ResponseApdu, NFCError>) -> Void)?
 }
@@ -27,6 +29,7 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
     }
     
     public func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
+        tagDidConnect?()
         let bytes: [Byte] = messages.flatMap { message -> [NFCNDEFPayload] in
             return message.records
         }.filter{ record -> Bool in
