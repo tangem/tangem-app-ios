@@ -19,6 +19,9 @@ public protocol CardManagerDelegate: class {
     
     /// It is called when a user is expected to enter pin code.
     func requestPin(completion: @escaping () -> Result<String, Error>)
+    
+     /// It is called when tag was found
+    func tagDidConnect()
 }
 
 final class DefaultCardManagerDelegate: CardManagerDelegate {
@@ -49,5 +52,9 @@ final class DefaultCardManagerDelegate: CardManagerDelegate {
     
     func requestPin(completion: @escaping () -> Result<String, Error>) {
         //[REDACTED_TODO_COMMENT]
+    }
+    
+    func tagDidConnect() {
+        print("tag did connect")
     }
 }
