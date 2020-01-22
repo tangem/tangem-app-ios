@@ -49,7 +49,7 @@ public final class SignCommand: CommandSerializer {
                 throw TaskError.hashSizeMustBeEqual
             }
             
-            flattenHashes.append(contentsOf: hash.bytes)
+            flattenHashes.append(contentsOf: hash.toBytes)
         }
         self.cardId = cardId
         dataToSign = Data(flattenHashes)
@@ -58,7 +58,7 @@ public final class SignCommand: CommandSerializer {
     public func serialize(with environment: CardEnvironment) -> CommandApdu {
         var tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
                        Tlv(.pin2, value: environment.pin2.sha256()),
-                       Tlv(.cardId, value: Data(hex: cardId)),
+                       Tlv(.cardId, value: Data(hexString: cardId)),
                        Tlv(.transactionOutHashSize, value: hashSize.byte),
                        Tlv(.transactionOutHash, value: dataToSign)]
         
