@@ -106,7 +106,8 @@ public final class ScanTask: Task<ScanEvent> {
                 }
                 
                 guard let curve = readResponse.curve,
-                    let publicKey = readResponse.walletPublicKey else {
+                    let publicKey = readResponse.walletPublicKey,
+                    let cardId = readResponse.cardId else {
                         let error = TaskError.cardError
                         self?.reader.stopSession(errorMessage: error.localizedDescription)
                         callback(.completion(error))
@@ -120,7 +121,7 @@ public final class ScanTask: Task<ScanEvent> {
                     return
                 }
                 
-                let checkWalletCommand = CheckWalletCommand(cardId: readResponse.cardId, challenge: challenge)
+                let checkWalletCommand = CheckWalletCommand(cardId: cardId, challenge: challenge)
                 self?.sendCommand(checkWalletCommand, environment: environment) {[weak self] checkWalletResult in
                     switch checkWalletResult {
                     case .failure(let error):
