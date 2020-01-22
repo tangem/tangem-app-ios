@@ -22,7 +22,7 @@ public class XlmEngine: CardEngine {
             return
                 """
                 Tangem TAG
-                Stellar NFT token
+                Stellar non-fungible token
                 """
         }
         else {
