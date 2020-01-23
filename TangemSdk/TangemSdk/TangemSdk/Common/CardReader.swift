@@ -37,7 +37,16 @@ class CardReaderFactory {
     }
 }
 
-public enum NFCError: Error {
+public enum NFCError: Error, LocalizedError {
     case stuck
     case readerError(underlyingError: NFCReaderError)
+    
+    public var localizedDescription: String {
+        switch self {
+        case .readerError(let nfcError):
+            return nfcError.localizedDescription
+        default:
+            return "\(self)"
+        }
+    }
 }
