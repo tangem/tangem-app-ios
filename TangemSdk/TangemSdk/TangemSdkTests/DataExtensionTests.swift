@@ -18,28 +18,28 @@ class DataExtensionTests: XCTestCase {
     }
     
     func testSha256() {
-        let testData = CryptoUtils.generateRandomBytes(count: 256)!
+        let testData = CryptoUtils().generateRandomBytes(count: 256)!
         let shaCryptoKit =  testData.getSha256()
         let shaOld = testData.sha256Old()
         XCTAssertEqual(shaCryptoKit, shaOld)
     }
     
     func testSha512() {
-        let testData = CryptoUtils.generateRandomBytes(count: 256)!
+        let testData = CryptoUtils().generateRandomBytes(count: 256)!
         let shaCryptoKit =  testData.getSha512()
         let shaOld = testData.sha512Old()
         XCTAssertEqual(shaCryptoKit, shaOld)
     }
     
     func testSha256CryptoKitPerfomance() {
-        let testData = CryptoUtils.generateRandomBytes(count: 256)!
+        let testData = CryptoUtils().generateRandomBytes(count: 256)!
         measure {
             _ = testData.getSha256()
         }
     }
     
     func testSha256OldPerfomance() {
-        let testData = CryptoUtils.generateRandomBytes(count: 256)!
+        let testData = CryptoUtils().generateRandomBytes(count: 256)!
         measure {
             _ = testData.sha256Old()
         }
