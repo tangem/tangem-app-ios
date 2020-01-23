@@ -37,7 +37,7 @@ public final class CheckWalletCommand: CommandSerializer {
                        Tlv(.cardId, value: Data(hexString: cardId)),
                        Tlv(.challenge, value: challenge)]
         
-        let cApdu = CommandApdu(.checkWallet, tlv: tlvData)
+        let cApdu = CommandApdu(.checkWallet, tlv: tlvData, legacyMode: environment.legacyMode)
         return cApdu
     }
     
