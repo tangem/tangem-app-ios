@@ -115,8 +115,11 @@ open class Task<TEvent>: AnyTask {
      */
     public final func sendCommand<T: CommandSerializer>(_ command: T, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
         //[REDACTED_TODO_COMMENT]
-        let commandApdu = command.serialize(with: environment)
-        sendRequest(command, apdu: commandApdu, environment: environment, callback: callback)
+        if let commandApdu = try? command.serialize(with: environment) {
+            sendRequest(command, apdu: commandApdu, environment: environment, callback: callback)
+        } else {
+            callback(.failure(TaskError.serializeCommandError))
+        }
     }
     
     private func sendRequest<T: CommandSerializer>(_ command: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
