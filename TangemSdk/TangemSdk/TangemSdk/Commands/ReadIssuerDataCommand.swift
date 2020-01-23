@@ -44,11 +44,12 @@ public final class ReadIssuerDataCommand: CommandSerializer {
         self.cardId = cardId
     }
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
-        let tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
-                       Tlv(.cardId, value: Data(hexString: cardId))]
-        
-        let cApdu = CommandApdu(.readIssuerData, tlv: tlvData, legacyMode: environment.legacyMode)
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+        let builder = TlvBuilder()
+        try builder.append(.pin, value: environment.pin1)
+        try builder.append(.cardId, value: cardId)
+
+        let cApdu = CommandApdu(.readIssuerData, tlv: builder.serialize(legacyMode: environment.legacyMode))
         return cApdu
     }
     
