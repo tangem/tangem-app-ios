@@ -37,7 +37,7 @@ public struct CommandApdu: Equatable {
     /// - Parameter tlv: data
     /// - Parameter encryptionMode:  optional encryption mode. Default to none
     /// - Parameter encryptionKey:  optional encryption
-    public init(_ instruction: Instruction, tlv: [Tlv], encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil, legacyMode: Bool = false) {
+    public init(_ instruction: Instruction, tlv: [Tlv], legacyMode: Bool, encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) {
         self.init(ins: instruction.rawValue,
                   p1: encryptionMode.rawValue,
                   tlv: tlv,

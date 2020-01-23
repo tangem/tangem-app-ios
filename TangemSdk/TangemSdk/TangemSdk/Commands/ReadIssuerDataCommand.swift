@@ -48,7 +48,7 @@ public final class ReadIssuerDataCommand: CommandSerializer {
         let tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
                        Tlv(.cardId, value: Data(hexString: cardId))]
         
-        let cApdu = CommandApdu(.readIssuerData, tlv: tlvData)
+        let cApdu = CommandApdu(.readIssuerData, tlv: tlvData, legacyMode: environment.legacyMode)
         return cApdu
     }
     
