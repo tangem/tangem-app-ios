@@ -64,7 +64,7 @@ public final class WriteIssuerDataCommand: CommandSerializer {
             tlvData.append(Tlv(.issuerDataCounter, value: counter.bytes4))
         }
         
-        let cApdu = CommandApdu(.writeIssuerData, tlv: tlvData)
+        let cApdu = CommandApdu(.writeIssuerData, tlv: tlvData, legacyMode: environment.legacyMode)
         return cApdu
     }
     
