@@ -28,10 +28,17 @@ public final class CardManager {
     private let cardManagerDelegate: CardManagerDelegate
     private var cardEnvironmentRepository: [String:CardEnvironment] = [:]
     private var currentTask: AnyTask?
+    private let legacyModeService = LegacyModeService()
+    private lazy var terminalKeysService: TerminalKeysService = {
+        let storageService = SecureStorageService()
+        let service = TerminalKeysService(secureStorageService: storageService, legacyModeService: legacyModeService)
+        return service
+    }()
     
     public init(cardReader: CardReader, cardManagerDelegate: CardManagerDelegate) {
         self.cardReader = cardReader
         self.cardManagerDelegate = cardManagerDelegate
+        legacyModeService.initialize()
     }
     
     /**
@@ -137,7 +144,9 @@ public final class CardManager {
         isBusy = true
         task.reader = cardReader
         task.delegate = cardManagerDelegate
-        let environment = fetchCardEnvironment(for: cardId)
+        var environment = fetchCardEnvironment(for: cardId)
+        environment.terminalKeys = terminalKeysService.getKeys()
+        environment.legacyMode = legacyModeService.useLegacyMode
         
         task.run(with: environment) {[weak self] taskResult in
             switch taskResult {
