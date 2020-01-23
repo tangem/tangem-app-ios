@@ -40,4 +40,5 @@ Use TangemSdk for Tangem cards integration
   # s.frameworks = 'UIKit', 'MapKit'
 
   s.dependency 'secp256k1.swift'
+  s.dependency 'KeychainSwift'
 end
