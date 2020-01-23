@@ -47,7 +47,7 @@ public final class TlvEncoder {
     }
     
     private func typeCheck<FromType, ToType>(_ value: FromType, _ to: ToType) throws {
-        guard value is ToType else {
+        guard type(of: value) is ToType else {
             print("Encoding error. Value is \(FromType.self). Expected: \(ToType.self)")
             throw TaskError.serializeCommandError
         }
