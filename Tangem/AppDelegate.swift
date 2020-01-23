@@ -46,8 +46,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #if BETA
             Fabric.with([Crashlytics.self])
         #endif
-        
-        Utils.initialize()
         return true
     }
     
