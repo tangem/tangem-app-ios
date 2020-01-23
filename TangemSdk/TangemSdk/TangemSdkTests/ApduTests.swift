@@ -13,8 +13,8 @@ import CoreNFC
 
 class ApduTests: XCTestCase {
     func testInitialization() {
-        let commandApdu1 = CommandApdu(Instruction.read, tlv: [], legacyMode: true)
-        let commandApdu2 = CommandApdu(ins: UInt8(0xF2), tlv: [], legacyMode: true)
+        let commandApdu1 = CommandApdu(Instruction.read, tlv: Data())
+        let commandApdu2 = CommandApdu(ins: UInt8(0xF2), tlv: Data())
         XCTAssertEqual(commandApdu1, commandApdu2)
         
         
@@ -24,7 +24,7 @@ class ApduTests: XCTestCase {
         let p2: UInt8 = 0x03
         let le: Int = -1
         let tlv = [Tlv(.cardId, value: Data([UInt8(0x00), UInt8(0x01), UInt8(0x02), UInt8(0x03)]))]
-        let commandApdu3 = CommandApdu(cla: cla, ins: ins, p1: p1, p2: p2, le: le, tlv: tlv, encryptionKey: nil, legacyMode: false)
+        let commandApdu3 = CommandApdu(cla: cla, ins: ins, p1: p1, p2: p2, le: le, tlv: tlv.serialize(), encryptionKey: nil)
         if #available(iOS 13.0, *) {
             let nfcApdu = NFCISO7816APDU(commandApdu3)
             
