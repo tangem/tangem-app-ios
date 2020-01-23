@@ -68,6 +68,10 @@
 		5DC62D3E23506CF300195A51 /* TlvMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC62D3D23506CF300195A51 /* TlvMapper.swift */; };
 		5DCAA7872383DDC200249F42 /* ReadIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */; };
 		5DCAA7892383E25200249F42 /* WriteIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */; };
+		5DE59F2B23D96F8B00312DA4 /* LegacyModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE59F2A23D96F8B00312DA4 /* LegacyModeService.swift */; };
+		5DE59F2D23D96FE500312DA4 /* TerminalKeysService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE59F2C23D96FE500312DA4 /* TerminalKeysService.swift */; };
+		5DE59F2F23D9703A00312DA4 /* SecureStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE59F2E23D9703A00312DA4 /* SecureStorageService.swift */; };
+		5DE59F3223D9710400312DA4 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 5DE59F3123D9710400312DA4 /* KeychainSwift */; };
 		5DF7CFCE233D058D00461F4D /* CardReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF7CFCD233D058D00461F4D /* CardReader.swift */; };
 		5DFFC1A1234DC715001C2F35 /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC1A0234DC715001C2F35 /* CryptoUtils.swift */; };
 		5DFFC49F233B9D69004964E8 /* NFCReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFFC49E233B9D69004964E8 /* NFCReader.swift */; };
@@ -150,6 +154,9 @@
 		5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadIssuerDataCommand.swift; sourceTree = "<group>"; };
 		5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataCommand.swift; sourceTree = "<group>"; };
 		5DDF4F89235F06F600E46EAB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5DE59F2A23D96F8B00312DA4 /* LegacyModeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyModeService.swift; sourceTree = "<group>"; };
+		5DE59F2C23D96FE500312DA4 /* TerminalKeysService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeysService.swift; sourceTree = "<group>"; };
+		5DE59F2E23D9703A00312DA4 /* SecureStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageService.swift; sourceTree = "<group>"; };
 		5DF7CFCD233D058D00461F4D /* CardReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardReader.swift; sourceTree = "<group>"; };
 		5DFFC1A0234DC715001C2F35 /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
 		5DFFC49E233B9D69004964E8 /* NFCReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCReader.swift; sourceTree = "<group>"; };
@@ -161,6 +168,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DE59F3223D9710400312DA4 /* KeychainSwift in Frameworks */,
 				5D2739DB234F22A800ACDA11 /* secp256k1 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -332,9 +340,20 @@
 			path = TangemSdkTests;
 			sourceTree = "<group>";
 		};
+		5DE59F2723D96F5C00312DA4 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				5DE59F2A23D96F8B00312DA4 /* LegacyModeService.swift */,
+				5DE59F2C23D96FE500312DA4 /* TerminalKeysService.swift */,
+				5DE59F2E23D9703A00312DA4 /* SecureStorageService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		5DF7CFCA233D034E00461F4D /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				5DE59F2723D96F5C00312DA4 /* Services */,
 				5DA5B61F233E13180058C720 /* TLV */,
 				5DA5B614233E11DD0058C720 /* APDU */,
 				5DFFC49D233B9D4C004964E8 /* NFC */,
@@ -415,6 +434,7 @@
 			name = TangemSdk;
 			packageProductDependencies = (
 				5D2739DA234F22A800ACDA11 /* secp256k1 */,
+				5DE59F3123D9710400312DA4 /* KeychainSwift */,
 			);
 			productName = TangemSdk;
 			productReference = 5DA80C9A231D247A00A50A10 /* TangemSdk.framework */;
@@ -469,6 +489,7 @@
 			mainGroup = 5DA80C90231D247A00A50A10;
 			packageReferences = (
 				5D2739D9234F22A800ACDA11 /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
+				5DE59F3023D9710400312DA4 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			productRefGroup = 5DA80C9B231D247A00A50A10 /* Products */;
 			projectDirPath = "";
@@ -517,6 +538,7 @@
 				5D273A06234F270200ACDA11 /* sha512.c in Sources */,
 				5D974B7E237D672F00DCDF21 /* Date+.swift in Sources */,
 				5D273A0A234F270200ACDA11 /* PublicKey.swift in Sources */,
+				5DE59F2D23D96FE500312DA4 /* TerminalKeysService.swift in Sources */,
 				5D41EA0623D19BAD004DE701 /* TangemTimer.swift in Sources */,
 				5D2739FD234F270200ACDA11 /* sc.c in Sources */,
 				5D273A0B234F270200ACDA11 /* Error.swift in Sources */,
@@ -531,6 +553,7 @@
 				5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */,
 				5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */,
 				5DA5B613233E11A50058C720 /* ResponseApdu.swift in Sources */,
+				5DE59F2F23D9703A00312DA4 /* SecureStorageService.swift in Sources */,
 				5D2739FC234F270200ACDA11 /* ge.c in Sources */,
 				5D2739FB234F270200ACDA11 /* verify.c in Sources */,
 				5DCAA7892383E25200249F42 /* WriteIssuerDataCommand.swift in Sources */,
@@ -541,6 +564,7 @@
 				5D6A92DC2344E3A500158457 /* Localization.swift in Sources */,
 				5DFFC1A1234DC715001C2F35 /* CryptoUtils.swift in Sources */,
 				5D273A00234F270200ACDA11 /* key_exchange.c in Sources */,
+				5DE59F2B23D96F8B00312DA4 /* LegacyModeService.swift in Sources */,
 				5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */,
 				5D6A92EE23463D1200158457 /* ScanTask.swift in Sources */,
 				5D7D5FB423449F2300058D69 /* CommandSerializer.swift in Sources */,
@@ -894,6 +918,14 @@
 				minimumVersion = 0.1.4;
 			};
 		};
+		5DE59F3023D9710400312DA4 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 19.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -901,6 +933,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5D2739D9234F22A800ACDA11 /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
 			productName = secp256k1;
+		};
+		5DE59F3123D9710400312DA4 /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DE59F3023D9710400312DA4 /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
