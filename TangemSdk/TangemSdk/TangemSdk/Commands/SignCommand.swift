@@ -70,12 +70,12 @@ public final class SignCommand: CommandSerializer {
          * (this key should be generated and securily stored by the application).
          */
         if let keys = environment.terminalKeys,
-            let signedData = CryptoUtils.signSecp256k1(dataToSign, with: keys.privateKey) {
+            let signedData = CryptoUtils().signSecp256k1(dataToSign, with: keys.privateKey) {
             tlvData.append(Tlv(.terminalTransactionSignature, value: signedData))
             tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
         }
         
-        let cApdu = CommandApdu(.sign, tlv: tlvData)
+        let cApdu = CommandApdu(.sign, tlv: tlvData, legacyMode: environment.legacyMode)
         return cApdu
     }
     
