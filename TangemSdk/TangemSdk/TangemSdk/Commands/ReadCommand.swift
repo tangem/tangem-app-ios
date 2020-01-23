@@ -193,7 +193,7 @@ public final class ReadCommand: CommandSerializer {
             tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
         }
         
-        let cApdu = CommandApdu(.read, tlv: tlvData)
+        let cApdu = CommandApdu(.read, tlv: tlvData, legacyMode: environment.legacyMode)
         return cApdu
     }
     
