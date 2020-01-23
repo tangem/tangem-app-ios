@@ -18,7 +18,7 @@ public protocol CommandSerializer {
     /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
     /// - Parameter environment: `CardEnvironment` of the current card
     /// - Returns: Command data that can be converted to `NFCISO7816APDU` with appropriate initializer
-    func serialize(with environment: CardEnvironment) -> CommandApdu
+    func serialize(with environment: CardEnvironment) throws -> CommandApdu
     
     /// Deserializes data, received from a card and stored in `ResponseApdu`  into an array of `Tlv`. Then this method maps it into a `CommandResponse`.
     /// - Parameters:
