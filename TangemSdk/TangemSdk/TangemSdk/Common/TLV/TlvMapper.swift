@@ -95,7 +95,7 @@ public final class TlvMapper {
             }
             
             return utfValue as! T
-        case .intValue:
+        case .intValue, .byte:
             guard Int.self == T.self || Int?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be Int")
                 throw TlvMapperError.wrongType
