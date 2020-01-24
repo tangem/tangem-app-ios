@@ -14,7 +14,12 @@ import CryptoSwift
 import TangemSdk
 
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
-    private var cardManager = CardManager()
+    
+    private lazy var cardManager: CardManager = {
+           let manager = CardManager()
+           manager.config.legacyMode = Utils().needLegacyMode
+           return manager
+       }()
     
     @IBOutlet var viewModel: CardDetailsViewModel! {
         didSet {
