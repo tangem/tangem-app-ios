@@ -48,6 +48,7 @@
 		5D6A92EA2345FF2200158457 /* SingleCommandTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92E92345FF2200158457 /* SingleCommandTask.swift */; };
 		5D6A92EC2346069700158457 /* CardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92EB2346069700158457 /* CardManager.swift */; };
 		5D6A92EE23463D1200158457 /* ScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6A92ED23463D1200158457 /* ScanTask.swift */; };
+		5D705B5B23DAF2BB002CCD7A /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D705B5A23DAF2BB002CCD7A /* Config.swift */; };
 		5D713B2D236C3F6400E4F6FC /* StringUtilsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D713B2C236C3F6400E4F6FC /* StringUtilsTest.swift */; };
 		5D713B2F236C53E300E4F6FC /* ByteUtilsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D713B2E236C53E300E4F6FC /* ByteUtilsTest.swift */; };
 		5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB123449D4000058D69 /* CardEnvironment.swift */; };
@@ -133,6 +134,7 @@
 		5D6A92E92345FF2200158457 /* SingleCommandTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCommandTask.swift; sourceTree = "<group>"; };
 		5D6A92EB2346069700158457 /* CardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardManager.swift; sourceTree = "<group>"; };
 		5D6A92ED23463D1200158457 /* ScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTask.swift; sourceTree = "<group>"; };
+		5D705B5A23DAF2BB002CCD7A /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		5D713B2C236C3F6400E4F6FC /* StringUtilsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtilsTest.swift; sourceTree = "<group>"; };
 		5D713B2E236C53E300E4F6FC /* ByteUtilsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteUtilsTest.swift; sourceTree = "<group>"; };
 		5D7D5FB123449D4000058D69 /* CardEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnvironment.swift; sourceTree = "<group>"; };
@@ -322,6 +324,7 @@
 			children = (
 				5DA80C9D231D247A00A50A10 /* TangemSdk.h */,
 				5D6A92EB2346069700158457 /* CardManager.swift */,
+				5D705B5A23DAF2BB002CCD7A /* Config.swift */,
 				5D6A92DF2344F2F900158457 /* CardManagerDelegate.swift */,
 				5D6A92E82345FF1300158457 /* Tasks */,
 				5D6A92E12345F28F00158457 /* Commands */,
@@ -576,6 +579,7 @@
 				5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */,
 				5D6A92EE23463D1200158457 /* ScanTask.swift in Sources */,
 				5D7D5FB423449F2300058D69 /* CommandSerializer.swift in Sources */,
+				5D705B5B23DAF2BB002CCD7A /* Config.swift in Sources */,
 				5D6A92EC2346069700158457 /* CardManager.swift in Sources */,
 				5DFFC49F233B9D69004964E8 /* NFCReader.swift in Sources */,
 				5D6A92DE2344F1DC00158457 /* Task.swift in Sources */,
