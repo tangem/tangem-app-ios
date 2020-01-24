@@ -46,6 +46,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #if BETA
             Fabric.with([Crashlytics.self])
         #endif
+        let legacyModeService = LegacyModeService()
+        Utils().initialize(legacyMode: legacyModeService.useLegacyMode)
+        
         return true
     }
     
