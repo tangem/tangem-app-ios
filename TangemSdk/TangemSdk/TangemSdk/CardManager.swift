@@ -19,18 +19,19 @@ public final class CardManager {
         #endif
     }
     
-    public var isBusy: Bool = false
+    public private(set) var isBusy: Bool = false
+    public var config = Config()
     
     /// `cardReader` is an interface that is responsible for NFC connection and  transfer of data to and from the Tangem Card.
     private let cardReader: CardReader
     
     /// An interface that allows interaction with users and shows relevant UI.
     private let cardManagerDelegate: CardManagerDelegate
-    private var cardEnvironmentRepository: [String:CardEnvironment] = [:]
     private var currentTask: AnyTask?
     private let legacyModeService = LegacyModeService()
+    private let storageService = SecureStorageService()
+    
     private lazy var terminalKeysService: TerminalKeysService = {
-        let storageService = SecureStorageService()
         let service = TerminalKeysService(secureStorageService: storageService, legacyModeService: legacyModeService)
         return service
     }()
@@ -38,7 +39,6 @@ public final class CardManager {
     public init(cardReader: CardReader, cardManagerDelegate: CardManagerDelegate) {
         self.cardReader = cardReader
         self.cardManagerDelegate = cardManagerDelegate
-        legacyModeService.initialize()
     }
     
     /**
@@ -144,9 +144,7 @@ public final class CardManager {
         isBusy = true
         task.reader = cardReader
         task.delegate = cardManagerDelegate
-        var environment = fetchCardEnvironment(for: cardId)
-        environment.terminalKeys = terminalKeysService.getKeys()
-        environment.legacyMode = legacyModeService.useLegacyMode
+        let environment = prepareCardEnvironment(for: cardId)
         
         task.run(with: environment) {[weak self] taskResult in
             switch taskResult {
@@ -171,12 +169,14 @@ public final class CardManager {
         runTask(task, cardId: cardId, callback: callback)
     }
     
-    private func fetchCardEnvironment(for cardId: String?) -> CardEnvironment {
-        guard let cardId = cardId else {
-            return CardEnvironment()
-        }
-        
-        return cardEnvironmentRepository[cardId] ?? CardEnvironment()
+    private func prepareCardEnvironment(for cardId: String?) -> CardEnvironment {
+        var environment = CardEnvironment()
+        environment.cardId = cardId
+        if config.linkedTerminal {
+            environment.terminalKeys = terminalKeysService.getKeys()
+        }        
+        environment.legacyMode = config.legacyMode ?? legacyModeService.useLegacyMode
+        return environment
     }
 }
 
