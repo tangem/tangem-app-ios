@@ -188,13 +188,13 @@ public final class ReadCommand: CommandSerializer {
         /// default value of ‘000000’.
         /// In order to obtain card’s data, [ReadCommand] should use the correct pin 1 value.
         /// The card will not respond if wrong pin 1 has been submitted.
-        let builder = TlvBuilder()
+        let builder = createTlvBuilder(legacyMode: environment.legacyMode)
         try builder.append(.pin, value: environment.pin1)
         if let keys = environment.terminalKeys {
             try builder.append(.terminalPublicKey, value: keys.publicKey)
         }
         
-        let cApdu = CommandApdu(.read, tlv: builder.serialize(legacyMode: environment.legacyMode))
+        let cApdu = CommandApdu(.read, tlv: builder.serialize())
         return cApdu
     }
     
