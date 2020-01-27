@@ -27,4 +27,12 @@ public class TlvBuilder {
         
         return tlv.serialize()
     }
+    
+    public static func createBuilder(legacy: Bool) -> TlvBuilder {
+        let builder = TlvBuilder()
+        if legacy {
+            try! builder.append(.legacyMode, value: Data([Byte(4)]))
+        }
+        return builder
+    }
 }

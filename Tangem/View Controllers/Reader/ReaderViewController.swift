@@ -120,6 +120,11 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                         return
                     }
                     
+                    guard self.card!.status == .loaded else {
+                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
+                        return
+                    }
+                    
                     if self.card!.genuinityState == .genuine {
                         UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
                     } else {

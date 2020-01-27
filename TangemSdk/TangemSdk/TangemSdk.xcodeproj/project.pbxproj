@@ -36,6 +36,8 @@
 		5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4BE233E4C6B00F33764 /* InputStream+.swift */; };
 		5D58B4C1233E54A400F33764 /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4C0233E54A400F33764 /* Int+.swift */; };
 		5D6795B2237AEFB60075A330 /* ApduTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6795B1237AEFB60075A330 /* ApduTests.swift */; };
+		5D6831D223DB2EA30095BB1D /* CreateWalletCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6831D123DB2EA30095BB1D /* CreateWalletCommand.swift */; };
+		5D6831D423DB31AB0095BB1D /* PurgeWalletCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6831D323DB31AB0095BB1D /* PurgeWalletCommand.swift */; };
 		5D6931D223D9AAD90088C6C0 /* TlvEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6931D123D9AAD90088C6C0 /* TlvEncoder.swift */; };
 		5D6931D423D9AC440088C6C0 /* TlvBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6931D323D9AC440088C6C0 /* TlvBuilder.swift */; };
 		5D6A92D82344E2D700158457 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D6A92DA2344E2D700158457 /* Localizable.strings */; };
@@ -122,6 +124,8 @@
 		5D58B4BE233E4C6B00F33764 /* InputStream+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		5D58B4C0233E54A400F33764 /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		5D6795B1237AEFB60075A330 /* ApduTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApduTests.swift; sourceTree = "<group>"; };
+		5D6831D123DB2EA30095BB1D /* CreateWalletCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletCommand.swift; sourceTree = "<group>"; };
+		5D6831D323DB31AB0095BB1D /* PurgeWalletCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurgeWalletCommand.swift; sourceTree = "<group>"; };
 		5D6931D123D9AAD90088C6C0 /* TlvEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvEncoder.swift; sourceTree = "<group>"; };
 		5D6931D323D9AC440088C6C0 /* TlvBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvBuilder.swift; sourceTree = "<group>"; };
 		5D6A92D92344E2D700158457 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -262,6 +266,8 @@
 				5D6A92E62345F2D600158457 /* CheckWalletCommand.swift */,
 				5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */,
 				5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */,
+				5D6831D123DB2EA30095BB1D /* CreateWalletCommand.swift */,
+				5D6831D323DB31AB0095BB1D /* PurgeWalletCommand.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -547,6 +553,7 @@
 				5D273A06234F270200ACDA11 /* sha512.c in Sources */,
 				5D974B7E237D672F00DCDF21 /* Date+.swift in Sources */,
 				5D273A0A234F270200ACDA11 /* PublicKey.swift in Sources */,
+				5D6831D223DB2EA30095BB1D /* CreateWalletCommand.swift in Sources */,
 				5DE59F2D23D96FE500312DA4 /* TerminalKeysService.swift in Sources */,
 				5D41EA0623D19BAD004DE701 /* TangemTimer.swift in Sources */,
 				5D2739FD234F270200ACDA11 /* sc.c in Sources */,
@@ -557,6 +564,7 @@
 				5D273A09234F270200ACDA11 /* KeyPair.swift in Sources */,
 				5D6A92E72345F2D600158457 /* CheckWalletCommand.swift in Sources */,
 				5D2739FE234F270200ACDA11 /* sign.c in Sources */,
+				5D6831D423DB31AB0095BB1D /* PurgeWalletCommand.swift in Sources */,
 				5DCAA7872383DDC200249F42 /* ReadIssuerDataCommand.swift in Sources */,
 				5D273A04234F270200ACDA11 /* keypair.c in Sources */,
 				5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */,
