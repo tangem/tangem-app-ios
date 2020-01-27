@@ -24,8 +24,8 @@ public final class TlvEncoder {
             }
         case .utf8String:
             try typeCheck(value, String.self)
-            let string = value as! String
-            if let data = string.data(using: .utf8, allowLossyConversion: false) {
+            let string = value as! String + "\0"
+            if let data = string.data(using: .utf8) {
                 return data
             } else {
                 print("Encoding error. Failed to convert string to utf8 Data")
@@ -45,7 +45,7 @@ public final class TlvEncoder {
         case .ellipticCurve:
             try typeCheck(value, EllipticCurve.self)
             let curve = value as! EllipticCurve
-            if let data = curve.rawValue.data(using: .utf8, allowLossyConversion: false) {
+            if let data = (curve.rawValue + "\0").data(using: .utf8) {
                 return data
             } else {
                 print("Encoding error. Failed to convert EllipticCurve to utf8 Data")
