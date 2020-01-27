@@ -32,7 +32,7 @@ public class TerminalKeysService {
             return KeyPair(privateKey: privateKey, publicKey: publicKey)
         }
         
-        if let newKeys = CryptoUtils().generateKeyPair() {
+        if let newKeys = CryptoUtils.generateKeyPair() {
             secureStorageService.store(object: newKeys.privateKey, key: StorageKey.terminalPrivateKey.rawValue)
             secureStorageService.store(object: newKeys.publicKey, key: StorageKey.terminalPublicKey.rawValue)
             return newKeys
