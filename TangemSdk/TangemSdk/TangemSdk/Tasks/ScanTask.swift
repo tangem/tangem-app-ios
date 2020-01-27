@@ -73,7 +73,7 @@ public final class ScanTask: Task<ScanEvent> {
                             return
                         }
                         
-                        if let verifyResult = CryptoUtils().vefify(curve: publicKey.count == 65 ? EllipticCurve.secp256k1 : EllipticCurve.ed25519,
+                        if let verifyResult = CryptoUtils.vefify(curve: publicKey.count == 65 ? EllipticCurve.secp256k1 : EllipticCurve.ed25519,
                                                                  publicKey: publicKey,
                                                                  message: firstChallenge + firstSalt,
                                                                  signature: walletSignature) {
@@ -114,7 +114,7 @@ public final class ScanTask: Task<ScanEvent> {
                         return
                 }
                 
-                guard let challenge = CryptoUtils().generateRandomBytes(count: 16) else {
+                guard let challenge = CryptoUtils.generateRandomBytes(count: 16) else {
                     let error = TaskError.cardError
                     self?.reader.stopSession(errorMessage: error.localizedDescription)
                     callback(.completion(error))
@@ -130,7 +130,7 @@ public final class ScanTask: Task<ScanEvent> {
                     case .success(let checkWalletResponse):
                         self?.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
                         self?.reader.stopSession()
-                        if let verifyResult = CryptoUtils().vefify(curve: curve,
+                        if let verifyResult = CryptoUtils.vefify(curve: curve,
                                                                  publicKey: publicKey,
                                                                  message: challenge + checkWalletResponse.salt,
                                                                  signature: checkWalletResponse.walletSignature) {
