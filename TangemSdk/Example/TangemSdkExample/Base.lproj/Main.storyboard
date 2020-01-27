@@ -30,24 +30,8 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4wc-rX-9BO">
-                                        <rect key="frame" x="120" y="322" width="103" height="34"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                        <state key="normal" title="CreateWallet"/>
-                                        <connections>
-                                            <action selector="createWalletTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0n9-Du-4s7"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4HW-MU-GZu">
-                                        <rect key="frame" x="123" y="377.5" width="97" height="34"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                        <state key="normal" title="PurgeWallet"/>
-                                        <connections>
-                                            <action selector="purgeWalletTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Xnu-bW-gPi"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DCJ-Zk-Ede">
-                                        <rect key="frame" x="132" y="433.5" width="79" height="34"/>
+                                        <rect key="frame" x="132" y="322" width="79" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="ScanCard"/>
                                         <connections>
@@ -55,7 +39,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3cw-s5-our">
-                                        <rect key="frame" x="123" y="489.5" width="97" height="34"/>
+                                        <rect key="frame" x="123" y="377.5" width="97" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="SignHashes"/>
                                         <connections>
@@ -63,7 +47,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ODg-Sx-gZi">
-                                        <rect key="frame" x="107.5" y="545" width="128" height="34"/>
+                                        <rect key="frame" x="107.5" y="433.5" width="128" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="ReadIssuerData"/>
                                         <connections>
@@ -71,11 +55,27 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tsW-CE-Zkw">
-                                        <rect key="frame" x="106.5" y="601" width="130" height="34"/>
+                                        <rect key="frame" x="106.5" y="489.5" width="130" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="WriteIssuerData"/>
                                         <connections>
                                             <action selector="writeIssuerDataTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="FZv-BM-HXh"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4wc-rX-9BO">
+                                        <rect key="frame" x="120" y="545" width="103" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="CreateWallet"/>
+                                        <connections>
+                                            <action selector="createWalletTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0n9-Du-4s7"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4HW-MU-GZu">
+                                        <rect key="frame" x="123" y="601" width="97" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="PurgeWallet"/>
+                                        <connections>
+                                            <action selector="purgeWalletTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Xnu-bW-gPi"/>
                                         </connections>
                                     </button>
                                 </subviews>
