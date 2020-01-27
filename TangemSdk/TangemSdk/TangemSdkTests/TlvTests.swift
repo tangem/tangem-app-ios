@@ -188,5 +188,18 @@ class TlvTests: XCTestCase {
         
         let productMaskWrong: String? = Data(hexString: "8A0102").mapTlv(tag: .productMask)
         XCTAssertNil(productMaskWrong)
+        
+        //test byte
+        let testByte: Int = Data(hexString: "510109").mapTlv(tag: .transactionOutHashSize)!
+        XCTAssertEqual(testByte, Int(9))
+        
+        let testByteWrong: String? = Data(hexString: "510109").mapTlv(tag: .transactionOutHashSize)
+        XCTAssertNil(testByteWrong)
+    }
+    
+    func testEncode() {
+        let builder = TlvBuilder()
+        try! TlvBuilder().append(.cardId, value: "FF00000000000111")
+        XCTAssertEqual(builder.serialize(), Data(hexString: "0108FF00000000000111"))
     }
 }
