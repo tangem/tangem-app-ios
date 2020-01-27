@@ -12,8 +12,10 @@ public class TlvBuilder {
     private var tlv = [Tlv]()
     private let encoder = TlvEncoder()
     
-    public func append<TValue>(_ tag: TlvTag, value: TValue) throws {
+    @discardableResult
+    public func append<TValue>(_ tag: TlvTag, value: TValue) throws -> TlvBuilder {
         tlv.append(try encoder.encode(tag, value: value))
+        return self
     }
     
     public func serialize() -> Data {
