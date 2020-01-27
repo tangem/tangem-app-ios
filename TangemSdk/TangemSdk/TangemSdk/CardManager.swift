@@ -119,7 +119,7 @@ public final class CardManager {
      *   - issuerDataSignature: Issuer’s signature of `issuerData` with Issuer Data Private Key (which is kept on card).
      *   - issuerDataCounter: An optional counter that protect issuer data against replay attack.
      *   - callback: is triggered on the completion of the `WriteIssuerDataCommand`,
-     * provides card response in the form of `[`WriteIssuerDataResponse`.
+     * provides card response in the form of  `WriteIssuerDataResponse`.
      */
     @available(iOS 13.0, *)
     public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
@@ -128,6 +128,39 @@ public final class CardManager {
         runTask(task, cardId: cardId, callback: callback)
     }
     
+    
+    
+    /**
+     * This command will create a new wallet on the card having ‘Empty’ state.
+     * A key pair WalletPublicKey / WalletPrivateKey is generated and securely stored in the card.
+     * App will need to obtain Wallet_PublicKey from the response of `CreateWalletCommand` or `ReadCommand`
+     * and then transform it into an address of corresponding blockchain wallet
+     * according to a specific blockchain algorithm.
+     * WalletPrivateKey is never revealed by the card and will be used by `SignCommand` and `CheckWalletCommand`.
+     * RemainingSignature is set to MaxSignatures.
+     * - Parameter cardId: CID, Unique Tangem card ID number.
+     */
+    @available(iOS 13.0, *)
+    public func createWallet(cardId: String, callback: @escaping (TaskEvent<CreateWalletResponse>) -> Void) {
+        let command = CreateWalletCommand(cardId: cardId)
+        let task = SingleCommandTask(command)
+        runTask(task, cardId: cardId, callback: callback)
+    }
+    
+    /**
+     * This command deletes all wallet data. If Is_Reusable flag is enabled during personalization,
+     * the card changes state to ‘Empty’ and a new wallet can be created by `CREATE_WALLET` command.
+     * If Is_Reusable flag is disabled, the card switches to ‘Purged’ state.
+     * ‘Purged’ state is final, it makes the card useless.
+     * - Parameter cardId: CID, Unique Tangem card ID number.
+     */
+    @available(iOS 13.0, *)
+    public func purgeWallet(cardId: String, callback: @escaping (TaskEvent<PurgeWalletResponse>) -> Void) {
+        let command = PurgeWalletCommand(cardId: cardId)
+        let task = SingleCommandTask(command)
+        runTask(task, cardId: cardId, callback: callback)
+    }
+
    /// Allows to run a custom task created outside of this SDK.
     public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
         guard CardManager.isNFCAvailable else {
