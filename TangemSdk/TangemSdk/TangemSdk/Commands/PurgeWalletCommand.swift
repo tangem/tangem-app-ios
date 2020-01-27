@@ -34,10 +34,10 @@ public final class PurgeWalletCommand: CommandSerializer {
     }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
-        let builder = createTlvBuilder(legacyMode: environment.legacyMode)
-        try builder.append(.pin, value: environment.pin1)
-        try builder.append(.pin2, value: environment.pin2)
-        try builder.append(.cardId, value: cardId)
+        let builder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
+            .append(.pin2, value: environment.pin2)
+            .append(.cardId, value: cardId)
         
         let cApdu = CommandApdu(.purgeWallet, tlv: builder.serialize())
         return cApdu
