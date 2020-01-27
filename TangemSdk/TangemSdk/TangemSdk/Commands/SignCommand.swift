@@ -71,7 +71,7 @@ public final class SignCommand: CommandSerializer {
          * (this key should be generated and securily stored by the application).
          */
         if let keys = environment.terminalKeys,
-            let signedData = CryptoUtils().signSecp256k1(dataToSign, with: keys.privateKey) {
+            let signedData = CryptoUtils.signSecp256k1(dataToSign, with: keys.privateKey) {
             try builder.append(.terminalTransactionSignature, value: signedData)
             try builder.append(.terminalPublicKey, value: keys.publicKey)
         }
