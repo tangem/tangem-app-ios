@@ -39,16 +39,16 @@ public final class ReadIssuerDataCommand: CommandSerializer {
     public typealias CommandResponse = ReadIssuerDataResponse
     /// Unique Tangem card ID number
     let cardId: String
-
+    
     public init(cardId: String) {
         self.cardId = cardId
     }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
-        let builder = createTlvBuilder(legacyMode: environment.legacyMode)
-        try builder.append(.pin, value: environment.pin1)
-        try builder.append(.cardId, value: cardId)
-
+        let builder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
+            .append(.cardId, value: cardId)
+        
         let cApdu = CommandApdu(.readIssuerData, tlv: builder.serialize())
         return cApdu
     }
