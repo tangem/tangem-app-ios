@@ -30,6 +30,8 @@ public enum TaskEvent<TEvent> {
 public enum TaskError: Error, LocalizedError {
     //Serialize apdu errors
     case serializeCommandError
+    // Encodeing error
+    case encodingError
     
     //Card errors
     case unknownStatus(sw: UInt16)
