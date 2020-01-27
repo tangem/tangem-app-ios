@@ -12,11 +12,9 @@ import Foundation
 public class TerminalKeysService {
     public static let enabled = true
     private let secureStorageService: SecureStorageService
-    private let legacyModeService: LegacyModeService
     
-    init(secureStorageService: SecureStorageService, legacyModeService: LegacyModeService) {
+    init(secureStorageService: SecureStorageService) {
         self.secureStorageService = secureStorageService
-        self.legacyModeService = legacyModeService
     }
     
     /// Retrieve generated keys from keychain if they exist. Generate new and store in Keychain otherwise
@@ -25,7 +23,7 @@ public class TerminalKeysService {
             return nil
         }
         
-        guard !legacyModeService.useLegacyMode else {
+        guard !LegacyModeService.useLegacyMode else {
             return nil
         }
         
