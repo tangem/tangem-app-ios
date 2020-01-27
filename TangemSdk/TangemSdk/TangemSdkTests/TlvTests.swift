@@ -198,8 +198,13 @@ class TlvTests: XCTestCase {
     }
     
     func testEncode() {
-        let builder = TlvBuilder()
-        try! TlvBuilder().append(.cardId, value: "FF00000000000111")
-        XCTAssertEqual(builder.serialize(), Data(hexString: "0108FF00000000000111"))
+        XCTAssertEqual(try! TlvBuilder().append(.cardId, value: "FF00000000000111").serialize(), Data(hexString: "0108FF00000000000111"))
+        XCTAssertEqual(try! TlvBuilder().append(.manufacturerName, value: "SMART CASH").serialize(), Data(hexString: "200B534D415254204341534800"))
+        XCTAssertEqual(try! TlvBuilder().append(.maxSignatures, value: 100).serialize(), Data(hexString: "080400000064"))
+        
+        XCTAssertEqual(try! TlvBuilder().append(.walletPublicKey, value: Data(hexString:"04B45FF0D628E1B59F7AEFA1D5B45AB9D7C47FC090D8B29ACCB515431BDBAD2802DDB3AC5E83A06BD8F13ABB84A465CA3C0FA0B44301F80295A9B4C5E35D5FDFE5")).serialize(), Data(hexString:
+            "604104B45FF0D628E1B59F7AEFA1D5B45AB9D7C47FC090D8B29ACCB515431BDBAD2802DDB3AC5E83A06BD8F13ABB84A465CA3C0FA0B44301F80295A9B4C5E35D5FDFE5"))
+        
+        
     }
 }
