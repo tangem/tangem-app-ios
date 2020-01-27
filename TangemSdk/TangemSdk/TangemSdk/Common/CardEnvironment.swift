@@ -33,6 +33,7 @@ public struct CardEnvironment: Equatable {
     public var terminalKeys: KeyPair? = nil
     public var encryptionKey: Data? = nil
     public var legacyMode: Bool = true
+    public var cvc: Data? = nil
     
     public init() {}
 }
