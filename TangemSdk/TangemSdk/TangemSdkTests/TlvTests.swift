@@ -205,6 +205,17 @@ class TlvTests: XCTestCase {
         XCTAssertEqual(try! TlvBuilder().append(.walletPublicKey, value: Data(hexString:"04B45FF0D628E1B59F7AEFA1D5B45AB9D7C47FC090D8B29ACCB515431BDBAD2802DDB3AC5E83A06BD8F13ABB84A465CA3C0FA0B44301F80295A9B4C5E35D5FDFE5")).serialize(), Data(hexString:
             "604104B45FF0D628E1B59F7AEFA1D5B45AB9D7C47FC090D8B29ACCB515431BDBAD2802DDB3AC5E83A06BD8F13ABB84A465CA3C0FA0B44301F80295A9B4C5E35D5FDFE5"))
         
+        XCTAssertEqual(try! TlvBuilder().append(.curveId, value: EllipticCurve.secp256k1).serialize(), Data(hexString: "050A736563703235366B3100"))
+        XCTAssertEqual(try! TlvBuilder().append(.settingsMask, value: SettingsMask(rawValue: 32305)).serialize(), Data(hexString: "0A027E31"))
+        XCTAssertEqual(try! TlvBuilder().append(.settingsMask, value: SettingsMask(rawValue: 32305)).serialize(), Data(hexString: "0A027E31"))
+        XCTAssertEqual(try! TlvBuilder().append(.status, value: CardStatus.loaded).serialize(), Data(hexString: "020102"))
+        XCTAssertEqual(try! TlvBuilder().append(.signingMethod, value: SigningMethod.signHash).serialize(), Data(hexString: "070181"))
+
+        let date = Date(timeIntervalSince1970: 1532696400)
+        XCTAssertEqual(try! TlvBuilder().append(.manufactureDateTime, value: date).serialize(), Data(hexString: "820407E2071B"))
         
+        XCTAssertEqual(try! TlvBuilder().append(.productMask, value: ProductMask.tag).serialize(), Data(hexString: "8A0102"))
+        XCTAssertEqual(try! TlvBuilder().append(.transactionOutHashSize, value:9).serialize(), Data(hexString: "510109"))
+        XCTAssertEqual(try! TlvBuilder().append(.pin, value: "12345").serialize(), Data(hexString: "10205994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"))
     }
 }
