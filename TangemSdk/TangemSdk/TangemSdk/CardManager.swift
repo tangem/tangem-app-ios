@@ -28,11 +28,10 @@ public final class CardManager {
     /// An interface that allows interaction with users and shows relevant UI.
     private let cardManagerDelegate: CardManagerDelegate
     private var currentTask: AnyTask?
-    private let legacyModeService = LegacyModeService()
     private let storageService = SecureStorageService()
     
     private lazy var terminalKeysService: TerminalKeysService = {
-        let service = TerminalKeysService(secureStorageService: storageService, legacyModeService: legacyModeService)
+        let service = TerminalKeysService(secureStorageService: storageService)
         return service
     }()
     
@@ -208,7 +207,7 @@ public final class CardManager {
         if config.linkedTerminal {
             environment.terminalKeys = terminalKeysService.getKeys()
         }        
-        environment.legacyMode = config.legacyMode ?? legacyModeService.useLegacyMode
+        environment.legacyMode = config.legacyMode ?? LegacyModeService.useLegacyMode
         return environment
     }
 }
