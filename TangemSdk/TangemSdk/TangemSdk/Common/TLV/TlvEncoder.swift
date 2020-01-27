@@ -10,39 +10,71 @@ import Foundation
 
 public final class TlvEncoder {
     public func encode<T>(_ tag: TlvTag, value: T) throws -> Tlv {
+        return try Tlv(tag, value: encode(value, for: tag))
+    }
+    
+    private func encode<T>(_ value: T, for tag: TlvTag) throws -> Data {
         switch tag.valueType {
         case .hexString:
             try typeCheck(value, String.self)
             if tag == .pin || tag == .pin2 {
-                return Tlv(tag, value: (value as! String).sha256())
+                return (value as! String).sha256()
             } else {
-                return Tlv(tag, value: Data(hexString: value as! String))
+                return Data(hexString: value as! String)
             }
         case .utf8String:
-            fatalError("not implemented")
+            try typeCheck(value, String.self)
+            let string = value as! String
+            if let data = string.data(using: .utf8, allowLossyConversion: false) {
+                return data
+            } else {
+                print("Encoding error. Failed to convert string to utf8 Data")
+                throw TaskError.encodingError
+            }
         case .byte:
             try typeCheck(value, Int.self)
-            return Tlv(tag, value: (value as! Int).byte)
+            return (value as! Int).byte
         case .intValue:
             try typeCheck(value, Int.self)
-            return Tlv(tag, value: (value as! Int).bytes4)
+            return (value as! Int).bytes4
         case .boolValue:
-            fatalError("not implemented")
+            fatalError("Unsupported")
         case .data:
             try typeCheck(value, Data.self)
-            return Tlv(tag, value: value as! Data)
+            return value as! Data
         case .ellipticCurve:
-            fatalError("not implemented")
+            try typeCheck(value, EllipticCurve.self)
+            let curve = value as! EllipticCurve
+            if let data = curve.rawValue.data(using: .utf8, allowLossyConversion: false) {
+                return data
+            } else {
+                print("Encoding error. Failed to convert EllipticCurve to utf8 Data")
+                throw TaskError.encodingError
+            }
         case .dateTime:
-            fatalError("not implemented")
+            try typeCheck(value, Date.self)
+            let date = value as! Date
+            let calendar = Calendar(identifier: .gregorian)
+            let y = calendar.component(.year, from: date)
+            let m = calendar.component(.month, from: date)
+            let d = calendar.component(.day, from: date)
+            return y.bytes2 + m.byte + d.byte
         case .productMask:
-            fatalError("not implemented")
+            try typeCheck(value, ProductMask.self)
+            let mask = value as! ProductMask
+            return Data([mask.rawValue])
         case .settingsMask:
-            fatalError("not implemented")
+            try typeCheck(value, SettingsMask.self)
+            let mask = value as! SettingsMask
+            return mask.rawValue.bytes2
         case .cardStatus:
-            fatalError("not implemented")
+            try typeCheck(value, CardStatus.self)
+            let status = value as! CardStatus
+            return status.rawValue.byte
         case .signingMethod:
-            fatalError("not implemented")
+            try typeCheck(value, SigningMethod.self)
+            let method = value as! SigningMethod
+            return method.rawValue.byte
         }
     }
     
