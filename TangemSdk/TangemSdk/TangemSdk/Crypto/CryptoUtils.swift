@@ -18,7 +18,7 @@ public final class CryptoUtils {
      *
      * - Parameter count: length of the array that is to be generated.
      */
-    public func generateRandomBytes(count: Int) -> Data? {
+    public static func generateRandomBytes(count: Int) -> Data? {
         var bytes = [Byte](repeating: 0, count: count)
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
         
@@ -37,7 +37,7 @@ public final class CryptoUtils {
      *  - Parameter message: The data that was signed
      *  - Parameter signature: Signed data
      */
-    public func vefify(curve: EllipticCurve, publicKey: Data, message: Data, signature: Data) -> Bool? {
+    public static func vefify(curve: EllipticCurve, publicKey: Data, message: Data, signature: Data) -> Bool? {
         switch curve {
         case .secp256k1:
             guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_VERIFY)) else { return nil }
@@ -75,7 +75,7 @@ public final class CryptoUtils {
      *
      * - Returns: Signed data
      */
-    public func signSecp256k1(_ data: Data, with key: Data) -> Data? {
+    public static func signSecp256k1(_ data: Data, with key: Data) -> Data? {
         guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN)) else { return nil }
         
         defer { secp256k1_context_destroy(ctx) }
@@ -94,7 +94,7 @@ public final class CryptoUtils {
     
     /// Generate private/public keypair with secp256k1.
     /// - Returns: `KeyPair` with  32-bytes length `private key` and  65-bytes length uncompressed `public key`
-    public func generateKeyPair() -> KeyPair? {
+    public static func generateKeyPair() -> KeyPair? {
         guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN|SECP256K1_CONTEXT_VERIFY)) else { return nil }
               
         defer { secp256k1_context_destroy(ctx) }
