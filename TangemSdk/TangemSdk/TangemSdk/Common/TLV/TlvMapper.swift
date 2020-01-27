@@ -41,7 +41,7 @@ public final class TlvMapper {
             return nil
         }
     }
-
+    
     /**
      * Finds `Tlv` by its `TlvTag`.
      * Throws `TlvMapperError.missingTag` if `Tlv` is not found,
@@ -135,7 +135,7 @@ public final class TlvMapper {
                 print("Mapping error. Type for tag: \(tag) must be Date")
                 throw TlvMapperError.wrongType
             }
-
+            
             guard let date = tagValue.toDate() else {
                 print("Mapping error. Failed convert \(tag) to date")
                 throw TlvMapperError.convertError
@@ -172,8 +172,8 @@ public final class TlvMapper {
             }
             let intValue = tagValue.toInt()
             guard let cardStatus = CardStatus(rawValue: intValue) else {
-                    print("Mapping error. Failed convert \(tag) to int and CardStatus")
-                    throw TlvMapperError.convertError
+                print("Mapping error. Failed convert \(tag) to int and CardStatus")
+                throw TlvMapperError.convertError
             }
             
             return cardStatus as! T
