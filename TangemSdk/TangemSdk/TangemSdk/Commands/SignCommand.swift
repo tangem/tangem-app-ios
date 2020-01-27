@@ -56,7 +56,7 @@ public final class SignCommand: CommandSerializer {
     }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {        
-        let builder = TlvBuilder()
+        let builder = createTlvBuilder(legacyMode: environment.legacyMode)
         try builder.append(.pin, value: environment.pin1)
         try builder.append(.pin2, value: environment.pin2)
         try builder.append(.cardId, value: cardId)
@@ -76,7 +76,7 @@ public final class SignCommand: CommandSerializer {
             try builder.append(.terminalPublicKey, value: keys.publicKey)
         }
         
-        let cApdu = CommandApdu(.sign, tlv: builder.serialize(legacyMode: environment.legacyMode))
+        let cApdu = CommandApdu(.sign, tlv: builder.serialize())
         return cApdu
     }
     
