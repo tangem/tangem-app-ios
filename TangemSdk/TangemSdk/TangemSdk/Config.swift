@@ -17,6 +17,7 @@ public struct Config {
      Tangem card supports this setting from firmware v.2.39. Otherwise, it would be ignored.
      */
     public var legacyMode: Bool? = nil
+    
     /**
      Enables or disables Linked Terminal feature. Default is **true**
      # Notes: #
