@@ -53,10 +53,11 @@ public enum Blockchain: String {
     case unknown
     case stellar
     case bitcoinCash
+    case litecoin
     
     public var decimalCount: Int16 {
         switch self {
-        case .bitcoin, .bitcoinCash:
+        case .bitcoin, .bitcoinCash, .litecoin:
             return 8
         case .ethereum, .rootstock:
             return 18
@@ -74,7 +75,7 @@ public enum Blockchain: String {
     
     public var roundingMode: NSDecimalNumber.RoundingMode {
         switch self {
-        case .bitcoin, .ethereum, .rootstock, .binance, .bitcoinCash:
+        case .bitcoin, .ethereum, .rootstock, .binance, .bitcoinCash, .litecoin:
             return .down
         case .cardano:
             return .up
@@ -138,6 +139,8 @@ public class Card {
             return .stellar
         case let blockchainName where blockchainName.containsIgnoringCase(find: "bch"):
             return .bitcoinCash
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "ltc"):
+            return .litecoin
         default:
             return .unknown
         }
@@ -244,7 +247,7 @@ public class Card {
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
         return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum
-            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash)
+            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash || blockchain == .litecoin)
     }
     
     public var supportedSignMethods: [SignMethod] = [.signHash]
@@ -286,6 +289,11 @@ public class Card {
     
     private var imageNameFromCardId: String? {
         let cardIdWithoutSpaces = cardID.replacingOccurrences(of: " ", with: "")
+        
+        if cardIdWithoutSpaces.lowercased().starts(with: "bc") {
+            return "card_bc00"
+        }
+        
         switch cardIdWithoutSpaces {
         case "AA01000000000000"..."AA01000000004999",
              "AE01000000000000"..."AE01000000004999",
@@ -308,13 +316,13 @@ public class Card {
         }
     }
     
-    var imageName: String {
+    var imageName: String {        
         if cardEngine.walletType == .nft {
             return "card-ruNFT"
         }
         
         if cardEngine.walletType == .slix2 {
-            return "card-ruNFT"
+            return "card_tgslix"
         }
         
         if let nameFromCardId = imageNameFromCardId {
@@ -568,6 +576,8 @@ public class Card {
             cardEngine = XlmEngine(card: self)
         case .bitcoinCash:
             cardEngine = BCHEngine(card: self)
+        case .litecoin:
+            cardEngine = LTCEngine(card: self)
         default:
             cardEngine = NoWalletCardEngine(card: self)
         }
@@ -677,6 +687,10 @@ public extension Card {
             operation = XlmCardBalanceOperation(card: self, completion: onResult)
         case .bitcoinCash:
             operation = BCHCardBalanceOperation(card: self, completion: onResult)
+        case .litecoin:
+            let op = BTCCardBalanceOperation(card: self, completion: onResult)
+            op.blockcypherAPi = .ltc
+            return op
         default:
             break
         }
