@@ -121,7 +121,7 @@ public enum TlvTag: Byte {
             return .cardStatus
         case .signingMethod:
             return .signingMethod
-        case .transactionOutHashSize:
+        case .transactionOutHashSize, .legacyMode:
             return .byte
         default:
             return .data

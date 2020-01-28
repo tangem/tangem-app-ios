@@ -19,7 +19,6 @@ public final class CardManager {
         #endif
     }
     
-    public private(set) var isBusy: Bool = false
     public var config = Config()
     
     /// `cardReader` is an interface that is responsible for NFC connection and  transfer of data to and from the Tangem Card.
@@ -27,6 +26,7 @@ public final class CardManager {
     
     /// An interface that allows interaction with users and shows relevant UI.
     private let cardManagerDelegate: CardManagerDelegate
+    private var isBusy: Bool = false
     private var currentTask: AnyTask?
     private let storageService = SecureStorageService()
     
@@ -202,12 +202,13 @@ public final class CardManager {
     }
     
     private func prepareCardEnvironment(for cardId: String?) -> CardEnvironment {
+        let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = CardEnvironment()
         environment.cardId = cardId
-        if config.linkedTerminal {
+        environment.legacyMode = isLegacyMode
+        if config.linkedTerminal && !isLegacyMode {
             environment.terminalKeys = terminalKeysService.getKeys()
         }        
-        environment.legacyMode = config.legacyMode ?? LegacyModeService.useLegacyMode
         return environment
     }
 }
