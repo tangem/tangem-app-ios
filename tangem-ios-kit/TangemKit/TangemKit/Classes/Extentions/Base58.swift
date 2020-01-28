@@ -31,9 +31,10 @@ public extension String {
         }
 
         let prefix = Array(bytes.prefix(while: {$0 == 0})).map { _ in alphabet[0] }
-        answer.append(prefix!)
+        answer.append(contentsOf: prefix)
         answer.reverse()
 
         self = String(bytes: answer, encoding: String.Encoding.utf8)!
     }
+
 }
