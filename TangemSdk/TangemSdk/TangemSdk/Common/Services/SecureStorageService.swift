@@ -9,12 +9,6 @@
 import Foundation
 import KeychainSwift
 
-/// Keys used for store data in Keychain
-enum StorageKey: String {
-    case terminalPrivateKey //link card to terminal
-    case terminalPublicKey
-}
-
 /// Helper class for Keychain
 class SecureStorageService: NSObject {
     func get(key: String) -> Any? {
