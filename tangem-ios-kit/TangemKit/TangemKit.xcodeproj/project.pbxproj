@@ -172,6 +172,7 @@
 		5D36645E238FC12B0089F442 /* CardReadSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D36645D238FC12B0089F442 /* CardReadSession.swift */; };
 		5D379F19237AA5D80093B074 /* SegWitBech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D379F18237AA5D80093B074 /* SegWitBech32.swift */; };
 		5D3DBF5C2310194F0065D96A /* CardanoUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */; };
+		5D41EA0423CF548D004DE701 /* LTCEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D41EA0323CF548D004DE701 /* LTCEngine.swift */; };
 		5D48752122DC6B1D00F690BE /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D48752022DC6B1D00F690BE /* InputStream+.swift */; };
 		5D48752222DC6B1D00F690BE /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D48752022DC6B1D00F690BE /* InputStream+.swift */; };
 		5D48752422DC78A100F690BE /* Dictionary+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D48752322DC78A100F690BE /* Dictionary+.swift */; };
@@ -324,6 +325,7 @@
 		5D36645D238FC12B0089F442 /* CardReadSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardReadSession.swift; sourceTree = "<group>"; };
 		5D379F18237AA5D80093B074 /* SegWitBech32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegWitBech32.swift; sourceTree = "<group>"; };
 		5D3DBF5B2310194F0065D96A /* CardanoUnspentOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutput.swift; sourceTree = "<group>"; };
+		5D41EA0323CF548D004DE701 /* LTCEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LTCEngine.swift; sourceTree = "<group>"; };
 		5D48752022DC6B1D00F690BE /* InputStream+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		5D48752322DC78A100F690BE /* Dictionary+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+.swift"; sourceTree = "<group>"; };
 		5D48752622DC9E2400F690BE /* CardSW.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSW.swift; sourceTree = "<group>"; };
@@ -930,6 +932,7 @@
 				5DEF97EB22F0729D004E0CC5 /* CoinProvider.swift */,
 				5DF43C052334D7D900074485 /* XlmEngine.swift */,
 				5D9D062823B4D222009A755E /* BCHEngine.swift */,
+				5D41EA0323CF548D004DE701 /* LTCEngine.swift */,
 			);
 			path = Engines;
 			sourceTree = "<group>";
@@ -1357,6 +1360,7 @@
 				5DFFC496233A666D004964E8 /* StorageKeys.swift in Sources */,
 				5D3DBF5C2310194F0065D96A /* CardanoUnspentOutput.swift in Sources */,
 				5D11114222F0691E009919D1 /* lax_der_privatekey_parsing.swift in Sources */,
+				5D41EA0423CF548D004DE701 /* LTCEngine.swift in Sources */,
 				5DE995D5232298EB00623148 /* CryptoUtils.swift in Sources */,
 				5DE10AF322D609DA00BC45B9 /* CardTLV.swift in Sources */,
 				80EABF03222DCEBE00E1302A /* BTCEngine.swift in Sources */,
