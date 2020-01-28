@@ -9,8 +9,8 @@
 import Foundation
 
 /// Manage legacy mode, according to iPhone model and app preferences. This feature fixes NFC issues with long-running commands and security delay for iPhone 7/7+. Tangem card firmware starts from 2.39
-public class LegacyModeService {
-    public static var useLegacyMode: Bool {
+public class NfcUtils {
+    public static var isLegacyDevice: Bool {
         var systemInfo = utsname()
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
