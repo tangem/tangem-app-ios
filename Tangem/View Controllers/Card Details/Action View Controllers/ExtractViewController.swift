@@ -178,7 +178,7 @@ class ExtractViewController: ModalActionViewController {
     }
     
     @IBAction func scanTapped() {
-        guard !cardManager.isBusy, validateInput() else {
+        guard validateInput() else {
             return
         }
         
