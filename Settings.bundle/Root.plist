@@ -12,7 +12,7 @@
 			<key>Title</key>
 			<string>Legacy mode</string>
 			<key>Key</key>
-			<string>legacymode_preference</string>
+			<string>tangemsdk_legacymode_preference</string>
 			<key>DefaultValue</key>
 			<false/>
 		</dict>

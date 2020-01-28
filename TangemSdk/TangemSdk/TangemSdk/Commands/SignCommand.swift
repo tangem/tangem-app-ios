@@ -55,12 +55,13 @@ public final class SignCommand: CommandSerializer {
         dataToSign = Data(flattenHashes)
     }
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
-        var tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
-                       Tlv(.pin2, value: environment.pin2.sha256()),
-                       Tlv(.cardId, value: Data(hexString: cardId)),
-                       Tlv(.transactionOutHashSize, value: hashSize.byte),
-                       Tlv(.transactionOutHash, value: dataToSign)]
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {        
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
+            .append(.pin2, value: environment.pin2)
+            .append(.cardId, value: cardId)
+            .append(.transactionOutHashSize, value: hashSize)
+            .append(.transactionOutHash, value: dataToSign)
         
         /**
          * Application can optionally submit a public key Terminal_PublicKey in [SignCommand].
@@ -71,11 +72,12 @@ public final class SignCommand: CommandSerializer {
          */
         if let keys = environment.terminalKeys,
             let signedData = CryptoUtils.signSecp256k1(dataToSign, with: keys.privateKey) {
-            tlvData.append(Tlv(.terminalTransactionSignature, value: signedData))
-            tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
+            try tlvBuilder
+                .append(.terminalTransactionSignature, value: signedData)
+                .append(.terminalPublicKey, value: keys.publicKey)
         }
         
-        let cApdu = CommandApdu(.sign, tlv: tlvData)
+        let cApdu = CommandApdu(.sign, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
