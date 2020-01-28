@@ -46,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #if BETA
             Fabric.with([Crashlytics.self])
         #endif
-        Utils().initialize(legacyMode: LegacyModeService.useLegacyMode)
+        Utils().initialize(legacyMode: NfcUtils.isLegacyDevice)
         
         return true
     }
