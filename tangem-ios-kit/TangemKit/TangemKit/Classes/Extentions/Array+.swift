@@ -7,11 +7,11 @@
 //
 
 import Foundation
-extension Array where Element == CardTLV {
-    var bytes: [UInt8] {
-        return self.reduce([], { $0 + $1.bytes })
-    }
-}
+//extension Array where Element == CardTLV {
+//    var bytes: [UInt8] {
+//        return self.reduce([], { $0 + $1.bytes })
+//    }
+//}
 
 extension Array where Element == Int {
     var bytes: [UInt8] {
