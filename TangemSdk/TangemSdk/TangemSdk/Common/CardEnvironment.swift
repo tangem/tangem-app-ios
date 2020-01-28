@@ -27,26 +27,15 @@ public struct CardEnvironment: Equatable {
     static let defaultPin1 = "000000"
     static let defaultPin2 = "000"
     
+    public var cardId: String? = nil
     public var pin1: String = CardEnvironment.defaultPin1
     public var pin2: String = CardEnvironment.defaultPin2
     public var terminalKeys: KeyPair? = nil
     public var encryptionKey: Data? = nil
+    public var legacyMode: Bool = true
+    public var cvc: Data? = nil
     
-    /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
-    static var needLegacyMode: Bool {
-        var systemInfo = utsname()
-        uname(&systemInfo)
-        let machineMirror = Mirror(reflecting: systemInfo.machine)
-        let identifier = machineMirror.children.reduce("") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { return identifier }
-            return identifier + String(UnicodeScalar(UInt8(value)))
-        }
-        return identifier == "iPhone9,1" || identifier == "iPhone9,2" || identifier == "iPhone9,3" || identifier == "iPhone9,4"
-    }
-    
-    public init() {
-        
-    }
+    public init() {}
 }
 
 
