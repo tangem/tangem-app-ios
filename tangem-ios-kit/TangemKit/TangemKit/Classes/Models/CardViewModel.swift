@@ -180,6 +180,14 @@ public class CardViewModel {
         }
     }
     
+    public var hasEmptyWallet: Bool {
+        if let total = Decimal(string: balance), total == 0, isWallet {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     public var walletValue: String = "0"
     public var walletTokenValue: String?
     public var usdWalletValue: String?
@@ -392,7 +400,7 @@ public class CardViewModel {
         tokenContractAddressPrivate = card.cardData?.tokenContractAddress
         tokenDecimal = card.cardData?.tokenDecimal
         manufactureSignature = card.cardData?.manufacturerSignature?.hex ?? ""
-        walletPublicKey = card.walletPublicKey?.hex ??  ""
+        walletPublicKey = card.walletPublicKey?.asHexString() ??  ""
         walletPublicKeyBytesArray = card.walletPublicKey?.bytes ?? []
         maxSignatures = "\(card.maxSignatures ?? -1)"
         remainingSignatures = "\(card.remainingSignatures ?? -1)"
@@ -412,7 +420,13 @@ public class CardViewModel {
         setupEngine()
     }
     
-   
+    public func setupWallet(status: CardStatus, walletPublicKey: Data?) {
+        self.status = status
+        self.walletPublicKey = walletPublicKey?.hex ?? ""
+        self.walletPublicKeyBytesArray = walletPublicKey?.bytes ?? []
+        self.genuinityState = .genuine
+        setupEngine()
+    }
 //    //[REDACTED_TODO_COMMENT]
 //    public init(tags: [CardTLV]) {
 //        tags.forEach({
