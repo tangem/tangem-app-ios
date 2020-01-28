@@ -55,17 +55,17 @@ public final class WriteIssuerDataCommand: CommandSerializer {
     }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
-        let builder = try createTlvBuilder(legacyMode: environment.legacyMode)
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.cardId, value: cardId)
             .append(.issuerData, value: issuerData)
             .append(.issuerDataSignature, value: issuerDataSignature)
         
         if let counter = issuerDataCounter {
-            try builder.append(.issuerDataCounter, value: counter)
+            try tlvBuilder.append(.issuerDataCounter, value: counter)
         }
         
-        let cApdu = CommandApdu(.writeIssuerData, tlv: builder.serialize())
+        let cApdu = CommandApdu(.writeIssuerData, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
