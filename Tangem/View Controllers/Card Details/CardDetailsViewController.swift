@@ -23,7 +23,6 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     var card: Card?
     var isBalanceVerified = false
     var isBalanceLoading = false
-    var shouldIgnoreDidActive = true
     
     var customPresentationController: CustomPresentationController?
     
@@ -39,7 +38,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -53,19 +52,14 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         setupWithCardDetails(card: card)
     }
     
-    @objc func applicationDidBecomeActive() {
-        guard !shouldIgnoreDidActive else {
-            shouldIgnoreDidActive = false
-            return
-        }
-        
+    @objc func applicationWillEnterForeground() {
         if let card = card {
             isBalanceLoading = true
             fetchWalletBalance(card: card)
         }
     }
     
-    func updateBalance() {
+    func updateBalance(forceUnverifyed: Bool = false) {
         guard let card = card else {
             assertionFailure()
             return
@@ -78,7 +72,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
         self.isBalanceLoading = true
         self.viewModel.setWalletInfoLoading(true)
-        fetchWalletBalance(card: card)
+        fetchWalletBalance(card: card, forceUnverifyed: forceUnverifyed)
         
     }
     
@@ -110,7 +104,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         operationQueue.addOperation(operation)
     }
     
-    func fetchWalletBalance(card: Card) {
+    func fetchWalletBalance(card: Card, forceUnverifyed: Bool = false) {
         
         guard card.isWallet else {
             isBalanceLoading = false
@@ -126,7 +120,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             } else if card.type == .slix2 {
                 self.handleBalanceLoadedSlix2()
             } else {
-                self.handleBalanceLoaded()
+                self.handleBalanceLoaded(forceUnverifyed)
             }
             
             self.isBalanceLoading = false
@@ -206,7 +200,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         
     }
     
-    func handleBalanceLoaded() {
+    func handleBalanceLoaded(_ forceUnverifyed: Bool) {
         guard let card = card else {
             assertionFailure()
             return
@@ -245,7 +239,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
             return
         }
         
-        guard !card.hasPendingTransactions else {
+        guard !forceUnverifyed && !card.hasPendingTransactions else {
             setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
             return
         }
@@ -272,7 +266,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         let balanceTitle = hasBalance ? Localizations.genuine : Localizations.notFound
         
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
-        setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
+        setupBalanceVerified(hasBalance, customText: hasBalance ? Localizations.verifiedTag : Localizations.unverifiedBalance)
     }
     
     func handleBalanceLoadedSlix2() {
@@ -293,7 +287,7 @@ class CardDetailsViewController: UIViewController, TestCardParsingCapable, Defau
         let verifyed = claimer.claimStatus != .notGenuine
         viewModel.claimButton.isHidden = false
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
-        setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedBalance : Localizations.unverifiedBalance)
+        setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedTag : Localizations.unverifiedBalance)
         
         viewModel.loadButton.isHidden = true
         viewModel.extractButton.isHidden = true
@@ -571,6 +565,7 @@ extension CardDetailsViewController {
                 
                 if card.hasPendingTransactions  {
                     self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+                    self.updateBalance(forceUnverifyed: true)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
                         guard let self = self, !self.isBalanceVerified else {
@@ -597,7 +592,6 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
-        shouldIgnoreDidActive = true
         #if targetEnvironment(simulator)
         showSimulationSheet()
         #else
