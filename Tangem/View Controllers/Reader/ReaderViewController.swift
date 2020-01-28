@@ -14,7 +14,12 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     
     var customPresentationController: CustomPresentationController?
     
-    var cardManager = CardManager()
+    lazy var cardManager: CardManager = {
+        let manager = CardManager()
+        manager.config.legacyMode = Utils().needLegacyMode
+        return manager
+    }()
+    
     private var card: CardViewModel?
     
     @IBOutlet weak var storeTitleLabel: UILabel! {
@@ -112,6 +117,11 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                 } else {
                     guard self.card!.isBlockchainKnown else {
                         self.handleUnknownBlockchainCard()
+                        return
+                    }
+                    
+                    guard self.card!.status == .loaded else {
+                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
                         return
                     }
                     
