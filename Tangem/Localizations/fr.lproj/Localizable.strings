@@ -772,7 +772,7 @@
 
 "common_unverified_balance" = "Solde non vérifié";
 
-"disclamer_no_wallet_creation" = "La création de porte-monnaie n'est pas disponible sur l'iPhone pour le moment";
+"disclamer_no_wallet_creation" = "Wallet creation is available starting from iOS 13";
 
 "disclamer_nfc_title" = "Important: restriction NFC sur iOS";
 
