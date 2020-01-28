@@ -261,7 +261,9 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             balanceTitle = Localizations.alreadyClaimed
         }
         let verifyed = claimer.claimStatus != .notGenuine
-        viewModel.claimButton.isHidden = false
+        viewModel.actionButtonState = .claimTag
+        viewModel.actionButton.isEnabled = false
+        viewModel.actionButton.isHidden = false
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
         setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedTag : Localizations.unverifiedBalance)
         
@@ -271,7 +273,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
-        
+         viewModel.actionButton.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
         viewModel.walletBlockchainLabel.isHidden = true
@@ -293,7 +295,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.walletAddressLabel.isHidden = false
         viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
-        if let card = card, card.productMask == .note && card.type != .nft {
+        if let card = card, card.productMask == .note && card.type != .nft && !card.hasEmptyWallet {
             viewModel.loadButton.isEnabled = verified
             viewModel.extractButton.isEnabled = verified
             viewModel.buttonsAvailabilityView.isHidden = verified
@@ -303,7 +305,10 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             viewModel.extractButton.isEnabled = false
         }
         
+        viewModel.loadButton.isHidden = false
+        viewModel.extractButton.isHidden = false
         viewModel.exploreButton.isEnabled = true
+
         viewModel.copyButton.isEnabled = true
         viewModel.moreButton.isEnabled = true
         viewModel.scanButton.isEnabled = true
@@ -314,11 +319,15 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         isBalanceVerified = false
         
         viewModel.updateWalletBalance(title: "--")
-        
+        viewModel.actionButtonState = .createWallet
         viewModel.updateWalletBalanceNoWallet()
         viewModel.loadButton.isEnabled = false
         viewModel.extractButton.isEnabled = false
-        viewModel.buttonsAvailabilityView.isHidden = false
+        viewModel.loadButton.isHidden = true
+        viewModel.extractButton.isHidden = true
+        viewModel.actionButton.isHidden = false
+        viewModel.actionButton.isEnabled = true
+        viewModel.buttonsAvailabilityView.isHidden = true
         viewModel.walletBlockchainLabel.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
@@ -452,23 +461,45 @@ extension CardDetailsViewController {
     }
     
     
-    @IBAction func claimButtonPressed(_ sender: Any)  {
-        let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
-            if let pswd = ac.textFields?.first?.text {
-                self.performClaim(password: pswd)
+    @IBAction func actionButtonPressed(_ sender: Any)  {
+        switch viewModel.actionButtonState {
+        case .claimTag:
+             let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
+                   ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
+                       if let pswd = ac.textFields?.first?.text {
+                           self.performClaim(password: pswd)
+                       }
+                   }))
+                   
+                   ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
+                       // ac.dismiss(animated: true, completion: nil)
+                   }))
+                   
+                   ac.addTextField { textField in
+                       textField.isSecureTextEntry = true
+                   }
+                   
+                   self.present(ac, animated: true, completion: nil)
+        case .createWallet:
+            if #available(iOS 13.0, *) {
+                cardManager.createWallet(cardId: card!.cardID) {[unowned self] taskResponse in
+                    switch taskResponse {
+                    case .event(let createWalletResponse):
+                        self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                    case .completion(let error):
+                        if let error = error {
+                            if !error.isUserCancelled {
+                                self.handleGenericError(error)
+                            }
+                        } else {
+                            self.setupWithCardDetails(card: self.card!)
+                        }
+                    }
+                }
+            } else {
+                self.handleGenericError(Localizations.disclamerNoWalletCreation)
             }
-        }))
-        
-        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
-            // ac.dismiss(animated: true, completion: nil)
-        }))
-        
-        ac.addTextField { textField in
-            textField.isSecureTextEntry = true
         }
-        
-        self.present(ac, animated: true, completion: nil)
     }
     
     @IBAction func extractButtonPressed(_ sender: Any) {
@@ -518,7 +549,7 @@ extension CardDetailsViewController {
                     self.viewModel.setWalletInfoLoading(true)
                     self.setupBalanceIsBeingVerified()
                     self.viewModel.setSubstitutionInfoLoading(true)
-                    self.viewModel.claimButton.isHidden = true
+                    self.viewModel.actionButton.isHidden = true
                     self.viewModel.extractButton.isHidden = false
                     self.viewModel.loadButton.isHidden = false
                     if #available(iOS 13.0, *) {} else {
@@ -531,11 +562,14 @@ extension CardDetailsViewController {
                 }
             case .completion(let error):
                 if let error = error {
-                    if case .userCancelled = error {
-                        //silence user cancelled
-                    } else {
+                    if !error.isUserCancelled {
                         self.handleGenericError(error)
                     }
+                }
+                
+                guard self.card!.status == .loaded else {
+                      self.setupWithCardDetails(card: self.card!)
+                    return
                 }
                 
                 if self.card!.genuinityState == .genuine {
@@ -597,6 +631,10 @@ extension CardDetailsViewController {
         }
         
         viewController.contentText = strings.joined(separator: "\n")
+        viewController.card = card!
+        viewController.onDone = { [unowned self] in
+            self.setupWithCardDetails(card: self.card!)
+        }
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
