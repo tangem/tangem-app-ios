@@ -238,7 +238,7 @@ public final class ReadCommand: CommandSerializer {
     
     private func deserializeCardData(tlv: [Tlv]) throws -> CardData? {
         guard let cardDataValue = tlv.value(for: .cardData),
-            let cardDataTlv = Array<Tlv>.init(cardDataValue) else {
+            let cardDataTlv = Tlv.deserialize(cardDataValue) else {
                 return nil
         }
         
