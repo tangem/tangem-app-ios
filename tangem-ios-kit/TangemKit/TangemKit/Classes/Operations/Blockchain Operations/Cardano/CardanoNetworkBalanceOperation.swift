@@ -45,7 +45,11 @@ class CardanoNetworkBalanceOperation: GBAsyncOperation {
             case .success(let data):
                 do {
                     let balanceInfo = try JSON(data: data)
-                    let balance = balanceInfo["Right"]["caBalance"]["getCoin"].doubleValue
+                    guard let balanceString = balanceInfo["Right"]["caBalance"]["getCoin"].string,
+                       let balance = Double(balanceString) else {
+                        self.failOperationWith(error: balanceInfo["Left"].stringValue)
+                        return
+                    }
                     
                     let walletValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.cardano.decimalCount))
                     
