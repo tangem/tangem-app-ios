@@ -165,12 +165,8 @@ class ViewController: UIViewController {
     }
     
     private func handle(_ error: TaskError?) {
-        if let error = error {
-            if case .userCancelled = error {
-                //silence user cancelled
-            } else {
-                self.log("completed with error: \(error.localizedDescription)")
-            }
+        if let error = error, !error.isUserCancelled {
+            self.log("completed with error: \(error.localizedDescription)")
         }
     }
 }
