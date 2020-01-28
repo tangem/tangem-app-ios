@@ -183,17 +183,18 @@ public final class ReadCommand: CommandSerializer {
     
     public init() {}
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         /// `CardEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.
         /// In order to obtain card’s data, [ReadCommand] should use the correct pin 1 value.
         /// The card will not respond if wrong pin 1 has been submitted.
-        var tlvData = [Tlv(.pin, value: environment.pin1.sha256())]
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
         if let keys = environment.terminalKeys {
-            tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
+            try tlvBuilder.append(.terminalPublicKey, value: keys.publicKey)
         }
         
-        let cApdu = CommandApdu(.read, tlv: tlvData)
+        let cApdu = CommandApdu(.read, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
