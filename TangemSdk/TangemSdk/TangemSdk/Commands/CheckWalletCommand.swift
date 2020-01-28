@@ -32,12 +32,13 @@ public final class CheckWalletCommand: CommandSerializer {
         self.challenge = challenge
     }
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
-        let tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
-                       Tlv(.cardId, value: Data(hexString: cardId)),
-                       Tlv(.challenge, value: challenge)]
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
+            .append(.cardId, value: cardId)
+            .append(.challenge, value: challenge)
         
-        let cApdu = CommandApdu(.checkWallet, tlv: tlvData)
+        let cApdu = CommandApdu(.checkWallet, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
