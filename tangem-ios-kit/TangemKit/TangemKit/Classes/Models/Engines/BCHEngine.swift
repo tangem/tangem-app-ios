@@ -12,7 +12,7 @@ import Moya
 import SwiftyJSON
 
 class BCHEngine: CardEngine {
-    var card: Card
+    unowned var card: Card
     
     var blockchainDisplayName: String { "Bitcoin Cash" }
     
@@ -38,7 +38,7 @@ class BCHEngine: CardEngine {
     
     private var txBuilder: BitcoinCashTransactionBuilder!
     private var transaction: Transaction?
-    private let moyaProvider = MoyaProvider<BlockchairTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
+    private let moyaProvider = MoyaProvider<BlockchairTarget>()
     
     required init(card: Card) {
         self.card = card
