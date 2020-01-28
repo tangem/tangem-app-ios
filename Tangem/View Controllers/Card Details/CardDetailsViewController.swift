@@ -14,7 +14,12 @@ import CryptoSwift
 import TangemSdk
 
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
-    private var cardManager = CardManager()
+    
+    private lazy var cardManager: CardManager = {
+           let manager = CardManager()
+           manager.config.legacyMode = Utils().needLegacyMode
+           return manager
+       }()
     
     @IBOutlet var viewModel: CardDetailsViewModel! {
         didSet {
@@ -77,12 +82,14 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         setupBalanceIsBeingVerified()
         viewModel.setSubstitutionInfoLoading(true)
         viewModel.setWalletInfoLoading(true)
-        guard card.genuinityState != .pending else {
+        
+        if card.genuinityState == .pending && card.status == .loaded {
             viewModel.setSubstitutionInfoLoading(true)
             return
         }
         
         viewModel.doubleScanHintLabel.isHidden = true
+        
         fetchSubstitutionInfo(card: card)
     }
     
@@ -539,6 +546,7 @@ extension CardDetailsViewController {
                         }
                         return
                     }
+                    
                     
                     self.setupWithCardDetails(card: self.card!)
                     
