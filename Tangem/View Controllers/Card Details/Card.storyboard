@@ -222,11 +222,11 @@
                                                 <rect key="frame" x="335" y="0.0" width="0.0" height="60"/>
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
-                                                <state key="normal" title="Claim">
+                                                <state key="normal">
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
-                                                    <action selector="claimButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="vD7-3I-aze"/>
+                                                    <action selector="actionButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="vD7-3I-aze"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -318,6 +318,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="KO4-Jg-efb" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <customObject id="IUA-TQ-Kd3" customClass="CardDetailsViewModel" customModule="Tangem" customModuleProvider="target">
                     <connections>
+                        <outlet property="actionButton" destination="wYf-Ng-bn9" id="V6N-BO-Xa3"/>
                         <outlet property="balanceLabel" destination="oFz-2Y-wgy" id="968-c4-anA"/>
                         <outlet property="balanceVerificationActivityIndicator" destination="VAO-g0-gA5" id="xc3-Kq-PfF"/>
                         <outlet property="balanceVerificationLabel" destination="FF6-9W-3kh" id="jFM-Pz-bhv"/>
@@ -325,7 +326,6 @@
                         <outlet property="cardImageView" destination="vgg-PE-syF" id="Qrf-L7-UJp"/>
                         <outlet property="cardWalletInfoLoadingView" destination="XFd-FO-m0e" id="1MD-Kt-iLo"/>
                         <outlet property="cardWalletInfoView" destination="uei-9H-Dqj" id="AXV-LY-yh8"/>
-                        <outlet property="claimButton" destination="wYf-Ng-bn9" id="V6N-BO-Xa3"/>
                         <outlet property="copyButton" destination="jVZ-aM-qHX" id="8w0-Jg-1lX"/>
                         <outlet property="doubleScanHintLabel" destination="wuf-Hj-EKQ" id="boi-nw-CdM"/>
                         <outlet property="exploreButton" destination="XaP-jA-mxL" id="EsO-IU-CwJ"/>
@@ -378,13 +378,13 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="27"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="249" text="Card" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFt-no-LS2">
-                                                        <rect key="frame" x="0.0" y="0.0" width="26.5" height="27"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="27"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="17"/>
                                                         <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" verticalCompressionResistancePriority="249" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W9C-jC-USt">
-                                                        <rect key="frame" x="26.5" y="0.0" width="308.5" height="27"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="335" height="27"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="17"/>
                                                         <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
@@ -395,13 +395,13 @@
                                                 <rect key="frame" x="0.0" y="31" width="335" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NGJ-4c-JhN">
-                                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="50"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="20"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kBV-Dy-vaU">
-                                                        <rect key="frame" x="50" y="0.0" width="285" height="50"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="335" height="50"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="20"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -736,13 +736,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Igs-5J-qwc">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="571"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="CTT-kX-MD8">
                                         <rect key="frame" x="0.0" y="10" width="375" height="40"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MORE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eUM-J5-RUS">
-                                                <rect key="frame" x="166" y="4.5" width="43" height="31.5"/>
+                                                <rect key="frame" x="166.5" y="4.5" width="42.5" height="31.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
@@ -750,13 +750,14 @@
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
+                                            <constraint firstAttribute="height" constant="40" id="0hg-Sx-ha1"/>
                                             <constraint firstItem="eUM-J5-RUS" firstAttribute="top" secondItem="CTT-kX-MD8" secondAttribute="top" constant="4.5" id="5FI-17-BW5"/>
                                             <constraint firstItem="eUM-J5-RUS" firstAttribute="centerX" secondItem="CTT-kX-MD8" secondAttribute="centerX" id="Cjp-fO-IgH"/>
                                             <constraint firstAttribute="bottom" secondItem="eUM-J5-RUS" secondAttribute="bottom" constant="4" id="yiu-Dr-Woo"/>
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZGJ-w1-cTW">
-                                        <rect key="frame" x="30" y="104" width="315" height="180"/>
+                                        <rect key="frame" x="16" y="66" width="343" height="180"/>
                                         <string key="text">Issuer: Tangem, Inc.
 Manufacturer: Tangem, Inc.
 API node: tardis.bauerj.eu:50001
@@ -773,21 +774,38 @@ Remaining signatures: 1,000,000</string>
                                     </label>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="ZGJ-w1-cTW" firstAttribute="top" secondItem="CTT-kX-MD8" secondAttribute="bottom" constant="54" id="2KC-tg-BTl"/>
+                                    <constraint firstItem="ZGJ-w1-cTW" firstAttribute="top" secondItem="CTT-kX-MD8" secondAttribute="bottom" constant="16" id="2KC-tg-BTl"/>
                                     <constraint firstAttribute="trailing" secondItem="CTT-kX-MD8" secondAttribute="trailing" id="9Sq-Pp-bdV"/>
-                                    <constraint firstAttribute="bottom" secondItem="ZGJ-w1-cTW" secondAttribute="bottom" constant="30" id="9WS-Se-ShL"/>
                                     <constraint firstItem="CTT-kX-MD8" firstAttribute="top" secondItem="Igs-5J-qwc" secondAttribute="top" constant="10" id="B8h-Cg-s5V"/>
-                                    <constraint firstItem="ZGJ-w1-cTW" firstAttribute="leading" secondItem="Igs-5J-qwc" secondAttribute="leading" constant="30" id="EZu-2W-9dZ"/>
-                                    <constraint firstAttribute="trailing" secondItem="ZGJ-w1-cTW" secondAttribute="trailing" constant="30" id="bwH-mq-eLp"/>
+                                    <constraint firstItem="ZGJ-w1-cTW" firstAttribute="leading" secondItem="Igs-5J-qwc" secondAttribute="leading" constant="16" id="EZu-2W-9dZ"/>
+                                    <constraint firstAttribute="trailing" secondItem="ZGJ-w1-cTW" secondAttribute="trailing" constant="16" id="bwH-mq-eLp"/>
                                     <constraint firstItem="CTT-kX-MD8" firstAttribute="leading" secondItem="Igs-5J-qwc" secondAttribute="leading" id="dAh-TK-Fr3"/>
+                                    <constraint firstAttribute="bottom" secondItem="ZGJ-w1-cTW" secondAttribute="bottom" constant="8" id="ye1-bi-TL8"/>
                                 </constraints>
                             </scrollView>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1sf-qL-6xa">
+                                <rect key="frame" x="87.5" y="587" width="200" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="0fH-8g-kfP"/>
+                                    <constraint firstAttribute="height" constant="60" id="7bE-Gi-1hE"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <state key="normal" title="Erase Wallet">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="actionButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="ABA-rk-ypl"/>
+                                    <action selector="eraseTapped:" destination="kGK-vp-W1f" eventType="touchUpInside" id="39b-1U-BEc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="llc-wj-a26" firstAttribute="bottom" secondItem="Igs-5J-qwc" secondAttribute="bottom" id="5Yz-59-n2f"/>
-                            <constraint firstItem="CTT-kX-MD8" firstAttribute="width" secondItem="IBO-7n-oW1" secondAttribute="width" id="O9K-AA-P20"/>
+                            <constraint firstItem="1sf-qL-6xa" firstAttribute="top" secondItem="Igs-5J-qwc" secondAttribute="bottom" constant="16" id="Ogb-Ii-ogM"/>
+                            <constraint firstItem="1sf-qL-6xa" firstAttribute="centerX" secondItem="IBO-7n-oW1" secondAttribute="centerX" id="P7x-OA-59X"/>
                             <constraint firstItem="Igs-5J-qwc" firstAttribute="leading" secondItem="llc-wj-a26" secondAttribute="leading" id="VN0-vn-XQB"/>
+                            <constraint firstItem="llc-wj-a26" firstAttribute="bottom" secondItem="1sf-qL-6xa" secondAttribute="bottom" constant="20" id="i4o-Ri-6vL"/>
                             <constraint firstItem="Igs-5J-qwc" firstAttribute="top" secondItem="llc-wj-a26" secondAttribute="top" id="kd6-Ah-agS"/>
                             <constraint firstItem="llc-wj-a26" firstAttribute="trailing" secondItem="Igs-5J-qwc" secondAttribute="trailing" id="nFr-Us-U3Q"/>
                         </constraints>
@@ -795,12 +813,13 @@ Remaining signatures: 1,000,000</string>
                     </view>
                     <connections>
                         <outlet property="contentLabel" destination="ZGJ-w1-cTW" id="IYJ-9R-K6d"/>
+                        <outlet property="eraseWalletButton" destination="1sf-qL-6xa" id="lym-TU-jNf"/>
                         <outlet property="titleLabel" destination="eUM-J5-RUS" id="cIq-TO-sac"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gdW-sl-hSZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3998" y="91"/>
+            <point key="canvasLocation" x="3997.5999999999999" y="90.404797601199405"/>
         </scene>
         <!--Code View Controller-->
         <scene sceneID="Gj4-jx-c7V">
