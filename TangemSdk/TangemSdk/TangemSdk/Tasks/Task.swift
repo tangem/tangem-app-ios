@@ -70,6 +70,15 @@ public enum TaskError: Error, LocalizedError {
             return "\(self)"
         }
     }
+    
+    public var isUserCancelled: Bool {
+        switch self {
+        case .userCancelled:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 /**
