@@ -397,8 +397,8 @@ public class CardViewModel {
         maxSignatures = "\(card.maxSignatures ?? -1)"
         remainingSignatures = "\(card.remainingSignatures ?? -1)"
         signedHashes = "\(card.walletSignedHashes ?? -1)"
-        challenge = card.challenge?.hex.lowercased()  ?? ""
-        salt = card.salt?.hex.lowercased()  ?? ""
+        challenge = card.challenge?.hex.lowercased()
+        salt = card.salt?.hex.lowercased()
         signArr = card.walletSignature?.bytes ?? []
         status = card.status ?? CardStatus.empty
         issuerDataPublicKey = card.issuerPublicKey?.bytes ?? []
