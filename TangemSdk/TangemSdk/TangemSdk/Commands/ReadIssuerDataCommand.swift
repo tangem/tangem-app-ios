@@ -45,11 +45,11 @@ public final class ReadIssuerDataCommand: CommandSerializer {
     }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
-        let builder = try createTlvBuilder(legacyMode: environment.legacyMode)
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.cardId, value: cardId)
         
-        let cApdu = CommandApdu(.readIssuerData, tlv: builder.serialize())
+        let cApdu = CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
