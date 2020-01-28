@@ -9,16 +9,16 @@
 import Foundation
 
 public class TlvBuilder {
-    private var tlv = [Tlv]()
+    private var tlvs = [Tlv]()
     private let encoder = TlvEncoder()
     
     @discardableResult
     public func append<T>(_ tag: TlvTag, value: T) throws -> TlvBuilder {
-        tlv.append(try encoder.encode(tag, value: value))
+        tlvs.append(try encoder.encode(tag, value: value))
         return self
     }
     
     public func serialize() -> Data {
-        return tlv.serialize()
+        return tlvs.serialize()
     }
 }
