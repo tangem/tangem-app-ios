@@ -40,16 +40,16 @@ public final class CreateWalletCommand: CommandSerializer {
     }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
-        let builder = try createTlvBuilder(legacyMode: environment.legacyMode)
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
             .append(.cardId, value: cardId)
         
         if let cvc = environment.cvc {
-            try builder.append(.cvc, value: cvc)
+            try tlvBuilder.append(.cvc, value: cvc)
         }
         
-        let cApdu = CommandApdu(.createWallet, tlv: builder.serialize())
+        let cApdu = CommandApdu(.createWallet, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
