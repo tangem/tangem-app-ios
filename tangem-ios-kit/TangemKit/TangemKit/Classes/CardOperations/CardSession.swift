@@ -81,7 +81,6 @@ public class CardSession: NSObject {
         tag?.sendCommand(apdu: apdu) {[weak self](data, sw1, sw2, apduError) in
             guard let self = self else { return }
             
-            print("receive response")
             guard !self.cancelled else {
                 print("skip cancelled")
                 return
