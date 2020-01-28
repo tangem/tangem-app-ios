@@ -17,10 +17,12 @@ class BtcBalanceOperation: GBAsyncOperation {
     private let operationQueue = OperationQueue()
     private unowned let engine: BTCEngine
     private var retryCount = 1
+    private let blockcyperApi: BlockcyperApi
     
-    init(with engine: BTCEngine, completion: @escaping (TangemObjectResult<BtcResponse>) -> Void) {
+    init(with engine: BTCEngine, blockcyperApi: BlockcyperApi, completion: @escaping (TangemObjectResult<BtcResponse>) -> Void) {
         self.completion = completion
         self.engine = engine
+        self.blockcyperApi = blockcyperApi
     }
     
     override func main() {
@@ -62,7 +64,7 @@ class BtcBalanceOperation: GBAsyncOperation {
     }
     
     func getBlockcypherRequest() -> GBAsyncOperation {
-        let operation: BtcRequestOperation<BlockcypherAddressResponse> = BtcRequestOperation(endpoint: BlockcypherEndpoint.address(address: engine.card.address), completion: { [weak self] (result) in
+        let operation: BtcRequestOperation<BlockcypherAddressResponse> = BtcRequestOperation(endpoint: BlockcypherEndpoint.address(address: engine.card.address, api: blockcyperApi), completion: { [weak self] (result) in
             switch result {
             case .success(let response):
                 guard let balance = response.balance,
