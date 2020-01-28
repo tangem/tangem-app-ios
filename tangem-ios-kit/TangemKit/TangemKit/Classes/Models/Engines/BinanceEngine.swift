@@ -195,7 +195,7 @@ class BinanceTransactionBuilder {
     private var message: Message?
     
     func buildForSign(amount: Decimal, targetAddress: String) -> Message {
-        message = Message.transfer(symbol: "BNB", amount: (amount as NSDecimalNumber).doubleValue, to: targetAddress, wallet: bnbWallet)
+        message = Message.transfer(symbol: "BNB", amount: Double("\(amount)")!, to: targetAddress, wallet: bnbWallet)
        return message!
     }
     
