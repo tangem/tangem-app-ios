@@ -93,21 +93,11 @@ public struct Tlv: Equatable {
     }
 }
 
-extension Array where Element == Tlv {    
+extension Array where Element == Tlv {
     /// Serialize array of tlv items to Data
     /// - Parameter array: tlv array
     public func serialize() -> Data {
         return Data(self.reduce([], { $0 + $1.serialize() }))
-    }
-    
-    /// Deserialize raw tlv data to array of tlv items
-    /// - Parameter data: Raw TLV data
-    public init?(_ data: Data) {
-        guard let tlvArray = Tlv.deserialize(data) else {
-            return nil
-        }
-        
-        self = tlvArray
     }
     
     /// Convinience getter for tlv
