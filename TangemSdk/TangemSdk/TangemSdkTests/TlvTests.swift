@@ -30,7 +30,7 @@ class TlvTests: XCTestCase {
     
     func testTlvDeserialization() {
         let testData = Data(hexString: "010500000000005002010110FF000A00000000000000000000")
-        let deserialized = Array<Tlv>.init(testData)
+        let deserialized = Tlv.deserialize(testData)
         XCTAssertNotNil(deserialized)
         
         let tlv1 = Tlv(TlvTag.cardId, value: Data(repeating: UInt8(0), count: 5))
@@ -41,18 +41,18 @@ class TlvTests: XCTestCase {
         XCTAssertTrue(deserialized!.contains(tag: .cardId))
         XCTAssertEqual(deserialized!, tlvArray)
         
-        XCTAssertNotNil(Array<Tlv>.init(Data()))
+        XCTAssertNotNil(Tlv.deserialize(Data()))
         
         let testBadData = Data(hexString: "10FF000A000000")
-        XCTAssertNil(Array<Tlv>.init(testBadData))
+        XCTAssertNil(Tlv.deserialize(testBadData))
         
         let testBadData1 = Data(hexString: "10FF00")
-        XCTAssertNil(Array<Tlv>.init(testBadData1))
+        XCTAssertNil(Tlv.deserialize(testBadData1))
         
         let testBadData2 = Data(hexString: "10")
-        XCTAssertNil(Array<Tlv>.init(testBadData2))
+        XCTAssertNil(Tlv.deserialize(testBadData2))
         
-        XCTAssertNotNil(Array<Tlv>.init( Data(hexString: "1000")))
+        XCTAssertNotNil(Tlv.deserialize( Data(hexString: "1000")))
     }
     
     func testMapping() {

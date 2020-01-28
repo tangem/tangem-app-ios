@@ -109,9 +109,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                 self.scanButton.hideActivityIndicator()
                 self.hintLabel.text = Localizations.readerHintDefault
                 if let error = error {
-                    if case .userCancelled = error {
-                        //silence user cancelled
-                    } else {
+                    if !error.isUserCancelled {
                         self.handleGenericError(error)
                     }
                 } else {
