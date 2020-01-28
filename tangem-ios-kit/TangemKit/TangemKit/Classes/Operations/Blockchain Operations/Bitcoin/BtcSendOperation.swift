@@ -18,11 +18,13 @@ class BtcSendOperation: GBAsyncOperation {
     private unowned let engine: BTCEngine
     private let tx: String
     private var retryCount = 1
+    private let blockcyperApi: BlockcyperApi
     
-    init(with engine: BTCEngine, txHex: String, completion: @escaping (TangemObjectResult<Bool>) -> Void) {
+    init(with engine: BTCEngine, blockcyperApi: BlockcyperApi, txHex: String, completion: @escaping (TangemObjectResult<Bool>) -> Void) {
         self.completion = completion
         self.engine = engine
         self.tx = txHex
+        self.blockcyperApi = blockcyperApi
     }
     
     override func main() {
@@ -69,7 +71,7 @@ class BtcSendOperation: GBAsyncOperation {
     }
     
     func getBlockcypherRequest() -> GBAsyncOperation {
-        let sendOp: BtcRequestOperation<String> = BtcRequestOperation(endpoint: BlockcypherEndpoint.send(txHex: tx)) {[weak self] result in
+        let sendOp: BtcRequestOperation<String> = BtcRequestOperation(endpoint: BlockcypherEndpoint.send(txHex: tx, api: blockcyperApi)) {[weak self] result in
             switch result {
             case .success(let sendResponse):
                 if !sendResponse.isEmpty {
