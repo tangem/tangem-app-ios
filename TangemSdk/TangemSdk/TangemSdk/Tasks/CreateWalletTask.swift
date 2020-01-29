@@ -50,7 +50,7 @@ public final class CreateWalletTask: Task<CreateWalletEvent> {
                     return
                 }
                 
-                if createWalletResponse.status == .empty {
+                if createWalletResponse.status == .loaded {
                     self.performCheckWallet(curve: curve, walletPublicKey: createWalletResponse.walletPublicKey, environment: environment, callback: callback)
                 } else {
                     let error = TaskError.errorProcessingCommand
