@@ -20,8 +20,8 @@ public final class SingleCommandTask<TCommand: CommandSerializer>: Task<TCommand
         self.command = command
     }
     
-    override public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TCommand.CommandResponse>) -> Void) {
-        sendCommand(command, environment: environment) { result in
+    override public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TCommand.CommandResponse>) -> Void) {
+        sendCommand(command, environment: environment) {[unowned self] result in
             switch result {
             case .success(let commandResponse):
                 self.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
