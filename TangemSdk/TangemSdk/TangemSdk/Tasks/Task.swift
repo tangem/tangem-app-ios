@@ -219,7 +219,11 @@ open class Task<TEvent>: AnyTask {
                     return
                 }
                 
-                self.onRun(environment: environment, currentCard: readResponse, callback: callback)
+                var newEnvironment = environment
+                if newEnvironment.cardId == nil {
+                    newEnvironment.cardId = readResponse.cardId
+                }
+                self.onRun(environment: newEnvironment, currentCard: readResponse, callback: callback)
             }
         }
     }

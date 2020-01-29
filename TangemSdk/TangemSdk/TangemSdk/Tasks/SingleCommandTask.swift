@@ -28,7 +28,6 @@ public final class SingleCommandTask<TCommand: CommandSerializer>: Task<TCommand
                 self.reader.stopSession()
                 callback(.event(commandResponse))
                 callback(.completion(nil))
-                self.reader.stopSession()
             case .failure(let error):
                 self.reader.stopSession(errorMessage: error.localizedDescription)
                 callback(.completion(error))
