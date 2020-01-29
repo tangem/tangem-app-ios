@@ -72,12 +72,10 @@ extension NDEFReader: CardReader {
     
     public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, NFCError>) -> Void) {
         self.completion = completion
-        readerSession = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: true)
+        readerSession = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: false)
         readerSession!.alertMessage = Localization.nfcAlertDefault
         readerSession!.begin()
     }
     
-    
-    public func restartPolling() {
-    } 
+    public func restartPolling() {}
 }
