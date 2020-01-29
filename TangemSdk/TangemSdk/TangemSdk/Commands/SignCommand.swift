@@ -27,13 +27,11 @@ public final class SignCommand: CommandSerializer {
     
     private let hashSize: Int
     private let dataToSign: Data
-    private let cardId: String
     
     /// Command initializer
     /// - Parameters:
     ///   - hashes: Array of transaction hashes.
-    ///   - cardId: CID, Unique Tangem card ID number
-    public init(hashes: [Data], cardId: String) throws {
+    public init(hashes: [Data]) throws {
         guard hashes.count > 0 else {
             throw TaskError.emptyHashes
         }
@@ -51,7 +49,6 @@ public final class SignCommand: CommandSerializer {
             
             flattenHashes.append(contentsOf: hash.toBytes)
         }
-        self.cardId = cardId
         dataToSign = Data(flattenHashes)
     }
     
@@ -59,7 +56,7 @@ public final class SignCommand: CommandSerializer {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
-            .append(.cardId, value: cardId)
+            .append(.cardId, value: environment.cardId)
             .append(.transactionOutHashSize, value: hashSize)
             .append(.transactionOutHash, value: dataToSign)
         
