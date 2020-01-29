@@ -114,14 +114,13 @@ public final class ScanTask: Task<ScanEvent> {
                         return
                 }
                 
-                guard let challenge = CryptoUtils.generateRandomBytes(count: 16) else {
+                guard let checkWalletCommand = CheckWalletCommand(cardId: cardId) else {
                     let error = TaskError.cardError
                     self?.reader.stopSession(errorMessage: error.localizedDescription)
                     callback(.completion(error))
                     return
                 }
                 
-                let checkWalletCommand = CheckWalletCommand(cardId: cardId, challenge: challenge)
                 self?.sendCommand(checkWalletCommand, environment: environment) {[weak self] checkWalletResult in
                     switch checkWalletResult {
                     case .failure(let error):
@@ -130,10 +129,7 @@ public final class ScanTask: Task<ScanEvent> {
                     case .success(let checkWalletResponse):
                         self?.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
                         self?.reader.stopSession()
-                        if let verifyResult = CryptoUtils.vefify(curve: curve,
-                                                                 publicKey: publicKey,
-                                                                 message: challenge + checkWalletResponse.salt,
-                                                                 signature: checkWalletResponse.walletSignature) {
+                        if let verifyResult = checkWalletResponse.verify(curve: curve, publicKey: publicKey, challenge: checkWalletCommand.challenge) {
                             callback(.event(.onVerify(verifyResult)))
                             callback(.completion())
                         } else {
