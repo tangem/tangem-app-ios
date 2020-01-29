@@ -76,7 +76,7 @@ public final class CardManager {
     public func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void) {
         var signCommand: SignCommand
         do {
-            signCommand = try SignCommand(hashes: hashes, cardId: cardId)
+            signCommand = try SignCommand(hashes: hashes)
         } catch {
             if let taskError = error as? TaskError {
                 callback(.completion(taskError))
@@ -102,7 +102,7 @@ public final class CardManager {
      */
     @available(iOS 13.0, *)
     public func readIssuerData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerDataResponse>) -> Void) {
-        let command = ReadIssuerDataCommand(cardId: cardId)
+        let command = ReadIssuerDataCommand()
         let task = SingleCommandTask(command)
         runTask(task, cardId: cardId, callback: callback)
     }
@@ -122,12 +122,10 @@ public final class CardManager {
      */
     @available(iOS 13.0, *)
     public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
-        let command = WriteIssuerDataCommand(cardId: cardId, issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
+        let command = WriteIssuerDataCommand(issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
         let task = SingleCommandTask(command)
         runTask(task, cardId: cardId, callback: callback)
     }
-    
-    
     
     /**
      * This command will create a new wallet on the card having ‘Empty’ state.
@@ -140,9 +138,8 @@ public final class CardManager {
      * - Parameter cardId: CID, Unique Tangem card ID number.
      */
     @available(iOS 13.0, *)
-    public func createWallet(cardId: String, callback: @escaping (TaskEvent<CreateWalletResponse>) -> Void) {
-        let command = CreateWalletCommand(cardId: cardId)
-        let task = SingleCommandTask(command)
+    public func createWallet(cardId: String, callback: @escaping (TaskEvent<CreateWalletEvent>) -> Void) {
+        let task = CreateWalletTask(verifyWallet: true)
         runTask(task, cardId: cardId, callback: callback)
     }
     
@@ -155,7 +152,7 @@ public final class CardManager {
      */
     @available(iOS 13.0, *)
     public func purgeWallet(cardId: String, callback: @escaping (TaskEvent<PurgeWalletResponse>) -> Void) {
-        let command = PurgeWalletCommand(cardId: cardId)
+        let command = PurgeWalletCommand()
         let task = SingleCommandTask(command)
         runTask(task, cardId: cardId, callback: callback)
     }
@@ -163,7 +160,7 @@ public final class CardManager {
    /// Allows to run a custom task created outside of this SDK.
     public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
         guard CardManager.isNFCAvailable else {
-            callback(.completion(TaskError.unsupported))
+            callback(.completion(TaskError.unsupportedDevice))
             return
         }
         
