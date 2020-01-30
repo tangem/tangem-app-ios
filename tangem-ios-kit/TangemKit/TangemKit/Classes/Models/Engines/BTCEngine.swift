@@ -10,7 +10,23 @@ import Foundation
 
 class BTCEngine: CardEngine {
     
-    unowned var card: Card
+    var possibleFirstAddressCharacters: [String] {
+        return  ["1","2","3","n","m"]
+    }
+    
+    var fixedFee: String? {
+        nil
+    }
+    
+    var trait: CoinTrait {
+        .all
+    }
+    
+    var blockcyperApi: BlockcyperApi {
+        .btc
+    }
+    
+    unowned var card: CardViewModel
     var currentBackend = BtcBackend.blockchainInfo
     
     private let operationQueue = OperationQueue()
@@ -41,7 +57,7 @@ class BTCEngine: CardEngine {
         return "https://blockchain.info/address/" + walletAddress
     }
     
-    required init(card: Card) {
+    required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
@@ -99,21 +115,21 @@ extension BTCEngine: CoinProvider {
     }
     
     var coinTraitCollection: CoinTrait {
-        return CoinTrait.all
+        return trait
     }
     
     func buildPrefix(for data: Data) -> Data {
         switch data.count {
         case 0..<Int(Op.pushData1.rawValue):
-            return Data([data.count.byte])
+            return data.count.byte.asData
         case Int(Op.pushData1.rawValue)..<Int(0xff):
-            let prefix = [Op.pushData1.rawValue] + [data.count.byte]
-            return Data(prefix)
+            let prefix = Data([Op.pushData1.rawValue]) + data.count.byte.asData
+            return prefix
         case Int(0xff)..<Int(0xffff):
-            let prefix = [Op.pushData2.rawValue] + data.count.bytes2
+            let prefix = Data([Op.pushData2.rawValue]) + data.count.bytes2LE
             return Data(prefix)
         default:
-            let prefix = [Op.pushData4.rawValue] + data.count.bytes4
+            let prefix = Data([Op.pushData4.rawValue]) + data.count.bytes4LE
             return Data(prefix)
         }
     }
@@ -166,10 +182,10 @@ extension BTCEngine: CoinProvider {
                     script.append(program.count.byte)
                 } else if opCode == Op.pushData2.rawValue {
                     script.append(Op.pushData2.rawValue)
-                    script.append(contentsOf: program.count.bytes2) //little endian
+                    script.append(contentsOf: program.count.bytes2LE) //little endian
                 } else if opCode == Op.pushData4.rawValue {
                     script.append(Op.pushData4.rawValue)
-                    script.append(contentsOf: program.count.bytes4)
+                    script.append(contentsOf: program.count.bytes4LE)
                 }
                 script.append(contentsOf: program)
             }
@@ -262,7 +278,7 @@ extension BTCEngine: CoinProvider {
         for (inputIndex, input) in unspentTransactions.enumerated() {
             let hashKey: [UInt8] = input.hash.reversed()
             txToSign.append(contentsOf: hashKey)
-            txToSign.append(contentsOf: input.outputIndex.bytes4)
+            txToSign.append(contentsOf: input.outputIndex.bytes4LE)
             if (index == nil) || (inputIndex == index) {
                 txToSign.append(input.outputScript.count.byte)
                 txToSign.append(contentsOf: input.outputScript)
@@ -278,7 +294,7 @@ extension BTCEngine: CoinProvider {
         txToSign.append(outputCount.byte)
         
         //8 bytes
-        txToSign.append(contentsOf: amount.bytes8)
+        txToSign.append(contentsOf: amount.bytes8LE)
         guard let outputScriptBytes = buildOutputScript(address: targetAddress) else {
             return nil
         }
@@ -288,7 +304,7 @@ extension BTCEngine: CoinProvider {
         
         if change != 0 {
             //8 bytes
-            txToSign.append(contentsOf: change.bytes8)
+            txToSign.append(contentsOf: change.bytes8LE)
             //hex str 1976a914....88ac
             guard let outputScriptChangeBytes = buildOutputScript(address: walletAddress) else {
                 return nil
@@ -374,7 +390,7 @@ extension BTCEngine: CoinProvider {
         
         let txHexString = txToSend.toHexString()
         
-        let sendOp = BtcSendOperation(with: self, txHex: txHexString, completion: {[weak self] result in
+        let sendOp = BtcSendOperation(with: self, blockcyperApi: blockcyperApi, txHex: txHexString, completion: {[weak self] result in
             switch result {
             case .success(let sendResponse):
                 self?.unconfirmedBalance = nil
@@ -389,6 +405,10 @@ extension BTCEngine: CoinProvider {
     }
     
     func getFee(targetAddress: String, amount: String, completion: @escaping ((min: String, normal: String, max: String)?) -> Void) {
+        if let fixedFee = self.fixedFee {
+            completion((fixedFee, fixedFee, fixedFee))
+            return
+        }
         
         let feeRequestOperation = BtcFeeOperation(with: self, completion: {[weak self] result in
                 switch result {
@@ -420,7 +440,7 @@ extension BTCEngine: CoinProvider {
                     completion(fee)
                 
                 case .failure(let error):
-                  //  print(error)
+                    print(error)
                     completion(nil)
                 }
         })
@@ -435,8 +455,7 @@ extension BTCEngine: CoinProvider {
     func validate(address: String) -> Bool {
         guard !address.isEmpty else { return false }
         
-        let possibleFirstCharacters = ["1","2","3","n","m"]
-        if possibleFirstCharacters.contains(String(address.first!)) {
+        if possibleFirstAddressCharacters.contains(String(address.lowercased().first!)) {
             guard (26...35) ~= address.count else { return false }
             
         }
