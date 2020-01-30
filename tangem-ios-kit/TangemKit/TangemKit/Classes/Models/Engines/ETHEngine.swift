@@ -11,13 +11,22 @@ import web3swift
 import BigInt
 
 class ETHEngine: CardEngine {
-    static let chainId: BigUInt = 1 //Mainnet
+    var chainId: BigUInt {
+        return 1
+    }
     
-    unowned var card: Card
+    var blockchain: Blockchain {
+        return .ethereum
+    }
+    
+    var mainNetURL: String { TokenNetwork.eth.rawValue }
+    
+    unowned var card: CardViewModel
     
     private var transaction: EthereumTransaction?
     private var hashForSign: Data?
     private let operationQueue = OperationQueue()
+
     
     var blockchainDisplayName: String {
         return "Ethereum"
@@ -43,7 +52,7 @@ class ETHEngine: CardEngine {
         return "https://etherscan.io/address/" + walletAddress
     }
     
-    required init(card: Card) {
+    required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
@@ -106,7 +115,7 @@ extension ETHEngine: CoinProvider {
                                                         return nil
         }
         
-        guard let hashForSign = transaction.hashForSignature(chainID: ETHEngine.chainId) else {
+        guard let hashForSign = transaction.hashForSignature(chainID: chainId) else {
             return nil
         }
       
@@ -156,7 +165,10 @@ extension ETHEngine: CoinProvider {
     
     func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
         
-        let web = web3(provider: InfuraProvider(Networks.Mainnet)!)
+        let url = URL(string: mainNetURL)!
+        let network = chainId == 1 ? Networks.Mainnet : Networks.Custom(networkID: chainId)
+        let provider = Web3HttpProvider(url, network: network, keystoreManager: nil)!
+        let web = web3(provider: provider)
         
         DispatchQueue.global().async {
             guard let gasPrice = try? web.eth.getGasPrice() else {
@@ -164,7 +176,7 @@ extension ETHEngine: CoinProvider {
                 return
             }
             let m = self.getGasLimit()
-            let decimalCount = Int(Blockchain.ethereum.decimalCount)
+            let decimalCount = Int(self.blockchain.decimalCount)
             let minValue = gasPrice * m
             let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
             
@@ -188,7 +200,7 @@ extension ETHEngine: CoinProvider {
         }
         let txHexString = "0x\(tx.toHexString())"
         
-        let sendOperation = EthereumNetworkSendOperation(tx: txHexString) { [weak self] (result) in
+        let sendOperation = EthereumNetworkSendOperation(tx: txHexString, networkUrl: mainNetURL) { [weak self] (result) in
             switch result {
             case .success(let value):
                 self?.txCount += 1
@@ -221,7 +233,7 @@ extension ETHEngine: CoinProvider {
         transaction?.r = BigUInt(unmarshalledSignature.r)
         transaction?.s = BigUInt(unmarshalledSignature.s)
         
-        let encodedBytesToSend = transaction?.encodeForSend(chainID: ETHEngine.chainId)
+        let encodedBytesToSend = transaction?.encodeForSend(chainID: chainId)
         return encodedBytesToSend
     }
     
