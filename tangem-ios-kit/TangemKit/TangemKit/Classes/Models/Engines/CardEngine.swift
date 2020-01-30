@@ -10,6 +10,8 @@ import Foundation
 
 public enum WalletType {
     case btc
+    case ltc
+    case bch
     case eth
     case seed
     case cle
@@ -23,11 +25,12 @@ public enum WalletType {
     case binance
     case empty
     case stellar
+    case slix2
 }
 
 public protocol CardEngine: class {
     
-    var card: Card { get set }
+    var card: CardViewModel { get set }
     var blockchainDisplayName: String { get }
     
     var walletType: WalletType { get }
@@ -37,7 +40,7 @@ public protocol CardEngine: class {
     
     var exploreLink: String { get }
     
-    init(card: Card)
+    init(card: CardViewModel)
     
     func setupAddress()
     
@@ -61,7 +64,7 @@ extension CardEngine {
 
 class NoWalletCardEngine: CardEngine {
     
-    var card: Card
+    var card: CardViewModel
     
     var blockchainDisplayName: String {
         return "No blockchain"
@@ -78,7 +81,7 @@ class NoWalletCardEngine: CardEngine {
         return ""
     }
     
-    required init(card: Card) {
+    required init(card: CardViewModel) {
         self.card = card
     }
     
