@@ -27,6 +27,7 @@ public class Localizations {
     static let nfcSessionTimeout = translate("nfc_session_timeout")
     static let nfcAlertDefault = translate("nfc_alert_default")
     static let nfcStuckError = translate("nfc_stuck_error")
+    static let slixFailedToParse = "Failed to read the Tag"
     static func secondsLeft(_ p1: String) -> String {
         return translate("nfc_seconds_left", p1)
     }

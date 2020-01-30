@@ -41,7 +41,7 @@ public final class TlvMapper {
             return nil
         }
     }
-
+    
     /**
      * Finds `Tlv` by its `TlvTag`.
      * Throws `TlvMapperError.missingTag` if `Tlv` is not found,
@@ -81,7 +81,7 @@ public final class TlvMapper {
                 throw TlvMapperError.wrongType
             }
             
-            let hexString = tagValue.getHexString()
+            let hexString = tagValue.asHexString()
             return hexString as! T
         case .utf8String:
             guard String.self == T.self || String?.self == T.self else {
@@ -95,7 +95,7 @@ public final class TlvMapper {
             }
             
             return utfValue as! T
-        case .intValue:
+        case .intValue, .byte:
             guard Int.self == T.self || Int?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be Int")
                 throw TlvMapperError.wrongType
@@ -135,7 +135,7 @@ public final class TlvMapper {
                 print("Mapping error. Type for tag: \(tag) must be Date")
                 throw TlvMapperError.wrongType
             }
-
+            
             guard let date = tagValue.toDate() else {
                 print("Mapping error. Failed convert \(tag) to date")
                 throw TlvMapperError.convertError
@@ -172,8 +172,8 @@ public final class TlvMapper {
             }
             let intValue = tagValue.toInt()
             guard let cardStatus = CardStatus(rawValue: intValue) else {
-                    print("Mapping error. Failed convert \(tag) to int and CardStatus")
-                    throw TlvMapperError.convertError
+                print("Mapping error. Failed convert \(tag) to int and CardStatus")
+                throw TlvMapperError.convertError
             }
             
             return cardStatus as! T
