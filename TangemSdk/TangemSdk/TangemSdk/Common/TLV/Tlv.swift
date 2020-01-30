@@ -54,29 +54,21 @@ public struct Tlv: Equatable {
     public static func deserialize(_ data: Data) -> [Tlv]? {
         let dataStream = InputStream(data: data)
         dataStream.open()
+        defer { dataStream.close() }
         
         var tags = [Tlv]()
         while dataStream.hasBytesAvailable {
-            guard let tagCode = dataStream.readByte() else {
-                print("Failed to read tag code")
-                return nil
-            }
-            
-            guard let dataLength = readTagLength(dataStream) else {
-                 print("Failed to read tag: \(tagCode)")
-                return nil
-            }
-            
-            guard let data = dataLength > 0 ? dataStream.readBytes(count: dataLength) : Data() else {
-                print("Failed to read tag data")
-                return nil
+            guard let tagCode = dataStream.readByte(),
+                let dataLength = readTagLength(dataStream),
+                let data = dataLength > 0 ? dataStream.readBytes(count: dataLength) : Data()  else {
+                    print("Warning: Failed to read tag from stream")
+                    return tags.count > 0 ? tags : nil
             }
             
             let tlvItem = Tlv(tagRaw: tagCode, value: data)
             tags.append(tlvItem)
         }
         
-        dataStream.close()
         return tags
     }
     
@@ -101,21 +93,11 @@ public struct Tlv: Equatable {
     }
 }
 
-extension Array where Element == Tlv {    
+extension Array where Element == Tlv {
     /// Serialize array of tlv items to Data
     /// - Parameter array: tlv array
     public func serialize() -> Data {
         return Data(self.reduce([], { $0 + $1.serialize() }))
-    }
-    
-    /// Deserialize raw tlv data to array of tlv items
-    /// - Parameter data: Raw TLV data
-    public init?(_ data: Data) {
-        guard let tlvArray = Tlv.deserialize(data) else {
-            return nil
-        }
-        
-        self = tlvArray
     }
     
     /// Convinience getter for tlv
