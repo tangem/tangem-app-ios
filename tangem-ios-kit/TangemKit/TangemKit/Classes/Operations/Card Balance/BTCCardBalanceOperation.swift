@@ -13,6 +13,8 @@ enum BTCCardBalanceError: Error {
 }
 
 class BTCCardBalanceOperation: BaseCardBalanceOperation {
+    
+    var blockcypherAPi = BlockcyperApi.btc
 
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
@@ -21,7 +23,7 @@ class BTCCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        let operation = BtcBalanceOperation(with: card.cardEngine as! BTCEngine, completion: { [weak self] result in
+        let operation = BtcBalanceOperation(with: card.cardEngine as! BTCEngine, blockcyperApi: blockcypherAPi, completion: { [weak self] result in
             switch result {
             case .success(let response):
                 

@@ -14,22 +14,24 @@ protocol AnyTask {
 }
 
 /**
-* Events that are are sent in callbacks from `Task`.
-* `event(TEvent)`:  A callback that is triggered by a `Task`.
-* `completion(TaskError? = nil)` A callback that is triggered when a `Task` is completed. `TaskError` is nil if it's a successful completion of a `Task`
-*/
+ * Events that are are sent in callbacks from `Task`.
+ * `event(TEvent)`:  A callback that is triggered by a `Task`.
+ * `completion(TaskError? = nil)` A callback that is triggered when a `Task` is completed. `TaskError` is nil if it's a successful completion of a `Task`
+ */
 public enum TaskEvent<TEvent> {
     case event(TEvent)
     case completion(TaskError? = nil)
 }
 
 /**
-* An error class that represent typical errors that may occur when performing Tangem SDK tasks.
-* Errors are propagated back to the caller in callbacks.
-*/
+ * An error class that represent typical errors that may occur when performing Tangem SDK tasks.
+ * Errors are propagated back to the caller in callbacks.
+ */
 public enum TaskError: Error, LocalizedError {
     //Serialize apdu errors
     case serializeCommandError
+    // Encodeing error
+    case encodingError
     
     //Card errors
     case unknownStatus(sw: UInt16)
@@ -54,22 +56,36 @@ public enum TaskError: Error, LocalizedError {
     case unsupported
     //NFC error
     case readerError(NFCReaderError)
+    case nfcError(NFCError)
     
     public var localizedDescription: String {
         switch self {
         case .readerError(let nfcError):
             return nfcError.localizedDescription
+        case .genericError(let error):
+            return error.localizedDescription
+        case .nfcError(let nfcError):
+            return nfcError.localizedDescription
         default:
             return "\(self)"
+        }
+    }
+    
+    public var isUserCancelled: Bool {
+        switch self {
+        case .userCancelled:
+            return true
+        default:
+            return false
         }
     }
 }
 
 /**
-* Allows to perform a group of commands interacting between the card and the application.
-* A task opens an NFC session, sends commands to the card and receives its responses,
-* repeats the commands if needed, and closes session after receiving the last answer.
-*/
+ * Allows to perform a group of commands interacting between the card and the application.
+ * A task opens an NFC session, sends commands to the card and receives its responses,
+ * repeats the commands if needed, and closes session after receiving the last answer.
+ */
 open class Task<TEvent>: AnyTask {
     var reader: CardReader!
     weak var delegate: CardManagerDelegate?
@@ -89,6 +105,12 @@ open class Task<TEvent>: AnyTask {
             fatalError("Card reader is nil")
         }
         
+        if delegate != nil {
+            reader.tagDidConnect = { [weak self] in
+                self?.delegate?.tagDidConnect()
+            }
+        }
+        
         reader.startSession()
         onRun(environment: environment, callback: callback)
     }
@@ -104,8 +126,11 @@ open class Task<TEvent>: AnyTask {
      */
     public final func sendCommand<T: CommandSerializer>(_ command: T, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
         //[REDACTED_TODO_COMMENT]
-        let commandApdu = command.serialize(with: environment)
-        sendRequest(command, apdu: commandApdu, environment: environment, callback: callback)
+        if let commandApdu = try? command.serialize(with: environment) {
+            sendRequest(command, apdu: commandApdu, environment: environment, callback: callback)
+        } else {
+            callback(.failure(TaskError.serializeCommandError))
+        }
     }
     
     private func sendRequest<T: CommandSerializer>(_ command: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
@@ -117,7 +142,7 @@ open class Task<TEvent>: AnyTask {
                     if let securityDelayResponse = command.deserializeSecurityDelay(with: environment, from: responseApdu) {
                         self?.delegate?.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
                         if securityDelayResponse.saveToFlash {
-                             self?.reader.restartPolling()
+                            self?.reader.restartPolling()
                         }
                     }
                     self?.sendRequest(command, apdu: apdu, environment: environment, callback: callback)
@@ -153,10 +178,15 @@ open class Task<TEvent>: AnyTask {
                     callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
                 }
             case .failure(let error):
-                if error.code == .readerSessionInvalidationErrorUserCanceled {
-                    callback(.failure(TaskError.userCancelled))
-                } else {
-                    callback(.failure(TaskError.readerError(error)))
+                switch error {
+                case .readerError(let readerError):
+                    if readerError.code == .readerSessionInvalidationErrorUserCanceled {
+                        callback(.failure(TaskError.userCancelled))
+                    } else {
+                        callback(.failure(TaskError.readerError(readerError)))
+                    }
+                default:
+                      callback(.failure(TaskError.nfcError(error)))
                 }
             }
         }
