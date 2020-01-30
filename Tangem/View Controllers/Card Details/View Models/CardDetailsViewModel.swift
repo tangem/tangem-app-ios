@@ -9,6 +9,16 @@
 import UIKit
 
 class CardDetailsViewModel: NSObject {
+    var actionButtonState: ActionButtonState = .createWallet {
+        didSet {
+            switch actionButtonState {
+            case .claimTag:
+                 actionButton?.setTitle(Localizations.loadedWalletBtnClaim, for: .normal)
+            case .createWallet:
+                actionButton?.setTitle(Localizations.emptyWalletBtnCreate, for: .normal)
+            }
+        }
+    }
     
     // MARK: Image Views
     
@@ -67,6 +77,7 @@ class CardDetailsViewModel: NSObject {
             loadButton.layer.shadowColor = UIColor.black.cgColor
             loadButton.layer.shadowOpacity = 0.08
             loadButton.setTitle(Localizations.loadedWalletBtnLoad, for: .normal)
+            loadButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
@@ -80,6 +91,20 @@ class CardDetailsViewModel: NSObject {
             extractButton.layer.shadowColor = UIColor.black.cgColor
             extractButton.layer.shadowOpacity = 0.08
             extractButton.setTitle(Localizations.loadedWalletBtnExtract, for: .normal)
+            extractButton.setTitleColor(UIColor.lightGray, for: .disabled)
+        }
+    }
+    @IBOutlet weak var actionButton: UIButton! {
+        didSet {
+            actionButton.layer.cornerRadius = 30.0
+            actionButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
+            
+            actionButton.layer.shadowRadius = 5.0
+            actionButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+            actionButton.layer.shadowColor = UIColor.black.cgColor
+            actionButton.layer.shadowOpacity = 0.08
+            actionButton.setTitle(Localizations.emptyWalletBtnCreate, for: .normal)
+            actionButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
@@ -87,6 +112,7 @@ class CardDetailsViewModel: NSObject {
         didSet {
             scanButton.titleLabel?.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
             scanButton.setTitle(Localizations.loadedWalletBtnNewScan, for: .normal)
+            scanButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
@@ -129,10 +155,10 @@ class CardDetailsViewModel: NSObject {
     @IBOutlet weak var qrCodeContainerView: UIView!
     
     @objc func didTapBalance() {
-       onBalanceTap?()
+       onBalanceTap?(false)
     }
     
-    public var onBalanceTap: (() -> Void)?
+    public var onBalanceTap: ((Bool) -> Void)?
 }
 
 extension CardDetailsViewModel {
@@ -174,7 +200,7 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceNoWallet() {
-        let string = "\(Localizations.loadedWalletNoCompatibleWallet).\n\(Localizations.disclamerNoWalletCreation)"
+        let string = "\(Localizations.loadedWalletNoCompatibleWallet)."
         let attributedText = NSAttributedString(string: string, attributes: [NSAttributedStringKey.kern : 0.88,
                                                                              NSAttributedStringKey.foregroundColor : UIColor.tgm_red()])
         balanceVerificationLabel.attributedText = attributedText
@@ -204,4 +230,10 @@ extension CardDetailsViewModel {
         
         return paragraphStyle
     }
+}
+
+
+enum ActionButtonState {
+    case claimTag
+    case createWallet
 }
