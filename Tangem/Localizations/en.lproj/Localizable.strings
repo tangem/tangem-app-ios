@@ -227,7 +227,8 @@
 
 /*  */
 "loaded_wallet_btn_extract" = "Extract";
-
+/*  */
+"loaded_wallet_btn_claim"  = "Claim";
 /*  */
 "loaded_wallet_btn_load" = "Load";
 
@@ -630,12 +631,14 @@
 /*  */
 "kraken_please_confirm_withdraw" = "Please confirm withdraw";
 
+"common_verified_tag"="Verified in blockchain";
+
 //IOS only
 "common_verified_balance"="Verified balance";
 
 "common_unverified_balance"="Unverified balance";
 
-"disclamer_no_wallet_creation"="Wallet creation is not available on the iPhone at this time";
+"disclamer_no_wallet_creation"="Wallet creation is available starting from iOS 13";
 
 "disclamer_nfc_title"="Important: NFC restriction on iOS";
 
@@ -726,3 +729,12 @@
 "common_next" = "Next";
 
 "details_linked_card_title" = "The card is linked to this phone";
+
+"main_store_title"="Don't have a card?";
+
+"main_store_subtitle"="Visit our store at ";
+
+"common_not_genuine"="Not genuine";
+
+"already_claimed"="Already claimed";
+

@@ -91,4 +91,24 @@ public final class CryptoUtils {
         
         return Data(signatureData)
     }
+    
+    /// Generate private/public keypair with secp256k1.
+    /// - Returns: `KeyPair` with  32-bytes length `private key` and  65-bytes length uncompressed `public key`
+    public static func generateKeyPair() -> KeyPair? {
+        guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN|SECP256K1_CONTEXT_VERIFY)) else { return nil }
+              
+        defer { secp256k1_context_destroy(ctx) }
+        
+        guard let privateKey = generateRandomBytes(count: 32)?.toBytes else { return nil }
+        
+        guard secp256k1_ec_seckey_verify(ctx, privateKey) == 1 else { return nil }
+        
+        var publicKeySecp = secp256k1_pubkey()
+        guard secp256k1_ec_pubkey_create(ctx, &publicKeySecp, privateKey) == 1 else { return nil }
+
+        var publicKeyLength: Int = 65
+        var publicKeyUncompressed = Array(repeating: Byte(0), count: publicKeyLength)
+        secp256k1_ec_pubkey_serialize(ctx, &publicKeyUncompressed, &publicKeyLength, &publicKeySecp, UInt32(SECP256K1_EC_UNCOMPRESSED))
+        return KeyPair(privateKey: Data(privateKey), publicKey: Data(publicKeyUncompressed))
+    }
 }

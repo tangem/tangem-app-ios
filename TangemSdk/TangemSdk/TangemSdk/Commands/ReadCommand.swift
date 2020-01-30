@@ -22,13 +22,13 @@ public struct SigningMethod: OptionSet {
         }
     }
     
-    static let signHash = SigningMethod(rawValue: 0b10000000|(1 << 0))
-    static let signRaw = SigningMethod(rawValue: 0b10000000|(1 << 1))
-    static let signHashSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 2))
-    static let signRawSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 3))
-    static let signHashSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 4))
-    static let signRawSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 5))
-    static let signPos = SigningMethod(rawValue: 0b10000000|(1 << 6))
+    public static let signHash = SigningMethod(rawValue: 0b10000000|(1 << 0))
+    public static let signRaw = SigningMethod(rawValue: 0b10000000|(1 << 1))
+    public static let signHashSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 2))
+    public static let signRawSignedByIssuer = SigningMethod(rawValue: 0b10000000|(1 << 3))
+    public static let signHashSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 4))
+    public static let signRawSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 5))
+    public static let signPos = SigningMethod(rawValue: 0b10000000|(1 << 6))
 }
 
 /// Elliptic curve used for wallet key operations.
@@ -106,7 +106,7 @@ public struct CardData {
 ///Response for `ReadCommand`. Contains detailed card information.
 public struct Card {
     /// Unique Tangem card ID number.
-    public let cardId: String
+    public let cardId: String?
     /// Name of Tangem card manufacturer.
     public let manufacturerName: String?
     /// Current status of the card.
@@ -183,17 +183,18 @@ public final class ReadCommand: CommandSerializer {
     
     public init() {}
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         /// `CardEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.
         /// In order to obtain card’s data, [ReadCommand] should use the correct pin 1 value.
         /// The card will not respond if wrong pin 1 has been submitted.
-        var tlvData = [Tlv(.pin, value: environment.pin1.sha256())]
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
         if let keys = environment.terminalKeys {
-            tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
+            try tlvBuilder.append(.terminalPublicKey, value: keys.publicKey)
         }
         
-        let cApdu = CommandApdu(.read, tlv: tlvData)
+        let cApdu = CommandApdu(.read, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
@@ -205,7 +206,7 @@ public final class ReadCommand: CommandSerializer {
         let mapper = TlvMapper(tlv: tlv)
         
         let card = Card(
-            cardId: try mapper.map(.cardId),
+            cardId: try mapper.mapOptional(.cardId),
             manufacturerName: try mapper.mapOptional(.manufacturerName),
             status: try mapper.mapOptional(.status),
             firmwareVersion: try mapper.mapOptional(.firmwareVersion),
@@ -237,7 +238,7 @@ public final class ReadCommand: CommandSerializer {
     
     private func deserializeCardData(tlv: [Tlv]) throws -> CardData? {
         guard let cardDataValue = tlv.value(for: .cardData),
-            let cardDataTlv = Array<Tlv>.init(cardDataValue) else {
+            let cardDataTlv = Tlv.deserialize(cardDataValue) else {
                 return nil
         }
         
@@ -247,7 +248,7 @@ public final class ReadCommand: CommandSerializer {
             manufactureDateTime: try mapper.mapOptional(.manufactureDateTime),
             issuerName: try mapper.mapOptional(.issuerName),
             blockchainName: try mapper.mapOptional(.blockchainName),
-            manufacturerSignature: try mapper.mapOptional(.manufacturerSignature),
+            manufacturerSignature: try mapper.mapOptional(.cardIDManufacturerSignature),
             productMask: try mapper.mapOptional(.productMask),
             tokenSymbol: try mapper.mapOptional(.tokenSymbol),
             tokenContractAddress: try mapper.mapOptional(.tokenContractAddress),
