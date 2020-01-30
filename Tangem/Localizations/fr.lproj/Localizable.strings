@@ -31,13 +31,13 @@
 "general_blockchain" = "Blockchain";
 
 /*  */
-"general_notification_scan_again" = "Réessayez de numériser";
+"general_notification_scan_again" = "Réessayez de scanner la carte";
 
 /*  */
 "general_error_cannot_erase_wallet_with_non_zero_balance" = "Impossible d'effacer le porte-monnaie avec un solde différent de zéro";
 
 /*  */
-"general_send_transaction" = "Envoyer le paiement";
+"general_send_transaction" = "Transférer les fonds";
 
 /*  */
 "general_from_banknote" = "Depuis la carte";
@@ -124,13 +124,13 @@
 "dialog_title_money_is_at_risk" = "Votre argent est en jeu!";
 
 /*  */
-"dialog_this_banknote_has_enforced_security_delay" = "Cette carte a imposé un délai de sécurité";
+"dialog_this_banknote_has_enforced_security_delay" = "Cette carte impose un délai de sécurité pour confirmer le transfert des fonds";
 
 /*  */
-"dialog_hold_banknote" = "Veuillez tenir la carte fermement  n jusqu'à ce que l'opération soit terminéev…";
+"dialog_hold_banknote" = "Veuillez maintenir la carte dans cette position jusqu'à ce que l'opération soit terminée…";
 
 /*  */
-"dialog_you_may_be_required_to_repeat" = "Vous devrez peut-être répéter cette opération plusieurs fois en fonction des performances NFC de votre smartphone.  n Ceci est fait pour la sécurité de vos fonds.";
+"dialog_you_may_be_required_to_repeat" = "Vous devrez peut-être répéter cette opération plusieurs fois en fonction des performances NFC de votre smartphone.\nCeci est fait pour sécuriser vos fonds.";
 
 /*  */
 "alert_unknown_blockchain" = "This is a genuine Tangem card. Please follow instructions written on the card to install the official app";
@@ -175,10 +175,10 @@
 "splash_cardano" = "Cardano";
 
 /* Main */
-"main_screen_tap_card" = "Appuyez sur la carte Tangem avec votre smartphone";
+"main_screen_tap_card" = "Mettez en contact la carte avec votre smartphone";
 
 /*  */
-"main_screen_scan_banknote" = "Scanner une carte avec votre \n %@ \n comme indiqué ci-dessus";
+"main_screen_scan_banknote" = "Scanner votre carte avec votre %1$s comme indiqué ci-dessus";
 
 /*  */
 "main_screen_phone" = "phone";
@@ -199,7 +199,7 @@
 "loaded_wallet_no_compatible_wallet" = "Aucun porte-monnaie compatible installé";
 
 /*  */
-"loaded_wallet_message_wait" = "Veuillez patienter pendant que la transaction précédente est confirmée dans la blockchain";
+"loaded_wallet_message_wait" = "En attente de confirmation dans la blockchain. Veuillez patienter que votre précédente transaction soit confirmée dans la blockchain";
 
 /*  */
 "loaded_wallet_message_refresh" = "Impossible d'obtenir toutes les entrées. Balayez vers le bas pour actualiser.";
@@ -232,7 +232,10 @@
 "loaded_wallet_toast_copied" = "copié dans le presse-papiers";
 
 /*  */
-"loaded_wallet_btn_extract" = "Retirer";
+"loaded_wallet_btn_extract" = "Transférer";
+
+/*  */
+"loaded_wallet_btn_claim"  = "Claim";
 
 /*  */
 "loaded_wallet_btn_load" = "Charger";
@@ -280,7 +283,7 @@
 "loaded_wallet_dialog_show_qr" = "LOAD";
 
 /* LoadedWallet Blockchain Engines */
-"balance_validator_first_line_verified_balance" = "Solde vérifié";
+"balance_validator_first_line_verified_balance" = "Solde confirmé dans la blockchain";
 
 /*  */
 "balance_validator_first_line_unknown_balance" = "Solde inconnu";
@@ -370,7 +373,7 @@
 "balance_validator_second_line_authenticity_not_verified" = "L'authenticité ne peut pas être vérifiée. Balayez vers le bas pour actualiser.";
 
 /* CreateNewWallet, Purge, SignTransaction */
-"now_touch_the_banknote_with_id" = "Maintenant, touchez la carte avec l'ID";
+"now_touch_the_banknote_with_id" = "Maintenir la carte avec l’ID";
 
 /*  */
 "to_create_the_wallet" = "pour créer le porte-monnaie";
@@ -379,13 +382,13 @@
 "to_erase_the_wallet" = "pour effacer le porte-monnaie";
 
 /*  */
-"to_sign_the_transaction" = "pour signer le paiement";
+"to_sign_the_transaction" = "pour confirmer le transfert des fonds";
 
 /*  */
 "to_change_pin_codes" = "pour changer les codes PIN / PIN2";
 
 /*  */
-"nfc_purge_warning" = "En tapotant sur la carte, vous retirerez définitivement le porte-monnaie de la blockchain. Assurez-vous qu'il n'y aura pas dautres transactions entrantes";
+"nfc_purge_warning" = "En mettant la carte en contact avec votre smartphone, vous retirerez définitivement le porte-monnaie de la blockchain. Assurez-vous qu'il n'y aura pas d'autres transactions entrantes";
 
 /*  */
 "nfc_error_cannot_erase_wallet" = "Impossible d'effacer le porte-monnaie. Veillez à entrer le code PIN2 correct!";
@@ -430,7 +433,7 @@
 "send_transaction_notification_wait" = "Veuillez patienter pendant l'envoi du paiement…";
 
 /*  */
-"send_transaction_success" = "La transaction a été signée et envoyée avec succès au noeud de la blockchain. La balance de porte-monnaie sera mise à jour dans un moment";
+"send_transaction_success" = "La transaction a été signée et envoyée avec succès au noeud de la blockchain. Le solde de votre porte-monnaie sera mise à jour dès que transaction sera validée sur la blockchain";
 
 /*  */
 "send_transaction_error_failed_to_send" = "Réessayez. Échec d'envoi de la transaction (%@)";
@@ -448,7 +451,7 @@
 "prepare_transaction_hint_enter_amount" = "entrer le montant";
 
 /*  */
-"prepare_transaction_btn_verify" = "Vérifiez";
+"prepare_transaction_btn_verify" = "Vérifier";
 
 /*  */
 "prepare_transaction_error_not_enough_funds" = "Pas assez de fonds";
@@ -535,7 +538,7 @@
 "empty_wallet_btn_create" = "Créer un porte-monnaie";
 
 /* VerifyCard */
-"details_title_card_id" = "ID de la carte";
+"details_title_card_id" = "Depuis la carte";
 
 /*  */
 "details_signing_method" = "Méthode de signature";
@@ -565,7 +568,7 @@
 "details_card_identity" = "Identité de la carte";
 
 /*  */
-"details_attested" = "Attested";
+"details_attested" = "Attestée";
 
 /*  */
 "details_not_confirmed" = "Non confirmé";
@@ -580,7 +583,7 @@
 "details_last_one" = "Le dernier!";
 
 /*  */
-"details_unlimited" = "Unlimited";
+"details_unlimited" = "illimitées";
 
 /*  */
 "details_one_off_banknote" = "Carte ponctuelle";
@@ -610,7 +613,7 @@
 "details_validation_node" = "Noeud de validation";
 
 /*  */
-"details_unspents" = "Unspents";
+"details_unspents" = "Transferts";
 
 /*  */
 "details_protected_by_default_pin_1" = "Cette carte est protégé par le code PIN1 par défaut";
@@ -661,7 +664,7 @@
 "details_linking_card_supported" = "La liaison au terminal est prise en charge";
 
 /*  */
-"details_linked_card_title" = "La carte est liée";
+"details_linked_card_title" = "La carte est associée";
 
 /*  */
 "details_linked_card_to_phone" = "à ce téléphone";
@@ -762,12 +765,14 @@
 /*  */
 "kraken_please_confirm_withdraw" = "Veuillez confirmer retirer";
 
+"common_verified_tag"="Verified in blockchain";
+
 //IOS only
 "common_verified_balance" = "Solde vérifié";
 
 "common_unverified_balance" = "Solde non vérifié";
 
-"disclamer_no_wallet_creation" = "La création de porte-monnaie n'est pas disponible sur l'iPhone pour le moment";
+"disclamer_no_wallet_creation" = "Wallet creation is available starting from iOS 13";
 
 "disclamer_nfc_title" = "Important: restriction NFC sur iOS";
 
@@ -797,11 +802,11 @@
 
 "alert_failed_build_transaction" = "La transaction ne peut pas être créée avec les données fournies. Essayez de réanalyser la carte, puis réessayez";
 
-"reader_hint_label_default" = "Appuyez sur SCAN et touchez la carte avec votre iPhone comme indiqué ci-dessus";
+"reader_hint_label_default" = "Appuyez sur SCANNER et placez votre carte derrière votre iPhone comme indiqué ci-dessous";
 
 "reader_hint_label_scan" = "Tenez la carte près du lecteur";
 
-"common_scan_button_title" = "SCAN";
+"common_scan_button_title" = "SCANNER";
 
 "reader_nfc_stub_message" = "Cette application ne fonctionne qu'avec les périphériques compatibles NFC";
 
@@ -843,7 +848,7 @@
 
 "common_fee_stub" = "Spécifiez le montant et l'adresse pour voir les frais";
 
-"common_send_payment" = "Envoyer le paiement";
+"common_send_payment" = "Transférer les fonds";
 
 "common_address" = "Adresse";
 
@@ -858,3 +863,11 @@
 "common_next" = "Next";
 
 "details_linked_card_title" = "The card is linked to this phone";
+
+"main_store_title"="Vous n’avez pas de carte?";
+
+"main_store_subtitle"="Visitez notre boutique sur ";
+
+"common_not_genuine"="Not genuine";
+
+"already_claimed"="Already claimed";

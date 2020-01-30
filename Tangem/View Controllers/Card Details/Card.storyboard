@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -181,14 +181,14 @@
                                             <constraint firstItem="Cy9-QF-q9R" firstAttribute="top" secondItem="9Eu-SO-21M" secondAttribute="top" id="clE-4t-FK1"/>
                                         </constraints>
                                     </view>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="16t433L6C9g7AHmopPkrmjLEhLyGJF26G9" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Yp-7Z-uw0">
-                                        <rect key="frame" x="40" y="450" width="295" height="17"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Yp-7Z-uw0">
+                                        <rect key="frame" x="20" y="433" width="335" height="0.0"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bitcoin" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="13" translatesAutoresizingMaskIntoConstraints="NO" id="OXE-6A-lHc">
-                                        <rect key="frame" x="164.5" y="425" width="46" height="17"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="13" translatesAutoresizingMaskIntoConstraints="NO" id="OXE-6A-lHc">
+                                        <rect key="frame" x="187.5" y="417" width="0.0" height="0.0"/>
                                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
@@ -216,6 +216,17 @@
                                                 </state>
                                                 <connections>
                                                     <action selector="extractButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="muc-V1-b69"/>
+                                                </connections>
+                                            </button>
+                                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wYf-Ng-bn9">
+                                                <rect key="frame" x="335" y="0.0" width="0.0" height="60"/>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                                <state key="normal">
+                                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="actionButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="vD7-3I-aze"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -258,14 +269,14 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="Ywb-Zq-Tcq" firstAttribute="top" secondItem="Avd-ez-2CK" secondAttribute="top" id="3Hr-gj-OOa"/>
-                                    <constraint firstAttribute="trailing" secondItem="0Yp-7Z-uw0" secondAttribute="trailing" constant="40" id="Dlx-Sg-7pP"/>
+                                    <constraint firstAttribute="trailing" secondItem="0Yp-7Z-uw0" secondAttribute="trailing" constant="20" id="Dlx-Sg-7pP"/>
                                     <constraint firstItem="vgg-PE-syF" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="Gap-DL-4gt"/>
                                     <constraint firstItem="OXE-6A-lHc" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="JgG-7e-aPc"/>
                                     <constraint firstItem="6Wr-gR-Lzf" firstAttribute="height" secondItem="5pd-nS-j4U" secondAttribute="height" constant="30" id="KA3-Ay-8yn"/>
                                     <constraint firstItem="5pd-nS-j4U" firstAttribute="centerY" secondItem="6Wr-gR-Lzf" secondAttribute="centerY" id="NH6-fR-ZF3"/>
                                     <constraint firstItem="Ywb-Zq-Tcq" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="QzV-tw-kcO"/>
                                     <constraint firstItem="urx-lf-qZ1" firstAttribute="top" secondItem="vgg-PE-syF" secondAttribute="bottom" constant="140" id="Rbx-RU-cPe"/>
-                                    <constraint firstItem="0Yp-7Z-uw0" firstAttribute="top" secondItem="OXE-6A-lHc" secondAttribute="bottom" constant="8" id="SFx-wP-oaQ"/>
+                                    <constraint firstItem="0Yp-7Z-uw0" firstAttribute="top" secondItem="OXE-6A-lHc" secondAttribute="bottom" constant="16" id="SFx-wP-oaQ"/>
                                     <constraint firstAttribute="bottom" secondItem="Ywb-Zq-Tcq" secondAttribute="bottom" id="SJ4-RM-bZy"/>
                                     <constraint firstItem="0Yp-7Z-uw0" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="T6H-2R-20N"/>
                                     <constraint firstItem="5pd-nS-j4U" firstAttribute="leading" secondItem="Avd-ez-2CK" secondAttribute="leading" constant="20" id="U1g-YD-ei8"/>
@@ -276,15 +287,15 @@
                                     <constraint firstItem="uei-9H-Dqj" firstAttribute="top" secondItem="vgg-PE-syF" secondAttribute="bottom" constant="45" id="ZNw-sL-C8c"/>
                                     <constraint firstItem="5pd-nS-j4U" firstAttribute="centerX" secondItem="6Wr-gR-Lzf" secondAttribute="centerX" id="Ztm-24-ANv"/>
                                     <constraint firstItem="yPP-d2-WIV" firstAttribute="leading" secondItem="Avd-ez-2CK" secondAttribute="leading" constant="40" id="b0H-su-uYa"/>
-                                    <constraint firstItem="6Wr-gR-Lzf" firstAttribute="top" relation="greaterThanOrEqual" secondItem="0Yp-7Z-uw0" secondAttribute="bottom" constant="20" id="c5e-in-WYm"/>
+                                    <constraint firstItem="6Wr-gR-Lzf" firstAttribute="top" relation="greaterThanOrEqual" secondItem="0Yp-7Z-uw0" secondAttribute="bottom" constant="4" id="c5e-in-WYm"/>
                                     <constraint firstItem="XFd-FO-m0e" firstAttribute="top" secondItem="uei-9H-Dqj" secondAttribute="top" constant="-20" id="cJX-DF-OC4"/>
                                     <constraint firstItem="uei-9H-Dqj" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="dXg-tv-JKl"/>
                                     <constraint firstItem="6Wr-gR-Lzf" firstAttribute="width" secondItem="5pd-nS-j4U" secondAttribute="width" constant="40" id="ePc-Q4-PJG"/>
                                     <constraint firstItem="vgg-PE-syF" firstAttribute="top" secondItem="Avd-ez-2CK" secondAttribute="top" constant="20" id="eo1-FC-u5I"/>
                                     <constraint firstItem="XFd-FO-m0e" firstAttribute="centerX" secondItem="Avd-ez-2CK" secondAttribute="centerX" id="f8i-K4-YI9"/>
-                                    <constraint firstItem="0Yp-7Z-uw0" firstAttribute="leading" secondItem="Avd-ez-2CK" secondAttribute="leading" constant="40" id="hnO-6Y-u62"/>
+                                    <constraint firstItem="0Yp-7Z-uw0" firstAttribute="leading" secondItem="Avd-ez-2CK" secondAttribute="leading" constant="20" id="hnO-6Y-u62"/>
                                     <constraint firstItem="yPP-d2-WIV" firstAttribute="top" secondItem="5pd-nS-j4U" secondAttribute="bottom" constant="20" id="x6E-Zj-PZs"/>
-                                    <constraint firstItem="OXE-6A-lHc" firstAttribute="top" secondItem="urx-lf-qZ1" secondAttribute="bottom" constant="16" id="zld-c3-fg6"/>
+                                    <constraint firstItem="OXE-6A-lHc" firstAttribute="top" secondItem="urx-lf-qZ1" secondAttribute="bottom" constant="8" id="zld-c3-fg6"/>
                                 </constraints>
                             </scrollView>
                         </subviews>
@@ -307,6 +318,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="KO4-Jg-efb" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <customObject id="IUA-TQ-Kd3" customClass="CardDetailsViewModel" customModule="Tangem" customModuleProvider="target">
                     <connections>
+                        <outlet property="actionButton" destination="wYf-Ng-bn9" id="V6N-BO-Xa3"/>
                         <outlet property="balanceLabel" destination="oFz-2Y-wgy" id="968-c4-anA"/>
                         <outlet property="balanceVerificationActivityIndicator" destination="VAO-g0-gA5" id="xc3-Kq-PfF"/>
                         <outlet property="balanceVerificationLabel" destination="FF6-9W-3kh" id="jFM-Pz-bhv"/>
@@ -328,7 +340,7 @@
                     </connections>
                 </customObject>
             </objects>
-            <point key="canvasLocation" x="509.60000000000002" y="100.74962518740631"/>
+            <point key="canvasLocation" x="509.60000000000002" y="100.29985007496252"/>
         </scene>
         <!--Extract View Controller-->
         <scene sceneID="87G-I7-CFB">
@@ -366,13 +378,13 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="335" height="27"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="249" text="Card" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFt-no-LS2">
-                                                        <rect key="frame" x="0.0" y="0.0" width="26.5" height="27"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="27"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="17"/>
                                                         <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="750" verticalCompressionResistancePriority="249" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W9C-jC-USt">
-                                                        <rect key="frame" x="26.5" y="0.0" width="308.5" height="27"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="335" height="27"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="17"/>
                                                         <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
@@ -383,13 +395,13 @@
                                                 <rect key="frame" x="0.0" y="31" width="335" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NGJ-4c-JhN">
-                                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="50"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="20"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kBV-Dy-vaU">
-                                                        <rect key="frame" x="50" y="0.0" width="285" height="50"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="335" height="50"/>
                                                         <fontDescription key="fontDescription" name="SairaCondensed-Regular" family="Saira Condensed" pointSize="20"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -724,13 +736,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Igs-5J-qwc">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="571"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="CTT-kX-MD8">
                                         <rect key="frame" x="0.0" y="10" width="375" height="40"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MORE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eUM-J5-RUS">
-                                                <rect key="frame" x="166" y="4.5" width="43" height="31.5"/>
+                                                <rect key="frame" x="166.5" y="4.5" width="42.5" height="31.5"/>
                                                 <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                 <nil key="highlightedColor"/>
@@ -738,13 +750,14 @@
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
+                                            <constraint firstAttribute="height" constant="40" id="0hg-Sx-ha1"/>
                                             <constraint firstItem="eUM-J5-RUS" firstAttribute="top" secondItem="CTT-kX-MD8" secondAttribute="top" constant="4.5" id="5FI-17-BW5"/>
                                             <constraint firstItem="eUM-J5-RUS" firstAttribute="centerX" secondItem="CTT-kX-MD8" secondAttribute="centerX" id="Cjp-fO-IgH"/>
                                             <constraint firstAttribute="bottom" secondItem="eUM-J5-RUS" secondAttribute="bottom" constant="4" id="yiu-Dr-Woo"/>
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZGJ-w1-cTW">
-                                        <rect key="frame" x="30" y="104" width="315" height="180"/>
+                                        <rect key="frame" x="16" y="66" width="343" height="180"/>
                                         <string key="text">Issuer: Tangem, Inc.
 Manufacturer: Tangem, Inc.
 API node: tardis.bauerj.eu:50001
@@ -761,21 +774,38 @@ Remaining signatures: 1,000,000</string>
                                     </label>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="ZGJ-w1-cTW" firstAttribute="top" secondItem="CTT-kX-MD8" secondAttribute="bottom" constant="54" id="2KC-tg-BTl"/>
+                                    <constraint firstItem="ZGJ-w1-cTW" firstAttribute="top" secondItem="CTT-kX-MD8" secondAttribute="bottom" constant="16" id="2KC-tg-BTl"/>
                                     <constraint firstAttribute="trailing" secondItem="CTT-kX-MD8" secondAttribute="trailing" id="9Sq-Pp-bdV"/>
-                                    <constraint firstAttribute="bottom" secondItem="ZGJ-w1-cTW" secondAttribute="bottom" constant="30" id="9WS-Se-ShL"/>
                                     <constraint firstItem="CTT-kX-MD8" firstAttribute="top" secondItem="Igs-5J-qwc" secondAttribute="top" constant="10" id="B8h-Cg-s5V"/>
-                                    <constraint firstItem="ZGJ-w1-cTW" firstAttribute="leading" secondItem="Igs-5J-qwc" secondAttribute="leading" constant="30" id="EZu-2W-9dZ"/>
-                                    <constraint firstAttribute="trailing" secondItem="ZGJ-w1-cTW" secondAttribute="trailing" constant="30" id="bwH-mq-eLp"/>
+                                    <constraint firstItem="ZGJ-w1-cTW" firstAttribute="leading" secondItem="Igs-5J-qwc" secondAttribute="leading" constant="16" id="EZu-2W-9dZ"/>
+                                    <constraint firstAttribute="trailing" secondItem="ZGJ-w1-cTW" secondAttribute="trailing" constant="16" id="bwH-mq-eLp"/>
                                     <constraint firstItem="CTT-kX-MD8" firstAttribute="leading" secondItem="Igs-5J-qwc" secondAttribute="leading" id="dAh-TK-Fr3"/>
+                                    <constraint firstAttribute="bottom" secondItem="ZGJ-w1-cTW" secondAttribute="bottom" constant="8" id="ye1-bi-TL8"/>
                                 </constraints>
                             </scrollView>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1sf-qL-6xa">
+                                <rect key="frame" x="87.5" y="587" width="200" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="0fH-8g-kfP"/>
+                                    <constraint firstAttribute="height" constant="60" id="7bE-Gi-1hE"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <state key="normal" title="Erase Wallet">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="actionButtonPressed:" destination="THK-cS-SUS" eventType="touchUpInside" id="ABA-rk-ypl"/>
+                                    <action selector="eraseTapped:" destination="kGK-vp-W1f" eventType="touchUpInside" id="39b-1U-BEc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="llc-wj-a26" firstAttribute="bottom" secondItem="Igs-5J-qwc" secondAttribute="bottom" id="5Yz-59-n2f"/>
-                            <constraint firstItem="CTT-kX-MD8" firstAttribute="width" secondItem="IBO-7n-oW1" secondAttribute="width" id="O9K-AA-P20"/>
+                            <constraint firstItem="1sf-qL-6xa" firstAttribute="top" secondItem="Igs-5J-qwc" secondAttribute="bottom" constant="16" id="Ogb-Ii-ogM"/>
+                            <constraint firstItem="1sf-qL-6xa" firstAttribute="centerX" secondItem="IBO-7n-oW1" secondAttribute="centerX" id="P7x-OA-59X"/>
                             <constraint firstItem="Igs-5J-qwc" firstAttribute="leading" secondItem="llc-wj-a26" secondAttribute="leading" id="VN0-vn-XQB"/>
+                            <constraint firstItem="llc-wj-a26" firstAttribute="bottom" secondItem="1sf-qL-6xa" secondAttribute="bottom" constant="20" id="i4o-Ri-6vL"/>
                             <constraint firstItem="Igs-5J-qwc" firstAttribute="top" secondItem="llc-wj-a26" secondAttribute="top" id="kd6-Ah-agS"/>
                             <constraint firstItem="llc-wj-a26" firstAttribute="trailing" secondItem="Igs-5J-qwc" secondAttribute="trailing" id="nFr-Us-U3Q"/>
                         </constraints>
@@ -783,12 +813,13 @@ Remaining signatures: 1,000,000</string>
                     </view>
                     <connections>
                         <outlet property="contentLabel" destination="ZGJ-w1-cTW" id="IYJ-9R-K6d"/>
+                        <outlet property="eraseWalletButton" destination="1sf-qL-6xa" id="lym-TU-jNf"/>
                         <outlet property="titleLabel" destination="eUM-J5-RUS" id="cIq-TO-sac"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gdW-sl-hSZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3998" y="91"/>
+            <point key="canvasLocation" x="3997.5999999999999" y="90.404797601199405"/>
         </scene>
         <!--Code View Controller-->
         <scene sceneID="Gj4-jx-c7V">
