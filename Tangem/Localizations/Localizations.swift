@@ -254,6 +254,8 @@ class Localizations {
   static let loadedWalletBtnExplore = translate("loaded_wallet_btn_explore")
   /// Extract
   static let loadedWalletBtnExtract = translate("loaded_wallet_btn_extract")
+  /// Claim
+  static let loadedWalletBtnClaim = translate("loaded_wallet_btn_claim")
   /// Load
   static let loadedWalletBtnLoad = translate("loaded_wallet_btn_load")
   /// New scan
@@ -466,6 +468,7 @@ class Localizations {
   // MARK: - IOS
     
     static let verifiedBalance = translate("common_verified_balance")
+    static let verifiedTag = translate("common_verified_tag")
     static let unverifiedBalance = translate("common_unverified_balance")
     static let disclamerNoWalletCreation = translate("disclamer_no_wallet_creation")
     
@@ -497,6 +500,8 @@ class Localizations {
     static let reserve = translate("common_reserve")
     static let tapToRetry = translate("common_tap_to_retry")
     static let genuine = translate("common_genuine")
+    static let notgenuine = translate("common_not_genuine")
+    static let alreadyClaimed = translate("already_claimed")
     static let notFound = translate("common_not_found")
     static let copied = translate("common_copied")
     static let signature = translate("common_signature")
@@ -513,6 +518,8 @@ class Localizations {
     static let goToLink = translate("common_go_link")
     static let detailsLinkedCard = translate("details_linked_card_title")
     static let commonNext = translate("common_next")
+    static let storeTitle = translate("main_store_title")
+    static let storeSubtitle = translate("main_store_subtitle")
 }
 // MARK: - Implementation Details
 

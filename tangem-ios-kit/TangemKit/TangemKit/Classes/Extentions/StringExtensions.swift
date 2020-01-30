@@ -11,10 +11,6 @@ import Foundation
 extension String: Error {}
 
 public extension String {
-    func remove(_ substring: String) -> String {
-        return self.replacingOccurrences(of: substring, with: "")
-    }
-    
     var cardFormatted: String {
         var resultString = ""
         for (index, character) in self.enumerated() {
