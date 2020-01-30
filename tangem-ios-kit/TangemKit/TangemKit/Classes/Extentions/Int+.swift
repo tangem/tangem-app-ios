@@ -26,24 +26,31 @@ extension Int {
         self = decimalValue
     }
     
-    var bytes2: [UInt8] {
+    var bytes2LE: Data {
         let clamped = UInt16(clamping: self)
         let data = withUnsafeBytes(of: clamped) { Data($0) }
-        return Array(data)
+        return data
     }
     
     var byte: UInt8 {
         return UInt8(truncatingIfNeeded: self)
     }
     
-    var bytes4: [UInt8] {
+    var bytes4LE: Data {
         let clamped = UInt32(clamping: self)
         let data = withUnsafeBytes(of: clamped) { Data($0) }
-        return Array(data)
+        return data
     }
     
-    var bytes8: [UInt8] {
+    var bytes8LE: Data{
         let data = withUnsafeBytes(of: self) { Data($0) }
-        return Array(data)
+        return data
+    }
+}
+
+extension UInt64 {
+    var bytes8LE: Data{
+        let data = withUnsafeBytes(of: self) { Data($0) }
+        return data
     }
 }
