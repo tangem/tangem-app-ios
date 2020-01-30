@@ -11,12 +11,16 @@ import Foundation
 import CoreNFC
 #endif
 import TangemKit
+import TangemSdk
 
 
 
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
-    var card: Card!
+    
+    private var cardManager = CardManager()
+    
+    var card: CardViewModel!
     var onDone: (()-> Void)?
     
     @IBOutlet weak var titleLabel: UILabel! {
@@ -128,42 +132,6 @@ class ExtractViewController: ModalActionViewController {
         return recognizer
     }()
     
-    private lazy var signSession: CardSignSession = {
-        let session = CardSignSession(cardId: card.cardID,
-                                      supportedSignMethods: card.supportedSignMethods) {[weak self] result in
-                                        DispatchQueue.main.async {
-                                        self?.btnSend.hideActivityIndicator()
-                                        self?.updateSendButtonSubtitle()
-                                        self?.removeLoadingView()
-                                        switch result {
-                                        case .cancelled:
-                                            break
-                                        case.success(let tlv):
-                                            guard let signature = tlv[.signature]?.value else {
-                                                self?.handleGenericError("Missing signature from card")
-                                                return
-                                            }
-                                            self?.handleSuccessSign(with: signature)
-                                        case .failure(let error):
-                                            if let signError = error as? CardSignError {
-                                                switch signError {
-                                                case .missingIssuerSignature:
-                                                    self?.handleTXNotSignedByIssuer()
-                                                case .nfcError(let nfcError):
-                                                    self?.handleGenericError(nfcError)
-                                                default:
-                                                    self?.handleGenericError(signError)
-                                                }
-                                            } else {
-                                                self?.handleGenericError(error)
-                                            }
-                                        }
-                                        }
-        }
-        
-        return session
-    }()
-    
     private var coinProvider: CoinProvider {
         return card.cardEngine as! CoinProvider
     }
@@ -210,7 +178,7 @@ class ExtractViewController: ModalActionViewController {
     }
     
     @IBAction func scanTapped() {
-        guard !signSession.isBusy, validateInput() else {
+        guard validateInput() else {
             return
         }
         
@@ -235,7 +203,7 @@ class ExtractViewController: ModalActionViewController {
                 }
                 
                 DispatchQueue.main.async {
-                    self?.signSession.start(dataToSign: hash)
+                    self?.sign(data: hash)
                 }
             }
         }
@@ -248,7 +216,29 @@ class ExtractViewController: ModalActionViewController {
                 return
             }
             
-            signSession.start(dataToSign: dataToSign)
+            sign(data: dataToSign)
+        
+        }
+    }
+    
+    private func sign(data: [Data]) {
+        cardManager.sign(hashes: data, cardId: card.cardID) {[unowned self] taskEvent in
+            switch taskEvent {
+            case .event(let signResponse):
+                self.handleSuccessSign(with: Array(signResponse.signature))
+            case .completion(let error):
+                self.btnSend.hideActivityIndicator()
+                self.updateSendButtonSubtitle()
+                self.removeLoadingView()
+                
+                if let error = error {
+                    if case .userCancelled = error {
+                        //silence user cancelled
+                    } else {
+                      self.handleGenericError(error)
+                    }
+                }
+            }
         }
     }
     
@@ -326,6 +316,7 @@ class ExtractViewController: ModalActionViewController {
             guard let fee = feeLabel.text?.remove(" \(card.walletUnits)"),
                 let feeValue = Decimal(string: fee),
                 !fee.isEmpty else {
+                    setError(true, for: feeLabel)
                     btnSendSetEnabled(false)
                     return false
             }
@@ -333,6 +324,7 @@ class ExtractViewController: ModalActionViewController {
             let valueToSend = includeFeeSwitch.isOn ? amountValue : amountValue + feeValue
             guard total >= valueToSend else {
                 setError(true, for: amountText )
+                setError(true, for: feeLabel)
                 btnSendSetEnabled(false)
                 return false
             }
@@ -341,12 +333,15 @@ class ExtractViewController: ModalActionViewController {
                 let valueToReceive = includeFeeSwitch.isOn ? amountValue - feeValue : amountValue + feeValue
                 guard valueToReceive > 0 else {
                     setError(true, for: amountText )
+                    setError(true, for: feeLabel)
                     btnSendSetEnabled(false)
                     return false
                 }
             } else {
                 if let forFee = Decimal(string: card.walletValue) {
-                    if forFee - feeValue < 0 {
+                    if forFee - feeValue <= 0 {
+                        setError(true, for: feeLabel)
+                        btnSendSetEnabled(false)
                         return false
                     }
                 }
@@ -354,7 +349,7 @@ class ExtractViewController: ModalActionViewController {
             
             validatedFee = fee
         }
-        
+        setError(false, for: feeLabel)
         setError(false, for: targetAddressText )
         setError(false, for: amountText )
         validatedAmount = amount
@@ -556,10 +551,6 @@ class ExtractViewController: ModalActionViewController {
         
         let separatorColor = UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
         let textColor = UIColor.init(red: 102.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1.0)
-        
-        //        textField.layer.borderColor = error ? UIColor.red.cgColor : UIColor.clear.cgColor
-        //        textField.layer.borderWidth = error ? 1.0 : 0.0
-        //        textField.layer.cornerRadius = error ? 8.0 : 0.0
         textField.textColor = error ? UIColor.red : textColor
         
         if textField == amountText {
@@ -567,6 +558,12 @@ class ExtractViewController: ModalActionViewController {
         } else if textField == targetAddressText {
             addressSeparator.backgroundColor = error ? UIColor.red : separatorColor
         }
+    }
+    
+    private func setError(_ error: Bool, for label: UILabel) {
+        let separatorColor = UIColor.init(red: 226.0/255.0, green: 226.0/255.0, blue: 226.0/255.0, alpha: 1.0)
+        let textColor = UIColor.init(red: 102.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1.0)
+        label.textColor = error ? UIColor.red : textColor
     }
     
     func btnSendSetEnabled(_ enabled: Bool) {
