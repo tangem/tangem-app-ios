@@ -11,23 +11,20 @@ import SwiftyJSON
 import GBAsyncOperation
 
 class EthereumNetworkTxCountOperation: GBAsyncOperation {
-    
-    private struct Constants {
-        static let mainNetURL = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
-    }
-    
     var address: String
     var completion: (TangemObjectResult<Int>) -> Void
+    var networkUrl: String
     
-    init(address: String, completion: @escaping (TangemObjectResult<Int>) -> Void) {
+    init(address: String, networkUrl: String, completion: @escaping (TangemObjectResult<Int>) -> Void) {
         self.address = address
         self.completion = completion
+        self.networkUrl = networkUrl
     }
     
     override func main() {
         let jsonDict = ["jsonrpc": "2.0", "method": "eth_getTransactionCount", "params": [address, "latest"], "id": 67] as [String: Any]
         
-        let url = URL(string: Constants.mainNetURL)
+        let url = URL(string: networkUrl)
         var urlRequest = URLRequest(url: url!)
         urlRequest.httpMethod = "POST"
         
