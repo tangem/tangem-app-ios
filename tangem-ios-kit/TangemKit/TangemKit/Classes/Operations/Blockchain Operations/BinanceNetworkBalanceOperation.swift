@@ -19,9 +19,9 @@ class BinanceNetworkBalanceOperation: GBAsyncOperation {
     
     var address: String
     var isTestNet: Bool
-    var completion: (TangemObjectResult<String>) -> Void
+    var completion: (TangemObjectResult<(String, Int, Int)>) -> Void
     
-    init(address: String, isTestNet: Bool = false, completion: @escaping (TangemObjectResult<String>) -> Void) {
+    init(address: String, isTestNet: Bool = false, completion: @escaping (TangemObjectResult<(String, Int, Int)>) -> Void) {
         self.address = address
         self.isTestNet = isTestNet
         self.completion = completion
@@ -43,15 +43,12 @@ class BinanceNetworkBalanceOperation: GBAsyncOperation {
                     let balanceInfo = try JSON(data: data)
                     let balances = balanceInfo["balances"].array 
                     let bnbBalance = balances?.first(where: { $0["symbol"].stringValue == "BNB" })
-                    guard let balanceString = bnbBalance?["free"].stringValue else {
-                        self.failOperationWith(error: "No balance data")
-                        assertionFailure()
-                        return
-                    }
+                    let balanceString = bnbBalance?["free"].string ?? "0"
                     
                     let walletValue = NSDecimalNumber(string: balanceString)
-                    
-                    self.completeOperationWith(balance: walletValue.stringValue)
+                    let accountNumber = balanceInfo["account_number"].intValue
+                    let sequence = balanceInfo["sequence"].intValue
+                    self.completeOperationWith(balance: walletValue.stringValue, accountNumber: accountNumber, sequence: sequence)
                 } catch {
                     self.failOperationWith(error: error)
                 }
@@ -64,12 +61,12 @@ class BinanceNetworkBalanceOperation: GBAsyncOperation {
         task.resume()
     }
     
-    func completeOperationWith(balance: String) {
+    func completeOperationWith(balance: String, accountNumber:Int, sequence: Int) {
         guard !isCancelled else {
             return
         }
         
-        completion(.success(balance))
+        completion(.success((balance, accountNumber, sequence)))
         finish()
     }
     
