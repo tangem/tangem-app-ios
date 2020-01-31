@@ -68,6 +68,17 @@ public final class NFCReader: NSObject {
             self?.readerSessionError.send(NFCError.stuck)
         })
     }
+    
+    private func cancelSubscriptions() {
+        disposeBag?.forEach{ $0.cancel() }
+        disposeBag = nil
+    }
+    
+    private func log(_ message: String) {
+        if loggingEnabled {
+            print(message)
+        }
+    }
 }
 
 @available(iOS 13.0, *)
@@ -225,17 +236,6 @@ extension NFCReader: CardReader {
                     }
                 }
             }
-        }
-    }
-    
-    private func cancelSubscriptions() {
-        disposeBag?.forEach{ $0.cancel() }
-        disposeBag = nil
-    }
-    
-    private func log(_ message: String) {
-        if loggingEnabled {
-            print(message)
         }
     }
 }
