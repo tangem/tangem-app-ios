@@ -484,8 +484,13 @@ extension CardDetailsViewController {
             if #available(iOS 13.0, *) {
                 cardManager.createWallet(cardId: card!.cardID) {[unowned self] taskResponse in
                     switch taskResponse {
-                    case .event(let createWalletResponse):
-                        self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                    case .event(let createWalletEvent):
+                        switch createWalletEvent {
+                        case .onCreate(let createWalletResponse):
+                            self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                        case .onVerify(let isGenuine):
+                            self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
+                        }
                     case .completion(let error):
                         if let error = error {
                             if !error.isUserCancelled {
