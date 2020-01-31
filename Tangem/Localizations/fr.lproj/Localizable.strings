@@ -199,7 +199,7 @@
 "loaded_wallet_no_compatible_wallet" = "Aucun porte-monnaie compatible installé";
 
 /*  */
-"loaded_wallet_message_wait" = "Veuillez patienter pendant que la transaction précédente est confirmée dans la blockchain";
+"loaded_wallet_message_wait" = "En attente de confirmation dans la blockchain. Veuillez patienter que votre précédente transaction soit confirmée dans la blockchain";
 
 /*  */
 "loaded_wallet_message_refresh" = "Impossible d'obtenir toutes les entrées. Balayez vers le bas pour actualiser.";
@@ -232,7 +232,7 @@
 "loaded_wallet_toast_copied" = "copié dans le presse-papiers";
 
 /*  */
-"loaded_wallet_btn_extract" = "Retirer";
+"loaded_wallet_btn_extract" = "Transférer";
 
 /*  */
 "loaded_wallet_btn_claim"  = "Claim";
@@ -283,7 +283,7 @@
 "loaded_wallet_dialog_show_qr" = "LOAD";
 
 /* LoadedWallet Blockchain Engines */
-"balance_validator_first_line_verified_balance" = "Solde vérifié";
+"balance_validator_first_line_verified_balance" = "Solde confirmé dans la blockchain";
 
 /*  */
 "balance_validator_first_line_unknown_balance" = "Solde inconnu";
@@ -433,7 +433,7 @@
 "send_transaction_notification_wait" = "Veuillez patienter pendant l'envoi du paiement…";
 
 /*  */
-"send_transaction_success" = "La transaction a été signée et envoyée avec succès au noeud de la blockchain. La balance de porte-monnaie sera mise à jour dans un moment";
+"send_transaction_success" = "La transaction a été signée et envoyée avec succès au noeud de la blockchain. Le solde de votre porte-monnaie sera mise à jour dès que transaction sera validée sur la blockchain";
 
 /*  */
 "send_transaction_error_failed_to_send" = "Réessayez. Échec d'envoi de la transaction (%@)";
@@ -538,7 +538,7 @@
 "empty_wallet_btn_create" = "Créer un porte-monnaie";
 
 /* VerifyCard */
-"details_title_card_id" = "ID de la carte";
+"details_title_card_id" = "Depuis la carte";
 
 /*  */
 "details_signing_method" = "Méthode de signature";
@@ -772,7 +772,7 @@
 
 "common_unverified_balance" = "Solde non vérifié";
 
-"disclamer_no_wallet_creation" = "La création de porte-monnaie n'est pas disponible sur l'iPhone pour le moment";
+"disclamer_no_wallet_creation" = "Wallet creation is available starting from iOS 13";
 
 "disclamer_nfc_title" = "Important: restriction NFC sur iOS";
 
@@ -802,11 +802,11 @@
 
 "alert_failed_build_transaction" = "La transaction ne peut pas être créée avec les données fournies. Essayez de réanalyser la carte, puis réessayez";
 
-"reader_hint_label_default" = "Appuyez sur SCAN et touchez la carte avec votre iPhone comme indiqué ci-dessus";
+"reader_hint_label_default" = "Appuyez sur SCANNER et placez votre carte derrière votre iPhone comme indiqué ci-dessous";
 
 "reader_hint_label_scan" = "Tenez la carte près du lecteur";
 
-"common_scan_button_title" = "SCAN";
+"common_scan_button_title" = "SCANNER";
 
 "reader_nfc_stub_message" = "Cette application ne fonctionne qu'avec les périphériques compatibles NFC";
 
@@ -848,7 +848,7 @@
 
 "common_fee_stub" = "Spécifiez le montant et l'adresse pour voir les frais";
 
-"common_send_payment" = "Envoyer le paiement";
+"common_send_payment" = "Transférer les fonds";
 
 "common_address" = "Adresse";
 
@@ -866,7 +866,7 @@
 
 "main_store_title"="Vous n’avez pas de carte?";
 
-"main_store_subtitle"="Visitez notre boutique sur";
+"main_store_subtitle"="Visitez notre boutique sur ";
 
 "common_not_genuine"="Not genuine";
 
