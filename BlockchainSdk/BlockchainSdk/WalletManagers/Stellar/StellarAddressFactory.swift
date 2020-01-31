@@ -9,8 +9,8 @@
 import Foundation
 import stellarsdk
 
-class StellarAddressFactory {
-    func makeAddress(from walletPublicKey: Data) -> String {
+public class StellarAddressFactory {
+    public func makeAddress(from walletPublicKey: Data) -> String {
         guard let publicKey = try? PublicKey(Array(walletPublicKey)) else {
             return ""
         }

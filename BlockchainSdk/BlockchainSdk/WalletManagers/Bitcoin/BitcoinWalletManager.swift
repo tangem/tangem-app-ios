@@ -28,14 +28,13 @@ class BitcoinWalletManager: WalletManager {
     private let cardId: String
     private var requestDisposable: Disposable?
     
-    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, isTestnet: Bool) {
+    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, blockchain: Blockchain) {
         self.cardId = cardId
-        let blockchain: Blockchain = isTestnet ? .bitcoinTestnet : .bitcoin
         let address = blockchain.makeAddress(from: walletPublicKey)
         currencyWallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
-        self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
+        self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: blockchain.isTestnet)
         wallet.onNext(currencyWallet)
-        network = BitcoinNetworkManager(address: address, isTestNet: isTestnet)
+        network = BitcoinNetworkManager(address: address, isTestNet: blockchain.isTestnet)
         //[REDACTED_TODO_COMMENT]
     }
     
