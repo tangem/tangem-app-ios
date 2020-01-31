@@ -11,26 +11,39 @@ import TangemSdk
 
 public class WalletManagerFactory {
     public func makeWalletManager(from card: Card) -> WalletManager? {
-        guard let blockchainName = card.cardData?.blockchainName, let walletPublicKey = card.walletPublicKey else {
+        guard let blockchainName = card.cardData?.blockchainName, let walletPublicKey = card.walletPublicKey,
+            let cardId = card.cardId else {
             assertionFailure()
             return nil
         }
+        let isTestnet = blockchainName.contains("test")
         
         if blockchainName.contains("btc") || blockchainName.contains("bitcoin") {
             let walletConfig = WalletConfig(allowFeeSelection: true, allowFeeInclusion: true)
-            return BitcoinWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, isTestnet: blockchainName.contains("test") )
+            return BitcoinWalletManager(cardId: cardId,
+                                        walletPublicKey: walletPublicKey,
+                                        walletConfig: walletConfig,
+                                        blockchain: .bitcoin(testnet: isTestnet)  )
         }
         
         if blockchainName.contains("xlm") {
             let token = getToken(from: card)
             let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: token == nil)
-            return StellarWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, token: token, isTestnet: blockchainName.contains("test"))
+            return StellarWalletManager(cardId: cardId,
+                                        walletPublicKey: walletPublicKey,
+                                        walletConfig: walletConfig,
+                                        token: token,
+                                        blockchain: .stellar(testnet: isTestnet))
         }
         
         if blockchainName.contains("eth") {
             let token = getToken(from: card)
             let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: token == nil)
-            return EthereumWalletManager(cardId: card.cardId, walletPublicKey: walletPublicKey, walletConfig: walletConfig, token: token, isTestnet: blockchainName.contains("test"))
+            return EthereumWalletManager(cardId: cardId,
+                                         walletPublicKey: walletPublicKey,
+                                         walletConfig: walletConfig,
+                                         token: token,
+                                         blockchain: .ethereum(testnet: isTestnet))
         }
         return nil
     }
