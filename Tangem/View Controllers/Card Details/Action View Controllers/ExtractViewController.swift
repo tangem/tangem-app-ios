@@ -11,12 +11,16 @@ import Foundation
 import CoreNFC
 #endif
 import TangemKit
+import TangemSdk
 
 
 
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
-    var card: Card!
+    
+    private var cardManager = CardManager()
+    
+    var card: CardViewModel!
     var onDone: (()-> Void)?
     
     @IBOutlet weak var titleLabel: UILabel! {
@@ -128,42 +132,6 @@ class ExtractViewController: ModalActionViewController {
         return recognizer
     }()
     
-    private lazy var signSession: CardSignSession = {
-        let session = CardSignSession(cardId: card.cardID,
-                                      supportedSignMethods: card.supportedSignMethods) {[weak self] result in
-                                        DispatchQueue.main.async {
-                                        self?.btnSend.hideActivityIndicator()
-                                        self?.updateSendButtonSubtitle()
-                                        self?.removeLoadingView()
-                                        switch result {
-                                        case .cancelled:
-                                            break
-                                        case.success(let tlv):
-                                            guard let signature = tlv[.signature]?.value else {
-                                                self?.handleGenericError("Missing signature from card")
-                                                return
-                                            }
-                                            self?.handleSuccessSign(with: signature)
-                                        case .failure(let error):
-                                            if let signError = error as? CardSignError {
-                                                switch signError {
-                                                case .missingIssuerSignature:
-                                                    self?.handleTXNotSignedByIssuer()
-                                                case .nfcError(let nfcError):
-                                                    self?.handleGenericError(nfcError)
-                                                default:
-                                                    self?.handleGenericError(signError)
-                                                }
-                                            } else {
-                                                self?.handleGenericError(error)
-                                            }
-                                        }
-                                        }
-        }
-        
-        return session
-    }()
-    
     private var coinProvider: CoinProvider {
         return card.cardEngine as! CoinProvider
     }
@@ -210,7 +178,7 @@ class ExtractViewController: ModalActionViewController {
     }
     
     @IBAction func scanTapped() {
-        guard !signSession.isBusy, validateInput() else {
+        guard validateInput() else {
             return
         }
         
@@ -235,7 +203,7 @@ class ExtractViewController: ModalActionViewController {
                 }
                 
                 DispatchQueue.main.async {
-                    self?.signSession.start(dataToSign: hash)
+                    self?.sign(data: hash)
                 }
             }
         }
@@ -248,7 +216,29 @@ class ExtractViewController: ModalActionViewController {
                 return
             }
             
-            signSession.start(dataToSign: dataToSign)
+            sign(data: dataToSign)
+        
+        }
+    }
+    
+    private func sign(data: [Data]) {
+        cardManager.sign(hashes: data, cardId: card.cardID) {[unowned self] taskEvent in
+            switch taskEvent {
+            case .event(let signResponse):
+                self.handleSuccessSign(with: Array(signResponse.signature))
+            case .completion(let error):
+                self.btnSend.hideActivityIndicator()
+                self.updateSendButtonSubtitle()
+                self.removeLoadingView()
+                
+                if let error = error {
+                    if case .userCancelled = error {
+                        //silence user cancelled
+                    } else {
+                      self.handleGenericError(error)
+                    }
+                }
+            }
         }
     }
     
