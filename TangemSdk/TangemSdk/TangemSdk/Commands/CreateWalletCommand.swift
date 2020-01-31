@@ -32,18 +32,14 @@ public struct CreateWalletResponse {
 @available(iOS 13.0, *)
 public final class CreateWalletCommand: CommandSerializer {
     public typealias CommandResponse = CreateWalletResponse
-    /// Unique Tangem card ID number
-    let cardId: String
     
-    public init(cardId: String) {
-        self.cardId = cardId
-    }
+    public init() {}
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
-            .append(.cardId, value: cardId)
+            .append(.cardId, value: environment.cardId)
         
         if let cvc = environment.cvc {
             try tlvBuilder.append(.cvc, value: cvc)
