@@ -67,9 +67,7 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            let getIssuerDataCommand = ReadIssuerDataCommand(cardId: cardId)
-            
-            cardManager.runCommand(getIssuerDataCommand) { [unowned self] taskEvent in
+            cardManager.readIssuerData(cardId: cardId){ [unowned self] taskEvent in
                 switch taskEvent {
                 case .event(let issuerDataResponse):
                     self.issuerDataResponse = issuerDataResponse
@@ -97,9 +95,9 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            let writeIssuerDataCommand = WriteIssuerDataCommand(cardId: cardId, issuerData: issuerDataResponse.issuerData, issuerDataSignature: issuerDataResponse.issuerDataSignature)
-            
-            cardManager.runCommand(writeIssuerDataCommand) { [unowned self] taskEvent in
+            cardManager.writeIssuerData(cardId: cardId,
+                                        issuerData: issuerDataResponse.issuerData,
+                                        issuerDataSignature: issuerDataResponse.issuerDataSignature) { [unowned self] taskEvent in
                 switch taskEvent {
                 case .event(let issuerDataResponse):
                     self.log(issuerDataResponse)
@@ -123,8 +121,14 @@ class ViewController: UIViewController {
         if #available(iOS 13.0, *) {
             cardManager.createWallet(cardId: cardId) { [unowned self] taskEvent in
                 switch taskEvent {
-                case .event(let response):
-                    self.log(response)
+                case .event(let createWalletEvent):
+                    switch createWalletEvent {
+                    case .onCreate(let response):
+                        self.log(response)
+                    case .onVerify(let isGenuine):
+                        self.log("Verify result: \(isGenuine)")
+                    }
+                    
                 case .completion(let error):
                     self.handle(error)
                     //handle completion. Unlock UI, etc.

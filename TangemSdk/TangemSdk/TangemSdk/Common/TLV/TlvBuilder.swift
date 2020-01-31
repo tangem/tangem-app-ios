@@ -13,7 +13,7 @@ public class TlvBuilder {
     private let encoder = TlvEncoder()
     
     @discardableResult
-    public func append<T>(_ tag: TlvTag, value: T) throws -> TlvBuilder {
+    public func append<T>(_ tag: TlvTag, value: T?) throws -> TlvBuilder {
         tlvs.append(try encoder.encode(tag, value: value))
         return self
     }
