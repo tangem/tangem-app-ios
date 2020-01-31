@@ -11,7 +11,7 @@ import stellarsdk
 import SwiftyJSON
 
 public class XlmEngine: CardEngine {
-    unowned public var card: Card
+    unowned public var card: CardViewModel
     
     public lazy var stellarSdk: StellarSDK = {
         return StellarSDK(withHorizonUrl: "https://\(card.node)")
@@ -22,7 +22,7 @@ public class XlmEngine: CardEngine {
             return
                 """
                 Tangem TAG
-                Stellar NFT token
+                Stellar non-fungible token
                 """
         }
         else {
@@ -67,7 +67,7 @@ public class XlmEngine: CardEngine {
         return baseUrl + walletAddress
     }
     
-    public required init(card: Card) {
+    public required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
