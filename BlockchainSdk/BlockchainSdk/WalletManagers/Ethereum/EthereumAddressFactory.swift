@@ -8,8 +8,8 @@
 
 import Foundation
 
-class EthereumAddressFactory {
-    func makeAddress(from walletPublicKey: Data) -> String {
+public class EthereumAddressFactory {
+    public func makeAddress(from walletPublicKey: Data) -> String {
         //skip secp256k1 prefix
         let keccak = walletPublicKey[1...].sha3(.keccak256)
         let addressBytes = keccak[12...]
