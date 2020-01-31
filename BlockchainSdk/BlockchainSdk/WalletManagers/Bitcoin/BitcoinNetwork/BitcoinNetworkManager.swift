@@ -19,7 +19,7 @@ class BitcoinNetworkManager: BitcoinNetworkProvider {
     
     init(address: String, isTestNet:Bool) {
         var providers = [BitcoinNetworkApi:BitcoinNetworkProvider]()
-        providers[.blockcypher] = BlockcypherProvider(address: address, isTestNet: isTestNet)
+        providers[.blockcypher] = BlockcypherProvider(address: address, coin: .btc, chain:  isTestNet ? .test3: .main)
         providers[.main] = BitcoinMainProvider(address: address)
         self.isTestNet = isTestNet
         self.providers = providers

@@ -35,17 +35,19 @@ struct BlockcypherFeeResponse: Codable {
 class BlockcypherProvider: BitcoinNetworkProvider {    
     let provider = MoyaProvider<BlockcypherTarget>()
     let address: String
-    let network: BitcoinNetwork
+    let chain: BlockcypherChain
+    let coin: BlockcypherCoin
     
-    init(address: String, isTestNet: Bool) {
+    init(address: String, coin: BlockcypherCoin, chain: BlockcypherChain) {
         self.address = address
-        self.network = isTestNet ? .test3: .main
+        self.coin = coin
+        self.chain = chain
     }
     
     func getInfo() -> Single<BitcoinResponse> {
         return provider
             .rx
-            .request(.address(address: self.address, network: self.network))
+            .request(.address(address: address, coin: coin, chain: chain))
             .map {response throws -> BitcoinResponse in
                 let addressResponse = try response.map(BlockcypherAddressResponse.self)
                 
@@ -75,7 +77,7 @@ class BlockcypherProvider: BitcoinNetworkProvider {
     
     @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
-        return provider.requestCombine(.fee(network: self.network))
+        return provider.requestCombine(.fee(coin: coin, chain: chain))
             .tryMap { response throws -> BtcFee in
                 let feeResponse = try response.map(BlockcypherFeeResponse.self)
                 
@@ -96,7 +98,7 @@ class BlockcypherProvider: BitcoinNetworkProvider {
     
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        return provider.requestCombine(.send(txHex: transaction, network: self.network, accessToken: self.randomToken))
+        return provider.requestCombine(.send(txHex: transaction, coin: coin, chain: chain, accessToken: self.randomToken))
             .tryMap { response throws -> String in
                 if let sendResponse = String(data: response.data, encoding: .utf8), sendResponse.count > 0{
                     return sendResponse
@@ -118,35 +120,39 @@ class BlockcypherProvider: BitcoinNetworkProvider {
     }
 }
 
+enum BlockcypherCoin: String {
+    case btc
+    case ltc
+}
 
-enum BitcoinNetwork: String {
+enum BlockcypherChain: String {
     case main
     case test3
 }
 
 enum BlockcypherTarget: TargetType {
-    case address(address:String, network: BitcoinNetwork)
-    case fee(network: BitcoinNetwork)
-    case send(txHex: String, network: BitcoinNetwork, accessToken: String)
+    case address(address:String, coin: BlockcypherCoin, chain: BlockcypherChain)
+    case fee(coin: BlockcypherCoin, chain: BlockcypherChain)
+    case send(txHex: String, coin: BlockcypherCoin, chain: BlockcypherChain, accessToken: String)
     
     var baseURL: URL {
         switch self {
-        case .address(_, let network):
-            return baseUrl(network)
-        case .fee(let network):
-            return baseUrl(network)
-        case .send(_, let network, _):
-            return baseUrl(network)
+        case .address(_, let coin, let chain):
+            return baseUrl(coin: coin, chain: chain)
+        case .fee(let coin, let chain):
+            return baseUrl(coin: coin, chain: chain)
+        case .send(_, let coin, let chain, _):
+            return baseUrl(coin: coin, chain: chain)
         }
     }
     
     var path: String {
         switch self {
-        case .address(let address, _):
+        case .address(let address, _, _):
             return "/addrs/\(address)?unspentOnly=true&includeScript=true"
         case .fee:
             return ""
-        case .send(_, _, let token):
+        case .send(_, _, _, let token):
             return "/txs/push?token=\(token)"
         }
     }
@@ -179,7 +185,7 @@ enum BlockcypherTarget: TargetType {
         return nil
     }
     
-    private func baseUrl(_ network: BitcoinNetwork) -> URL {
-        return URL(string: "https://api.blockcypher.com/v1/btc/\(network.rawValue)")!
+    private func baseUrl(coin: BlockcypherCoin, chain: BlockcypherChain) -> URL {
+        return URL(string: "https://api.blockcypher.com/v1/\(coin.rawValue)/\(chain.rawValue)")!
     }
 }
