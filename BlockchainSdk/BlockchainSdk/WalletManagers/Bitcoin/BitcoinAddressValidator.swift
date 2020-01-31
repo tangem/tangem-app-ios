@@ -9,10 +9,13 @@
 import Foundation
 
 public class BitcoinAddressValidator {
+    var possibleFirstCharacters: [String] {
+        ["1","2","3","n","m"]
+    }
+    
     func validate(_ address: String, testnet: Bool) -> Bool {
         guard !address.isEmpty else { return false }
         
-        let possibleFirstCharacters = ["1","2","3","n","m"]
         if possibleFirstCharacters.contains(String(address.first!)) {
             guard (26...35) ~= address.count else { return false }
             
