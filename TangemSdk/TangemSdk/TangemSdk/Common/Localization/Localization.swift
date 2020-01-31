@@ -17,6 +17,7 @@ public final class Localization {
     static let nfcSessionTimeout = string("nfc_session_timeout")
     static let nfcAlertDefault = string("nfc_alert_default")
     static let nfcAlertDefaultDone = string("nfc_alert_default_done")
+    static let nfcStuckError = string("nfc_stuck_error")
     
     private static var defaultBundle: Bundle = {
         let selfBundle = Bundle(for: Localization.self)
