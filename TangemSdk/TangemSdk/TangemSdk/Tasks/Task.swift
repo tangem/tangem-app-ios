@@ -30,12 +30,13 @@ public enum TaskEvent<TEvent> {
 public enum TaskError: Error, LocalizedError {
     //Serialize apdu errors
     case serializeCommandError
-    // Encodeing error
+    // Encoding error
     case encodingError
     
     //Card errors
     case unknownStatus(sw: UInt16)
     case errorProcessingCommand
+    case missingPreflightRead
     case invalidState
     case insNotSupported
     case invalidParams
@@ -44,6 +45,7 @@ public enum TaskError: Error, LocalizedError {
     //Scan errors
     case vefificationFailed
     case cardError
+    case wrongCard
     
     //Sign errors
     case tooMuchHashesInOneTransaction
@@ -53,7 +55,7 @@ public enum TaskError: Error, LocalizedError {
     case busy
     case userCancelled
     case genericError(Error)
-    case unsupported
+    case unsupportedDevice
     //NFC error
     case readerError(NFCReaderError)
     case nfcError(NFCError)
@@ -88,6 +90,10 @@ public enum TaskError: Error, LocalizedError {
  */
 open class Task<TEvent>: AnyTask {
     var reader: CardReader!
+    
+    ///  If `true`, the task will execute `Read Command`  before main logic and will return `currentCard` in `onRun` or throw an error if some check will not pass. Eg. the wrong card was scanned
+    var performPreflightRead: Bool = true
+    
     weak var delegate: CardManagerDelegate?
     
     deinit {
@@ -110,15 +116,19 @@ open class Task<TEvent>: AnyTask {
                 self?.delegate?.tagDidConnect()
             }
         }
-        
         reader.startSession()
-        onRun(environment: environment, callback: callback)
+        if #available(iOS 13.0, *), performPreflightRead {
+            preflightRead(environment: environment, callback: callback)
+        } else {
+            onRun(environment: environment, currentCard: nil, callback: callback)
+        }
     }
     
     /**
      * In this method the individual Tasks' logic should be implemented.
+     * - Parameter currentCard: This is the result of preflight `Read Command`. It will be  nil if `performPreflightRead` was set to `false`
      */
-    public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
+    public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
     /**
      * This method should be called by Tasks in their `onRun` method wherever
@@ -186,8 +196,34 @@ open class Task<TEvent>: AnyTask {
                         callback(.failure(TaskError.readerError(readerError)))
                     }
                 default:
-                      callback(.failure(TaskError.nfcError(error)))
+                    callback(.failure(TaskError.nfcError(error)))
                 }
+            }
+        }
+    }
+    
+    @available(iOS 13.0, *)
+    private func preflightRead(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {
+        sendCommand(ReadCommand(), environment: environment) { [unowned self] readResult in
+            switch readResult {
+            case .failure(let error):
+                self.reader.stopSession(errorMessage: error.localizedDescription)
+                callback(.completion(error))
+            case .success(let readResponse):
+                if let expectedCardId = environment.cardId,
+                    let actualCardId = readResponse.cardId,
+                    expectedCardId != actualCardId {
+                    let error = TaskError.wrongCard
+                    self.reader.stopSession(errorMessage: error.localizedDescription)
+                    callback(.completion(error))
+                    return
+                }
+                
+                var newEnvironment = environment
+                if newEnvironment.cardId == nil {
+                    newEnvironment.cardId = readResponse.cardId
+                }
+                self.onRun(environment: newEnvironment, currentCard: readResponse, callback: callback)
             }
         }
     }
