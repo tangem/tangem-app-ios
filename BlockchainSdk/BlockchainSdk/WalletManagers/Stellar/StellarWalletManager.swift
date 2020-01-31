@@ -29,12 +29,11 @@ class StellarWalletManager: WalletManager {
     private let stellarSdk: StellarSDK
     private var requestDisposable: Disposable?
     
-    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, isTestnet: Bool) {
+    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, blockchain: Blockchain) {
         
-        let url = isTestnet ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"
+        let url = blockchain.isTestnet ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"
         self.stellarSdk = StellarSDK(withHorizonUrl: url)
         self.cardId = cardId
-        let blockchain: Blockchain = isTestnet ? .stellarTestnet: .stellar
         let address = blockchain.makeAddress(from: walletPublicKey)
         currencyWallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         currencyWallet.add(amount: Amount(with: blockchain, address: address, type: .reserve))
@@ -42,7 +41,7 @@ class StellarWalletManager: WalletManager {
             currencyWallet.add(amount: Amount(with: token))
         }
         
-        self.txBuilder = StellarTransactionBuilder(stellarSdk: stellarSdk, walletPublicKey: walletPublicKey, isTestnet: isTestnet)
+        self.txBuilder = StellarTransactionBuilder(stellarSdk: stellarSdk, walletPublicKey: walletPublicKey, isTestnet: blockchain.isTestnet)
         self.network = StellarNetwotkManager(stellarSdk: stellarSdk)
         wallet.onNext(currencyWallet)
     }
