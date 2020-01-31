@@ -10,6 +10,7 @@ import UIKit
 import Fabric
 import Crashlytics
 import TangemKit
+import TangemSdk
 
 extension UIApplication {
     
@@ -39,14 +40,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().tintColor = .white
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = CardScanner.isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
+        window.rootViewController = CardManager.isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
         window.makeKeyAndVisible()
         self.window = window
         #if BETA
             Fabric.with([Crashlytics.self])
         #endif
+        Utils().initialize(legacyMode: NfcUtils.isLegacyDevice)
         
-        Utils.initialize()
         return true
     }
     
