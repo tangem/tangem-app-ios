@@ -23,9 +23,8 @@ class  EthereumWalletManager: WalletManager {
     public var pendingTxCount: Int = -1
     private var requestDisposable: Disposable?
     
-    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, isTestnet: Bool) {
+    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, blockchain: Blockchain) {
         self.cardId = cardId
-        let blockchain: Blockchain = isTestnet ? .ethereumTestnet: .ethereum
         let address = blockchain.makeAddress(from: walletPublicKey)
         self.currencyWallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         
@@ -33,7 +32,8 @@ class  EthereumWalletManager: WalletManager {
             currencyWallet.add(amount: Amount(with: token))
         }
         network = EthereumNetworkManager()
-        txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: isTestnet)
+        let isTestnet = 
+            txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: blockchain.isTestnet)
         wallet.onNext(currencyWallet)
     }
     
