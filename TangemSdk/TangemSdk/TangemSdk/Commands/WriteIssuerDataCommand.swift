@@ -23,8 +23,6 @@ public struct WriteIssuerDataResponse {
 @available(iOS 13.0, *)
 public final class WriteIssuerDataCommand: CommandSerializer {
     public typealias CommandResponse = WriteIssuerDataResponse
-    /// Unique Tangem card ID number
-    public let cardId: String
     /// Data provided by issuer
     public let issuerData: Data
     /**
@@ -41,14 +39,12 @@ public final class WriteIssuerDataCommand: CommandSerializer {
     public let issuerDataCounter: Int?
     /**
      * - Parameters:
-     *   - cardId: CID
      *   - issuerData: Data to write
      *   - issuerDataSignature: Signature to write
      *   - issuerDataCounter: An optional counter that protect issuer data against replay attack. When flag `Protect_Issuer_Data_Against_Replay` set in `SettingsMask`
      * then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
      */
-    public init(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil) {
-        self.cardId = cardId
+    public init(issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil) {
         self.issuerData = issuerData
         self.issuerDataSignature = issuerDataSignature
         self.issuerDataCounter = issuerDataCounter
@@ -57,7 +53,7 @@ public final class WriteIssuerDataCommand: CommandSerializer {
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
-            .append(.cardId, value: cardId)
+            .append(.cardId, value: environment.cardId)
             .append(.issuerData, value: issuerData)
             .append(.issuerDataSignature, value: issuerDataSignature)
         
