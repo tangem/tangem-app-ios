@@ -27,10 +27,11 @@ public enum Blockchain: String {
     case stellar
     case bitcoinCash
     case litecoin
+    case ducatus
     
     public var decimalCount: Int16 {
         switch self {
-        case .bitcoin, .bitcoinCash, .litecoin:
+        case .bitcoin, .bitcoinCash, .litecoin, .ducatus:
             return 8
         case .ethereum, .rootstock:
             return 18
@@ -52,6 +53,8 @@ public enum Blockchain: String {
             return .down
         case .cardano:
             return .up
+        case .ducatus:
+            return .plain
         default:
             return .plain
         }
@@ -114,6 +117,8 @@ public class CardViewModel {
             return .bitcoinCash
         case let blockchainName where blockchainName.containsIgnoringCase(find: "ltc"):
             return .litecoin
+        case let blockchainName where blockchainName.containsIgnoringCase(find: "duc"):
+            return .ducatus
         default:
             return .unknown
         }
@@ -228,7 +233,7 @@ public class CardViewModel {
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
         return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum
-            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash || blockchain == .litecoin)
+            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash || blockchain == .litecoin || blockchain == .ducatus)
     }
     
     public let supportedSignMethods: SigningMethod?
@@ -426,96 +431,96 @@ public class CardViewModel {
         self.walletPublicKeyBytesArray = walletPublicKey?.bytes ?? []
         setupEngine()
     }
-//    //[REDACTED_TODO_COMMENT]
-//    public init(tags: [CardTLV]) {
-//        tags.forEach({
-//            switch $0.tag {
-//            case .cardId:
-//                cardID = $0.value?.hexString.cardFormatted ?? ""
-//            case .cardPublicKey:
-//                cardPublicKey = $0.value?.hexString ?? ""
-//            case .firmware:
-//                firmware = $0.value?.utf8String ?? ""
-//            case .batch:
-//                batchId = $0.value?.intValue ?? -1 //Int($0.hexStringValue, radix: 16)!
-//            case .manufactureDateTime:
-//                manufactureDateTime = $0.value?.dateString ?? ""
-//            case .issuerId:
-//                issuer = $0.value?.utf8String ?? ""
-//            case .manufactureId:
-//                manufactureId = $0.value?.utf8String ?? ""
-//            case .blockchainId:
-//                blockchainName = $0.value?.utf8String ?? ""
-//            case .tokenSymbol:
-//                tokenSymbol = $0.value?.utf8String ?? ""
-//            case .tokenContractAddress:
-//                tokenContractAddress = $0.value?.utf8String ?? ""
-//            case .tokenDecimal:
-//                tokenDecimal = $0.value?.intValue ?? 0 // Int($0.hexStringValue, radix: 16)!
-//            case .manufacturerSignature:
-//                manufactureSignature = $0.value?.hexString ?? ""
-//            case .walletPublicKey:
-//                walletPublicKey = $0.value?.hexString ?? ""
-//                walletPublicKeyBytesArray = $0.value ?? []
-//            case .maxSignatures:
-//                maxSignatures = "\($0.value?.intValue ?? -1)"
-//            case .walletRemainingSignatures:
-//                remainingSignatures = "\($0.value?.intValue ?? -1)"
-//            case .walletSignedHashes:
-//                signedHashes = $0.value?.hexString ?? ""
-//            case .challenge:
-//                challenge = $0.value?.hexString.lowercased() ?? ""
-//            case .salt:
-//                salt = $0.value?.hexString.lowercased() ?? ""
-//            case .signature:
-//                signArr = $0.value ?? []
-//            case .status:
-//                let intStatus = $0.value?.intValue ?? 0
-//                status = CardStatus(rawValue: intStatus) ?? .loaded
-//            case .issuerDataPublicKey:
-//                issuerDataPublicKey = $0.value ?? []
-//            case .health:
-//                health = $0.value?.intValue ?? 0
-//            case .productMask:
-//                if let firstByte = $0.value?.first, let mask = ProductMask(rawValue: firstByte) {
-//                    productMask = mask
-//                }
-//            case .cardIDManufacturerSignature:
-//                cardIdSignedByManufacturer = $0.value ?? []
-//            case .signingMethod:
-//                if let intMethod = $0.value?.intValue {
-//
-//                    if ((intMethod & 0x80) != 0) {
-//                        for i in 0..<6  {
-//                            if ((intMethod & (0x01 << i)) != 0) {
-//                                if let method = SignMethod(rawValue: intMethod) {
-//                                    supportedSignMethods.append(method)
-//                                }
-//                            }
-//                        }
-//                    } else {
-//                        if let method = SignMethod(rawValue: intMethod) {
-//                            supportedSignMethods = [method]
-//                        }
-//                    }
-//                }
-//            case .curveId:
-//                if let curveId = $0.value?.utf8String {
-//                    curve = EllipticCurve(rawValue: curveId)
-//                }
-//            case .settingsMask:
-//                settingsMask = $0.value ?? []
-//            case .isLinked:
-//                isLinked = true
-//            default:
-//                if $0.tag != .cardData  {
-//                    print("Warning: Tag \($0.tag) doesn't have a handler in a Card class")
-//                }
-//            }
-//        })
-//
-//        setupEngine()
-//    }
+    //    //[REDACTED_TODO_COMMENT]
+    //    public init(tags: [CardTLV]) {
+    //        tags.forEach({
+    //            switch $0.tag {
+    //            case .cardId:
+    //                cardID = $0.value?.hexString.cardFormatted ?? ""
+    //            case .cardPublicKey:
+    //                cardPublicKey = $0.value?.hexString ?? ""
+    //            case .firmware:
+    //                firmware = $0.value?.utf8String ?? ""
+    //            case .batch:
+    //                batchId = $0.value?.intValue ?? -1 //Int($0.hexStringValue, radix: 16)!
+    //            case .manufactureDateTime:
+    //                manufactureDateTime = $0.value?.dateString ?? ""
+    //            case .issuerId:
+    //                issuer = $0.value?.utf8String ?? ""
+    //            case .manufactureId:
+    //                manufactureId = $0.value?.utf8String ?? ""
+    //            case .blockchainId:
+    //                blockchainName = $0.value?.utf8String ?? ""
+    //            case .tokenSymbol:
+    //                tokenSymbol = $0.value?.utf8String ?? ""
+    //            case .tokenContractAddress:
+    //                tokenContractAddress = $0.value?.utf8String ?? ""
+    //            case .tokenDecimal:
+    //                tokenDecimal = $0.value?.intValue ?? 0 // Int($0.hexStringValue, radix: 16)!
+    //            case .manufacturerSignature:
+    //                manufactureSignature = $0.value?.hexString ?? ""
+    //            case .walletPublicKey:
+    //                walletPublicKey = $0.value?.hexString ?? ""
+    //                walletPublicKeyBytesArray = $0.value ?? []
+    //            case .maxSignatures:
+    //                maxSignatures = "\($0.value?.intValue ?? -1)"
+    //            case .walletRemainingSignatures:
+    //                remainingSignatures = "\($0.value?.intValue ?? -1)"
+    //            case .walletSignedHashes:
+    //                signedHashes = $0.value?.hexString ?? ""
+    //            case .challenge:
+    //                challenge = $0.value?.hexString.lowercased() ?? ""
+    //            case .salt:
+    //                salt = $0.value?.hexString.lowercased() ?? ""
+    //            case .signature:
+    //                signArr = $0.value ?? []
+    //            case .status:
+    //                let intStatus = $0.value?.intValue ?? 0
+    //                status = CardStatus(rawValue: intStatus) ?? .loaded
+    //            case .issuerDataPublicKey:
+    //                issuerDataPublicKey = $0.value ?? []
+    //            case .health:
+    //                health = $0.value?.intValue ?? 0
+    //            case .productMask:
+    //                if let firstByte = $0.value?.first, let mask = ProductMask(rawValue: firstByte) {
+    //                    productMask = mask
+    //                }
+    //            case .cardIDManufacturerSignature:
+    //                cardIdSignedByManufacturer = $0.value ?? []
+    //            case .signingMethod:
+    //                if let intMethod = $0.value?.intValue {
+    //
+    //                    if ((intMethod & 0x80) != 0) {
+    //                        for i in 0..<6  {
+    //                            if ((intMethod & (0x01 << i)) != 0) {
+    //                                if let method = SignMethod(rawValue: intMethod) {
+    //                                    supportedSignMethods.append(method)
+    //                                }
+    //                            }
+    //                        }
+    //                    } else {
+    //                        if let method = SignMethod(rawValue: intMethod) {
+    //                            supportedSignMethods = [method]
+    //                        }
+    //                    }
+    //                }
+    //            case .curveId:
+    //                if let curveId = $0.value?.utf8String {
+    //                    curve = EllipticCurve(rawValue: curveId)
+    //                }
+    //            case .settingsMask:
+    //                settingsMask = $0.value ?? []
+    //            case .isLinked:
+    //                isLinked = true
+    //            default:
+    //                if $0.tag != .cardData  {
+    //                    print("Warning: Tag \($0.tag) doesn't have a handler in a Card class")
+    //                }
+    //            }
+    //        })
+    //
+    //        setupEngine()
+    //    }
     
     func setupEngine() {
         switch blockchain {
@@ -541,6 +546,8 @@ public class CardViewModel {
             cardEngine = BCHEngine(card: self)
         case .litecoin:
             cardEngine = LTCEngine(card: self)
+        case .ducatus:
+            cardEngine = DucatusEngine(card: self)
         default:
             cardEngine = NoWalletCardEngine(card: self)
         }
@@ -603,15 +610,15 @@ public class CardViewModel {
 
 public extension CardViewModel {
     
-//    func signatureVerificationOperation(completion: @escaping (Bool) -> Void) throws -> GBAsyncOperation {
-//        guard let salt = salt, let challenge = challenge else {
-//            throw "parametersNil"
-//        }
-//        
-//        return SignatureVerificationOperation(curve: curveID, saltHex: salt, challengeHex: challenge, signatureArr: signArr, publicKeyArr: walletPublicKeyBytesArray) { (isGenuineCard) in
-//            completion(isGenuineCard)
-//        }
-//    }
+    //    func signatureVerificationOperation(completion: @escaping (Bool) -> Void) throws -> GBAsyncOperation {
+    //        guard let salt = salt, let challenge = challenge else {
+    //            throw "parametersNil"
+    //        }
+    //
+    //        return SignatureVerificationOperation(curve: curveID, saltHex: salt, challengeHex: challenge, signatureArr: signArr, publicKeyArr: walletPublicKeyBytesArray) { (isGenuineCard) in
+    //            completion(isGenuineCard)
+    //        }
+    //    }
     
     func balanceRequestOperation(onSuccess: @escaping (CardViewModel) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation? {
         var operation: GBAsyncOperation?
@@ -650,6 +657,8 @@ public extension CardViewModel {
             operation = XlmCardBalanceOperation(card: self, completion: onResult)
         case .bitcoinCash:
             operation = BCHCardBalanceOperation(card: self, completion: onResult)
+        case .ducatus:
+            operation = DucatusCardBalanceOperation(card: self, completion: onResult)
         case .litecoin:
             let op = BTCCardBalanceOperation(card: self, completion: onResult)
             op.blockcypherAPi = .ltc
