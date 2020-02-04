@@ -52,7 +52,7 @@ public final class NFCReader: NSObject {
             session.isReady else { return }
         
         stopSession(errorMessage: Localization.nfcSessionTimeout)
-        readerSessionError.send(NFCError.readerError(underlyingError: NFCReaderError(.readerSessionInvalidationErrorSessionTimeout)))
+        readerSessionError.send(NFCError.timeout)
     }
     
     private func stopTimers() {
