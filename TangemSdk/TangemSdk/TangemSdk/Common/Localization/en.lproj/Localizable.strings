@@ -20,3 +20,39 @@
 "nfc_alert_default_done" = "Done";
 
 "nfc_stuck_error" = "It seems that NFC does not work properly on your iPhone";
+
+"serializeCommandError" = "Serialize command error";
+
+"encodingError" = "Encoding error";
+
+"unknownStatus" = "Unknown card status";
+
+"errorProcessingCommand" = "Command processing error";
+
+"missingPreflightRead" = "Preflight read missing";
+
+"invalidState" = "Invalid state";
+
+"insNotSupported" = "Unsupported instruction";
+
+"invalidParams" = "Invalid parameters";
+
+"needEncryption" = "Need enctyption";
+
+"vefificationFailed" = "Verification failed";
+
+"cardError" = "Card error";
+
+"wrongCard" = "Wrong card";
+
+"tooMuchHashesInOneTransaction" = "Too much hashes in one transactions";
+
+"emptyHashes" = "Hashes is empty";
+
+"hashSizeMustBeEqual" = "Hashes size must be equal";
+
+"busy" = "Sdk is busy";
+
+"userCancelled" = "Cancelled by user";
+
+"unsupportedDevice" = "This device is unsupported";
