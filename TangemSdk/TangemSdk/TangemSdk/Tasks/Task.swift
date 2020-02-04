@@ -57,19 +57,50 @@ public enum TaskError: Error, LocalizedError {
     case genericError(Error)
     case unsupportedDevice
     //NFC error
-    case readerError(NFCReaderError)
     case nfcError(NFCError)
     
-    public var localizedDescription: String {
+    public var errorDescription: String? {
         switch self {
-        case .readerError(let nfcError):
-            return nfcError.localizedDescription
         case .genericError(let error):
             return error.localizedDescription
         case .nfcError(let nfcError):
             return nfcError.localizedDescription
-        default:
-            return "\(self)"
+        case .serializeCommandError:
+            return Localization.serializeCommandError
+        case .encodingError:
+             return Localization.encodingError
+        case .unknownStatus(let sw):
+            return "\(Localization.unknownStatus): \(sw)"
+        case .errorProcessingCommand:
+             return Localization.errorProcessingCommand
+        case .missingPreflightRead:
+             return Localization.missingPreflightRead
+        case .invalidState:
+             return Localization.invalidState
+        case .insNotSupported:
+             return Localization.insNotSupported
+        case .invalidParams:
+             return Localization.invalidParams
+        case .needEncryption:
+             return Localization.needEncryption
+        case .vefificationFailed:
+             return Localization.vefificationFailed
+        case .cardError:
+             return Localization.cardError
+        case .wrongCard:
+             return Localization.wrongCard
+        case .tooMuchHashesInOneTransaction:
+             return Localization.tooMuchHashesInOneTransaction
+        case .emptyHashes:
+             return Localization.emptyHashes
+        case .hashSizeMustBeEqual:
+             return Localization.hashSizeMustBeEqual
+        case .busy:
+             return Localization.busy
+        case .userCancelled:
+             return Localization.userCancelled
+        case .unsupportedDevice:
+             return Localization.unsupportedDevice
         }
     }
     
@@ -193,7 +224,7 @@ open class Task<TEvent>: AnyTask {
                     if readerError.code == .readerSessionInvalidationErrorUserCanceled {
                         callback(.failure(TaskError.userCancelled))
                     } else {
-                        callback(.failure(TaskError.readerError(readerError)))
+                        callback(.failure(TaskError.nfcError(error)))
                     }
                 default:
                     callback(.failure(TaskError.nfcError(error)))
