@@ -84,7 +84,7 @@ public final class CreateWalletTask: Task<CreateWalletEvent> {
                     callback(.event(.onVerify(verifyResult)))
                     callback(.completion())
                 } else {
-                    callback(.completion(TaskError.vefificationFailed))
+                    callback(.completion(TaskError.verificationFailed))
                 }
             }
         }
