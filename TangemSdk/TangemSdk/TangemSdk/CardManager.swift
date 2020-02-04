@@ -78,11 +78,7 @@ public final class CardManager {
         do {
             signCommand = try SignCommand(hashes: hashes)
         } catch {
-            if let taskError = error as? TaskError {
-                callback(.completion(taskError))
-            } else {
-                callback(.completion(TaskError.genericError(error)))
-            }
+            callback(.completion(TaskError.parse(error)))
             return
         }
         
