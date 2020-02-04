@@ -85,7 +85,7 @@ public final class ScanTask: Task<ScanEvent> {
                             callback(.event(.onVerify(verifyResult)))
                             callback(.completion())
                         } else {
-                            callback(.completion(TaskError.vefificationFailed))
+                            callback(.completion(TaskError.verificationFailed))
                         }
                         self.reader.stopSession()
                     }
@@ -130,7 +130,7 @@ public final class ScanTask: Task<ScanEvent> {
                     callback(.event(.onVerify(verifyResult)))
                     callback(.completion())
                 } else {
-                    callback(.completion(TaskError.vefificationFailed))
+                    callback(.completion(TaskError.verificationFailed))
                 }
             }
         }
