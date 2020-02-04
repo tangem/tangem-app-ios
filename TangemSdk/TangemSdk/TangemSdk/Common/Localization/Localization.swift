@@ -18,25 +18,11 @@ public final class Localization {
     static let nfcAlertDefault = string("nfc_alert_default")
     static let nfcAlertDefaultDone = string("nfc_alert_default_done")
     static let nfcStuckError = string("nfc_stuck_error")
-    static let serializeCommandError = string("serializeCommandError")
-    static let encodingError = string("encodingError")
     static let unknownStatus = string("unknownStatus")
-    static let errorProcessingCommand = string("errorProcessingCommand")
-    static let missingPreflightRead = string("missingPreflightRead")
-    static let invalidState = string("invalidState")
-    static let insNotSupported = string("insNotSupported")
-    static let invalidParams = string("invalidParams")
-    static let needEncryption = string("needEncryption")
-    static let vefificationFailed = string("vefificationFailed")
-    static let cardError = string("cardError")
-    static let wrongCard = string("wrongCard")
-    static let tooMuchHashesInOneTransaction = string("tooMuchHashesInOneTransaction")
-    static let emptyHashes = string("emptyHashes")
-    static let hashSizeMustBeEqual = string("hashSizeMustBeEqual")
-    static let busy = string("busy")
-    static let userCancelled = string("userCancelled")
-    static let unsupportedDevice = string("unsupportedDevice")
-    
+   
+    static func genericErrorCode(_ code: Int) -> String {
+        return string("generic_error_code", code)
+    }
     
     private static var defaultBundle: Bundle = {
         let selfBundle = Bundle(for: Localization.self)
