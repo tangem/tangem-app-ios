@@ -30,10 +30,6 @@ class TangemTimer {
     }
     
     func stop() {
-        guard let timer = timer, timer.isValid else {
-            return
-        }
-        
         DispatchQueue.main.async {
             self.timer?.invalidate()
         }
