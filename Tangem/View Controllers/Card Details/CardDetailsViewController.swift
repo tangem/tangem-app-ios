@@ -28,6 +28,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     var card: CardViewModel?
+    var newCard: Card?
     var isBalanceVerified = false
     var isBalanceLoading = false
     
@@ -566,9 +567,10 @@ extension CardDetailsViewController {
                     if #available(iOS 13.0, *) {} else {
                         self.viewModel.doubleScanHintLabel.isHidden = false
                     }
-                    self.card = CardViewModel(card)
+                    self.newCard = card
                 case .onVerify(let isGenuine):
-                    self.card?.genuinityState = isGenuine ? .genuine : .nonGenuine
+                    self.card = CardViewModel(self.newCard!)
+                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
                     
                 }
             case .completion(let error):
@@ -576,6 +578,10 @@ extension CardDetailsViewController {
                 if let error = error {
                     if !error.isUserCancelled {
                         self.handleGenericError(error)
+                        return
+                    }
+                    if self.isBalanceLoading {
+                        self.setupWithCardDetails(card: self.card!)
                     }
                     return
                 }
