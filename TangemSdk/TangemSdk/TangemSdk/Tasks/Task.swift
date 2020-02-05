@@ -27,9 +27,9 @@ public enum TaskEvent<TEvent> {
  * An error class that represent typical errors that may occur when performing Tangem SDK tasks.
  * Errors are propagated back to the caller in callbacks.
  */
-public enum TaskError: Error, LocalizedError {
+public enum TaskError: Int, Error, LocalizedError {
     //Serialize apdu errors
-    case serializeCommandError
+    case serializeCommandError = 1001
     // Encoding error
     case encodingError
     case missingTag
@@ -37,7 +37,7 @@ public enum TaskError: Error, LocalizedError {
     case convertError
     
     //Card errors
-    case unknownStatus(sw: UInt16)
+    case unknownStatus
     case errorProcessingCommand
     case missingPreflightRead
     case invalidState
@@ -60,82 +60,18 @@ public enum TaskError: Error, LocalizedError {
     //NFC error
     case nfcStuck
     case nfcTimeout
-    case nfcReaderError(NFCReaderError)
+    case nfcReaderError
     
-    case unknownError(Error)
-    
-    public enum Code: Int {
-        case serializeCommandError
-        case encodingError
-        case missingTag
-        case wrongType
-        case convertError
-        case unknownStatus
-        case errorProcessingCommand
-        case missingPreflightRead
-        case invalidState
-        case insNotSupported
-        case invalidParams
-        case needEncryption
-        case verificationFailed
-        case cardError
-        case wrongCard
-        case tooMuchHashesInOneTransaction
-        case emptyHashes
-        case hashSizeMustBeEqual
-        case busy
-        case userCancelled
-        case unsupportedDevice
-        case nfcStuck
-        case nfcTimeout
-        case nfcReaderError
-        case unknownError
-    }
-    
-    public var code: Code {
-        switch self {
-        case .busy: return TaskError.Code.busy
-        case .cardError: return TaskError.Code.cardError
-        case .convertError: return TaskError.Code.convertError
-        case .emptyHashes: return TaskError.Code.emptyHashes
-        case .encodingError: return TaskError.Code.encodingError
-        case .errorProcessingCommand: return TaskError.Code.errorProcessingCommand
-        case .hashSizeMustBeEqual: return TaskError.Code.hashSizeMustBeEqual
-        case .insNotSupported: return TaskError.Code.insNotSupported
-        case .invalidParams: return TaskError.Code.invalidParams
-        case .invalidState: return TaskError.Code.invalidState
-        case .missingPreflightRead: return TaskError.Code.missingPreflightRead
-        case .missingTag: return TaskError.Code.missingTag
-        case .needEncryption: return TaskError.Code.needEncryption
-        case .nfcReaderError: return TaskError.Code.nfcReaderError
-        case .nfcStuck: return TaskError.Code.nfcStuck
-        case .nfcTimeout: return TaskError.Code.nfcTimeout
-        case .serializeCommandError: return TaskError.Code.serializeCommandError
-        case .tooMuchHashesInOneTransaction: return TaskError.Code.tooMuchHashesInOneTransaction
-        case .unknownError: return TaskError.Code.unknownError
-        case .unknownStatus: return TaskError.Code.unknownStatus
-        case .unsupportedDevice: return TaskError.Code.unsupportedDevice
-        case .userCancelled: return TaskError.Code.userCancelled
-        case .verificationFailed: return TaskError.Code.verificationFailed
-        case .wrongCard: return TaskError.Code.wrongCard
-        case .wrongType: return TaskError.Code.wrongType
-        }
-    }
+    case unknownError
     
     public var errorDescription: String? {
         switch self {
-        case .unknownError(let error):
-            return error.localizedDescription
-        case .nfcReaderError(let readerError):
-            return readerError.localizedDescription
-        case .unknownStatus(let sw):
-            return "\(Localization.unknownStatus): \(sw)"
         case .nfcTimeout:
             return Localization.nfcSessionTimeout
         case .nfcStuck:
             return Localization.nfcStuckError
         default:
-            return Localization.genericErrorCode("\(code.rawValue)")
+            return Localization.genericErrorCode("\(self.rawValue)")
         }
     }
     
@@ -149,13 +85,16 @@ public enum TaskError: Error, LocalizedError {
     
     public static func parse(_ error: Error) -> TaskError {
         if let readerError = error as? NFCReaderError {
-            if readerError.code == .readerSessionInvalidationErrorUserCanceled {
-                return TaskError.userCancelled
-            } else {
-                return TaskError.nfcReaderError(readerError)
+            switch readerError.code {
+            case .readerSessionInvalidationErrorUserCanceled:
+                return .userCancelled
+            case .readerSessionInvalidationErrorSystemIsBusy:
+                return .nfcStuck
+            default:
+                return .nfcReaderError
             }
         } else {
-            return (error as? TaskError) ?? TaskError.unknownError(error)
+            return (error as? TaskError) ?? TaskError.unknownError
         }
     }
 }
@@ -248,6 +187,7 @@ open class Task<TEvent>: AnyTask {
                         let responseData = try command.deserialize(with: environment, from: responseApdu)
                         callback(.success(responseData))
                     } catch {
+                        print(error.localizedDescription)
                         callback(.failure(TaskError.parse(error)))
                     }
                 case .errorProcessingCommand:
@@ -258,7 +198,8 @@ open class Task<TEvent>: AnyTask {
                 case .insNotSupported:
                     callback(.failure(TaskError.insNotSupported))
                 case .unknown:
-                    callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
+                    print("Unknown sw: \(responseApdu.sw)")
+                    callback(.failure(TaskError.unknownStatus))
                 }
             case .failure(let error):
                 callback(.failure(error))
