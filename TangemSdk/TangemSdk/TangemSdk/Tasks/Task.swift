@@ -27,58 +27,72 @@ public enum TaskEvent<TEvent> {
  * An error class that represent typical errors that may occur when performing Tangem SDK tasks.
  * Errors are propagated back to the caller in callbacks.
  */
-public enum TaskError: Error, LocalizedError {
+public enum TaskError: Int, Error, LocalizedError {
     //Serialize apdu errors
-    case serializeCommandError
-    // Encoding error
-    case encodingError
+    case serializeCommandError = 1001
+    case encodingError = 1002
+    case missingTag = 1003
+    case wrongType = 1004
+    case convertError = 1005
     
     //Card errors
-    case unknownStatus(sw: UInt16)
-    case errorProcessingCommand
-    case missingPreflightRead
-    case invalidState
-    case insNotSupported
-    case invalidParams
-    case needEncryption
+    case unknownStatus = 2001
+    case errorProcessingCommand = 2002
+    case missingPreflightRead = 2003
+    case invalidState = 2004
+    case insNotSupported = 2005
+    case invalidParams = 2006
+    case needEncryption = 2007
     
     //Scan errors
-    case vefificationFailed
-    case cardError
-    case wrongCard
+    case verificationFailed = 3000
+    case cardError = 3001
+    case wrongCard = 3002
+    case tooMuchHashesInOneTransaction = 3003
+    case emptyHashes = 3004
+    case hashSizeMustBeEqual = 3005
     
-    //Sign errors
-    case tooMuchHashesInOneTransaction
-    case emptyHashes
-    case hashSizeMustBeEqual
-    
-    case busy
-    case userCancelled
-    case genericError(Error)
-    case unsupportedDevice
+    case busy = 4000
+    case userCancelled = 40001
+    case unsupportedDevice = 4002
     //NFC error
-    case readerError(NFCReaderError)
-    case nfcError(NFCError)
+    case nfcStuck = 5000
+    case nfcTimeout = 5001
+    case nfcReaderError = 5002
     
-    public var localizedDescription: String {
+    case unknownError = 6000
+    
+    public var errorDescription: String? {
         switch self {
-        case .readerError(let nfcError):
-            return nfcError.localizedDescription
-        case .genericError(let error):
-            return error.localizedDescription
-        case .nfcError(let nfcError):
-            return nfcError.localizedDescription
+        case .nfcTimeout:
+            return Localization.nfcSessionTimeout
+        case .nfcStuck:
+            return Localization.nfcStuckError
         default:
-            return "\(self)"
+            return Localization.genericErrorCode("\(self.rawValue)")
         }
     }
     
     public var isUserCancelled: Bool {
-        switch self {
-        case .userCancelled:
+        if case .userCancelled = self {
             return true
-        default:
+        } else {
             return false
+        }
+    }
+    
+    public static func parse(_ error: Error) -> TaskError {
+        if let readerError = error as? NFCReaderError {
+            switch readerError.code {
+            case .readerSessionInvalidationErrorUserCanceled:
+                return .userCancelled
+            case .readerSessionInvalidationErrorSystemIsBusy:
+                return .nfcStuck
+            default:
+                return .nfcReaderError
+            }
+        } else {
+            return (error as? TaskError) ?? TaskError.unknownError
         }
     }
 }
@@ -171,11 +185,8 @@ open class Task<TEvent>: AnyTask {
                         let responseData = try command.deserialize(with: environment, from: responseApdu)
                         callback(.success(responseData))
                     } catch {
-                        if let taskError = error as? TaskError {
-                            callback(.failure(taskError))
-                        } else {
-                            callback(.failure(TaskError.genericError(error)))
-                        }
+                        print(error.localizedDescription)
+                        callback(.failure(TaskError.parse(error)))
                     }
                 case .errorProcessingCommand:
                     callback(.failure(TaskError.errorProcessingCommand))
@@ -185,19 +196,11 @@ open class Task<TEvent>: AnyTask {
                 case .insNotSupported:
                     callback(.failure(TaskError.insNotSupported))
                 case .unknown:
-                    callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
+                    print("Unknown sw: \(responseApdu.sw)")
+                    callback(.failure(TaskError.unknownStatus))
                 }
             case .failure(let error):
-                switch error {
-                case .readerError(let readerError):
-                    if readerError.code == .readerSessionInvalidationErrorUserCanceled {
-                        callback(.failure(TaskError.userCancelled))
-                    } else {
-                        callback(.failure(TaskError.readerError(readerError)))
-                    }
-                default:
-                    callback(.failure(TaskError.nfcError(error)))
-                }
+                callback(.failure(error))
             }
         }
     }
