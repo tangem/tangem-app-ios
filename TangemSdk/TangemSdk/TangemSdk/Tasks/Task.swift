@@ -31,38 +31,38 @@ public enum TaskError: Int, Error, LocalizedError {
     //Serialize apdu errors
     case serializeCommandError = 1001
     // Encoding error
-    case encodingError
-    case missingTag
-    case wrongType
-    case convertError
+    case encodingError = 1002
+    case missingTag = 1003
+    case wrongType = 1004
+    case convertError = 1005
     
     //Card errors
-    case unknownStatus
-    case errorProcessingCommand
-    case missingPreflightRead
-    case invalidState
-    case insNotSupported
-    case invalidParams
-    case needEncryption
+    case unknownStatus = 1006
+    case errorProcessingCommand = 1007
+    case missingPreflightRead = 1008
+    case invalidState = 1009
+    case insNotSupported = 1010
+    case invalidParams = 1011
+    case needEncryption = 1012
     
     //Scan errors
-    case verificationFailed
-    case cardError
-    case wrongCard
+    case verificationFailed = 1013
+    case cardError = 1014
+    case wrongCard = 1015
     
     //Sign errors
-    case tooMuchHashesInOneTransaction
-    case emptyHashes
-    case hashSizeMustBeEqual
-    case busy
-    case userCancelled
-    case unsupportedDevice
+    case tooMuchHashesInOneTransaction = 1016
+    case emptyHashes = 1017
+    case hashSizeMustBeEqual = 1018
+    case busy = 1019
+    case userCancelled = 1020
+    case unsupportedDevice = 1021
     //NFC error
-    case nfcStuck
-    case nfcTimeout
-    case nfcReaderError
+    case nfcStuck = 1022
+    case nfcTimeout = 1023
+    case nfcReaderError = 1024
     
-    case unknownError
+    case unknownError = 1025
     
     public var errorDescription: String? {
         switch self {
