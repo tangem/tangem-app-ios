@@ -56,8 +56,10 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     @objc func applicationWillEnterForeground() {
         if let card = card {
-            isBalanceLoading = true
-            fetchWalletBalance(card: card)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.isBalanceLoading = true
+                self.fetchWalletBalance(card: card)
+            }
         }
     }
     
