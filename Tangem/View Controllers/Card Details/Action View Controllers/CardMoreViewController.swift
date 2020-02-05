@@ -58,11 +58,13 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
     
     @IBAction func eraseTapped(_ sender: Any) {
         if #available(iOS 13.0, *) {
+            eraseWalletButton.showActivityIndicator()
             cardManager.purgeWallet(cardId: card!.cardID) {[unowned self] taskResponse in
                 switch taskResponse {
                 case .event(let purgeWalletResponse):
                     self.card.setupWallet(status: purgeWalletResponse.status, walletPublicKey: nil)
                 case .completion(let error):
+                    self.eraseWalletButton.hideActivityIndicator()
                     if let error = error {
                         if !error.isUserCancelled {
                             self.handleGenericError(error)
