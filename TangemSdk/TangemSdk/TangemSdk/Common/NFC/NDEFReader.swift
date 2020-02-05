@@ -24,6 +24,7 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
         let nfcError = error as! NFCReaderError
         
         if nfcError.code != .readerSessionInvalidationErrorFirstNDEFTagRead {
+            print(nfcError.localizedDescription)
             completion?(.failure(TaskError.parse(nfcError)))
         }
     }
