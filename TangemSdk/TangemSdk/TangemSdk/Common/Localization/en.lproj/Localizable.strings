@@ -20,3 +20,7 @@
 "nfc_alert_default_done" = "Done";
 
 "nfc_stuck_error" = "It seems that NFC does not work properly on your iPhone";
+
+"unknownStatus" = "Unknown card status";
+
+"generic_error_code" = "Operation could not be completed. Code: %@";
