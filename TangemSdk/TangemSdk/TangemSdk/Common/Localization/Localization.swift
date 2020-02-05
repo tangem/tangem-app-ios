@@ -20,7 +20,7 @@ public final class Localization {
     static let nfcStuckError = string("nfc_stuck_error")
     static let unknownStatus = string("unknownStatus")
    
-    static func genericErrorCode(_ code: Int) -> String {
+    static func genericErrorCode(_ code: String) -> String {
         return string("generic_error_code", code)
     }
     
