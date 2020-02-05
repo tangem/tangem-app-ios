@@ -36,9 +36,11 @@ extension UIButton {
         let activityIndicator = createActivityIndicator()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         addSubview(activityIndicator)
-        activityIndicator.color = backgroundColor == UIColor.white ? .darkGray : .white
+        activityIndicator.color = (backgroundColor == UIColor.white || backgroundColor == UIColor.clear) ? .darkGray : .white
         centerActivityIndicatorInButton(activityIndicator: activityIndicator)
         setTitleColor(UIColor.clear, for: .normal)
+        setTitleColor(UIColor.clear, for: .highlighted)
+        setTitleColor(UIColor.clear, for: .disabled)
         activityIndicator.startAnimating()
     }
     
@@ -55,8 +57,10 @@ extension UIButton {
         }
         isEnabled = true
         fadeTransition(0.15)
-        textColor = backgroundColor == UIColor.white ? .black : .white
+        textColor = (backgroundColor == UIColor.white || backgroundColor == UIColor.clear) ? .black : .white
         setTitleColor(textColor, for: .normal)
+        setTitleColor(UIColor.gray, for: .highlighted)
+        setTitleColor(UIColor.lightGray, for: .disabled)
     }
 }
 
