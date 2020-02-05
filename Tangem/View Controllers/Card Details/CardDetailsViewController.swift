@@ -482,6 +482,7 @@ extension CardDetailsViewController {
                    self.present(ac, animated: true, completion: nil)
         case .createWallet:
             if #available(iOS 13.0, *) {
+                viewModel.actionButton.showActivityIndicator()
                 cardManager.createWallet(cardId: card!.cardID) {[unowned self] taskResponse in
                     switch taskResponse {
                     case .event(let createWalletEvent):
@@ -492,6 +493,7 @@ extension CardDetailsViewController {
                             self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
                         }
                     case .completion(let error):
+                        self.viewModel.actionButton.hideActivityIndicator()
                         if let error = error {
                             if !error.isUserCancelled {
                                 self.handleGenericError(error)
@@ -545,6 +547,7 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        viewModel.scanButton.showActivityIndicator()
         cardManager.scanCard {[unowned self] taskEvent in
             switch taskEvent {
             case .event(let scanEvent):
@@ -566,10 +569,12 @@ extension CardDetailsViewController {
                     
                 }
             case .completion(let error):
+                self.viewModel.scanButton.hideActivityIndicator()
                 if let error = error {
                     if !error.isUserCancelled {
                         self.handleGenericError(error)
                     }
+                    return
                 }
                 
                 guard self.card!.status == .loaded else {
