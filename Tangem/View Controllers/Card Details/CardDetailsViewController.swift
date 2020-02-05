@@ -630,14 +630,17 @@ extension CardDetailsViewController {
         var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
             "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
             "\(Localizations.detailsValidationNode): \(cardDetails.node)",
-            "\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)",
-            "\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)",
             "\(Localizations.signature): \(isBalanceVerified ? Localizations.passed : Localizations.notPassed)",
-            "\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)",
-            "\(Localizations.detailsFirmware): \(cardDetails.firmware)",
-            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)",
-            "\(Localizations.detailsTitleCardId): \(cardDetails.cardID)",
-            "\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)"]
+            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)"]
+        
+        if cardDetails.type != .slix2 {
+            strings.append("\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)")
+            strings.append("\(Localizations.detailsFirmware): \(cardDetails.firmware)")
+            strings.append("\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)")
+            strings.append("\(Localizations.detailsTitleCardId): \(cardDetails.cardID)")
+            strings.append("\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)")
+            strings.append("\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)")
+        }
         
         if cardDetails.isLinked {
             strings.append(Localizations.detailsLinkedCard)
