@@ -78,6 +78,7 @@ public final class CardManager {
         do {
             signCommand = try SignCommand(hashes: hashes)
         } catch {
+            print(error.localizedDescription)
             callback(.completion(TaskError.parse(error)))
             return
         }

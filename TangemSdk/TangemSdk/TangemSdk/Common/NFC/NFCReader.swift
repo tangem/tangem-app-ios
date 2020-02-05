@@ -128,6 +128,7 @@ extension NFCReader: CardReader {
             .sink(receiveValue: { [weak self] tagWrapper in
                 switch tagWrapper {
                 case .error(let tagError):
+                    print(tagError.localizedDescription)
                     completion(.failure(TaskError.parse(tagError)))
                     self?.cancelSubscriptions()
                 case .tag(let tag):
@@ -251,6 +252,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
         cancelled = true
         stopTimers()
         let nfcError = error as! NFCReaderError
+        print(nfcError.localizedDescription)
         readerSessionError.send(TaskError.parse(nfcError))
     }
     
