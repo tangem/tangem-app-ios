@@ -53,7 +53,7 @@ public enum TaskError: Int, Error, LocalizedError {
     case hashSizeMustBeEqual = 3005
     
     case busy = 4000
-    case userCancelled = 40001
+    case userCancelled = 4001
     case unsupportedDevice = 4002
     //NFC error
     case nfcStuck = 5000
