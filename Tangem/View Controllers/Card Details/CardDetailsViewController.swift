@@ -263,19 +263,13 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             balanceTitle = Localizations.alreadyClaimed
         }
         let verifyed = claimer.claimStatus != .notGenuine
-        viewModel.actionButtonState = .claimTag
-        viewModel.actionButton.isEnabled = false
-        viewModel.actionButton.isHidden = false
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
         setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedTag : Localizations.unverifiedBalance)
-        
-        viewModel.loadButton.isHidden = true
-        viewModel.extractButton.isHidden = true
     }
     
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
-         viewModel.actionButton.isHidden = true
+        viewModel.actionButton.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
         viewModel.walletBlockchainLabel.isHidden = true
@@ -307,10 +301,17 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             viewModel.extractButton.isEnabled = false
         }
         
-        viewModel.loadButton.isHidden = false
-        viewModel.extractButton.isHidden = false
-        viewModel.exploreButton.isEnabled = true
-
+        if let card = card, card.type == .slix2 {
+            viewModel.loadButton.isHidden = true
+            viewModel.extractButton.isHidden = true
+            viewModel.actionButtonState = .claimTag
+            viewModel.actionButton.isEnabled = false
+            viewModel.actionButton.isHidden = false
+        } else {
+            viewModel.loadButton.isHidden = false
+            viewModel.extractButton.isHidden = false
+            viewModel.exploreButton.isEnabled = true
+        }
         viewModel.copyButton.isEnabled = true
         viewModel.moreButton.isEnabled = true
         viewModel.scanButton.isEnabled = true
