@@ -56,8 +56,10 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     @objc func applicationWillEnterForeground() {
         if let card = card {
-            isBalanceLoading = true
-            fetchWalletBalance(card: card)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.isBalanceLoading = true
+                self.fetchWalletBalance(card: card)
+            }
         }
     }
     
@@ -261,19 +263,13 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             balanceTitle = Localizations.alreadyClaimed
         }
         let verifyed = claimer.claimStatus != .notGenuine
-        viewModel.actionButtonState = .claimTag
-        viewModel.actionButton.isEnabled = false
-        viewModel.actionButton.isHidden = false
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
         setupBalanceVerified(verifyed, customText: verifyed ? Localizations.verifiedTag : Localizations.unverifiedBalance)
-        
-        viewModel.loadButton.isHidden = true
-        viewModel.extractButton.isHidden = true
     }
     
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
-         viewModel.actionButton.isHidden = true
+        viewModel.actionButton.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
         viewModel.walletBlockchainLabel.isHidden = true
@@ -295,9 +291,9 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.walletAddressLabel.isHidden = false
         viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
-        if let card = card, card.productMask == .note && card.type != .nft && !card.hasEmptyWallet {
+        if let card = card, card.productMask == .note && card.type != .nft {
             viewModel.loadButton.isEnabled = verified
-            viewModel.extractButton.isEnabled = verified
+            viewModel.extractButton.isEnabled = !card.hasEmptyWallet
             viewModel.buttonsAvailabilityView.isHidden = verified
         } else {
             viewModel.buttonsAvailabilityView.isHidden = false
@@ -305,10 +301,17 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             viewModel.extractButton.isEnabled = false
         }
         
-        viewModel.loadButton.isHidden = false
-        viewModel.extractButton.isHidden = false
-        viewModel.exploreButton.isEnabled = true
-
+        if let card = card, card.type == .slix2 {
+            viewModel.loadButton.isHidden = true
+            viewModel.extractButton.isHidden = true
+            viewModel.actionButtonState = .claimTag
+            viewModel.actionButton.isEnabled = false
+            viewModel.actionButton.isHidden = false
+        } else {
+            viewModel.loadButton.isHidden = false
+            viewModel.extractButton.isHidden = false
+            viewModel.exploreButton.isEnabled = true
+        }
         viewModel.copyButton.isEnabled = true
         viewModel.moreButton.isEnabled = true
         viewModel.scanButton.isEnabled = true
@@ -482,6 +485,7 @@ extension CardDetailsViewController {
                    self.present(ac, animated: true, completion: nil)
         case .createWallet:
             if #available(iOS 13.0, *) {
+                viewModel.actionButton.showActivityIndicator()
                 cardManager.createWallet(cardId: card!.cardID) {[unowned self] taskResponse in
                     switch taskResponse {
                     case .event(let createWalletEvent):
@@ -492,6 +496,7 @@ extension CardDetailsViewController {
                             self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
                         }
                     case .completion(let error):
+                        self.viewModel.actionButton.hideActivityIndicator()
                         if let error = error {
                             if !error.isUserCancelled {
                                 self.handleGenericError(error)
@@ -545,6 +550,7 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        viewModel.scanButton.showActivityIndicator()
         cardManager.scanCard {[unowned self] taskEvent in
             switch taskEvent {
             case .event(let scanEvent):
@@ -566,10 +572,12 @@ extension CardDetailsViewController {
                     
                 }
             case .completion(let error):
+                self.viewModel.scanButton.hideActivityIndicator()
                 if let error = error {
                     if !error.isUserCancelled {
                         self.handleGenericError(error)
                     }
+                    return
                 }
                 
                 guard self.card!.status == .loaded else {
@@ -622,14 +630,17 @@ extension CardDetailsViewController {
         var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
             "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
             "\(Localizations.detailsValidationNode): \(cardDetails.node)",
-            "\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)",
-            "\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)",
             "\(Localizations.signature): \(isBalanceVerified ? Localizations.passed : Localizations.notPassed)",
-            "\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)",
-            "\(Localizations.detailsFirmware): \(cardDetails.firmware)",
-            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)",
-            "\(Localizations.detailsTitleCardId): \(cardDetails.cardID)",
-            "\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)"]
+            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)"]
+        
+        if cardDetails.type != .slix2 {
+            strings.append("\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)")
+            strings.append("\(Localizations.detailsFirmware): \(cardDetails.firmware)")
+            strings.append("\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)")
+            strings.append("\(Localizations.detailsTitleCardId): \(cardDetails.cardID)")
+            strings.append("\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)")
+            strings.append("\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)")
+        }
         
         if cardDetails.isLinked {
             strings.append(Localizations.detailsLinkedCard)
