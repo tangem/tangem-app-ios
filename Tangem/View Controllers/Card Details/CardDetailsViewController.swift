@@ -297,9 +297,9 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.walletAddressLabel.isHidden = false
         viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
-        if let card = card, card.productMask == .note && card.type != .nft && !card.hasEmptyWallet {
+        if let card = card, card.productMask == .note && card.type != .nft {
             viewModel.loadButton.isEnabled = verified
-            viewModel.extractButton.isEnabled = verified
+            viewModel.extractButton.isEnabled = !card.hasEmptyWallet
             viewModel.buttonsAvailabilityView.isHidden = verified
         } else {
             viewModel.buttonsAvailabilityView.isHidden = false
