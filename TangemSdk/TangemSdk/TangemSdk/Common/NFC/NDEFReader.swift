@@ -16,7 +16,7 @@ public final class NDEFReader: NSObject {
     public var tagDidConnect: (() -> Void)?
     
     private var readerSession: NFCNDEFReaderSession?
-    private var completion: ((Result<ResponseApdu, NFCError>) -> Void)?
+    private var completion: ((Result<ResponseApdu, TaskError>) -> Void)?
 }
 
 extension NDEFReader: NFCNDEFReaderSessionDelegate {
@@ -24,7 +24,8 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
         let nfcError = error as! NFCReaderError
         
         if nfcError.code != .readerSessionInvalidationErrorFirstNDEFTagRead {
-            completion?(.failure(NFCError.readerError(underlyingError: nfcError)))
+            print(nfcError.localizedDescription)
+            completion?(.failure(TaskError.parse(nfcError)))
         }
     }
     
@@ -70,7 +71,7 @@ extension NDEFReader: CardReader {
         readerSession?.invalidate()
     }
     
-    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, NFCError>) -> Void) {
+    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, TaskError>) -> Void) {
         self.completion = completion
         readerSession = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: false)
         readerSession!.alertMessage = Localization.nfcAlertDefault
