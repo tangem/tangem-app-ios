@@ -8,6 +8,7 @@
 
 import Foundation
 import GBAsyncOperation
+import Alamofire
 
 enum CardanoBackend: String{
     case adaliteURL1 = "https://explorer2.adalite.io"
@@ -28,6 +29,12 @@ protocol CardanoBackendHandler: GBAsyncOperation {
 
 extension CardanoBackendHandler {
     func handleError(_ error: Error) {
+        let reachable = NetworkReachabilityManager.init()?.isReachable ?? true
+        guard reachable else {
+            self.failOperationWith(error: error)
+            return
+        }
+        
         retryCount -= 1
         guard retryCount >= 0 else {
             self.failOperationWith(error: error)
