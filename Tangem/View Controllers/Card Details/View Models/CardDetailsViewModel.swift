@@ -112,7 +112,6 @@ class CardDetailsViewModel: NSObject {
         didSet {
             scanButton.titleLabel?.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
             scanButton.setTitle(Localizations.loadedWalletBtnNewScan, for: .normal)
-            scanButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
