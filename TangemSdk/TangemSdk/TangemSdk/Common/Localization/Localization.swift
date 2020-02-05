@@ -41,7 +41,7 @@ public final class Localization {
     
     private static func string( _ key: String, _ args: CVarArg...) -> String {
         let format = getFormat(for: key)
-        return String(format: format, locale: Locale.current, arguments: args)
+        return String(format: format, locale: Locale.current, args)
     }
     
     private static func getFormat(for key: String) -> String {
