@@ -135,7 +135,7 @@ public enum TaskError: Error, LocalizedError {
         case .nfcStuck:
             return Localization.nfcStuckError
         default:
-            return Localization.genericErrorCode(code.rawValue)
+            return Localization.genericErrorCode("\(code.rawValue)")
         }
     }
     
