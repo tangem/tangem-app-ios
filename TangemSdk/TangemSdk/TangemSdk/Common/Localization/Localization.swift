@@ -18,6 +18,11 @@ public final class Localization {
     static let nfcAlertDefault = string("nfc_alert_default")
     static let nfcAlertDefaultDone = string("nfc_alert_default_done")
     static let nfcStuckError = string("nfc_stuck_error")
+    static let unknownStatus = string("unknownStatus")
+   
+    static func genericErrorCode(_ code: String) -> String {
+        return string("generic_error_code", code)
+    }
     
     private static var defaultBundle: Bundle = {
         let selfBundle = Bundle(for: Localization.self)
@@ -36,7 +41,7 @@ public final class Localization {
     
     private static func string( _ key: String, _ args: CVarArg...) -> String {
         let format = getFormat(for: key)
-        return String(format: format, locale: Locale.current, arguments: args)
+        return String(format: format, locale: Locale.current, args)
     }
     
     private static func getFormat(for key: String) -> String {
