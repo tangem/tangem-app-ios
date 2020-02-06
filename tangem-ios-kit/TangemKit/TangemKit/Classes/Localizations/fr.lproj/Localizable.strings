@@ -19,3 +19,5 @@
 "nfc_unknown_card_state" = "État de la carte inconnu";
 
 "nfc_stuck_error" = "It seems that NFC does not work properly on your iPhone.";
+
+"balance_validator_second_line_create_account_instruction" = "Pour créer un compte, envoyez 1+ XLM à cette adresse";
