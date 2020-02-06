@@ -26,7 +26,7 @@ public final class ScanTask: Task<ScanEvent> {
                 callback(.completion(TaskError.missingPreflightRead))
                 return
             }
-            
+
             scanWithNfc(environment: environment, currentCard: card,  callback: callback)
         } else {
             scanWithNdef(environment: environment, callback: callback)
@@ -35,7 +35,7 @@ public final class ScanTask: Task<ScanEvent> {
     
     func scanWithNdef(environment: CardEnvironment, callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
         let readCommand = ReadCommand()
-        sendCommand(readCommand, environment: environment) {[unowned self] firstResult in
+        sendCommand(readCommand, environment: environment) {firstResult in
             switch firstResult {
             case .failure(let error):
                 callback(.completion(error))
@@ -51,7 +51,7 @@ public final class ScanTask: Task<ScanEvent> {
                         return
                 }
                 
-                self.sendCommand(readCommand, environment: environment) {[unowned self] secondResult in
+                self.sendCommand(readCommand, environment: environment) {secondResult in
                     switch secondResult {
                     case .failure(let error):
                         callback(.completion(error))
