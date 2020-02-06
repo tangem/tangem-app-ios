@@ -28,7 +28,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     var card: CardViewModel?
-    var newCard: Card?
     var isBalanceVerified = false
     var isBalanceLoading = false
     var latestTxDate: Date?
@@ -85,14 +84,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         setupBalanceIsBeingVerified()
         viewModel.setSubstitutionInfoLoading(true)
         viewModel.setWalletInfoLoading(true)
-        
-        if card.genuinityState == .pending && card.status == .loaded {
-            viewModel.setSubstitutionInfoLoading(true)
-            return
-        }
-        
         viewModel.doubleScanHintLabel.isHidden = true
-        
         fetchSubstitutionInfo(card: card)
     }
     
@@ -581,23 +573,27 @@ extension CardDetailsViewController {
                     if #available(iOS 13.0, *) {} else {
                         self.viewModel.doubleScanHintLabel.isHidden = false
                     }
-                    self.newCard = card
+                     self.card = CardViewModel(card)
                 case .onVerify(let isGenuine):
-                    self.card = CardViewModel(self.newCard!)
-                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
-                    
+                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
                 }
             case .completion(let error):
                 self.viewModel.scanButton.hideActivityIndicator()
                 if let error = error {
+                    self.isBalanceLoading = false
+                    self.viewModel.setWalletInfoLoading(false)
+                    
                     if !error.isUserCancelled {
                         self.handleGenericError(error)
                         return
                     }
+                    
                     if self.isBalanceLoading {
-                        self.setupWithCardDetails(card: self.card!)
+                        self.handleNonGenuineTangemCard(self.card!) {
+                            self.setupWithCardDetails(card: self.card!)
+                        }
+                        return
                     }
-                    return
                 }
                 
                 guard self.card!.status == .loaded else {
@@ -618,7 +614,9 @@ extension CardDetailsViewController {
                     self.setupWithCardDetails(card: self.card!)
                     
                 } else {
-                    self.handleNonGenuineTangemCard(self.card!)
+                    self.handleNonGenuineTangemCard(self.card!) {
+                        self.setupWithCardDetails(card: self.card!)
+                    }
                 }
             }
         }
