@@ -31,7 +31,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     var newCard: Card?
     var isBalanceVerified = false
     var isBalanceLoading = false
-    
+    var latestTxDate: Date?
     var customPresentationController: CustomPresentationController?
     
     let operationQueue = OperationQueue()
@@ -225,6 +225,16 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         guard card.isBlockchainKnown else {
             setupBalanceVerified(false, customText: Localizations.alertUnknownBlockchain)
             return
+        }
+        
+        if let latestTxDate = latestTxDate {
+            let interval = Date().timeIntervalSince(latestTxDate)
+            if interval > 30 {
+                self.latestTxDate = nil
+            } else {
+                setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+                return
+            }
         }
         
         guard !forceUnverifyed && !card.hasPendingTransactions else {
@@ -520,6 +530,10 @@ extension CardDetailsViewController {
             viewController.onDone = { [unowned self] in
                 guard let card = self.card else {
                     return
+                }
+                
+                if card.type == .ducatus {
+                    self.latestTxDate = Date()
                 }
                 
                 if card.hasPendingTransactions  {
