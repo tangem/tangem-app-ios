@@ -56,7 +56,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     @objc func applicationWillEnterForeground() {
         if let card = card {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 self.isBalanceLoading = true
                 self.fetchWalletBalance(card: card)
             }
@@ -295,7 +295,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
         if let card = card, card.productMask == .note && card.type != .nft {
-            viewModel.loadButton.isEnabled = verified
+            viewModel.loadButton.isEnabled = true
             viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
             viewModel.buttonsAvailabilityView.isHidden = verified
         } else {
