@@ -22,7 +22,11 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
     var contentText = ""
     var onDone: (()-> Void)?
     var card: CardViewModel!
-    var cardManager = CardManager()
+    lazy var cardManager: CardManager = {
+        let manager = CardManager()
+        manager.config.legacyMode = Utils().needLegacyMode
+        return manager
+    }()
     
     @IBOutlet weak var eraseWalletButton: UIButton! {
         didSet {

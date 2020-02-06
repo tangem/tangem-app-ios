@@ -50,44 +50,45 @@ public final class ScanTask: Task<ScanEvent> {
                         callback(.completion())
                         return
                 }
-                
-                self.sendCommand(readCommand, environment: environment) {secondResult in
-                    switch secondResult {
-                    case .failure(let error):
-                        callback(.completion(error))
-                        self.reader.stopSession()
-                    case .success(let secondResponse):
-                        callback(.event(.onRead(secondResponse)))
-                        guard let secondHashes = secondResponse.signedHashes,
-                            let secondChallenge = secondResponse.challenge,
-                            let walletSignature = secondResponse.walletSignature,
-                            let secondSalt  = secondResponse.salt else {
-                                callback(.completion(TaskError.cardError))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.sendCommand(readCommand, environment: environment) {secondResult in
+                        switch secondResult {
+                        case .failure(let error):
+                            callback(.completion(error))
+                            self.reader.stopSession()
+                        case .success(let secondResponse):
+                            callback(.event(.onRead(secondResponse)))
+                            guard let secondHashes = secondResponse.signedHashes,
+                                let secondChallenge = secondResponse.challenge,
+                                let walletSignature = secondResponse.walletSignature,
+                                let secondSalt  = secondResponse.salt else {
+                                    callback(.completion(TaskError.cardError))
+                                    self.reader.stopSession()
+                                    return
+                            }
+                            
+                            if secondHashes > firstHashes {
+                                firstResponse.signedHashes = secondHashes
+                            }
+                            
+                            if firstChallenge == secondChallenge || firstSalt == secondSalt {
+                                callback(.event(.onVerify(false)))
+                                callback(.completion())
                                 self.reader.stopSession()
                                 return
-                        }
-                        
-                        if secondHashes > firstHashes {
-                            firstResponse.signedHashes = secondHashes
-                        }
-                        
-                        if firstChallenge == secondChallenge || firstSalt == secondSalt {
-                            callback(.event(.onVerify(false)))
-                            callback(.completion())
+                            }
+                            
+                            if let verifyResult = CryptoUtils.vefify(curve: publicKey.count == 65 ? EllipticCurve.secp256k1 : EllipticCurve.ed25519,
+                                                                     publicKey: publicKey,
+                                                                     message: firstChallenge + firstSalt,
+                                                                     signature: walletSignature) {
+                                callback(.event(.onVerify(verifyResult)))
+                                callback(.completion())
+                            } else {
+                                callback(.completion(TaskError.verificationFailed))
+                            }
                             self.reader.stopSession()
-                            return
                         }
-                        
-                        if let verifyResult = CryptoUtils.vefify(curve: publicKey.count == 65 ? EllipticCurve.secp256k1 : EllipticCurve.ed25519,
-                                                                 publicKey: publicKey,
-                                                                 message: firstChallenge + firstSalt,
-                                                                 signature: walletSignature) {
-                            callback(.event(.onVerify(verifyResult)))
-                            callback(.completion())
-                        } else {
-                            callback(.completion(TaskError.verificationFailed))
-                        }
-                        self.reader.stopSession()
                     }
                 }
             }
