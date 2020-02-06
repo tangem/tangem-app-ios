@@ -21,15 +21,15 @@ public final class SingleCommandTask<TCommand: CommandSerializer>: Task<TCommand
     }
     
     override public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TCommand.CommandResponse>) -> Void) {
-        sendCommand(command, environment: environment) {[unowned self] result in
+        sendCommand(command, environment: environment) {[weak self] result in
             switch result {
             case .success(let commandResponse):
-                self.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
-                self.reader.stopSession()
+                self?.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
+                self?.reader.stopSession()
                 callback(.event(commandResponse))
                 callback(.completion(nil))
             case .failure(let error):
-                self.reader.stopSession(errorMessage: error.localizedDescription)
+                self?.reader.stopSession(errorMessage: error.localizedDescription)
                 callback(.completion(error))
             }
         }

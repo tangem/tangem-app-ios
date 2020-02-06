@@ -296,7 +296,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
         if let card = card, card.productMask == .note && card.type != .nft {
             viewModel.loadButton.isEnabled = verified
-            viewModel.extractButton.isEnabled = !card.hasEmptyWallet
+            viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
             viewModel.buttonsAvailabilityView.isHidden = verified
         } else {
             viewModel.buttonsAvailabilityView.isHidden = false
