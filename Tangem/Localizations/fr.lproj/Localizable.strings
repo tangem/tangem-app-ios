@@ -364,9 +364,6 @@
 "balance_validator_second_line_create_account" = "Pour créer un compte, envoyez des fonds à cette adresse";
 
 /*  */
-"balance_validator_second_line_create_account_instruction" = "Pour créer un compte, envoyez 1+ XLM à cette adresse";
-
-/*  */
 "balance_validator_second_line_create_account_xrp" = "Chargez plus de 20 XRP pour créer un compte";
 
 /*  */
