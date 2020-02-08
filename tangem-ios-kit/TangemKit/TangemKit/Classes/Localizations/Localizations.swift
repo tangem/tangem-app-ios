@@ -28,6 +28,7 @@ public class Localizations {
     static let nfcAlertDefault = translate("nfc_alert_default")
     static let nfcStuckError = translate("nfc_stuck_error")
     static let slixFailedToParse = "Failed to read the Tag"
+    static let xlmCreateAccountHint = translate("balance_validator_second_line_create_account_instruction")
     static func secondsLeft(_ p1: String) -> String {
         return translate("nfc_seconds_left", p1)
     }
