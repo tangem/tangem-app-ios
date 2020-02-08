@@ -27,13 +27,11 @@ public final class SignCommand: CommandSerializer {
     
     private let hashSize: Int
     private let dataToSign: Data
-    private let cardId: String
     
     /// Command initializer
     /// - Parameters:
     ///   - hashes: Array of transaction hashes.
-    ///   - cardId: CID, Unique Tangem card ID number
-    public init(hashes: [Data], cardId: String) throws {
+    public init(hashes: [Data]) throws {
         guard hashes.count > 0 else {
             throw TaskError.emptyHashes
         }
@@ -49,18 +47,18 @@ public final class SignCommand: CommandSerializer {
                 throw TaskError.hashSizeMustBeEqual
             }
             
-            flattenHashes.append(contentsOf: hash.bytes)
+            flattenHashes.append(contentsOf: hash.toBytes)
         }
-        self.cardId = cardId
         dataToSign = Data(flattenHashes)
     }
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
-        var tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
-                       Tlv(.pin2, value: environment.pin2.sha256()),
-                       Tlv(.cardId, value: Data(hex: cardId)),
-                       Tlv(.transactionOutHashSize, value: hashSize.byte),
-                       Tlv(.transactionOutHash, value: dataToSign)]
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {        
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
+            .append(.pin2, value: environment.pin2)
+            .append(.cardId, value: environment.cardId)
+            .append(.transactionOutHashSize, value: hashSize)
+            .append(.transactionOutHash, value: dataToSign)
         
         /**
          * Application can optionally submit a public key Terminal_PublicKey in [SignCommand].
@@ -71,11 +69,12 @@ public final class SignCommand: CommandSerializer {
          */
         if let keys = environment.terminalKeys,
             let signedData = CryptoUtils.signSecp256k1(dataToSign, with: keys.privateKey) {
-            tlvData.append(Tlv(.terminalTransactionSignature, value: signedData))
-            tlvData.append(Tlv(.terminalPublicKey, value: keys.publicKey))
+            try tlvBuilder
+                .append(.terminalTransactionSignature, value: signedData)
+                .append(.terminalPublicKey, value: keys.publicKey)
         }
         
-        let cApdu = CommandApdu(.sign, tlv: tlvData)
+        let cApdu = CommandApdu(.sign, tlv: tlvBuilder.serialize())
         return cApdu
     }
     

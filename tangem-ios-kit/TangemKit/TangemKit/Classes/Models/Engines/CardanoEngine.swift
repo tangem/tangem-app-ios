@@ -15,7 +15,7 @@ open class CardanoEngine: CardEngine {
     
     static let kPendingTransactionTimeoutSeconds: Int = 60
 
-    public unowned var card: Card
+    public unowned var card: CardViewModel
     
     var unspentOutputs: [CardanoUnspentOutput]?
     var transaction: CardanoTransaction?
@@ -42,7 +42,7 @@ open class CardanoEngine: CardEngine {
         return "https://cardanoexplorer.com/address/" + walletAddress
     }
     
-    public required init(card: Card) {
+    public required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
