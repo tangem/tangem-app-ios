@@ -30,7 +30,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     var card: CardViewModel?
     var isBalanceVerified = false
     var isBalanceLoading = false
-    
+    var latestTxDate: Date?
     var customPresentationController: CustomPresentationController?
     
     let operationQueue = OperationQueue()
@@ -56,7 +56,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     @objc func applicationWillEnterForeground() {
         if let card = card {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 self.isBalanceLoading = true
                 self.fetchWalletBalance(card: card)
             }
@@ -84,14 +84,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         setupBalanceIsBeingVerified()
         viewModel.setSubstitutionInfoLoading(true)
         viewModel.setWalletInfoLoading(true)
-        
-        if card.genuinityState == .pending && card.status == .loaded {
-            viewModel.setSubstitutionInfoLoading(true)
-            return
-        }
-        
         viewModel.doubleScanHintLabel.isHidden = true
-        
         fetchSubstitutionInfo(card: card)
     }
     
@@ -226,6 +219,16 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             return
         }
         
+        if let latestTxDate = latestTxDate {
+            let interval = Date().timeIntervalSince(latestTxDate)
+            if interval > 30 {
+                self.latestTxDate = nil
+            } else {
+                setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+                return
+            }
+        }
+        
         guard !forceUnverifyed && !card.hasPendingTransactions else {
             setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
             return
@@ -292,8 +295,8 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
         if let card = card, card.productMask == .note && card.type != .nft {
-            viewModel.loadButton.isEnabled = verified
-            viewModel.extractButton.isEnabled = !card.hasEmptyWallet
+            viewModel.loadButton.isEnabled = true
+            viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
             viewModel.buttonsAvailabilityView.isHidden = verified
         } else {
             viewModel.buttonsAvailabilityView.isHidden = false
@@ -521,6 +524,10 @@ extension CardDetailsViewController {
                     return
                 }
                 
+                if card.type == .ducatus {
+                    self.latestTxDate = Date()
+                }
+                
                 if card.hasPendingTransactions  {
                     self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
                     self.updateBalance(forceUnverifyed: true)
@@ -566,18 +573,27 @@ extension CardDetailsViewController {
                     if #available(iOS 13.0, *) {} else {
                         self.viewModel.doubleScanHintLabel.isHidden = false
                     }
-                    self.card = CardViewModel(card)
+                     self.card = CardViewModel(card)
                 case .onVerify(let isGenuine):
-                    self.card?.genuinityState = isGenuine ? .genuine : .nonGenuine
-                    
+                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
                 }
             case .completion(let error):
                 self.viewModel.scanButton.hideActivityIndicator()
                 if let error = error {
+                    self.isBalanceLoading = false
+                    self.viewModel.setWalletInfoLoading(false)
+                    
                     if !error.isUserCancelled {
                         self.handleGenericError(error)
+                        return
                     }
-                    return
+                    
+                    if self.isBalanceLoading {
+                        self.handleNonGenuineTangemCard(self.card!) {
+                            self.setupWithCardDetails(card: self.card!)
+                        }
+                        return
+                    }
                 }
                 
                 guard self.card!.status == .loaded else {
@@ -598,7 +614,9 @@ extension CardDetailsViewController {
                     self.setupWithCardDetails(card: self.card!)
                     
                 } else {
-                    self.handleNonGenuineTangemCard(self.card!)
+                    self.handleNonGenuineTangemCard(self.card!) {
+                        self.setupWithCardDetails(card: self.card!)
+                    }
                 }
             }
         }
