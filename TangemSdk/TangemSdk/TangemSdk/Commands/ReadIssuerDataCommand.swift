@@ -37,18 +37,15 @@ public struct ReadIssuerDataResponse {
 @available(iOS 13.0, *)
 public final class ReadIssuerDataCommand: CommandSerializer {
     public typealias CommandResponse = ReadIssuerDataResponse
-    /// Unique Tangem card ID number
-    let cardId: String
-
-    public init(cardId: String) {
-        self.cardId = cardId
-    }
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
-        let tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
-                       Tlv(.cardId, value: Data(hex: cardId))]
+    public init() {}
+    
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
+            .append(.cardId, value: environment.cardId)
         
-        let cApdu = CommandApdu(.readIssuerData, tlv: tlvData)
+        let cApdu = CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
