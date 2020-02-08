@@ -16,12 +16,12 @@ enum TangemKitResult<Value> {
 
 class BaseCardBalanceOperation: GBAsyncOperation {
 
-    var card: Card
-    var completion: (TangemKitResult<Card>) -> Void
+    var card: CardViewModel
+    var completion: (TangemKitResult<CardViewModel>) -> Void
 
     let operationQueue = OperationQueue()
 
-    init(card: Card, completion: @escaping (TangemKitResult<Card>) -> Void) {
+    init(card: CardViewModel, completion: @escaping (TangemKitResult<CardViewModel>) -> Void) {
         self.card = card
         self.completion = completion
 
