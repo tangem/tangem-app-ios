@@ -19,15 +19,21 @@ public final class CardManager {
         #endif
     }
     
-    public var isBusy: Bool = false
+    public var config = Config()
     
     /// `cardReader` is an interface that is responsible for NFC connection and  transfer of data to and from the Tangem Card.
     private let cardReader: CardReader
     
     /// An interface that allows interaction with users and shows relevant UI.
     private let cardManagerDelegate: CardManagerDelegate
-    private var cardEnvironmentRepository: [String:CardEnvironment] = [:]
+    private var isBusy: Bool = false
     private var currentTask: AnyTask?
+    private let storageService = SecureStorageService()
+    
+    private lazy var terminalKeysService: TerminalKeysService = {
+        let service = TerminalKeysService(secureStorageService: storageService)
+        return service
+    }()
     
     public init(cardReader: CardReader, cardManagerDelegate: CardManagerDelegate) {
         self.cardReader = cardReader
@@ -70,13 +76,10 @@ public final class CardManager {
     public func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void) {
         var signCommand: SignCommand
         do {
-            signCommand = try SignCommand(hashes: hashes, cardId: cardId)
+            signCommand = try SignCommand(hashes: hashes)
         } catch {
-            if let taskError = error as? TaskError {
-                callback(.completion(taskError))
-            } else {
-                callback(.completion(TaskError.genericError(error)))
-            }
+            print(error.localizedDescription)
+            callback(.completion(TaskError.parse(error)))
             return
         }
         
@@ -96,7 +99,7 @@ public final class CardManager {
      */
     @available(iOS 13.0, *)
     public func readIssuerData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerDataResponse>) -> Void) {
-        let command = ReadIssuerDataCommand(cardId: cardId)
+        let command = ReadIssuerDataCommand()
         let task = SingleCommandTask(command)
         runTask(task, cardId: cardId, callback: callback)
     }
@@ -112,19 +115,49 @@ public final class CardManager {
      *   - issuerDataSignature: Issuer’s signature of `issuerData` with Issuer Data Private Key (which is kept on card).
      *   - issuerDataCounter: An optional counter that protect issuer data against replay attack.
      *   - callback: is triggered on the completion of the `WriteIssuerDataCommand`,
-     * provides card response in the form of `[`WriteIssuerDataResponse`.
+     * provides card response in the form of  `WriteIssuerDataResponse`.
      */
     @available(iOS 13.0, *)
     public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
-        let command = WriteIssuerDataCommand(cardId: cardId, issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
+        let command = WriteIssuerDataCommand(issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
         let task = SingleCommandTask(command)
         runTask(task, cardId: cardId, callback: callback)
     }
     
+    /**
+     * This command will create a new wallet on the card having ‘Empty’ state.
+     * A key pair WalletPublicKey / WalletPrivateKey is generated and securely stored in the card.
+     * App will need to obtain Wallet_PublicKey from the response of `CreateWalletCommand` or `ReadCommand`
+     * and then transform it into an address of corresponding blockchain wallet
+     * according to a specific blockchain algorithm.
+     * WalletPrivateKey is never revealed by the card and will be used by `SignCommand` and `CheckWalletCommand`.
+     * RemainingSignature is set to MaxSignatures.
+     * - Parameter cardId: CID, Unique Tangem card ID number.
+     */
+    @available(iOS 13.0, *)
+    public func createWallet(cardId: String, callback: @escaping (TaskEvent<CreateWalletEvent>) -> Void) {
+        let task = CreateWalletTask(verifyWallet: true)
+        runTask(task, cardId: cardId, callback: callback)
+    }
+    
+    /**
+     * This command deletes all wallet data. If Is_Reusable flag is enabled during personalization,
+     * the card changes state to ‘Empty’ and a new wallet can be created by `CREATE_WALLET` command.
+     * If Is_Reusable flag is disabled, the card switches to ‘Purged’ state.
+     * ‘Purged’ state is final, it makes the card useless.
+     * - Parameter cardId: CID, Unique Tangem card ID number.
+     */
+    @available(iOS 13.0, *)
+    public func purgeWallet(cardId: String, callback: @escaping (TaskEvent<PurgeWalletResponse>) -> Void) {
+        let command = PurgeWalletCommand()
+        let task = SingleCommandTask(command)
+        runTask(task, cardId: cardId, callback: callback)
+    }
+
    /// Allows to run a custom task created outside of this SDK.
     public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
         guard CardManager.isNFCAvailable else {
-            callback(.completion(TaskError.unsupported))
+            callback(.completion(TaskError.unsupportedDevice))
             return
         }
         
@@ -137,7 +170,7 @@ public final class CardManager {
         isBusy = true
         task.reader = cardReader
         task.delegate = cardManagerDelegate
-        let environment = fetchCardEnvironment(for: cardId)
+        let environment = prepareCardEnvironment(for: cardId)
         
         task.run(with: environment) {[weak self] taskResult in
             switch taskResult {
@@ -162,12 +195,15 @@ public final class CardManager {
         runTask(task, cardId: cardId, callback: callback)
     }
     
-    private func fetchCardEnvironment(for cardId: String?) -> CardEnvironment {
-        guard let cardId = cardId else {
-            return CardEnvironment()
-        }
-        
-        return cardEnvironmentRepository[cardId] ?? CardEnvironment()
+    private func prepareCardEnvironment(for cardId: String?) -> CardEnvironment {
+        let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
+        var environment = CardEnvironment()
+        environment.cardId = cardId
+        environment.legacyMode = isLegacyMode
+        if config.linkedTerminal && !isLegacyMode {
+            environment.terminalKeys = terminalKeysService.getKeys()
+        }        
+        return environment
     }
 }
 
