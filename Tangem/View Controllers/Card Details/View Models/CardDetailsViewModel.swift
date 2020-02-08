@@ -9,6 +9,16 @@
 import UIKit
 
 class CardDetailsViewModel: NSObject {
+    var actionButtonState: ActionButtonState = .createWallet {
+        didSet {
+            switch actionButtonState {
+            case .claimTag:
+                 actionButton?.setTitle(Localizations.loadedWalletBtnClaim, for: .normal)
+            case .createWallet:
+                actionButton?.setTitle(Localizations.emptyWalletBtnCreate, for: .normal)
+            }
+        }
+    }
     
     // MARK: Image Views
     
@@ -84,17 +94,17 @@ class CardDetailsViewModel: NSObject {
             extractButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
-    @IBOutlet weak var claimButton: UIButton! {
+    @IBOutlet weak var actionButton: UIButton! {
         didSet {
-            claimButton.layer.cornerRadius = 30.0
-            claimButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
+            actionButton.layer.cornerRadius = 30.0
+            actionButton.titleLabel?.font = UIFont.tgm_sairaFontWith(size: 20, weight: .bold)
             
-            claimButton.layer.shadowRadius = 5.0
-            claimButton.layer.shadowOffset = CGSize(width: 0, height: 5)
-            claimButton.layer.shadowColor = UIColor.black.cgColor
-            claimButton.layer.shadowOpacity = 0.08
-            claimButton.setTitle(Localizations.loadedWalletBtnClaim, for: .normal)
-            claimButton.setTitleColor(UIColor.lightGray, for: .disabled)
+            actionButton.layer.shadowRadius = 5.0
+            actionButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+            actionButton.layer.shadowColor = UIColor.black.cgColor
+            actionButton.layer.shadowOpacity = 0.08
+            actionButton.setTitle(Localizations.emptyWalletBtnCreate, for: .normal)
+            actionButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
@@ -102,7 +112,6 @@ class CardDetailsViewModel: NSObject {
         didSet {
             scanButton.titleLabel?.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
             scanButton.setTitle(Localizations.loadedWalletBtnNewScan, for: .normal)
-            scanButton.setTitleColor(UIColor.lightGray, for: .disabled)
         }
     }
     
@@ -190,7 +199,7 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceNoWallet() {
-        let string = "\(Localizations.loadedWalletNoCompatibleWallet).\n\(Localizations.disclamerNoWalletCreation)"
+        let string = "\(Localizations.loadedWalletNoCompatibleWallet)."
         let attributedText = NSAttributedString(string: string, attributes: [NSAttributedStringKey.kern : 0.88,
                                                                              NSAttributedStringKey.foregroundColor : UIColor.tgm_red()])
         balanceVerificationLabel.attributedText = attributedText
@@ -220,4 +229,10 @@ extension CardDetailsViewModel {
         
         return paragraphStyle
     }
+}
+
+
+enum ActionButtonState {
+    case claimTag
+    case createWallet
 }
