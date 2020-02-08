@@ -195,17 +195,24 @@ class ExtractViewController: ModalActionViewController {
         addLoadingView()
         
         if let asyncCoinProvider = coinProvider as? CoinProviderAsync {
-            asyncCoinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) { [weak self] hash in
-                
-                guard let hash = hash else {
-                    self?.handleTXBuildError()
-                    self?.removeLoadingView()
-                    self?.updateSendButtonSubtitle()
-                    self?.btnSend.hideActivityIndicator()
-                    return
-                }
-                
+            asyncCoinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) { [weak self] hash, error in
                 DispatchQueue.main.async {
+                    if let error = error {
+                        self?.handleGenericError(error)
+                        self?.removeLoadingView()
+                        self?.updateSendButtonSubtitle()
+                        self?.btnSend.hideActivityIndicator()
+                        return
+                    }
+                    
+                    guard let hash = hash else {
+                        self?.handleTXBuildError()
+                        self?.removeLoadingView()
+                        self?.updateSendButtonSubtitle()
+                        self?.btnSend.hideActivityIndicator()
+                        return
+                    }
+                    
                     self?.sign(data: hash)
                 }
             }
