@@ -12,7 +12,7 @@ import CommonCrypto
 
 
 extension Data {
-    public func toHexString() -> String {
+    public func asHexString() -> String {
         return self.map { return String(format: "%02X", $0) }.joined()
     }
     
@@ -36,13 +36,13 @@ extension Data {
         return calendar.date(from: components)
     }
     
-    public init(hex: String) {
+    public init(hexString: String) {
         self = Data()
-        reserveCapacity(hex.unicodeScalars.lazy.underestimatedCount)
+        reserveCapacity(hexString.unicodeScalars.lazy.underestimatedCount)
         
         var buffer: UInt8?
-        var skip = hex.hasPrefix("0x") ? 2 : 0
-        for char in hex.unicodeScalars.lazy {
+        var skip = hexString.hasPrefix("0x") ? 2 : 0
+        for char in hexString.unicodeScalars.lazy {
             guard skip == 0 else {
                 skip -= 1
                 continue
@@ -76,7 +76,7 @@ extension Data {
         }
     }
     
-    public func sha256() -> Data {
+    public func getSha256() -> Data {
         if #available(iOS 13.0, *) {
             let digest = SHA256.hash(data: self)
             return Data(digest)
@@ -85,7 +85,7 @@ extension Data {
         }
     }
     
-    public func sha512() -> Data {
+    public func getSha512() -> Data {
         if #available(iOS 13.0, *) {
             let digest = SHA512.hash(data: self)
             return Data(digest)
@@ -94,7 +94,7 @@ extension Data {
         }
     }
     
-    var bytes: [Byte] {
+    public var toBytes: [Byte] {
         return Array(self)
     }
     
