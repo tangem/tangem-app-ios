@@ -13,8 +13,10 @@ import CoreNFC
 public final class NDEFReader: NSObject {
     static let tangemWalletRecordType = "tangem.com:wallet"
     
+    public var tagDidConnect: (() -> Void)?
+    
     private var readerSession: NFCNDEFReaderSession?
-    private var completion: ((Result<ResponseApdu, NFCReaderError>) -> Void)?
+    private var completion: ((Result<ResponseApdu, TaskError>) -> Void)?
 }
 
 extension NDEFReader: NFCNDEFReaderSessionDelegate {
@@ -22,11 +24,13 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
         let nfcError = error as! NFCReaderError
         
         if nfcError.code != .readerSessionInvalidationErrorFirstNDEFTagRead {
-            completion?(.failure(nfcError))
+            print(nfcError.localizedDescription)
+            completion?(.failure(TaskError.parse(nfcError)))
         }
     }
     
     public func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
+        tagDidConnect?()
         let bytes: [Byte] = messages.flatMap { message -> [NFCNDEFPayload] in
             return message.records
         }.filter{ record -> Bool in
@@ -36,11 +40,11 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
             
             return recordType == NDEFReader.tangemWalletRecordType
         }.flatMap { ndefPayload -> [Byte] in
-            return ndefPayload.payload.bytes
+            return ndefPayload.payload.toBytes
         }
         
         guard bytes.count > 2 else {
-             completion?(.success(ResponseApdu(Data(), Byte(0x00), Byte(0x00))))
+            completion?(.success(ResponseApdu(Data(), Byte(0x00), Byte(0x00))))
             return
         }
         
@@ -62,23 +66,31 @@ extension NDEFReader: CardReader {
         set { readerSession?.alertMessage = newValue }
     }
     
-    public func stopSession() {
+    public func stopSession(errorMessage: String? = nil) {
         completion = nil
         readerSession?.invalidate()
+                readerSession = nil
     }
     
-    public func stopSession(errorMessage: String) {
-        stopSession()
-    }
-    
-    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, NFCReaderError>) -> Void) {
+    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, TaskError>) -> Void) {
         self.completion = completion
-        readerSession = NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: true)
-        readerSession!.alertMessage = Localization.nfcAlertDefault
-        readerSession!.begin()
+        if #available(iOS 13.0, *), readerSession != nil {
+            readerSession!.restartPolling()
+        } else {
+            readerSession = createSession()
+            readerSession!.alertMessage = Localization.nfcAlertDefault
+            readerSession!.begin()
+        }
+        
     }
     
+    public func restartPolling() {}
     
-    public func restartPolling() {
-    } 
+    private func createSession() -> NFCNDEFReaderSession {
+        if #available(iOS 13.0, *) {
+            return NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: false)
+        } else {
+            return NFCNDEFReaderSession(delegate: self, queue: nil, invalidateAfterFirstRead: true)
+        }
+    }
 }

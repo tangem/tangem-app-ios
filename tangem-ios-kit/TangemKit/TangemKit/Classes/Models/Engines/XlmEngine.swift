@@ -11,7 +11,7 @@ import stellarsdk
 import SwiftyJSON
 
 public class XlmEngine: CardEngine {
-    unowned public var card: Card
+    unowned public var card: CardViewModel
     
     public lazy var stellarSdk: StellarSDK = {
         return StellarSDK(withHorizonUrl: "https://\(card.node)")
@@ -22,7 +22,7 @@ public class XlmEngine: CardEngine {
             return
                 """
                 Tangem TAG
-                Stellar NFT token
+                Stellar non-fungible token
                 """
         }
         else {
@@ -67,7 +67,7 @@ public class XlmEngine: CardEngine {
         return baseUrl + walletAddress
     }
     
-    public required init(card: Card) {
+    public required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
@@ -124,12 +124,12 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         }
     }
     
-    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping ([Data]?) -> Void) {
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping ([Data]?, Error?) -> Void) {
         guard let amountDecimal = Decimal(string: amount),
             let feeDecimal = Decimal(string: fee),
             let sourceKeyPair = self.sourceKeyPair,
             let destinationKeyPair = try? KeyPair(accountId: targetAddress) else {
-                completion(nil)
+                completion(nil, nil)
                 return
         }
         let assetBalance = self.assetBalance ?? 0
@@ -137,6 +137,12 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         
         if card.tokenSymbol == nil || (card.tokenSymbol != nil && self.assetBalance != nil && self.assetBalance! <= 0) {
             checkIfAccountCreated(targetAddress) { [weak self] isCreated in
+                if !isCreated && finalAmountDecimal < 1 {
+                    completion(nil, Localizations.xlmCreateAccountHint)
+                    return
+                }
+                
+                
                 let operation = isCreated ? PaymentOperation(sourceAccount: nil,
                                                              destination: destinationKeyPair,
                                                              asset: Asset(type: AssetType.ASSET_TYPE_NATIVE)!,
@@ -148,7 +154,7 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         } else { //if asset
             guard let contractAddress = card.tokenContractAddress, let keyPair = try? KeyPair(accountId: contractAddress),
                 let asset = createNonNativeAsset(code: card.tokenSymbol!, issuer: keyPair) else {
-                    completion(nil)
+                    completion(nil, nil)
                     return
             }
             
@@ -162,11 +168,11 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         }
     }
     
-    private func serializeOperation(_ operation: stellarsdk.Operation, completion: @escaping ([Data]?) -> Void ) {
+    private func serializeOperation(_ operation: stellarsdk.Operation, completion: @escaping ([Data]?, Error?) -> Void ) {
         guard let xdrOperation = try? operation.toXDR(),
             let seqNumber = self.sequence,
             let sourceKeyPair = self.sourceKeyPair else {
-                completion(nil)
+                completion(nil, nil)
                 return
         }
         
@@ -182,11 +188,11 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         
         let network = self.card.isTestBlockchain ? Network.testnet : Network.public
         guard let hash = try? tx.hash(network: network) else {
-            completion(nil)
+            completion(nil, nil)
             return
         }
         self.transaction = tx
-        completion([hash])
+        completion([hash], nil)
     }
     
     
@@ -308,7 +314,7 @@ extension XlmEngine: Claimable {
     
     public func claim(amount: String, fee: String, targetAddress: String, signature: Data, completion: @escaping (Bool, Error?) -> Void) {
         useTimebounds = false
-        getHashForSignature(amount: amount, fee: fee, includeFee: false, targetAddress: targetAddress) {[unowned self] _ in
+        getHashForSignature(amount: amount, fee: fee, includeFee: false, targetAddress: targetAddress) {[unowned self] _ , _ in
             self.sendToBlockchain(signFromCard: Array(signature), completion: completion)
         }
     }
