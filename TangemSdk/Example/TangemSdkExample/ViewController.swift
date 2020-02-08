@@ -30,13 +30,7 @@ class ViewController: UIViewController {
                     self.log("verify result: \(isGenuine)")
                 }
             case .completion(let error):
-                if let error = error {
-                    if case .userCancelled = error {
-                        //silence user cancelled
-                    } else {
-                        self.log("completed with error: \(error.localizedDescription)")
-                    }
-                }
+                self.handle(error)
                 //handle completion. Unlock UI, etc.
             }
         }
@@ -57,13 +51,7 @@ class ViewController: UIViewController {
                 case .event(let signResponse):
                     self.log(signResponse)
                 case .completion(let error):
-                    if let error = error {
-                        if case .userCancelled = error {
-                            //silence user cancelled
-                        } else {
-                            self.log("completed with error: \(error.localizedDescription)")
-                        }
-                    }
+                    self.handle(error)
                     //handle completion. Unlock UI, etc.
                 }
             }
@@ -79,21 +67,13 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            let getIssuerDataCommand = ReadIssuerDataCommand(cardId: cardId)
-            
-            cardManager.runCommand(getIssuerDataCommand) { [unowned self] taskEvent in
+            cardManager.readIssuerData(cardId: cardId){ [unowned self] taskEvent in
                 switch taskEvent {
                 case .event(let issuerDataResponse):
                     self.issuerDataResponse = issuerDataResponse
                     self.log(issuerDataResponse)
                 case .completion(let error):
-                    if let error = error {
-                        if case .userCancelled = error {
-                            //silence user cancelled
-                        } else {
-                            self.log("completed with error: \(error.localizedDescription)")
-                        }
-                    }
+                    self.handle(error)
                     //handle completion. Unlock UI, etc.
                 }
             }
@@ -105,30 +85,75 @@ class ViewController: UIViewController {
     
     @IBAction func writeIssuerDataTapped(_ sender: Any) {
         guard let cardId = card?.cardId else {
-                   self.log("Please, scan card before")
-                   return
-               }
+            self.log("Please, scan card before")
+            return
+        }
         
         guard let issuerDataResponse = issuerDataResponse else {
-                  self.log("Please, run GetIssuerData before")
-                  return
-              }
+            self.log("Please, run GetIssuerData before")
+            return
+        }
         
         if #available(iOS 13.0, *) {
-            let writeIssuerDataCommand = WriteIssuerDataCommand(cardId: cardId, issuerData: issuerDataResponse.issuerData, issuerDataSignature: issuerDataResponse.issuerDataSignature)
-            
-            cardManager.runCommand(writeIssuerDataCommand) { [unowned self] taskEvent in
+            cardManager.writeIssuerData(cardId: cardId,
+                                        issuerData: issuerDataResponse.issuerData,
+                                        issuerDataSignature: issuerDataResponse.issuerDataSignature) { [unowned self] taskEvent in
                 switch taskEvent {
                 case .event(let issuerDataResponse):
                     self.log(issuerDataResponse)
                 case .completion(let error):
-                    if let error = error {
-                        if case .userCancelled = error {
-                            //silence user cancelled
-                        } else {
-                            self.log("completed with error: \(error.localizedDescription)")
-                        }
+                    self.handle(error)
+                    //handle completion. Unlock UI, etc.
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+    }
+    
+    @IBAction func createWalletTapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        
+        if #available(iOS 13.0, *) {
+            cardManager.createWallet(cardId: cardId) { [unowned self] taskEvent in
+                switch taskEvent {
+                case .event(let createWalletEvent):
+                    switch createWalletEvent {
+                    case .onCreate(let response):
+                        self.log(response)
+                    case .onVerify(let isGenuine):
+                        self.log("Verify result: \(isGenuine)")
                     }
+                    
+                case .completion(let error):
+                    self.handle(error)
+                    //handle completion. Unlock UI, etc.
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+        
+    }
+    
+    @IBAction func purgeWalletTapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        
+        if #available(iOS 13.0, *) {
+            cardManager.purgeWallet(cardId: cardId) { [unowned self] taskEvent in
+                switch taskEvent {
+                case .event(let response):
+                    self.log(response)
+                case .completion(let error):
+                    self.handle(error)
                     //handle completion. Unlock UI, etc.
                 }
             }
@@ -141,5 +166,11 @@ class ViewController: UIViewController {
     private func log(_ object: Any) {
         self.logView.text = self.logView.text.appending("\(object)\n")
         print(object)
+    }
+    
+    private func handle(_ error: TaskError?) {
+        if let error = error, !error.isUserCancelled {
+            self.log("completed with error: \(error.localizedDescription)")
+        }
     }
 }
