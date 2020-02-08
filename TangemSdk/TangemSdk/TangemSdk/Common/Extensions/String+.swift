@@ -15,11 +15,11 @@ public extension String {
     
     func sha256() -> Data {
         let data = Data(Array(utf8))
-        return data.sha256()
+        return data.getSha256()
     }
     
     func sha512() -> Data {
         let data = Data(Array(utf8))
-        return data.sha512()
+        return data.getSha512()
     }
 }

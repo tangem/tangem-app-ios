@@ -15,7 +15,7 @@ protocol LoadViewControllerDelegate: class {
 
 class LoadViewController: ModalActionViewController {
     
-    var cardDetails: Card?
+    var cardDetails: CardViewModel?
     
     weak var delegate: LoadViewControllerDelegate?
     

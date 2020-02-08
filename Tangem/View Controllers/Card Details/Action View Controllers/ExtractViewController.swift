@@ -11,12 +11,16 @@ import Foundation
 import CoreNFC
 #endif
 import TangemKit
+import TangemSdk
 
 
 
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
-    var card: Card!
+    
+    private var cardManager = CardManager()
+    
+    var card: CardViewModel!
     var onDone: (()-> Void)?
     
     @IBOutlet weak var titleLabel: UILabel! {
@@ -128,42 +132,6 @@ class ExtractViewController: ModalActionViewController {
         return recognizer
     }()
     
-    private lazy var signSession: CardSignSession = {
-        let session = CardSignSession(cardId: card.cardID,
-                                      supportedSignMethods: card.supportedSignMethods) {[weak self] result in
-                                        DispatchQueue.main.async {
-                                        self?.btnSend.hideActivityIndicator()
-                                        self?.updateSendButtonSubtitle()
-                                        self?.removeLoadingView()
-                                        switch result {
-                                        case .cancelled:
-                                            break
-                                        case.success(let tlv):
-                                            guard let signature = tlv[.signature]?.value else {
-                                                self?.handleGenericError("Missing signature from card")
-                                                return
-                                            }
-                                            self?.handleSuccessSign(with: signature)
-                                        case .failure(let error):
-                                            if let signError = error as? CardSignError {
-                                                switch signError {
-                                                case .missingIssuerSignature:
-                                                    self?.handleTXNotSignedByIssuer()
-                                                case .nfcError(let nfcError):
-                                                    self?.handleGenericError(nfcError)
-                                                default:
-                                                    self?.handleGenericError(signError)
-                                                }
-                                            } else {
-                                                self?.handleGenericError(error)
-                                            }
-                                        }
-                                        }
-        }
-        
-        return session
-    }()
-    
     private var coinProvider: CoinProvider {
         return card.cardEngine as! CoinProvider
     }
@@ -210,32 +178,42 @@ class ExtractViewController: ModalActionViewController {
     }
     
     @IBAction func scanTapped() {
-        guard !signSession.isBusy, validateInput() else {
+        btnSend.showActivityIndicator()
+        guard validateInput() else {
+            btnSend.hideActivityIndicator()
             return
         }
         
         guard feeTime.distance(to: Date()) < TimeInterval(60.0) else {
             tryUpdateFeePreset()
+            btnSend.hideActivityIndicator()
             return
         }
         
         btnSend.setAttributedTitle(NSAttributedString(string: ""), for: .normal)
-        btnSend.showActivityIndicator()
+      
         addLoadingView()
         
         if let asyncCoinProvider = coinProvider as? CoinProviderAsync {
-            asyncCoinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) { [weak self] hash in
-                
-                guard let hash = hash else {
-                    self?.handleTXBuildError()
-                    self?.removeLoadingView()
-                    self?.btnSend.hideActivityIndicator()
-                    self?.updateSendButtonSubtitle()
-                    return
-                }
-                
+            asyncCoinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) { [weak self] hash, error in
                 DispatchQueue.main.async {
-                    self?.signSession.start(dataToSign: hash)
+                    if let error = error {
+                        self?.handleGenericError(error)
+                        self?.removeLoadingView()
+                        self?.updateSendButtonSubtitle()
+                        self?.btnSend.hideActivityIndicator()
+                        return
+                    }
+                    
+                    guard let hash = hash else {
+                        self?.handleTXBuildError()
+                        self?.removeLoadingView()
+                        self?.updateSendButtonSubtitle()
+                        self?.btnSend.hideActivityIndicator()
+                        return
+                    }
+                    
+                    self?.sign(data: hash)
                 }
             }
         }
@@ -243,12 +221,32 @@ class ExtractViewController: ModalActionViewController {
             guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
                 self.handleTXBuildError()
                 self.removeLoadingView()
-                self.btnSend.hideActivityIndicator()
                 self.updateSendButtonSubtitle()
+                self.btnSend.hideActivityIndicator()
                 return
             }
             
-            signSession.start(dataToSign: dataToSign)
+            sign(data: dataToSign)
+        
+        }
+    }
+    
+    private func sign(data: [Data]) {
+        cardManager.sign(hashes: data, cardId: card.cardID) {[unowned self] taskEvent in
+            switch taskEvent {
+            case .event(let signResponse):
+                self.handleSuccessSign(with: Array(signResponse.signature))
+            case .completion(let error):
+                self.btnSend.hideActivityIndicator()
+                self.updateSendButtonSubtitle()
+                self.removeLoadingView()
+                
+                if let error = error {
+                    if !error.isUserCancelled {
+                         self.handleGenericError(error)
+                    }
+                }
+            }
         }
     }
     

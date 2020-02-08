@@ -9,8 +9,8 @@ import GBAsyncOperation
 
 public class CardSubstitutionInfoOperation: GBAsyncOperation {
     
-    let card: Card
-    let completion: (Card) -> Void 
+    let card: CardViewModel
+    let completion: (CardViewModel) -> Void 
     
     let operationQueue: OperationQueue = {
         let operationQueue = OperationQueue()
@@ -19,7 +19,7 @@ public class CardSubstitutionInfoOperation: GBAsyncOperation {
     }()
     
     
-    public init(card: Card, completion: @escaping (Card) -> Void) {
+    public init(card: CardViewModel, completion: @escaping (CardViewModel) -> Void) {
         self.card = card
         self.completion = completion
     }
@@ -51,7 +51,7 @@ public class CardSubstitutionInfoOperation: GBAsyncOperation {
         
         card.substituteDataFrom(result)
        
-        if let hashesPath = Bundle(for: Card.self).path(forResource: "hashes", ofType: "plist"),
+        if let hashesPath = Bundle(for: CardViewModel.self).path(forResource: "hashes", ofType: "plist"),
             let hashes = NSDictionary(contentsOfFile: hashesPath) as? [String : String],
             let appArtworkHash = hashes[card.imageName],
             appArtworkHash == result.artwork?.hash {
