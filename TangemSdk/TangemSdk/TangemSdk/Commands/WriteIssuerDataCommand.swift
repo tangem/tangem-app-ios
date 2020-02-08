@@ -23,8 +23,6 @@ public struct WriteIssuerDataResponse {
 @available(iOS 13.0, *)
 public final class WriteIssuerDataCommand: CommandSerializer {
     public typealias CommandResponse = WriteIssuerDataResponse
-    /// Unique Tangem card ID number
-    public let cardId: String
     /// Data provided by issuer
     public let issuerData: Data
     /**
@@ -41,30 +39,29 @@ public final class WriteIssuerDataCommand: CommandSerializer {
     public let issuerDataCounter: Int?
     /**
      * - Parameters:
-     *   - cardId: CID
      *   - issuerData: Data to write
      *   - issuerDataSignature: Signature to write
      *   - issuerDataCounter: An optional counter that protect issuer data against replay attack. When flag `Protect_Issuer_Data_Against_Replay` set in `SettingsMask`
      * then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
      */
-    public init(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil) {
-        self.cardId = cardId
+    public init(issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil) {
         self.issuerData = issuerData
         self.issuerDataSignature = issuerDataSignature
         self.issuerDataCounter = issuerDataCounter
     }
     
-    public func serialize(with environment: CardEnvironment) -> CommandApdu {
-        var tlvData = [Tlv(.pin, value: environment.pin1.sha256()),
-                       Tlv(.cardId, value: Data(hex: cardId)),
-                       Tlv(.issuerData, value: issuerData),
-                       Tlv(.issuerDataSignature, value: issuerDataSignature)]
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+        let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
+            .append(.pin, value: environment.pin1)
+            .append(.cardId, value: environment.cardId)
+            .append(.issuerData, value: issuerData)
+            .append(.issuerDataSignature, value: issuerDataSignature)
         
         if let counter = issuerDataCounter {
-            tlvData.append(Tlv(.issuerDataCounter, value: counter.bytes4))
+            try tlvBuilder.append(.issuerDataCounter, value: counter)
         }
         
-        let cApdu = CommandApdu(.writeIssuerData, tlv: tlvData)
+        let cApdu = CommandApdu(.writeIssuerData, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
