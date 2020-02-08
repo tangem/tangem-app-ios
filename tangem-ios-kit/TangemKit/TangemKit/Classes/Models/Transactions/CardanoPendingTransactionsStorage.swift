@@ -38,11 +38,11 @@ class CardanoPendingTransactionsStorage {
     
     // MARK: Public methods
     
-    public func hasPendingTransactions(_ card: Card) -> Bool {
+    public func hasPendingTransactions(_ card: CardViewModel) -> Bool {
         return !pendingTransactionsForCardId(card.cardID).isEmpty
     }
     
-    public func append(transactionId: String, card: Card, expirationTimeoutSeconds: Int) {
+    public func append(transactionId: String, card: CardViewModel, expirationTimeoutSeconds: Int) {
         let expirationDate = Date().addingTimeInterval(TimeInterval(expirationTimeoutSeconds))
         let transactionInfo = TransactionInfo(transactionid: transactionId, cardId: card.cardID, expireDate: expirationDate)
         
@@ -51,7 +51,7 @@ class CardanoPendingTransactionsStorage {
         saveToDisk()
     }
     
-    public func cleanup(existingTransactionsIds: [String], card: Card) {
+    public func cleanup(existingTransactionsIds: [String], card: CardViewModel) {
         pendingTransactions = pendingTransactions.filter({
             guard !$0.isExpired else {
                 return false

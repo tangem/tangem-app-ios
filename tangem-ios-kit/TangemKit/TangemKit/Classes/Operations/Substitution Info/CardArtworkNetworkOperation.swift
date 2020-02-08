@@ -11,10 +11,10 @@ import GBAsyncOperation
 class CardArtworkNetworkOperation: GBAsyncOperation {
 
     let artworkId: String
-    let card: Card
+    let card: CardViewModel
     let completion: (TangemObjectResult<UIImage>) -> Void
 
-    init(card: Card, artworkId: String, completion: @escaping (TangemObjectResult<UIImage>) -> Void) {
+    init(card: CardViewModel, artworkId: String, completion: @escaping (TangemObjectResult<UIImage>) -> Void) {
         self.card = card
         self.artworkId = artworkId
         self.completion = completion
