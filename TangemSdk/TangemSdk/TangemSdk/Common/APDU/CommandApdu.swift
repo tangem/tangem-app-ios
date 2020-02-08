@@ -12,11 +12,7 @@ import CoreNFC
 
 /// Class that provides conversion of serialized request and Instruction code
 /// to a raw data that can be sent to the card.
-public struct CommandApdu: Equatable {
-    /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
-    /// 4 - Timeout setting for ping nfc-module
-    private static let legacyModeTlv = Tlv(.legacyMode, value: Data([Byte(4)]))
-    
+public struct CommandApdu: Equatable {    
     //MARK: Header
     fileprivate let cla: Byte
     /// Instruction code that determines the type of request for the card.
@@ -37,12 +33,11 @@ public struct CommandApdu: Equatable {
     /// - Parameter tlv: data
     /// - Parameter encryptionMode:  optional encryption mode. Default to none
     /// - Parameter encryptionKey:  optional encryption
-    public init(_ instruction: Instruction, tlv: [Tlv], encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil, legacyMode: Bool = false) {
+    public init(_ instruction: Instruction, tlv: Data, encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) {
         self.init(ins: instruction.rawValue,
                   p1: encryptionMode.rawValue,
                   tlv: tlv,
-                  encryptionKey: encryptionKey,
-                  legacyMode: legacyMode)
+                  encryptionKey: encryptionKey)
     }
     
     /// Raw initializer
@@ -58,29 +53,18 @@ public struct CommandApdu: Equatable {
                 p1: Byte = 0x0,
                 p2: Byte = 0x0,
                 le: Int = -1,
-                tlv: [Tlv],
-                encryptionKey: Data? = nil,
-                legacyMode: Bool = false) {
+                tlv: Data,
+                encryptionKey: Data? = nil) {
         self.cla = cla
         self.ins = ins
         self.p1 = p1
         self.p2 = p2
         self.le = le
         self.encryptionKey = encryptionKey
-        data = CommandApdu.applyAdditionalParams(tlv: tlv, legacyMode: legacyMode).serialize() //serialize tlv array
+        data = tlv
         
         //[REDACTED_TODO_COMMENT]
     }
-    
-    private static func applyAdditionalParams(tlv: [Tlv], legacyMode: Bool) -> [Tlv] {
-        var modifiedTlv = tlv
-        if legacyMode {
-            modifiedTlv.append(legacyModeTlv)
-        }
-        return modifiedTlv
-    }
-    
-
 }
 
 @available(iOS 13.0, *)
