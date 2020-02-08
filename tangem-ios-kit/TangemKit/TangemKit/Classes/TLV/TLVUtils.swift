@@ -163,7 +163,7 @@ func randRange (lower: Int, upper: Int) -> Int {
     return lower + Int(arc4random_uniform(UInt32(upper - lower + 1)))
 }
 
-func checkRibbonCase(_ card: Card) -> Int {
+func checkRibbonCase(_ card: CardViewModel) -> Int {
 
     let firmware = card.firmware
     let hashed = card.signedHashes

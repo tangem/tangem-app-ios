@@ -17,7 +17,7 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
     private var pendingTxCountLoaded = -1
     var networkUrl: String
     
-    init(card: Card, networkUrl: String, completion: @escaping (TangemKitResult<Card>) -> Void) {
+    init(card: CardViewModel, networkUrl: String, completion: @escaping (TangemKitResult<CardViewModel>) -> Void) {
         self.networkUrl = networkUrl
         super.init(card: card, completion: completion)
     }
