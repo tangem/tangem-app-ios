@@ -17,11 +17,11 @@ enum TokenNetwork: String {
 
 class TokenNetworkBalanceOperation: GBAsyncOperation {
 
-    var card: Card
+    var card: CardViewModel
     var network: TokenNetwork
     var completion: (TangemObjectResult<String>) -> Void
 
-    init(card: Card, network: TokenNetwork, completion: @escaping (TangemObjectResult<String>) -> Void) {
+    init(card: CardViewModel, network: TokenNetwork, completion: @escaping (TangemObjectResult<String>) -> Void) {
         self.card = card
         self.network = network
         self.completion = completion
