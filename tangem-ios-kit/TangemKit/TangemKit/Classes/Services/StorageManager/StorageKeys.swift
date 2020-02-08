@@ -10,6 +10,4 @@ import Foundation
 
 public enum StorageKey: String {
     case cids //запоминаем все сканированные карты
-    case terminalPrivateKey //link card to terminal
-    case terminalPublicKey
 }
