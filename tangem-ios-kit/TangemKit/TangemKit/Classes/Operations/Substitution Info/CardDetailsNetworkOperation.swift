@@ -20,10 +20,10 @@ struct CardDetailsNetworkOperationResponse: Codable {
 
 class CardDetailsNetworkOperation: GBAsyncOperation {
 
-    let card: Card
+    let card: CardViewModel
     let completion: (TangemObjectResult<CardDetailsNetworkOperationResponse>) -> Void
 
-    init(card: Card, completion: @escaping (TangemObjectResult<CardDetailsNetworkOperationResponse>) -> Void) {
+    init(card: CardViewModel, completion: @escaping (TangemObjectResult<CardDetailsNetworkOperationResponse>) -> Void) {
         self.card = card
         self.completion = completion
     }
