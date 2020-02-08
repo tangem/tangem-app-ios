@@ -16,7 +16,7 @@ class ETHTest: XCTestCase {
     func testHashForSignEth() {
         let ethalonHashToSign: [UInt8] = "25012a63fafb71ab861e3169db1916d4ee3549b98e6e3d2ef883a5af166dfecc".asciiHexToData()!
         
-        let card = Card()
+        let card = CardViewModel()
         card.walletPublicKey = "0x4dcc15cc2756d2b3b39c66c0a54d9265d8c386e0"
         
         let ethEngine = ETHEngine(card: card)
@@ -44,7 +44,7 @@ class ETHTest: XCTestCase {
         XCTAssertEqual(signBytesFromCard, iosSignBytes)
         
         
-        let card = Card()
+        let card = CardViewModel()
         
         card.walletPublicKey = "0xcd068127270a7dd97a5a5a5054743f2e69b1fac1" //just dummy to avoid crash
         card.walletPublicKeyBytesArray = pkey
@@ -81,7 +81,7 @@ class ETHTest: XCTestCase {
     
     func testEthFeeRequest() {
         let expectation = XCTestExpectation(description: "Fee loaded succesfully")
-        let card = Card()
+        let card = CardViewModel()
         card.walletPublicKey = "0x4dcc15cc2756d2b3b39c66c0a54d9265d8c386e0" //just dummy to avoid crash
         let ethEngine = ETHEngine(card: card)
         ethEngine.getFee(targetAddress: "0x4dcc15cc2756d2b3b39c66c0a54d9265d8c386e0", amount: "0.0001") { fee in
