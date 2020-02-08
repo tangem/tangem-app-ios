@@ -14,7 +14,7 @@ import Sodium
 
 class TangemKitTests: XCTestCase {
 
-    var currentValidationBlock: ((Card) -> Void)?
+    var currentValidationBlock: ((CardViewModel) -> Void)?
     var currentExpectation: XCTestExpectation?
     
     func testSEEDTokenCard() {
@@ -135,7 +135,7 @@ class TangemKitTests: XCTestCase {
         } 
     }
     
-    func verifyECDSASignatureVerification(card: Card) {
+    func verifyECDSASignatureVerification(card: CardViewModel) {
 
         let inputBinary = dataWithHexString(hex: card.challenge! + card.salt!)
         
@@ -152,7 +152,7 @@ class TangemKitTests: XCTestCase {
 
 extension TangemKitTests {
     
-    func validateCardWith(payload: Data, validationBlock: @escaping (Card) -> Void) {
+    func validateCardWith(payload: Data, validationBlock: @escaping (CardViewModel) -> Void) {
         let expectation = XCTestExpectation(description: "Card values parsing check")
         currentExpectation = expectation
         currentValidationBlock = validationBlock
@@ -163,7 +163,7 @@ extension TangemKitTests {
         self.wait(for: [expectation], timeout: 5)
     }
     
-    func validateSEEDCard(_ card: Card) {
+    func validateSEEDCard(_ card: CardViewModel) {
         XCTAssertEqual(card.cardID, "CB03 0000 0000 0002")
         XCTAssertEqual(card.address, "0x67a9cc24956648d3afe6099f89c25cbb6b49b42d")
         XCTAssertEqual(card.address, "0x67a9cc24956648d3afe6099f89c25cbb6b49b42d")
@@ -185,7 +185,7 @@ extension TangemKitTests {
         XCTAssertEqual(card.tokenContractAddress, "0x4E7Bd88E3996f48E2a24D15E37cA4C02B4D134d2")
     }
     
-    func validateBTCCard(_ card: Card) {
+    func validateBTCCard(_ card: CardViewModel) {
         XCTAssertEqual(card.cardID, "CB02 0000 0001 3907")
         XCTAssertTrue(card.isWallet)
         XCTAssertEqual(card.address, "1Hi8aU71rsAGdEeMRm7sVKFZqHwwVdacSd")
@@ -208,7 +208,7 @@ extension TangemKitTests {
 
 extension TangemKitTests: TangemSessionDelegate {
     
-    func tangemSessionDidRead(card: Card) {
+    func tangemSessionDidRead(card: CardViewModel) {
         currentValidationBlock?(card)
         currentExpectation?.fulfill()
     }

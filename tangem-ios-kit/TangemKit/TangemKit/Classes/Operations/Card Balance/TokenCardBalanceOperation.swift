@@ -12,7 +12,7 @@ class TokenCardBalanceOperation: BaseCardBalanceOperation {
     
     var network: TokenNetwork
     
-    init(card: Card, network: TokenNetwork = .eth, completion: @escaping (TangemKitResult<Card>) -> Void) {
+    init(card: CardViewModel, network: TokenNetwork = .eth, completion: @escaping (TangemKitResult<CardViewModel>) -> Void) {
         self.network = network
         super.init(card: card, completion: completion)
     }

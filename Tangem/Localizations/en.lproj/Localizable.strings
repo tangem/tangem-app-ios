@@ -638,7 +638,7 @@
 
 "common_unverified_balance"="Unverified balance";
 
-"disclamer_no_wallet_creation"="Wallet creation is not available on the iPhone at this time";
+"disclamer_no_wallet_creation"="Wallet creation is available starting from iOS 13";
 
 "disclamer_nfc_title"="Important: NFC restriction on iOS";
 
