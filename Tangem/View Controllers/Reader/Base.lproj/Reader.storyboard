@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -28,7 +28,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gnc-6q-G1n">
-                                <rect key="frame" x="50" y="509" width="275" height="50"/>
+                                <rect key="frame" x="50" y="541" width="275" height="50"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="275" id="XWm-GY-zre"/>
@@ -46,73 +46,16 @@
                                 </connections>
                             </button>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tangem-logo" translatesAutoresizingMaskIntoConstraints="NO" id="cDy-71-7XF">
-                                <rect key="frame" x="132" y="32" width="111" height="36"/>
+                                <rect key="frame" x="132" y="16" width="111" height="36"/>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ee1-ro-7hC">
-                                <rect key="frame" x="0.0" y="232.5" width="375" height="202"/>
-                                <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="reader-hand-card-horizontal" translatesAutoresizingMaskIntoConstraints="NO" id="UnF-ge-InH">
-                                        <rect key="frame" x="18.5" y="0.0" width="224" height="96"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="224" id="MOK-O5-GvW"/>
-                                            <constraint firstAttribute="height" constant="96" id="OSM-iR-Cng"/>
-                                        </constraints>
-                                    </imageView>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="reader-iphone" translatesAutoresizingMaskIntoConstraints="NO" id="1if-4X-bgs">
-                                        <rect key="frame" x="123" y="24" width="129" height="184"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="184" id="8bE-nn-ZQ9"/>
-                                            <constraint firstAttribute="width" constant="129" id="M2X-SO-d8l"/>
-                                        </constraints>
-                                    </imageView>
-                                </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <constraints>
-                                    <constraint firstItem="1if-4X-bgs" firstAttribute="centerX" secondItem="ee1-ro-7hC" secondAttribute="centerX" id="3Ou-qL-vRl"/>
-                                    <constraint firstItem="1if-4X-bgs" firstAttribute="centerX" secondItem="ee1-ro-7hC" secondAttribute="centerX" id="Kc5-Ay-t5e"/>
-                                    <constraint firstItem="UnF-ge-InH" firstAttribute="top" secondItem="ee1-ro-7hC" secondAttribute="top" id="Rwq-nQ-yDn"/>
-                                    <constraint firstItem="1if-4X-bgs" firstAttribute="top" secondItem="ee1-ro-7hC" secondAttribute="top" constant="24" id="SaD-GB-hOS"/>
-                                    <constraint firstAttribute="height" constant="202" id="w8W-v9-3d8"/>
-                                    <constraint firstItem="UnF-ge-InH" firstAttribute="centerX" secondItem="ee1-ro-7hC" secondAttribute="centerX" constant="-57" id="wTL-7b-Hf6"/>
-                                </constraints>
-                            </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Press Scan and touch a card with your iPhone as shown below" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d4K-pn-hOC">
-                                <rect key="frame" x="32" y="116" width="311" height="41"/>
+                                <rect key="frame" x="16" y="68" width="343" height="41"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="t5a-Sp-K1B">
-                                <rect key="frame" x="20" y="450.5" width="335" height="54"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Warning: due to limitations of NFC in iOS, the application cannot guarantee that scanned Tangem cards are genuine" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OmG-A1-1OC">
-                                        <rect key="frame" x="0.0" y="0.0" width="335" height="54"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
-                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="U6I-XM-Aot">
-                                        <rect key="frame" x="0.0" y="0.0" width="335" height="54"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <connections>
-                                            <action selector="infoButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8VL-9H-DQJ"/>
-                                        </connections>
-                                    </button>
-                                    <button hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoLight" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uie-cT-Q7h">
-                                        <rect key="frame" x="155" y="15" width="25" height="24"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="335" id="4Ys-0l-dzy"/>
-                                    <constraint firstAttribute="height" constant="54" id="Son-0q-NC6"/>
-                                </constraints>
-                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cad-fN-pwq">
-                                <rect key="frame" x="18" y="591" width="339" height="44"/>
+                                <rect key="frame" x="8" y="607" width="359" height="44"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="baseline_shopping_cart_black_36pt" translatesAutoresizingMaskIntoConstraints="NO" id="hrh-3k-ReX">
                                         <rect key="frame" x="0.0" y="4" width="36" height="36"/>
@@ -129,7 +72,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="vrD-LX-2Jb">
-                                        <rect key="frame" x="40" y="25" width="299" height="14"/>
+                                        <rect key="frame" x="40" y="25" width="319" height="14"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="750" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="Visitez notre boutique sur " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YPv-FH-Rz0">
                                                 <rect key="frame" x="0.0" y="0.0" width="169.5" height="14"/>
@@ -138,7 +81,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="tangemcards.com" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cbj-uC-M1G">
-                                                <rect key="frame" x="171.5" y="0.0" width="127.5" height="14"/>
+                                                <rect key="frame" x="171.5" y="0.0" width="147.5" height="14"/>
                                                 <fontDescription key="fontDescription" name="Maax" family="Maax" pointSize="14"/>
                                                 <color key="textColor" systemColor="linkColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -158,26 +101,91 @@
                                     <constraint firstAttribute="trailing" secondItem="vrD-LX-2Jb" secondAttribute="trailing" id="mPy-pz-4Io"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ee1-ro-7hC">
+                                <rect key="frame" x="0.0" y="253.5" width="375" height="160"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="reader-hand-card-horizontal" translatesAutoresizingMaskIntoConstraints="NO" id="UnF-ge-InH">
+                                        <rect key="frame" x="30.5" y="0.0" width="200" height="96"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="200" id="MOK-O5-GvW"/>
+                                            <constraint firstAttribute="height" constant="96" id="OSM-iR-Cng"/>
+                                        </constraints>
+                                    </imageView>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="reader-iphone" translatesAutoresizingMaskIntoConstraints="NO" id="1if-4X-bgs">
+                                        <rect key="frame" x="123" y="24" width="129" height="160"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="160" id="8bE-nn-ZQ9"/>
+                                            <constraint firstAttribute="width" constant="129" id="M2X-SO-d8l"/>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <constraints>
+                                    <constraint firstItem="1if-4X-bgs" firstAttribute="centerX" secondItem="ee1-ro-7hC" secondAttribute="centerX" id="3Ou-qL-vRl"/>
+                                    <constraint firstItem="1if-4X-bgs" firstAttribute="centerX" secondItem="ee1-ro-7hC" secondAttribute="centerX" id="Kc5-Ay-t5e"/>
+                                    <constraint firstItem="UnF-ge-InH" firstAttribute="top" secondItem="ee1-ro-7hC" secondAttribute="top" id="Rwq-nQ-yDn"/>
+                                    <constraint firstItem="1if-4X-bgs" firstAttribute="top" secondItem="ee1-ro-7hC" secondAttribute="top" constant="24" id="SaD-GB-hOS"/>
+                                    <constraint firstAttribute="height" constant="160" id="w8W-v9-3d8"/>
+                                    <constraint firstItem="UnF-ge-InH" firstAttribute="centerX" secondItem="ee1-ro-7hC" secondAttribute="centerX" constant="-57" id="wTL-7b-Hf6"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="t5a-Sp-K1B">
+                                <rect key="frame" x="20" y="191.5" width="335" height="54"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Warning: due to limitations of NFC in iOS, the application cannot guarantee that scanned Tangem cards are genuine" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OmG-A1-1OC">
+                                        <rect key="frame" x="0.0" y="0.0" width="335" height="54"/>
+                                        <fontDescription key="fontDescription" type="system" weight="light" pointSize="15"/>
+                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="U6I-XM-Aot">
+                                        <rect key="frame" x="0.0" y="0.0" width="335" height="54"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <connections>
+                                            <action selector="infoButtonPressed" destination="BYZ-38-t0r" eventType="touchUpInside" id="5gx-Ye-hya"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoLight" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uie-cT-Q7h">
+                                        <rect key="frame" x="155" y="15" width="25" height="24"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="24" id="Y7i-XJ-Lg6"/>
+                                            <constraint firstAttribute="width" constant="25" id="xXE-Zn-GeC"/>
+                                        </constraints>
+                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="OmG-A1-1OC" firstAttribute="leading" secondItem="t5a-Sp-K1B" secondAttribute="leading" id="2cW-hW-Nxs"/>
+                                    <constraint firstItem="OmG-A1-1OC" firstAttribute="top" secondItem="t5a-Sp-K1B" secondAttribute="top" id="Ek5-1O-X4C"/>
+                                    <constraint firstAttribute="bottom" secondItem="OmG-A1-1OC" secondAttribute="bottom" id="NUt-EQ-qoa"/>
+                                    <constraint firstItem="uie-cT-Q7h" firstAttribute="centerY" secondItem="t5a-Sp-K1B" secondAttribute="centerY" id="Wnb-3L-INP"/>
+                                    <constraint firstItem="uie-cT-Q7h" firstAttribute="centerX" secondItem="t5a-Sp-K1B" secondAttribute="centerX" id="cW5-Na-JPJ"/>
+                                    <constraint firstAttribute="height" constant="54" id="rtO-Ba-v08"/>
+                                    <constraint firstAttribute="trailing" secondItem="OmG-A1-1OC" secondAttribute="trailing" id="vBa-dK-fef"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="t5a-Sp-K1B" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="1y6-WF-ulB"/>
                             <constraint firstItem="gnc-6q-G1n" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="2N4-Rj-gUt"/>
-                            <constraint firstItem="cad-fN-pwq" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="18" id="4Vv-L6-305"/>
-                            <constraint firstItem="cDy-71-7XF" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="32" id="8MQ-Ef-zAJ"/>
+                            <constraint firstItem="cad-fN-pwq" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="8" id="4Vv-L6-305"/>
+                            <constraint firstItem="ee1-ro-7hC" firstAttribute="top" secondItem="t5a-Sp-K1B" secondAttribute="bottom" constant="8" id="5QD-K7-IEj"/>
+                            <constraint firstItem="cDy-71-7XF" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="8MQ-Ef-zAJ"/>
                             <constraint firstItem="ee1-ro-7hC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Aog-qL-0Hb"/>
-                            <constraint firstAttribute="trailing" secondItem="d4K-pn-hOC" secondAttribute="trailing" constant="32" id="GSn-W5-N7e"/>
-                            <constraint firstItem="gnc-6q-G1n" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Ime-qY-FGR"/>
-                            <constraint firstItem="d4K-pn-hOC" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="JDE-BV-rFe"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="t5a-Sp-K1B" secondAttribute="trailing" constant="20" id="BVH-qz-vip"/>
+                            <constraint firstItem="d4K-pn-hOC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="DAf-w8-OS6"/>
                             <constraint firstItem="ee1-ro-7hC" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="KH8-rx-mfS"/>
-                            <constraint firstItem="cad-fN-pwq" firstAttribute="top" secondItem="gnc-6q-G1n" secondAttribute="bottom" constant="32" id="YHt-cx-qaL"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="cad-fN-pwq" secondAttribute="bottom" constant="32" id="Zsy-JP-1rv"/>
-                            <constraint firstItem="ee1-ro-7hC" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="byc-cg-Dy0"/>
-                            <constraint firstItem="d4K-pn-hOC" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="32" id="lnE-Zi-3A4"/>
-                            <constraint firstItem="t5a-Sp-K1B" firstAttribute="top" secondItem="ee1-ro-7hC" secondAttribute="bottom" constant="16" id="neg-GP-MZI"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="cad-fN-pwq" secondAttribute="trailing" constant="18" id="vUs-sk-GCP"/>
-                            <constraint firstItem="d4K-pn-hOC" firstAttribute="top" secondItem="cDy-71-7XF" secondAttribute="bottom" constant="48" id="x6u-Zm-c7f"/>
+                            <constraint firstItem="gnc-6q-G1n" firstAttribute="top" relation="greaterThanOrEqual" secondItem="ee1-ro-7hC" secondAttribute="bottom" constant="16" id="Lt5-OI-8Qi"/>
+                            <constraint firstItem="cad-fN-pwq" firstAttribute="top" secondItem="gnc-6q-G1n" secondAttribute="bottom" constant="16" id="YHt-cx-qaL"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="cad-fN-pwq" secondAttribute="bottom" constant="16" id="Zsy-JP-1rv"/>
+                            <constraint firstItem="d4K-pn-hOC" firstAttribute="top" secondItem="cDy-71-7XF" secondAttribute="bottom" constant="16" id="cYc-B4-C04"/>
+                            <constraint firstItem="t5a-Sp-K1B" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="gjD-xj-CQx"/>
+                            <constraint firstItem="ee1-ro-7hC" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="hPd-Rg-PjE"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="d4K-pn-hOC" secondAttribute="trailing" constant="16" id="lgN-Mz-00p"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="cad-fN-pwq" secondAttribute="trailing" constant="8" id="vUs-sk-GCP"/>
                             <constraint firstItem="cDy-71-7XF" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ypT-68-SRC"/>
+                            <constraint firstItem="t5a-Sp-K1B" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="zSW-9i-HrL"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -202,7 +210,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="475.36231884057975" y="123.21428571428571"/>
+            <point key="canvasLocation" x="-44" y="123.68815592203899"/>
         </scene>
         <!--Stub View Controller-->
         <scene sceneID="dKH-3O-ZiM">
