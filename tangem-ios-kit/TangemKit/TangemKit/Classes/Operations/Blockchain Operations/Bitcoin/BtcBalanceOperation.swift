@@ -9,6 +9,7 @@
 import Foundation
 import SwiftyJSON
 import GBAsyncOperation
+import Alamofire
 
 class BtcBalanceOperation: GBAsyncOperation {
     
@@ -112,8 +113,8 @@ class BtcBalanceOperation: GBAsyncOperation {
         guard !isFinished && !isCancelled else {
             return
         }
-        
-        if retryCount > 0 {
+        let reachable = NetworkReachabilityManager.init()?.isReachable ?? false
+        if retryCount > 0 && reachable {
             retryCount -= 1
             engine.switchBackend()
             startOperation()

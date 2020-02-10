@@ -70,6 +70,7 @@
 		5DAD449E236B2435006C38F8 /* DataExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAD449D236B2435006C38F8 /* DataExtensionTests.swift */; };
 		5DB4406D234B740B00AC39F1 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB4406C234B740B00AC39F1 /* Data+.swift */; };
 		5DB4406F234B750200AC39F1 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB4406E234B750200AC39F1 /* String+.swift */; };
+		5DC060D923E18A17001BF611 /* CreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC060D823E18A17001BF611 /* CreateWalletTask.swift */; };
 		5DC62D3E23506CF300195A51 /* TlvMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC62D3D23506CF300195A51 /* TlvMapper.swift */; };
 		5DCAA7872383DDC200249F42 /* ReadIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */; };
 		5DCAA7892383E25200249F42 /* WriteIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */; };
@@ -160,6 +161,7 @@
 		5DAD449D236B2435006C38F8 /* DataExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExtensionTests.swift; sourceTree = "<group>"; };
 		5DB4406C234B740B00AC39F1 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
 		5DB4406E234B750200AC39F1 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
+		5DC060D823E18A17001BF611 /* CreateWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletTask.swift; sourceTree = "<group>"; };
 		5DC62D3D23506CF300195A51 /* TlvMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvMapper.swift; sourceTree = "<group>"; };
 		5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadIssuerDataCommand.swift; sourceTree = "<group>"; };
 		5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataCommand.swift; sourceTree = "<group>"; };
@@ -278,6 +280,7 @@
 				5D6A92DD2344F1DC00158457 /* Task.swift */,
 				5D6A92E92345FF2200158457 /* SingleCommandTask.swift */,
 				5D6A92ED23463D1200158457 /* ScanTask.swift */,
+				5DC060D823E18A17001BF611 /* CreateWalletTask.swift */,
 			);
 			path = Tasks;
 			sourceTree = "<group>";
@@ -544,6 +547,7 @@
 				5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */,
 				5D2739FA234F270200ACDA11 /* fe.c in Sources */,
 				5D2739F9234F270200ACDA11 /* seed.c in Sources */,
+				5DC060D923E18A17001BF611 /* CreateWalletTask.swift in Sources */,
 				5DA5B611233E11950058C720 /* CommandApdu.swift in Sources */,
 				5D6A92E02344F2F900158457 /* CardManagerDelegate.swift in Sources */,
 				5DC62D3E23506CF300195A51 /* TlvMapper.swift in Sources */,
