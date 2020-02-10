@@ -178,31 +178,41 @@ class ExtractViewController: ModalActionViewController {
     }
     
     @IBAction func scanTapped() {
+        btnSend.showActivityIndicator()
         guard validateInput() else {
+            btnSend.hideActivityIndicator()
             return
         }
         
         guard feeTime.distance(to: Date()) < TimeInterval(60.0) else {
             tryUpdateFeePreset()
+            btnSend.hideActivityIndicator()
             return
         }
         
         btnSend.setAttributedTitle(NSAttributedString(string: ""), for: .normal)
-        btnSend.showActivityIndicator()
+      
         addLoadingView()
         
         if let asyncCoinProvider = coinProvider as? CoinProviderAsync {
-            asyncCoinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) { [weak self] hash in
-                
-                guard let hash = hash else {
-                    self?.handleTXBuildError()
-                    self?.removeLoadingView()
-                    self?.btnSend.hideActivityIndicator()
-                    self?.updateSendButtonSubtitle()
-                    return
-                }
-                
+            asyncCoinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) { [weak self] hash, error in
                 DispatchQueue.main.async {
+                    if let error = error {
+                        self?.handleGenericError(error)
+                        self?.removeLoadingView()
+                        self?.updateSendButtonSubtitle()
+                        self?.btnSend.hideActivityIndicator()
+                        return
+                    }
+                    
+                    guard let hash = hash else {
+                        self?.handleTXBuildError()
+                        self?.removeLoadingView()
+                        self?.updateSendButtonSubtitle()
+                        self?.btnSend.hideActivityIndicator()
+                        return
+                    }
+                    
                     self?.sign(data: hash)
                 }
             }
@@ -211,8 +221,8 @@ class ExtractViewController: ModalActionViewController {
             guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
                 self.handleTXBuildError()
                 self.removeLoadingView()
-                self.btnSend.hideActivityIndicator()
                 self.updateSendButtonSubtitle()
+                self.btnSend.hideActivityIndicator()
                 return
             }
             
@@ -232,10 +242,8 @@ class ExtractViewController: ModalActionViewController {
                 self.removeLoadingView()
                 
                 if let error = error {
-                    if case .userCancelled = error {
-                        //silence user cancelled
-                    } else {
-                      self.handleGenericError(error)
+                    if !error.isUserCancelled {
+                         self.handleGenericError(error)
                     }
                 }
             }
