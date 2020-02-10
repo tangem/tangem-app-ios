@@ -19,7 +19,7 @@ public protocol CoinProvider {
 }
 
 public protocol CoinProviderAsync {
-    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping ([Data]?) -> Void)
+    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping ([Data]?, Error?) -> Void)
 }
 
 public struct CoinTrait: OptionSet {
