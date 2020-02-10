@@ -8,7 +8,7 @@
 
 import Foundation
 
-class BTCEngine: CardEngine {
+class BTCEngine: CardEngine, CoinProvider {
     
     var possibleFirstAddressCharacters: [String] {
         return  ["1","2","3","n","m"]
@@ -107,9 +107,7 @@ class BTCEngine: CardEngine {
     func switchBackend() {
         currentBackend =  (currentBackend == .blockcypher) ? .blockchainInfo : .blockcypher
     }
-}
-
-extension BTCEngine: CoinProvider {
+    
     func getApiDescription() -> String {
         return currentBackend == BtcBackend.blockchainInfo ? "bi" : "bc"
     }
@@ -196,13 +194,13 @@ extension BTCEngine: CoinProvider {
         let first = decoded[0]
         let data = decoded[1...20]
         //P2H
-        if (first == 0 || first == 111 || first == 48) { //0 for BTC/BCH 1 address | 48 for LTC L address
+        if (first == 0 || first == 111 || first == 48 || first == 49) { //0 for BTC/BCH 1 address | 48 for LTC L address
             return [Op.dup.rawValue, Op.hash160.rawValue ] + buildPrefix(for: data) + data + [Op.equalVerify.rawValue, Op.checkSig.rawValue]
         }
         //P2SH
         if(first == 5 || first == 0xc4 || first == 50) { //5 for BTC/BCH/LTC 3 address | 50 for LTC M address
             return [Op.hash160.rawValue] + buildPrefix(for: data) + data + [Op.equal.rawValue]
-        }        
+        }
         return nil
     }
     
@@ -487,7 +485,6 @@ extension BTCEngine: CoinProvider {
         return true;
     }
 }
-
 
 enum Op: UInt8 {
     case hash160 = 0xA9
