@@ -27,56 +27,72 @@ public enum TaskEvent<TEvent> {
  * An error class that represent typical errors that may occur when performing Tangem SDK tasks.
  * Errors are propagated back to the caller in callbacks.
  */
-public enum TaskError: Error, LocalizedError {
+public enum TaskError: Int, Error, LocalizedError {
     //Serialize apdu errors
-    case serializeCommandError
-    // Encodeing error
-    case encodingError
+    case serializeCommandError = 1001
+    case encodingError = 1002
+    case missingTag = 1003
+    case wrongType = 1004
+    case convertError = 1005
     
     //Card errors
-    case unknownStatus(sw: UInt16)
-    case errorProcessingCommand
-    case invalidState
-    case insNotSupported
-    case invalidParams
-    case needEncryption
+    case unknownStatus = 2001
+    case errorProcessingCommand = 2002
+    case missingPreflightRead = 2003
+    case invalidState = 2004
+    case insNotSupported = 2005
+    case invalidParams = 2006
+    case needEncryption = 2007
     
     //Scan errors
-    case vefificationFailed
-    case cardError
+    case verificationFailed = 3000
+    case cardError = 3001
+    case wrongCard = 3002
+    case tooMuchHashesInOneTransaction = 3003
+    case emptyHashes = 3004
+    case hashSizeMustBeEqual = 3005
     
-    //Sign errors
-    case tooMuchHashesInOneTransaction
-    case emptyHashes
-    case hashSizeMustBeEqual
-    
-    case busy
-    case userCancelled
-    case genericError(Error)
-    case unsupported
+    case busy = 4000
+    case userCancelled = 4001
+    case unsupportedDevice = 4002
     //NFC error
-    case readerError(NFCReaderError)
-    case nfcError(NFCError)
+    case nfcStuck = 5000
+    case nfcTimeout = 5001
+    case nfcReaderError = 5002
     
-    public var localizedDescription: String {
+    case unknownError = 6000
+    
+    public var errorDescription: String? {
         switch self {
-        case .readerError(let nfcError):
-            return nfcError.localizedDescription
-        case .genericError(let error):
-            return error.localizedDescription
-        case .nfcError(let nfcError):
-            return nfcError.localizedDescription
+        case .nfcTimeout:
+            return Localization.nfcSessionTimeout
+        case .nfcStuck:
+            return Localization.nfcStuckError
         default:
-            return "\(self)"
+            return Localization.genericErrorCode("\(self.rawValue)")
         }
     }
     
     public var isUserCancelled: Bool {
-        switch self {
-        case .userCancelled:
+        if case .userCancelled = self {
             return true
-        default:
+        } else {
             return false
+        }
+    }
+    
+    public static func parse(_ error: Error) -> TaskError {
+        if let readerError = error as? NFCReaderError {
+            switch readerError.code {
+            case .readerSessionInvalidationErrorUserCanceled:
+                return .userCancelled
+            case .readerSessionInvalidationErrorSystemIsBusy:
+                return .nfcStuck
+            default:
+                return .nfcReaderError
+            }
+        } else {
+            return (error as? TaskError) ?? TaskError.unknownError
         }
     }
 }
@@ -88,6 +104,10 @@ public enum TaskError: Error, LocalizedError {
  */
 open class Task<TEvent>: AnyTask {
     var reader: CardReader!
+    
+    ///  If `true`, the task will execute `Read Command`  before main logic and will return `currentCard` in `onRun` or throw an error if some check will not pass. Eg. the wrong card was scanned
+    var performPreflightRead: Bool = true
+    
     weak var delegate: CardManagerDelegate?
     
     deinit {
@@ -110,15 +130,19 @@ open class Task<TEvent>: AnyTask {
                 self?.delegate?.tagDidConnect()
             }
         }
-        
         reader.startSession()
-        onRun(environment: environment, callback: callback)
+        if #available(iOS 13.0, *), performPreflightRead {
+            preflightRead(environment: environment, callback: callback)
+        } else {
+            onRun(environment: environment, currentCard: nil, callback: callback)
+        }
     }
     
     /**
      * In this method the individual Tasks' logic should be implemented.
+     * - Parameter currentCard: This is the result of preflight `Read Command`. It will be  nil if `performPreflightRead` was set to `false`
      */
-    public func onRun(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
+    public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
     /**
      * This method should be called by Tasks in their `onRun` method wherever
@@ -161,11 +185,8 @@ open class Task<TEvent>: AnyTask {
                         let responseData = try command.deserialize(with: environment, from: responseApdu)
                         callback(.success(responseData))
                     } catch {
-                        if let taskError = error as? TaskError {
-                            callback(.failure(taskError))
-                        } else {
-                            callback(.failure(TaskError.genericError(error)))
-                        }
+                        print(error.localizedDescription)
+                        callback(.failure(TaskError.parse(error)))
                     }
                 case .errorProcessingCommand:
                     callback(.failure(TaskError.errorProcessingCommand))
@@ -175,19 +196,37 @@ open class Task<TEvent>: AnyTask {
                 case .insNotSupported:
                     callback(.failure(TaskError.insNotSupported))
                 case .unknown:
-                    callback(.failure(TaskError.unknownStatus(sw: responseApdu.sw)))
+                    print("Unknown sw: \(responseApdu.sw)")
+                    callback(.failure(TaskError.unknownStatus))
                 }
             case .failure(let error):
-                switch error {
-                case .readerError(let readerError):
-                    if readerError.code == .readerSessionInvalidationErrorUserCanceled {
-                        callback(.failure(TaskError.userCancelled))
-                    } else {
-                        callback(.failure(TaskError.readerError(readerError)))
-                    }
-                default:
-                      callback(.failure(TaskError.nfcError(error)))
+                callback(.failure(error))
+            }
+        }
+    }
+    
+    @available(iOS 13.0, *)
+    private func preflightRead(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {
+        sendCommand(ReadCommand(), environment: environment) { [unowned self] readResult in
+            switch readResult {
+            case .failure(let error):
+                self.reader.stopSession(errorMessage: error.localizedDescription)
+                callback(.completion(error))
+            case .success(let readResponse):
+                if let expectedCardId = environment.cardId,
+                    let actualCardId = readResponse.cardId,
+                    expectedCardId != actualCardId {
+                    let error = TaskError.wrongCard
+                    self.reader.stopSession(errorMessage: error.localizedDescription)
+                    callback(.completion(error))
+                    return
                 }
+                
+                var newEnvironment = environment
+                if newEnvironment.cardId == nil {
+                    newEnvironment.cardId = readResponse.cardId
+                }
+                self.onRun(environment: newEnvironment, currentCard: readResponse, callback: callback)
             }
         }
     }
