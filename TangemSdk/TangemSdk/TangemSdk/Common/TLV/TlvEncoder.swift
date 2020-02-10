@@ -9,8 +9,13 @@
 import Foundation
 
 public final class TlvEncoder {
-    public func encode<T>(_ tag: TlvTag, value: T) throws -> Tlv {
-        return try Tlv(tag, value: encode(value, for: tag))
+    public func encode<T>(_ tag: TlvTag, value: T?) throws -> Tlv {
+        if let value = value {
+            return try Tlv(tag, value: encode(value, for: tag))
+        } else {
+             print("Encoding error. Value for tag \(tag) is nil")
+             throw TaskError.serializeCommandError
+        }
     }
     
     private func encode<T>(_ value: T, for tag: TlvTag) throws -> Data {
