@@ -21,7 +21,7 @@
 		5DBC25CB235F0639005F0C79 /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCA54A0235E0D5900C2BB99 /* TangemSdk.framework */; };
 		5DBC25CC235F0639005F0C79 /* TangemSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCA54A0235E0D5900C2BB99 /* TangemSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E53EB3E723F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */; };
-		E53EB3F123F2D4B10079CC11 /* RobotApi1.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3EE23F2CD860079CC11 /* RobotApi1.swift */; };
+		E53EB3F123F2D4B10079CC11 /* RobotApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3EE23F2CD860079CC11 /* RobotApi.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,7 +66,7 @@
 		E53EB3E423F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemSdkExampleDevelopmentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkExampleDevelopmentUITests.swift; sourceTree = "<group>"; };
 		E53EB3E823F2C7C90079CC11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E53EB3EE23F2CD860079CC11 /* RobotApi1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RobotApi1.swift; sourceTree = "<group>"; };
+		E53EB3EE23F2CD860079CC11 /* RobotApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RobotApi.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,7 +155,7 @@
 			children = (
 				E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */,
 				E53EB3E823F2C7C90079CC11 /* Info.plist */,
-				E53EB3EE23F2CD860079CC11 /* RobotApi1.swift */,
+				E53EB3EE23F2CD860079CC11 /* RobotApi.swift */,
 			);
 			path = TangemSdkExampleDevelopmentUITests;
 			sourceTree = "<group>";
@@ -353,7 +353,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E53EB3E723F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift in Sources */,
-				E53EB3F123F2D4B10079CC11 /* RobotApi1.swift in Sources */,
+				E53EB3F123F2D4B10079CC11 /* RobotApi.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
