@@ -482,7 +482,7 @@
 		5DA80C91231D247A00A50A10 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1100;
+				LastSwiftUpdateCheck = 1120;
 				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = "Tangem AG";
 				TargetAttributes = {
