@@ -8,27 +8,12 @@
 
 import Foundation
 import Combine
+import RxSwift
 
-class LitecoinNetworkManager: BitcoinNetworkProvider {
-    
-    let provider: BitcoinNetworkProvider
-    
-    init(address: String) {
-        provider = BlockcypherProvider(address: address, coin: .ltc, chain: .main)
+class LitecoinNetworkManager: BitcoinNetworkManager {
+    convenience init(address: String, isTestNet:Bool) {
+        var providers = [BitcoinNetworkApi:BitcoinNetworkProvider]()
+        providers[.blockcypher] = BlockcypherProvider(address: address, coin: .ltc, chain: .main)
+        self.init(providers: providers, isTestNet: false)
     }
-    
-    func getInfo() -> Single<BitcoinResponse> {
-        return provider.getInfo()
-    }
-    
-    
-    func getFee() -> AnyPublisher<BtcFee, Error> {
-        return Just
-    }
-    
-    func send(transaction: String) -> AnyPublisher<String, Error> {
-        <#code#>
-    }
-    
-    
 }
