@@ -16,17 +16,17 @@ class TangemSdkExampleDevelopmentUITests: XCTestCase {
         
         let app = XCUIApplication()
         app.launch()
-        RobotApi1().select(card: .red)
+        RobotApi().select(card: .red)
 
     }
 
     override func tearDown() {
-        RobotApi1().select(card: .none)
+        RobotApi().select(card: .none)
     }
     
     func testExample() {
         expectationAction(identifier: "ScanCardButton", timeout: 10)
-        RobotApi1().select(card: .none)
+        RobotApi().select(card: .none)
     }
     
     func expectationAction(identifier: String, timeout: TimeInterval) {

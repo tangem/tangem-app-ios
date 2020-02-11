@@ -13,8 +13,8 @@ public enum PhonePosition: String {
 }
 
 public enum CardPosition: String {
-    case redCard
-    case blackCard
+    case red
+    case black
     case none
 }
 
