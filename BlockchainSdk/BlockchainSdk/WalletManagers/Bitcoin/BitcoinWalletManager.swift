@@ -19,7 +19,7 @@ enum BitcoinError: Error {
     case failedToCalculateTxSize
 }
 
-class BitcoinWalletManager: WalletManager {
+class BitcoinWalletManager: WalletManager, FeeProvider {
     var wallet: PublishSubject<Wallet> = .init()
     var loadingError = PublishSubject<Error>()
     private let currencyWallet: CurrencyWallet
@@ -46,6 +46,31 @@ class BitcoinWalletManager: WalletManager {
                 }, onError: {[unowned self] error in
                     self.loadingError.onNext(error)
             })
+    }
+    
+    @available(iOS 13.0, *)
+    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
+        return network.getFee()
+            .tryMap {[unowned self] response throws -> [Amount] in
+                let kb = Decimal(1024)
+                let minPerByte = response.minimalKb/kb
+                let normalPerByte = response.normalKb/kb
+                let maxPerByte = response.priorityKb/kb
+                
+                guard let estimatedTxSize = self.getEstimateSize(for: Transaction(amount: amount, fee: nil, sourceAddress: source, destinationAddress: destination)) else {
+                    throw BitcoinError.failedToCalculateTxSize
+                }
+                
+                let minFee = (minPerByte * estimatedTxSize)
+                let normalFee = (normalPerByte * estimatedTxSize)
+                let maxFee = (maxPerByte * estimatedTxSize)
+                return [
+                    Amount(with: self.currencyWallet.blockchain, address: source, value: minFee),
+                    Amount(with: self.currencyWallet.blockchain, address: source, value: normalFee),
+                    Amount(with: self.currencyWallet.blockchain, address: source, value: maxFee)
+                ]
+        }
+        .eraseToAnyPublisher()
     }
     
     //[REDACTED_TODO_COMMENT]
@@ -98,33 +123,6 @@ extension BitcoinWalletManager: TransactionSender {
                 self.wallet.onNext(self.currencyWallet)
                 return true
             }
-        }
-        .eraseToAnyPublisher()
-    }
-}
-
-@available(iOS 13.0, *)
-extension BitcoinWalletManager: FeeProvider {
-    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-        return network.getFee()
-            .tryMap {[unowned self] response throws -> [Amount] in
-                let kb = Decimal(1024)
-                let minPerByte = response.minimalKb/kb
-                let normalPerByte = response.normalKb/kb
-                let maxPerByte = response.priorityKb/kb
-                
-                guard let estimatedTxSize = self.getEstimateSize(for: Transaction(amount: amount, fee: nil, sourceAddress: source, destinationAddress: destination)) else {
-                    throw BitcoinError.failedToCalculateTxSize
-                }
-                
-                let minFee = (minPerByte * estimatedTxSize)
-                let normalFee = (normalPerByte * estimatedTxSize)
-                let maxFee = (maxPerByte * estimatedTxSize)
-                return [
-                    Amount(with: self.currencyWallet.blockchain, address: source, value: minFee),
-                    Amount(with: self.currencyWallet.blockchain, address: source, value: normalFee),
-                    Amount(with: self.currencyWallet.blockchain, address: source, value: maxFee)
-                ]
         }
         .eraseToAnyPublisher()
     }
