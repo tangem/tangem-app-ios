@@ -62,7 +62,7 @@ public enum Blockchain {
         switch self {
         case .bitcoin:
             return "BTC"
-        case .bitcoin:
+        case .litecoin:
             return "LTC"
         case .stellar:
             return "XLM"
@@ -75,6 +75,8 @@ public enum Blockchain {
         switch self {
         case .bitcoin(let testnet):
             return BitcoinAddressFactory().makeAddress(from: walletPublicKey, testnet: testnet)
+        case .litecoin:
+            return LitecoinAddressFactory().makeAddress(from: walletPublicKey, testnet: false)
         case .stellar:
             return StellarAddressFactory().makeAddress(from: walletPublicKey)
         case .ethereum:
