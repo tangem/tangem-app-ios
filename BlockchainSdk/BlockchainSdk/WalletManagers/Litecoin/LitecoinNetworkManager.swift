@@ -14,6 +14,6 @@ class LitecoinNetworkManager: BitcoinNetworkManager {
     convenience init(address: String, isTestNet:Bool) {
         var providers = [BitcoinNetworkApi:BitcoinNetworkProvider]()
         providers[.blockcypher] = BlockcypherProvider(address: address, coin: .ltc, chain: .main)
-        self.init(providers: providers, isTestNet: false)
+        self.init(providers: providers, isTestNet: isTestNet)
     }
 }
