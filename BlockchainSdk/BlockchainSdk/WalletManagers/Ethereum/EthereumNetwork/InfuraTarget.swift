@@ -9,25 +9,20 @@
 import Foundation
 import Moya
 
-enum InfuraNetwork: String {
-    case eth = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
-    case rsk = "https://public-node.rsk.co/"
-}
-
 enum InfuraTarget: TargetType {
-    case balance(address: String, network: InfuraNetwork)
-    case transactions(address: String, network: InfuraNetwork)
-    case pending(address: String, network: InfuraNetwork)
-    case send(transaction: String, network: InfuraNetwork)
-    case tokenBalance(address: String, contractAddress: String, network: InfuraNetwork)
+    case balance(address: String, network: EthereumNetwork)
+    case transactions(address: String, network: EthereumNetwork)
+    case pending(address: String, network: EthereumNetwork)
+    case send(transaction: String, network: EthereumNetwork)
+    case tokenBalance(address: String, contractAddress: String, network: EthereumNetwork)
     
     var baseURL: URL {
         switch self {
-        case .balance(_, let network): return URL(string: network.rawValue)!
-        case .pending(_, let network): return URL(string: network.rawValue)!
-        case .send(_, let network): return URL(string: network.rawValue)!
-        case .tokenBalance(_, _, let network): return URL(string: network.rawValue)!
-        case .transactions(_, let network): return URL(string: network.rawValue)!
+        case .balance(_, let network): return network.url
+        case .pending(_, let network): return network.url
+        case .send(_, let network): return network.url
+        case .tokenBalance(_, _, let network): return network.url
+        case .transactions(_, let network): return network.url
         }
     }
     
