@@ -23,6 +23,7 @@
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="249" verticalCompressionResistancePriority="751" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="NXv-gc-biR">
                                         <rect key="frame" x="0.0" y="0.0" width="343" height="300"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="logView"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="300" id="2pa-cW-FGU"/>
                                         </constraints>
