@@ -13,11 +13,12 @@ import Combine
 import SwiftyJSON
 
 class EthereumNetworkManager {
-    let provider = MoyaProvider<EthereumTarget>()
+    let network: InfuraNetwork = .eth
+    let provider = MoyaProvider<InfuraTarget>()
     
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        return provider.requestCombine(.send(transaction: transaction))
+        return provider.requestCombine(.send(transaction: transaction, network: network))
             .tryMap {[unowned self] response throws -> String in
                 if let hash = try? self.parseResult(response.data),
                                        hash.count > 0 {
@@ -52,28 +53,28 @@ class EthereumNetworkManager {
     }
     
     private func getTxCount(_ address: String) -> Single<Int> {
-        return getTxCount(target: .transactions(address: address))
+        return getTxCount(target: .transactions(address: address, network: network))
     }
     
     private func getPendingTxCount(_ address: String) -> Single<Int> {
-        return getTxCount(target: .pending(address: address))
+        return getTxCount(target: .pending(address: address, network: network))
     }
 
     private func getBalance(_ address: String) -> Single<Decimal> {
         return provider
             .rx
-            .request(.balance(address: address))
+            .request(.balance(address: address, network: network))
             .map {[unowned self] in try self.parseBalance($0.data)}
     }
     
     private func getTokenBalance(_ address: String, contractAddress: String) -> Single<Decimal> {
         return provider
             .rx
-            .request(.tokenBalance(address: address, contractAddress: contractAddress, tokenNetwork: .eth ))
+            .request(.tokenBalance(address: address, contractAddress: contractAddress, network: .eth ))
             .map{[unowned self] in try self.parseBalance($0.data)}
     }
     
-    private func getTxCount(target: EthereumTarget) -> Single<Int> {
+    private func getTxCount(target: InfuraTarget) -> Single<Int> {
         return provider
             .rx
             .request(target)
