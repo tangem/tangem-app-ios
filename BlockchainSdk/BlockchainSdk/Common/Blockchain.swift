@@ -14,11 +14,14 @@ public enum Blockchain {
     case litecoin
     case stellar(testnet: Bool)
     case ethereum(testnet: Bool)
-    //    case rootstock
+    //    case rsk
     //    case cardano
     //    case ripple
     //    case binance
     //    case stellar
+    //case bitconCash
+    //case ducatus
+    //case tezos
     
     public var isTestnet: Bool {
         switch self {
@@ -71,7 +74,7 @@ public enum Blockchain {
         }
     }
     
-    func makeAddress(from walletPublicKey: Data) -> String {
+    public func makeAddress(from walletPublicKey: Data) -> String {
         switch self {
         case .bitcoin(let testnet):
             return BitcoinAddressFactory().makeAddress(from: walletPublicKey, testnet: testnet)
@@ -84,7 +87,7 @@ public enum Blockchain {
         }
     }
     
-    func validate(address: String) -> Bool {
+    public func validate(address: String) -> Bool {
         switch self {
         case .bitcoin(let testnet):
             return BitcoinAddressValidator().validate(address, testnet: testnet)
@@ -94,6 +97,26 @@ public enum Blockchain {
             return StellarAddressValidator().validate(address)
         case .ethereum:
             return EthereumAddressValidator().validate(address)
+        }
+    }
+    
+    public static func from(blockchainName: String) -> Blockchain? {
+        let testnetAttribute = "/test"
+        let isTestnet = blockchainName.contains(testnetAttribute)
+        let cleanName = blockchainName.remove(testnetAttribute).lowercased()
+        switch cleanName {
+        case "btc": return .bitcoin(testnet: isTestnet)
+        case "xlm", "asset", "xlm-tag" : return .stellar(testnet: isTestnet)
+        case "eth", "token", "nfttoken": return .ethereum(testnet: isTestnet)
+        case "ltc": return .litecoin
+            //case "bch": return .bitcoinCash
+            //case "rsk", "rsktoken" : return .rsk
+            //case "cardano": return .cardano
+            //case "xrp": return .ripple
+            //case "binance": return .binance
+            //case "duc": return .ducatus
+            //case "tezos": return .tezos
+        default: return nil
         }
     }
 }
