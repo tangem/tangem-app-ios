@@ -21,6 +21,7 @@
 		5D304397239A6B960066B8D9 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D304396239A6B960066B8D9 /* String+.swift */; };
 		5D304399239A8C9C0066B8D9 /* BitcoinAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D304398239A8C9C0066B8D9 /* BitcoinAddressFactory.swift */; };
 		5D389ECC23ACFDCF00740FE9 /* MoyaProvider+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D389ECB23ACFDCF00740FE9 /* MoyaProvider+.swift */; };
+		5D47E34E23F4426F00779DFA /* EthereumNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D47E34D23F4426F00779DFA /* EthereumNetwork.swift */; };
 		5D54FE1823E41CD6009FAC2F /* LitecoinAddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D54FE1723E41CD6009FAC2F /* LitecoinAddressValidator.swift */; };
 		5D54FE1A23E41E5A009FAC2F /* LitecoinAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D54FE1923E41E5A009FAC2F /* LitecoinAddressFactory.swift */; };
 		5D54FE1C23E427E5009FAC2F /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D54FE1B23E427E5009FAC2F /* NetworkManager.swift */; };
@@ -101,6 +102,7 @@
 		5D304396239A6B960066B8D9 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		5D304398239A8C9C0066B8D9 /* BitcoinAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinAddressFactory.swift; sourceTree = "<group>"; };
 		5D389ECB23ACFDCF00740FE9 /* MoyaProvider+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoyaProvider+.swift"; sourceTree = "<group>"; };
+		5D47E34D23F4426F00779DFA /* EthereumNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetwork.swift; sourceTree = "<group>"; };
 		5D54FE1723E41CD6009FAC2F /* LitecoinAddressValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LitecoinAddressValidator.swift; sourceTree = "<group>"; };
 		5D54FE1923E41E5A009FAC2F /* LitecoinAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LitecoinAddressFactory.swift; sourceTree = "<group>"; };
 		5D54FE1B23E427E5009FAC2F /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 			children = (
 				5D557CAB23AA70AC009B32AF /* InfuraTarget.swift */,
 				5D557CAD23AA771E009B32AF /* EthereumNetworkManager.swift */,
+				5D47E34D23F4426F00779DFA /* EthereumNetwork.swift */,
 			);
 			path = EthereumNetwork;
 			sourceTree = "<group>";
@@ -514,6 +517,7 @@
 				5D94E56123A381F2009C7482 /* EthereumWalletManager.swift in Sources */,
 				5D8653FA23A8C481000DE52D /* StellarNetworkManager.swift in Sources */,
 				5D304394239A6A6B0066B8D9 /* CurrencyWalletManagerFactory.swift in Sources */,
+				5D47E34E23F4426F00779DFA /* EthereumNetwork.swift in Sources */,
 				5D006ACD239950F9008BA04D /* CurrencyWallet.swift in Sources */,
 				5D14E4972397B87000C15FC8 /* WalletManager.swift in Sources */,
 				5D557CAC23AA70AC009B32AF /* InfuraTarget.swift in Sources */,
