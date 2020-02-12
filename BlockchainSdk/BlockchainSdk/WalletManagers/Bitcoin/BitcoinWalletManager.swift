@@ -19,24 +19,23 @@ enum BitcoinError: Error {
     case failedToCalculateTxSize
 }
 
-class BitcoinWalletManager: WalletManager, FeeProvider {
-    var wallet: PublishSubject<Wallet> = .init()
-    var loadingError = PublishSubject<Error>()
-    private let currencyWallet: CurrencyWallet
-    private let txBuilder: BitcoinTransactionBuilder
-    private let network: BitcoinNetworkManager
-    private let cardId: String
-    private var requestDisposable: Disposable?
+class BitcoinWalletManager: WalletManager, BlockchainProcessable, FeeProvider {
+    typealias TWallet = CurrencyWallet
+    typealias TNetworkManager = BitcoinNetworkManager
+    typealias TTransactionBuilder = BitcoinTransactionBuilder
     
-    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, blockchain: Blockchain) {
-        self.cardId = cardId
-        let address = blockchain.makeAddress(from: walletPublicKey)
-        currencyWallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
-        self.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: blockchain.isTestnet)
-        wallet.onNext(currencyWallet)
-        network = BitcoinNetworkManager(address: address, isTestNet: blockchain.isTestnet)
-        //[REDACTED_TODO_COMMENT]
-    }
+    var wallet: Variable<CurrencyWallet>!
+    var error = PublishSubject<Error>()
+    var txBuilder: BitcoinTransactionBuilder!
+    var network: BitcoinNetworkManager!
+    var cardId: String!
+    private var requestDisposable: Disposable?
+    private var currencyWallet: CurrencyWallet { return wallet.value }
+    
+//    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, blockchain: Blockchain) {
+//
+//        //[REDACTED_TODO_COMMENT]
+//    }
     
     func update() {//check it
         requestDisposable = network
@@ -44,7 +43,7 @@ class BitcoinWalletManager: WalletManager, FeeProvider {
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
-                    self.loadingError.onNext(error)
+                    self.error.onNext(error)
             })
     }
     
@@ -84,12 +83,11 @@ class BitcoinWalletManager: WalletManager, FeeProvider {
         } else {
             currencyWallet.pendingTransactions = []
         }
-        wallet.onNext(currencyWallet)
     }
 }
 
 @available(iOS 13.0, *)
-extension BitcoinWalletManager: TransactionBuilder {
+extension BitcoinWalletManager: TransactionSizeEstimator {
     func getEstimateSize(for transaction: Transaction) -> Decimal? {
         guard let unspentOutputsCount = txBuilder.unspentOutputs?.count else {
             return nil
@@ -120,7 +118,6 @@ extension BitcoinWalletManager: TransactionSender {
         .flatMap {[unowned self] in
             self.network.send(transaction: $0).map {[unowned self] response in
                 self.currencyWallet.add(transaction: transaction)
-                self.wallet.onNext(self.currencyWallet)
                 return true
             }
         }
