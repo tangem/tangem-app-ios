@@ -79,15 +79,8 @@ extension EthereumWalletManager: TransactionSender {
 @available(iOS 13.0, *)
 extension EthereumWalletManager: FeeProvider {
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount],Error> {
-        let future = Future<[Amount],Error> { promise in
-            DispatchQueue.global().async {
-                let web = web3(provider: InfuraProvider(Networks.Mainnet)!)
-                
-                guard let gasPrice = try? web.eth.getGasPrice() else {
-                    promise(.failure(EthereumError.failedToGetFee))
-                    return
-                }
-                
+        return network.getGasPrice()
+            .tryMap { [unowned self] gasPrice throws -> [Amount] in
                 let m = self.txBuilder.getGasLimit(for: amount)
                 let decimalCount = self.currencyWallet.blockchain.decimalCount
                 let minValue = gasPrice * m
@@ -102,18 +95,16 @@ extension EthereumWalletManager: FeeProvider {
                 guard let minDecimal = Decimal(string: min),
                     let normalDecimal = Decimal(string: normal),
                     let maxDecimal = Decimal(string: max) else {
-                        promise(.failure(EthereumError.failedToGetFee))
-                        return
+                        throw EthereumError.failedToGetFee
                 }
                 
                 let minAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: minDecimal)
                 let normalAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: normalDecimal)
                 let maxAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: maxDecimal)
-            
-                promise(.success([minAmount, normalAmount, maxAmount]))
-            }
+                
+                return [minAmount, normalAmount, maxAmount]
         }
-        return AnyPublisher(future)
+        .eraseToAnyPublisher()
     }
 }
 
@@ -152,13 +143,13 @@ extension EthereumTransaction {
 }
 
 class EthereumTransactionBuilder {
-    private let chainId: BigUInt = 1
     private let walletPublicKey: Data
     private let isTestnet: Bool
-    
-    init(walletPublicKey: Data, isTestnet: Bool) {
+    private let network: EthereumNetwork
+    init(walletPublicKey: Data, isTestnet: Bool, network: EthereumNetwork ) {
         self.walletPublicKey = walletPublicKey
         self.isTestnet = isTestnet
+        self.network = network
     }
     
     public func buildForSign(transaction: Transaction, nonce: Int) -> (hash: Data, transaction: EthereumTransaction)? {
@@ -185,7 +176,7 @@ class EthereumTransactionBuilder {
                                                         return nil
         }
         
-        guard let hashForSign = transaction.hashForSignature(chainID: chainId) else {
+        guard let hashForSign = transaction.hashForSignature(chainID: network.chainId) else {
             return nil
         }
         
@@ -202,7 +193,7 @@ class EthereumTransactionBuilder {
         transaction.r = BigUInt(unmarshalledSignature.r)
         transaction.s = BigUInt(unmarshalledSignature.s)
         
-        let encodedBytesToSend = transaction.encodeForSend(chainID: chainId)
+        let encodedBytesToSend = transaction.encodeForSend(chainID: network.chainId)
         return encodedBytesToSend
     }
     

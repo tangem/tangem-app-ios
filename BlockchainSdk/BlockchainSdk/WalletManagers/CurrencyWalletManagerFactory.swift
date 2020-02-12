@@ -58,9 +58,17 @@ public class CurrencyWalletManagerFactory {
         case .ethereum(let testnet):
             return EthereumWalletManager().then {
                  $0.cardId = cardId
-                 $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet)
-                 $0.network = EthereumNetworkManager()
+                 $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet, network: .mainnet)
+                 $0.network = EthereumNetworkManager(network: .mainnet)
                  $0.wallet = Variable(wallet)
+            }.eraseToAnyWalletManager()
+            
+        case .rsk(let testnet):
+            return EthereumWalletManager().then {
+                $0.cardId = cardId
+                $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet, network: .rsk)
+                $0.network = EthereumNetworkManager(network: .rsk)
+                $0.wallet = Variable(wallet)
             }.eraseToAnyWalletManager()
         }
     }

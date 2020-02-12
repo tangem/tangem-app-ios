@@ -14,7 +14,7 @@ public enum Blockchain {
     case litecoin
     case stellar(testnet: Bool)
     case ethereum(testnet: Bool)
-    //    case rsk
+    case rsk(testnet: Bool)
     //    case cardano
     //    case ripple
     //    case binance
@@ -33,6 +33,8 @@ public enum Blockchain {
             return testnet
         case .ethereum(let testnet):
             return testnet
+        case .rsk(let testnet):
+            return testnet
         }
     }
     
@@ -40,7 +42,7 @@ public enum Blockchain {
         switch self {
         case .bitcoin, .litecoin:
             return 8
-        case .ethereum:/*,  .rootstock*/
+        case .ethereum, .rsk:
             return 18
             //        case .ripple, .cardano:
             //            return 6
@@ -53,7 +55,7 @@ public enum Blockchain {
     
     public var roundingMode: NSDecimalNumber.RoundingMode {
         switch self {
-        case .bitcoin, .litecoin, .ethereum://.rootstock, .binance:
+        case .bitcoin, .litecoin, .ethereum, .rsk://, .binance:
             return .down
         case .stellar:
             return .plain
@@ -71,6 +73,8 @@ public enum Blockchain {
             return "XLM"
         case .ethereum:
             return "ETH"
+        case .rsk:
+            return "RBTC"
         }
     }
     
@@ -82,7 +86,7 @@ public enum Blockchain {
             return LitecoinAddressFactory().makeAddress(from: walletPublicKey, testnet: false)
         case .stellar:
             return StellarAddressFactory().makeAddress(from: walletPublicKey)
-        case .ethereum:
+        case .ethereum, .rsk:
             return EthereumAddressFactory().makeAddress(from: walletPublicKey)
         }
     }
@@ -95,7 +99,7 @@ public enum Blockchain {
             return LitecoinAddressValidator().validate(address, testnet: false)
         case .stellar:
             return StellarAddressValidator().validate(address)
-        case .ethereum:
+        case .ethereum, .rsk:
             return EthereumAddressValidator().validate(address)
         }
     }
@@ -106,11 +110,11 @@ public enum Blockchain {
         let cleanName = blockchainName.remove(testnetAttribute).lowercased()
         switch cleanName {
         case "btc": return .bitcoin(testnet: isTestnet)
-        case "xlm", "asset", "xlm-tag" : return .stellar(testnet: isTestnet)
+        case "xlm", "asset", "xlm-tag": return .stellar(testnet: isTestnet)
         case "eth", "token", "nfttoken": return .ethereum(testnet: isTestnet)
         case "ltc": return .litecoin
+        case "rsk", "rsktoken": return .rsk(testnet: isTestnet)
             //case "bch": return .bitcoinCash
-            //case "rsk", "rsktoken" : return .rsk
             //case "cardano": return .cardano
             //case "xrp": return .ripple
             //case "binance": return .binance
