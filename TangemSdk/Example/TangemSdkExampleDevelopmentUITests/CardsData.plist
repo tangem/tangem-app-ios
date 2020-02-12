@@ -4,10 +4,16 @@
 <dict>
 	<key>Cardana</key>
 	<dict>
-		<key>CardID </key>
-		<string>BB00000000000221</string>
-		<key>Status</key>
+		<key>isActivated</key>
+		<string></string>
+		<key>walletRemainingSignatures</key>
+		<string></string>
+		<key>status</key>
 		<string>02</string>
+		<key>cardId</key>
+		<string>BB00000000000072</string>
+		<key>walletPublicKey</key>
+		<string></string>
 	</dict>
 </dict>
 </plist>
