@@ -22,6 +22,7 @@
 		5DBC25CC235F0639005F0C79 /* TangemSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCA54A0235E0D5900C2BB99 /* TangemSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E53EB3E723F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */; };
 		E53EB3F123F2D4B10079CC11 /* RobotApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3EE23F2CD860079CC11 /* RobotApi.swift */; };
+		E53EB3F523F32A460079CC11 /* CardsData.plist in Resources */ = {isa = PBXBuildFile; fileRef = E53EB3F423F32A460079CC11 /* CardsData.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkExampleDevelopmentUITests.swift; sourceTree = "<group>"; };
 		E53EB3E823F2C7C90079CC11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E53EB3EE23F2CD860079CC11 /* RobotApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RobotApi.swift; sourceTree = "<group>"; };
+		E53EB3F423F32A460079CC11 /* CardsData.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CardsData.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +158,7 @@
 				E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */,
 				E53EB3E823F2C7C90079CC11 /* Info.plist */,
 				E53EB3EE23F2CD860079CC11 /* RobotApi.swift */,
+				E53EB3F423F32A460079CC11 /* CardsData.plist */,
 			);
 			path = TangemSdkExampleDevelopmentUITests;
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E53EB3F523F32A460079CC11 /* CardsData.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
