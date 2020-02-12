@@ -8,14 +8,14 @@
 
 import Foundation
 
-class CurrencyWallet: Wallet, TransactionValidator {
-    let blockchain: Blockchain
-    let config: WalletConfig
-    let exploreUrl: String? = nil
-    let shareUrl: String? = nil
+public class CurrencyWallet: Wallet, TransactionValidator {
+    public let blockchain: Blockchain
+    public let config: WalletConfig
+    public let exploreUrl: String? = nil
+    public let shareUrl: String? = nil
     var pendingTransactions: [Transaction] = []
     var balances: [AmountType:Amount] = [:]
-    var address: String {
+    public var address: String {
         return balances[.coin]!.address
     }
     
