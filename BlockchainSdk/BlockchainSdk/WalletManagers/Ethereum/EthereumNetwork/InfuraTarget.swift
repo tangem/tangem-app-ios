@@ -9,26 +9,29 @@
 import Foundation
 import Moya
 
-enum TokenNetwork: String {
+enum InfuraNetwork: String {
     case eth = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
     case rsk = "https://public-node.rsk.co/"
 }
 
-enum EthereumTarget: TargetType {
-    case balance(address: String)
-    case transactions(address: String)
-    case pending(address: String)
-    case send(transaction: String)
-    case tokenBalance(address: String, contractAddress: String, tokenNetwork: TokenNetwork)
+enum InfuraTarget: TargetType {
+    case balance(address: String, network: InfuraNetwork)
+    case transactions(address: String, network: InfuraNetwork)
+    case pending(address: String, network: InfuraNetwork)
+    case send(transaction: String, network: InfuraNetwork)
+    case tokenBalance(address: String, contractAddress: String, network: InfuraNetwork)
     
     var baseURL: URL {
         switch self {
-        case .tokenBalance(_, _, let tokenNetwork):
-            return URL(string: tokenNetwork.rawValue)!
-        default:
-            return URL(string: TokenNetwork.eth.rawValue)!
+        case .balance(_, let network): return URL(string: network.rawValue)!
+        case .pending(_, let network): return URL(string: network.rawValue)!
+        case .send(_, let network): return URL(string: network.rawValue)!
+        case .tokenBalance(_, _, let network): return URL(string: network.rawValue)!
+        case .transactions(_, let network): return URL(string: network.rawValue)!
         }
     }
+    
+   //  return URL(string: network.eth.rawValue)!
     
     var path: String {
         return ""
@@ -44,28 +47,28 @@ enum EthereumTarget: TargetType {
     
     var task: Task {
         switch self {
-        case .balance(let address):
+        case .balance(let address, _):
             return  .requestParameters(parameters: ["jsonrpc": "2.0",
                                                     "method": "eth_getBalance",
                                                     "params": [address, "latest"],
                                                     "id": 67],
                                        encoding: URLEncoding.default)
             
-        case .transactions(let address):
+        case .transactions(let address, _):
             return .requestParameters(parameters: ["jsonrpc": "2.0",
                                                    "method": "eth_getTransactionCount",
                                                    "params": [address, "latest"],
                                                    "id": 67],
                                       encoding: URLEncoding.default)
             
-        case .pending(let address):
+        case .pending(let address, _):
             return .requestParameters(parameters: ["jsonrpc": "2.0",
                                                    "method": "eth_getTransactionCount",
                                                    "params": [address, "pending"],
                                                    "id": 67],
                                       encoding: URLEncoding.default)
             
-        case .send(let transaction):
+        case .send(let transaction, _):
             return .requestParameters(parameters: ["jsonrpc": "2.0",
                                                    "method": "eth_sendRawTransaction",
                                                    "params": [transaction], "id": 67],
