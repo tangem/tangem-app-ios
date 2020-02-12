@@ -12,7 +12,7 @@ import Combine
 
 @available(iOS 13.0, *)
 extension CardManager: TransactionSigner {
-    func sign(hashes: [Data], cardId: String) -> AnyPublisher<SignResponse, Error> {
+    public func sign(hashes: [Data], cardId: String) -> AnyPublisher<SignResponse, Error> {
         let future = Future<SignResponse, Error> {[unowned self] promise in
             self.sign(hashes: hashes, cardId: cardId) { signResponse in
                 switch signResponse {
