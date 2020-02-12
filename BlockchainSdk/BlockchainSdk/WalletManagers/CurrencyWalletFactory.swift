@@ -15,7 +15,7 @@ public class CurrencyWalletFactory {
             let walletConfig = WalletConfig(allowFeeSelection: true, allowFeeInclusion: true)
             return CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
             
-        case .ethereum:
+        case .ethereum, .rsk:
             let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: token == nil)
             let wallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
             if let token = token {
