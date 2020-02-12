@@ -11,7 +11,7 @@ import Foundation
 public typealias ReadResponse = Card
 
 /// Determines which type of data is required for signing.
-public struct SigningMethod: OptionSet {
+public struct SigningMethod: OptionSet, Codable {
     public let rawValue: Int
     
     public init(rawValue: Int) {
@@ -32,27 +32,27 @@ public struct SigningMethod: OptionSet {
 }
 
 /// Elliptic curve used for wallet key operations.
-public enum EllipticCurve: String {
+public enum EllipticCurve: String, Codable {
     case secp256k1
     case ed25519
 }
 
 /// Status of the card and its wallet.
-public enum CardStatus: Int {
+public enum CardStatus: Int, Codable {
     case notPersonalized = 0
     case empty = 1
     case loaded = 2
     case purged = 3
 }
 
-public enum ProductMask: Byte {
+public enum ProductMask: Byte, Codable {
     case note = 0x01
     case tag = 0x02
     case card = 0x04
 }
 
 /// Stores and maps Tangem card settings.
-public struct SettingsMask: OptionSet {
+public struct SettingsMask: OptionSet, Codable {
     public let rawValue: Int
     
     public init(rawValue: Int) {
@@ -82,7 +82,7 @@ public struct SettingsMask: OptionSet {
 }
 
 /// Detailed information about card contents.
-public struct CardData {
+public struct CardData: TlvCodable {
     /// Tangem internal manufacturing batch ID.
     public let batchId: String?
     /// Timestamp of manufacturing.
@@ -104,7 +104,7 @@ public struct CardData {
 }
 
 ///Response for `ReadCommand`. Contains detailed card information.
-public struct Card {
+public struct Card: TlvCodable {
     /// Unique Tangem card ID number.
     public let cardId: String?
     /// Name of Tangem card manufacturer.
