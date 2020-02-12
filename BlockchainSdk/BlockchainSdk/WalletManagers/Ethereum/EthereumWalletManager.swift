@@ -12,38 +12,28 @@ import web3swift
 import Combine
 import RxSwift
 
-class  EthereumWalletManager: WalletManager {
-    var wallet: PublishSubject<Wallet> = .init()
-    var loadingError = PublishSubject<Error>()
-    private var currencyWallet: CurrencyWallet
-    private let cardId: String
-    private let txBuilder: EthereumTransactionBuilder
-    private let network: EthereumNetworkManager
+class EthereumWalletManager: WalletManager, BlockchainProcessable {
+    typealias TTransactionBuilder = EthereumTransactionBuilder
+    typealias TNetworkManager = EthereumNetworkManager
+    typealias TWallet = CurrencyWallet
+    
+    var txBuilder: EthereumTransactionBuilder!
+    var network: EthereumNetworkManager!
+    var cardId: String!
+    var wallet: Variable<CurrencyWallet>!
+    var error = PublishSubject<Error>()
     public var txCount: Int = -1
     public var pendingTxCount: Int = -1
     private var requestDisposable: Disposable?
-    
-    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, token: Token?, blockchain: Blockchain) {
-        self.cardId = cardId
-        let address = blockchain.makeAddress(from: walletPublicKey)
-        self.currencyWallet = CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
-        
-        if let token = token {
-            currencyWallet.add(amount: Amount(with: token))
-        }
-        network = EthereumNetworkManager()
-        let isTestnet = 
-            txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: blockchain.isTestnet)
-        wallet.onNext(currencyWallet)
-    }
-    
+    private var currencyWallet: CurrencyWallet { return wallet.value }
+
     func update() {
         requestDisposable = network
             .getInfo(address: currencyWallet.address, contractAddress: currencyWallet.balances[.token]!.address)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
-                    self.loadingError.onNext(error)
+                    self.error.onNext(error)
             })
     }
     
@@ -61,7 +51,6 @@ class  EthereumWalletManager: WalletManager {
                 currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: currencyWallet.blockchain, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
             }
         }
-        wallet.onNext(currencyWallet)
     }
 }
 
@@ -81,7 +70,6 @@ extension EthereumWalletManager: TransactionSender {
                 return self.network.send(transaction: txHexString)}
             .map {[unowned self] response in
                 self.currencyWallet.add(transaction: transaction)
-                self.wallet.onNext(self.currencyWallet)
                 return true
         }
     .eraseToAnyPublisher()
