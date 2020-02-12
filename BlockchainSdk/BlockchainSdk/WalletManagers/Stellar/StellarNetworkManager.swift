@@ -11,7 +11,7 @@ import stellarsdk
 import Combine
 import RxSwift
 
-class StellarNetwotkManager {
+class StellarNetworkManager {
     let stellarSdk: StellarSDK
     
 //    let account = PassthroughSubject<AccountResponse, Error>()
