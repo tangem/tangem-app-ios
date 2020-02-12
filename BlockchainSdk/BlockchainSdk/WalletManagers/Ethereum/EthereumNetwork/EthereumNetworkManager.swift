@@ -11,10 +11,16 @@ import Moya
 import RxSwift
 import Combine
 import SwiftyJSON
+import web3swift
+import BigInt
 
 class EthereumNetworkManager {
-    let network: InfuraNetwork = .eth
+    let network: EthereumNetwork
     let provider = MoyaProvider<InfuraTarget>()
+    
+    init(network: EthereumNetwork) {
+        self.network = network
+    }
     
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
@@ -38,6 +44,24 @@ class EthereumNetworkManager {
                 .map { return EthereumResponse(balance: $0.0, tokenBalance: nil, txCount: $0.1, pendingTxCount: $0.2) }
         }
     }
+    
+    @available(iOS 13.0, *)
+    func getGasPrice() -> AnyPublisher<BigUInt, Error> {
+        let future = Future<BigUInt,Error> {[unowned self] promise in
+                let network = self.network == .mainnet ? Networks.Mainnet : Networks.Custom(networkID: self.network.chainId)
+                let provider = Web3HttpProvider(self.network.url, network: network, keystoreManager: nil)!
+                let web = web3(provider: provider)
+                
+                guard let gasPrice = try? web.eth.getGasPrice() else {
+                    promise(.failure(EthereumError.failedToGetFee))
+                    return
+                }
+            
+                promise(.success(gasPrice))
+        }
+        return AnyPublisher(future)
+    }
+    
     
     private func tokenData(address: String, contractAddress: String) -> Single<(Decimal,Decimal,Int,Int)> {
         return Single.zip(getBalance(address),
@@ -70,7 +94,7 @@ class EthereumNetworkManager {
     private func getTokenBalance(_ address: String, contractAddress: String) -> Single<Decimal> {
         return provider
             .rx
-            .request(.tokenBalance(address: address, contractAddress: contractAddress, network: .eth ))
+            .request(.tokenBalance(address: address, contractAddress: contractAddress, network: network ))
             .map{[unowned self] in try self.parseBalance($0.data)}
     }
     
