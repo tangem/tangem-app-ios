@@ -127,6 +127,9 @@ public class CardViewModel {
         return blockchain != .unknown
     }
     
+    public var isBalanceVerified: Bool = false
+    public var hasAccount = true
+    
     private var curve: EllipticCurve?
     
     public var curveID: EllipticCurve {
@@ -233,7 +236,7 @@ public class CardViewModel {
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
         return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum
-            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash || blockchain == .litecoin || blockchain == .ducatus)
+            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash || blockchain == .litecoin || blockchain == .ducatus || blockchain == .ripple)
     }
     
     public let supportedSignMethods: SigningMethod?
