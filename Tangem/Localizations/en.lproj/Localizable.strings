@@ -738,3 +738,6 @@
 
 "already_claimed"="Already claimed";
 
+"balance_validator_first_line_account_not_found" = "Account not found";
+
+"balance_validator_second_line_create_account_xrp" = "Load 20+ XRP to create account";
