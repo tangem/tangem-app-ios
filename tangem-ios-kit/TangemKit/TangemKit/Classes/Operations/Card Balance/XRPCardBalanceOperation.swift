@@ -7,28 +7,69 @@
 //
 
 import Foundation
+import Moya
+import SwiftyJSON
 
 class XRPCardBalanceOperation: BaseCardBalanceOperation {
-
+    
+    let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
+    
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
             return
         }
-
+        
         card.mult = priceUSD
-
-        let operation = RippleNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+        
+        provider.request(.accountInfo(account: card.address)) { [weak self] result in
             switch result {
-            case .success(let value):
-                self?.handleBalanceLoaded(balanceValue: value)
+            case .success(let response):
+                guard let xrpResult = (try? response.map(XrpResponse.self))?.result else {
+                    self?.card.mult = 0
+                    self?.failOperationWith(error: "Load error")
+                    return
+                }
+                
+                if let code = xrpResult.error_code, code == 19 {
+                    self?.failOperationWith(error: "Account not found")
+                    return
+                }
+                
+                guard let accountResponse = xrpResult.account_data,
+                    let balanceString = accountResponse.balance,
+                    let balance = UInt64(balanceString) else {
+                        self?.card.mult = 0
+                        self?.failOperationWith(error: "Load error")
+                        return
+                }
+                
+                (self?.card.cardEngine as? RippleEngine)?.accountInfo = accountResponse
+                
+                let walletValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount)).stringValue
+                
+                (self?.card.cardEngine as? RippleEngine)?.confirmedBalance =
+                "\(walletValue)"
+                
+                self?.handleBalanceLoaded(balanceValue: walletValue)
             case .failure(let error):
                 self?.card.mult = 0
                 self?.failOperationWith(error: error)
             }
         }
-        operationQueue.addOperation(operation)
+        
+        
+        //        let operation = RippleNetworkBalanceOperation(address: card.address) { [weak self] (result) in
+        //            switch result {
+        //            case .success(let value):
+        //                self?.handleBalanceLoaded(balanceValue: value)
+        //            case .failure(let error):
+        //                self?.card.mult = 0
+        //                self?.failOperationWith(error: error)
+        //            }
+        //        }
+        //        operationQueue.addOperation(operation)
     }
-
+    
     func handleBalanceLoaded(balanceValue: String) {
         guard !isCancelled else {
             return
@@ -36,15 +77,34 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
         
         card.walletValue = balanceValue
         
-        let operation = RippleNetworkReserveOperation { [weak self] (result) in
+        provider.request(.reserve) { [weak self] result in
             switch result {
-            case .success(let value):
-                self?.handleReserveLoaded(reserve: value)
+            case .success(let response):
+                guard let xrpResult = (try? response.map(XrpResponse.self))?.result,
+                    let reserveBase = xrpResult.state?.validated_ledger?.reserve_base else {
+                        self?.card.mult = 0
+                        self?.failOperationWith(error: "Load error")
+                        return
+                }
+                
+                let reserveValue = NSDecimalNumber(value: reserveBase).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount))
+                let rounded = (reserveValue as Decimal).rounded(blockchain: .ripple)
+                
+                self?.handleReserveLoaded(reserve: "\(rounded)")
             case .failure(let error):
                 self?.failOperationWith(error: error)
             }
         }
-        operationQueue.addOperation(operation)
+        
+        //        let operation = RippleNetworkReserveOperation { [weak self] (result) in
+        //            switch result {
+        //            case .success(let value):
+        //                self?.handleReserveLoaded(reserve: value)
+        //            case .failure(let error):
+        //                self?.failOperationWith(error: error)
+        //            }
+        //        }
+        //        operationQueue.addOperation(operation)
     }
     
     func handleReserveLoaded(reserve: String) {
@@ -61,13 +121,37 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
             completeOperation()
             return
         }
-
+        
         
         let walletValue = NSDecimalNumber(value: balanceValue).subtracting(NSDecimalNumber(value: reserveValue))
         let rounded = (walletValue as Decimal).rounded(blockchain: .ripple)
         card.walletValue =  "\(rounded)"
-     
-        completeOperation()
+        
+        loadUnconfirmed()
     }
-
+    
+    
+    func loadUnconfirmed() {
+        provider.request(.unconfirmed(account: card.address)) { [weak self] result in
+            switch result {
+            case .success(let response):
+                guard let xrpResult = (try? response.map(XrpResponse.self))?.result,
+                    let unconfirmedBalanceString = xrpResult.account_data?.balance,
+                    let unconfirmedBalance = UInt64(unconfirmedBalanceString) else {
+                        self?.card.mult = 0
+                        self?.failOperationWith(error: "Load error")
+                        return
+                }
+                
+                let unconfirmedValue = NSDecimalNumber(value: unconfirmedBalance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount)).stringValue
+                
+                (self?.card.cardEngine as? RippleEngine)?.unconfirmedBalance =
+                "\(unconfirmedValue)"
+                
+                self?.completeOperation()
+            case .failure(let error):
+                self?.failOperationWith(error: error)
+            }
+        }
+    }
 }
