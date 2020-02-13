@@ -38,3 +38,26 @@ public extension String {
     }
 
 }
+
+extension Data {
+    
+    init?(base58Decoding string: String, alphabet: [UInt8] = Base58String.xrpAlphabet) {
+        var answer = BigUInt(0)
+        var j = BigUInt(1)
+        let radix = BigUInt(alphabet.count)
+        let byteString = [UInt8](string.utf8)
+
+        for ch in byteString.reversed() {
+            if let index = alphabet.firstIndex(of: ch) {
+                answer = answer + (j * BigUInt(index))
+                j *= radix
+            } else {
+                return nil
+            }
+        }
+
+        let bytes = answer.serialize()
+        self = byteString.prefix(while: { i in i == alphabet[0]}) + bytes
+    }
+
+}
