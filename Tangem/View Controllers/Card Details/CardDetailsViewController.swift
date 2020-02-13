@@ -121,7 +121,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             } else {
                 self.handleBalanceLoaded(forceUnverifyed)
             }
-            
+            self.card!.hasAccount = true
             self.isBalanceLoading = false
             self.viewModel.setWalletInfoLoading(false)
             
@@ -129,9 +129,18 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
                 self.isBalanceLoading = false
                 self.viewModel.setWalletInfoLoading(false)
                 
-                let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
-                validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
-                self.present(validationAlert, animated: true, completion: nil)
+                
+                if let msg = error as? String,
+                    msg == "Account not found" {
+                   self.card!.hasAccount = false
+                    let validationAlert = UIAlertController(title: Localizations.accountNotFound, message: Localizations.loadMoreXrpToCreateAccount, preferredStyle: .alert)
+                    validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+                    self.present(validationAlert, animated: true, completion: nil)
+                } else {
+                    let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
+                    validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+                    self.present(validationAlert, animated: true, completion: nil)
+                }
                 
                 if card.productMask != .tag {
                     self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
@@ -272,6 +281,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
+        card?.isBalanceVerified = false
         viewModel.actionButton.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
@@ -289,7 +299,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     func setupBalanceVerified(_ verified: Bool, customText: String? = nil) {
         isBalanceVerified = verified
-        
+        card?.isBalanceVerified = verified
         viewModel.qrCodeContainerView.isHidden = false
         viewModel.walletAddressLabel.isHidden = false
         viewModel.walletBlockchainLabel.isHidden = false
