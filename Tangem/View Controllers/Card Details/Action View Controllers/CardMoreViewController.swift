@@ -48,7 +48,7 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
         let paragraphStyle = paragraphStyleWith(lineSpacingChange: 10.0, alignment: .left)
         let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
                                                                                   NSAttributedStringKey.kern : 1.12])
-        eraseWalletButton.isEnabled = card.hasEmptyWallet && !card.hasPendingTransactions
+        eraseWalletButton.isEnabled = card.hasEmptyWallet && !card.hasPendingTransactions && ( card.isBalanceVerified || (!card.isBalanceVerified && !card.hasAccount))
         contentLabel.attributedText = attributedText
     }
     
