@@ -8,9 +8,10 @@
 
 import Foundation
 import CryptoSwift
+import Moya
 
 public class RippleEngine: CardEngine {
-    
+    let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
     unowned public var card: CardViewModel
     
     public var blockchainDisplayName: String {
@@ -35,6 +36,11 @@ public class RippleEngine: CardEngine {
         return "https://xrpscan.com/account/" + walletAddress
     }
     
+    var accountInfo: XrpAccountData?
+    var unsignedTransaction: XRPTransaction?
+    var unconfirmedBalance: String?
+    var confirmedBalance: String?
+    
     public required init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
@@ -42,16 +48,17 @@ public class RippleEngine: CardEngine {
         }
     }
     
-    public func setupAddress() {
-        var canonicalPubKey: [UInt8]
-        
+    var canonicalPubKey: [UInt8] {
         switch card.curveID {
         case .secp256k1:
-            canonicalPubKey = pubKeyCompressed 
+            return pubKeyCompressed
         case .ed25519:
-            canonicalPubKey = [0xED] + card.walletPublicKeyBytesArray
+            return [0xED] + card.walletPublicKeyBytesArray
         }
-        
+    }
+    
+    public func setupAddress() {
+        let canonicalPubKey = self.canonicalPubKey
         guard canonicalPubKey.count == 33 else {
             assertionFailure()
             return
@@ -63,7 +70,7 @@ public class RippleEngine: CardEngine {
         }
         
         let input = RIPEMD160.hash(message: forRIPEMD160).bytes
-
+        
         let buffer = [0x00] + input 
         let checkSum = Array(buffer.sha256().sha256()[0..<4])
         
@@ -72,4 +79,152 @@ public class RippleEngine: CardEngine {
         card.node = "explorer2.adalite.io"
     }
     
+}
+
+
+extension RippleEngine: CoinProvider {
+    public var hasPendingTransactions: Bool {
+        confirmedBalance != unconfirmedBalance
+    }
+    
+    public var coinTraitCollection: CoinTrait {
+        .all
+    }
+    
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
+        guard let amountDecimal = Decimal(string: amount),
+            let feeDecimal = Decimal(string: fee),
+            let account = self.accountInfo?.account,
+            let sequence = self.accountInfo?.sequence else {
+                return nil
+        }
+        
+        let finalAmountDecimal = includeFee ? amountDecimal - feeDecimal : amountDecimal
+        let amountDrops = finalAmountDecimal * Decimal(1000000)
+        let feeDrops = feeDecimal * Decimal(1000000)
+        
+        // dictionary containing partial transaction fields
+        let fields: [String:Any] = [
+            "Account" : account,
+            "TransactionType" : "Payment",
+            "Destination" : targetAddress,
+            "Amount" : "\(amountDrops)",
+            // "Flags" : UInt64(2147483648),
+            "Fee" : "\(feeDrops)",
+            "Sequence" : sequence,
+        ]
+        
+        // create the transaction from dictionary
+        let partialTransaction = XRPTransaction(fields: fields)
+        unsignedTransaction = partialTransaction
+        let dataToSign = partialTransaction.dataToSign(publicKey: canonicalPubKey.hexString)
+        switch card.curveID {
+        case .ed25519:
+            return [dataToSign]
+        case .secp256k1:
+            return [dataToSign.sha512Half()]
+        }
+        
+    }
+    
+    public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
+        guard let tx = self.unsignedTransaction else {
+            completion(false, "Missing tx")
+            return
+        }
+        
+        var signature: [UInt8]
+        switch card.curveID {
+        case .ed25519:
+            signature = signFromCard
+        case .secp256k1:
+            guard let der = serializeToDer(secp256k1Signature: Data(signFromCard)) else {
+                completion(false, "Error der serialization")
+                return
+            }
+            
+            signature = der
+        }
+        
+        guard let signedTx = try? tx.sign(signature: signature) else {
+            completion(false, "Failed to sign tx")
+            return
+        }
+        let blob = signedTx.getBlob()
+        provider.request(.submit(tx: blob)) {[weak self] result in
+            switch result {
+            case .success(let response):
+                guard let xrpResult = (try? response.map(XrpResponse.self))?.result,
+                    let code = xrpResult.engine_result_code else {
+                        completion(false, "Submit error")
+                        return
+                }
+                
+                if code != 0 {
+                    let message = xrpResult.engine_result_message ?? "Failed to send"
+                    completion(false, message)
+                    return
+                }
+                
+                self?.unconfirmedBalance = nil
+                completion(true,nil)
+            case .failure(let error):
+                completion(false, error)
+            }
+        }
+    }
+    
+    public func getFee(targetAddress: String, amount: String, completion: @escaping ((min: String, normal: String, max: String)?) -> Void) {
+        provider.request(.fee) { result in
+            switch result {
+            case .success(let response):
+                guard let xrpResult = (try? response.map(XrpResponse.self))?.result,
+                    let minFee = xrpResult.drops?.minimum_fee,
+                    let normalFee = xrpResult.drops?.open_ledger_fee,
+                    let maxFee = xrpResult.drops?.median_fee,
+                    let minFeeDecimal = Decimal(string: minFee),
+                    let normalFeeDecimal = Decimal(string: normalFee),
+                    let maxFeeDecimal = Decimal(string: maxFee)  else {
+                        completion(nil)
+                        return
+                }
+                
+                let min = minFeeDecimal/Decimal(1000000)
+                let normal = normalFeeDecimal/Decimal(1000000)
+                let max = maxFeeDecimal/Decimal(1000000)
+                
+                let fee = ("\(min.rounded(blockchain: .ripple))",
+                                      "\(normal.rounded(blockchain: .ripple))",
+                                      "\(max.rounded(blockchain: .ripple))")
+                completion(fee)
+            case .failure(let error):
+                print(error.localizedDescription)
+                completion(nil)
+            }
+        }
+    }
+    
+    public func validate(address: String) -> Bool {
+        return XRPWallet.validate(address: address)
+    }
+    
+    public func getApiDescription() -> String {
+        ""
+    }
+    
+    
+    private func serializeToDer(secp256k1Signature sign: Data) -> [UInt8]? {
+        var ctx: secp256k1_context = secp256k1_context_create(.SECP256K1_CONTEXT_NONE)!
+        defer {secp256k1_context_destroy(&ctx)}
+        var sig = secp256k1_ecdsa_signature()
+        var normalized = secp256k1_ecdsa_signature()
+        guard secp256k1_ecdsa_signature_parse_compact(ctx, &sig, Array(sign)) else { return nil }
+        
+        _ = secp256k1_ecdsa_signature_normalize(ctx, &normalized, sig)
+        var length: UInt = 128
+        var der = [UInt8].init(repeating: UInt8(0x0), count: Int(length))
+        guard secp256k1_ecdsa_signature_serialize_der(ctx, &der, &length, normalized)  else { return nil }
+        
+        return Array(der[0..<Int(length)])
+    }
 }
