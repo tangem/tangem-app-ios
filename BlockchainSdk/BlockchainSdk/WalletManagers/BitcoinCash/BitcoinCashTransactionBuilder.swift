@@ -1,14 +1,16 @@
 //
-//  BitcoinTransactionBuilder.swift
+//  BitcoinCashTransactionBuilder.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2019 Tangem AG. All rights reserved.
+//  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
 import Foundation
+import BinanceChain
+import TangemSdk
 
-class BitcoinTransactionBuilder {
+class BitcoinCashTransactionBuilder {
     let isTestnet: Bool
     let walletAddress: String
     let walletPublicKey: Data
@@ -25,7 +27,12 @@ class BitcoinTransactionBuilder {
             return nil
         }
         
-        guard let outputScript = buildOutputScript(address: walletAddress) else {
+        guard let legacyWalletAddress = try? BitcoinCashAddress(walletAddress).base58,
+            let legacyTargetAddress =  try? BitcoinCashAddress(transaction.destinationAddress).base58 else {
+                return nil
+        }
+        
+        guard let outputScript = buildOutputScript(address: legacyWalletAddress) else {
             return nil
         }
         
@@ -39,11 +46,10 @@ class BitcoinTransactionBuilder {
         var hashes = [Data]()
         
         for index in 0..<unspents.count {
-            guard var tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: transaction.destinationAddress, index: index) else {
+            guard let tx = buildPreimage(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: legacyTargetAddress, index: index) else {
                 return nil
             }
-            
-            tx.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
+            // tx.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)]) for btc
             let hash = tx.sha256().sha256()
             hashes.append(hash)
         }
@@ -54,6 +60,10 @@ class BitcoinTransactionBuilder {
     public func buildForSend(transaction: Transaction, signature: Data) -> Data? {
         guard let fee = transaction.fee?.value, let unspentOutputs = unspentOutputs,
             let amount = transaction.amount.value else {
+                return nil
+        }
+        
+        guard let legacyTargetAddress =  try? BitcoinCashAddress(transaction.destinationAddress).base58  else {
             return nil
         }
         
@@ -67,7 +77,7 @@ class BitcoinTransactionBuilder {
         let amountSatoshi = amount * Decimal(100000000)
         let changeSatoshi = calculateChange(unspents: unspents, amount: amount, fee: fee)
         
-        let tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: transaction.destinationAddress, index: nil)
+        let tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: legacyTargetAddress, index: nil)
         return tx
     }
     
@@ -149,7 +159,7 @@ class BitcoinTransactionBuilder {
             return script
         }
         
-        let decoded = Data(base58: address)!
+        let decoded = address.base58DecodedData!
         let first = decoded[0]
         let data = decoded[1...20]
         //P2H
@@ -173,11 +183,86 @@ class BitcoinTransactionBuilder {
         return unspentTransactions
     }
     
-    private func buildTxBody(unspents: [UnspentTransaction], amount: Decimal, change: Decimal, targetAddress: String, index: Int?) -> Data? {
+    private func buildPreimage(unspents: [UnspentTransaction], amount: Decimal, change: Decimal, targetAddress: String, index: Int) -> Data? {
+        guard let legacyWalletAddress = try? BitcoinCashAddress(walletAddress).base58 else {
+            return nil
+        }
+        
         var txToSign = Data()
         // version
-        txToSign.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
+        txToSign.append(contentsOf: [UInt8(0x02),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
+        //txToSign.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)]) for btc
+
+        //hashPrevouts (32-byte hash)
+        let prevouts = Data(unspents.map { Data($0.hash.reversed()) + $0.outputIndex.bytes4LE }
+            .joined())
+        let hashPrevouts = prevouts.sha256().sha256()
+        txToSign.append(contentsOf: hashPrevouts)
         
+        //hashSequence (32-byte hash), ffffffff only
+        let sequence = Data(repeating: UInt8(0xFF), count: 4*unspents.count)
+        let hashSequence = sequence.sha256().sha256()
+        txToSign.append(contentsOf: hashSequence)
+        
+        //outpoint (32-byte hash + 4-byte little endian)
+        let currentOutput = unspents[index]
+        txToSign.append(contentsOf: currentOutput.hash.reversed())
+        txToSign.append(contentsOf: currentOutput.outputIndex.bytes4LE)
+        
+        //scriptCode of the input (serialized as scripts inside CTxOuts)
+        guard let scriptCode = buildOutputScript(address: legacyWalletAddress) else { //build change out
+            return nil
+        }
+        txToSign.append(scriptCode.count.byte)
+        txToSign.append(contentsOf: scriptCode)
+        
+        //value of the output spent by this input (8-byte little endian)
+        txToSign.append(contentsOf: currentOutput.amount.bytes8LE)
+        
+        //nSequence of the input (4-byte little endian), ffffffff only
+        txToSign.append(contentsOf: [UInt8(0xff),UInt8(0xff),UInt8(0xff),UInt8(0xff)])
+        
+        //hashOutputs (32-byte hash)
+        var outputs = Data()
+        outputs.append(contentsOf: amount.bytes8LE)
+        guard let sendScript = buildOutputScript(address: targetAddress) else {
+            return nil
+        }
+        outputs.append(sendScript.count.byte)
+        outputs.append(contentsOf: sendScript)
+        
+        //output for change (if any)
+        if change != 0 {
+            outputs.append(contentsOf: change.bytes8LE)
+            guard let outputScriptChangeBytes = buildOutputScript(address: legacyWalletAddress) else {
+                return nil
+            }
+            outputs.append(outputScriptChangeBytes.count.byte)
+            outputs.append(contentsOf: outputScriptChangeBytes)
+        }
+        
+        let hashOutputs = outputs.sha256().sha256()
+        txToSign.append(contentsOf: hashOutputs)
+        
+        //nLocktime of the transaction (4-byte little endian)
+        txToSign.append(contentsOf: [UInt8(0x00),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
+        
+        //sighash type of the signature (4-byte little endian)
+        txToSign.append(contentsOf: [UInt8(0x41),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
+        
+        return txToSign
+    }
+    
+    
+    private func buildTxBody(unspents: [UnspentTransaction], amount: Decimal, change: Decimal, targetAddress: String, index: Int?) -> Data? {
+        guard let legacyWalletAddress = try? BitcoinCashAddress(walletAddress).base58 else {
+                  return nil
+              }
+        
+        var txToSign = Data()
+        // version
+        txToSign.append(contentsOf: [UInt8(0x02),UInt8(0x00),UInt8(0x00),UInt8(0x00)])
+        //txToSign.append(contentsOf: [UInt8(0x01),UInt8(0x00),UInt8(0x00),UInt8(0x00)]) for btc
         //01
         txToSign.append(unspents.count.byte)
         
@@ -214,7 +299,7 @@ class BitcoinTransactionBuilder {
             //8 bytes
             txToSign.append(contentsOf: change.bytes8LE)
             //hex str 1976a914....88ac
-            guard let outputScriptChangeBytes = buildOutputScript(address: walletAddress) else {
+            guard let outputScriptChangeBytes = buildOutputScript(address: legacyWalletAddress) else {
                 return nil
             }
             txToSign.append(outputScriptChangeBytes.count.byte)
@@ -244,31 +329,11 @@ class BitcoinTransactionBuilder {
             var script = Data()
             script.append((signDer.count+1).byte)
             script.append(contentsOf: signDer)
-            script.append(UInt8(0x1))
             script.append(UInt8(0x41))
+            script.append(UInt8(0x21))
             script.append(contentsOf: publicKey)
             scripts.append(script)
         }
         return scripts
     }
-}
-
-enum Op: UInt8 {
-    case hash160 = 0xA9
-    case equal = 0x87
-    case dup = 0x76
-    case equalVerify = 0x88
-    case checkSig = 0xAC
-    case pushData1 = 0x4c
-    case pushData2 = 0x4d
-    case pushData4 = 0x4e
-    case op0 = 0x00
-    case op1 = 0x51
-}
-
-struct UnspentTransaction {
-    let amount: UInt64
-    let outputIndex: Int
-    let hash: Data
-    let outputScript: Data
 }
