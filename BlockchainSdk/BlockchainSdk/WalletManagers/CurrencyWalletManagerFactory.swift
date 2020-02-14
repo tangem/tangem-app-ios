@@ -70,6 +70,14 @@ public class CurrencyWalletManagerFactory {
                 $0.network = EthereumNetworkManager(network: .rsk)
                 $0.wallet = Variable(wallet)
             }.eraseToAnyWalletManager()
+            
+        case .bitcoinCash(let testnet):
+            return BitcoinCashWalletManager().then {
+                $0.cardId = cardId
+                $0.txBuilder = BitcoinCashTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: testnet)
+                $0.network = BitcoinCashNetworkManager(address: address)
+                $0.wallet = Variable(wallet)
+            }.eraseToAnyWalletManager()
         }
     }
     
