@@ -11,7 +11,7 @@ import web3swift
 import secp256k1
 
 class CryptoUtils {
-    public func serializeToDer(secp256k1Signature: Data) -> Data? {
+    public static func serializeToDer(secp256k1Signature: Data) -> Data? {
         guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_NONE)) else { return nil }
         
         defer { secp256k1_context_destroy(ctx) }
@@ -28,7 +28,7 @@ class CryptoUtils {
         return Data(der[0..<Int(length)])
     }
     
-    public func unmarshal(secp256k1Signature: Data, hash: Data, publicKey: Data) -> SECP256K1.UnmarshaledSignature? {
+    public static func unmarshal(secp256k1Signature: Data, hash: Data, publicKey: Data) -> SECP256K1.UnmarshaledSignature? {
         guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_VERIFY)) else { return nil }
         
         defer { secp256k1_context_destroy(ctx) }
@@ -63,4 +63,20 @@ class CryptoUtils {
         return unmarshalledSignature
     }
     
+    
+    public static func convertKeyToCompressed(_ walletPublicKey: Data) -> Data? {
+        guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_NONE)) else { return nil }
+        
+        defer { secp256k1_context_destroy(ctx) }
+        
+        var pubkey = secp256k1_pubkey()
+        guard secp256k1_ec_pubkey_parse(ctx, &pubkey, Array(walletPublicKey), 65) == 1 else { return nil }
+        
+        var pubLength = 33
+        var pubKeyCompressed = Array(repeating: UInt8(0), count: Int(pubLength))
+        secp256k1_ec_pubkey_serialize(ctx, &pubKeyCompressed, &pubLength, &pubkey, UInt32(SECP256K1_EC_COMPRESSED))
+        
+        return Data(pubKeyCompressed)
+        
+    }
 }
