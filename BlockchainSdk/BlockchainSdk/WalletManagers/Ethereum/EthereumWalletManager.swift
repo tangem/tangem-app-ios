@@ -185,7 +185,7 @@ class EthereumTransactionBuilder {
     
     public func buildForSend(transaction: EthereumTransaction, hash: Data, signature: Data) -> Data? {
         var transaction = transaction
-        guard let unmarshalledSignature = CryptoUtils().unmarshal(secp256k1Signature: signature, hash: hash, publicKey: walletPublicKey) else {
+        guard let unmarshalledSignature = CryptoUtils.unmarshal(secp256k1Signature: signature, hash: hash, publicKey: walletPublicKey) else {
             return nil
         }
         
