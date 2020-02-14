@@ -12,4 +12,5 @@ target 'BlockchainSdk' do
     pod 'Moya'
     pod 'RxSwift'
     pod 'Moya/RxSwift'
+    pod 'BinanceChain', :git => 'https://github.com/Tangem/binanceChain.git', :tag => '0.1'
 end
