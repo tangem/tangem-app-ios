@@ -15,11 +15,11 @@ public enum Blockchain {
     case stellar(testnet: Bool)
     case ethereum(testnet: Bool)
     case rsk(testnet: Bool)
+    case bitcoinCash(testnet: Bool)
     //    case cardano
     //    case ripple
     //    case binance
     //    case stellar
-    //case bitconCash
     //case ducatus
     //case tezos
     
@@ -35,12 +35,14 @@ public enum Blockchain {
             return testnet
         case .rsk(let testnet):
             return testnet
+        case .bitcoinCash(let testnet):
+            return testnet
         }
     }
     
     public var decimalCount: Int {
         switch self {
-        case .bitcoin, .litecoin:
+        case .bitcoin, .litecoin, .bitcoinCash:
             return 8
         case .ethereum, .rsk:
             return 18
@@ -55,7 +57,7 @@ public enum Blockchain {
     
     public var roundingMode: NSDecimalNumber.RoundingMode {
         switch self {
-        case .bitcoin, .litecoin, .ethereum, .rsk://, .binance:
+        case .bitcoin, .litecoin, .ethereum, .rsk, .bitcoinCash://, .binance:
             return .down
         case .stellar:
             return .plain
@@ -75,6 +77,8 @@ public enum Blockchain {
             return "ETH"
         case .rsk:
             return "RBTC"
+        case .bitcoinCash:
+            return "BCH"
         }
     }
     
@@ -88,6 +92,9 @@ public enum Blockchain {
             return StellarAddressFactory().makeAddress(from: walletPublicKey)
         case .ethereum, .rsk:
             return EthereumAddressFactory().makeAddress(from: walletPublicKey)
+        case .bitcoinCash:
+            let compressedKey = CryptoUtils.convertKeyToCompressed(walletPublicKey)!
+            return BitcoinCashAddressFactory().makeAddress(from: compressedKey)
         }
     }
     
@@ -101,6 +108,8 @@ public enum Blockchain {
             return StellarAddressValidator().validate(address)
         case .ethereum, .rsk:
             return EthereumAddressValidator().validate(address)
+        case .bitcoinCash:
+            return BitcoinCashAddressValidator().validate(address)
         }
     }
     
@@ -114,7 +123,7 @@ public enum Blockchain {
         case "eth", "token", "nfttoken": return .ethereum(testnet: isTestnet)
         case "ltc": return .litecoin
         case "rsk", "rsktoken": return .rsk(testnet: isTestnet)
-            //case "bch": return .bitcoinCash
+        case "bch": return .bitcoinCash(testnet: isTestnet)
             //case "cardano": return .cardano
             //case "xrp": return .ripple
             //case "binance": return .binance
