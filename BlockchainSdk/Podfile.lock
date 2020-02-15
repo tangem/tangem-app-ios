@@ -59,7 +59,7 @@ PODS:
 
 DEPENDENCIES:
   - BigInt (~> 4.0)
-  - BinanceChain (from `https://github.com/Tangem/binanceChain.git`, tag `0.1`)
+  - BinanceChain (from `https://github.com/Tangem/binanceChain.git`, branch `new-sdk`)
   - Moya
   - Moya/RxSwift
   - RxSwift
@@ -88,13 +88,13 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   BinanceChain:
+    :branch: new-sdk
     :git: https://github.com/Tangem/binanceChain.git
-    :tag: '0.1'
 
 CHECKOUT OPTIONS:
   BinanceChain:
+    :commit: 9e0aa056ffda540afb0ce7dff8b76d552f17295c
     :git: https://github.com/Tangem/binanceChain.git
-    :tag: '0.1'
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
@@ -115,6 +115,6 @@ SPEC CHECKSUMS:
   web3.swift.pod: 66048c11416c2e7a9a4b35fe42254d0f0d9db4b1
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: a35c3ef9717b8755a7935e8e660401475b6a5037
+PODFILE CHECKSUM: b28673fc93f25cf12e8ed7314b4b9a669e2bc5f8
 
 COCOAPODS: 1.8.4
