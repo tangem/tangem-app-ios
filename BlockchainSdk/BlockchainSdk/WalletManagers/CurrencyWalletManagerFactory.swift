@@ -19,8 +19,8 @@ public class CurrencyWalletManagerFactory {
             let blockchain = Blockchain.from(blockchainName: blockchainName),
             let walletPublicKey = card.walletPublicKey,
             let cardId = card.cardId else {
-            assertionFailure()
-            return nil
+                assertionFailure()
+                return nil
         }
         
         let token = getToken(from: card)
@@ -45,7 +45,7 @@ public class CurrencyWalletManagerFactory {
             }.eraseToAnyWalletManager()
             
         case .stellar(let testnet):
-             return StellarWalletManager().then {
+            return StellarWalletManager().then {
                 let url = testnet ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"
                 let stellarSdk = StellarSDK(withHorizonUrl: url)
                 $0.cardId = cardId
@@ -57,10 +57,10 @@ public class CurrencyWalletManagerFactory {
             
         case .ethereum(let testnet):
             return EthereumWalletManager().then {
-                 $0.cardId = cardId
-                 $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet, network: .mainnet)
-                 $0.network = EthereumNetworkManager(network: .mainnet)
-                 $0.wallet = Variable(wallet)
+                $0.cardId = cardId
+                $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet, network: .mainnet)
+                $0.network = EthereumNetworkManager(network: .mainnet)
+                $0.wallet = Variable(wallet)
             }.eraseToAnyWalletManager()
             
         case .rsk(let testnet):
@@ -76,6 +76,14 @@ public class CurrencyWalletManagerFactory {
                 $0.cardId = cardId
                 $0.txBuilder = BitcoinCashTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: testnet)
                 $0.network = BitcoinCashNetworkManager(address: address)
+                $0.wallet = Variable(wallet)
+            }.eraseToAnyWalletManager()
+            
+        case .binance(let testnet):
+            return BinanceWalletManager().then {
+                $0.cardId = cardId
+                $0.txBuilder = BinanceTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet)
+                $0.network = BinanceNetworkManager(address: address, isTestNet: testnet)
                 $0.wallet = Variable(wallet)
             }.eraseToAnyWalletManager()
         }
