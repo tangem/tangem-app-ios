@@ -35,6 +35,10 @@ public class CurrencyWalletFactory {
         case .bitcoinCash:
             let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: true)
             return CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
+            
+        case .binance:
+            let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: true)
+            return CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
         }
     }
 }
