@@ -13,6 +13,7 @@ import Combine
 
 class StellarTransactionBuilder {
     public var sequence: Int64?
+    var useTimebounds = true
     
     private let stellarSdk: StellarSDK
     private let walletPublicKey: Data
@@ -54,7 +55,7 @@ class StellarTransactionBuilder {
             }
             
             checkIfAccountCreated(transaction.destinationAddress) { [weak self] isCreated in
-                let operation = isCreated ? PaymentOperation(sourceAccount: sourceKeyPair,
+                let operation = isCreated ? PaymentOperation(sourceAccount: nil,
                                                              destination: destinationKeyPair,
                                                              asset: Asset(type: AssetType.ASSET_TYPE_NATIVE)!,
                                                              amount: amount ) :
@@ -131,8 +132,8 @@ class StellarTransactionBuilder {
         
         let tx = TransactionXDR(sourceAccount: sourceKeyPair.publicKey,
                                 seqNum: seqNumber + 1,
-                                timeBounds:  TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime)),
-                                memo: Memo.none.toXDR(),
+                                timeBounds: useTimebounds ? TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime)): nil,
+                                memo: Memo.text("").toXDR(),
                                 operations: [xdrOperation])
         
         let network = isTestnet ? Network.testnet : Network.public
@@ -144,5 +145,3 @@ class StellarTransactionBuilder {
         completion((hash, tx))
     }
 }
-
-
