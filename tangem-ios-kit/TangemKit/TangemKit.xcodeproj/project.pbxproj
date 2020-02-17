@@ -183,6 +183,7 @@
 		5D4B31B22334E28A00D3B92E /* XlmCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B31B12334E28A00D3B92E /* XlmCardBalanceOperation.swift */; };
 		5D4B31B52334E3F400D3B92E /* StellarRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B31B42334E3F400D3B92E /* StellarRequestOperation.swift */; };
 		5D4B31B72334E40300D3B92E /* StellarResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B31B62334E40300D3B92E /* StellarResponse.swift */; };
+		5D4B33DE23FAB93200C93A84 /* AnyPublisher+Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B33DD23FAB93200C93A84 /* AnyPublisher+Response.swift */; };
 		5D55F51422DDFF5600A1643E /* TangemException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D55F51322DDFF5600A1643E /* TangemException.swift */; };
 		5D55F51522DDFF5A00A1643E /* TangemException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D55F51322DDFF5600A1643E /* TangemException.swift */; };
 		5D5658D122FD689900DE016B /* UnspentTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5658D022FD689900DE016B /* UnspentTransaction.swift */; };
@@ -337,6 +338,7 @@
 		5D4B31B12334E28A00D3B92E /* XlmCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XlmCardBalanceOperation.swift; sourceTree = "<group>"; };
 		5D4B31B42334E3F400D3B92E /* StellarRequestOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarRequestOperation.swift; sourceTree = "<group>"; };
 		5D4B31B62334E40300D3B92E /* StellarResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarResponse.swift; sourceTree = "<group>"; };
+		5D4B33DD23FAB93200C93A84 /* AnyPublisher+Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+Response.swift"; sourceTree = "<group>"; };
 		5D55F51322DDFF5600A1643E /* TangemException.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemException.swift; sourceTree = "<group>"; };
 		5D5658D022FD689900DE016B /* UnspentTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnspentTransaction.swift; sourceTree = "<group>"; };
 		5D56590122FDB27200DE016B /* ETHTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETHTest.swift; sourceTree = "<group>"; };
@@ -911,6 +913,7 @@
 				5DC25BEC2302FB310047871B /* Decimal+.swift */,
 				5DDA35AB238D6FDC00446080 /* TangemTimer.swift */,
 				5DAC0D2823B613AE002CBFF6 /* UInt8+.swift */,
+				5D4B33DD23FAB93200C93A84 /* AnyPublisher+Response.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -1352,6 +1355,7 @@
 				5D48752122DC6B1D00F690BE /* InputStream+.swift in Sources */,
 				5D9C62EB22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift in Sources */,
 				5D11115022F0691E009919D1 /* group.swift in Sources */,
+				5D4B33DE23FAB93200C93A84 /* AnyPublisher+Response.swift in Sources */,
 				80B956FF2225D91600CFE276 /* RootstockNetworkBalanceOperation.swift in Sources */,
 				5DAE20D423E85F0F00B6F95F /* DucatusCardBalanceOperation.swift in Sources */,
 				5DFFC498233A666D004964E8 /* SecureStorageManager.swift in Sources */,
