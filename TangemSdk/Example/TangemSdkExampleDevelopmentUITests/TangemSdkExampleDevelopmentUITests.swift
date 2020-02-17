@@ -26,7 +26,16 @@ class TangemSdkExampleDevelopmentUITests: XCTestCase {
         app.terminate()
     }
     
-    func testExample() {
+    func testScanCardana() {
+        scanCard(cardName: "Cardana")
+    }
+    
+    func testScanBTC() {
+          scanCard(cardName: "BTC")
+      }
+    
+    
+    func scanCard(cardName: String) {
         expectationAndTapAction(identifier: "ScanCardButton", timeout: 10)
         RobotApi().select(card: .red)
         
@@ -48,7 +57,7 @@ class TangemSdkExampleDevelopmentUITests: XCTestCase {
             XCTAssertFalse(true, "plist с тестовыми данными не найден")
             return
         }
-        if  let cardanaData = plist["Cardana"] as? NSDictionary {
+        if  let cardanaData = plist[cardName] as? NSDictionary {
             let cardanaKeys = cardanaData.allKeys
             print(cardanaKeys)
             cardanaKeys.forEach {
