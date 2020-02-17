@@ -69,7 +69,7 @@ class BlockcypherProvider: BitcoinNetworkProvider {
                     return btx
                     } ?? []
                 
-                let btcResponse = BitcoinResponse(balance: satoshiBalance, hacUnconfirmed: balance != uncBalance, txrefs: txs)
+                let btcResponse = BitcoinResponse(balance: satoshiBalance, hasUnconfirmed: balance != uncBalance, txrefs: txs)
                 return btcResponse
         }
     }
@@ -77,7 +77,7 @@ class BlockcypherProvider: BitcoinNetworkProvider {
     
     @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
-        return provider.requestCombine(.fee(coin: coin, chain: chain))
+        return provider.requestPublisher(.fee(coin: coin, chain: chain))
             .tryMap { response throws -> BtcFee in
                 let feeResponse = try response.map(BlockcypherFeeResponse.self)
                 
@@ -98,7 +98,7 @@ class BlockcypherProvider: BitcoinNetworkProvider {
     
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        return provider.requestCombine(.send(txHex: transaction, coin: coin, chain: chain, accessToken: self.randomToken))
+        return provider.requestPublisher(.send(txHex: transaction, coin: coin, chain: chain, accessToken: self.randomToken))
             .tryMap { response throws -> String in
                 if let sendResponse = String(data: response.data, encoding: .utf8), sendResponse.count > 0{
                     return sendResponse

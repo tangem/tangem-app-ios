@@ -42,16 +42,16 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
                 
                 let satoshiBalance = Decimal(balance)/Decimal(100000000)
                 let hasUnconfirmed = txs.first(where: {$0.block_height == nil}) != nil
-                return BitcoinResponse(balance: satoshiBalance, hacUnconfirmed: hasUnconfirmed, txrefs: utxs)
+                return BitcoinResponse(balance: satoshiBalance, hasUnconfirmed: hasUnconfirmed, txrefs: utxs)
         }
     }
     
     
     @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
-        return Publishers.Zip3(estimateFeeProvider.requestCombine(.minimal),
-                               estimateFeeProvider.requestCombine(.normal),
-                               estimateFeeProvider.requestCombine(.priority))
+        return Publishers.Zip3(estimateFeeProvider.requestPublisher(.minimal),
+                               estimateFeeProvider.requestPublisher(.normal),
+                               estimateFeeProvider.requestPublisher(.priority))
             .tryMap { response throws -> BtcFee in
                 guard let min = Decimal(String(data: response.0.data, encoding: .utf8)),
                     let normal = Decimal(String(data: response.1.data, encoding: .utf8)),
@@ -66,7 +66,7 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
     
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        return blockchainInfoProvider.requestCombine(.send(txHex: transaction))
+        return blockchainInfoProvider.requestPublisher(.send(txHex: transaction))
             .tryMap { response throws -> String in
                 if let sendResponse = String(data: response.data, encoding: .utf8), sendResponse.count > 0{
                     return sendResponse
