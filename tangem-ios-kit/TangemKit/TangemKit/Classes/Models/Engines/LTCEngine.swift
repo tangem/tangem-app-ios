@@ -53,7 +53,7 @@ class LTCEngine: BTCEngine {
     override func setupAddress() {
         let hash = Data(card.walletPublicKeyBytesArray.sha256())
         let ripemd160Hash = RIPEMD160.hash(message: hash)
-        let netSelectionByte = Data(hex:"0x30")
+        let netSelectionByte = Byte(0x30).asData
         let extendedRipemd160Hash = netSelectionByte + ripemd160Hash
         let sha = extendedRipemd160Hash.sha256().sha256()
         let ripemd160HashWithChecksum = extendedRipemd160Hash + sha[..<4]
