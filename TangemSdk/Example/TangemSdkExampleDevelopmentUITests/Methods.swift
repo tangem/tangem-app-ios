@@ -1,41 +1,16 @@
 //
-//  TangemSdkExampleDevelopmentUITests.swift
+//  Methods.swift
 //  TangemSdkExampleDevelopmentUITests
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import XCTest
 
-
-class TangemSdkExampleDevelopmentUITests: XCTestCase {
-    
-    override func setUp() {
-        continueAfterFailure = false
-        
-        let app = XCUIApplication()
-        app.launch()
-        RobotApi().select(card: .none)
-        
-    }
-    
-    override func tearDown() {
-        RobotApi().select(card: .none)
-        let app = XCUIApplication()
-        app.terminate()
-    }
-    
-    func testScanCardana() {
-        scanCard(cardName: "Cardana")
-    }
-    
-    func testScanBTC() {
-          scanCard(cardName: "BTC")
-      }
-    
-    
-    func scanCard(cardName: String) {
+public class Methods {
+    func scanCard() {
         expectationAndTapAction(identifier: "ScanCardButton", timeout: 10)
         RobotApi().select(card: .red)
         
@@ -57,7 +32,7 @@ class TangemSdkExampleDevelopmentUITests: XCTestCase {
             XCTAssertFalse(true, "plist с тестовыми данными не найден")
             return
         }
-        if  let cardanaData = plist[cardName] as? NSDictionary {
+        if  let cardanaData = plist["Cardana"] as? NSDictionary {
             let cardanaKeys = cardanaData.allKeys
             print(cardanaKeys)
             cardanaKeys.forEach {
