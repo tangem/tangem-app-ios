@@ -83,7 +83,7 @@ struct BtcFee {
 
 struct BitcoinResponse {
     let balance: Decimal
-    let hacUnconfirmed: Bool
+    let hasUnconfirmed: Bool
     let txrefs: [BtcTx]
 }
 
