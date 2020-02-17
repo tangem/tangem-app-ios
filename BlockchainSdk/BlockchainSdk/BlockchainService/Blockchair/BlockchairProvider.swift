@@ -68,7 +68,7 @@ class BlockchairProvider {
                 
                 
                 let decimalBtcBalance = decimalSatoshiBalance/Decimal(100000000)
-                let bitcoinResponse = BitcoinResponse(balance: decimalBtcBalance, hacUnconfirmed: hasUnconfirmed, txrefs: utxs)
+                let bitcoinResponse = BitcoinResponse(balance: decimalBtcBalance, hasUnconfirmed: hasUnconfirmed, txrefs: utxs)
                 
                 return bitcoinResponse
         }
@@ -76,8 +76,7 @@ class BlockchairProvider {
     
     @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
-        return provider
-            .requestCombine(.fee(endpoint: endpoint))
+        return provider.requestPublisher(.fee(endpoint: endpoint))
             .tryMap { response throws -> BtcFee in
                 guard let json = try? JSON(data: response.data) else {
                     throw "Can't load fee"
@@ -97,7 +96,7 @@ class BlockchairProvider {
     
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        return provider.requestCombine(.send(txHex: transaction, endpoint: endpoint))
+        return provider.requestPublisher(.send(txHex: transaction, endpoint: endpoint))
             .tryMap { response throws -> String in
                 guard let json = try? JSON(data: response.data) else {
                     throw "Map response failed"
