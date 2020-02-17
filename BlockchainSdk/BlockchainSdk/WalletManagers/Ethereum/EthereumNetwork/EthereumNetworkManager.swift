@@ -24,7 +24,7 @@ class EthereumNetworkManager {
     
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
-        return provider.requestCombine(.send(transaction: transaction, network: network))
+        return provider.requestPublisher(.send(transaction: transaction, network: network))
             .tryMap {[unowned self] response throws -> String in
                 if let hash = try? self.parseResult(response.data),
                                        hash.count > 0 {
