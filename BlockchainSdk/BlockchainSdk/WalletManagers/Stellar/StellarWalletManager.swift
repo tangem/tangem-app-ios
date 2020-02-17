@@ -46,7 +46,7 @@ class StellarWalletManager: WalletManager, BlockchainProcessable {
     
     private func updateWallet(with response: StellarResponse) {
         txBuilder.sequence = response.sequence
-        let fullReserve = response.assetBalance == nil ? response.baseReserve * 2 : response.baseReserve * 3
+        let fullReserve = currencyWallet.balances.contains(where: { $0.key == .token }) ? response.baseReserve * 3 : response.baseReserve * 2
         currencyWallet.balances[.coin]?.value = response.balance - fullReserve
         currencyWallet.balances[.token]?.value = response.assetBalance
         currencyWallet.balances[.reserve]?.value = fullReserve
