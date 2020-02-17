@@ -59,7 +59,7 @@ class BitcoinCashWalletManager: WalletManager, BlockchainProcessable, FeeProvide
     private func updateWallet(with response: BitcoinResponse) {
         currencyWallet.balances[.coin]?.value = response.balance
         txBuilder.unspentOutputs = response.txrefs
-        if response.hacUnconfirmed {
+        if response.hasUnconfirmed {
             if currencyWallet.pendingTransactions.isEmpty {
                 currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: currencyWallet.blockchain, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
             }
