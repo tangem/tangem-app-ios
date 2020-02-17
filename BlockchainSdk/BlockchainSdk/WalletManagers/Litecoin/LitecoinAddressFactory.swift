@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import TangemSdk
 
 public class LitecoinAddressFactory: BitcoinAddressFactory {
     override func getNetwork(_ testnet: Bool) -> Data {
-        return Data(hex:"30")
+        return Data([UInt8(30)])
     }
 }
