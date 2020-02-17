@@ -657,7 +657,7 @@ public extension CardViewModel {
         case .binance:
             operation = BNBCardBalanceOperation(card: self, completion: onResult)
         case .stellar:
-            operation = XlmCardBalanceOperation(card: self, completion: onResult)
+            operation = XlmCardBalanceOperation(card: self, isAsset: tokenSymbol != nil, completion: onResult)
         case .bitcoinCash:
             operation = BCHCardBalanceOperation(card: self, completion: onResult)
         case .ducatus:
