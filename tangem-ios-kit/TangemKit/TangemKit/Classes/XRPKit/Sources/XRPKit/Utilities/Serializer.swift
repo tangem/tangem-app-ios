@@ -244,7 +244,7 @@ class Serializer {
             // 24 bits reserved (0's)
             return Data(repeating: 0, count: 12) + ascii + Data(repeating: 0, count: 5)
         } else if matches2.count != 0 {
-            return Data(hex: codeString)
+            return Data(xrpHex: codeString)
         }
         
         fatalError("invalid currency")
@@ -270,9 +270,9 @@ class Serializer {
             let _pathAsBytes = pathAsBytes(path: path)
             pathSetBytes.append(_pathAsBytes)
             if index == pathset.count - 1 {
-                pathSetBytes.append(Data(hex: "00"))
+                pathSetBytes.append(Data(xrpHex: "00"))
             } else {
-                pathSetBytes.append(Data(hex: "ff"))
+                pathSetBytes.append(Data(xrpHex: "ff"))
             }
         }
         return pathSetBytes
