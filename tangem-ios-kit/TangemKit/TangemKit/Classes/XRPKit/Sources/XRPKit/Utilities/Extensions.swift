@@ -26,7 +26,7 @@ extension Data {
 
 extension Data {
     
-    init(hex: String) {
+    init(xrpHex hex: String) {
         var data = Data(capacity: hex.count / 2)
         
         let regex = try! NSRegularExpression(pattern: "[0-9a-f]{1,2}", options: .caseInsensitive)
