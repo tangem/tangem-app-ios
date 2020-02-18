@@ -23,6 +23,7 @@ protocol DefaultErrorAlertsCapable {
     func handleTXNotSignedByIssuer()
     func handleGenericError(_ error: Error, completion: (() -> Void)?)
     func handleStart2CoinLoad()
+    func handleOldDevice(completion: @escaping () -> Void)
 }
 
 extension DefaultErrorAlertsCapable where Self: UIViewController {
@@ -124,4 +125,12 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)        }))
         self.present(alert, animated: true, completion: nil)
     }
+    
+    func handleOldDevice(completion: @escaping () -> Void = {}) {
+        let validationAlert = UIAlertController(title: Localizations.dialogWarning, message: Localizations.oldDeviceForThisCard, preferredStyle: .alert)
+           validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: { (_) in
+               completion()
+           }))
+           self.present(validationAlert, animated: true, completion: nil)
+       }
 }
