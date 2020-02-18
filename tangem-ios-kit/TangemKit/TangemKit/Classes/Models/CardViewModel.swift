@@ -77,7 +77,7 @@ public class CardViewModel {
     public var address: String {
         return cardEngine.walletAddress
     }
-    
+    public var securityDelay: Int? = nil
     public var binaryAddress: String = ""
     public var isLinked = false
     public var walletPublicKey: String = ""
@@ -229,14 +229,34 @@ public class CardViewModel {
      */
     
     public var canExtract: Bool {
+        guard blockchain == .bitcoin
+            || blockchain == .ethereum
+            || blockchain == .cardano
+            || blockchain == .stellar
+            || blockchain == .rootstock
+            || blockchain == .binance
+            || blockchain == .bitcoinCash
+            || blockchain == .litecoin
+            || blockchain == .ducatus
+            || blockchain == .ripple else {
+                return false
+        }
+        
+        if let securityDelay = securityDelay, securityDelay <= 1500 {
+            return true
+        }
+        
         if batchId == 38 { //old cardano cards
             return true
         }
         
+        return !isOldFw
+    }
+    
+    public var isOldFw: Bool {
         let digits = firmware.remove("d SDK").remove("r").remove("\0")
         let ver = Decimal(string: digits) ?? 0
-        return ver >= 2.28 && (blockchain == .bitcoin || blockchain == .ethereum
-            || blockchain == .cardano || blockchain == .stellar || blockchain == .rootstock || blockchain == .binance || blockchain == .bitcoinCash || blockchain == .litecoin || blockchain == .ducatus || blockchain == .ripple)
+        return ver < 2.28
     }
     
     public let supportedSignMethods: SigningMethod?
@@ -425,6 +445,7 @@ public class CardViewModel {
         curve = card.curve
         settingsMask = card.settingsMask
         isLinked = card.terminalIsLinked
+        securityDelay = card.pauseBeforePin2
         setupEngine()
     }
     
