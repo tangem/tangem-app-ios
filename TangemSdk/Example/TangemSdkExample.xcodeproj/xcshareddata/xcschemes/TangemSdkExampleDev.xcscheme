@@ -28,6 +28,16 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E53EB3E323F2C7C90079CC11"
+               BuildableName = "TangemSdkExampleDevelopmentUITests.xctest"
+               BlueprintName = "TangemSdkExampleDevelopmentUITests"
+               ReferencedContainer = "container:TangemSDKExample.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
