@@ -83,7 +83,7 @@ public class XRPWallet {
     /// - Returns: standard XRP address encoded using XRP alphabet
     ///
     public static func deriveAddress(publicKey: String) -> String {
-        let accountID = Data([0x00]) + RIPEMD160.hash(message: Data(hex: publicKey).sha256())
+        let accountID = Data([0x00]) + RIPEMD160.hash(message: Data(xrpHex: publicKey).sha256())
         let checksum = Data(accountID).sha256().sha256().prefix(through: 3)
         let addrrssData = accountID + checksum
         let address = String(base58Encoding: addrrssData)
