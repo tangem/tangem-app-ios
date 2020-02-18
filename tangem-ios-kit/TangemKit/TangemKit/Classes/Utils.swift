@@ -13,6 +13,15 @@ public class Utils {
     struct SettingsKeys {
         static let legacyMode = "tangemsdk_legacymode_preference"
         static let isInitialized = "tangemsdk_preference_initialized"
+        static let oldDisclamerShown = "tangem_preference_oldDisclamerShown"
+    }
+    
+    public var isOldDisclamerShown: Bool {
+        UserDefaults.standard.bool(forKey: SettingsKeys.oldDisclamerShown)
+    }
+    
+    public func setOldDisclamerShown() {
+        UserDefaults.standard.set(true, forKey: SettingsKeys.oldDisclamerShown)
     }
 
     public var needLegacyMode: Bool {
