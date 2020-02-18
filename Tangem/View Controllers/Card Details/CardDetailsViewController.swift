@@ -50,7 +50,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             assertionFailure()
             return
         }
-        
+
         setupWithCardDetails(card: card)
     }
     
@@ -525,33 +525,46 @@ extension CardDetailsViewController {
         }
     }
     
-    @IBAction func extractButtonPressed(_ sender: Any) {
-        if #available(iOS 13.0, *), card!.canExtract  {
-            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
-            viewController.card = card
-            viewController.onDone = { [unowned self] in
-                guard let card = self.card else {
-                    return
-                }
+    @available(iOS 13.0, *)
+    private func showExtraction() {
+        let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
+        viewController.card = card
+        viewController.onDone = { [unowned self] in
+            guard let card = self.card else {
+                return
+            }
+            
+            Utils().setOldDisclamerShown()
+            
+            if card.type == .ducatus {
+                self.latestTxDate = Date()
+            }
+            
+            if card.hasPendingTransactions  {
+                self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+                self.updateBalance(forceUnverifyed: true)
                 
-                if card.type == .ducatus {
-                    self.latestTxDate = Date()
-                }
-                
-                if card.hasPendingTransactions  {
-                    self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
-                    self.updateBalance(forceUnverifyed: true)
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
-                        guard let self = self, !self.isBalanceVerified else {
-                            return
-                        }
-                        
-                        self.updateBalance()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
+                    guard let self = self, !self.isBalanceVerified else {
+                        return
                     }
+                    
+                    self.updateBalance()
                 }
             }
-            self.present(viewController, animated: true, completion: nil)
+        }
+        self.present(viewController, animated: true, completion: nil)
+    }
+    
+    @IBAction func extractButtonPressed(_ sender: Any) {
+        if #available(iOS 13.0, *), card!.canExtract  {
+            if card!.isOldFw && NfcUtils.isLegacyDevice && !Utils().isOldDisclamerShown {
+                handleOldDevice {
+                    self.showExtraction()
+                }
+            } else {
+              showExtraction()
+            }
         } else {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController") as! ExtractPlaceholderViewController
             
