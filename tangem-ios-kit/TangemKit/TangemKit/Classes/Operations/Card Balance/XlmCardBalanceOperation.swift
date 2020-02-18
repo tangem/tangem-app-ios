@@ -26,6 +26,13 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
     private let trustedDestination = "GAYPZMHFZERB42ONEJ4CY6ADDVTINEXMY6OZ5G6CLR4HHVKOSNJSZGMM"
     private let trustedSource = "GAZY7H4BWWEVB6QGB4RV3LW7DH5NO5CD5O6JCEQXA7N2UCGZSAPJFYW2"
     private let paymentsLimit = 200
+    private let isAsset: Bool
+    
+    init(card: CardViewModel, isAsset: Bool, completion: @escaping (TangemKitResult<CardViewModel>) -> Void) {
+        self.isAsset = isAsset
+        super.init(card: card, completion: completion)
+    }
+    
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
             return
@@ -142,19 +149,18 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
         let divider =  Decimal(10000000)
         let baseFee = Decimal(baseFeeS)/divider
         let baseReserve = Decimal(baseReserveS)/divider
-        
+        let reserveMultiply = isAsset ? 3.0 : 2.0
+        let fullReserve = baseReserve * Decimal(reserveMultiply)
         
         if let assetBalance = self.assetBalance,
             let decimalAssetBalance = Decimal(string: assetBalance) {
             engine.assetBalance = decimalAssetBalance
             engine.assetCode = self.assetCode
             card.walletTokenValue = decimalAssetBalance > 0 ? "\(decimalAssetBalance)" : "0"
-            let fullReserve = baseReserve * Decimal(3.0)
             let balanceWithoutReserve = decimalBalance - fullReserve
             card.walletValue = "\(balanceWithoutReserve)"
             engine.walletReserve = "\(fullReserve)"
         } else {
-            let fullReserve = baseReserve * Decimal(2.0)
             let balanceWithoutReserve = decimalBalance - fullReserve
             card.walletValue = "\(balanceWithoutReserve)"
             engine.walletReserve = "\(fullReserve)"
