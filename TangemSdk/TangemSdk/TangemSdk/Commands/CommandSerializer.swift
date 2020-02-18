@@ -13,7 +13,7 @@ import CoreNFC
 /// Abstract class for all Tangem card commands.
 public protocol CommandSerializer {
     /// Simple interface for responses received after sending commands to Tangem cards.
-    associatedtype CommandResponse
+    associatedtype CommandResponse: TlvCodable
     
     /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
     /// - Parameter environment: `CardEnvironment` of the current card
@@ -45,5 +45,16 @@ public extension CommandSerializer {
     /// 4 - Timeout setting for ping nfc-module
     func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
         return try! TlvBuilder().append(.legacyMode, value: 4)
+    }
+}
+
+public protocol TlvCodable: Codable, CustomStringConvertible {}
+
+extension TlvCodable {
+    public var description: String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        let data = (try? encoder.encode(self)) ?? Data()
+        return String(data: data, encoding: .utf8)!
     }
 }
