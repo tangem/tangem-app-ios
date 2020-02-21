@@ -8,7 +8,10 @@ def tangemioskit_pods
     pod 'Sodium'
     pod 'web3.swift.pod'
     pod 'stellar-ios-mac-sdk'
-    pod 'BinanceChain', :git => 'https://github.com/Tangem/binanceChain.git', :tag => '0.1'
+    pod 'BinanceChain', :git => 'https://github.com/Tangem/SwiftBinanceChain.git', :tag => '0.0.1'
+   # pod 'BinanceChain', :path => '/Users/alexander.osokin/repos/tangem-github/SwiftBinanceChain'
+    pod 'HDWalletKit', :git => 'https://github.com/Tangem/HDWallet.git', :tag => '0.3.6'
+#    pod 'HDWalletKit', :path => '/Users/alexander.osokin/repos/tangem-github/HDWallet', :tag => '0.3.5'
     pod 'Moya'
     pod 'AnyCodable-FlightSchool'
 end
