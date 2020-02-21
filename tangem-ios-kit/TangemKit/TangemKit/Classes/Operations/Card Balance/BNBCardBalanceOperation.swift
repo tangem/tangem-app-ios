@@ -36,8 +36,8 @@ class BNBCardBalanceOperation: BaseCardBalanceOperation {
         
         card.walletValue = balanceValue
         let engine = (card.cardEngine as! BinanceEngine)
-        engine.txBuilder.bnbWallet.sequence = sequence
-        engine.txBuilder.bnbWallet.accountNumber = account
+        engine.txBuilder.binanceWallet.sequence = sequence
+        engine.txBuilder.binanceWallet.accountNumber = account
         completeOperation()
     }
     
