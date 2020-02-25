@@ -9,7 +9,7 @@
 import Foundation
 
 /// Response for `SignCommand`.
-public struct SignResponse {
+public struct SignResponse: TlvCodable {
     /// CID, Unique Tangem card ID number
     public let cardId: String
     /// Signed hashes (array of resulting signatures)
