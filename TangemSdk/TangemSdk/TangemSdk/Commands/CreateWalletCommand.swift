@@ -9,7 +9,7 @@
 import Foundation
 
 /// Deserialized response from the Tangem card after `CheckWalletCommand`.
-public struct CreateWalletResponse {
+public struct CreateWalletResponse: TlvCodable {
     /// Unique Tangem card ID number
     public let cardId: String
     /// Current status of the card [1 - Empty, 2 - Loaded, 3- Purged]
