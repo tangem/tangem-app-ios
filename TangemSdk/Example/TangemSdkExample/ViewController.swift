@@ -162,9 +162,12 @@ class ViewController: UIViewController {
             self.log("Only iOS 13+")
         }
     }
+    @IBAction func clearTapped(_ sender: Any) {
+        self.logView.text = ""
+    }
     
     private func log(_ object: Any) {
-        self.logView.text = self.logView.text.appending("\(object)\n")
+        self.logView.text = self.logView.text.appending("\(object)\n\n")
         print(object)
     }
     
