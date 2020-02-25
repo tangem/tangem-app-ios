@@ -11,7 +11,7 @@ import GBAsyncOperation
 import Alamofire
 
 enum CardanoBackend: String{
-    case adaliteURL1 = "https://explorer2.adalite.io"
+    case adaliteURL1 = "https://explorer3.adalite.io"
     case adaliteURL2 = "https://nodes.southeastasia.cloudapp.azure.com"
     
     static var current: CardanoBackend = adaliteURL1
