@@ -9,7 +9,7 @@
 import Foundation
 
 /// Deserialized response from the Tangem card after `WriteIssuerDataCommand`.
-public struct WriteIssuerDataResponse {
+public struct WriteIssuerDataResponse: TlvCodable {
     /// Unique Tangem card ID number
     public let cardId: String
 }
