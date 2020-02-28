@@ -41,7 +41,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
         card.mult = priceUSD
         
         let stellarSdk = (card.cardEngine as! XlmEngine).stellarSdk
-        stellarSdk.accounts.getAccountDetails(accountId: "GB36JPXHJIP34EBRTZ6JVJXL3HEQ65S3CGOID2LKJXBYN2DNLVOFL6FX") {[weak self] response -> (Void) in
+        stellarSdk.accounts.getAccountDetails(accountId: card.address) {[weak self] response -> (Void) in
             switch response {
             case .success(let accountResponse):
                 if let xlmBalance = accountResponse.balances.first(where: {$0.assetType == AssetTypeAsString.NATIVE}) {
@@ -82,7 +82,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
     
     func requestPayments() {
         let stellarSdk = (card.cardEngine as! XlmEngine).stellarSdk
-        stellarSdk.payments.getPayments(forAccount: "GB36JPXHJIP34EBRTZ6JVJXL3HEQ65S3CGOID2LKJXBYN2DNLVOFL6FX", from: nil, order: Order.descending, limit: paymentsLimit, includeFailed: false, join: nil) { [weak self]  response -> (Void) in
+        stellarSdk.payments.getPayments(forAccount: card.address, from: nil, order: Order.descending, limit: paymentsLimit, includeFailed: false, join: nil) { [weak self]  response -> (Void) in
             switch response {
             case .success(let page):
                 self?.operations.append(contentsOf: page.records)
