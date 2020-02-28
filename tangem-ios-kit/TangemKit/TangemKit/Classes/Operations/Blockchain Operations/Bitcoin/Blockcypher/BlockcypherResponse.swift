@@ -28,3 +28,8 @@ struct BlockcypherFeeResponse: Codable {
     let medium_fee_per_kb: Int64?
     let high_fee_per_kb: Int64?
 }
+
+struct BlockcypherTx: Codable {
+    let hex: String?
+    let addresses: [String]?
+}
