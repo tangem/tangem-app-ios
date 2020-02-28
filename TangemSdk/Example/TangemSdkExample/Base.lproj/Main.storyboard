@@ -21,7 +21,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="NXv-gc-biR">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="499"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="457"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                         <accessibility key="accessibilityConfiguration" identifier="logView"/>
                                         <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -29,7 +29,7 @@
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                     <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" verticalCompressionResistancePriority="250" axis="vertical" distribution="fillProportionally" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="fbi-qN-21L">
-                                        <rect key="frame" x="0.0" y="507" width="375" height="160"/>
+                                        <rect key="frame" x="0.0" y="465" width="375" height="202"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="sV8-e7-m7M">
                                                 <rect key="frame" x="82.5" y="0.0" width="210" height="34"/>
@@ -76,8 +76,30 @@
                                                 </subviews>
                                                 <variation key="heightClass=compact-widthClass=compact" axis="vertical"/>
                                             </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="aAe-gq-JTO">
+                                                <rect key="frame" x="8.5" y="84" width="358" height="34"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ftg-Ok-Etf">
+                                                        <rect key="frame" x="0.0" y="0.0" width="171" height="34"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                                        <state key="normal" title="ReadIssuerExtraData"/>
+                                                        <connections>
+                                                            <action selector="readIssuerExtraDatatapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="KfV-FC-nqE"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mmK-A0-aJu">
+                                                        <rect key="frame" x="187" y="0.0" width="171" height="34"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                                        <state key="normal" title="WriteIssuerExtraData"/>
+                                                        <connections>
+                                                            <action selector="writeIssuerExtraDataTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="XqD-Ii-pvQ"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                                <variation key="heightClass=compact-widthClass=compact" axis="vertical"/>
+                                            </stackView>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Vf1-uM-1wA">
-                                                <rect key="frame" x="76.5" y="84" width="222" height="34"/>
+                                                <rect key="frame" x="76.5" y="126" width="222" height="34"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4wc-rX-9BO">
                                                         <rect key="frame" x="0.0" y="0.0" width="103" height="34"/>
@@ -99,7 +121,7 @@
                                                 <variation key="heightClass=compact-widthClass=compact" axis="vertical"/>
                                             </stackView>
                                             <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WNt-K3-8Wj">
-                                                <rect key="frame" x="166" y="126" width="43" height="34"/>
+                                                <rect key="frame" x="166" y="168" width="43" height="34"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                                 <state key="normal" title="Clear"/>
                                                 <connections>
