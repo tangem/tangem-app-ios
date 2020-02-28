@@ -62,6 +62,8 @@ public enum TaskError: Int, Error, LocalizedError {
     
     case unknownError = 6000
     
+    case missingCounter = 7001
+    
     public var errorDescription: String? {
         switch self {
         case .nfcTimeout:
