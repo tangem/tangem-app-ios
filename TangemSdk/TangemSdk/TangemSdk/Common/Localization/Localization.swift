@@ -39,6 +39,14 @@ public final class Localization {
         return string("nfc_seconds_left", p1)
     }
     
+    static func readProgress(_ p1: String) -> String {
+        return string("reading_data_progress", p1)
+    }
+    
+    static func writeProgress(_ p1: String) -> String {
+        return string("writing_data_progress", p1)
+    }
+    
     private static func string( _ key: String, _ args: CVarArg...) -> String {
         let format = getFormat(for: key)
         return String(format: format, locale: Locale.current, arguments: args)
