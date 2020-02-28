@@ -66,7 +66,7 @@ public class CardViewModel {
     public var cardEngine: CardEngine!
     
     public var status: CardStatus = .loaded
-    public var productMask: ProductMask = .note
+    public var productMask: ProductMask = ProductMask.note
     public var health = 0
     public var cardID: String = ""
     public var cardPublicKey: String = ""
@@ -419,7 +419,7 @@ public class CardViewModel {
         cardID = card.cardId ?? ""
         cardPublicKey = card.cardPublicKey?.hex ?? ""
         firmware = card.firmwareVersion  ?? ""
-        batchId =  Int(card.cardData?.batchId ?? "0x00") ?? -1
+        batchId =  Int(card.cardData?.batchId ?? "0x00", radix: 16) ?? -1
         manufactureDateTime = card.cardData?.manufactureDateTime?.toString() ?? ""
         issuer = card.cardData?.issuerName ?? ""
         manufactureId = card.manufacturerName ?? ""
@@ -557,6 +557,11 @@ public class CardViewModel {
         case .ripple:
             cardEngine = RippleEngine(card: self)
         case .ethereum:
+            if productMask == .card {
+                cardEngine = ETHIdEngine(card: self)
+                return
+            }
+            
             if tokenSymbol != nil {
                 cardEngine = TokenEngine(card: self)
             } else {
@@ -662,6 +667,9 @@ public extension CardViewModel {
         case .bitcoin:
             operation = BTCCardBalanceOperation(card: self, completion: onResult)
         case .ethereum:
+            if productMask.contains(.card) {
+                return ETHIdCardBalanceOperation(card: self, networkUrl: TokenNetwork.eth.rawValue, completion: onResult)
+            }            
             if tokenSymbol != nil {
                 operation = TokenCardBalanceOperation(card: self, completion: onResult)
             } else {
@@ -693,5 +701,4 @@ public extension CardViewModel {
         
         return operation
     }
-    
 }

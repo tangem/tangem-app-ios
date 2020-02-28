@@ -23,6 +23,7 @@ public final class ScanTask: Task<ScanEvent> {
     override public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
         if #available(iOS 13.0, *) {
             guard let card = currentCard else {
+                reader.stopSession(errorMessage: TaskError.missingPreflightRead.localizedDescription)
                 callback(.completion(TaskError.missingPreflightRead))
                 return
             }
