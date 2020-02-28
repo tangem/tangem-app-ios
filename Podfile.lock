@@ -74,7 +74,7 @@ DEPENDENCIES:
   - CryptoSwift
   - Fabric
   - GBAsyncOperation
-  - HDWalletKit (from `https://github.com/Tangem/HDWallet.git`, tag `0.3.6`)
+  - HDWalletKit (from `/Users/alexander.osokin/repos/tangem-github/HDWallet`)
   - Moya
   - QRCode (= 2.0)
   - Sodium
@@ -116,16 +116,13 @@ EXTERNAL SOURCES:
     :git: https://github.com/Tangem/SwiftBinanceChain.git
     :tag: 0.0.1
   HDWalletKit:
-    :git: https://github.com/Tangem/HDWallet.git
-    :tag: 0.3.6
+    :path: "/Users/alexander.osokin/repos/tangem-github/HDWallet"
+    :tag: 0.3.5
 
 CHECKOUT OPTIONS:
   BinanceChain:
     :git: https://github.com/Tangem/SwiftBinanceChain.git
     :tag: 0.0.1
-  HDWalletKit:
-    :git: https://github.com/Tangem/HDWallet.git
-    :tag: 0.3.6
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18

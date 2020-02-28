@@ -24,3 +24,7 @@
 "unknownStatus" = "Unknown card status";
 
 "generic_error_code" = "Operation could not be completed. Code: %@";
+
+"reading_data_progress" = "Reading data: %@%%";
+
+"writing_data_progress" = "Writing data: %@%%";
