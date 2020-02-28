@@ -22,6 +22,8 @@ public enum TlvValueType {
     case cardStatus
     case signingMethod
     case byte
+    case uint16
+    case issuerExtraDataMode
 }
 /// Contains all TLV tags, with their code and descriptive name.
 public enum TlvTag: Byte {
@@ -96,6 +98,9 @@ public enum TlvTag: Byte {
     case terminalPublicKey = 0x5C
     case terminalTransactionSignature = 0x57
     case legacyMode = 0x29
+    case mode = 0x23
+    case offset = 0x24
+    case size = 0x25
     
     /// `TlvValueType` associated with a `TlvTag`
     var valueType: TlvValueType {
@@ -123,6 +128,10 @@ public enum TlvTag: Byte {
             return .signingMethod
         case .transactionOutHashSize, .legacyMode:
             return .byte
+        case .mode:
+            return .issuerExtraDataMode
+        case .offset, .size:
+            return .uint16
         default:
             return .data
         }
