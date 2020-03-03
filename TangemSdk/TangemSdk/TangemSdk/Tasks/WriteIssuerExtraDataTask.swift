@@ -30,8 +30,7 @@ public final class WriteIssuerExtraDataTask: Task<WriteIssuerDataResponse> {
     }
     
     override public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
-        guard let curve = currentCard?.curve,
-            let settingsMask = currentCard?.settingsMask,
+        guard let settingsMask = currentCard?.settingsMask,
             let issuerPublicKeyFromCard = currentCard?.issuerPublicKey,
             let cardId = environment.cardId else {
                 reader.stopSession(errorMessage: TaskError.missingPreflightRead.localizedDescription)
@@ -46,8 +45,7 @@ public final class WriteIssuerExtraDataTask: Task<WriteIssuerDataResponse> {
         }
         
         guard verify(with: cardId,
-                     issuerPublicKey: issuerPublicKey ?? issuerPublicKeyFromCard,
-                     curve: curve) else {
+                     issuerPublicKey: issuerPublicKey ?? issuerPublicKeyFromCard) else {
                         reader.stopSession(errorMessage: TaskError.verificationFailed.localizedDescription)
                         callback(.completion(.verificationFailed))
                         return
@@ -114,18 +112,16 @@ public final class WriteIssuerExtraDataTask: Task<WriteIssuerDataResponse> {
         return offset..<offset + to
     }
     
-    private func verify(with cardId: String, issuerPublicKey: Data, curve: EllipticCurve) -> Bool {
+    private func verify(with cardId: String, issuerPublicKey: Data) -> Bool {
         let startingVerifierResult = IssuerDataVerifier().verify(cardId: cardId,
                                                                  issuerDataSize: issuerData.count,
                                                                  issuerDataCounter: issuerDataCounter,
-                                                                 curve: curve,
                                                                  publicKey: issuerPublicKey,
                                                                  signature: startingSignature)
         
         let finalizingVerifierResult = IssuerDataVerifier().verify(cardId: cardId,
                                                                    issuerData: issuerData,
                                                                    issuerDataCounter: issuerDataCounter,
-                                                                   curve: curve,
                                                                    publicKey: issuerPublicKey,
                                                                    signature: finalizingSignature)
         

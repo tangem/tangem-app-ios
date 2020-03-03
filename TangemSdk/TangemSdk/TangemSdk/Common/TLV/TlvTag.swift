@@ -102,12 +102,22 @@ public enum TlvTag: Byte {
     case offset = 0x24
     case size = 0x25
     
+    case fullname = 0xD0
+    case birthday = 0xD1
+    case photo = 0xD2
+    case gender = 0xD3
+    case issueDate = 0xD4
+    case expireDate = 0xD5
+    case trustedAddress = 0xD6
+    
+    
     /// `TlvValueType` associated with a `TlvTag`
     var valueType: TlvValueType {
         switch self {
         case .cardId, .pin, .pin2, .batchId:
             return .hexString
-        case .manufacturerName, .firmwareVersion, .issuerName, .blockchainName, .tokenSymbol, .tokenContractAddress:
+        case .manufacturerName, .firmwareVersion, .issuerName, .blockchainName, .tokenSymbol, .tokenContractAddress,
+             .fullname, .birthday, .gender, .issueDate, .expireDate, .trustedAddress:
             return .utf8String
         case .curveId:
             return .ellipticCurve
