@@ -15,21 +15,19 @@ public final class ReadIssuerExtraDataTask: Task<ReadIssuerExtraDataResponse> {
     
     private var issuerData = Data()
     private var issuerDataSize = 0
-    private var curve: EllipticCurve!
     
     public init(issuerPublicKey: Data? = nil) {
         self.issuerPublicKey = issuerPublicKey
     }
     
     override public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<ReadIssuerExtraDataResponse>) -> Void) {
-        guard let curve = currentCard?.curve, let issuerPublicKeyFromCard = currentCard?.issuerPublicKey else {
+        guard let issuerPublicKeyFromCard = currentCard?.issuerPublicKey else {
             reader.stopSession(errorMessage: TaskError.missingPreflightRead.localizedDescription)
             callback(.completion(TaskError.missingPreflightRead))
             return
         }
         
         self.callback = callback
-        self.curve = curve
         if issuerPublicKey == nil {
             issuerPublicKey = issuerPublicKeyFromCard
         }
@@ -66,7 +64,7 @@ public final class ReadIssuerExtraDataTask: Task<ReadIssuerExtraDataResponse> {
                                                                     issuerDataSignature: response.issuerDataSignature,
                                                                     issuerDataCounter: response.issuerDataCounter)
                     
-                    if let result = finalResponse.verify(curve: self.curve, publicKey: self.issuerPublicKey!),
+                    if let result = finalResponse.verify(publicKey: self.issuerPublicKey!),
                         result == true {
                         self.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
                         self.reader.stopSession()
