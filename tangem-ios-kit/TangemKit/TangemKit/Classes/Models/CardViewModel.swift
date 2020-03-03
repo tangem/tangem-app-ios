@@ -64,7 +64,7 @@ public enum Blockchain: String {
 public class CardViewModel {
     
     public var cardEngine: CardEngine!
-    
+    public var issuerExtraData: ReadIssuerExtraDataResponse?
     public var status: CardStatus = .loaded
     public var productMask: ProductMask = ProductMask.note
     public var health = 0
@@ -557,7 +557,7 @@ public class CardViewModel {
         case .ripple:
             cardEngine = RippleEngine(card: self)
         case .ethereum:
-            if productMask == .card {
+            if productMask.contains(.card) {
                 cardEngine = ETHIdEngine(card: self)
                 return
             }
@@ -700,5 +700,12 @@ public extension CardViewModel {
         }
         
         return operation
+    }
+    
+    public func getIdData() -> IdCardData? {
+        if let data = issuerExtraData?.issuerData {
+            return IdCardData(data)
+        }
+        return nil
     }
 }
