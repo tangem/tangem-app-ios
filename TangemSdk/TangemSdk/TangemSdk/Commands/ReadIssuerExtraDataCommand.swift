@@ -50,7 +50,15 @@ public struct ReadIssuerExtraDataResponse: TlvCodable {
      */
     public var issuerDataCounter: Int?
     
-    public func verify(curve: EllipticCurve, publicKey: Data) -> Bool? {
+    public init(cardId: String, size: Int?, issuerData: Data, issuerDataSignature: Data?, issuerDataCounter: Int?) {
+        self.cardId = cardId
+        self.size = size
+        self.issuerData = issuerData
+        self.issuerDataSignature = issuerDataSignature
+        self.issuerDataCounter = issuerDataCounter
+    }
+    
+    public func verify(publicKey: Data) -> Bool? {
         guard let signature = issuerDataSignature else {
             return nil
         }
@@ -59,7 +67,6 @@ public struct ReadIssuerExtraDataResponse: TlvCodable {
         return verifier.verify(cardId: cardId,
                                issuerData: issuerData,
                                issuerDataCounter: issuerDataCounter,
-                               curve: curve,
                                publicKey: publicKey,
                                signature: signature)
     }
@@ -113,7 +120,6 @@ public class IssuerDataVerifier {
     public func verify(cardId: String,
                        issuerData: Data,
                        issuerDataCounter: Int?,
-                       curve: EllipticCurve,
                        publicKey: Data,
                        signature: Data) -> Bool {
         
@@ -121,7 +127,6 @@ public class IssuerDataVerifier {
                                   issuerData: issuerData,
                                   issuerDataSize: nil,
                                   issuerDataCounter: issuerDataCounter,
-                                  curve: curve,
                                   publicKey: publicKey,
                                   signature: signature),
         verifyResult == true { return true }
@@ -131,7 +136,6 @@ public class IssuerDataVerifier {
     public func verify(cardId: String,
                        issuerDataSize: Int,
                        issuerDataCounter: Int?,
-                       curve: EllipticCurve,
                        publicKey: Data,
                        signature: Data) -> Bool {
         
@@ -139,7 +143,6 @@ public class IssuerDataVerifier {
                                   issuerData: nil,
                                   issuerDataSize: issuerDataSize,
                                   issuerDataCounter: issuerDataCounter,
-                                  curve: curve,
                                   publicKey: publicKey,
                                   signature: signature),
         verifyResult == true { return true }
@@ -150,7 +153,6 @@ public class IssuerDataVerifier {
                         issuerData: Data?,
                         issuerDataSize: Int?,
                         issuerDataCounter: Int?,
-                        curve: EllipticCurve,
                         publicKey: Data,
                         signature: Data) -> Bool? {
         
@@ -169,7 +171,7 @@ public class IssuerDataVerifier {
             }
         } catch { return nil }
         
-        return CryptoUtils.vefify(curve: curve,
+        return CryptoUtils.vefify(curve: .secp256k1,
                                   publicKey: publicKey,
                                   message: data,
                                   signature: signature)
