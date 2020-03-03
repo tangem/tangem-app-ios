@@ -96,12 +96,15 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
-        cardManager.scanCard {[unowned self] taskEvent in
+        let task = ScanTaskExtended()
+        cardManager.runTask(task, cardId: nil) {[unowned self] taskEvent in
             switch taskEvent {
             case .event(let scanEvent):
                 switch scanEvent {
                 case .onRead(let card):
                     self.card = CardViewModel(card)
+                case .onIssuerExtraDataRead(let extraData):
+                    self.card?.issuerExtraData = extraData
                 case .onVerify(let isGenuine):
                     self.card?.genuinityState = isGenuine ? .genuine : .nonGenuine
                 }
@@ -115,6 +118,11 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                 } else {
                     guard self.card!.isBlockchainKnown else {
                         self.handleUnknownBlockchainCard()
+                        return
+                    }
+                    
+                    guard !self.card!.productMask.contains(.card) else {
+                        UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
                         return
                     }
                     
