@@ -21,7 +21,7 @@ public protocol CardReader: class {
     func restartPolling()
 }
 
-extension CardReader {
+public extension CardReader {
     func stopSession(errorMessage: String? = nil) {
         stopSession(errorMessage: nil)
     }
