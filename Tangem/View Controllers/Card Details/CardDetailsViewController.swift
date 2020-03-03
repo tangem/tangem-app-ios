@@ -16,10 +16,10 @@ import TangemSdk
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     private lazy var cardManager: CardManager = {
-           let manager = CardManager()
-           manager.config.legacyMode = Utils().needLegacyMode
-           return manager
-       }()
+        let manager = CardManager()
+        manager.config.legacyMode = Utils().needLegacyMode
+        return manager
+    }()
     
     @IBOutlet var viewModel: CardDetailsViewModel! {
         didSet {
@@ -50,7 +50,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             assertionFailure()
             return
         }
-
+        
         setupWithCardDetails(card: card)
     }
     
@@ -132,7 +132,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
                 
                 if let msg = error as? String,
                     msg == "Account not found" {
-                   self.card!.hasAccount = false
+                    self.card!.hasAccount = false
                     let validationAlert = UIAlertController(title: Localizations.accountNotFound, message: Localizations.loadMoreXrpToCreateAccount, preferredStyle: .alert)
                     validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
                     self.present(validationAlert, animated: true, completion: nil)
@@ -480,22 +480,22 @@ extension CardDetailsViewController {
     @IBAction func actionButtonPressed(_ sender: Any)  {
         switch viewModel.actionButtonState {
         case .claimTag:
-             let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
-                   ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
-                       if let pswd = ac.textFields?.first?.text {
-                           self.performClaim(password: pswd)
-                       }
-                   }))
-                   
-                   ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
-                       // ac.dismiss(animated: true, completion: nil)
-                   }))
-                   
-                   ac.addTextField { textField in
-                       textField.isSecureTextEntry = true
-                   }
-                   
-                   self.present(ac, animated: true, completion: nil)
+            let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
+                if let pswd = ac.textFields?.first?.text {
+                    self.performClaim(password: pswd)
+                }
+            }))
+            
+            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
+                // ac.dismiss(animated: true, completion: nil)
+            }))
+            
+            ac.addTextField { textField in
+                textField.isSecureTextEntry = true
+            }
+            
+            self.present(ac, animated: true, completion: nil)
         case .createWallet:
             if #available(iOS 13.0, *) {
                 viewModel.actionButton.showActivityIndicator()
@@ -563,7 +563,7 @@ extension CardDetailsViewController {
                     self.showExtraction()
                 }
             } else {
-              showExtraction()
+                showExtraction()
             }
         } else {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController") as! ExtractPlaceholderViewController
@@ -581,7 +581,8 @@ extension CardDetailsViewController {
     
     @IBAction func scanButtonPressed(_ sender: Any) {
         viewModel.scanButton.showActivityIndicator()
-        cardManager.scanCard {[unowned self] taskEvent in
+        let task = ScanTaskExtended()
+        cardManager.runTask(task, cardId: nil) {[unowned self] taskEvent in
             switch taskEvent {
             case .event(let scanEvent):
                 switch scanEvent {
@@ -596,7 +597,9 @@ extension CardDetailsViewController {
                     if #available(iOS 13.0, *) {} else {
                         self.viewModel.doubleScanHintLabel.isHidden = false
                     }
-                     self.card = CardViewModel(card)
+                    self.card = CardViewModel(card)
+                case .onIssuerExtraDataRead(let extraData):
+                    self.card?.issuerExtraData = extraData
                 case .onVerify(let isGenuine):
                     self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
                 }
@@ -620,7 +623,7 @@ extension CardDetailsViewController {
                 }
                 
                 guard self.card!.status == .loaded else {
-                      self.setupWithCardDetails(card: self.card!)
+                    self.setupWithCardDetails(card: self.card!)
                     return
                 }
                 
