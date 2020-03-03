@@ -11,7 +11,7 @@ import web3swift
 import BigInt
 import HDWalletKit
 
-class ETHIdEngine: CardEngine {
+public class ETHIdEngine: CardEngine {
     let approvalPubkey = "04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729"
     let ethEngine: ETHEngine
     
@@ -27,26 +27,26 @@ class ETHIdEngine: CardEngine {
     
     var mainNetURL: String { TokenNetwork.eth.rawValue }
     
-    unowned var card: CardViewModel
+    unowned public var card: CardViewModel
     
     private var transaction: EthereumTransaction?
     private var hashForSign: Data?
     private let operationQueue = OperationQueue()
 
     
-    var blockchainDisplayName: String {
+    public var blockchainDisplayName: String {
         return "Ethereum"
     }
     
-    var walletType: WalletType {
+    public var walletType: WalletType {
         return .eth
     }
     
-    var walletUnits: String {
+    public var walletUnits: String {
         return "ETH"
     }
     
-    var qrCodePreffix: String {
+    public var qrCodePreffix: String {
         return "ethereum:"
     }
     
@@ -59,12 +59,12 @@ class ETHIdEngine: CardEngine {
         }
     }
     
-    var walletAddress: String = ""
-    var exploreLink: String {
+    public var walletAddress: String = ""
+    public var exploreLink: String {
         return "https://etherscan.io/address/" + walletAddress
     }
     
-    required init(card: CardViewModel) {
+    required public init(card: CardViewModel) {
         self.card = card
         ethEngine = ETHEngine(card: card)
         if card.isWallet {
@@ -72,7 +72,7 @@ class ETHIdEngine: CardEngine {
         }
     }
     
-    func setupAddress() {
+    public func setupAddress() {
         walletAddress = calculateAddress(from: card.walletPublicKey)
         approvalAddress = calculateAddress(from: approvalPubkey)
         card.node = "mainnet.infura.io"
