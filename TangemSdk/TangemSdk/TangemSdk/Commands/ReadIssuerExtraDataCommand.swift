@@ -117,6 +117,7 @@ public final class ReadIssuerExtraDataCommand: CommandSerializer {
 
 public class IssuerDataVerifier {
 
+    public init() {}
     public func verify(cardId: String,
                        issuerData: Data,
                        issuerDataCounter: Int?,
