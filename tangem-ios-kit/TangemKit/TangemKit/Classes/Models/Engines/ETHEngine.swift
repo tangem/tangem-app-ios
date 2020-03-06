@@ -10,7 +10,7 @@ import Foundation
 import web3swift
 import BigInt
 
-class ETHEngine: CardEngine {
+public class ETHEngine: CardEngine {
     var chainId: BigUInt {
         return 1
     }
@@ -21,45 +21,45 @@ class ETHEngine: CardEngine {
     
     var mainNetURL: String { TokenNetwork.eth.rawValue }
     
-    unowned var card: CardViewModel
+    unowned public var card: CardViewModel
     
     private var transaction: EthereumTransaction?
     private var hashForSign: Data?
     private let operationQueue = OperationQueue()
 
     
-    var blockchainDisplayName: String {
+    public var blockchainDisplayName: String {
         return "Ethereum"
     }
     
-    var walletType: WalletType {
+    public var walletType: WalletType {
         return .eth
     }
     
-    var walletUnits: String {
+    public var walletUnits: String {
         return "ETH"
     }
     
-    var qrCodePreffix: String {
+    public var qrCodePreffix: String {
         return "ethereum:"
     }
     
     public var txCount: Int = -1
     public var pendingTxCount: Int = -1
     
-    var walletAddress: String = ""
-    var exploreLink: String {
+    public var walletAddress: String = ""
+    public var exploreLink: String {
         return "https://etherscan.io/address/" + walletAddress
     }
     
-    required init(card: CardViewModel) {
+    required public init(card: CardViewModel) {
         self.card = card
         if card.isWallet {
             setupAddress()
         }
     }
     
-    func setupAddress() {
+    public func setupAddress() {
         let hexPublicKey = card.walletPublicKey
         let hexPublicKeyWithoutTwoFirstLetters = String(hexPublicKey[hexPublicKey.index(hexPublicKey.startIndex, offsetBy: 2)...])
         let binaryCuttPublicKey = dataWithHexString(hex: hexPublicKeyWithoutTwoFirstLetters)
@@ -75,11 +75,11 @@ class ETHEngine: CardEngine {
 
 
 extension ETHEngine: CoinProvider {
-    func getApiDescription() -> String {
+    public func getApiDescription() -> String {
         return "main"
     }
     
-    var coinTraitCollection: CoinTrait {
+    public var coinTraitCollection: CoinTrait {
         return isToken ? CoinTrait.allowsFeeSelector : CoinTrait.all
        }
     
@@ -87,7 +87,7 @@ extension ETHEngine: CoinProvider {
         return card.units != walletUnits
     }
     
-    func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
         let nonceValue = BigUInt(txCount)
         
         guard let feeValue = Web3.Utils.parseToBigUInt(fee, units: .eth),
@@ -163,7 +163,7 @@ extension ETHEngine: CoinProvider {
         return 60000
     }
     
-    func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
+    public func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
         
         let url = URL(string: mainNetURL)!
         let network = chainId == 1 ? Networks.Mainnet : Networks.Custom(networkID: chainId)
@@ -192,7 +192,7 @@ extension ETHEngine: CoinProvider {
         
     }
     
-    func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
+    public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
         
         guard let tx = getHashForSend(signFromCard: signFromCard) else {
             completion(false, "Empty hashes. Try again")
@@ -269,7 +269,7 @@ extension ETHEngine: CoinProvider {
         return txCount != pendingTxCount
     }
     
-    func validate(address: String) -> Bool {
+    public func validate(address: String) -> Bool {
         guard !address.isEmpty,
             address.lowercased().starts(with: "0x"),
             address.count == 42
