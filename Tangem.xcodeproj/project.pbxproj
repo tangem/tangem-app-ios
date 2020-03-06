@@ -63,6 +63,8 @@
 		5D5A9F82240D14EC00F9CF29 /* ScanTaskExtended.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */; };
 		5D5A9F84240E413100F9CF29 /* IdDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F83240E413100F9CF29 /* IdDetailsViewController.swift */; };
 		5D5A9F8A240E98F900F9CF29 /* IssueIdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F89240E98F900F9CF29 /* IssueIdViewController.swift */; };
+		5D5A9F8C240F992900F9CF29 /* NextResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F8B240F992900F9CF29 /* NextResponder.swift */; };
+		5D5A9F8E240FF91C00F9CF29 /* ConfirmIdTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F8D240FF91B00F9CF29 /* ConfirmIdTask.swift */; };
 		5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */; };
 		5DBBA0B823716FB000E0181E /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBA0B723716FB000E0181E /* Settings.bundle */; };
 		5DC4E2472338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
@@ -169,6 +171,8 @@
 		5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTaskExtended.swift; sourceTree = "<group>"; };
 		5D5A9F83240E413100F9CF29 /* IdDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdDetailsViewController.swift; sourceTree = "<group>"; };
 		5D5A9F89240E98F900F9CF29 /* IssueIdViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueIdViewController.swift; sourceTree = "<group>"; };
+		5D5A9F8B240F992900F9CF29 /* NextResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextResponder.swift; sourceTree = "<group>"; };
+		5D5A9F8D240FF91B00F9CF29 /* ConfirmIdTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmIdTask.swift; sourceTree = "<group>"; };
 		5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractPlaceholderViewController.swift; sourceTree = "<group>"; };
 		5DBBA0B723716FB000E0181E /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		5DC4E2492338C4A700D58E43 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -276,6 +280,7 @@
 			isa = PBXGroup;
 			children = (
 				5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */,
+				5D5A9F8D240FF91B00F9CF29 /* ConfirmIdTask.swift */,
 			);
 			path = SdkExtension;
 			sourceTree = "<group>";
@@ -433,6 +438,7 @@
 				80205B9C215FF3280091618F /* UIAlertController+TestData.swift */,
 				804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */,
 				80EC113B229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift */,
+				5D5A9F8B240F992900F9CF29 /* NextResponder.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -916,8 +922,10 @@
 				5DE995D92322C91A00623148 /* Localizations.swift in Sources */,
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
 				80EC113C229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift in Sources */,
+				5D5A9F8E240FF91C00F9CF29 /* ConfirmIdTask.swift in Sources */,
 				800036672111054900C151E8 /* CardDetailsViewModel.swift in Sources */,
 				80003681213C68DB00C151E8 /* CardMoreViewController.swift in Sources */,
+				5D5A9F8C240F992900F9CF29 /* NextResponder.swift in Sources */,
 				800036792111097700C151E8 /* UIViewExtensions.swift in Sources */,
 				80205B83215FCAFF0091618F /* NavigationManager.swift in Sources */,
 				80205B85215FDF390091618F /* TestCardParsingCapable.swift in Sources */,
