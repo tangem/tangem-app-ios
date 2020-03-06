@@ -12,10 +12,10 @@ import BigInt
 import HDWalletKit
 
 public class ETHIdEngine: CardEngine {
-    let approvalPubkey = "04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729"
+//    let approvalPubkey = "04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729"
     let ethEngine: ETHEngine
     
-    var approvalAddress: String!
+    public var approvalAddress: String!
     
     var chainId: BigUInt {
         return 1
@@ -73,9 +73,22 @@ public class ETHIdEngine: CardEngine {
     }
     
     public func setupAddress() {
-        walletAddress = calculateAddress(from: card.walletPublicKey)
-        approvalAddress = calculateAddress(from: approvalPubkey)
+        if let idData = card.getIdData() {
+            walletAddress = calculateWallet(idData: idData)
+            approvalAddress = idData.trustedAddress
+        } else {
+            walletAddress = ""
+        }
         card.node = "mainnet.infura.io"
+    }
+    
+    public func setupApprovalAddress(from approvalPubkey: Data) {
+        ethEngine.card.walletPublicKeyBytesArray = Array(approvalPubkey)
+        approvalAddress = calculateAddress(from: approvalPubkey.asHexString())
+    }
+    
+    public func send(signature: Data, completion: @escaping (Bool, Error?) ->Void ) {
+        return ethEngine.sendToBlockchain(signFromCard: Array(signature), completion: completion)
     }
     
     private func calculateAddress(from key: String) -> String {
@@ -87,32 +100,36 @@ public class ETHIdEngine: CardEngine {
         return "0x" + cutHexKeccak
     }
     
-    func getTxToSign(targetAddress: String) -> [Data]? {
-        let gasPrice = Decimal(10000000000)
-        let gasLimit = Decimal(21000)
+    public func getHashesToSign(idData: IdCardData) -> [Data]? {
+        let walletAddress = calculateWallet(idData: idData)
+        return getTxToSign(targetAddress: walletAddress)
+    }
+    
+    private func getTxToSign(targetAddress: String) -> [Data]? {
+        let gasPrice = BigUInt(10000000000)
+        let gasLimit = BigUInt(21000)
         let fee = gasPrice * gasLimit
-        let amount = fee + Decimal(1)
-        let hashes = ethEngine.getHashForSignature(amount: "\(amount)", fee: "\(fee)", includeFee: true, targetAddress: targetAddress)
+        let amount = fee + BigUInt(1)
+        let decimalCount = Int(self.blockchain.decimalCount)
+        let ethAmount = Web3.Utils.formatToEthereumUnits(amount, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
+        let ethFee = Web3.Utils.formatToEthereumUnits(fee, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
+        let hashes = ethEngine.getHashForSignature(amount: "\(ethAmount)", fee: "\(ethFee)", includeFee: true, targetAddress: targetAddress)
         return hashes
     }
     
-    func calculateWallet(name: String, lastname: String, birthDate: Date, gender: Gender, photo: UIImage) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy.MM.dd"
-        let dateString = dateFormatter.string(from: birthDate)
-        let inputs = "\(name) \(lastname);\(dateString)\(gender.rawValue)"
-        let info = inputs.data(using: .utf8)! + UIImageJPEGRepresentation(photo, 1.0)!
+    private func calculateWallet(idData: IdCardData) -> String {
+        let inputs = "\(idData.fullname);\(idData.birthDay)\(idData.gender)"
+        let info = inputs.data(using: .utf8)! + idData.photo
         let infoHash = info.sha256()
         
+        
+        
         let master = PrivateKey(privateKey: Data(pubKeyCompressed), chainCode: infoHash, index: 0, coin: .ethereum)
-        let child = master.derived(at: .hardened(1))
-        let childPublicKey = child.publicKey.uncompressedPublicKey.asHexString()
+        let child = master.derivedPublic()
+        let childPublicKey = child.publicKey.compressedPublicKey.asHexString()
+         print(childPublicKey)
         let address = calculateAddress(from: childPublicKey)
+        print(address)
         return address
     }
-}
-
-enum Gender: String {
-    case M
-    case F
 }
