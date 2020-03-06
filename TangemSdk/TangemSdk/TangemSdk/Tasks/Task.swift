@@ -109,6 +109,7 @@ open class Task<TEvent>: AnyTask {
     
     ///  If `true`, the task will execute `Read Command`  before main logic and will return `currentCard` in `onRun` or throw an error if some check will not pass. Eg. the wrong card was scanned
     public var performPreflightRead: Bool = true
+    open var startMessage: String? { return nil }
     
     public weak var delegate: CardManagerDelegate?
     
@@ -134,7 +135,7 @@ open class Task<TEvent>: AnyTask {
                 self?.delegate?.tagDidConnect()
             }
         }
-        reader.startSession()
+        reader.startSession(message: startMessage)
         if #available(iOS 13.0, *), performPreflightRead {
             preflightRead(environment: environment, callback: callback)
         } else {
