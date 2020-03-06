@@ -89,13 +89,13 @@ extension NFCReader: CardReader {
     }
     
     /// Start session and try to connect with tag
-    public func startSession() {
+    public func startSession(message: String?) {
         if let existingSession = readerSession, existingSession.isReady { return }
         readerSessionError.send(nil)
         connectedTag.send(nil)
         
         readerSession = NFCTagReaderSession(pollingOption: [.iso14443, .iso15693], delegate: self)!
-        readerSession!.alertMessage = Localization.nfcAlertDefault
+        readerSession!.alertMessage = message ?? Localization.nfcAlertDefault
         readerSession!.begin()
         nfcStuckTimer.start()
     }
