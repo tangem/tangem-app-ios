@@ -49,11 +49,15 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
     
     
     func performAddressRequest() {
+        guard !card.address.isEmpty else {
+            return
+        }
+        
         let operation: BtcRequestOperation<BlockcypherAddressResponse> = BtcRequestOperation(endpoint: BlockcypherEndpoint.address(address: card.address, api: .eth), completion: { [weak self] (result) in
             switch result {
             case .success(let response):
                 guard let txs = response.txrefs  else {
-                    self?.failOperationWith(error: "Failed to get data from blockchain")
+                  self?.handleAddressRequest([])
                     return
                 }
                 self?.handleAddressRequest(txs)
@@ -63,11 +67,12 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
         })
         
         operation.useTestNet = false
+        addRequest()
         operationQueue.addOperation(operation)
     }
     
     func performTxsRequest() {
-        guard currentRequest < txHashes.count - 1 else {
+        guard txHashes.count > 0, currentRequest < txHashes.count - 1 else {
             handleTxsComplete(hasTrusted: false)
             return
         }
@@ -99,6 +104,7 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
         })
         
         operation.useTestNet = false
+        addRequest()
         operationQueue.addOperation(operation)
     }
     
