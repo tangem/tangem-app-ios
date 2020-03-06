@@ -37,7 +37,7 @@ public final class WriteIssuerExtraDataTask: Task<WriteIssuerDataResponse> {
                 callback(.completion(TaskError.missingPreflightRead))
                 return
         }
-        
+        let ccid = currentCard?.cardId
         if settingsMask.contains(.protectIssuerDataAgainstReplay) && issuerDataCounter == nil {
             reader.stopSession(errorMessage: TaskError.missingCounter.localizedDescription)
             callback(.completion(.missingCounter))
