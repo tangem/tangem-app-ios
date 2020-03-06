@@ -19,6 +19,21 @@ public struct IdCardData {
     public let expireDate: String
     public let trustedAddress: String
     
+    public init(fullname: String, birthDay: Date, gender: String, photo: Data, trustedAddress: String) {
+        self.fullname = fullname
+        self.gender = gender
+        self.photo = photo
+        self.trustedAddress = trustedAddress
+        let issueDate = Date()
+        let calendar = Calendar(identifier: .gregorian)
+        let expireDate = calendar.date(byAdding: DateComponents.init(year: 10), to: issueDate)!
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        self.birthDay = dateFormatter.string(from: birthDay)
+        self.issueDate = dateFormatter.string(from: issueDate)
+        self.expireDate = dateFormatter.string(from: expireDate)
+    }
+    
     init?(_ tlvData: Data) {
         guard let tlv = Tlv.deserialize(tlvData) else {
             return nil
@@ -38,7 +53,7 @@ public struct IdCardData {
         }
     }
     
-    func serialize() -> Data? {
+    public func serialize() -> Data? {
         return try? TlvBuilder()
             .append(.fullname, value: fullname)
             .append(.birthday, value: birthDay)
