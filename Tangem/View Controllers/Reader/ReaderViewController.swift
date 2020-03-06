@@ -104,7 +104,9 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                 case .onRead(let card):
                     self.card = CardViewModel(card)
                 case .onIssuerExtraDataRead(let extraData):
-                    self.card?.issuerExtraData = extraData
+                    self.card!.issuerExtraData = extraData
+                    let idData = self.card!.getIdData()
+                    (self.card!.cardEngine as! ETHIdEngine).setupAddress()
                 case .onVerify(let isGenuine):
                     self.card?.genuinityState = isGenuine ? .genuine : .nonGenuine
                 }
