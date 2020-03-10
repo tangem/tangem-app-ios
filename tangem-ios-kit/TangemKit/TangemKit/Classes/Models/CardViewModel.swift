@@ -685,7 +685,7 @@ public extension CardViewModel {
             if tokenSymbol != nil {
                 operation = TokenCardBalanceOperation(card: self, completion: onResult)
             } else {
-                operation = ETHCardBalanceOperation(card: self, networkUrl: TokenNetwork.eth.rawValue, completion: onResult)
+                operation = ETHCardBalanceOperation(card: self, networkUrl: isTestBlockchain ? TokenNetwork.ethTest.rawValue : TokenNetwork.eth.rawValue, completion: onResult)
             }
         case .rootstock:
             let rskOperation = RSKCardBalanceOperation(card: self, completion: onResult)
