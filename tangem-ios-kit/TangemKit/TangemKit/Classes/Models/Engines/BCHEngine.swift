@@ -25,7 +25,7 @@ class BCHEngine: CardEngine {
     var qrCodePreffix: String = ""
     
     var exploreLink: String {
-        return "https://bch.btc.com/" + walletAddress
+        return "https://explorer.bitcoin.com/bch/address/" + walletAddress
     }
     
     var addressResponse: BtcResponse? {
