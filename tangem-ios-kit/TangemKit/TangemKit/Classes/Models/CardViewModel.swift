@@ -407,6 +407,26 @@ public class CardViewModel {
             return "card-xlm"
         case 0x0037:
             return "card-nodl"
+        case 0x0038:
+            return "card-swisskey-btc"
+        case 0x0039:
+            return "card-swisskey-eth"
+        case 0x0044:
+            return "card-ducatus"
+        case 0x0041, 0x0046:
+            return "card_tg054"
+        case 0x0042, 0x0047:
+            return "card_tg055"
+        case 0x0045:
+            return "card_tg057"
+        case 0x0049:
+            return "card_tg060"
+        case 0x0050:
+            return "card_tg061"
+        case 0x0051:
+            return "card_tg062"
+        case 0x0052:
+            return "card_tg063"
         default:
             return "card-default"
         }
