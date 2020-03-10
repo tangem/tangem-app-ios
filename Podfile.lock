@@ -45,7 +45,7 @@ PODS:
   - secp256k1.c (0.1.2)
   - Sodium (0.8.0)
   - Starscream (3.1.1)
-  - stellar-ios-mac-sdk (1.6.7)
+  - stellar-ios-mac-sdk (1.7.2)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.1.0)
   - SwiftLint (0.35.0)
@@ -73,7 +73,7 @@ DEPENDENCIES:
   - Moya
   - QRCode (= 2.0)
   - Sodium
-  - stellar-ios-mac-sdk
+  - stellar-ios-mac-sdk (~> 1.7.2)
   - SwiftCBOR
   - SwiftLint
   - SwiftyJSON
@@ -132,7 +132,7 @@ SPEC CHECKSUMS:
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
-  stellar-ios-mac-sdk: 9e2aa01b9f63af27ea3cbc012facfaada8e542bc
+  stellar-ios-mac-sdk: 17ebc6a02aa48fdb48f0fe01718195026d122f31
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: fa2bb3962056bb44047b4b85a30044e5eae30b03
   SwiftLint: 5553187048b900c91aa03552807681bb6b027846
@@ -143,4 +143,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 9851ab9fbd5195265d6715c43b0b3bbc0f14c38b
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1
