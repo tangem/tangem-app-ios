@@ -576,6 +576,7 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        operationQueue.cancelAllOperations()
         viewModel.scanButton.showActivityIndicator()
         cardManager.scanCard {[unowned self] taskEvent in
             switch taskEvent {
