@@ -12,14 +12,14 @@ import BigInt
 
 class ETHEngine: CardEngine {
     var chainId: BigUInt {
-        return 1
+        return card.isTestBlockchain ? Networks.Rinkeby.chainID : Networks.Mainnet.chainID
     }
-    
+
     var blockchain: Blockchain {
         return .ethereum
     }
     
-    var mainNetURL: String { TokenNetwork.eth.rawValue }
+    var mainNetURL: String { card.isTestBlockchain ? TokenNetwork.ethTest.rawValue : TokenNetwork.eth.rawValue }
     
     unowned var card: CardViewModel
     
@@ -166,7 +166,13 @@ extension ETHEngine: CoinProvider {
     func getFee(targetAddress: String, amount: String, completion: @escaping  ((min: String, normal: String, max: String)?)->Void) {
         
         let url = URL(string: mainNetURL)!
-        let network = chainId == 1 ? Networks.Mainnet : Networks.Custom(networkID: chainId)
+        
+        
+        guard let network = fromInt(chainId) else {
+            completion(nil)
+            return
+        }
+        
         let provider = Web3HttpProvider(url, network: network, keystoreManager: nil)!
         let web = web3(provider: provider)
         
@@ -279,4 +285,20 @@ extension ETHEngine: CoinProvider {
         
         return true;
     }
+    
+    func fromInt(_ networkID: BigUInt) -> Networks? {
+        switch networkID {
+        case 1:
+            return Networks.Mainnet
+        case 3:
+            return Networks.Ropsten
+        case 4:
+            return Networks.Rinkeby
+        case 42:
+            return Networks.Kovan
+        default:
+            return Networks.Custom(networkID: networkID)
+        }
+    }
 }
+
