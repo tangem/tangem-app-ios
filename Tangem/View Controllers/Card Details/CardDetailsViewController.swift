@@ -612,6 +612,8 @@ extension CardDetailsViewController {
                             self.setupWithCardDetails(card: self.card!)
                         }
                         return
+                    } else {
+                        return
                     }
                 }
                 
