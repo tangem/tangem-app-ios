@@ -419,7 +419,7 @@ public class CardViewModel {
         cardID = card.cardId ?? ""
         cardPublicKey = card.cardPublicKey?.hex ?? ""
         firmware = card.firmwareVersion  ?? ""
-        batchId =  Int(card.cardData?.batchId ?? "0x00") ?? -1
+        batchId =  Int(card.cardData?.batchId ?? "0x00", radix: 16) ?? -1
         manufactureDateTime = card.cardData?.manufactureDateTime?.toString() ?? ""
         issuer = card.cardData?.issuerName ?? ""
         manufactureId = card.manufacturerName ?? ""
