@@ -107,6 +107,10 @@ class ETHCardBalanceOperation: BaseCardBalanceOperation {
     }
     
     func complete() {
+        guard !isCancelled else {
+                   return
+               }
+        
          (card.cardEngine as! ETHEngine).txCount = txCountLoaded
          (card.cardEngine as! ETHEngine).pendingTxCount = pendingTxCountLoaded
          completeOperation()
