@@ -291,7 +291,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.extractButton.isEnabled = false
         viewModel.moreButton.isEnabled = false
         viewModel.scanButton.isEnabled = false
-        viewModel.buttonsAvailabilityView.isHidden = false
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
@@ -307,9 +306,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         if let card = card, card.productMask == .note && card.type != .nft {
             viewModel.loadButton.isEnabled = true
             viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
-            viewModel.buttonsAvailabilityView.isHidden = verified
         } else {
-            viewModel.buttonsAvailabilityView.isHidden = false
             viewModel.loadButton.isEnabled = false
             viewModel.extractButton.isEnabled = false
         }
@@ -343,7 +340,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.extractButton.isHidden = true
         viewModel.actionButton.isHidden = false
         viewModel.actionButton.isEnabled = true
-        viewModel.buttonsAvailabilityView.isHidden = true
         viewModel.walletBlockchainLabel.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
