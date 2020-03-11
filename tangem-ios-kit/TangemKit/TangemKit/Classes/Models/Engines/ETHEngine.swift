@@ -49,7 +49,8 @@ class ETHEngine: CardEngine {
     
     var walletAddress: String = ""
     var exploreLink: String {
-        return "https://etherscan.io/address/" + walletAddress
+        let baseUrl = card.isTestBlockchain ? "https://rinkeby.etherscan.io/address/" : "https://etherscan.io/address/"
+        return baseUrl + walletAddress
     }
     
     required init(card: CardViewModel) {
