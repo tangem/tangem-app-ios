@@ -12,7 +12,7 @@ import BigInt
 import HDWalletKit
 
 public class ETHIdEngine: CardEngine {
-//    let approvalPubkey = "04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729"
+    //    let approvalPubkey = "04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729"
     let ethEngine: ETHEngine
     
     public var approvalAddress: String!
@@ -32,7 +32,7 @@ public class ETHIdEngine: CardEngine {
     private var transaction: EthereumTransaction?
     private var hashForSign: Data?
     private let operationQueue = OperationQueue()
-
+    
     
     public var blockchainDisplayName: String {
         return "Ethereum"
@@ -122,14 +122,25 @@ public class ETHIdEngine: CardEngine {
         let info = inputs.data(using: .utf8)! + idData.photo
         let infoHash = info.sha256()
         
-        
-        
         let master = PrivateKey(privateKey: Data(pubKeyCompressed), chainCode: infoHash, index: 0, coin: .ethereum)
-        let child = master.derivedPublic()
-        let childPublicKey = child.publicKey.compressedPublicKey.asHexString()
-         print(childPublicKey)
+        let childPublicKey = master.derivedPublic().raw.asHexString()
         let address = calculateAddress(from: childPublicKey)
-        print(address)
         return address
+    }
+}
+
+
+class DetermenisticKey {
+    let raw: Data
+    let chainCode: Data
+    
+    init(raw: Data, chainCode: Data) {
+        self.raw = raw
+        self.chainCode = chainCode
+    }
+    
+    func derive() -> Data {
+        
+        return Data()
     }
 }
