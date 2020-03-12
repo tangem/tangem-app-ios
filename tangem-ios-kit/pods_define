@@ -7,7 +7,7 @@ def tangemioskit_pods
     pod 'SwiftCBOR'
     pod 'Sodium'
     pod 'web3.swift.pod'
-    pod 'stellar-ios-mac-sdk'
+    pod 'stellar-ios-mac-sdk', '~> 1.7.2'
     pod 'BinanceChain', :git => 'https://github.com/Tangem/binanceChain.git', :tag => '0.1'
     pod 'Moya'
     pod 'AnyCodable-FlightSchool'
