@@ -400,6 +400,9 @@ class ExtractViewController: ModalActionViewController {
         addressLabel.text = card.address
         feeLabel.text = Localizations.commonFeeStub
         amountText.text = card.balance
+        if card.remainingSignatures == "1" {
+            amountText.isEnabled = false
+        }
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection
         includeFeeContainer.isHidden = !traits.contains(CoinTrait.allowsFeeInclude)
