@@ -106,14 +106,16 @@ public class ETHIdEngine: CardEngine {
     }
     
     private func getTxToSign(targetAddress: String) -> [Data]? {
-        let gasPrice = BigUInt(10000000000)
-        let gasLimit = BigUInt(21000)
+        let gasPrice = Decimal(10000000000)
+        let gasLimit = Decimal(21000)
         let fee = gasPrice * gasLimit
-        let amount = fee + BigUInt(1)
-        let decimalCount = Int(self.blockchain.decimalCount)
-        let ethAmount = Web3.Utils.formatToEthereumUnits(amount, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
-        let ethFee = Web3.Utils.formatToEthereumUnits(fee, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
-        let hashes = ethEngine.getHashForSignature(amount: "\(ethAmount)", fee: "\(ethFee)", includeFee: true, targetAddress: targetAddress)
+        let amount = fee + Decimal(1)
+        
+        let etherInWei = pow(Decimal(10), 18)
+        
+        let ethAmount = amount / etherInWei
+        let ethFee = fee / etherInWei
+        let hashes = ethEngine.getHashForSignature(amount: "\(ethAmount)", fee: "\(ethFee)", includeFee: false, targetAddress: targetAddress)
         return hashes
     }
     
