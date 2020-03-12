@@ -133,6 +133,6 @@ public final class WriteIssuerExtraDataTask: Task<WriteIssuerDataResponse> {
                return
            }
         let progress = Int(round(Float(offset)/Float(issuerData.count) * 100.0))
-        delegate?.showAlertMessage(Localization.readProgress(progress.description))
+        delegate?.showAlertMessage(Localization.writeProgress(progress.description))
        }
 }
