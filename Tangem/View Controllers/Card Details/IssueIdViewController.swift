@@ -189,22 +189,6 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         let startingSignature = CryptoUtils.signSecp256k1(cardId + issuerDataCounter.bytes4 + confirmResponse.issuerData.count.bytes2, with: issuerKey)!
         let finalizingSignature =  CryptoUtils.signSecp256k1(cardId + confirmResponse.issuerData + issuerDataCounter.bytes4, with: issuerKey)!
         
-        
-        if let idEngine = card.cardEngine as? ETHIdEngine {
-                                                          idEngine.send(signature: confirmResponse.signature) { result, error in
-                                                              DispatchQueue.main.async {
-                                                                self.confirmButton.hideActivityIndicator()
-                                                                  if result {
-
-                                                                  } else {
-                                                                      let errMsg = (error as? String ?? error?.localizedDescription) ?? ""
-                                                                      self.handleTXSendError(message: "\(errMsg)")
-                                                                  }
-                                                              }
-                                                          }
-                                                      }
-        
-        return
         confirmButton.showActivityIndicator()
         cardManager.writeIssuerExtraData(cardId: card.cardID,
                                          issuerData: confirmResponse.issuerData,
