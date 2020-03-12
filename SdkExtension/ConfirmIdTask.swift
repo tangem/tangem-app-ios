@@ -41,6 +41,7 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
             return
         }
         
+        delegate?.showAlertMessage("Constructing transaction")
         let idEngine = card.cardEngine as! ETHIdEngine
         idEngine.setupApprovalAddress(from: trustedKey)
         self.callback = callback
@@ -51,22 +52,14 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
                                     trustedAddress: idEngine.approvalAddress)
         issuerData = idCardData.serialize()
         
-        guard issuerData != nil else {reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
+        guard issuerData != nil else {
+            reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
             callback(.completion(TaskError.errorProcessingCommand))
             return
         }
-        delegate?.showAlertMessage("Verifying")
+       
         
-        idEngine.approvalTxCount = 0
-        idEngine.hasApprovalTx = false
-        
-        guard let hashes = idEngine.getHashesToSign(idData: idCardData) else {
-                       self.reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
-                       callback(.completion(TaskError.errorProcessingCommand))
-                       return
-                   }
-                   
-                   self.sign(hashes, environment: environment)
+        delegate?.showAlertMessage("Requesting blockchain")
         
         let balanceOp = card.balanceRequestOperation(onSuccess: {[weak self] card in
             guard let self = self else { return }
@@ -76,7 +69,8 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
                 callback(.completion(TaskError.errorProcessingCommand))
                 return
             }
-            
+            self.delegate?.showAlertMessage("Signing")
+            self.reader.restartPolling()
             self.sign(hashes, environment: environment)
         }) { error in
             self.reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
