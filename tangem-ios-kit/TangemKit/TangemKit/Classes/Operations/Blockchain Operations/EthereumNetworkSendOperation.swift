@@ -12,10 +12,6 @@ import GBAsyncOperation
 
 public class EthereumNetworkSendOperation: GBAsyncOperation {
     
-    private struct Constants {
-        static let mainNetURL = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
-    }
-    
     var tx: String
     let networkUrl: String
     var completion: (TangemObjectResult<String>) -> Void
