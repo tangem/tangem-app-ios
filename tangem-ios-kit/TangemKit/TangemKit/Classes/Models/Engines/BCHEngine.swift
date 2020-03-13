@@ -25,7 +25,7 @@ class BCHEngine: CardEngine {
     var qrCodePreffix: String = ""
     
     var exploreLink: String {
-        return "https://bch.btc.com/" + walletAddress
+        return "https://explorer.bitcoin.com/bch/address/" + walletAddress
     }
     
     var addressResponse: BtcResponse? {
@@ -152,7 +152,9 @@ extension BCHEngine: CoinProvider {
                 
                 let estimatedTxSize = Decimal(estimatedTx.count + 1)
                 let fee = (Decimal(feePerByteSatoshi) * estimatedTxSize)/Decimal(100000000)
-                let feeString = "\(fee.rounded(blockchain: .bitcoinCash))"
+                let relayFee = Decimal(0.00001)
+                let finalFee = fee >= relayFee ? fee : relayFee
+                let feeString = "\(finalFee.rounded(blockchain: .bitcoinCash))"
                 completion((feeString,feeString,feeString))
             }
         }
