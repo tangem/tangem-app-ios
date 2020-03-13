@@ -203,7 +203,9 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                                                             self?.confirmButton.hideActivityIndicator()
                                                             if result {
                                                                 //todo go to read main screen
-                                                                self?.handleSuccess(message: "Id issued succesfully", completion: {  UIApplication.navigationManager().navigationController.popToRootViewController(animated: true)
+                                                                self?.handleSuccess(message: "Id issued succesfully", completion: { [weak self] in
+                                                                      self?.dismiss(animated: true, completion: nil)
+                                                                    UIApplication.navigationManager().navigationController.popToRootViewController(animated: true)
                                                                 })
                                                             } else {
                                                                 let errMsg = (error as? String ?? error?.localizedDescription) ?? ""
