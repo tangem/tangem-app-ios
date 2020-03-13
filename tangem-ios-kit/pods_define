@@ -7,7 +7,7 @@ def tangemioskit_pods
     pod 'SwiftCBOR'
     pod 'Sodium'
     pod 'web3.swift.pod'
-    pod 'stellar-ios-mac-sdk'
+    pod 'stellar-ios-mac-sdk', '~> 1.7.2'
     pod 'BinanceChain', :git => 'https://github.com/Tangem/SwiftBinanceChain.git', :tag => '0.0.1'
    # pod 'BinanceChain', :path => '/Users/alexander.osokin/repos/tangem-github/SwiftBinanceChain'
    # pod 'HDWalletKit', :git => 'https://github.com/Tangem/HDWallet.git', :tag => '0.3.6'
