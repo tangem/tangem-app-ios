@@ -12,7 +12,7 @@ import TangemKit
 
 class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapable {
     
-    @IBOutlet weak var contentLabel: UILabel!
+    @IBOutlet weak var contentLabel: UITextView!
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
             titleLabel.text = Localizations.moreInfo.uppercased()
@@ -47,8 +47,12 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
         
         let paragraphStyle = paragraphStyleWith(lineSpacingChange: 10.0, alignment: .left)
         let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
-                                                                                  NSAttributedStringKey.kern : 1.12])
-        eraseWalletButton.isEnabled = card.hasEmptyWallet && !card.hasPendingTransactions && ( card.isBalanceVerified || (!card.isBalanceVerified && !card.hasAccount))
+                                                                                  NSAttributedStringKey.kern : 1.12,
+                                                                                  NSAttributedStringKey.font : UIFont.systemFont(ofSize: 17, weight: .regular)
+        
+        
+])
+        eraseWalletButton.isEnabled = !card.productMask.contains(.card) && card.hasEmptyWallet && !card.hasPendingTransactions && ( card.isBalanceVerified || (!card.isBalanceVerified && !card.hasAccount))
         contentLabel.attributedText = attributedText
     }
     
@@ -56,7 +60,6 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing += lineSpacingChange
         paragraphStyle.alignment = alignment
-        
         return paragraphStyle
     }
     
