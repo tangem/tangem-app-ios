@@ -15,7 +15,7 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
     private let lock = DispatchSemaphore(value: 1)
     private var pendingTxCountLoaded = -1
     private var txHashes: [String] = []
-    private var currentRequest: Int = 0
+    private var currentRequest: Int = -1
     private var hasApprovalTx: Bool = false
     var networkUrl: String
     
@@ -56,9 +56,9 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
         let operation: BtcRequestOperation<BlockcypherAddressResponse> = BtcRequestOperation(endpoint: BlockcypherEndpoint.address(address: card.address, api: .eth), completion: { [weak self] (result) in
             switch result {
             case .success(let response):
-                guard let txs = response.txrefs  else {
+                guard let txs = response.txrefs else {
                   self?.handleAddressRequest([])
-                    return
+                return
                 }
                 self?.handleAddressRequest(txs)
             case .failure(let error):
@@ -88,7 +88,7 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
                     return
                 }
                 
-                guard let approvalAddress = (self?.card.cardEngine as? ETHIdEngine)?.approvalAddress else {
+                guard let approvalAddress = (self?.card.cardEngine as? ETHIdEngine)?.approvalAddress.stripHexPrefix() else {
                     return
                 }
                 
@@ -110,8 +110,9 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
     
     
     func handleAddressRequest(_ txrefs: [BlockcypherTxref]) {
+         removeRequest()
         self.txHashes = txrefs.compactMap { $0.tx_hash }
-        self.currentRequest = 0
+        self.currentRequest = -1
         performTxsRequest()
     }
     
@@ -157,6 +158,6 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
     var hasRequests: Bool {
         lock.wait()
         defer { lock.signal() }
-        return pendingRequests != 0
+        return pendingRequests > 0
     }
 }
