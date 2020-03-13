@@ -291,7 +291,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.extractButton.isEnabled = false
         viewModel.moreButton.isEnabled = false
         viewModel.scanButton.isEnabled = false
-        viewModel.buttonsAvailabilityView.isHidden = false
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
@@ -307,9 +306,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         if let card = card, card.productMask == .note && card.type != .nft {
             viewModel.loadButton.isEnabled = true
             viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
-            viewModel.buttonsAvailabilityView.isHidden = verified
         } else {
-            viewModel.buttonsAvailabilityView.isHidden = false
             viewModel.loadButton.isEnabled = false
             viewModel.extractButton.isEnabled = false
         }
@@ -343,7 +340,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.extractButton.isHidden = true
         viewModel.actionButton.isHidden = false
         viewModel.actionButton.isEnabled = true
-        viewModel.buttonsAvailabilityView.isHidden = true
         viewModel.walletBlockchainLabel.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
@@ -580,11 +576,10 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        operationQueue.cancelAllOperations()
         navigationController?.popViewController(animated: true)
-        
 //        viewModel.scanButton.showActivityIndicator()
-//        let task = ScanTaskExtended()
-//        cardManager.runTask(task, cardId: nil) {[unowned self] taskEvent in
+//        cardManager.scanCard {[unowned self] taskEvent in
 //            switch taskEvent {
 //            case .event(let scanEvent):
 //                switch scanEvent {
@@ -599,48 +594,48 @@ extension CardDetailsViewController {
 //                    if #available(iOS 13.0, *) {} else {
 //                        self.viewModel.doubleScanHintLabel.isHidden = false
 //                    }
-//                    self.card = CardViewModel(card)
-//                case .onIssuerExtraDataRead(let extraData):
-//                    self.card?.issuerExtraData = extraData
+//                     self.card = CardViewModel(card)
 //                case .onVerify(let isGenuine):
-//                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
+//                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
 //                }
 //            case .completion(let error):
 //                self.viewModel.scanButton.hideActivityIndicator()
 //                if let error = error {
 //                    self.isBalanceLoading = false
 //                    self.viewModel.setWalletInfoLoading(false)
-//
+//                    
 //                    if !error.isUserCancelled {
 //                        self.handleGenericError(error)
 //                        return
 //                    }
-//
+//                    
 //                    if self.isBalanceLoading {
 //                        self.handleNonGenuineTangemCard(self.card!) {
 //                            self.setupWithCardDetails(card: self.card!)
 //                        }
 //                        return
+//                    } else {
+//                        return
 //                    }
 //                }
-//
+//                
 //                guard self.card!.status == .loaded else {
-//                    self.setupWithCardDetails(card: self.card!)
+//                      self.setupWithCardDetails(card: self.card!)
 //                    return
 //                }
-//
+//                
 //                if self.card!.genuinityState == .genuine {
-//
+//                    
 //                    guard self.card!.isBlockchainKnown else {
 //                        self.handleUnknownBlockchainCard {
 //                            self.navigationController?.popViewController(animated: true)
 //                        }
 //                        return
 //                    }
-//
-//
+//                    
+//                    
 //                    self.setupWithCardDetails(card: self.card!)
-//
+//                    
 //                } else {
 //                    self.handleNonGenuineTangemCard(self.card!) {
 //                        self.setupWithCardDetails(card: self.card!)
