@@ -580,72 +580,74 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
-        viewModel.scanButton.showActivityIndicator()
-        let task = ScanTaskExtended()
-        cardManager.runTask(task, cardId: nil) {[unowned self] taskEvent in
-            switch taskEvent {
-            case .event(let scanEvent):
-                switch scanEvent {
-                case .onRead(let card):
-                    self.isBalanceLoading = true
-                    self.viewModel.setWalletInfoLoading(true)
-                    self.setupBalanceIsBeingVerified()
-                    self.viewModel.setSubstitutionInfoLoading(true)
-                    self.viewModel.actionButton.isHidden = true
-                    self.viewModel.extractButton.isHidden = false
-                    self.viewModel.loadButton.isHidden = false
-                    if #available(iOS 13.0, *) {} else {
-                        self.viewModel.doubleScanHintLabel.isHidden = false
-                    }
-                    self.card = CardViewModel(card)
-                case .onIssuerExtraDataRead(let extraData):
-                    self.card?.issuerExtraData = extraData
-                case .onVerify(let isGenuine):
-                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
-                }
-            case .completion(let error):
-                self.viewModel.scanButton.hideActivityIndicator()
-                if let error = error {
-                    self.isBalanceLoading = false
-                    self.viewModel.setWalletInfoLoading(false)
-                    
-                    if !error.isUserCancelled {
-                        self.handleGenericError(error)
-                        return
-                    }
-                    
-                    if self.isBalanceLoading {
-                        self.handleNonGenuineTangemCard(self.card!) {
-                            self.setupWithCardDetails(card: self.card!)
-                        }
-                        return
-                    }
-                }
-                
-                guard self.card!.status == .loaded else {
-                    self.setupWithCardDetails(card: self.card!)
-                    return
-                }
-                
-                if self.card!.genuinityState == .genuine {
-                    
-                    guard self.card!.isBlockchainKnown else {
-                        self.handleUnknownBlockchainCard {
-                            self.navigationController?.popViewController(animated: true)
-                        }
-                        return
-                    }
-                    
-                    
-                    self.setupWithCardDetails(card: self.card!)
-                    
-                } else {
-                    self.handleNonGenuineTangemCard(self.card!) {
-                        self.setupWithCardDetails(card: self.card!)
-                    }
-                }
-            }
-        }
+        navigationController?.popViewController(animated: true)
+        
+//        viewModel.scanButton.showActivityIndicator()
+//        let task = ScanTaskExtended()
+//        cardManager.runTask(task, cardId: nil) {[unowned self] taskEvent in
+//            switch taskEvent {
+//            case .event(let scanEvent):
+//                switch scanEvent {
+//                case .onRead(let card):
+//                    self.isBalanceLoading = true
+//                    self.viewModel.setWalletInfoLoading(true)
+//                    self.setupBalanceIsBeingVerified()
+//                    self.viewModel.setSubstitutionInfoLoading(true)
+//                    self.viewModel.actionButton.isHidden = true
+//                    self.viewModel.extractButton.isHidden = false
+//                    self.viewModel.loadButton.isHidden = false
+//                    if #available(iOS 13.0, *) {} else {
+//                        self.viewModel.doubleScanHintLabel.isHidden = false
+//                    }
+//                    self.card = CardViewModel(card)
+//                case .onIssuerExtraDataRead(let extraData):
+//                    self.card?.issuerExtraData = extraData
+//                case .onVerify(let isGenuine):
+//                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
+//                }
+//            case .completion(let error):
+//                self.viewModel.scanButton.hideActivityIndicator()
+//                if let error = error {
+//                    self.isBalanceLoading = false
+//                    self.viewModel.setWalletInfoLoading(false)
+//
+//                    if !error.isUserCancelled {
+//                        self.handleGenericError(error)
+//                        return
+//                    }
+//
+//                    if self.isBalanceLoading {
+//                        self.handleNonGenuineTangemCard(self.card!) {
+//                            self.setupWithCardDetails(card: self.card!)
+//                        }
+//                        return
+//                    }
+//                }
+//
+//                guard self.card!.status == .loaded else {
+//                    self.setupWithCardDetails(card: self.card!)
+//                    return
+//                }
+//
+//                if self.card!.genuinityState == .genuine {
+//
+//                    guard self.card!.isBlockchainKnown else {
+//                        self.handleUnknownBlockchainCard {
+//                            self.navigationController?.popViewController(animated: true)
+//                        }
+//                        return
+//                    }
+//
+//
+//                    self.setupWithCardDetails(card: self.card!)
+//
+//                } else {
+//                    self.handleNonGenuineTangemCard(self.card!) {
+//                        self.setupWithCardDetails(card: self.card!)
+//                    }
+//                }
+//            }
+//        }
     }
     
     @IBAction func moreButtonPressed(_ sender: Any) {
