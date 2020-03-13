@@ -20,6 +20,7 @@ protocol DefaultErrorAlertsCapable {
     func handleTXBuildError()
     func handleFeeOutadatedError()
     func handleSuccess(completion: @escaping () -> Void)
+    func handleSuccess(message: String, completion: @escaping () -> Void)
     func handleTXNotSignedByIssuer()
     func handleGenericError(_ error: Error, completion: (() -> Void)?)
     func handleStart2CoinLoad()
@@ -106,6 +107,15 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
         self.present(validationAlert, animated: true, completion: nil)
         
     }
+    
+    func handleSuccess(message: String, completion: @escaping () -> Void = {}) {
+          let validationAlert = UIAlertController(title: Localizations.success, message: message, preferredStyle: .alert)
+          validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: { (_) in
+              completion()
+          }))
+          self.present(validationAlert, animated: true, completion: nil)
+          
+      }
     
     func handleGenericError(_ error: Error, completion: (() -> Void)? = nil) {
         let message = error as?  String ?? error.localizedDescription
