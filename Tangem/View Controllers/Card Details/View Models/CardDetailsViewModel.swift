@@ -65,7 +65,11 @@ class CardDetailsViewModel: NSObject {
     
     // MARK: Buttons
     
-    @IBOutlet weak var buttonsAvailabilityView: UIView!
+    @IBOutlet weak var buttonsAvailabilityView: UIView! {
+        didSet {
+            buttonsAvailabilityView.isHidden = true
+        }
+    }
     
     @IBOutlet weak var loadButton: UIButton! {
         didSet {
