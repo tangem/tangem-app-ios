@@ -35,7 +35,7 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
     }
     
     public override func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<ConfirmIdResponse>) -> Void) {
-        guard let trustedCard = currentCard, let trustedKey = trustedCard.walletPublicKey  else {
+        guard let issuerCard = currentCard else {
             reader.stopSession(errorMessage: TaskError.missingPreflightRead.localizedDescription)
             callback(.completion(TaskError.missingPreflightRead))
             return
@@ -43,7 +43,8 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
         
         delegate?.showAlertMessage("Constructing transaction")
         let idEngine = card.cardEngine as! ETHIdEngine
-        idEngine.setupApprovalAddress(from: trustedKey)
+        let issuerCardViewModel = CardViewModel(issuerCard)
+        idEngine.setupApprovalAddress(issuerCard: issuerCardViewModel)
         self.callback = callback
         let idCardData = IdCardData(fullname: fullname,
                                     birthDay: birthDay,
@@ -57,21 +58,24 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
             callback(.completion(TaskError.errorProcessingCommand))
             return
         }
-       
+        
         
         delegate?.showAlertMessage("Requesting blockchain")
         
         let balanceOp = card.balanceRequestOperation(onSuccess: {[weak self] card in
             guard let self = self else { return }
             self.card = card
-            guard let hashes = idEngine.getHashesToSign(idData: idCardData) else {
-                self.reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
-                callback(.completion(TaskError.errorProcessingCommand))
-                return
+            idEngine.getHashesToSign(idData: idCardData) {[weak self] data in
+                guard let hashes = data else {
+                    self?.reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
+                    callback(.completion(TaskError.errorProcessingCommand))
+                    return
+                }
+                
+                self?.delegate?.showAlertMessage("Signing")
+                self?.reader.restartPolling()
+                self?.sign(hashes, environment: environment)
             }
-            self.delegate?.showAlertMessage("Signing")
-            self.reader.restartPolling()
-            self.sign(hashes, environment: environment)
         }) { error in
             self.reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
             callback(.completion(TaskError.errorProcessingCommand))
