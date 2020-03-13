@@ -37,7 +37,7 @@ public enum BlockcypherEndpoint: BtcEndpoint  {
         case .address(let address, let api):
             return "https://api.blockcypher.com/v1/\(api.rawValue)/main/addrs/\(address)?unspentOnly=true&includeScript=true"
         case .txs(let txHash, let api):
-            return "https://api.blockcypher.com/v1/\(api.rawValue)/main/\(txHash)?token=\(randomToken)"
+            return "https://api.blockcypher.com/v1/\(api.rawValue)/main/txs/\(txHash)?token=\(randomToken)"
         }
     }
     
