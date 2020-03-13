@@ -69,6 +69,11 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         self.hintLabel.text = Localizations.readerHintDefault
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+         super.viewDidAppear(animated)
+         scanButtonPressed(self)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         if #available(iOS 13.0, *) {
@@ -105,7 +110,6 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                     self.card = CardViewModel(card)
                 case .onIssuerExtraDataRead(let extraData):
                     self.card!.issuerExtraData = extraData
-                    let idData = self.card!.getIdData()
                     (self.card!.cardEngine as! ETHIdEngine).setupAddress()
                 case .onVerify(let isGenuine):
                     self.card?.genuinityState = isGenuine ? .genuine : .nonGenuine
