@@ -45,17 +45,4 @@ class NavigationManager {
         
         navigationController.pushViewController(cardDetailsViewController, animated: true)
     }
-    
-    func showIssueIdViewControllerWith(cardDetails: CardViewModel) {
-        let storyBoard = UIStoryboard(name: "Card", bundle: nil)
-        if #available(iOS 13.0, *) {
-            guard let cardDetailsViewController = storyBoard.instantiateViewController(withIdentifier: "IssueIdViewController") as? IssueIdViewController else {
-                return
-            }
-            
-            cardDetailsViewController.card = cardDetails
-            navigationController.pushViewController(cardDetailsViewController, animated: true)
-            
-        }
-    }
 }
