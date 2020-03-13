@@ -19,22 +19,22 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     @IBOutlet weak var idLabel: UILabel! {
         didSet {
-            idLabel.font = UIFont.tgm_maaxFontWith(size: 19, weight: .medium)
+            idLabel.font = UIFont.tgm_maaxFontWith(size: 20, weight: .medium)
         }
     }
     @IBOutlet weak var nameLabel: UILabel! {
         didSet {
-            nameLabel.font = UIFont.tgm_maaxFontWith(size: 20, weight: .bold)
+            nameLabel.font = UIFont.tgm_maaxFontWith(size: 24, weight: .medium)
         }
     }
     @IBOutlet weak var dateLabel: UILabel! {
         didSet {
-            dateLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
+            dateLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .regular)
         }
     }
     @IBOutlet weak var sexLabel: UILabel! {
         didSet {
-            sexLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
+            sexLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .regular)
         }
     }
     @IBOutlet weak var issueNewIdButton: UIButton! {
@@ -66,6 +66,7 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     public var card: CardViewModel!
+    var customPresentationController: CustomPresentationController?
     let operationQueue = OperationQueue()
     
     @IBAction func issueNewidTapped(_ sender: UIButton) {
@@ -77,7 +78,54 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @IBAction func moreTapped(_ sender: Any) {
+        guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+            return
+        }
         
+        var cardChallenge: String? = nil
+        if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
+            let cardChallenge1 = String(challenge.prefix(3))
+            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+            let cardChallenge3 = String(saltValue.prefix(3))
+            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+            cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+        }
+        
+        var verificationChallenge: String? = nil
+        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
+            let cardChallenge1 = String(challenge.prefix(3))
+            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+            let cardChallenge3 = String(saltValue.prefix(3))
+            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+            verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+        }
+        
+        var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
+            "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
+            "\(Localizations.detailsValidationNode): \(cardDetails.node)",
+            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)"]
+        
+        if cardDetails.type != .slix2 {
+            strings.append("\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)")
+            strings.append("\(Localizations.detailsFirmware): \(cardDetails.firmware)")
+            strings.append("\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)")
+            strings.append("\(Localizations.detailsTitleCardId): \(cardDetails.cardID)")
+            strings.append("\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)")
+            strings.append("\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)")
+        }
+        
+        if cardDetails.isLinked {
+            strings.append(Localizations.detailsLinkedCard)
+        }
+        
+        viewController.contentText = strings.joined(separator: "\n")
+        viewController.card = card!
+        
+        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        self.customPresentationController = presentationController
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: min(478, self.view.frame.height - 200))
+        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -13,7 +13,8 @@ import HDWalletKit
 
 public class ETHIdEngine: CardEngine {
     //    let approvalPubkey = "04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729"
-    let ethEngine: ETHEngine
+    var ethEngine: ETHEngine?
+    var issuerCard: CardViewModel?
     
     public var approvalAddress: String!
     
@@ -53,9 +54,9 @@ public class ETHIdEngine: CardEngine {
     public var hasApprovalTx: Bool = false
     
     public var approvalTxCount: Int {
-        get { return ethEngine.txCount }
+        get { return ethEngine?.txCount ?? -1}
         set {
-            ethEngine.txCount = newValue
+            ethEngine?.txCount = newValue
         }
     }
     
@@ -66,7 +67,6 @@ public class ETHIdEngine: CardEngine {
     
     required public init(card: CardViewModel) {
         self.card = card
-        ethEngine = ETHEngine(card: card)
         if card.isWallet {
             setupAddress()
         }
@@ -82,13 +82,14 @@ public class ETHIdEngine: CardEngine {
         card.node = "mainnet.infura.io"
     }
     
-    public func setupApprovalAddress(from approvalPubkey: Data) {
-        ethEngine.card.walletPublicKeyBytesArray = Array(approvalPubkey)
-        approvalAddress = calculateAddress(from: approvalPubkey.asHexString())
+    public func setupApprovalAddress(issuerCard: CardViewModel) {
+        self.issuerCard = issuerCard
+        ethEngine = ETHEngine(card: issuerCard)
+        approvalAddress = calculateAddress(from: issuerCard.walletPublicKey)
     }
     
     public func send(signature: Data, completion: @escaping (Bool, Error?) ->Void ) {
-        return ethEngine.sendToBlockchain(signFromCard: Array(signature), completion: completion)
+        return ethEngine!.sendToBlockchain(signFromCard: Array(signature), completion: completion)
     }
     
     private func calculateAddress(from key: String) -> String {
@@ -100,22 +101,30 @@ public class ETHIdEngine: CardEngine {
         return "0x" + cutHexKeccak
     }
     
-    public func getHashesToSign(idData: IdCardData) -> [Data]? {
+    
+    public func getHashesToSign(idData: IdCardData, completion: @escaping ([Data]?) -> Void){
         let walletAddress = calculateWallet(idData: idData)
-        return getTxToSign(targetAddress: walletAddress)
+        ethEngine?.getFee(targetAddress: walletAddress, amount: "") {[unowned self] fee in
+            let normalFee = fee?.normal ?? self.getFixedFee()
+            let hashes = self.getTxToSign(targetAddress: walletAddress, fee: normalFee)
+            completion(hashes)
+        }
     }
     
-    private func getTxToSign(targetAddress: String) -> [Data]? {
+    private func getFixedFee() -> String {
         let gasPrice = Decimal(10000000000)
         let gasLimit = Decimal(21000)
         let fee = gasPrice * gasLimit
-        let amount = fee + Decimal(1)
-        
         let etherInWei = pow(Decimal(10), 18)
-        
-        let ethAmount = amount / etherInWei
         let ethFee = fee / etherInWei
-        let hashes = ethEngine.getHashForSignature(amount: "\(ethAmount)", fee: "\(ethFee)", includeFee: false, targetAddress: targetAddress)
+        return "\(ethFee)"
+    }
+    
+    private func getTxToSign(targetAddress: String, fee: String) -> [Data]? {
+        let amount = Decimal(1)
+        let etherInWei = pow(Decimal(10), 18)
+        let ethAmount = amount / etherInWei
+        let hashes = ethEngine!.getHashForSignature(amount: "\(ethAmount)", fee: fee, includeFee: false, targetAddress: targetAddress)
         return hashes
     }
     
