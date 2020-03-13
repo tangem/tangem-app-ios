@@ -70,7 +70,7 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     let operationQueue = OperationQueue()
     
     @IBAction func issueNewidTapped(_ sender: UIButton) {
-        UIApplication.navigationManager().showIssueIdViewControllerWith(cardDetails: self.card!)
+        showIssueIdViewControllerWith(cardDetails: self.card!)
     }
     
     @IBAction func newScanTapped(_ sender: UIButton) {
@@ -159,5 +159,18 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             self?.statusLabel.textColor = UIColor.tgm_red()
         }
         operationQueue.addOperation(balanceOp!)
+    }
+    
+    func showIssueIdViewControllerWith(cardDetails: CardViewModel) {
+        let storyBoard = UIStoryboard(name: "Card", bundle: nil)
+        if #available(iOS 13.0, *) {
+            guard let cardDetailsViewController = storyBoard.instantiateViewController(withIdentifier: "IssueIdViewController") as? IssueIdViewController else {
+                return
+            }
+            
+            cardDetailsViewController.card = cardDetails
+            self.present(cardDetailsViewController, animated: true, completion: nil)
+            
+        }
     }
 }
