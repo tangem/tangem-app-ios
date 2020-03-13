@@ -12,6 +12,7 @@ import GBAsyncOperation
 
 enum TokenNetwork: String {
     case eth = "https://mainnet.infura.io/v3/613a0b14833145968b1f656240c7d245"
+    case ethTest = "https://rinkeby.infura.io/v3/613a0b14833145968b1f656240c7d245"
     case rsk = "https://public-node.rsk.co/"
 }
 
