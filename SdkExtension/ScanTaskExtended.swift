@@ -46,21 +46,22 @@ public final class ScanTaskExtended: Task<ScanExtendedEvent> {
             }
             
             callback(.event(.onRead(card)))
-                   
+            
             if card.cardData?.productMask?.contains(.card) ?? false {
                 readData(with: environment) {[weak self] result in
                     switch result {
                     case .success(let response):
-                         callback(.event(.onIssuerExtraDataRead(response)))
-                         self?.scanWithNfc(environment: environment, currentCard: card,  callback: callback)
+                        callback(.event(.onIssuerExtraDataRead(response)))
+                        self?.scanWithNfc(environment: environment, currentCard: card,  callback: callback)
                     case .failure(let error):
+                        self?.reader.stopSession(errorMessage: error.localizedDescription)
                         callback(.completion(error))
                     }
                 }
             } else {
-                 scanWithNfc(environment: environment, currentCard: card,  callback: callback)
+                scanWithNfc(environment: environment, currentCard: card,  callback: callback)
             }
-           
+            
         } else {
             scanWithNdef(environment: environment, callback: callback)
         }
@@ -84,7 +85,7 @@ public final class ScanTaskExtended: Task<ScanExtendedEvent> {
                         return
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        self.sendCommand(readCommand, environment: environment) {secondResult in
+                    self.sendCommand(readCommand, environment: environment) {secondResult in
                         switch secondResult {
                         case .failure(let error):
                             callback(.completion(error))
@@ -176,13 +177,14 @@ public final class ScanTaskExtended: Task<ScanExtendedEvent> {
         sendCommand(command, environment: environment) {[unowned self] result in
             switch result {
             case .success(let response):
-                if let dataSize = response.size {
-                    if dataSize == 0 { //no data
-                        completion(.success(response))
-                        return
-                    } else {
-                        self.issuerDataSize = dataSize // initialize only at start
-                    }
+                guard let dataSize = response.size else {
+                    //no data
+                    completion(.success(response))
+                    return
+                }
+                
+                if dataSize > 0 {
+                    self.issuerDataSize = dataSize // initialize only at start
                 }
                 
                 self.issuerData.append(response.issuerData)
