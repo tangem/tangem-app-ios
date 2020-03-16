@@ -48,7 +48,7 @@ class TokenCardBalanceOperation: BaseCardBalanceOperation {
             case .success(_):
                 self?.handleMainBalanceLoaded()
             case .failure(let error):
-                self?.failOperationWith(error: error)
+                self?.failOperationWith(error: error.0, title: error.title)
             }
         }
         operationQueue.addOperation(mainBalanceOperation)
