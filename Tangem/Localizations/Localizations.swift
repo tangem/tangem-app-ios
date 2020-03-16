@@ -521,8 +521,6 @@ class Localizations {
     static let storeTitle = translate("main_store_title")
     static let storeSubtitle = translate("main_store_subtitle")
     static let oldDeviceForThisCard = translate("old_device_this_card")
-    static let accountNotFound = translate("balance_validator_first_line_account_not_found")
-    static let loadMoreXrpToCreateAccount = translate("balance_validator_second_line_create_account_xrp")
 }
 // MARK: - Implementation Details
 
