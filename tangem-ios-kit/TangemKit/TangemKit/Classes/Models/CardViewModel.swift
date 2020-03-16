@@ -664,7 +664,7 @@ public extension CardViewModel {
     //        }
     //    }
     
-    func balanceRequestOperation(onSuccess: @escaping (CardViewModel) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation? {
+    func balanceRequestOperation(onSuccess: @escaping (CardViewModel) -> Void, onFailure: @escaping (Error, String?) -> Void) -> GBAsyncOperation? {
         var operation: GBAsyncOperation?
         
         let onResult = { (result: TangemKitResult<CardViewModel>) in            
@@ -672,8 +672,8 @@ public extension CardViewModel {
                 switch result {
                 case .success(let card):
                     onSuccess(card)
-                case .failure(let error):
-                    onFailure(error)
+                case .failure(let error, let title):
+                    onFailure(error, title)
                 }
             }
         }
