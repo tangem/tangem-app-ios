@@ -62,9 +62,8 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
         
         delegate?.showAlertMessage("Requesting blockchain")
         
-        let balanceOp = card.balanceRequestOperation(onSuccess: {[weak self] card in
+        let balanceOp = issuerCardViewModel.balanceRequestOperation(onSuccess: {[weak self] card in
             guard let self = self else { return }
-            self.card = card
             idEngine.getHashesToSign(idData: idCardData) {[weak self] data in
                 guard let hashes = data else {
                     self?.reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
