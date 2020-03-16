@@ -177,13 +177,12 @@ public final class ScanTaskExtended: Task<ScanExtendedEvent> {
         sendCommand(command, environment: environment) {[unowned self] result in
             switch result {
             case .success(let response):
-                guard let dataSize = response.size else {
-                    //no data
-                    completion(.success(response))
-                    return
-                }
-                
-                if dataSize > 0 {
+                if let dataSize = response.size {
+                    if dataSize == 0 {
+                        //no data
+                        completion(.success(response))
+                        return
+                    }
                     self.issuerDataSize = dataSize // initialize only at start
                 }
                 
