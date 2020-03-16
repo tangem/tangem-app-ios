@@ -53,12 +53,12 @@ public class ETHIdEngine: CardEngine {
     
     public var hasApprovalTx: Bool = false
     
-    public var approvalTxCount: Int {
-        get { return ethEngine?.txCount ?? -1}
-        set {
-            ethEngine?.txCount = newValue
-        }
-    }
+//    public var approvalTxCount: Int {
+//        get { return ethEngine?.txCount ?? -1}
+//        set {
+//            ethEngine?.txCount = newValue
+//        }
+//    }
     
     public var walletAddress: String = ""
     public var exploreLink: String {
@@ -84,7 +84,7 @@ public class ETHIdEngine: CardEngine {
     
     public func setupApprovalAddress(issuerCard: CardViewModel) {
         self.issuerCard = issuerCard
-        ethEngine = ETHEngine(card: issuerCard)
+        ethEngine = issuerCard.cardEngine as? ETHEngine
         approvalAddress = calculateAddress(from: issuerCard.walletPublicKey)
     }
     
