@@ -44,13 +44,14 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
         delegate?.showAlertMessage("Constructing transaction")
         let idEngine = card.cardEngine as! ETHIdEngine
         let issuerCardViewModel = CardViewModel(issuerCard)
-        idEngine.setupApprovalAddress(issuerCard: issuerCardViewModel)
+        idEngine.setupInternalEngine(issuerCard: issuerCardViewModel)
         self.callback = callback
+        let approvalAddress = idEngine.calculateAddress(from: issuerCardViewModel.walletPublicKey)
         let idCardData = IdCardData(fullname: fullname,
                                     birthDay: birthDay,
                                     gender: gender,
                                     photo: photo,
-                                    trustedAddress: idEngine.approvalAddress)
+                                    trustedAddress: approvalAddress)
         issuerData = idCardData.serialize()
         
         guard issuerData != nil else {
