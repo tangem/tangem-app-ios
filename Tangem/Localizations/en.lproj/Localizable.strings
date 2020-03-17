@@ -740,4 +740,4 @@
 
 "old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
 
-"last_sig" = "The last signature is available on the card. You can only withdraw all your funds";
+"last_sig" = "There is only one final signature available on this card. You must withdraw all of your funds in this transaction.";
