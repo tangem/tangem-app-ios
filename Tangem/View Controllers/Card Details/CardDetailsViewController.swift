@@ -125,22 +125,29 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             self.isBalanceLoading = false
             self.viewModel.setWalletInfoLoading(false)
             
-            }, onFailure: { (error) in
+            }, onFailure: { (error, title) in
                 self.isBalanceLoading = false
                 self.viewModel.setWalletInfoLoading(false)
                 
                 
-                if let msg = error as? String,
-                    msg == "Account not found" {
-                   self.card!.hasAccount = false
-                    let validationAlert = UIAlertController(title: Localizations.accountNotFound, message: Localizations.loadMoreXrpToCreateAccount, preferredStyle: .alert)
-                    validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
-                    self.present(validationAlert, animated: true, completion: nil)
-                } else {
-                    let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
-                    validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
-                    self.present(validationAlert, animated: true, completion: nil)
-                }
+                let errorTitle = title ?? Localizations.generalError
+                let errorMessage = error.localizedDescription
+                
+                let validationAlert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+                                  validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+                                  self.present(validationAlert, animated: true, completion: nil)
+                
+//                if let msg = error as? String,
+//                    msg == "Account not found" {
+//                   self.card!.hasAccount = false
+//                    let validationAlert = UIAlertController(title: Localizations.accountNotFound, message: Localizations.loadMoreXrpToCreateAccount, preferredStyle: .alert)
+//                    validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+//                    self.present(validationAlert, animated: true, completion: nil)
+//                } else {
+//                    let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
+//                    validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+//                    self.present(validationAlert, animated: true, completion: nil)
+//                }
                 
                 if card.productMask != .tag {
                     self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
