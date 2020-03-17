@@ -12,11 +12,14 @@ import BigInt
 import HDWalletKit
 
 public class ETHIdEngine: CardEngine {
-    //    let approvalPubkey = "04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729"
+    
+    let trustedKeys = ["04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729"]
     var ethEngine: ETHEngine?
     var issuerCard: CardViewModel?
     
-    public var approvalAddress: String!
+    public lazy var approvalAddresses: [String] = {
+        return trustedKeys.map{calculateAddress(from: $0).stripHexPrefix()}
+    }()
     
     var chainId: BigUInt {
         return 1
@@ -75,24 +78,22 @@ public class ETHIdEngine: CardEngine {
     public func setupAddress() {
         if let idData = card.getIdData() {
             walletAddress = calculateWallet(idData: idData)
-            approvalAddress = idData.trustedAddress
         } else {
             walletAddress = ""
         }
         card.node = "mainnet.infura.io"
     }
     
-    public func setupApprovalAddress(issuerCard: CardViewModel) {
+    public func setupInternalEngine(issuerCard: CardViewModel) {
         self.issuerCard = issuerCard
         ethEngine = issuerCard.cardEngine as? ETHEngine
-        approvalAddress = calculateAddress(from: issuerCard.walletPublicKey)
     }
     
     public func send(signature: Data, completion: @escaping (Bool, Error?) ->Void ) {
         return ethEngine!.sendToBlockchain(signFromCard: Array(signature), completion: completion)
     }
     
-    private func calculateAddress(from key: String) -> String {
+    public func calculateAddress(from key: String) -> String {
         let hexPublicKeyWithoutTwoFirstLetters = String(key[key.index(key.startIndex, offsetBy: 2)...])
         let binaryCuttPublicKey = dataWithHexString(hex: hexPublicKeyWithoutTwoFirstLetters)
         let keccak = binaryCuttPublicKey.sha3(.keccak256)
