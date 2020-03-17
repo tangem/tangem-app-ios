@@ -88,13 +88,15 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
                     return
                 }
                 
-                guard let approvalAddress = (self?.card.cardEngine as? ETHIdEngine)?.approvalAddress.stripHexPrefix() else {
+                guard let approvalAddreses = (self?.card.cardEngine as? ETHIdEngine)?.approvalAddresses else {
                     return
                 }
                 
-                if addresses.contains(approvalAddress) {
-                    self?.handleTxsComplete(hasTrusted: true)
-                    return
+                approvalAddreses.forEach { element in
+                    if addresses.contains(element) {
+                        self?.handleTxsComplete(hasTrusted: true)
+                        return
+                    }
                 }
                 
                 self?.performTxsRequest()
