@@ -69,12 +69,12 @@ PODS:
 DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BigInt
-  - BinanceChain (from `https://github.com/Tangem/SwiftBinanceChain.git`, tag `0.0.1`)
+  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.1`)
   - Crashlytics
   - CryptoSwift
   - Fabric
   - GBAsyncOperation
-  - HDWalletKit (from `/Users/alexander.osokin/repos/tangem-github/HDWallet`)
+  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.7`)
   - Moya
   - QRCode (= 2.0)
   - Sodium
@@ -113,16 +113,19 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   BinanceChain:
-    :git: https://github.com/Tangem/SwiftBinanceChain.git
+    :git: https://bitbucket.org/tangem/swiftbinancechain.git
     :tag: 0.0.1
   HDWalletKit:
-    :path: "/Users/alexander.osokin/repos/tangem-github/HDWallet"
-    :tag: 0.3.5
+    :git: https://bitbucket.org/tangem/hdwallet.git
+    :tag: 0.3.7
 
 CHECKOUT OPTIONS:
   BinanceChain:
-    :git: https://github.com/Tangem/SwiftBinanceChain.git
+    :git: https://bitbucket.org/tangem/swiftbinancechain.git
     :tag: 0.0.1
+  HDWalletKit:
+    :git: https://bitbucket.org/tangem/hdwallet.git
+    :tag: 0.3.7
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
