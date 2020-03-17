@@ -41,9 +41,18 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
             return
         }
         
-        delegate?.showAlertMessage("Constructing transaction")
+     
         let idEngine = card.cardEngine as! ETHIdEngine
         let issuerCardViewModel = CardViewModel(issuerCard)
+        
+        guard idEngine.trustedKeys.contains(issuerCardViewModel.walletPublicKey) else {
+            reader.stopSession(errorMessage: TaskError.wrongCard.localizedDescription)
+            callback(.completion(TaskError.wrongCard))
+            return
+        }
+        
+        delegate?.showAlertMessage("Constructing transaction")
+        
         idEngine.setupInternalEngine(issuerCard: issuerCardViewModel)
         self.callback = callback
         let approvalAddress = idEngine.calculateAddress(from: issuerCardViewModel.walletPublicKey)
