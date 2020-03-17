@@ -82,7 +82,7 @@ class CardanoCardBalanceOperation: GBAsyncOperation {
             return
         }
         
-        completion(.failure(error))
+        completion(.failure(error, title: nil))
         cancel()
     }
     
