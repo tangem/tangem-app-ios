@@ -738,10 +738,6 @@
 
 "already_claimed"="Already claimed";
 
-"balance_validator_first_line_account_not_found" = "Account not found";
-
-"balance_validator_second_line_create_account_xrp" = "Load 20+ XRP to create account";
-
 "old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
 
 "last_sig" = "The last signature is available on the card. You can only withdraw all your funds";
