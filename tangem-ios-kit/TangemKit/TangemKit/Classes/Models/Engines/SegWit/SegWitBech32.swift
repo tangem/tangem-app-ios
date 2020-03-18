@@ -13,7 +13,7 @@ import Foundation
 
 /// Segregated Witness Address encoder/decoder
 public class SegWitBech32 {
-    private static let bech32 = Bech32()
+    private static let bech32 = Bech32Internal()
     
     /// Convert from one power-of-2 number base to another
     private static func convertBits(from: Int, to: Int, pad: Bool, idata: Data) throws -> Data {
