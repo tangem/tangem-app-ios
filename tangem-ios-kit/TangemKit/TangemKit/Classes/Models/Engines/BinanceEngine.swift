@@ -42,8 +42,6 @@ class BinanceEngine: CardEngine {
         if card.isWallet {
             setupAddress()
         }
-  
-        
     }
     
     func setupAddress() {
@@ -52,20 +50,20 @@ class BinanceEngine: CardEngine {
             return
         }
         
-        let pubKeyHash = RIPEMD160.hash(message: forRIPEMD160) 
-        txBuilder.bnbWallet.compressedPublicKey = Data(pubKeyCompressed)
+        let pubKeyHash = RIPEMD160.hash(message: forRIPEMD160)
+        txBuilder.binanceWallet = BinanceWallet(publicKey: Data(pubKeyCompressed))
         if card.isTestBlockchain {
-            walletAddress = Bech32().encode("tbnb", values: pubKeyHash)
+            walletAddress = Bech32Internal().encode("tbnb", values: pubKeyHash)
             card.node = "testnet-dex.binance.org/"
             binance = BinanceChain(endpoint: BinanceChain.Endpoint.testnet)
-            txBuilder.bnbWallet.chainId = "Binance-Chain-Nile"
-            txBuilder.bnbWallet.endpoint = BinanceChain.Endpoint.testnet.rawValue
+            txBuilder.binanceWallet.chainId = "Binance-Chain-Nile"
+            txBuilder.binanceWallet.endpoint = BinanceChain.Endpoint.testnet.rawValue
         } else {
-            walletAddress = Bech32().encode("bnb", values: pubKeyHash)
+            walletAddress = Bech32Internal().encode("bnb", values: pubKeyHash)
             card.node = "dex.binance.org/"
             binance = BinanceChain(endpoint: BinanceChain.Endpoint.mainnet)
-            txBuilder.bnbWallet.chainId = "Binance-Chain-Tigris"
-            txBuilder.bnbWallet.endpoint = BinanceChain.Endpoint.mainnet.rawValue
+            txBuilder.binanceWallet.chainId = "Binance-Chain-Tigris"
+            txBuilder.binanceWallet.endpoint = BinanceChain.Endpoint.mainnet.rawValue
         }
     }
     
@@ -168,7 +166,7 @@ extension BinanceEngine: CoinProvider {
             return false
         }
         
-        guard let _ = try? Bech32().decode(address) else {
+        guard let _ = try? Bech32Internal().decode(address) else {
             return false
         }
         
@@ -191,11 +189,12 @@ extension BinanceEngine: CoinProvider {
 }
 
 class BinanceTransactionBuilder {
-    let bnbWallet = BNBWallet()
+    var binanceWallet: BinanceWallet!
     private var message: Message?
     
+    
     func buildForSign(amount: Decimal, targetAddress: String) -> Message {
-        message = Message.transfer(symbol: "BNB", amount: Double("\(amount)")!, to: targetAddress, wallet: bnbWallet)
+        message = Message.transfer(symbol: "BNB", amount: Double("\(amount)")!, to: targetAddress, wallet: binanceWallet)
        return message!
     }
     
@@ -205,14 +204,5 @@ class BinanceTransactionBuilder {
         }
         message.add(signature: signature)
         return message
-    }
-}
-
-class BNBWallet: Wallet {
-    var compressedPublicKey: Data!
-    override var publicKey: Data { compressedPublicKey }
-    required init() {
-        self.compressedPublicKey = Data()
-        super.init()
     }
 }
