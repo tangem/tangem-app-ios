@@ -85,7 +85,7 @@ public final class ConfirmIdTask: Task<ConfirmIdResponse> {
                 self?.reader.restartPolling()
                 self?.sign(hashes, environment: environment)
             }
-        }) { error in
+        }) { _,_  in
             self.reader.stopSession(errorMessage: TaskError.errorProcessingCommand.localizedDescription)
             callback(.completion(TaskError.errorProcessingCommand))
         }
