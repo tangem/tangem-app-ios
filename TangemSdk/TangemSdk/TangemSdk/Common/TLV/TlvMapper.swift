@@ -88,7 +88,7 @@ public final class TlvMapper {
             }
             
             return utfValue as! T
-        case .intValue, .byte:
+        case .intValue, .byte, .uint16:
             guard Int.self == T.self || Int?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be Int")
                 throw TaskError.wrongType
@@ -142,12 +142,11 @@ public final class TlvMapper {
                 throw TaskError.wrongType
             }
             
-            guard let byte = tagValue.toBytes.first,
-                let productMask = ProductMask(rawValue: byte) else {
+            guard let byte = tagValue.toBytes.first else {
                     print("Mapping error. Failed convert \(tag) to ProductMask")
                     throw TaskError.convertError
             }
-            
+            let productMask = ProductMask(rawValue: byte)
             return productMask as! T
         case .settingsMask:
             guard SettingsMask.self == T.self || SettingsMask?.self == T.self else {
@@ -179,6 +178,19 @@ public final class TlvMapper {
             let intValue = tagValue.toInt()
             let signingMethod = SigningMethod(rawValue: intValue)
             return signingMethod as! T
+        case .issuerExtraDataMode:
+            guard IssuerExtraDataMode.self == T.self || IssuerExtraDataMode?.self == T.self else {
+                print("Mapping error. Type for tag: \(tag) must be IssuerExtraDataMode")
+                throw TaskError.wrongType
+            }
+            
+            guard let byte = tagValue.toBytes.first,
+                let mode = IssuerExtraDataMode(rawValue: byte) else {
+                    print("Mapping error. Failed convert \(tag) to IssuerExtraDataMode")
+                    throw TaskError.convertError
+            }
+            
+            return mode as! T
         }
     }
 }
