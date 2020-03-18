@@ -56,7 +56,7 @@ class DucatusCardBalanceOperation: BaseCardBalanceOperation {
         
         guard let confirmed = balance.confirmed,
             let unconfirmed = balance.unconfirmed else {
-                failOperationWith(error: "Failed to get request")
+                failOperationWith(error: Localizations.loadedWalletErrorObtainingBlockchainData)
                 return
         }
         

@@ -56,6 +56,12 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
                 self?.sequence = accountResponse.sequenceNumber
                 self?.handleRequestComplete()
             case .failure(let horizonRequestError):
+                if case .notFound = horizonRequestError {
+                    self?.card.mult = 0
+                    self?.failOperationWith(error: Localizations.xlmCreateAccountHint, title: Localizations.accountNotFound)
+                    return
+                }
+                
                 self?.card.mult = 0
                 self?.failOperationWith(error: horizonRequestError)
             }
@@ -140,7 +146,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
             let incoming = self.hasIncomingTx,
             let outgoing = self.hasOutgoingTx else {
                 card.mult = 0
-                failOperationWith(error: "Response error")
+                failOperationWith(error: Localizations.loadedWalletErrorObtainingBlockchainData)
                 return
         }
         
