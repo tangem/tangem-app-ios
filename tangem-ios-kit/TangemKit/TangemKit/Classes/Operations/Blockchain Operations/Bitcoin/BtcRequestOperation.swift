@@ -10,6 +10,11 @@ import Foundation
 import SwiftyJSON
 import GBAsyncOperation
 
+protocol TokenizedEndpoint {
+    var tokenizedUrl: String {get}
+    var tokenizedTestUrl: String {get}
+}
+
 protocol BtcEndpoint {
     var url: String {get}
     var testUrl: String {get}
@@ -23,6 +28,7 @@ class BtcRequestOperation<T>: GBAsyncOperation where T: Decodable {
     var useTestNet = false
     let endpoint: BtcEndpoint
     var completion: (TangemObjectResult<T>) -> Void
+    var needToken = false
     
     init(endpoint: BtcEndpoint, completion: @escaping (TangemObjectResult<T>) -> Void) {
         self.endpoint = endpoint
@@ -30,7 +36,17 @@ class BtcRequestOperation<T>: GBAsyncOperation where T: Decodable {
     }
     
     override func main() {
-        let url = URL(string: useTestNet ? endpoint.testUrl : endpoint.url)!
+        request()
+    }
+    
+    func request() {
+        let url: URL = {
+            if let tokenizedEndpoint = endpoint as? TokenizedEndpoint, needToken {
+                return URL(string: useTestNet ? tokenizedEndpoint.tokenizedTestUrl : tokenizedEndpoint.tokenizedUrl)!
+            } else {
+                return URL(string: useTestNet ? endpoint.testUrl : endpoint.url)!
+            }
+        }()
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = endpoint.method
         urlRequest.httpBody = endpoint.body
@@ -51,7 +67,12 @@ class BtcRequestOperation<T>: GBAsyncOperation where T: Decodable {
                     self.completeOperationWith(response: response!)
                 }
             case .failure(let error):
-                self.failOperationWith(error: String(describing: error))
+                if self.endpoint is TokenizedEndpoint, (error as! String).contains("429") {
+                    self.needToken = true
+                    self.request()
+                } else {
+                    self.failOperationWith(error: String(describing: error))
+                }
             }
         }
         
