@@ -30,20 +30,6 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
         }
         
         card.mult = priceUSD
-//        let approvalAddress = (card.cardEngine as! ETHIdEngine).approvalAddress!
-//
-//        let pendingApprovalTxCountOperation = EthereumNetworkPendingTxCountOperation(address: approvalAddress, networkUrl: networkUrl) { [weak self] (result) in
-//            switch result {
-//            case .success(let value):
-//                self?.handlePendingTxCountLoaded(txCount: value)
-//            case .failure(let error):
-//                self?.failOperationWith(error: error)
-//            }
-//
-//        }
-//        addRequest()
-//        operationQueue.addOperation(pendingApprovalTxCountOperation)
-        
         performAddressRequest()
     }
     
