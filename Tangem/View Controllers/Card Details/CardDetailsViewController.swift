@@ -9,7 +9,6 @@
 import UIKit
 import QRCode
 import TangemKit
-import BinanceChain
 import CryptoSwift
 import TangemSdk
 
