@@ -60,6 +60,11 @@
 		5D099565232B7F200000DF03 /* SairaCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 800036452110F86E00C151E8 /* SairaCondensed-Regular.ttf */; };
 		5D4B31B92335072A00D3B92E /* TangemKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D4B31B82335072A00D3B92E /* TangemKit.framework */; };
 		5D4B31BA2335072A00D3B92E /* TangemKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5D4B31B82335072A00D3B92E /* TangemKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		5D5A9F82240D14EC00F9CF29 /* ScanTaskExtended.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */; };
+		5D5A9F84240E413100F9CF29 /* IdDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F83240E413100F9CF29 /* IdDetailsViewController.swift */; };
+		5D5A9F8A240E98F900F9CF29 /* IssueIdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F89240E98F900F9CF29 /* IssueIdViewController.swift */; };
+		5D5A9F8C240F992900F9CF29 /* NextResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F8B240F992900F9CF29 /* NextResponder.swift */; };
+		5D5A9F8E240FF91C00F9CF29 /* ConfirmIdTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F8D240FF91B00F9CF29 /* ConfirmIdTask.swift */; };
 		5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */; };
 		5DBBA0B823716FB000E0181E /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBA0B723716FB000E0181E /* Settings.bundle */; };
 		5DC4E2472338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
@@ -163,6 +168,11 @@
 		5D09956E232B7F210000DF03 /* Tangem copy2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Tangem copy2-Info.plist"; path = "/Users/alexander.osokin/repos/tangem/tangem-lite/Tangem copy2-Info.plist"; sourceTree = "<absolute>"; };
 		5D3CAD4D2319737E000F0AA9 /* Tangem copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Tangem copy-Info.plist"; path = "/Users/alexander.osokin/repos/tangem/tangem-lite/Tangem copy-Info.plist"; sourceTree = "<absolute>"; };
 		5D4B31B82335072A00D3B92E /* TangemKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTaskExtended.swift; sourceTree = "<group>"; };
+		5D5A9F83240E413100F9CF29 /* IdDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdDetailsViewController.swift; sourceTree = "<group>"; };
+		5D5A9F89240E98F900F9CF29 /* IssueIdViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueIdViewController.swift; sourceTree = "<group>"; };
+		5D5A9F8B240F992900F9CF29 /* NextResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextResponder.swift; sourceTree = "<group>"; };
+		5D5A9F8D240FF91B00F9CF29 /* ConfirmIdTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmIdTask.swift; sourceTree = "<group>"; };
 		5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractPlaceholderViewController.swift; sourceTree = "<group>"; };
 		5DBBA0B723716FB000E0181E /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		5DC4E2492338C4A700D58E43 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -266,6 +276,15 @@
 			path = TangemTests;
 			sourceTree = "<group>";
 		};
+		5D5A9F80240D14B100F9CF29 /* SdkExtension */ = {
+			isa = PBXGroup;
+			children = (
+				5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */,
+				5D5A9F8D240FF91B00F9CF29 /* ConfirmIdTask.swift */,
+			);
+			path = SdkExtension;
+			sourceTree = "<group>";
+		};
 		5DFB03D02326554300E278DD /* Localizations */ = {
 			isa = PBXGroup;
 			children = (
@@ -333,6 +352,8 @@
 				80003688213C74D600C151E8 /* View Models */,
 				8D899FBE202476DF006131E0 /* Card.storyboard */,
 				80C5257B2106923100754961 /* CardDetailsViewController.swift */,
+				5D5A9F83240E413100F9CF29 /* IdDetailsViewController.swift */,
+				5D5A9F89240E98F900F9CF29 /* IssueIdViewController.swift */,
 			);
 			path = "Card Details";
 			sourceTree = "<group>";
@@ -363,6 +384,7 @@
 		8D946D7C2018DA92006C73D9 = {
 			isa = PBXGroup;
 			children = (
+				5D5A9F80240D14B100F9CF29 /* SdkExtension */,
 				5DBBA0B723716FB000E0181E /* Settings.bundle */,
 				8D4B4A34205F9CCC0094E712 /* Tangem-Bridging-Header.h */,
 				8D946D872018DA92006C73D9 /* Tangem */,
@@ -416,6 +438,7 @@
 				80205B9C215FF3280091618F /* UIAlertController+TestData.swift */,
 				804638B221A36776005C539B /* UIViewControllerErrorsExtension.swift */,
 				80EC113B229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift */,
+				5D5A9F8B240F992900F9CF29 /* NextResponder.swift */,
 			);
 			path = Extentions;
 			sourceTree = "<group>";
@@ -725,7 +748,6 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Tangem beta/Pods-Tangem beta-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
-				"${BUILT_PRODUCTS_DIR}/BinanceChain/BinanceChain.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework",
 				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
@@ -741,6 +763,7 @@
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/XCGLogger/XCGLogger.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework",
+				"${BUILT_PRODUCTS_DIR}/secp256k1.swift/secp256k1.framework",
 				"${BUILT_PRODUCTS_DIR}/stellar-ios-mac-sdk/stellarsdk.framework",
 				"${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework",
 			);
@@ -748,7 +771,6 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BinanceChain.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GBAsyncOperation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
@@ -781,7 +803,6 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Tangem/Pods-Tangem-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
-				"${BUILT_PRODUCTS_DIR}/BinanceChain/BinanceChain.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/GBAsyncOperation/GBAsyncOperation.framework",
 				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
@@ -797,6 +818,7 @@
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/XCGLogger/XCGLogger.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1.c/secp256k1.framework",
+				"${BUILT_PRODUCTS_DIR}/secp256k1.swift/secp256k1.framework",
 				"${BUILT_PRODUCTS_DIR}/stellar-ios-mac-sdk/stellarsdk.framework",
 				"${BUILT_PRODUCTS_DIR}/web3.swift.pod/web3swift.framework",
 			);
@@ -804,7 +826,6 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BinanceChain.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GBAsyncOperation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
@@ -881,13 +902,16 @@
 				8D4B4A38205FA2300094E712 /* TestData.swift in Sources */,
 				800036692111060900C151E8 /* ModalActionViewController.swift in Sources */,
 				8000366F211108A200C151E8 /* CustomPresentationController.swift in Sources */,
+				5D5A9F82240D14EC00F9CF29 /* ScanTaskExtended.swift in Sources */,
 				80003685213C73B500C151E8 /* ExtractViewController.swift in Sources */,
 				5DA9422822DE14EF008CABF4 /* ExtractPlaceholderViewController.swift in Sources */,
 				80003671211108A800C151E8 /* ViewControllerInteractiveTransition.swift in Sources */,
 				80205B9D215FF3280091618F /* UIAlertController+TestData.swift in Sources */,
 				804638B321A36776005C539B /* UIViewControllerErrorsExtension.swift in Sources */,
+				5D5A9F84240E413100F9CF29 /* IdDetailsViewController.swift in Sources */,
 				80003670211108A400C151E8 /* ModalViewControllerDragView.swift in Sources */,
 				80C5257C2106923100754961 /* CardDetailsViewController.swift in Sources */,
+				5D5A9F8A240E98F900F9CF29 /* IssueIdViewController.swift in Sources */,
 				5DFB03D42326A35F00E278DD /* StubViewController.swift in Sources */,
 				8000368B213C9BFC00C151E8 /* QRCodeViewController.swift in Sources */,
 				8000367F2127671700C151E8 /* UIColorExtensions.swift in Sources */,
@@ -898,8 +922,10 @@
 				5DE995D92322C91A00623148 /* Localizations.swift in Sources */,
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
 				80EC113C229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift in Sources */,
+				5D5A9F8E240FF91C00F9CF29 /* ConfirmIdTask.swift in Sources */,
 				800036672111054900C151E8 /* CardDetailsViewModel.swift in Sources */,
 				80003681213C68DB00C151E8 /* CardMoreViewController.swift in Sources */,
+				5D5A9F8C240F992900F9CF29 /* NextResponder.swift in Sources */,
 				800036792111097700C151E8 /* UIViewExtensions.swift in Sources */,
 				80205B83215FCAFF0091618F /* NavigationManager.swift in Sources */,
 				80205B85215FDF390091618F /* TestCardParsingCapable.swift in Sources */,
