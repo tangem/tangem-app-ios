@@ -13,8 +13,8 @@ public final class TlvEncoder {
         if let value = value {
             return try Tlv(tag, value: encode(value, for: tag))
         } else {
-             print("Encoding error. Value for tag \(tag) is nil")
-             throw TaskError.serializeCommandError
+            print("Encoding error. Value for tag \(tag) is nil")
+            throw TaskError.serializeCommandError
         }
     }
     
@@ -42,6 +42,9 @@ public final class TlvEncoder {
         case .intValue:
             try typeCheck(value, Int.self)
             return (value as! Int).bytes4
+        case .uint16:
+            try typeCheck(value, Int.self)
+            return (value as! Int).bytes2
         case .boolValue:
             fatalError("Unsupported")
         case .data:
@@ -80,6 +83,10 @@ public final class TlvEncoder {
             try typeCheck(value, SigningMethod.self)
             let method = value as! SigningMethod
             return method.rawValue.byte
+        case .issuerExtraDataMode:
+            try typeCheck(value, IssuerExtraDataMode.self)
+            let mode = value as! IssuerExtraDataMode
+            return Data([mode.rawValue])
         }
     }
     
