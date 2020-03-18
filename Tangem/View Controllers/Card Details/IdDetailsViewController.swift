@@ -151,7 +151,7 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             
             self?.statusLabel.textColor = engine.hasApprovalTx ?  UIColor.tgm_green() : UIColor.tgm_red()
             self?.statusLabel.text = engine.hasApprovalTx ?  "Verified" : "Not registered"
-        }) {[weak self] error in
+        }) {[weak self] _,_ in
             let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
             validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
             self?.present(validationAlert, animated: true, completion: nil)
