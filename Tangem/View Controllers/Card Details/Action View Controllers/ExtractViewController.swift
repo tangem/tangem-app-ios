@@ -402,6 +402,9 @@ class ExtractViewController: ModalActionViewController {
         amountText.text = card.balance
         if card.remainingSignatures == "1" {
             amountText.isEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.handleGenericError(Localizations.lastSignature)
+            }
         }
         
         let traits = (self.card.cardEngine as! CoinProvider).coinTraitCollection

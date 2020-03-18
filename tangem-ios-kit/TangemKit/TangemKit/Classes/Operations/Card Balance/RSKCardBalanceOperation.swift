@@ -51,7 +51,7 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
                       self?.handleMainBalanceLoaded()
                   case .failure(let error):
                       self?.card.mult = 0
-                      self?.failOperationWith(error: error)
+                      self?.failOperationWith(error: error.0, title: error.title)
                   }
               }
               operationQueue.addOperation(mainBalanceOperation)

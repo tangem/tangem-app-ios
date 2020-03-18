@@ -82,7 +82,7 @@ public class RippleEngine: CardEngine {
 }
 
 
-extension RippleEngine: CoinProvider {
+extension RippleEngine: CoinProvider, CoinProviderAsync {
     public var hasPendingTransactions: Bool {
         confirmedBalance != unconfirmedBalance
     }
@@ -91,40 +91,85 @@ extension RippleEngine: CoinProvider {
         .all
     }
     
-    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
+    private func checkTargetAccountCreated(_ address: String, completion: @escaping (Bool?) -> Void) {
+        provider.request(.accountInfo(account: address)) { result in
+            switch result {
+            case .success(let response):
+                guard let xrpResult = (try? response.map(XrpResponse.self))?.result else {
+                    completion(nil)
+                    return
+                }
+                
+                if let code = xrpResult.error_code, code == 19 {
+                    completion(false)
+                    return
+                } else {
+                    completion(true)
+                    return
+                }
+                
+            case .failure(let error):
+                print(error)
+                completion(nil)
+            }
+        }
+    }
+    
+    
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping ([Data]?, Error?) -> Void) {
         guard let amountDecimal = Decimal(string: amount),
             let feeDecimal = Decimal(string: fee),
             let account = self.accountInfo?.account,
-            let sequence = self.accountInfo?.sequence else {
-                return nil
+            let sequence = self.accountInfo?.sequence,
+            let stringReserve = walletReserve,
+            let reserve = Decimal(string: stringReserve) else {
+                completion(nil, nil)
+                return
         }
         
         let finalAmountDecimal = includeFee ? amountDecimal - feeDecimal : amountDecimal
         let amountDrops = finalAmountDecimal * Decimal(1000000)
         let feeDrops = feeDecimal * Decimal(1000000)
         
-        // dictionary containing partial transaction fields
-        let fields: [String:Any] = [
-            "Account" : account,
-            "TransactionType" : "Payment",
-            "Destination" : targetAddress,
-            "Amount" : "\(amountDrops)",
-            // "Flags" : UInt64(2147483648),
-            "Fee" : "\(feeDrops)",
-            "Sequence" : sequence,
-        ]
         
-        // create the transaction from dictionary
-        let partialTransaction = XRPTransaction(fields: fields)
-        unsignedTransaction = partialTransaction
-        let dataToSign = partialTransaction.dataToSign(publicKey: canonicalPubKey.hexString)
-        switch card.curveID {
-        case .ed25519:
-            return [dataToSign]
-        case .secp256k1:
-            return [dataToSign.sha512Half()]
+        checkTargetAccountCreated(targetAddress) {[weak self] isAccountCreated in
+            guard let self = self, let isAccountCreated = isAccountCreated else {
+                completion(nil, nil)
+                return
+            }
+            
+            if !isAccountCreated && finalAmountDecimal < reserve {
+                completion(nil, "Target account is not created. Amount to send should be \(stringReserve) XRP + fee or more")
+                return
+            }
+            
+            // dictionary containing partial transaction fields
+            let fields: [String:Any] = [
+                "Account" : account,
+                "TransactionType" : "Payment",
+                "Destination" : targetAddress,
+                "Amount" : "\(amountDrops)",
+                // "Flags" : UInt64(2147483648),
+                "Fee" : "\(feeDrops)",
+                "Sequence" : sequence,
+            ]
+            
+            // create the transaction from dictionary
+            let partialTransaction = XRPTransaction(fields: fields)
+            self.unsignedTransaction = partialTransaction
+            let dataToSign = partialTransaction.dataToSign(publicKey: self.canonicalPubKey.hexString)
+            switch self.card.curveID {
+            case .ed25519:
+                completion([dataToSign], nil)
+            case .secp256k1:
+                completion([dataToSign.sha512Half()], nil)
+            }
         }
-        
+    }
+    
+    
+    public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
+        return nil
     }
     
     public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
@@ -194,8 +239,8 @@ extension RippleEngine: CoinProvider {
                 let max = maxFeeDecimal/Decimal(1000000)
                 
                 let fee = ("\(min.rounded(blockchain: .ripple))",
-                                      "\(normal.rounded(blockchain: .ripple))",
-                                      "\(max.rounded(blockchain: .ripple))")
+                    "\(normal.rounded(blockchain: .ripple))",
+                    "\(max.rounded(blockchain: .ripple))")
                 completion(fee)
             case .failure(let error):
                 print(error.localizedDescription)
