@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import BinanceChain
+import HDWalletKit
 import Moya
 import SwiftyJSON
 
@@ -50,7 +50,7 @@ class BCHEngine: CardEngine {
     func setupAddress() {
         let prefix = Data([UInt8(0x00)]) //public key hash
         let payload = RIPEMD160.hash(message: Data(pubKeyCompressed.sha256()))
-        walletAddress = HDBech32.encode(prefix + payload, prefix: "bitcoincash")
+        walletAddress = Bech32.encode(prefix + payload, prefix: "bitcoincash")
         txBuilder = BitcoinCashTransactionBuilder(walletAddress: walletAddress, walletPublicKey: Data(pubKeyCompressed), isTestnet: card.isTestBlockchain)
     }
 }
