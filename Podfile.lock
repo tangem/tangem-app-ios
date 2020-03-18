@@ -24,8 +24,8 @@ PODS:
   - Fabric (1.10.2)
   - GBAsyncOperation (0.2.1)
   - HDWalletKit (0.3.5):
-    - CryptoSwift (~> 1.0.0)
-    - secp256k1.swift (~> 0.1.4)
+    - CryptoSwift
+    - secp256k1.swift
   - Moya (13.0.1):
     - Moya/Core (= 13.0.1)
   - Moya/Core (13.0.1):
@@ -69,12 +69,12 @@ PODS:
 DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BigInt
-  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.1`)
+  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.2`)
   - Crashlytics
   - CryptoSwift
   - Fabric
   - GBAsyncOperation
-  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.7`)
+  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
   - Moya
   - QRCode (= 2.0)
   - Sodium
@@ -114,29 +114,29 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
-    :tag: 0.0.1
+    :tag: 0.0.2
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
-    :tag: 0.3.7
+    :tag: 0.3.8
 
 CHECKOUT OPTIONS:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
-    :tag: 0.0.1
+    :tag: 0.0.2
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
-    :tag: 0.3.7
+    :tag: 0.3.8
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
-  BinanceChain: 6d9c1c0219e7b8e457e33f672eff2f944a3362dc
+  BinanceChain: c3033555ffa51a69e7499c6bd77795dddd968fbf
   Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
   CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
   Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   GBAsyncOperation: 6cdf54862c94d0f2a3fcda2ba294d72f157f31de
-  HDWalletKit: 07e00d664bec925225418dd638bd86dc05fada6a
+  HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   Moya: f4a4b80ff2f8a4ffc208dfb31cd91636622fee6e
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   PromiseKit: 9616b0afef31eae56ab9ce044c8ec2b8612a15cd
@@ -155,6 +155,6 @@ SPEC CHECKSUMS:
   web3.swift.pod: 66048c11416c2e7a9a4b35fe42254d0f0d9db4b1
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 987a2dbe3b5c3de934b1148a25e2fa0f2f85b009
+PODFILE CHECKSUM: 62e5a35c7a8cad0d160f86253df200fca8580952
 
 COCOAPODS: 1.9.1
