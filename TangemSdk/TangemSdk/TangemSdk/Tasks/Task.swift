@@ -62,6 +62,8 @@ public enum TaskError: Int, Error, LocalizedError {
     
     case unknownError = 6000
     
+    case missingCounter = 7001
+    
     public var errorDescription: String? {
         switch self {
         case .nfcTimeout:
@@ -103,12 +105,15 @@ public enum TaskError: Int, Error, LocalizedError {
  * repeats the commands if needed, and closes session after receiving the last answer.
  */
 open class Task<TEvent>: AnyTask {
-    var reader: CardReader!
+    public var reader: CardReader!
     
     ///  If `true`, the task will execute `Read Command`  before main logic and will return `currentCard` in `onRun` or throw an error if some check will not pass. Eg. the wrong card was scanned
-    var performPreflightRead: Bool = true
+    public var performPreflightRead: Bool = true
+    open var startMessage: String? { return nil }
     
-    weak var delegate: CardManagerDelegate?
+    public weak var delegate: CardManagerDelegate?
+    
+    public init() {}
     
     deinit {
         print("task deinit")
@@ -130,7 +135,7 @@ open class Task<TEvent>: AnyTask {
                 self?.delegate?.tagDidConnect()
             }
         }
-        reader.startSession()
+        reader.startSession(message: startMessage)
         if #available(iOS 13.0, *), performPreflightRead {
             preflightRead(environment: environment, callback: callback)
         } else {
@@ -142,7 +147,7 @@ open class Task<TEvent>: AnyTask {
      * In this method the individual Tasks' logic should be implemented.
      * - Parameter currentCard: This is the result of preflight `Read Command`. It will be  nil if `performPreflightRead` was set to `false`
      */
-    public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
+    open func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
     /**
      * This method should be called by Tasks in their `onRun` method wherever
