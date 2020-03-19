@@ -18,7 +18,7 @@ class BCHCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
-        let provider = MoyaProvider<BlockchairTarget>()
+        let provider = MoyaProvider<BlockchairTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
         let bchEngine = card.cardEngine as! BCHEngine
 
         provider.request(.address(address: bchEngine.walletAddress)) {[weak self] result in
