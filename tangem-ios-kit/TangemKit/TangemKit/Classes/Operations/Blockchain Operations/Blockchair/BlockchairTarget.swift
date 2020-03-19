@@ -14,6 +14,10 @@ enum BlockchairEndpoint: String {
 }
 
 enum BlockchairTarget: TargetType {
+    private var apiKey: String {
+        return "A___0Shpsu4KagE7oSabrw20DfXAqWlT"
+    }
+    
     case address(address:String, endpoint: BlockchairEndpoint = .bitcoinCash)
     case fee(endpoint: BlockchairEndpoint = .bitcoinCash)
     case send(txHex: String, endpoint: BlockchairEndpoint = .bitcoinCash)
@@ -60,11 +64,11 @@ enum BlockchairTarget: TargetType {
     var task: Task {
         switch self {
         case .address:
-            return .requestParameters(parameters: ["transaction_details" : "true"], encoding: URLEncoding.default)
+            return .requestParameters(parameters: ["transaction_details" : "true", "key" : apiKey], encoding: URLEncoding.default)
         case .fee:
-            return .requestPlain
+            return .requestParameters(parameters: ["key" : apiKey], encoding: URLEncoding.default)
         case .send(let txHex, _):
-            return .requestParameters(parameters: ["data": txHex], encoding: URLEncoding.default)
+            return .requestParameters(parameters: ["data": txHex, "key" : apiKey], encoding: URLEncoding.default)
         }
     }
     
@@ -76,6 +80,5 @@ enum BlockchairTarget: TargetType {
             return ["Content-Type": "application/x-www-form-urlencoded"]
         }
     }
-    
-}
 
+}
