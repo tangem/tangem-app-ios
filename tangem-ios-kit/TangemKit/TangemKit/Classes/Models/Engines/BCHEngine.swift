@@ -25,9 +25,9 @@ class BCHEngine: CardEngine {
     var qrCodePreffix: String = ""
     
     var exploreLink: String {
-        return "https://explorer.bitcoin.com/bch/address/" + walletAddress
+        return "https://blockchair.com/bitcoin-cash/address/" + walletAddress
     }
-    
+
     var addressResponse: BtcResponse? {
         didSet {
             unconfirmedBalance = addressResponse?.unconfirmed_balance
