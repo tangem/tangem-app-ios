@@ -15,19 +15,19 @@ public protocol CardReader: class {
     /// For setting alertMessage into NFC popup
     var alertMessage: String {get set}
     var tagDidConnect: (() -> Void)? {get set}
-    func startSession(message: String?)
-    func stopSession(errorMessage: String?)
+    func startSession(with message: String?)
+    func stopSession(with errorMessage: String?)
     func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu,TaskError>) -> Void)
     func restartPolling()
 }
 
 public extension CardReader {
-    func startSession(message: String? = nil) {
-        startSession(message: nil)
+    func startSession(with message: String? = nil) {
+        startSession(with: message)
     }
     
-    func stopSession(errorMessage: String? = nil) {
-        stopSession(errorMessage: nil)
+    func stopSession(with errorMessage: String? = nil) {
+        stopSession(with: errorMessage)
     }
 }
 
