@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-public final class WriteIssuerExtraDataTask: Task<WriteIssuerDataResponse> {
+open class WriteIssuerExtraDataTask: Task<WriteIssuerDataResponse> {
     
     private var issuerData: Data
     private let startingSignature: Data
