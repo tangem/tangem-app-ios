@@ -70,6 +70,7 @@
 		5DC4E2472338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
 		5DC4E2482338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
 		5DCA821B23A7A54000B1B3EE /* RobotApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCA821A23A7A54000B1B3EE /* RobotApi.swift */; };
+		5DDB2A6924250AC600AEAEAC /* WriteIdTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDB2A6824250AC600AEAEAC /* WriteIdTask.swift */; };
 		5DE995D92322C91A00623148 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D82322C91A00623148 /* Localizations.swift */; };
 		5DEA04C423D5BFD100EC64BC /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DEA04C323D5BFD100EC64BC /* TangemSdk.framework */; };
 		5DEA04C523D5BFD100EC64BC /* TangemSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5DEA04C323D5BFD100EC64BC /* TangemSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -119,7 +120,7 @@
 		8D946D8E2018DA92006C73D9 /* Reader.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8C2018DA92006C73D9 /* Reader.storyboard */; };
 		8D946D902018DA92006C73D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8F2018DA92006C73D9 /* Assets.xcassets */; };
 		8D946D932018DA92006C73D9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */; };
-		B1FEF070153C749010F4F939 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (Required, ); }; };
+		B1FEF070153C749010F4F939 /* (null) in Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -178,6 +179,7 @@
 		5DC4E2492338C4A700D58E43 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DC4E24B2338C4B700D58E43 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DCA821A23A7A54000B1B3EE /* RobotApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RobotApi.swift; sourceTree = "<group>"; };
+		5DDB2A6824250AC600AEAEAC /* WriteIdTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIdTask.swift; sourceTree = "<group>"; };
 		5DE995D82322C91A00623148 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		5DEA04C323D5BFD100EC64BC /* TangemSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DFB03D32326A35F00E278DD /* StubViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubViewController.swift; sourceTree = "<group>"; };
@@ -257,7 +259,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1FEF070153C749010F4F939 /* BuildFile in Frameworks */,
+				B1FEF070153C749010F4F939 /* (null) in Frameworks */,
 				5DEA04C423D5BFD100EC64BC /* TangemSdk.framework in Frameworks */,
 				5D4B31B92335072A00D3B92E /* TangemKit.framework in Frameworks */,
 				1B792C4A5B67552C41885260 /* Pods_Tangem.framework in Frameworks */,
@@ -281,6 +283,7 @@
 			children = (
 				5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */,
 				5D5A9F8D240FF91B00F9CF29 /* ConfirmIdTask.swift */,
+				5DDB2A6824250AC600AEAEAC /* WriteIdTask.swift */,
 			);
 			path = SdkExtension;
 			sourceTree = "<group>";
@@ -927,6 +930,7 @@
 				5DCA821B23A7A54000B1B3EE /* RobotApi.swift in Sources */,
 				5DE995D92322C91A00623148 /* Localizations.swift in Sources */,
 				80003674211108F000C151E8 /* UIImage+Additions.swift in Sources */,
+				5DDB2A6924250AC600AEAEAC /* WriteIdTask.swift in Sources */,
 				80EC113C229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift in Sources */,
 				5D5A9F8E240FF91C00F9CF29 /* ConfirmIdTask.swift in Sources */,
 				800036672111054900C151E8 /* CardDetailsViewModel.swift in Sources */,
