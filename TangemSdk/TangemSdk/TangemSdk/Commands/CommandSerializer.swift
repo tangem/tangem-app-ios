@@ -10,8 +10,12 @@
 import Foundation
 import CoreNFC
 
+public protocol AnyCommand {
+    
+}
+
 /// Abstract class for all Tangem card commands.
-public protocol CommandSerializer: CardSessionDelegate {
+public protocol CommandSerializer: AnyCommand {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
@@ -26,6 +30,9 @@ public protocol CommandSerializer: CardSessionDelegate {
     ///   - apdu: Received data
     /// - Returns: Card response, converted to a `CommandResponse` of a type `T`.
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
+    
+    func run(session: CommandTransiever, environment: CardEnvironment, currentCard: Card?, completion: CommandResult<CommandResponse>)
+    
 }
 
 public extension CommandSerializer {
