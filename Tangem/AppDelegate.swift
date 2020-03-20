@@ -46,7 +46,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #if BETA
             Fabric.with([Crashlytics.self])
         #endif
-        Utils().initialize(legacyMode: NfcUtils.isLegacyDevice)
+        let utils = Utils()
+        utils.initialize(legacyMode: NfcUtils.isLegacyDevice)
+        if !utils.islaunchedBefore {
+            let secureStorage = SecureStorageManager()
+            secureStorage.set([], forKey: StorageKey.cids)
+            utils.setIsLaunchedBefore()
+        }
         
         return true
     }
