@@ -11,6 +11,7 @@ import TangemKit
 import TangemSdk
 
 class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
+    @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel! {
         didSet {
@@ -145,13 +146,25 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         nameLabel.text = idData.fullname
         imageView.image = UIImage(data: idData.photo)
         
+        scrollView.refreshControl = UIRefreshControl()
+        scrollView.refreshControl?.addTarget(self, action:
+                                                     #selector(handleRefresh),
+                                                     for: .valueChanged)
+        
+        refreshData()
+    }
+    
+    func refreshData() {
+        scrollView.refreshControl?.beginRefreshing()
         let balanceOp = card.balanceRequestOperation(onSuccess: {[weak self] card in
             self?.card = card
+            self?.scrollView.refreshControl?.endRefreshing()
             let engine = card.cardEngine as! ETHIdEngine
             
             self?.statusLabel.textColor = engine.hasApprovalTx ?  UIColor.tgm_green() : UIColor.tgm_red()
             self?.statusLabel.text = engine.hasApprovalTx ?  "Verified" : "Not registered"
         }) {[weak self] _,_ in
+            self?.scrollView.refreshControl?.endRefreshing()
             let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
             validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
             self?.present(validationAlert, animated: true, completion: nil)
@@ -171,6 +184,12 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             cardDetailsViewController.card = cardDetails
             self.present(cardDetailsViewController, animated: true, completion: nil)
             
+        }
+    }
+    
+    @objc func handleRefresh() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+           self.scrollView.refreshControl?.endRefreshing()
         }
     }
 }
