@@ -59,6 +59,25 @@ public enum TaskError: Int, Error, LocalizedError {
     case nfcStuck = 5000
     case nfcTimeout = 5001
     case nfcReaderError = 5002
+    case readerErrorUnsupportedFeature = 5003
+    case readerErrorSecurityViolation = 5004
+    case readerErrorInvalidParameter = 5005
+    case readerErrorInvalidParameterLength = 5006
+    case readerErrorParameterOutOfBound = 5007
+    case readerTransceiveErrorTagConnectionLost = 5008
+    case readerTransceiveErrorRetryExceeded = 5009
+    case readerTransceiveErrorTagResponseError = 5010
+    case readerTransceiveErrorSessionInvalidated = 5011
+    case readerTransceiveErrorTagNotConnected = 5012
+    case readerSessionInvalidationErrorSessionTimeout = 5013
+    case readerSessionInvalidationErrorSessionTerminatedUnexpectedly = 5014
+    case readerSessionInvalidationErrorFirstNDEFTagRead = 5015
+    case tagCommandConfigurationErrorInvalidParameters = 5016
+    case ndefReaderSessionErrorTagNotWritable = 5017
+    case ndefReaderSessionErrorTagUpdateFailure = 5018
+    case ndefReaderSessionErrorTagSizeTooSmall = 5019
+    case ndefReaderSessionErrorZeroLengthMessage = 5020
+    
     
     case unknownError = 6000
     
@@ -90,7 +109,43 @@ public enum TaskError: Int, Error, LocalizedError {
                 return .userCancelled
             case .readerSessionInvalidationErrorSystemIsBusy:
                 return .nfcStuck
-            default:
+            case .readerErrorUnsupportedFeature:
+                return .readerErrorUnsupportedFeature
+            case .readerErrorSecurityViolation:
+                return .readerErrorSecurityViolation
+            case .readerErrorInvalidParameter:
+                return .readerErrorInvalidParameter
+            case .readerErrorInvalidParameterLength:
+                return .readerErrorInvalidParameterLength
+            case .readerErrorParameterOutOfBound:
+                return readerErrorParameterOutOfBound
+            case .readerTransceiveErrorTagConnectionLost:
+                return .readerTransceiveErrorTagConnectionLost
+            case .readerTransceiveErrorRetryExceeded:
+                return .readerTransceiveErrorRetryExceeded
+            case .readerTransceiveErrorTagResponseError:
+                return .readerTransceiveErrorTagResponseError
+            case .readerTransceiveErrorSessionInvalidated:
+                return .readerTransceiveErrorSessionInvalidated
+            case .readerTransceiveErrorTagNotConnected:
+                return .readerTransceiveErrorTagNotConnected
+            case .readerSessionInvalidationErrorSessionTimeout:
+                return readerSessionInvalidationErrorSessionTimeout
+            case .readerSessionInvalidationErrorSessionTerminatedUnexpectedly:
+                return .readerSessionInvalidationErrorSessionTerminatedUnexpectedly
+            case .readerSessionInvalidationErrorFirstNDEFTagRead:
+                return .readerSessionInvalidationErrorFirstNDEFTagRead
+            case .tagCommandConfigurationErrorInvalidParameters:
+                return .tagCommandConfigurationErrorInvalidParameters
+            case .ndefReaderSessionErrorTagNotWritable:
+                return .ndefReaderSessionErrorTagNotWritable
+            case .ndefReaderSessionErrorTagUpdateFailure:
+                return .ndefReaderSessionErrorTagUpdateFailure
+            case .ndefReaderSessionErrorTagSizeTooSmall:
+                return .ndefReaderSessionErrorTagSizeTooSmall
+            case .ndefReaderSessionErrorZeroLengthMessage:
+                return .ndefReaderSessionErrorZeroLengthMessage
+            @unknown default:
                 return .nfcReaderError
             }
         } else {
