@@ -132,6 +132,13 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
     func updateUI() {
         let title = state == .confirm ? "Confirm" : "Issue Id"
         confirmButton.setTitle(title, for: .normal)
+        if state == .write {
+            imageView.isUserInteractionEnabled = false
+            firstNameText.isEnabled = false
+            lastNameText.isEnabled = false
+            dobText.isEnabled = false
+            sexSelector.isEnabled = false
+        }
     }
     
     private func confirm() {
