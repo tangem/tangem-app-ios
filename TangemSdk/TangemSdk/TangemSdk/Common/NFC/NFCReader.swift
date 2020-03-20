@@ -89,7 +89,7 @@ extension NFCReader: CardReader {
     }
     
     /// Start session and try to connect with tag
-    public func startSession(message: String?) {
+    public func startSession(with message: String?) {
         if let existingSession = readerSession, existingSession.isReady { return }
         readerSessionError.send(nil)
         connectedTag.send(nil)
@@ -100,7 +100,7 @@ extension NFCReader: CardReader {
         nfcStuckTimer.start()
     }
     
-    public func stopSession(errorMessage: String? = nil) {
+    public func stopSession(with errorMessage: String? = nil) {
         stopTimers()
         readerSessionError.send(nil)
         connectedTag.send(nil)
