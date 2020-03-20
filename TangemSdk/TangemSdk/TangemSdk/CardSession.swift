@@ -8,30 +8,30 @@
 
 import Foundation
 
+public typealias CommandResult<T> = (Result<T, TaskError>) -> Void
+
+public struct CardSessionConfig {
+    public var environment: CardEnvironment = CardEnvironment()
+    public var runPreflightRead: Bool = true
+    public var initialMessage: String? = nil
+}
+
+
 public class CardSession {
+    public var config: CardSessionConfig
+    
     private let reader: CardReader
     private let viewDelegate: CardManagerDelegate
-    private let cardSessionDelegate: CardSessionDelegate
+    private var currentCommand: AnyCommand?
+    private var isBusy: Bool = false
+    private var needStopSession = false
     
-    public init(reader: CardReader, viewDelegate: CardManagerDelegate, cardSessionDelegate: CardSessionDelegate) {
+    public init(reader: CardReader, viewDelegate: CardManagerDelegate, config: CardSessionConfig? = nil) {
         self.reader = reader
         self.viewDelegate = viewDelegate
-        self.cardSessionDelegate = cardSessionDelegate
+        self.config = config ?? CardSessionConfig()
     }
     
-    public func startSession(environment: CardEnvironment,
-                             runPreflightRead: Bool = true,
-                             message: String? = nil) {
-        
-        reader.startSession(with: message)
-        if #available(iOS 13.0, *), runPreflightRead {
-            preflightRead(environment: environment)
-        } else {
-            cardSessionDelegate.sessionDidStart(session: self,
-                                                environment: environment,
-                                                currentCard: nil)
-        }
-    }
     
     public func stopSession(message: String? = nil) {
         if let message = message {
@@ -44,11 +44,98 @@ public class CardSession {
         reader.stopSession(with: error.localizedDescription)
     }
     
+    public func run<T: CommandSerializer>(_ command: T, stopSession: Bool, completion: @escaping CommandResult<T.CommandResponse>) {
+        guard CardManager.isNFCAvailable else {
+            completion(.failure(TaskError.unsupportedDevice))
+            return
+        }
+        
+        guard !isBusy else {
+            completion(.failure(TaskError.busy))
+            return
+        }
+        
+        needStopSession = stopSession
+        currentCommand = command
+        isBusy = true
+        
+        //[REDACTED_TODO_COMMENT]
+        reader.startSession(with: config.initialMessage)
+        
+        if #available(iOS 13.0, *), config.runPreflightRead {
+            preflightRead(environment: config.environment) {[unowned self] result in
+                switch result {
+                case .success(let card):
+                    self.runCommand(command, currentCard: card, completion: completion)
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
+                    }
+                }
+            }
+        } else {
+            runCommand(command, completion: completion)
+        }
+    }
+    
+    private func runCommand<T: CommandSerializer>(_ command: T, currentCard: Card? = nil, completion: @escaping CommandResult<T.CommandResponse>) {
+        command.run(session: self, environment: config.environment, currentCard: currentCard) {[unowned self] commandResult in
+            switch commandResult {
+            case .success(let commandResponse):
+                DispatchQueue.main.async {
+                    completion(.success(commandResponse))
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+            
+            self.isBusy = false
+            self.currentCommand = nil
+            if needStopSession {
+                self.stopSession()
+            }
+        }
+    }
+    
+    
+    
+    @available(iOS 13.0, *)
+    private func preflightRead(environment: CardEnvironment, completion: @escaping (Result<ReadCommand.CommandResponse, TaskError>) -> Void) {
+        sendCommand(ReadCommand(), environment: environment) { [weak self] readResult in
+            guard let self = self else { return }
+            
+            switch readResult {
+            case .failure(let error):
+                self.stopSession(error: error)
+                completion(.failure(error))
+            case .success(let readResponse):
+                if let expectedCardId = environment.cardId,
+                    let actualCardId = readResponse.cardId,
+                    expectedCardId != actualCardId {
+                    let error = TaskError.wrongCard
+                    self.stopSession(error: error)
+                    completion(.failure(error))
+                    return
+                }
+                
+                var newEnvironment = environment
+                if newEnvironment.cardId == nil {
+                    newEnvironment.cardId = readResponse.cardId
+                }
+                completion(.success(readResponse))
+            }
+        }
+    }
+}
+
+extension CardSession: CommandTransiever {
     /**
      * This method should be called by Tasks in their `sessionDidStart` method wherever
      * they need to communicate with the Tangem Card by launching commands.
      */
-    public final func sendCommand<T: CommandSerializer>(_ command: T, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
+    public final func sendCommand<T: CommandSerializer>(_ command: T, environment: CardEnvironment, callback: @escaping CommandResult<T.CommandResponse>) {
         //[REDACTED_TODO_COMMENT]
         if let commandApdu = try? command.serialize(with: environment) {
             sendRequest(command, apdu: commandApdu, environment: environment, callback: callback)
@@ -57,7 +144,7 @@ public class CardSession {
         }
     }
     
-    private func sendRequest<T: CommandSerializer>(_ command: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
+    private func sendRequest<T: CommandSerializer>(_ command: T, apdu: CommandApdu, environment: CardEnvironment, callback: @escaping CommandResult<T.CommandResponse>) {
         reader.send(commandApdu: apdu) { [weak self] commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
@@ -104,36 +191,8 @@ public class CardSession {
             }
         }
     }
-    
-    @available(iOS 13.0, *)
-    private func preflightRead(environment: CardEnvironment) {
-        sendCommand(ReadCommand(), environment: environment) { [weak self] readResult in
-            guard let self = self else { return }
-            
-            switch readResult {
-            case .failure(let error):
-                self.stopSession(error: error)
-                self.cardSessionDelegate.sessionDidStart(session: self, environment: environment, currentCard: nil, error: error)
-            case .success(let readResponse):
-                if let expectedCardId = environment.cardId,
-                    let actualCardId = readResponse.cardId,
-                    expectedCardId != actualCardId {
-                    let error = TaskError.wrongCard
-                    self.stopSession(error: error)
-                    self.cardSessionDelegate.sessionDidStart(session: self, environment: environment, currentCard: nil, error: error)
-                    return
-                }
-                
-                var newEnvironment = environment
-                if newEnvironment.cardId == nil {
-                    newEnvironment.cardId = readResponse.cardId
-                }
-                self.cardSessionDelegate.sessionDidStart(session: self, environment: newEnvironment, currentCard: readResponse, error: nil)
-            }
-        }
-    }
 }
 
-public protocol CardSessionDelegate {
-    func sessionDidStart(session: CardSession, environment: CardEnvironment, currentCard: Card?, error: TaskError?)
+public protocol CommandTransiever {
+    func sendCommand<T: CommandSerializer>(_ command: T, environment: CardEnvironment, callback: @escaping CommandResult<T.CommandResponse>)
 }
