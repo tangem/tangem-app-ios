@@ -11,7 +11,7 @@ import Foundation
 import CoreNFC
 
 /// Abstract class for all Tangem card commands.
-public protocol CommandSerializer {
+public protocol CommandSerializer: CardSessionDelegate {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
