@@ -208,7 +208,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                                                                     UIApplication.navigationManager().navigationController.popToRootViewController(animated: true)
                                                                 })
                                                             } else {
-                                                                let errMsg = (error as? String ?? error?.localizedDescription) ?? ""
+                                                                let errMsg = error?.localizedDescription ?? ""
                                                                 self?.handleTXSendError(message: "\(errMsg)")
                                                             }
                                                         }
