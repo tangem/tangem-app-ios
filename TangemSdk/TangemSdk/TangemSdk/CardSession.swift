@@ -1,81 +1,51 @@
 //
-//  Task.swift
+//  CardSession.swift
 //  TangemSdk
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2019 Tangem AG. All rights reserved.
+//  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import CoreNFC
 
-protocol AnyTask {
+public class CardSession {
+    private let reader: CardReader
+    private let viewDelegate: CardManagerDelegate
+    private let cardSessionDelegate: CardSessionDelegate
     
-}
-
-/**
- * Events that are are sent in callbacks from `Task`.
- * `event(TEvent)`:  A callback that is triggered by a `Task`.
- * `completion(TaskError? = nil)` A callback that is triggered when a `Task` is completed. `TaskError` is nil if it's a successful completion of a `Task`
- */
-public enum TaskEvent<TEvent> {
-    case event(TEvent)
-    case completion(TaskError? = nil)
-}
-
-
-/**
- * Allows to perform a group of commands interacting between the card and the application.
- * A task opens an NFC session, sends commands to the card and receives its responses,
- * repeats the commands if needed, and closes session after receiving the last answer.
- */
-open class Task<TEvent>: AnyTask {
-    public var reader: CardReader!
-    
-    ///  If `true`, the task will execute `Read Command`  before main logic and will return `currentCard` in `onRun` or throw an error if some check will not pass. Eg. the wrong card was scanned
-    public var performPreflightRead: Bool = true
-    open var startMessage: String? { return nil }
-    
-    public weak var delegate: CardManagerDelegate?
-    
-    public init() {}
-    
-    deinit {
-        print("task deinit")
+    public init(reader: CardReader, viewDelegate: CardManagerDelegate, cardSessionDelegate: CardSessionDelegate) {
+        self.reader = reader
+        self.viewDelegate = viewDelegate
+        self.cardSessionDelegate = cardSessionDelegate
     }
     
-    /**
-     * This method should be called to run the `Task` and perform all its operations.
-     *
-     * - Parameter environment: Relevant current version of a card environment
-     * - Parameter callback: It will be triggered during the performance of the `Task`
-     */
-    public final func run(with environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {
-        guard reader != nil else {
-            fatalError("Card reader is nil")
-        }
+    public func startSession(environment: CardEnvironment,
+                             runPreflightRead: Bool = true,
+                             message: String? = nil) {
         
-        if delegate != nil {
-            reader.tagDidConnect = { [weak self] in
-                self?.delegate?.tagDidConnect()
-            }
-        }
-        reader.startSession(message: startMessage)
-        if #available(iOS 13.0, *), performPreflightRead {
-            preflightRead(environment: environment, callback: callback)
+        reader.startSession(with: message)
+        if #available(iOS 13.0, *), runPreflightRead {
+            preflightRead(environment: environment)
         } else {
-            onRun(environment: environment, currentCard: nil, callback: callback)
+            cardSessionDelegate.sessionDidStart(session: self,
+                                                environment: environment,
+                                                currentCard: nil)
         }
     }
     
-    /**
-     * In this method the individual Tasks' logic should be implemented.
-     * - Parameter currentCard: This is the result of preflight `Read Command`. It will be  nil if `performPreflightRead` was set to `false`
-     */
-    open func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
+    public func stopSession(message: String? = nil) {
+        if let message = message {
+            viewDelegate.showAlertMessage(message)
+        }
+        reader.stopSession()
+    }
+    
+    public func stopSession(error: Error) {
+        reader.stopSession(with: error.localizedDescription)
+    }
     
     /**
-     * This method should be called by Tasks in their `onRun` method wherever
+     * This method should be called by Tasks in their `sessionDidStart` method wherever
      * they need to communicate with the Tangem Card by launching commands.
      */
     public final func sendCommand<T: CommandSerializer>(_ command: T, environment: CardEnvironment, callback: @escaping (Result<T.CommandResponse, TaskError>) -> Void) {
@@ -94,7 +64,7 @@ open class Task<TEvent>: AnyTask {
                 switch responseApdu.statusWord {
                 case .needPause:
                     if let securityDelayResponse = command.deserializeSecurityDelay(with: environment, from: responseApdu) {
-                        self?.delegate?.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
+                        self?.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
                         if securityDelayResponse.saveToFlash {
                             self?.reader.restartPolling()
                         }
@@ -136,19 +106,21 @@ open class Task<TEvent>: AnyTask {
     }
     
     @available(iOS 13.0, *)
-    private func preflightRead(environment: CardEnvironment, callback: @escaping (TaskEvent<TEvent>) -> Void) {
-        sendCommand(ReadCommand(), environment: environment) { [unowned self] readResult in
+    private func preflightRead(environment: CardEnvironment) {
+        sendCommand(ReadCommand(), environment: environment) { [weak self] readResult in
+            guard let self = self else { return }
+            
             switch readResult {
             case .failure(let error):
-                self.reader.stopSession(errorMessage: error.localizedDescription)
-                callback(.completion(error))
+                self.stopSession(error: error)
+                self.cardSessionDelegate.sessionDidStart(session: self, environment: environment, currentCard: nil, error: error)
             case .success(let readResponse):
                 if let expectedCardId = environment.cardId,
                     let actualCardId = readResponse.cardId,
                     expectedCardId != actualCardId {
                     let error = TaskError.wrongCard
-                    self.reader.stopSession(errorMessage: error.localizedDescription)
-                    callback(.completion(error))
+                    self.stopSession(error: error)
+                    self.cardSessionDelegate.sessionDidStart(session: self, environment: environment, currentCard: nil, error: error)
                     return
                 }
                 
@@ -156,8 +128,12 @@ open class Task<TEvent>: AnyTask {
                 if newEnvironment.cardId == nil {
                     newEnvironment.cardId = readResponse.cardId
                 }
-                self.onRun(environment: newEnvironment, currentCard: readResponse, callback: callback)
+                self.cardSessionDelegate.sessionDidStart(session: self, environment: newEnvironment, currentCard: readResponse, error: nil)
             }
         }
     }
+}
+
+public protocol CardSessionDelegate {
+    func sessionDidStart(session: CardSession, environment: CardEnvironment, currentCard: Card?, error: TaskError?)
 }
