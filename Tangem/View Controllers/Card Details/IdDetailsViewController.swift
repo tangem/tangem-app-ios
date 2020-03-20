@@ -11,6 +11,20 @@ import TangemKit
 import TangemSdk
 
 class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
+
+    enum State {
+        case empty
+        case createWallet
+        case id
+    }
+    
+    private var state: State = .empty
+    private lazy var cardManager: CardManager = {
+        let manager = CardManager()
+        manager.config.legacyMode = Utils().needLegacyMode
+        return manager
+    }()
+    
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var statusLabel: UILabel! {
@@ -71,7 +85,40 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     let operationQueue = OperationQueue()
     
     @IBAction func issueNewidTapped(_ sender: UIButton) {
-        showIssueIdViewControllerWith(cardDetails: self.card!)
+        switch state {
+        case .empty:
+             showIssueIdViewControllerWith(cardDetails: self.card!)
+        case .createWallet:
+            if #available(iOS 13.0, *) {
+            issueNewIdButton.showActivityIndicator()
+                cardManager.createWallet(cardId: card!.cardID) {[weak self] taskResponse in
+                    guard let self = self else { return }
+                    
+                    switch taskResponse {
+                    case .event(let createWalletEvent):
+                        switch createWalletEvent {
+                        case .onCreate(let createWalletResponse):
+                            self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                        case .onVerify(let isGenuine):
+                            self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
+                        }
+                    case .completion(let error):
+                        self.issueNewIdButton.hideActivityIndicator()
+                        if let error = error {
+                            if !error.isUserCancelled {
+                                self.handleGenericError(error)
+                            }
+                        } else {
+                            self.state = .empty
+                            self.updateUI()
+                        }
+                    }
+                }
+            } else {
+                self.handleGenericError(Localizations.disclamerNoWalletCreation)
+            }
+        case .id: break
+        }
     }
     
     @IBAction func newScanTapped(_ sender: UIButton) {
@@ -129,29 +176,62 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         self.present(viewController, animated: true, completion: nil)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    func updateUI() {
         idLabel.text = "ID # \(card.cardID.replacingOccurrences(of: " ", with: ""))"
-        guard let idData = card.getIdData() else {
+        switch state {
+        case .createWallet:
             statusLabel.isHidden = true
             dateLabel.isHidden = true
             sexLabel.isHidden = true
+            issueNewIdButton.setTitle("Create Wallet", for: .normal)
             issueNewIdButton.isHidden = false
+            sexLabel.isHidden = true
+            nameLabel.isHidden = true
+        case .empty:
+            statusLabel.isHidden = true
+            dateLabel.isHidden = true
+            sexLabel.isHidden = true
+            issueNewIdButton.setTitle("Issue new ID", for: .normal)
+            issueNewIdButton.isHidden = false
+            nameLabel.isHidden = false
             nameLabel.text =  "EMPTY ID CARD"
-            return
-        }
-
-        dateLabel.text = idData.birthDay
-        sexLabel.text = "Sex: \(idData.gender)"
-        nameLabel.text = idData.fullname
-        imageView.image = UIImage(data: idData.photo)
-        
-        scrollView.refreshControl = UIRefreshControl()
-        scrollView.refreshControl?.addTarget(self, action:
-                                                     #selector(handleRefresh),
+        case .id:
+            statusLabel.isHidden = false
+            dateLabel.isHidden = false
+            sexLabel.isHidden = false
+            issueNewIdButton.isHidden = true
+            sexLabel.isHidden = false
+            nameLabel.isHidden = false
+            if let idData = card.getIdData() {
+                dateLabel.text = idData.birthDay
+                sexLabel.text = "Sex: \(idData.gender)"
+                nameLabel.text = idData.fullname
+                imageView.image = UIImage(data: idData.photo)
+                
+                scrollView.refreshControl = UIRefreshControl()
+                scrollView.refreshControl?.addTarget(self, action:
+                    #selector(handleRefresh),
                                                      for: .valueChanged)
+            }
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        refreshData()
+        if card.status != .loaded {
+            state = .createWallet
+        } else if card.getIdData() != nil {
+            state = .id
+        } else {
+            state = .empty
+        }
+        
+        updateUI()
+        
+        if state == .id {
+            refreshData()
+        }
     }
     
     func refreshData() {
