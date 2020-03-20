@@ -190,11 +190,15 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         let finalizingSignature =  CryptoUtils.signSecp256k1(cardId + confirmResponse.issuerData + issuerDataCounter.bytes4, with: issuerKey)!
         
         confirmButton.showActivityIndicator()
-        cardManager.writeIssuerExtraData(cardId: card.cardID,
-                                         issuerData: confirmResponse.issuerData,
-                                         startingSignature: startingSignature,
-                                         finalizingSignature: finalizingSignature,
-                                         issuerDataCounter: issuerDataCounter) {[weak self] writeResult in
+        
+        let task = WriteIdTask(issuerData: confirmResponse.issuerData,
+                                                 issuerPublicKey: nil,
+                                                 startingSignature: startingSignature,
+                                                 finalizingSignature: finalizingSignature,
+                                                 issuerDataCounter: issuerDataCounter)
+        
+        
+        cardManager.runTask(task) {[weak self] writeResult in
                                             switch writeResult {
                                             case .event:
                                                 if let idEngine = self?.card.cardEngine as? ETHIdEngine {
@@ -215,6 +219,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                                                     }
                                                 }
                                             case .completion(let error):
+                                                self?.confirmButton.hideActivityIndicator()
                                                 if let error = error, !error.isUserCancelled {
                                                     self?.confirmButton?.hideActivityIndicator()
                                                     self?.handleGenericError(error)
