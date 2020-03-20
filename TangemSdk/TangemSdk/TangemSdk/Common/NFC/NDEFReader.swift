@@ -62,7 +62,7 @@ extension NDEFReader: CardReader {
         set { readerSession?.alertMessage = newValue }
     }
     
-    public func stopSession(errorMessage: String? = nil) {
+    public func stopSession(with errorMessage: String? = nil) {
         completion = nil
         readerSession?.invalidate()
                 readerSession = nil
