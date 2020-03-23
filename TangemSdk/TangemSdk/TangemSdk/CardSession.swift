@@ -65,8 +65,8 @@ public class CardSession: TangemCardSession {
         
         preflightRead(environment: sessionParams.environment) {[unowned self] result in
             switch result {
-            case .success(let card):
-                command.run(session: self, environment: sessionParams.environment, currentCard: card, completion: { [unowned self] result in
+            case .success(let preflightResponse):
+                command.run(session: self, viewDelegate: self.viewDelegate, environment: preflightResponse.environment, currentCard: preflightResponse.card, completion: { [unowned self] result in
                     self.handleCommandCompletion(commandResult: result, completion: completion)
                 })
             case .failure(let error):
@@ -84,7 +84,7 @@ public class CardSession: TangemCardSession {
             return
         }
         
-        command.run(session: self, environment: sessionParams.environment, completion: { [unowned self] result in
+        command.run(session: self, viewDelegate: self.viewDelegate, environment: sessionParams.environment, completion: { [unowned self] result in
             self.handleCommandCompletion(commandResult: result, completion: completion)
         })
     }
@@ -127,12 +127,12 @@ public class CardSession: TangemCardSession {
         self.isBusy = false
         self.currentCommand = nil
         if sessionParams.stopSession {
-            self.stopSession()
+            self.stopSession(message: Localization.nfcAlertDefaultDone)
         }
     }
     
     @available(iOS 13.0, *)
-    private func preflightRead(environment: CardEnvironment, completion: @escaping (Result<ReadCommand.CommandResponse, TaskError>) -> Void) {
+    private func preflightRead(environment: CardEnvironment, completion: @escaping CompletionResult<(card: ReadResponse, environment: CardEnvironment)>) {
         sendCommand(ReadCommand(), environment: environment) { [weak self] readResult in
             guard let self = self else { return }
             
@@ -154,7 +154,8 @@ public class CardSession: TangemCardSession {
                 if newEnvironment.cardId == nil {
                     newEnvironment.cardId = readResponse.cardId
                 }
-                completion(.success(readResponse))
+                let response = (readResponse, newEnvironment)
+                completion(.success(response))
             }
         }
     }
