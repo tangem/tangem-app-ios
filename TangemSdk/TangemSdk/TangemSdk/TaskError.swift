@@ -14,12 +14,13 @@ import CoreNFC
  * Errors are propagated back to the caller in callbacks.
  */
 public enum TaskError: Int, Error, LocalizedError {
-    //Serialize apdu errors
-    case serializeCommandError = 1001
-    case encodingError = 1002
-    case missingTag = 1003
-    case wrongType = 1004
-    case convertError = 1005
+    //Serialize/deserialize apdu errors
+    case deserializeApduFailed = 1001
+    case encodeFailedTypeMismatch = 1002
+    case encodeFailed = 1003
+    case decodeFailedMissingTag = 1004
+    case decodeFailedTypeMismatch = 1005
+    case decodeFailed = 1006
     
     //Card errors
     case unknownStatus = 2001
