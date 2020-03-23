@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5D0A6C5D2428CF3C0094FA83 /* Error+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0A6C5C2428CF3C0094FA83 /* Error+.swift */; };
 		5D2739DB234F22A800ACDA11 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 5D2739DA234F22A800ACDA11 /* secp256k1 */; settings = {ATTRIBUTES = (Required, ); }; };
 		5D2739F7234F270200ACDA11 /* precomp_data.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739DE234F270200ACDA11 /* precomp_data.h */; };
 		5D2739F8234F270200ACDA11 /* ed25519.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2739E0234F270200ACDA11 /* ed25519.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -56,7 +57,7 @@
 		5D713B2D236C3F6400E4F6FC /* StringUtilsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D713B2C236C3F6400E4F6FC /* StringUtilsTest.swift */; };
 		5D713B2F236C53E300E4F6FC /* ByteUtilsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D713B2E236C53E300E4F6FC /* ByteUtilsTest.swift */; };
 		5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB123449D4000058D69 /* CardEnvironment.swift */; };
-		5D7D5FB423449F2300058D69 /* CommandSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB323449F2300058D69 /* CommandSerializer.swift */; };
+		5D7D5FB423449F2300058D69 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7D5FB323449F2300058D69 /* Command.swift */; };
 		5D7F6644235F30B5008149B1 /* NDEFReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7F6643235F30B5008149B1 /* NDEFReader.swift */; };
 		5D85A80624069C840038A2D0 /* ReadIssuerExtraDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D85A80524069C840038A2D0 /* ReadIssuerExtraDataCommand.swift */; };
 		5D85A80824069C9A0038A2D0 /* WriteIssuerExtraDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D85A80724069C9A0038A2D0 /* WriteIssuerExtraDataCommand.swift */; };
@@ -102,6 +103,7 @@
 
 /* Begin PBXFileReference section */
 		5D06DF6823D8A1EE0041DD2B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5D0A6C5C2428CF3C0094FA83 /* Error+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+.swift"; sourceTree = "<group>"; };
 		5D2739DE234F270200ACDA11 /* precomp_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = precomp_data.h; sourceTree = "<group>"; };
 		5D2739E0234F270200ACDA11 /* ed25519.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ed25519.h; sourceTree = "<group>"; };
 		5D2739E1234F270200ACDA11 /* seed.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = seed.c; sourceTree = "<group>"; };
@@ -151,7 +153,7 @@
 		5D713B2C236C3F6400E4F6FC /* StringUtilsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtilsTest.swift; sourceTree = "<group>"; };
 		5D713B2E236C53E300E4F6FC /* ByteUtilsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteUtilsTest.swift; sourceTree = "<group>"; };
 		5D7D5FB123449D4000058D69 /* CardEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnvironment.swift; sourceTree = "<group>"; };
-		5D7D5FB323449F2300058D69 /* CommandSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandSerializer.swift; sourceTree = "<group>"; };
+		5D7D5FB323449F2300058D69 /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		5D7F6643235F30B5008149B1 /* NDEFReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NDEFReader.swift; sourceTree = "<group>"; };
 		5D85A80524069C840038A2D0 /* ReadIssuerExtraDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadIssuerExtraDataCommand.swift; sourceTree = "<group>"; };
 		5D85A80724069C9A0038A2D0 /* WriteIssuerExtraDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerExtraDataCommand.swift; sourceTree = "<group>"; };
@@ -274,7 +276,7 @@
 		5D6A92E12345F28F00158457 /* Commands */ = {
 			isa = PBXGroup;
 			children = (
-				5D7D5FB323449F2300058D69 /* CommandSerializer.swift */,
+				5D7D5FB323449F2300058D69 /* Command.swift */,
 				5D6A92E22345F2A300158457 /* ReadCommand.swift */,
 				5D6A92E42345F2B200158457 /* SignCommand.swift */,
 				5D6A92E62345F2D600158457 /* CheckWalletCommand.swift */,
@@ -429,6 +431,7 @@
 				5DB4406C234B740B00AC39F1 /* Data+.swift */,
 				5DB4406E234B750200AC39F1 /* String+.swift */,
 				5D974B7D237D672F00DCDF21 /* Date+.swift */,
+				5D0A6C5C2428CF3C0094FA83 /* Error+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -595,6 +598,7 @@
 				5D273A04234F270200ACDA11 /* keypair.c in Sources */,
 				5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */,
 				5D7D5FB223449D4000058D69 /* CardEnvironment.swift in Sources */,
+				5D0A6C5D2428CF3C0094FA83 /* Error+.swift in Sources */,
 				5DA5B613233E11A50058C720 /* ResponseApdu.swift in Sources */,
 				5DE59F2F23D9703A00312DA4 /* SecureStorageService.swift in Sources */,
 				5D2739FC234F270200ACDA11 /* ge.c in Sources */,
@@ -613,7 +617,7 @@
 				5DE59F2B23D96F8B00312DA4 /* NfcUtils.swift in Sources */,
 				5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */,
 				5D6A92EE23463D1200158457 /* ScanTask.swift in Sources */,
-				5D7D5FB423449F2300058D69 /* CommandSerializer.swift in Sources */,
+				5D7D5FB423449F2300058D69 /* Command.swift in Sources */,
 				5D705B5B23DAF2BB002CCD7A /* Config.swift in Sources */,
 				5D6A92EC2346069700158457 /* CardManager.swift in Sources */,
 				5DFFC49F233B9D69004964E8 /* NFCReader.swift in Sources */,
