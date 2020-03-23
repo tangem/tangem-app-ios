@@ -14,7 +14,7 @@ import Foundation
 public final class ScanTask: PreflightCommand {
     public typealias CommandResponse = Card
     
-    public func run(session: CommandTransiever, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<Card>) {
+    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<Card>) {
         guard let cardStatus = currentCard.status, cardStatus == .loaded else {
             completion(.success(currentCard))
             return
@@ -45,7 +45,7 @@ public final class ScanTask: PreflightCommand {
 public final class ScanTaskLegacy: Command {
     public typealias CommandResponse = Card
     
-    public func run(session: CommandTransiever, environment: CardEnvironment, completion: @escaping CompletionResult<Card>) {
+    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping CompletionResult<Card>) {
         let readCommand = ReadCommand()
         session.sendCommand(readCommand, environment: environment) {firstResult in
             switch firstResult {
