@@ -15,7 +15,22 @@ public protocol AnyCommand {
 }
 
 /// Abstract class for all Tangem card commands.
-public protocol CommandSerializer: AnyCommand {
+public protocol Command: AnyCommand {
+    /// Simple interface for responses received after sending commands to Tangem cards.
+    associatedtype CommandResponse: TlvCodable
+    
+    func run(session: CommandTransiever, environment: CardEnvironment, completion: @escaping CompletionResult<CommandResponse>)
+}
+
+@available(iOS 13.0, *)
+public protocol PreflightCommand: AnyCommand {
+    /// Simple interface for responses received after sending commands to Tangem cards.
+    associatedtype CommandResponse: TlvCodable
+    
+    func run(session: CommandTransiever, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>)
+}
+
+public protocol SerializableCommand {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
@@ -30,24 +45,9 @@ public protocol CommandSerializer: AnyCommand {
     ///   - apdu: Received data
     /// - Returns: Card response, converted to a `CommandResponse` of a type `T`.
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
-    
-    func run(session: CommandTransiever, environment: CardEnvironment, currentCard: Card?, completion: CommandResult<CommandResponse>)
-    
 }
 
-public extension CommandSerializer {
-    /// Helper method to parse security delay information received from a card.
-    /// - Returns: Remaining security delay in milliseconds.
-    func deserializeSecurityDelay(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
-            let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
-                return nil
-        }
-        
-        let saveToFlash = tlv.contains(tag: .flash)
-        return (remainingMilliseconds, saveToFlash)
-    }
-    
+public extension Command {    
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
     /// 4 - Timeout setting for ping nfc-module
     func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
