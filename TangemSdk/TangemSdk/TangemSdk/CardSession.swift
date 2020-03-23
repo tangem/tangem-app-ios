@@ -71,6 +71,7 @@ public class CardSession {
                     DispatchQueue.main.async {
                         completion(.failure(error))
                     }
+                    self.completeCommand(stopSession: true)
                 }
             }
         } else {
@@ -85,17 +86,21 @@ public class CardSession {
                 DispatchQueue.main.async {
                     completion(.success(commandResponse))
                 }
+                 self.completeCommand(stopSession: needStopSession)
             case .failure(let error):
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
+                 self.completeCommand(stopSession: true)
             }
-            
-            self.isBusy = false
-            self.currentCommand = nil
-            if needStopSession {
-                self.stopSession()
-            }
+        }
+    }
+    
+    private func completeCommand(stopSession: Bool) {
+        self.isBusy = false
+        self.currentCommand = nil
+        if needStopSession {
+            self.stopSession()
         }
     }
     
