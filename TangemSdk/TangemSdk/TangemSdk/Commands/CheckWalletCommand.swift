@@ -38,7 +38,7 @@ public final class CheckWalletCommand: Command, SerializableCommand {
         }
     }
     
-    public func run(session: CommandTransiever, environment: CardEnvironment, completion: @escaping (Result<CheckWalletResponse, TaskError>) -> Void) {
+    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping (Result<CheckWalletResponse, TaskError>) -> Void) {
         session.sendCommand(self, environment: environment) {[weak self] result in
             guard let self = self else { return }
             
