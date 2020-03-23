@@ -206,7 +206,7 @@ public final class ReadCommand: Command, SerializableCommand {
         return cApdu
     }
     
-    public func run(session: CommandTransiever, environment: CardEnvironment, completion: @escaping CompletionResult<ReadResponse>) {
+    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping CompletionResult<ReadResponse>) {
         session.sendCommand(self, environment: environment, completion: completion)
     }
     
