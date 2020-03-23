@@ -30,7 +30,7 @@ public final class TlvMapper {
         do {
             let mapped: T = try innerMap(tag, asOptional: true)
             return mapped
-        } catch TaskError.missingTag {
+        } catch TaskError.decodeFailedMissingTag {
             return nil
         }
     }
@@ -55,7 +55,7 @@ public final class TlvMapper {
             if tag.valueType == .boolValue {
                 guard Bool.self == T.self || Bool?.self == T.self else {
                     print("Mapping error. Type for tag: \(tag) must be Bool")
-                    throw TaskError.wrongType
+                    throw TaskError.decodeFailedTypeMismatch
                 }
                 
                 return false as! T
@@ -64,14 +64,14 @@ public final class TlvMapper {
                 print("Mapping error. Missing tag: \(tag)")
             }
             
-            throw TaskError.missingTag
+            throw TaskError.decodeFailedMissingTag
         }
         
         switch tag.valueType {
         case .hexString:
             guard String.self == T.self || String?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be String")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             let hexString = tagValue.asHexString()
@@ -79,19 +79,19 @@ public final class TlvMapper {
         case .utf8String:
             guard String.self == T.self || String?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be String")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             guard let utfValue = tagValue.toUtf8String() else {
                 print("Mapping error. Failed convert \(tag) to utf8 string")
-                throw TaskError.convertError
+                throw TaskError.decodeFailed
             }
             
             return utfValue as! T
         case .intValue, .byte, .uint16:
             guard Int.self == T.self || Int?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be Int")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             let intValue = tagValue.toInt()
@@ -99,39 +99,39 @@ public final class TlvMapper {
         case .data:
             guard Data.self == T.self || Data?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be Data")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             return tagValue as! T
         case .ellipticCurve:
             guard EllipticCurve.self == T.self || EllipticCurve?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be EllipticCurve")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             guard let utfValue = tagValue.toUtf8String(),
                 let curve = EllipticCurve(rawValue: utfValue) else {
                     print("Mapping error. Failed convert \(tag) to utfValue and curve")
-                    throw TaskError.convertError
+                    throw TaskError.decodeFailed
             }
             
             return curve as! T
         case .boolValue:
             guard Bool.self == T.self || Bool?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be Bool")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             return true as! T
         case .dateTime:
             guard Date.self == T.self || Date?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be Date")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             guard let date = tagValue.toDate() else {
                 print("Mapping error. Failed convert \(tag) to date")
-                throw TaskError.convertError
+                throw TaskError.decodeFailed
             }
             
             return date as! T
@@ -139,19 +139,19 @@ public final class TlvMapper {
         case .productMask:
             guard ProductMask.self == T.self || ProductMask?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be ProductMask")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             guard let byte = tagValue.toBytes.first else {
                     print("Mapping error. Failed convert \(tag) to ProductMask")
-                    throw TaskError.convertError
+                    throw TaskError.decodeFailed
             }
             let productMask = ProductMask(rawValue: byte)
             return productMask as! T
         case .settingsMask:
             guard SettingsMask.self == T.self || SettingsMask?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be SettingsMask")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             let intValue = tagValue.toInt()
@@ -160,19 +160,19 @@ public final class TlvMapper {
         case .cardStatus:
             guard CardStatus.self == T.self || CardStatus?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be CardStatus")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             let intValue = tagValue.toInt()
             guard let cardStatus = CardStatus(rawValue: intValue) else {
                 print("Mapping error. Failed convert \(tag) to int and CardStatus")
-                throw TaskError.convertError
+                throw TaskError.decodeFailed
             }
             
             return cardStatus as! T
         case .signingMethod:
             guard SigningMethod.self == T.self || SigningMethod?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be SigningMethod")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             let intValue = tagValue.toInt()
@@ -181,13 +181,13 @@ public final class TlvMapper {
         case .issuerExtraDataMode:
             guard IssuerExtraDataMode.self == T.self || IssuerExtraDataMode?.self == T.self else {
                 print("Mapping error. Type for tag: \(tag) must be IssuerExtraDataMode")
-                throw TaskError.wrongType
+                throw TaskError.decodeFailedTypeMismatch
             }
             
             guard let byte = tagValue.toBytes.first,
                 let mode = IssuerExtraDataMode(rawValue: byte) else {
                     print("Mapping error. Failed convert \(tag) to IssuerExtraDataMode")
-                    throw TaskError.convertError
+                    throw TaskError.decodeFailed
             }
             
             return mode as! T
