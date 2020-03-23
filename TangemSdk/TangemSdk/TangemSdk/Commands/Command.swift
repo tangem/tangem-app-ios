@@ -19,7 +19,7 @@ public protocol Command: AnyCommand {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
-    func run(session: CommandTransiever, environment: CardEnvironment, completion: @escaping CompletionResult<CommandResponse>)
+    func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping CompletionResult<CommandResponse>)
 }
 
 @available(iOS 13.0, *)
@@ -27,7 +27,7 @@ public protocol PreflightCommand: AnyCommand {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
-    func run(session: CommandTransiever, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>)
+    func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>)
 }
 
 public protocol SerializableCommand {
