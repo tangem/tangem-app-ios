@@ -20,14 +20,7 @@ public final class CardManager {
     }
     
     public var config = Config()
-    
-    /// `cardReader` is an interface that is responsible for NFC connection and  transfer of data to and from the Tangem Card.
-    private let cardReader: CardReader
-    
-    /// An interface that allows interaction with users and shows relevant UI.
-    private let cardManagerDelegate: CardManagerDelegate
-    private var isBusy: Bool = false
-    private var currentTask: AnyTask?
+    private let session: TangemCardSession
     private let storageService = SecureStorageService()
     
     private lazy var terminalKeysService: TerminalKeysService = {
@@ -36,8 +29,7 @@ public final class CardManager {
     }()
     
     public init(cardReader: CardReader, cardManagerDelegate: CardManagerDelegate) {
-        self.cardReader = cardReader
-        self.cardManagerDelegate = cardManagerDelegate
+        self.session = CardSession(reader: cardReader, viewDelegate: cardManagerDelegate)
     }
     
     /**
@@ -52,9 +44,12 @@ public final class CardManager {
      * `completion(TaskError?)` with an error field null after successful completion of a task or
      *  with an error if some error occurs.
      */
-    public func scanCard(callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
-        let task = ScanTask()
-        runTask(task, callback: callback)
+    public func scanCard(completion: @escaping CompletionResult<Card>) {
+        if #available(iOS 13.0, *) {
+            session.run(ScanTask(), sessionParams: prepareSessionParams(for: nil), completion: completion)
+        } else {
+            session.run(ScanTaskLegacy(), sessionParams: prepareSessionParams(for: nil), completion: completion)
+        }
     }
     
     /**
@@ -73,20 +68,17 @@ public final class CardManager {
      * - Parameter cardId: CID, Unique Tangem card ID number
      */
     @available(iOS 13.0, *)
-    public func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void) {
+    public func sign(hashes: [Data], cardId: String, completion: @escaping CompletionResult<SignResponse>) {
         var signCommand: SignCommand
         do {
             signCommand = try SignCommand(hashes: hashes)
+            session.run(signCommand, sessionParams: prepareSessionParams(for: cardId), completion: completion)
         } catch {
             print(error.localizedDescription)
-            callback(.completion(TaskError.parse(error)))
-            return
+            completion(.failure(error.toTaskError()))
         }
-        
-        let task = SingleCommandTask(signCommand)
-        runTask(task, cardId: cardId, callback: callback)
     }
-    
+    /*
     /**
      * This command returns 512-byte Issuer Data field and its issuer’s signature.
      * Issuer Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
@@ -241,20 +233,21 @@ public final class CardManager {
     
     /// Allows to run a custom command created outside of this SDK.
     @available(iOS 13.0, *)
-    public func runCommand<T: CommandSerializer>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+    public func runCommand<T: Command>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
         let task = SingleCommandTask<T>(command)
         runTask(task, cardId: cardId, callback: callback)
     }
-    
-    private func prepareCardEnvironment(for cardId: String?) -> CardEnvironment {
+    */
+    private func prepareSessionParams(for cardId: String?) -> CardSessionParams {
         let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = CardEnvironment()
         environment.cardId = cardId
         environment.legacyMode = isLegacyMode
         if config.linkedTerminal && !isLegacyMode {
             environment.terminalKeys = terminalKeysService.getKeys()
-        }        
-        return environment
+        }
+        let sessionParam = CardSessionParams(environment: environment)
+        return sessionParam
     }
 }
 

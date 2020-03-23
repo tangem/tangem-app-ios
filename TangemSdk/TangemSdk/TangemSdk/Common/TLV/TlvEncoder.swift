@@ -14,7 +14,7 @@ public final class TlvEncoder {
             return try Tlv(tag, value: encode(value, for: tag))
         } else {
             print("Encoding error. Value for tag \(tag) is nil")
-            throw TaskError.serializeCommandError
+            throw TaskError.encodeFailed
         }
     }
     
@@ -34,7 +34,7 @@ public final class TlvEncoder {
                 return data
             } else {
                 print("Encoding error. Failed to convert string to utf8 Data")
-                throw TaskError.encodingError
+                throw TaskError.encodeFailed
             }
         case .byte:
             try typeCheck(value, Int.self)
@@ -57,7 +57,7 @@ public final class TlvEncoder {
                 return data
             } else {
                 print("Encoding error. Failed to convert EllipticCurve to utf8 Data")
-                throw TaskError.encodingError
+                throw TaskError.encodeFailed
             }
         case .dateTime:
             try typeCheck(value, Date.self)
@@ -93,7 +93,7 @@ public final class TlvEncoder {
     private func typeCheck<FromType, ToType>(_ value: FromType, _ to: ToType) throws {
         guard type(of: value) is ToType else {
             print("Encoding error. Value is \(FromType.self). Expected: \(ToType.self)")
-            throw TaskError.serializeCommandError
+            throw TaskError.encodeFailedTypeMismatch
         }
     }
 }
