@@ -230,12 +230,12 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         updateUI()
         
         if state == .id {
+            scrollView.refreshControl?.beginRefreshing()
             refreshData()
         }
     }
     
     func refreshData() {
-        scrollView.refreshControl?.beginRefreshing()
         let balanceOp = card.balanceRequestOperation(onSuccess: {[weak self] card in
             self?.card = card
             self?.scrollView.refreshControl?.endRefreshing()
@@ -268,8 +268,6 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @objc func handleRefresh() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-           self.scrollView.refreshControl?.endRefreshing()
-        }
+        refreshData()
     }
 }
