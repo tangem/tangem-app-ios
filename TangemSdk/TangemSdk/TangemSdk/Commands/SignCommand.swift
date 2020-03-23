@@ -52,7 +52,7 @@ public final class SignCommand: Command, SerializableCommand {
         dataToSign = Data(flattenHashes)
     }
     
-    public func run(session: CommandTransiever, environment: CardEnvironment, completion: @escaping (Result<SignCommand.CommandResponse, TaskError>) -> Void) {
+    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping (Result<SignCommand.CommandResponse, TaskError>) -> Void) {
         session.sendCommand(self, environment: environment, completion: completion)
     }
     
