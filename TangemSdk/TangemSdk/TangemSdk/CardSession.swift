@@ -34,9 +34,15 @@ public struct CardSessionParams {
 public class CardSession: TangemCardSession {
     private let reader: CardReader
     private let viewDelegate: CardManagerDelegate
-    private var currentCommand: AnyCommand?
-    private var isBusy: Bool = false
+    private var currentCommand: AnyCommand? = nil
     private var sessionParams: CardSessionParams!
+    private let semaphore = DispatchSemaphore(value: 1)
+    
+    private var isBusy: Bool {
+        semaphore.wait()
+        defer { semaphore.signal() }
+        return currentCommand != nil
+    }
     
     public init(reader: CardReader, viewDelegate: CardManagerDelegate) {
         self.reader = reader
@@ -109,26 +115,35 @@ public class CardSession: TangemCardSession {
             return .unsupportedDevice
         }
         
-        guard !isBusy else {
-            return .busy
-        }
+        if isBusy { return .busy }
         
         self.sessionParams = sessionParams
-        currentCommand = command
-        isBusy = true
+        retainCommand(command)
         
-        //[REDACTED_TODO_COMMENT]
-        reader.startSession(with: sessionParams.initialMessage)
+        if !reader.isReady {
+            reader.startSession(with: sessionParams.initialMessage)
+        }
         return nil
     }
     
     
     private func completeCommand(stopSession: Bool) {
-        self.isBusy = false
-        self.currentCommand = nil
+        releaseCommand()
         if sessionParams.stopSession {
             self.stopSession(message: Localization.nfcAlertDefaultDone)
         }
+    }
+    
+    private func retainCommand(_ command: AnyCommand) {
+        semaphore.wait()
+        defer { semaphore.signal() }
+        currentCommand = command
+    }
+    
+    private func releaseCommand( ) {
+        semaphore.wait()
+        defer { semaphore.signal() }
+        currentCommand = nil
     }
     
     @available(iOS 13.0, *)
