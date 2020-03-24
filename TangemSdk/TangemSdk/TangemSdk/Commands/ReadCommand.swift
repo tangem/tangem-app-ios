@@ -186,9 +186,7 @@ public struct Card: TlvCodable {
 /// This command receives from the Tangem Card all the data about the card and the wallet,
 ///  including unique card number (CID or cardId) that has to be submitted while calling all other commands.
 public final class ReadCommand: Command, SerializableCommand {
-    
     public typealias CommandResponse = ReadResponse
-    
     public init() {}
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
