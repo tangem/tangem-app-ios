@@ -11,7 +11,7 @@ import Foundation
 /// Task that allows to read Tangem card and verify its private key.
 /// Returns data from a Tangem card after successful completion of `ReadCommand` and `CheckWalletCommand`, subsequently.
 @available(iOS 13.0, *)
-public final class ScanTask: PreflightCommand {
+public final class ScanTask: CardSessionPreflightRunnable {
     public typealias CommandResponse = Card
     public init() {}
     
@@ -43,7 +43,7 @@ public final class ScanTask: PreflightCommand {
     }
 }
 
-public final class ScanTaskLegacy: Command {
+public final class ScanTaskLegacy: CardSessionRunnable {
     public typealias CommandResponse = Card
     
     public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping CompletionResult<Card>) {
