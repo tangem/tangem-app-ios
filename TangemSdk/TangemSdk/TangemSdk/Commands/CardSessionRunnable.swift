@@ -10,12 +10,10 @@
 import Foundation
 import CoreNFC
 
-public protocol AnyCommand {
-    
-}
+public protocol AnyCardSessionRunnable {}
 
 /// Abstract class for all Tangem card commands.
-public protocol Command: AnyCommand {
+public protocol CardSessionRunnable: AnyCardSessionRunnable {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
@@ -23,14 +21,14 @@ public protocol Command: AnyCommand {
 }
 
 @available(iOS 13.0, *)
-public protocol PreflightCommand: AnyCommand {
+public protocol CardSessionPreflightRunnable: AnyCardSessionRunnable {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
     func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>)
 }
 
-public protocol SerializableCommand {
+public protocol ApduSerializable {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
@@ -47,11 +45,26 @@ public protocol SerializableCommand {
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
-public extension Command {    
+public extension ApduSerializable {
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
     /// 4 - Timeout setting for ping nfc-module
     func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
         return try! TlvBuilder().append(.legacyMode, value: 4)
+    }
+}
+
+public protocol Command: CardSessionRunnable, ApduSerializable {}
+public protocol PreflightCommand: CardSessionPreflightRunnable, ApduSerializable {}
+
+public extension Command {
+    func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping CompletionResult<CommandResponse>) {
+        session.sendCommand(self, environment: environment, completion: completion)
+    }
+}
+
+public extension PreflightCommand {
+    func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>) {
+        session.sendCommand(self, environment: environment, completion: completion)
     }
 }
 
