@@ -124,11 +124,11 @@ public final class CardManager {
      * @param callback is triggered on the completion of the [ReadIssuerExtraDataTask],
      * provides card response in the form of [ReadIssuerExtraDataResponse].
      */
-//    [REDACTED_USERNAME](iOS 13.0, *)
-//    public func readIssuerExtraData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerExtraDataResponse>) -> Void) {
-//        let task = ReadIssuerExtraDataTask(issuerPublicKey: config.issuerPublicKey)
-//        runTask(task, cardId: cardId, callback: callback)
-//    }
+    @available(iOS 13.0, *)
+    public func readIssuerExtraData(cardId: String, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
+        let command = ReadIssuerExtraDataCommand(issuerPublicKey: config.issuerPublicKey)
+        session.run(command, sessionParams: prepareSessionParams(for: cardId), completion: completion)
+    }
     
     /**
      * This task writes Issuer Extra Data field and its issuer’s signature.

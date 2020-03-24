@@ -78,7 +78,7 @@ public class CardSession: TangemCardSession {
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
-                self.completeCommand(stopSession: true)
+                self.completeCommand(stopSession: true, error: error)
             }
         }
     }
@@ -100,7 +100,7 @@ public class CardSession: TangemCardSession {
                     DispatchQueue.main.async {
                         completion(.failure(error))
                     }
-                    self.completeCommand(stopSession: true)
+                    self.completeCommand(stopSession: true, error: error)
                 }
             }
         } else {
@@ -121,7 +121,7 @@ public class CardSession: TangemCardSession {
             DispatchQueue.main.async {
                 completion(.failure(error))
             }
-            self.completeCommand(stopSession: true)
+            self.completeCommand(stopSession: true, error: error)
         }
     }
     
@@ -142,10 +142,14 @@ public class CardSession: TangemCardSession {
     }
     
     
-    private func completeCommand(stopSession: Bool) {
+    private func completeCommand(stopSession: Bool, error: Error? = nil) {
         releaseCommand()
         if sessionParams.stopSession {
-            self.stopSession(message: Localization.nfcAlertDefaultDone)
+            if let error = error {
+                self.stopSession(error: error)
+            } else {
+                self.stopSession(message: Localization.nfcAlertDefaultDone)
+            }
         }
     }
     
