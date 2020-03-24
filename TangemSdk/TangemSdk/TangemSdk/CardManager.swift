@@ -78,7 +78,7 @@ public final class CardManager {
             completion(.failure(error.toTaskError()))
         }
     }
-    /*
+    
     /**
      * This command returns 512-byte Issuer Data field and its issuer’s signature.
      * Issuer Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
@@ -90,10 +90,8 @@ public final class CardManager {
      * provides card response in the form of `ReadIssuerDataResponse`.
      */
     @available(iOS 13.0, *)
-    public func readIssuerData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerDataResponse>) -> Void) {
-        let command = ReadIssuerDataCommand()
-        let task = SingleCommandTask(command)
-        runTask(task, cardId: cardId, callback: callback)
+    public func readIssuerData(cardId: String, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
+        session.run(ReadIssuerDataCommand(), sessionParams: prepareSessionParams(for: cardId), completion: completion)
     }
     
     /**
@@ -110,10 +108,10 @@ public final class CardManager {
      * provides card response in the form of  `WriteIssuerDataResponse`.
      */
     @available(iOS 13.0, *)
-    public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
+    public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
+        
         let command = WriteIssuerDataCommand(issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
-        let task = SingleCommandTask(command)
-        runTask(task, cardId: cardId, callback: callback)
+        session.run(command, sessionParams: prepareSessionParams(for: cardId), completion: completion)
     }
     
     /**
@@ -126,11 +124,11 @@ public final class CardManager {
      * @param callback is triggered on the completion of the [ReadIssuerExtraDataTask],
      * provides card response in the form of [ReadIssuerExtraDataResponse].
      */
-    @available(iOS 13.0, *)
-    public func readIssuerExtraData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerExtraDataResponse>) -> Void) {
-        let task = ReadIssuerExtraDataTask(issuerPublicKey: config.issuerPublicKey)
-        runTask(task, cardId: cardId, callback: callback)
-    }
+//    [REDACTED_USERNAME](iOS 13.0, *)
+//    public func readIssuerExtraData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerExtraDataResponse>) -> Void) {
+//        let task = ReadIssuerExtraDataTask(issuerPublicKey: config.issuerPublicKey)
+//        runTask(task, cardId: cardId, callback: callback)
+//    }
     
     /**
      * This task writes Issuer Extra Data field and its issuer’s signature.
@@ -151,21 +149,21 @@ public final class CardManager {
      * @param callback is triggered on the completion of the [WriteIssuerDataCommand],
      * provides card response in the form of [WriteIssuerDataResponse].
      */
-    @available(iOS 13.0, *)
-    public func writeIssuerExtraData(cardId: String,
-                                     issuerData: Data,
-                                     startingSignature: Data,
-                                     finalizingSignature: Data,
-                                     issuerDataCounter: Int? = nil,
-                                     callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
-        
-        let task = WriteIssuerExtraDataTask(issuerData: issuerData,
-                                            issuerPublicKey: config.issuerPublicKey,
-                                            startingSignature: startingSignature,
-                                            finalizingSignature: finalizingSignature,
-                                            issuerDataCounter: issuerDataCounter)
-        runTask(task, cardId: cardId, callback: callback)
-    }
+//    [REDACTED_USERNAME](iOS 13.0, *)
+//    public func writeIssuerExtraData(cardId: String,
+//                                     issuerData: Data,
+//                                     startingSignature: Data,
+//                                     finalizingSignature: Data,
+//                                     issuerDataCounter: Int? = nil,
+//                                     callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
+//
+//        let task = WriteIssuerExtraDataTask(issuerData: issuerData,
+//                                            issuerPublicKey: config.issuerPublicKey,
+//                                            startingSignature: startingSignature,
+//                                            finalizingSignature: finalizingSignature,
+//                                            issuerDataCounter: issuerDataCounter)
+//        runTask(task, cardId: cardId, callback: callback)
+//    }
     
     /**
      * This command will create a new wallet on the card having ‘Empty’ state.
@@ -178,9 +176,8 @@ public final class CardManager {
      * - Parameter cardId: CID, Unique Tangem card ID number.
      */
     @available(iOS 13.0, *)
-    public func createWallet(cardId: String, callback: @escaping (TaskEvent<CreateWalletEvent>) -> Void) {
-        let task = CreateWalletTask(verifyWallet: true)
-        runTask(task, cardId: cardId, callback: callback)
+    public func createWallet(cardId: String, completion: @escaping CompletionResult<CreateWalletResponse>) {
+        session.run(CreateWalletTask(), sessionParams: prepareSessionParams(for: cardId), completion: completion)
     }
     
     /**
@@ -191,53 +188,51 @@ public final class CardManager {
      * - Parameter cardId: CID, Unique Tangem card ID number.
      */
     @available(iOS 13.0, *)
-    public func purgeWallet(cardId: String, callback: @escaping (TaskEvent<PurgeWalletResponse>) -> Void) {
-        let command = PurgeWalletCommand()
-        let task = SingleCommandTask(command)
-        runTask(task, cardId: cardId, callback: callback)
+    public func purgeWallet(cardId: String, completion: @escaping CompletionResult<PurgeWalletResponse>) {
+        session.run(PurgeWalletCommand(), sessionParams: prepareSessionParams(for: cardId), completion: completion)
     }
     
-    /// Allows to run a custom task created outside of this SDK.
-    public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
-        guard CardManager.isNFCAvailable else {
-            callback(.completion(TaskError.unsupportedDevice))
-            return
-        }
-        
-        guard !isBusy else {
-            callback(.completion(TaskError.busy))
-            return
-        }
-        
-        currentTask = task
-        isBusy = true
-        task.reader = cardReader
-        task.delegate = cardManagerDelegate
-        let environment = prepareCardEnvironment(for: cardId)
-        
-        task.run(with: environment) {[weak self] taskResult in
-            switch taskResult {
-            case .event(let event):
-                DispatchQueue.main.async {
-                    callback(.event(event))
-                }
-            case .completion(let error):
-                DispatchQueue.main.async {
-                    callback(.completion(error))
-                }
-                self?.isBusy = false
-                self?.currentTask = nil
-            }
-        }
-    }
+//    /// Allows to run a custom task created outside of this SDK.
+//    public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
+//        guard CardManager.isNFCAvailable else {
+//            callback(.completion(TaskError.unsupportedDevice))
+//            return
+//        }
+//
+//        guard !isBusy else {
+//            callback(.completion(TaskError.busy))
+//            return
+//        }
+//
+//        currentTask = task
+//        isBusy = true
+//        task.reader = cardReader
+//        task.delegate = cardManagerDelegate
+//        let environment = prepareCardEnvironment(for: cardId)
+//
+//        task.run(with: environment) {[weak self] taskResult in
+//            switch taskResult {
+//            case .event(let event):
+//                DispatchQueue.main.async {
+//                    callback(.event(event))
+//                }
+//            case .completion(let error):
+//                DispatchQueue.main.async {
+//                    callback(.completion(error))
+//                }
+//                self?.isBusy = false
+//                self?.currentTask = nil
+//            }
+//        }
+//    }
     
-    /// Allows to run a custom command created outside of this SDK.
-    @available(iOS 13.0, *)
-    public func runCommand<T: Command>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
-        let task = SingleCommandTask<T>(command)
-        runTask(task, cardId: cardId, callback: callback)
-    }
-    */
+//    /// Allows to run a custom command created outside of this SDK.
+//    [REDACTED_USERNAME](iOS 13.0, *)
+//    public func runCommand<T: Command>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
+//        let task = SingleCommandTask<T>(command)
+//        runTask(task, cardId: cardId, callback: callback)
+//    }
+
     private func prepareSessionParams(for cardId: String? = nil) -> CardSessionParams {
         let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = CardEnvironment()
