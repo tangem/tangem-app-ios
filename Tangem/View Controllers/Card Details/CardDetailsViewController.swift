@@ -148,7 +148,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
 //                    self.present(validationAlert, animated: true, completion: nil)
 //                }
                 
-                if card.productMask != .tag {
+                if !card.productMask.contains(.tag) {
                     self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
                     self.setupBalanceVerified(false)
                 } else {
@@ -309,7 +309,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.walletAddressLabel.isHidden = false
         viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
-        if let card = card, card.productMask == .note && card.type != .nft {
+        if let card = card, card.productMask.contains(.note) && card.type != .nft {
             viewModel.loadButton.isEnabled = true
             viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
         } else {
