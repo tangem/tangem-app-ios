@@ -13,6 +13,7 @@ import Foundation
 @available(iOS 13.0, *)
 public final class ScanTask: PreflightCommand {
     public typealias CommandResponse = Card
+    public init() {}
     
     public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<Card>) {
         guard let cardStatus = currentCard.status, cardStatus == .loaded else {
