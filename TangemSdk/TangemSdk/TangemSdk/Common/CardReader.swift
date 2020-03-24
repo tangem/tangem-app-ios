@@ -13,6 +13,7 @@ import CoreNFC
 /// Its default implementation, `NfcReader`, is in our module.
 public protocol CardReader: class {
     /// For setting alertMessage into NFC popup
+    var isReady: Bool { get }
     var alertMessage: String {get set}
     var tagDidConnect: (() -> Void)? {get set}
     func startSession(with message: String?)
