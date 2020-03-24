@@ -31,7 +31,7 @@ public class XlmEngine: CardEngine {
     }
     
     public var walletType: WalletType {
-        if card.productMask.contains(.note) && card.signArr.count != 0 { //slix tag
+        if card.productMask.contains(.tag) { //slix tag
             return .slix2
         }
         
