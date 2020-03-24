@@ -13,14 +13,14 @@ public typealias CompletionResult<T> = (Result<T, TaskError>) -> Void
 public protocol TangemCardSession {
     func stopSession(message: String?)
     func stopSession(error: Error)
-    func run<T: Command>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>)
+    func run<T: CardSessionRunnable>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>)
     
     @available(iOS 13.0, *)
-    func run<T: PreflightCommand>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>)
+    func run<T: CardSessionPreflightRunnable>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>)
 }
 
 public protocol CommandTransiever {
-    func sendCommand<T: SerializableCommand>(_ command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
+    func sendCommand<T: ApduSerializable>(_ command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
     func sendApdu(_ apdu: CommandApdu, environment: CardEnvironment, completion: @escaping CompletionResult<ResponseApdu>)
 }
 
@@ -34,7 +34,7 @@ public struct CardSessionParams {
 public class CardSession: TangemCardSession {
     private let reader: CardReader
     private let viewDelegate: CardManagerDelegate
-    private var currentCommand: AnyCommand? = nil
+    private var currentCommand: AnyCardSessionRunnable? = nil
     private var sessionParams: CardSessionParams!
     private let semaphore = DispatchSemaphore(value: 1)
     
@@ -63,7 +63,7 @@ public class CardSession: TangemCardSession {
     
     
     @available(iOS 13.0, *)
-    public func run<T: PreflightCommand>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>) {
+    public func run<T: CardSessionPreflightRunnable>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>) {
         if let error = startCommand(command, sessionParams: sessionParams) {
             completion(.failure(error))
             return
@@ -84,7 +84,7 @@ public class CardSession: TangemCardSession {
         }
     }
     
-    public func run<T: Command>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>) {
+    public func run<T: CardSessionRunnable>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>) {
         if let error = startCommand(command, sessionParams: sessionParams) {
             completion(.failure(error))
             return
@@ -110,7 +110,7 @@ public class CardSession: TangemCardSession {
         }
     }
     
-    private func startCommand(_ command: AnyCommand, sessionParams: CardSessionParams) -> TaskError? {
+    private func startCommand(_ command: AnyCardSessionRunnable, sessionParams: CardSessionParams) -> TaskError? {
         guard CardManager.isNFCAvailable else {
             return .unsupportedDevice
         }
@@ -134,7 +134,7 @@ public class CardSession: TangemCardSession {
         }
     }
     
-    private func retainCommand(_ command: AnyCommand) {
+    private func retainCommand(_ command: AnyCardSessionRunnable) {
         semaphore.wait()
         defer { semaphore.signal() }
         currentCommand = command
@@ -177,7 +177,7 @@ public class CardSession: TangemCardSession {
 }
 
 extension CardSession: CommandTransiever {
-    public final func sendCommand<T: SerializableCommand>(_ command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>) {
+    public final func sendCommand<T: ApduSerializable>(_ command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>) {
         do {
             let commandApdu = try command.serialize(with: environment)
             sendApdu(commandApdu, environment: environment) { result in
