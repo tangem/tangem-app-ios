@@ -12,29 +12,29 @@
 //public final class ReadIssuerExtraDataTask: Task<ReadIssuerExtraDataResponse> {
 //    private var issuerPublicKey: Data?
 //    private var callback: ((TaskEvent<ReadIssuerExtraDataResponse>) -> Void)?
-//    
+//
 //    private var issuerData = Data()
 //    private var issuerDataSize = 0
-//    
+//
 //    public init(issuerPublicKey: Data? = nil) {
 //        self.issuerPublicKey = issuerPublicKey
 //    }
-//    
+//
 //    override public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<ReadIssuerExtraDataResponse>) -> Void) {
 //        guard let issuerPublicKeyFromCard = currentCard?.issuerPublicKey else {
 //            reader.stopSession(errorMessage: TaskError.missingPreflightRead.localizedDescription)
 //            callback(.completion(TaskError.missingPreflightRead))
 //            return
 //        }
-//        
+//
 //        self.callback = callback
 //        if issuerPublicKey == nil {
 //            issuerPublicKey = issuerPublicKeyFromCard
 //        }
-//        
+//
 //        readData(with: environment)
 //    }
-//    
+//
 //    private func readData(with environment: CardEnvironment) {
 //        showProgress()
 //        let command = ReadIssuerExtraDataCommand(offset: issuerData.count)
@@ -51,9 +51,9 @@
 //                        self.issuerDataSize = dataSize // initialize only at start
 //                    }
 //                }
-//                
+//
 //                self.issuerData.append(response.issuerData)
-//                
+//
 //                if response.issuerDataSignature == nil {
 //                    self.readData(with: environment)
 //                } else {
@@ -63,7 +63,7 @@
 //                                                                    issuerData: self.issuerData,
 //                                                                    issuerDataSignature: response.issuerDataSignature,
 //                                                                    issuerDataCounter: response.issuerDataCounter)
-//                    
+//
 //                    if let result = finalResponse.verify(publicKey: self.issuerPublicKey!),
 //                        result == true {
 //                        self.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
@@ -81,7 +81,7 @@
 //            }
 //        }
 //    }
-//    
+//
 //    private func showProgress() {
 //        if issuerDataSize == 0 {
 //            return
