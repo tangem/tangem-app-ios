@@ -46,9 +46,9 @@ public final class CardManager {
      */
     public func scanCard(completion: @escaping CompletionResult<Card>) {
         if #available(iOS 13.0, *) {
-            session.run(ScanTask(), sessionParams: prepareSessionParams(for: nil), completion: completion)
+            session.run(ScanTask(), sessionParams: prepareSessionParams(), completion: completion)
         } else {
-            session.run(ScanTaskLegacy(), sessionParams: prepareSessionParams(for: nil), completion: completion)
+            session.run(ScanTaskLegacy(), sessionParams: prepareSessionParams(), completion: completion)
         }
     }
     
@@ -238,7 +238,7 @@ public final class CardManager {
         runTask(task, cardId: cardId, callback: callback)
     }
     */
-    private func prepareSessionParams(for cardId: String?) -> CardSessionParams {
+    private func prepareSessionParams(for cardId: String? = nil) -> CardSessionParams {
         let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = CardEnvironment()
         environment.cardId = cardId
