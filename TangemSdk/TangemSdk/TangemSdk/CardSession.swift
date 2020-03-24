@@ -30,7 +30,6 @@ public struct CardSessionParams {
     public var stopSession: Bool = true
 }
 
-
 public class CardSession: TangemCardSession {
     private let reader: CardReader
     private let viewDelegate: CardManagerDelegate
@@ -90,9 +89,25 @@ public class CardSession: TangemCardSession {
             return
         }
         
-        command.run(session: self, viewDelegate: self.viewDelegate, environment: sessionParams.environment, completion: { [unowned self] result in
-            self.handleCommandCompletion(commandResult: result, completion: completion)
-        })
+        if #available(iOS 13.0, *), sessionParams.environment.cardId != nil {
+            preflightRead(environment: sessionParams.environment) {[unowned self] result in
+                switch result {
+                case .success(let preflightResponse):
+                    command.run(session: self, viewDelegate: self.viewDelegate, environment: preflightResponse.environment, completion: { [unowned self] result in
+                        self.handleCommandCompletion(commandResult: result, completion: completion)
+                    })
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
+                    }
+                    self.completeCommand(stopSession: true)
+                }
+            }
+        } else {
+            command.run(session: self, viewDelegate: self.viewDelegate, environment: sessionParams.environment, completion: { [unowned self] result in
+                self.handleCommandCompletion(commandResult: result, completion: completion)
+            })
+        }
     }
     
     private func handleCommandCompletion<TResponse>(commandResult: Result<TResponse, TaskError>, completion: @escaping CompletionResult<TResponse>) {
