@@ -22,7 +22,7 @@ public struct SignResponse: TlvCodable {
 
 /// Signs transaction hashes using a wallet private key, stored on the card.
 @available(iOS 13.0, *)
-public final class SignCommand: Command, SerializableCommand {
+public final class SignCommand: PreflightCommand {
     public typealias CommandResponse = SignResponse
     
     private let hashSize: Int
@@ -50,10 +50,6 @@ public final class SignCommand: Command, SerializableCommand {
             flattenHashes.append(contentsOf: hash.toBytes)
         }
         dataToSign = Data(flattenHashes)
-    }
-    
-    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping (Result<SignCommand.CommandResponse, TaskError>) -> Void) {
-        session.sendCommand(self, environment: environment, completion: completion)
     }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
