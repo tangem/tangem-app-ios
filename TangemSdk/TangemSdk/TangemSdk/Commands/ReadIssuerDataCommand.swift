@@ -35,14 +35,10 @@ public struct ReadIssuerDataResponse: TlvCodable {
  * wallet balance signed by the issuer or additional issuer’s attestation data.
  */
 @available(iOS 13.0, *)
-public final class ReadIssuerDataCommand: CardSessionRunnable, ApduSerializable {
+public final class ReadIssuerDataCommand: Command {
     public typealias CommandResponse = ReadIssuerDataResponse
     
     public init() {}
-    
-    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
-          
-      }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
