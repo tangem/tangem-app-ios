@@ -83,6 +83,10 @@ public final class NFCReader: NSObject {
 
 @available(iOS 13.0, *)
 extension NFCReader: CardReader {
+    public var isReady: Bool {
+        return readerSession?.isReady ?? false
+    }
+    
     public var alertMessage: String {
         get { return readerSession?.alertMessage ?? "" }
         set { readerSession?.alertMessage = newValue }
