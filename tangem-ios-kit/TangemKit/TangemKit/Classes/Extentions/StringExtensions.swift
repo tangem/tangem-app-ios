@@ -8,7 +8,11 @@
 
 import Foundation
 
-extension String: Error {}
+extension String: Error, LocalizedError {
+    public var errorDescription: String? {
+        return self
+    }
+}
 
 public extension String {
     var cardFormatted: String {
