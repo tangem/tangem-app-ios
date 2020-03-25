@@ -9,6 +9,7 @@
 import UIKit
 import TangemKit
 import TangemSdk
+import AVFoundation
 
 @available(iOS 13.0, *)
 class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
@@ -109,12 +110,30 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @objc func addPhotoTapped() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .denied:
+            let alert = UIAlertController(title: "Camera access denied", message: "You have not given access to your camera, please adjust your privacy settings", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Settings", style: .cancel) { _ in
+                           if let url = URL(string: UIApplicationOpenSettingsURLString) {
+                               if UIApplication.shared.canOpenURL(url) {
+                                   UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                               }
+                           }
+                       })
+            alert.addAction(UIAlertAction(title: Localizations.generalCancel, style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        default:
+            openCamera()
+        }
+    }
+    
+    func openCamera() {
         let pickerController = UIImagePickerController()
-        pickerController.delegate = self
-        pickerController.allowsEditing = true
-        pickerController.sourceType = .camera
-        pickerController.cameraDevice = .front
-        self.present(pickerController, animated: true)
+              pickerController.delegate = self
+              pickerController.allowsEditing = true
+              pickerController.sourceType = .camera
+              pickerController.cameraDevice = .front
+              self.present(pickerController, animated: true)
     }
     
     func shake(_ view: UIView) {
