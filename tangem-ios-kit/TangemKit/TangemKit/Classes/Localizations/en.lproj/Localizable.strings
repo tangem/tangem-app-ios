@@ -21,3 +21,12 @@
 "nfc_stuck_error" = "It seems that NFC does not work properly on your iPhone.";
 
 "balance_validator_second_line_create_account_instruction" = "To create account send 1+ XLM to this address";
+
+"balance_validator_second_line_create_account_instruction_asset" = "To create account send 1.5+ XLM to this address";
+
+"balance_validator_first_line_account_not_found" = "Account not found";
+
+"balance_validator_second_line_create_account_xrp" = "Load 20+ XRP to create account";
+
+/*  */
+"loaded_wallet_error_obtaining_blockchain_data" = "Cannot obtain data from blockchain";
