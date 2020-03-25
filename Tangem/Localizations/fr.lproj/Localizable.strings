@@ -214,7 +214,7 @@
 "loaded_wallet_warning_default_pin" = "Si vous utilisez un code PIN par défaut, une personne peut voler votre argent!";
 
 /*  */
-"loaded_wallet_error_obtaining_blockchain_data" = ">Impossible d'obtenir des données de la blockchain";
+"loaded_wallet_error_obtaining_blockchain_data" = "Impossible d'obtenir des données de la blockchain";
 
 /*  */
 "loaded_wallet_error_blockchain_connection_refused" = "Impossible d'obtenir des données de la blockchain (connexion refusée)";
@@ -870,3 +870,5 @@
 "already_claimed"="Already claimed";
 
 "old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
+
+"last_sig" = "There is only one final signature available on this card. You must withdraw all of your funds in this transaction.";
