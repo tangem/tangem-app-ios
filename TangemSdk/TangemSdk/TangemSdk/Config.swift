@@ -26,6 +26,8 @@ public struct Config {
      In order to skip security delay, App should use Terminal_PrivateKey to compute the signature of the data being submitted to SIGN command for signing and transmit this signature in Terminal_Transaction_Signature parameter in the same SIGN command. COS will verify the correctness of Terminal_Transaction_Signature using previously stored Terminal_PublicKey and, if correct, will skip security delay for the current SIGN operation.
      */
     public var linkedTerminal: Bool = true
+    
+    public var issuerPublicKey: Data?
 }
 
 

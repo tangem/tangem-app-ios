@@ -74,7 +74,7 @@ class BlockchainInfoBalanceOperation: GBAsyncOperation {
 
         guard let balance = self.address?.final_balance,
             let txs = self.address?.txs else {
-                failOperationWith(error: "Fee request error")
+                failOperationWith(error: Localizations.loadedWalletErrorObtainingBlockchainData)
                 return
         }
         

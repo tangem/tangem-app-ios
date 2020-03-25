@@ -64,9 +64,9 @@ public enum Blockchain: String {
 public class CardViewModel {
     
     public var cardEngine: CardEngine!
-    
+    public var issuerExtraData: ReadIssuerExtraDataResponse?
     public var status: CardStatus = .loaded
-    public var productMask: ProductMask = .note
+    public var productMask: ProductMask = ProductMask.note
     public var health = 0
     public var cardID: String = ""
     public var cardPublicKey: String = ""
@@ -577,6 +577,11 @@ public class CardViewModel {
         case .ripple:
             cardEngine = RippleEngine(card: self)
         case .ethereum:
+            if productMask.contains(.card) {
+                cardEngine = ETHIdEngine(card: self)
+                return
+            }
+            
             if tokenSymbol != nil {
                 cardEngine = TokenEngine(card: self)
             } else {
@@ -664,7 +669,7 @@ public extension CardViewModel {
     //        }
     //    }
     
-    func balanceRequestOperation(onSuccess: @escaping (CardViewModel) -> Void, onFailure: @escaping (Error) -> Void) -> GBAsyncOperation? {
+    func balanceRequestOperation(onSuccess: @escaping (CardViewModel) -> Void, onFailure: @escaping (Error, String?) -> Void) -> GBAsyncOperation? {
         var operation: GBAsyncOperation?
         
         let onResult = { (result: TangemKitResult<CardViewModel>) in            
@@ -672,8 +677,8 @@ public extension CardViewModel {
                 switch result {
                 case .success(let card):
                     onSuccess(card)
-                case .failure(let error):
-                    onFailure(error)
+                case .failure(let error, let title):
+                    onFailure(error, title)
                 }
             }
         }
@@ -682,6 +687,9 @@ public extension CardViewModel {
         case .bitcoin:
             operation = BTCCardBalanceOperation(card: self, completion: onResult)
         case .ethereum:
+            if productMask.contains(.card) {
+                return ETHIdCardBalanceOperation(card: self, networkUrl: TokenNetwork.eth.rawValue, completion: onResult)
+            }            
             if tokenSymbol != nil {
                 operation = TokenCardBalanceOperation(card: self, completion: onResult)
             } else {
@@ -714,4 +722,10 @@ public extension CardViewModel {
         return operation
     }
     
+    public func getIdData() -> IdCardData? {
+        if let data = issuerExtraData?.issuerData {
+            return IdCardData(data)
+        }
+        return nil
+    }
 }

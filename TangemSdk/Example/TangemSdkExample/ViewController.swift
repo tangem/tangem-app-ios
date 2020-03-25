@@ -16,6 +16,7 @@ class ViewController: UIViewController {
     
     var card: Card?
     var issuerDataResponse: ReadIssuerDataResponse?
+    var issuerExtraDataResponse: ReadIssuerExtraDataResponse?
     
     @IBAction func scanCardTapped(_ sender: Any) {
         cardManager.scanCard {[unowned self] taskEvent in
@@ -98,13 +99,73 @@ class ViewController: UIViewController {
             cardManager.writeIssuerData(cardId: cardId,
                                         issuerData: issuerDataResponse.issuerData,
                                         issuerDataSignature: issuerDataResponse.issuerDataSignature) { [unowned self] taskEvent in
+                                            switch taskEvent {
+                                            case .event(let issuerDataResponse):
+                                                self.log(issuerDataResponse)
+                                            case .completion(let error):
+                                                self.handle(error)
+                                                //handle completion. Unlock UI, etc.
+                                            }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+    }
+    @IBAction func readIssuerExtraDatatapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        
+        if #available(iOS 13.0, *) {
+            cardManager.readIssuerExtraData(cardId: cardId){ [unowned self] taskEvent in
                 switch taskEvent {
                 case .event(let issuerDataResponse):
+                    self.issuerExtraDataResponse = issuerDataResponse
                     self.log(issuerDataResponse)
+                    print(issuerDataResponse.issuerData.asHexString())
                 case .completion(let error):
                     self.handle(error)
                     //handle completion. Unlock UI, etc.
                 }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+    }
+    
+    @IBAction func writeIssuerExtraDataTapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        
+        guard let issuerDataResponse = issuerExtraDataResponse else {
+            self.log("Please, run GetIssuerExtraData before")
+            return
+        }
+        let newCounter = (issuerDataResponse.issuerDataCounter ?? 0) + 1
+        let sampleData = Data(repeating: UInt8(1), count: 2000)
+        let issuerKey = Data(hexString: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
+        
+        let startSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + newCounter.bytes4 + sampleData.count.bytes2, with: issuerKey)!
+        let finalSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
+        
+        if #available(iOS 13.0, *) {
+            cardManager.writeIssuerExtraData(cardId: cardId,
+                                             issuerData: sampleData,
+                                             startingSignature: startSig,
+                                             finalizingSignature: finalSig,
+                                             issuerDataCounter: newCounter) { [unowned self] taskEvent in
+                                                switch taskEvent {
+                                                case .event(let writeResponse):
+                                                    self.log(writeResponse)
+                                                case .completion(let error):
+                                                    self.handle(error)
+                                                    //handle completion. Unlock UI, etc.
+                                                }
             }
         } else {
             // Fallback on earlier versions
