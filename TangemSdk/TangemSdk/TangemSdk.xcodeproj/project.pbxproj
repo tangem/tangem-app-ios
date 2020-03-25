@@ -78,7 +78,7 @@
 		5DB4406D234B740B00AC39F1 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB4406C234B740B00AC39F1 /* Data+.swift */; };
 		5DB4406F234B750200AC39F1 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB4406E234B750200AC39F1 /* String+.swift */; };
 		5DC060D923E18A17001BF611 /* CreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC060D823E18A17001BF611 /* CreateWalletTask.swift */; };
-		5DC62D3E23506CF300195A51 /* TlvMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC62D3D23506CF300195A51 /* TlvMapper.swift */; };
+		5DC62D3E23506CF300195A51 /* TlvDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC62D3D23506CF300195A51 /* TlvDecoder.swift */; };
 		5DCAA7872383DDC200249F42 /* ReadIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */; };
 		5DCAA7892383E25200249F42 /* WriteIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */; };
 		5DE59F2B23D96F8B00312DA4 /* NfcUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE59F2A23D96F8B00312DA4 /* NfcUtils.swift */; };
@@ -176,7 +176,7 @@
 		5DB4406C234B740B00AC39F1 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
 		5DB4406E234B750200AC39F1 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		5DC060D823E18A17001BF611 /* CreateWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletTask.swift; sourceTree = "<group>"; };
-		5DC62D3D23506CF300195A51 /* TlvMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvMapper.swift; sourceTree = "<group>"; };
+		5DC62D3D23506CF300195A51 /* TlvDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvDecoder.swift; sourceTree = "<group>"; };
 		5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadIssuerDataCommand.swift; sourceTree = "<group>"; };
 		5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataCommand.swift; sourceTree = "<group>"; };
 		5DDF4F89235F06F600E46EAB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -319,7 +319,7 @@
 			children = (
 				5DA5B619233E12780058C720 /* TlvTag.swift */,
 				5DA5B61B233E12B30058C720 /* Tlv.swift */,
-				5DC62D3D23506CF300195A51 /* TlvMapper.swift */,
+				5DC62D3D23506CF300195A51 /* TlvDecoder.swift */,
 				5D6931D123D9AAD90088C6C0 /* TlvEncoder.swift */,
 				5D6931D323D9AC440088C6C0 /* TlvBuilder.swift */,
 			);
@@ -572,7 +572,7 @@
 				5DC060D923E18A17001BF611 /* CreateWalletTask.swift in Sources */,
 				5DA5B611233E11950058C720 /* CommandApdu.swift in Sources */,
 				5D6A92E02344F2F900158457 /* CardManagerDelegate.swift in Sources */,
-				5DC62D3E23506CF300195A51 /* TlvMapper.swift in Sources */,
+				5DC62D3E23506CF300195A51 /* TlvDecoder.swift in Sources */,
 				5D85A80824069C9A0038A2D0 /* WriteIssuerExtraDataCommand.swift in Sources */,
 				5D6A92E32345F2A300158457 /* ReadCommand.swift in Sources */,
 				5D273A01234F270200ACDA11 /* add_scalar.c in Sources */,
