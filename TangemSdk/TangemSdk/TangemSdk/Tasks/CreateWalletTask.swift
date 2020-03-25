@@ -11,7 +11,7 @@ import Foundation
 /// Task that allows to read Tangem card and verify its private key.
 /// It performs `CreateWallet` and `CheckWalletCommand`,  subsequently.
 @available(iOS 13.0, *)
-public final class CreateWalletTask: CardSessionPreflightRunnable {
+public final class CreateWalletTask: CardSessionRunnable {
     public typealias CommandResponse = CreateWalletResponse
     
     public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CreateWalletResponse>) {

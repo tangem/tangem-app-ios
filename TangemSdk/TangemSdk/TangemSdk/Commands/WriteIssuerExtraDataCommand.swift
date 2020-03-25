@@ -27,7 +27,7 @@ public typealias WriteIssuerExtraDataResponse = WriteIssuerDataResponse
  * @param issuerDataCounter An optional counter that protect issuer data against replay attack.
  */
 @available(iOS 13.0, *)
-public final class WriteIssuerExtraDataCommand: PreflightCommand {
+public final class WriteIssuerExtraDataCommand: Command {
     public typealias CommandResponse = WriteIssuerExtraDataResponse
     
     public static let singleWriteSize = 1524
