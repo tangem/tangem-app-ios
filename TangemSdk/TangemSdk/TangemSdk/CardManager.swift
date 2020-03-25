@@ -149,21 +149,22 @@ public final class CardManager {
      * @param callback is triggered on the completion of the [WriteIssuerDataCommand],
      * provides card response in the form of [WriteIssuerDataResponse].
      */
-//    [REDACTED_USERNAME](iOS 13.0, *)
-//    public func writeIssuerExtraData(cardId: String,
-//                                     issuerData: Data,
-//                                     startingSignature: Data,
-//                                     finalizingSignature: Data,
-//                                     issuerDataCounter: Int? = nil,
-//                                     callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
-//
-//        let task = WriteIssuerExtraDataTask(issuerData: issuerData,
-//                                            issuerPublicKey: config.issuerPublicKey,
-//                                            startingSignature: startingSignature,
-//                                            finalizingSignature: finalizingSignature,
-//                                            issuerDataCounter: issuerDataCounter)
-//        runTask(task, cardId: cardId, callback: callback)
-//    }
+    @available(iOS 13.0, *)
+    public func writeIssuerExtraData(cardId: String,
+                                     issuerData: Data,
+                                     startingSignature: Data,
+                                     finalizingSignature: Data,
+                                     issuerDataCounter: Int? = nil,
+                                     completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
+
+        let command = WriteIssuerExtraDataCommand(issuerData: issuerData,
+                                            issuerPublicKey: config.issuerPublicKey,
+                                            startingSignature: startingSignature,
+                                            finalizingSignature: finalizingSignature,
+                                            issuerDataCounter: issuerDataCounter)
+        
+        session.run(command, sessionParams: prepareSessionParams(for: cardId), completion: completion)
+    }
     
     /**
      * This command will create a new wallet on the card having ‘Empty’ state.
