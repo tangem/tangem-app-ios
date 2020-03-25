@@ -10,12 +10,14 @@ import Foundation
 public enum BlockcyperApi: String {
     case btc
     case ltc
+    case eth
 }
 
-public enum BlockcypherEndpoint: BtcEndpoint  {
+public enum BlockcypherEndpoint: BtcEndpoint, TokenizedEndpoint  {
     case address(address:String, api: BlockcyperApi)
     case fee(api: BlockcyperApi)
     case send(txHex: String, api: BlockcyperApi)
+    case txs(txHash: String, api: BlockcyperApi)
     
     private var randomToken: String {
         let tokens: [String] = ["aa8184b0e0894b88a5688e01b3dc1e82",
@@ -31,14 +33,29 @@ public enum BlockcypherEndpoint: BtcEndpoint  {
         case .fee(let api):
             return "https://api.blockcypher.com/v1/\(api.rawValue)/main"
         case .send(_, let api):
-            return "https://api.blockcypher.com/v1/\(api.rawValue)/main/txs/push?token=\(randomToken)"
+            return "https://api.blockcypher.com/v1/\(api.rawValue)/main/txs/push"
         case .address(let address, let api):
             return "https://api.blockcypher.com/v1/\(api.rawValue)/main/addrs/\(address)?unspentOnly=true&includeScript=true"
+        case .txs(let txHash, let api):
+            return "https://api.blockcypher.com/v1/\(api.rawValue)/main/txs/\(txHash)"
         }
     }
     
     public var testUrl: String {
         return url.replacingOccurrences(of: "main", with: "test3")
+    }
+    
+    public var tokenizedUrl: String {
+        switch self {
+        case .fee, .send, .txs:
+            return url + "?token=\(randomToken)"
+        case .address:
+            return url + "&token=\(randomToken)"
+        }
+    }
+    
+    public var tokenizedTestUrl: String {
+        return tokenizedUrl.replacingOccurrences(of: "main", with: "test3")
     }
     
     public var method: String {
@@ -48,6 +65,8 @@ public enum BlockcypherEndpoint: BtcEndpoint  {
         case .send:
             return "POST"
         case .address:
+            return "GET"
+        case .txs:
             return "GET"
         }
     }
