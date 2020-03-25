@@ -44,9 +44,9 @@ public final class PurgeWalletCommand: Command {
             throw TaskError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let mapper = TlvDecoder(tlv: tlv)
         return PurgeWalletResponse(
-            cardId: try mapper.map(.cardId),
-            status: try mapper.map(.status))
+            cardId: try mapper.decode(.cardId),
+            status: try mapper.decode(.status))
     }
 }

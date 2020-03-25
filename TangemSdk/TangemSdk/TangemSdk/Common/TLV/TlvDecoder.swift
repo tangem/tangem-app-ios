@@ -1,5 +1,5 @@
 //
-//  TlvMapper.swift
+//  TlvDecoder.swift
 //  TangemSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 /// Maps value fields in `Tlv` from raw bytes to concrete classes
 /// according to their `TlvTag` and corresponding `TlvValueType`.
-public final class TlvMapper {
+public final class TlvDecoder {
     let tlv: [Tlv]
     
     /// Initializer
@@ -26,9 +26,9 @@ public final class TlvMapper {
      *
      * - Returns: Value converted to an optional type `T`.
      */
-    public func mapOptional<T>(_ tag: TlvTag) throws -> T? {
+    public func decodeOptional<T>(_ tag: TlvTag) throws -> T? {
         do {
-            let mapped: T = try innerMap(tag, asOptional: true)
+            let mapped: T = try innerDecode(tag, asOptional: true)
             return mapped
         } catch TaskError.decodeFailedMissingTag {
             return nil
@@ -45,12 +45,12 @@ public final class TlvMapper {
      * - Returns: Value converted to a type `T`.  You can use try? and map to optional type `T?` without exception handling
      *
      */
-    public func map<T>(_ tag: TlvTag) throws -> T {
-        return try innerMap(tag, asOptional: false)
+    public func decode<T>(_ tag: TlvTag) throws -> T {
+        return try innerDecode(tag, asOptional: false)
     }
     
     
-    private func innerMap<T>(_ tag: TlvTag, asOptional: Bool) throws -> T {
+    private func innerDecode<T>(_ tag: TlvTag, asOptional: Bool) throws -> T {
         guard let tagValue = tlv.value(for: tag) else {
             if tag.valueType == .boolValue {
                 guard Bool.self == T.self || Bool?.self == T.self else {
