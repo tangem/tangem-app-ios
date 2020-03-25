@@ -46,9 +46,9 @@ public final class CardManager {
      */
     public func scanCard(completion: @escaping CompletionResult<Card>) {
         if #available(iOS 13.0, *) {
-            session.run(ScanTask(), sessionParams: prepareSessionParams(), completion: completion)
+            session.run(command: ScanTask(), environment: prepareCardEnvironment(), completion: completion)
         } else {
-            session.run(ScanTaskLegacy(), sessionParams: prepareSessionParams(), completion: completion)
+            session.run(command: ScanTaskLegacy(), environment: prepareCardEnvironment(), completion: completion)
         }
     }
     
@@ -72,7 +72,7 @@ public final class CardManager {
         var signCommand: SignCommand
         do {
             signCommand = try SignCommand(hashes: hashes)
-            session.run(signCommand, sessionParams: prepareSessionParams(for: cardId), completion: completion)
+            session.run(command: signCommand, environment: prepareCardEnvironment(for: cardId), completion: completion)
         } catch {
             print(error.localizedDescription)
             completion(.failure(error.toTaskError()))
@@ -91,7 +91,7 @@ public final class CardManager {
      */
     @available(iOS 13.0, *)
     public func readIssuerData(cardId: String, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
-        session.run(ReadIssuerDataCommand(), sessionParams: prepareSessionParams(for: cardId), completion: completion)
+        session.run(command: ReadIssuerDataCommand(), environment: prepareCardEnvironment(for: cardId), completion: completion)
     }
     
     /**
@@ -111,7 +111,7 @@ public final class CardManager {
     public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
         
         let command = WriteIssuerDataCommand(issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
-        session.run(command, sessionParams: prepareSessionParams(for: cardId), completion: completion)
+        session.run(command: command, environment: prepareCardEnvironment(for: cardId), completion: completion)
     }
     
     /**
@@ -127,7 +127,7 @@ public final class CardManager {
     @available(iOS 13.0, *)
     public func readIssuerExtraData(cardId: String, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
         let command = ReadIssuerExtraDataCommand(issuerPublicKey: config.issuerPublicKey)
-        session.run(command, sessionParams: prepareSessionParams(for: cardId), completion: completion)
+        session.run(command: command, environment: prepareCardEnvironment(for: cardId), completion: completion)
     }
     
     /**
@@ -163,7 +163,7 @@ public final class CardManager {
                                             finalizingSignature: finalizingSignature,
                                             issuerDataCounter: issuerDataCounter)
         
-        session.run(command, sessionParams: prepareSessionParams(for: cardId), completion: completion)
+        session.run(command: command, environment: prepareCardEnvironment(for: cardId), completion: completion)
     }
     
     /**
@@ -178,7 +178,7 @@ public final class CardManager {
      */
     @available(iOS 13.0, *)
     public func createWallet(cardId: String, completion: @escaping CompletionResult<CreateWalletResponse>) {
-        session.run(CreateWalletTask(), sessionParams: prepareSessionParams(for: cardId), completion: completion)
+        session.run(command: CreateWalletTask(), environment: prepareCardEnvironment(for: cardId), completion: completion)
     }
     
     /**
@@ -190,7 +190,7 @@ public final class CardManager {
      */
     @available(iOS 13.0, *)
     public func purgeWallet(cardId: String, completion: @escaping CompletionResult<PurgeWalletResponse>) {
-        session.run(PurgeWalletCommand(), sessionParams: prepareSessionParams(for: cardId), completion: completion)
+        session.run(command: PurgeWalletCommand(), environment: prepareCardEnvironment(for: cardId), completion: completion)
     }
     
 //    /// Allows to run a custom task created outside of this SDK.
@@ -234,7 +234,7 @@ public final class CardManager {
 //        runTask(task, cardId: cardId, callback: callback)
 //    }
 
-    private func prepareSessionParams(for cardId: String? = nil) -> CardSessionParams {
+    private func prepareCardEnvironment(for cardId: String? = nil) -> CardEnvironment {
         let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = CardEnvironment()
         environment.cardId = cardId
@@ -242,8 +242,23 @@ public final class CardManager {
         if config.linkedTerminal && !isLegacyMode {
             environment.terminalKeys = terminalKeysService.getKeys()
         }
-        let sessionParam = CardSessionParams(environment: environment)
-        return sessionParam
+        return environment
+    }
+    
+    @available(iOS 13.0, *)
+    func test() {
+       let s = session as! CardSession
+        s.startSession(environment: prepareCardEnvironment()) { transiever, viewDelegate, environment, card, error in
+            
+        }
+        
+//        s.runInSession { transiever, viewDelegate in
+//            let read = ReadCommand()
+//            transiever.sendCommand(read, environment: CardEnvironment()) { result in
+//                //....
+//            }
+//            s.stopSession()
+//        }
     }
 }
 
