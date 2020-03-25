@@ -70,7 +70,7 @@ public final class WriteIssuerDataCommand: Command {
             throw TaskError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
-        return WriteIssuerDataResponse(cardId: try mapper.map(.cardId))
+        let mapper = TlvDecoder(tlv: tlv)
+        return WriteIssuerDataResponse(cardId: try mapper.decode(.cardId))
     }
 }
