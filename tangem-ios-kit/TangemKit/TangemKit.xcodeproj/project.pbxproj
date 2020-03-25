@@ -188,11 +188,14 @@
 		5D5658D122FD689900DE016B /* UnspentTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5658D022FD689900DE016B /* UnspentTransaction.swift */; };
 		5D56590222FDB27200DE016B /* ETHTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D56590122FDB27200DE016B /* ETHTest.swift */; };
 		5D56590422FDB28300DE016B /* BTCTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D56590322FDB28300DE016B /* BTCTest.swift */; };
+		5D5A9F88240E624900F9CF29 /* IdCardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F87240E624900F9CF29 /* IdCardData.swift */; };
 		5D5C028F22EAD7E50036A601 /* TangemAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806C4F6921DE9BC00002E967 /* TangemAPIClient.swift */; };
 		5D765E63237445CD009BB2A2 /* hashes.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D765E62237445CD009BB2A2 /* hashes.plist */; };
 		5D78745722F065AE00AE196A /* CardEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80EABF00222DC8A800E1302A /* CardEngine.swift */; };
 		5D84A80622E0B7790049B9D1 /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84A80522E0B7790049B9D1 /* Array+.swift */; };
 		5D84A80722E0B7790049B9D1 /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84A80522E0B7790049B9D1 /* Array+.swift */; };
+		5D85A802240523980038A2D0 /* EthIdEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D85A801240523980038A2D0 /* EthIdEngine.swift */; };
+		5D85A8042405801F0038A2D0 /* EthIdCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D85A8032405801F0038A2D0 /* EthIdCardBalanceOperation.swift */; };
 		5D9C62EB22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9C62EA22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift */; };
 		5D9D062723B4D1F1009A755E /* BCHCardBalanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9D062623B4D1F1009A755E /* BCHCardBalanceOperation.swift */; };
 		5D9D062923B4D222009A755E /* BCHEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9D062823B4D222009A755E /* BCHEngine.swift */; };
@@ -363,8 +366,11 @@
 		5D5658D022FD689900DE016B /* UnspentTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnspentTransaction.swift; sourceTree = "<group>"; };
 		5D56590122FDB27200DE016B /* ETHTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETHTest.swift; sourceTree = "<group>"; };
 		5D56590322FDB28300DE016B /* BTCTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTCTest.swift; sourceTree = "<group>"; };
+		5D5A9F87240E624900F9CF29 /* IdCardData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdCardData.swift; sourceTree = "<group>"; };
 		5D765E62237445CD009BB2A2 /* hashes.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = hashes.plist; sourceTree = "<group>"; };
 		5D84A80522E0B7790049B9D1 /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
+		5D85A801240523980038A2D0 /* EthIdEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthIdEngine.swift; sourceTree = "<group>"; };
+		5D85A8032405801F0038A2D0 /* EthIdCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthIdCardBalanceOperation.swift; sourceTree = "<group>"; };
 		5D9C62EA22F31B4B00526CED /* EthereumNetworkPendingTxCount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNetworkPendingTxCount.swift; sourceTree = "<group>"; };
 		5D9D062623B4D1F1009A755E /* BCHCardBalanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BCHCardBalanceOperation.swift; sourceTree = "<group>"; };
 		5D9D062823B4D222009A755E /* BCHEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BCHEngine.swift; sourceTree = "<group>"; };
@@ -956,6 +962,7 @@
 				806C4F6A21DE9BC00002E967 /* CardViewModel.swift */,
 				806C4F6B21DE9BC00002E967 /* CardNetworkDetails.swift */,
 				806C4F6C21DE9BC00002E967 /* CardScanner.swift */,
+				5D5A9F87240E624900F9CF29 /* IdCardData.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1020,6 +1027,7 @@
 				5D4B31B12334E28A00D3B92E /* XlmCardBalanceOperation.swift */,
 				5D9D062623B4D1F1009A755E /* BCHCardBalanceOperation.swift */,
 				5DAE20D323E85F0F00B6F95F /* DucatusCardBalanceOperation.swift */,
+				5D85A8032405801F0038A2D0 /* EthIdCardBalanceOperation.swift */,
 			);
 			path = "Card Balance";
 			sourceTree = "<group>";
@@ -1081,6 +1089,7 @@
 				5D9D062823B4D222009A755E /* BCHEngine.swift */,
 				5D41EA0323CF548D004DE701 /* LTCEngine.swift */,
 				5DAE20CC23E8529800B6F95F /* DucatusEngine.swift */,
+				5D85A801240523980038A2D0 /* EthIdEngine.swift */,
 			);
 			path = Engines;
 			sourceTree = "<group>";
@@ -1476,6 +1485,7 @@
 				5DC4E2402338AE3800D58E43 /* BtcBalanceOperation.swift in Sources */,
 				5DACC8E123F46F8E000D244C /* IssuedAmount.swift in Sources */,
 				80C14C912263C457008E4818 /* ed25519_sc.swift in Sources */,
+				5D85A802240523980038A2D0 /* EthIdEngine.swift in Sources */,
 				5DACC8D423F46F8E000D244C /* WebSocket+Convenience.swift in Sources */,
 				5DFFC499233A666D004964E8 /* TerminalKeysManager.swift in Sources */,
 				8067A24322B2F2720080ECF1 /* BinanceNetworkBalanceOperation.swift in Sources */,
@@ -1520,6 +1530,7 @@
 				8013A66B230215F3007896A6 /* CardanoSendTransactionOperation.swift in Sources */,
 				5D4B31B52334E3F400D3B92E /* StellarRequestOperation.swift in Sources */,
 				806C4FB121DE9BC00002E967 /* BTCCardBalanceOperation.swift in Sources */,
+				5D85A8042405801F0038A2D0 /* EthIdCardBalanceOperation.swift in Sources */,
 				5DACC8DB23F46F8E000D244C /* XRPWallet.swift in Sources */,
 				80C80EDA2309DC9700333AB3 /* CardanoPendingTransactionsStorage.swift in Sources */,
 				806C4FA621DE9BC00002E967 /* CardViewModel.swift in Sources */,
@@ -1558,6 +1569,7 @@
 				5D11115622F0691E009919D1 /* PBHex.swift in Sources */,
 				5D11114722F0691E009919D1 /* gen_context.swift in Sources */,
 				5DC4E2382338AE3800D58E43 /* BlockchainInfoBalanceOperation.swift in Sources */,
+				5D5A9F88240E624900F9CF29 /* IdCardData.swift in Sources */,
 				806C4FAA21DE9BC00002E967 /* CardSubstitutionInfoOperation.swift in Sources */,
 				5DEF97EA22F071E3004E0CC5 /* EthereumTransaction+.swift in Sources */,
 				5D5658D122FD689900DE016B /* UnspentTransaction.swift in Sources */,
