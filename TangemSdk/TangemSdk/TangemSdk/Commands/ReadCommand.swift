@@ -45,10 +45,16 @@ public enum CardStatus: Int, Codable {
     case purged = 3
 }
 
-public enum ProductMask: Byte, Codable {
-    case note = 0x01
-    case tag = 0x02
-    case card = 0x04
+public struct ProductMask: OptionSet, Codable {
+    public let rawValue: Byte
+    
+    public init(rawValue: Byte) {
+        self.rawValue = rawValue
+    }
+    
+    public static let note = ProductMask(rawValue: 0x01)
+    public static let tag = ProductMask(rawValue: 0x02)
+    public static let card = ProductMask(rawValue: 0x04)
 }
 
 /// Stores and maps Tangem card settings.
@@ -79,6 +85,7 @@ public struct SettingsMask: OptionSet, Codable {
     static let requireTermTxSignature = SettingsMask(rawValue: 0x01000000)
     static let requireTermCertSignature = SettingsMask(rawValue: 0x02000000)
     static let checkPIN3OnCard = SettingsMask(rawValue: 0x04000000)
+    static let protectIssuerDataAgainstReplay = SettingsMask(rawValue: 0x4000)
 }
 
 /// Detailed information about card contents.
