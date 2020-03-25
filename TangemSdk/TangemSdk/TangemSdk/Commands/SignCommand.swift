@@ -83,11 +83,11 @@ public final class SignCommand: PreflightCommand {
             throw TaskError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let mapper = TlvDecoder(tlv: tlv)
         return SignResponse(
-            cardId: try mapper.map(.cardId),
-            signature: try mapper.map(.walletSignature),
-            walletRemainingSignatures: try mapper.map(.walletRemainingSignatures),
-            walletSignedHashes: try mapper.map(.walletSignedHashes))
+            cardId: try mapper.decode(.cardId),
+            signature: try mapper.decode(.walletSignature),
+            walletRemainingSignatures: try mapper.decode(.walletRemainingSignatures),
+            walletSignedHashes: try mapper.decode(.walletSignedHashes))
     }
 }
