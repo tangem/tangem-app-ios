@@ -26,12 +26,12 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
             case .success(let response):
                 guard let xrpResult = (try? response.map(XrpResponse.self))?.result else {
                     self?.card.mult = 0
-                    self?.failOperationWith(error: "Load error")
+                    self?.failOperationWith(error: Localizations.loadedWalletErrorObtainingBlockchainData)
                     return
                 }
                 
                 if let code = xrpResult.error_code, code == 19 {
-                    self?.failOperationWith(error: "Account not found")
+                    self?.failOperationWith(error: Localizations.loadMoreXrpToCreateAccount, title: Localizations.accountNotFound)
                     return
                 }
                 
@@ -39,7 +39,7 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
                     let balanceString = accountResponse.balance,
                     let balance = UInt64(balanceString) else {
                         self?.card.mult = 0
-                        self?.failOperationWith(error: "Load error")
+                        self?.failOperationWith(error: Localizations.loadedWalletErrorObtainingBlockchainData)
                         return
                 }
                 
@@ -83,7 +83,7 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
                 guard let xrpResult = (try? response.map(XrpResponse.self))?.result,
                     let reserveBase = xrpResult.state?.validated_ledger?.reserve_base else {
                         self?.card.mult = 0
-                        self?.failOperationWith(error: "Load error")
+                        self?.failOperationWith(error: Localizations.loadedWalletErrorObtainingBlockchainData)
                         return
                 }
                 
@@ -139,7 +139,7 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
                     let unconfirmedBalanceString = xrpResult.account_data?.balance,
                     let unconfirmedBalance = UInt64(unconfirmedBalanceString) else {
                         self?.card.mult = 0
-                        self?.failOperationWith(error: "Load error")
+                        self?.failOperationWith(error: Localizations.loadedWalletErrorObtainingBlockchainData)
                         return
                 }
                 
