@@ -57,10 +57,6 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
 }
 
 extension NDEFReader: CardReader {
-    public func startSession() {
-        
-    }
-    
     public var alertMessage: String {
         get { return readerSession?.alertMessage ?? "" }
         set { readerSession?.alertMessage = newValue }
