@@ -86,7 +86,7 @@ public final class CardManager {
         let task = SingleCommandTask(signCommand)
         runTask(task, cardId: cardId, callback: callback)
     }
-        
+    
     /**
      * This command returns 512-byte Issuer Data field and its issuer’s signature.
      * Issuer Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
@@ -125,6 +125,57 @@ public final class CardManager {
     }
     
     /**
+     * This task retrieves Issuer Extra Data field and its issuer’s signature.
+     * Issuer Extra Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
+     * format and payload of Issuer Data. . For example, this field may contain photo or
+     * biometric information for ID card product. Because of the large size of Issuer_Extra_Data,
+     * a series of these commands have to be executed to read the entire Issuer_Extra_Data.
+     * @param cardId CID, Unique Tangem card ID number.
+     * @param callback is triggered on the completion of the [ReadIssuerExtraDataTask],
+     * provides card response in the form of [ReadIssuerExtraDataResponse].
+     */
+    @available(iOS 13.0, *)
+    public func readIssuerExtraData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerExtraDataResponse>) -> Void) {
+        let task = ReadIssuerExtraDataTask(issuerPublicKey: config.issuerPublicKey)
+        runTask(task, cardId: cardId, callback: callback)
+    }
+    
+    /**
+     * This task writes Issuer Extra Data field and its issuer’s signature.
+     * Issuer Extra Data is never changed or parsed from within the Tangem COS.
+     * The issuer defines purpose of use, format and payload of Issuer Data.
+     * For example, this field may contain a photo or biometric information for ID card products.
+     * Because of the large size of Issuer_Extra_Data, a series of these commands have to be executed
+     * to write entire Issuer_Extra_Data.
+     * @param cardId CID, Unique Tangem card ID number.
+     * @param issuerData Data provided by issuer.
+     * @param startingSignature Issuer’s signature with Issuer Data Private Key of [cardId],
+     * [issuerDataCounter] (if flags Protect_Issuer_Data_Against_Replay and
+     * Restrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]) and size of [issuerData].
+     * @param finalizingSignature Issuer’s signature with Issuer Data Private Key of [cardId],
+     * [issuerData] and [issuerDataCounter] (the latter one only if flags Protect_Issuer_Data_Against_Replay
+     * andRestrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]).
+     * @param issuerDataCounter An optional counter that protect issuer data against replay attack.
+     * @param callback is triggered on the completion of the [WriteIssuerDataCommand],
+     * provides card response in the form of [WriteIssuerDataResponse].
+     */
+    @available(iOS 13.0, *)
+    public func writeIssuerExtraData(cardId: String,
+                                     issuerData: Data,
+                                     startingSignature: Data,
+                                     finalizingSignature: Data,
+                                     issuerDataCounter: Int? = nil,
+                                     callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
+        
+        let task = WriteIssuerExtraDataTask(issuerData: issuerData,
+                                            issuerPublicKey: config.issuerPublicKey,
+                                            startingSignature: startingSignature,
+                                            finalizingSignature: finalizingSignature,
+                                            issuerDataCounter: issuerDataCounter)
+        runTask(task, cardId: cardId, callback: callback)
+    }
+    
+    /**
      * This command will create a new wallet on the card having ‘Empty’ state.
      * A key pair WalletPublicKey / WalletPrivateKey is generated and securely stored in the card.
      * App will need to obtain Wallet_PublicKey from the response of `CreateWalletCommand` or `ReadCommand`
@@ -153,8 +204,8 @@ public final class CardManager {
         let task = SingleCommandTask(command)
         runTask(task, cardId: cardId, callback: callback)
     }
-
-   /// Allows to run a custom task created outside of this SDK.
+    
+    /// Allows to run a custom task created outside of this SDK.
     public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
         guard CardManager.isNFCAvailable else {
             callback(.completion(TaskError.unsupportedDevice))
@@ -188,7 +239,7 @@ public final class CardManager {
         }
     }
     
-   /// Allows to run a custom command created outside of this SDK.
+    /// Allows to run a custom command created outside of this SDK.
     @available(iOS 13.0, *)
     public func runCommand<T: CommandSerializer>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
         let task = SingleCommandTask<T>(command)

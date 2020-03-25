@@ -59,8 +59,29 @@ public enum TaskError: Int, Error, LocalizedError {
     case nfcStuck = 5000
     case nfcTimeout = 5001
     case nfcReaderError = 5002
+    case readerErrorUnsupportedFeature = 5003
+    case readerErrorSecurityViolation = 5004
+    case readerErrorInvalidParameter = 5005
+    case readerErrorInvalidParameterLength = 5006
+    case readerErrorParameterOutOfBound = 5007
+    case readerTransceiveErrorTagConnectionLost = 5008
+    case readerTransceiveErrorRetryExceeded = 5009
+    case readerTransceiveErrorTagResponseError = 5010
+    case readerTransceiveErrorSessionInvalidated = 5011
+    case readerTransceiveErrorTagNotConnected = 5012
+    case readerSessionInvalidationErrorSessionTimeout = 5013
+    case readerSessionInvalidationErrorSessionTerminatedUnexpectedly = 5014
+    case readerSessionInvalidationErrorFirstNDEFTagRead = 5015
+    case tagCommandConfigurationErrorInvalidParameters = 5016
+    case ndefReaderSessionErrorTagNotWritable = 5017
+    case ndefReaderSessionErrorTagUpdateFailure = 5018
+    case ndefReaderSessionErrorTagSizeTooSmall = 5019
+    case ndefReaderSessionErrorZeroLengthMessage = 5020
+    
     
     case unknownError = 6000
+    
+    case missingCounter = 7001
     
     public var errorDescription: String? {
         switch self {
@@ -88,7 +109,43 @@ public enum TaskError: Int, Error, LocalizedError {
                 return .userCancelled
             case .readerSessionInvalidationErrorSystemIsBusy:
                 return .nfcStuck
-            default:
+            case .readerErrorUnsupportedFeature:
+                return .readerErrorUnsupportedFeature
+            case .readerErrorSecurityViolation:
+                return .readerErrorSecurityViolation
+            case .readerErrorInvalidParameter:
+                return .readerErrorInvalidParameter
+            case .readerErrorInvalidParameterLength:
+                return .readerErrorInvalidParameterLength
+            case .readerErrorParameterOutOfBound:
+                return readerErrorParameterOutOfBound
+            case .readerTransceiveErrorTagConnectionLost:
+                return .readerTransceiveErrorTagConnectionLost
+            case .readerTransceiveErrorRetryExceeded:
+                return .readerTransceiveErrorRetryExceeded
+            case .readerTransceiveErrorTagResponseError:
+                return .readerTransceiveErrorTagResponseError
+            case .readerTransceiveErrorSessionInvalidated:
+                return .readerTransceiveErrorSessionInvalidated
+            case .readerTransceiveErrorTagNotConnected:
+                return .readerTransceiveErrorTagNotConnected
+            case .readerSessionInvalidationErrorSessionTimeout:
+                return readerSessionInvalidationErrorSessionTimeout
+            case .readerSessionInvalidationErrorSessionTerminatedUnexpectedly:
+                return .readerSessionInvalidationErrorSessionTerminatedUnexpectedly
+            case .readerSessionInvalidationErrorFirstNDEFTagRead:
+                return .readerSessionInvalidationErrorFirstNDEFTagRead
+            case .tagCommandConfigurationErrorInvalidParameters:
+                return .tagCommandConfigurationErrorInvalidParameters
+            case .ndefReaderSessionErrorTagNotWritable:
+                return .ndefReaderSessionErrorTagNotWritable
+            case .ndefReaderSessionErrorTagUpdateFailure:
+                return .ndefReaderSessionErrorTagUpdateFailure
+            case .ndefReaderSessionErrorTagSizeTooSmall:
+                return .ndefReaderSessionErrorTagSizeTooSmall
+            case .ndefReaderSessionErrorZeroLengthMessage:
+                return .ndefReaderSessionErrorZeroLengthMessage
+            @unknown default:
                 return .nfcReaderError
             }
         } else {
@@ -103,12 +160,15 @@ public enum TaskError: Int, Error, LocalizedError {
  * repeats the commands if needed, and closes session after receiving the last answer.
  */
 open class Task<TEvent>: AnyTask {
-    var reader: CardReader!
+    public var reader: CardReader!
     
     ///  If `true`, the task will execute `Read Command`  before main logic and will return `currentCard` in `onRun` or throw an error if some check will not pass. Eg. the wrong card was scanned
-    var performPreflightRead: Bool = true
+    public var performPreflightRead: Bool = true
+    open var startMessage: String? { return nil }
     
-    weak var delegate: CardManagerDelegate?
+    public weak var delegate: CardManagerDelegate?
+    
+    public init() {}
     
     deinit {
         print("task deinit")
@@ -130,7 +190,7 @@ open class Task<TEvent>: AnyTask {
                 self?.delegate?.tagDidConnect()
             }
         }
-        reader.startSession()
+        reader.startSession(message: startMessage)
         if #available(iOS 13.0, *), performPreflightRead {
             preflightRead(environment: environment, callback: callback)
         } else {
@@ -142,7 +202,7 @@ open class Task<TEvent>: AnyTask {
      * In this method the individual Tasks' logic should be implemented.
      * - Parameter currentCard: This is the result of preflight `Read Command`. It will be  nil if `performPreflightRead` was set to `false`
      */
-    public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
+    open func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<TEvent>) -> Void) {}
     
     /**
      * This method should be called by Tasks in their `onRun` method wherever
