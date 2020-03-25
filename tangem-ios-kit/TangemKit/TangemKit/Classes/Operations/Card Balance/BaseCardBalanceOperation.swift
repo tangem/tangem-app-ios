@@ -11,7 +11,7 @@ import GBAsyncOperation
 
 enum TangemKitResult<Value> {
     case success(Value)
-    case failure(Error)
+    case failure(Error, title: String?)
 }
 
 class BaseCardBalanceOperation: GBAsyncOperation {
@@ -66,12 +66,12 @@ class BaseCardBalanceOperation: GBAsyncOperation {
         finish()
     }
 
-    internal func failOperationWith(error: Error) {
+    internal func failOperationWith(error: Error, title: String? = nil) {
         guard !isCancelled else {
             return
         }
 
-        completion(.failure(error))
+        completion(.failure(error, title: title))
         finish()
     }
 
