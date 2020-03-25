@@ -42,22 +42,35 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
         
         let stellarSdk = (card.cardEngine as! XlmEngine).stellarSdk
         stellarSdk.accounts.getAccountDetails(accountId: card.address) {[weak self] response -> (Void) in
+            guard let self = self else { return }
+            
             switch response {
             case .success(let accountResponse):
                 if let xlmBalance = accountResponse.balances.first(where: {$0.assetType == AssetTypeAsString.NATIVE}) {
-                    self?.balance = xlmBalance.balance
+                    self.balance = xlmBalance.balance
                 }
                 
                 if let xlmAssetBalance = accountResponse.balances.first(where: {$0.assetType != AssetTypeAsString.NATIVE}) {
-                    self?.assetBalance = xlmAssetBalance.balance
-                    self?.assetCode = xlmAssetBalance.assetCode
+                    self.assetBalance = xlmAssetBalance.balance
+                    self.assetCode = xlmAssetBalance.assetCode
                 }
                 
-                self?.sequence = accountResponse.sequenceNumber
-                self?.handleRequestComplete()
+                self.sequence = accountResponse.sequenceNumber
+                self.handleRequestComplete()
             case .failure(let horizonRequestError):
-                self?.card.mult = 0
-                self?.failOperationWith(error: horizonRequestError)
+                
+                if case .notFound = horizonRequestError {
+                    self.card.mult = 0
+                    if self.card.tokenSymbol != nil {
+                        self.failOperationWith(error: Localizations.xlmAssetCreateAccountHint, title: Localizations.accountNotFound)
+                    } else {
+                        self.failOperationWith(error: Localizations.xlmCreateAccountHint, title: Localizations.accountNotFound)
+                    }
+                    return
+                }
+                
+                self.card.mult = 0
+                self.failOperationWith(error: horizonRequestError)
             }
         }
         
@@ -140,7 +153,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
             let incoming = self.hasIncomingTx,
             let outgoing = self.hasOutgoingTx else {
                 card.mult = 0
-                failOperationWith(error: "Response error")
+                failOperationWith(error: Localizations.loadedWalletErrorObtainingBlockchainData)
                 return
         }
         
