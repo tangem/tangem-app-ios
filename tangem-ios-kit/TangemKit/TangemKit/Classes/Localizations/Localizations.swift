@@ -29,6 +29,11 @@ public class Localizations {
     static let nfcStuckError = translate("nfc_stuck_error")
     static let slixFailedToParse = "Failed to read the Tag"
     static let xlmCreateAccountHint = translate("balance_validator_second_line_create_account_instruction")
+    static let xlmAssetCreateAccountHint = translate("balance_validator_second_line_create_account_instruction_asset")
+    static let accountNotFound = translate("balance_validator_first_line_account_not_found")
+    static let loadMoreXrpToCreateAccount = translate("balance_validator_second_line_create_account_xrp")
+    /// Cannot obtain data from blockchain
+    static let loadedWalletErrorObtainingBlockchainData = translate("loaded_wallet_error_obtaining_blockchain_data")
     static func secondsLeft(_ p1: String) -> String {
         return translate("nfc_seconds_left", p1)
     }
