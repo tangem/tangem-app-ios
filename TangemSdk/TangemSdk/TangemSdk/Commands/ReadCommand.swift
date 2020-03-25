@@ -209,35 +209,35 @@ public final class ReadCommand: Command {
             throw TaskError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let mapper = TlvDecoder(tlv: tlv)
         
         let card = ReadResponse(
-            cardId: try mapper.mapOptional(.cardId),
-            manufacturerName: try mapper.mapOptional(.manufacturerName),
-            status: try mapper.mapOptional(.status),
-            firmwareVersion: try mapper.mapOptional(.firmwareVersion),
-            cardPublicKey: try mapper.mapOptional(.cardPublicKey),
-            settingsMask: try mapper.mapOptional(.settingsMask),
-            issuerPublicKey: try mapper.mapOptional(.issuerPublicKey),
-            curve: try mapper.mapOptional(.curveId),
-            maxSignatures: try mapper.mapOptional(.maxSignatures),
-            signingMethod: try mapper.mapOptional(.signingMethod),
-            pauseBeforePin2: try mapper.mapOptional(.pauseBeforePin2),
-            walletPublicKey: try mapper.mapOptional(.walletPublicKey),
-            walletRemainingSignatures: try mapper.mapOptional(.walletRemainingSignatures),
-            walletSignedHashes: try mapper.mapOptional(.walletSignedHashes),
-            health: try mapper.mapOptional(.health),
-            isActivated: try mapper.map(.isActivated),
-            activationSeed: try mapper.mapOptional(.activationSeed),
-            paymentFlowVersion: try mapper.mapOptional(.paymentFlowVersion),
-            userCounter: try mapper.mapOptional(.userCounter),
-            terminalIsLinked: try mapper.map(.isLinked),
+            cardId: try mapper.decodeOptional(.cardId),
+            manufacturerName: try mapper.decodeOptional(.manufacturerName),
+            status: try mapper.decodeOptional(.status),
+            firmwareVersion: try mapper.decodeOptional(.firmwareVersion),
+            cardPublicKey: try mapper.decodeOptional(.cardPublicKey),
+            settingsMask: try mapper.decodeOptional(.settingsMask),
+            issuerPublicKey: try mapper.decodeOptional(.issuerPublicKey),
+            curve: try mapper.decodeOptional(.curveId),
+            maxSignatures: try mapper.decodeOptional(.maxSignatures),
+            signingMethod: try mapper.decodeOptional(.signingMethod),
+            pauseBeforePin2: try mapper.decodeOptional(.pauseBeforePin2),
+            walletPublicKey: try mapper.decodeOptional(.walletPublicKey),
+            walletRemainingSignatures: try mapper.decodeOptional(.walletRemainingSignatures),
+            walletSignedHashes: try mapper.decodeOptional(.walletSignedHashes),
+            health: try mapper.decodeOptional(.health),
+            isActivated: try mapper.decode(.isActivated),
+            activationSeed: try mapper.decodeOptional(.activationSeed),
+            paymentFlowVersion: try mapper.decodeOptional(.paymentFlowVersion),
+            userCounter: try mapper.decodeOptional(.userCounter),
+            terminalIsLinked: try mapper.decode(.isLinked),
             cardData: try deserializeCardData(tlv: tlv),
-            remainingSignatures: try mapper.mapOptional(.walletRemainingSignatures),
-            signedHashes: try mapper.mapOptional(.walletSignedHashes),
-            challenge: try mapper.mapOptional(.challenge),
-            salt: try mapper.mapOptional(.salt),
-            walletSignature: try mapper.mapOptional(.walletSignature))
+            remainingSignatures: try mapper.decodeOptional(.walletRemainingSignatures),
+            signedHashes: try mapper.decodeOptional(.walletSignedHashes),
+            challenge: try mapper.decodeOptional(.challenge),
+            salt: try mapper.decodeOptional(.salt),
+            walletSignature: try mapper.decodeOptional(.walletSignature))
         
         return card
     }
@@ -248,17 +248,17 @@ public final class ReadCommand: Command {
                 return nil
         }
         
-        let mapper = TlvMapper(tlv: cardDataTlv)
+        let mapper = TlvDecoder(tlv: cardDataTlv)
         let cardData = CardData(
-            batchId: try mapper.mapOptional(.batchId),
-            manufactureDateTime: try mapper.mapOptional(.manufactureDateTime),
-            issuerName: try mapper.mapOptional(.issuerName),
-            blockchainName: try mapper.mapOptional(.blockchainName),
-            manufacturerSignature: try mapper.mapOptional(.cardIDManufacturerSignature),
-            productMask: try mapper.mapOptional(.productMask),
-            tokenSymbol: try mapper.mapOptional(.tokenSymbol),
-            tokenContractAddress: try mapper.mapOptional(.tokenContractAddress),
-            tokenDecimal: try mapper.mapOptional(.tokenDecimal))
+            batchId: try mapper.decodeOptional(.batchId),
+            manufactureDateTime: try mapper.decodeOptional(.manufactureDateTime),
+            issuerName: try mapper.decodeOptional(.issuerName),
+            blockchainName: try mapper.decodeOptional(.blockchainName),
+            manufacturerSignature: try mapper.decodeOptional(.cardIDManufacturerSignature),
+            productMask: try mapper.decodeOptional(.productMask),
+            tokenSymbol: try mapper.decodeOptional(.tokenSymbol),
+            tokenContractAddress: try mapper.decodeOptional(.tokenContractAddress),
+            tokenDecimal: try mapper.decodeOptional(.tokenDecimal))
         
         return cardData
     }
