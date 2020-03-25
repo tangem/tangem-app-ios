@@ -46,7 +46,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #if BETA
             Fabric.with([Crashlytics.self])
         #endif
-        Utils().initialize(legacyMode: NfcUtils.isLegacyDevice)
+        let utils = Utils()
+        utils.initialize(legacyMode: NfcUtils.isLegacyDevice)
+        if !utils.islaunchedBefore {
+            let secureStorage = SecureStorageManager()
+            secureStorage.set([], forKey: StorageKey.cids)
+            utils.setIsLaunchedBefore()
+        }
         
         return true
     }
@@ -75,9 +81,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 12, *) {
             if checkUserActivityForBackgroundNFC(userActivity) {
                 self.navigationManager?.navigationController.popToRootViewController(animated: false)
-                DispatchQueue.main.async {
-                    self.navigationManager?.rootViewController?.scanButtonPressed(self)
-                }
+//                DispatchQueue.main.async {
+//                    self.navigationManager?.rootViewController?.scanButtonPressed(self)
+//                }
                 return true
             } else {
                 return false
