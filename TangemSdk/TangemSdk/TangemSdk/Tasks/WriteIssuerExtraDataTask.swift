@@ -88,7 +88,7 @@
 //        switch mode {
 //        case .readOrStartWrite:
 //            return WriteIssuerExtraDataCommand(issuerData: issuerData,
-//                                               issuerDataSignature: startingSignature,    
+//                                               issuerDataSignature: startingSignature,
 //                                               mode: mode,
 //                                               offset: 0,
 //                                               issuerDataCounter: issuerDataCounter)
