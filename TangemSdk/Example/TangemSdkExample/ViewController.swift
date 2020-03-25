@@ -129,40 +129,40 @@ class ViewController: UIViewController {
     }
     
     @IBAction func writeIssuerExtraDataTapped(_ sender: Any) {
-        //        guard let cardId = card?.cardId else {
-        //            self.log("Please, scan card before")
-        //            return
-        //        }
-        //
-        //        guard let issuerDataResponse = issuerExtraDataResponse else {
-        //            self.log("Please, run GetIssuerExtraData before")
-        //            return
-        //        }
-        //        let newCounter = (issuerDataResponse.issuerDataCounter ?? 0) + 1
-        //        let sampleData = Data(repeating: UInt8(1), count: 2000)
-        //        let issuerKey = Data(hexString: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
-        //
-        //        let startSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + newCounter.bytes4 + sampleData.count.bytes2, with: issuerKey)!
-        //        let finalSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
-        //
-        //        if #available(iOS 13.0, *) {
-        //            cardManager.writeIssuerExtraData(cardId: cardId,
-        //                                             issuerData: sampleData,
-        //                                             startingSignature: startSig,
-        //                                             finalizingSignature: finalSig,
-        //                                             issuerDataCounter: newCounter) { [unowned self] taskEvent in
-        //                                                switch taskEvent {
-        //                                                case .event(let writeResponse):
-        //                                                    self.log(writeResponse)
-        //                                                case .completion(let error):
-        //                                                    self.handle(error)
-        //                                                    //handle completion. Unlock UI, etc.
-        //                                                }
-        //            }
-        //        } else {
-        //            // Fallback on earlier versions
-        //            self.log("Only iOS 13+")
-        //        }
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        
+        guard let issuerDataResponse = issuerExtraDataResponse else {
+            self.log("Please, run GetIssuerExtraData before")
+            return
+        }
+        let newCounter = (issuerDataResponse.issuerDataCounter ?? 0) + 1
+        let sampleData = Data(repeating: UInt8(1), count: 2000)
+        let issuerKey = Data(hexString: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
+        
+        let startSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + newCounter.bytes4 + sampleData.count.bytes2, with: issuerKey)!
+        let finalSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
+        
+        if #available(iOS 13.0, *) {
+            cardManager.writeIssuerExtraData(cardId: cardId,
+                                             issuerData: sampleData,
+                                             startingSignature: startSig,
+                                             finalizingSignature: finalSig,
+                                             issuerDataCounter: newCounter) { [unowned self] result in
+                                                switch result {
+                                                case .success(let writeResponse):
+                                                    self.log(writeResponse)
+                                                case .failure(let error):
+                                                    self.handle(error)
+                                                    //handle completion. Unlock UI, etc.
+                                                }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
     }
     
     @IBAction func createWalletTapped(_ sender: Any) {
