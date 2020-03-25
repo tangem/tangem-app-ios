@@ -14,6 +14,15 @@ public class Utils {
         static let legacyMode = "tangemsdk_legacymode_preference"
         static let isInitialized = "tangemsdk_preference_initialized"
         static let oldDisclamerShown = "tangem_preference_oldDisclamerShown"
+        static let launchedBefore = "tangem_launchedBefore"
+    }
+    
+    public var islaunchedBefore: Bool {
+        UserDefaults.standard.bool(forKey: SettingsKeys.launchedBefore)
+    }
+    
+    public func setIsLaunchedBefore() {
+        UserDefaults.standard.set(true, forKey: SettingsKeys.launchedBefore)
     }
     
     public var isOldDisclamerShown: Bool {
