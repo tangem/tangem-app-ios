@@ -169,13 +169,13 @@ public final class ReadIssuerExtraDataCommand: PreflightCommand {
             throw TaskError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let mapper = TlvDecoder(tlv: tlv)
         return ReadIssuerExtraDataResponse(
-            cardId: try mapper.map(.cardId),
-            size: try mapper.mapOptional(.size),
-            issuerData: try mapper.mapOptional(.issuerData) ?? Data(),
-            issuerDataSignature: try mapper.mapOptional(.issuerDataSignature),
-            issuerDataCounter: try mapper.mapOptional(.issuerDataCounter))
+            cardId: try mapper.decode(.cardId),
+            size: try mapper.decodeOptional(.size),
+            issuerData: try mapper.decodeOptional(.issuerData) ?? Data(),
+            issuerDataSignature: try mapper.decodeOptional(.issuerDataSignature),
+            issuerDataCounter: try mapper.decodeOptional(.issuerDataCounter))
     }
 }
 

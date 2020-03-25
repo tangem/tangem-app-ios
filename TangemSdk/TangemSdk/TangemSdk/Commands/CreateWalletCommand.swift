@@ -54,10 +54,10 @@ public final class CreateWalletCommand: Command {
             throw TaskError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let mapper = TlvDecoder(tlv: tlv)
         return CreateWalletResponse(
-            cardId: try mapper.map(.cardId),
-            status: try mapper.map(.status),
-            walletPublicKey: try mapper.map(.walletPublicKey))
+            cardId: try mapper.decode(.cardId),
+            status: try mapper.decode(.status),
+            walletPublicKey: try mapper.decode(.walletPublicKey))
     }
 }
