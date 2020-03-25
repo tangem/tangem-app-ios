@@ -80,7 +80,7 @@ public struct ReadIssuerExtraDataResponse: TlvCodable {
  * a series of these commands have to be executed to read the entire Issuer_Extra_Data.
  */
 @available(iOS 13.0, *)
-public final class ReadIssuerExtraDataCommand: PreflightCommand {
+public final class ReadIssuerExtraDataCommand: Command {
     public typealias CommandResponse = ReadIssuerExtraDataResponse
     
     private var issuerPublicKey: Data?

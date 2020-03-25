@@ -17,14 +17,6 @@ public protocol CardSessionRunnable: AnyCardSessionRunnable {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
-    func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping CompletionResult<CommandResponse>)
-}
-
-@available(iOS 13.0, *)
-public protocol CardSessionPreflightRunnable: AnyCardSessionRunnable {
-    /// Simple interface for responses received after sending commands to Tangem cards.
-    associatedtype CommandResponse: TlvCodable
-    
     func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>)
 }
 
@@ -54,18 +46,11 @@ public extension ApduSerializable {
 }
 
 public protocol Command: CardSessionRunnable, ApduSerializable {}
-public protocol PreflightCommand: CardSessionPreflightRunnable, ApduSerializable {}
 
 public extension Command {
-    func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping CompletionResult<CommandResponse>) {
-        session.sendCommand(self, environment: environment, completion: completion)
-    }
-}
-
-public extension PreflightCommand {
     func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>) {
-        session.sendCommand(self, environment: environment, completion: completion)
-    }
+           session.sendCommand(self, environment: environment, completion: completion)
+       }
 }
 
 public protocol TlvCodable: Codable, CustomStringConvertible {}
