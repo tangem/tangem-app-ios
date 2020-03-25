@@ -75,11 +75,11 @@ public final class CheckWalletCommand: Command {
             throw TaskError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let mapper = TlvDecoder(tlv: tlv)
         return CheckWalletResponse(
-            cardId: try mapper.map(.cardId),
-            salt: try mapper.map(.salt),
-            walletSignature: try mapper.map(.walletSignature))
+            cardId: try mapper.decode(.cardId),
+            salt: try mapper.decode(.salt),
+            walletSignature: try mapper.decode(.walletSignature))
     }
     
     private func verify(response: CheckWalletResponse) -> Bool? {
