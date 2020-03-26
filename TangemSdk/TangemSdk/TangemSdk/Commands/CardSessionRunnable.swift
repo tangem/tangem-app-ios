@@ -17,10 +17,10 @@ public protocol CardSessionRunnable: AnyCardSessionRunnable {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
-    func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>)
+    func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>)
 }
 
-public protocol ApduSerializable {
+public protocol ApduSerializable: class {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     
@@ -43,14 +43,37 @@ public extension ApduSerializable {
     func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
         return try! TlvBuilder().append(.legacyMode, value: 4)
     }
+    
+    func sendCommand(transiever: CommandTransiever, completion: @escaping CompletionResult<CommandResponse>) {
+        do {
+            let commandApdu = try serialize(with: transiever.environment)
+            transiever.send(apdu: commandApdu) {[weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .success(let responseApdu):
+                    do {
+                        let responseData = try self.deserialize(with: transiever.environment, from: responseApdu)
+                        completion(.success(responseData))
+                    } catch {
+                        completion(.failure(error.toTaskError()))
+                    }
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        } catch {
+            completion(.failure(error.toTaskError()))
+        }
+    }
 }
 
 public protocol Command: CardSessionRunnable, ApduSerializable {}
 
 public extension Command {
-    func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>) {
-           session.sendCommand(self, environment: environment, completion: completion)
-       }
+    func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>) {
+        sendCommand(transiever: session, completion: completion)
+    }
 }
 
 public protocol TlvCodable: Codable, CustomStringConvertible {}
