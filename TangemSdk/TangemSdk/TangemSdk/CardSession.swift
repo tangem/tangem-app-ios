@@ -13,13 +13,13 @@ public typealias CompletionResult<T> = (Result<T, TaskError>) -> Void
 public protocol TangemCardSession {
     func stopSession(message: String?)
     func stopSession(error: Error)
-    func run<T: CardSessionRunnable>(command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
-    @available(iOS 13.0, *)
+    func runInSession<T: CardSessionRunnable>(command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
     func startSession(environment: CardEnvironment, delegate: @escaping (_ session: CommandTransiever, _ viewDelegate: CardManagerDelegate, _ environment: CardEnvironment, _ currentCard: Card, _ error: TaskError?) -> Void)
 }
 
 public protocol CommandTransiever {
-    func sendCommand<T: ApduSerializable>(_ command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
+    func run<T: CardSessionRunnable>(command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
+    //func sendCommand<T: ApduSerializable>(_ command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
     func sendApdu(_ apdu: CommandApdu, environment: CardEnvironment, completion: @escaping CompletionResult<ResponseApdu>)
 }
 
@@ -29,6 +29,7 @@ public class CardSession: TangemCardSession {
     private var currentCommand: AnyCardSessionRunnable? = nil
     private let semaphore = DispatchSemaphore(value: 1)
     public var initialMessage: String? = nil
+
     private var isBusy: Bool {
         semaphore.wait()
         defer { semaphore.signal() }
@@ -231,7 +232,7 @@ extension CardSession: CommandTransiever {
         }
     }
     
-    public final func sendApdu(_ apdu: CommandApdu, environment: CardEnvironment, completion: @escaping CompletionResult<ResponseApdu>) {
+    private func sendApdu(_ apdu: CommandApdu, environment: CardEnvironment, completion: @escaping CompletionResult<ResponseApdu>) {
         reader.send(commandApdu: apdu) { [weak self] commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
