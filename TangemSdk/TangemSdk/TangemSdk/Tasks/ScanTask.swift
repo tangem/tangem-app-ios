@@ -12,10 +12,11 @@ import Foundation
 /// Returns data from a Tangem card after successful completion of `ReadCommand` and `CheckWalletCommand`, subsequently.
 @available(iOS 13.0, *)
 public final class ScanTask: CardSessionRunnable {
+    
     public typealias CommandResponse = Card
     public init() {}
     
-    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<Card>) {
+    public func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<Card>) {
         guard let cardStatus = currentCard.status, cardStatus == .loaded else {
             completion(.success(currentCard))
             return
@@ -32,7 +33,7 @@ public final class ScanTask: CardSessionRunnable {
             return
         }
         
-        session.sendCommand(checkWalletCommand, environment: environment) { checkWalletResult in
+        checkWalletCommand.run(session: session, currentCard: currentCard) { checkWalletResult in
             switch checkWalletResult {
             case .success(_):
                 completion(.success(currentCard))
@@ -46,9 +47,9 @@ public final class ScanTask: CardSessionRunnable {
 public final class ScanTaskLegacy: CardSessionRunnable {
     public typealias CommandResponse = Card
     
-    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<Card>) {
+    public func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<Card>) {
         let readCommand = ReadCommand()
-        session.sendCommand(readCommand, environment: environment) {firstResult in
+        readCommand.run(session: session, currentCard: currentCard) {firstResult in
             switch firstResult {
             case .failure(let error):
                 completion(.failure(error))
@@ -62,7 +63,7 @@ public final class ScanTaskLegacy: CardSessionRunnable {
                 }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    session.sendCommand(readCommand, environment: environment) {secondResult in
+                    readCommand.run(session: session, currentCard: currentCard) {secondResult in
                         switch secondResult {
                         case .failure(let error):
                             completion(.failure(error))

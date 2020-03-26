@@ -10,124 +10,76 @@ import Foundation
 
 public typealias CompletionResult<T> = (Result<T, TaskError>) -> Void
 
-public protocol TangemCardSession {
+public protocol CardSession {
     func stopSession(message: String?)
     func stopSession(error: Error)
-    func runInSession<T: CardSessionRunnable>(command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
-    func startSession(environment: CardEnvironment, delegate: @escaping (_ session: CommandTransiever, _ viewDelegate: CardManagerDelegate, _ environment: CardEnvironment, _ currentCard: Card, _ error: TaskError?) -> Void)
+    func runInSession<T: CardSessionRunnable>(command: T, completion: @escaping CompletionResult<T.CommandResponse>)
+    @available(iOS 13.0, *)
+    func runInSession(delegate: @escaping (_ session: CommandTransiever, _ currentCard: Card, _ error: TaskError?) -> Void)
 }
 
 public protocol CommandTransiever {
-    func run<T: CardSessionRunnable>(command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
-    //func sendCommand<T: ApduSerializable>(_ command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>)
-    func sendApdu(_ apdu: CommandApdu, environment: CardEnvironment, completion: @escaping CompletionResult<ResponseApdu>)
+    var viewDelegate: CardManagerDelegate { get }
+    var environment: CardEnvironment { get set }
+    //func send<T: CardSessionRunnable>(command: T, completion: @escaping CompletionResult<T.CommandResponse>)
+    func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>)
 }
 
-public class CardSession: TangemCardSession {
-    private let reader: CardReader
-    private let viewDelegate: CardManagerDelegate
-    private var currentCommand: AnyCardSessionRunnable? = nil
-    private let semaphore = DispatchSemaphore(value: 1)
+public class TangemCardSession {
     public var initialMessage: String? = nil
-
+    public var config = Config()
+    public var environment: CardEnvironment = CardEnvironment()
+    public let viewDelegate: CardManagerDelegate
+    
+    private let reader: CardReader
+    private let semaphore = DispatchSemaphore(value: 1)
+    private let storageService = SecureStorageService()
+    private var currentCommand: AnyCardSessionRunnable? = nil
+    private var cardId: String?
+    
+    private lazy var terminalKeysService: TerminalKeysService = {
+        let service = TerminalKeysService(secureStorageService: storageService)
+        return service
+    }()
+    
     private var isBusy: Bool {
         semaphore.wait()
         defer { semaphore.signal() }
         return currentCommand != nil
     }
     
-    public init(reader: CardReader, viewDelegate: CardManagerDelegate, initialMessage: String? = nil) {
-        self.reader = reader
+    public init(cardId: String?, cardReader: CardReader, viewDelegate: CardManagerDelegate) {
+        self.reader = cardReader
         self.viewDelegate = viewDelegate
-        self.initialMessage = initialMessage
+        self.cardId = cardId
     }
     
-    
-    public func stopSession(message: String? = nil) {
-        if let message = message {
-            viewDelegate.showAlertMessage(message)
-        }
-        reader.stopSession()
-    }
-    
-    public func stopSession(error: Error) {
-        reader.stopSession(with: error.localizedDescription)
-    }
-    
-
-    public func run<T: CardSessionRunnable>(command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>) {
-        if let error = startSession() {
-            completion(.failure(error))
-            return
-        }
-        
-        retainCommand(command)
-        
-        if #available(iOS 13.0, *), !(command is ReadCommand) {
-            preflightRead(environment: environment) {[unowned self] result in
-                switch result {
-                case .success(let preflightResponse):
-                    command.run(session: self, viewDelegate: self.viewDelegate, environment: preflightResponse.environment, currentCard: preflightResponse.card, completion: { [unowned self] result in
-                        self.handleCommandCompletion(commandResult: result, completion: completion)
-                    })
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        completion(.failure(error))
-                    }
-                    self.completeCommand(error: error)
-                }
-            }
-        } else {
-            command.run(session: self, viewDelegate: self.viewDelegate, environment: environment, currentCard: Card(), completion: { [unowned self] result in
-                self.handleCommandCompletion(commandResult: result, completion: completion)
-            })
-        }
-    }
-    
-    @available(iOS 13.0, *)
-    public func startSession(environment: CardEnvironment, delegate: @escaping (CommandTransiever, CardManagerDelegate, CardEnvironment, Card, TaskError?) -> Void) {
-        if let error = startSession() {
-            delegate(self, viewDelegate, environment, Card(), error)
-            return
-        }
-    
-        preflightRead(environment: environment) {[unowned self] result in
-            switch result {
-            case .success(let preflightResponse):
-                delegate(self, self.viewDelegate, preflightResponse.environment, preflightResponse.card, nil)
-            case .failure(let error):
-                delegate(self, self.viewDelegate, environment, Card(), error)
-                self.stopSession(error: error)
-            }
-        }
-    }
-    
-//    public func run<T: CardSessionRunnable>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>) {
-//        if let error = startCommand(command, sessionParams: sessionParams) {
-//            completion(.failure(error))
-//            return
-//        }
-//
-//        if #available(iOS 13.0, *), sessionParams.environment.cardId != nil {
-//            preflightRead(environment: sessionParams.environment) {[unowned self] result in
-//                switch result {
-//                case .success(let preflightResponse):
-//                    command.run(session: self, viewDelegate: self.viewDelegate, environment: preflightResponse.environment, completion: { [unowned self] result in
-//                        self.handleCommandCompletion(commandResult: result, completion: completion)
-//                    })
-//                case .failure(let error):
-//                    DispatchQueue.main.async {
-//                        completion(.failure(error))
-//                    }
-//                    self.completeCommand(stopSession: true, error: error)
-//                }
-//            }
-//        } else {
-//            command.run(session: self, viewDelegate: self.viewDelegate, environment: sessionParams.environment, completion: { [unowned self] result in
-//                self.handleCommandCompletion(commandResult: result, completion: completion)
-//            })
-//        }
-//    }
+    //    public func run<T: CardSessionRunnable>(_ command: T, sessionParams: CardSessionParams, completion: @escaping CompletionResult<T.CommandResponse>) {
+    //        if let error = startCommand(command, sessionParams: sessionParams) {
+    //            completion(.failure(error))
+    //            return
+    //        }
+    //
+    //        if #available(iOS 13.0, *), sessionParams.environment.cardId != nil {
+    //            preflightRead(environment: sessionParams.environment) {[unowned self] result in
+    //                switch result {
+    //                case .success(let preflightResponse):
+    //                    command.run(session: self, viewDelegate: self.viewDelegate, environment: preflightResponse.environment, completion: { [unowned self] result in
+    //                        self.handleCommandCompletion(commandResult: result, completion: completion)
+    //                    })
+    //                case .failure(let error):
+    //                    DispatchQueue.main.async {
+    //                        completion(.failure(error))
+    //                    }
+    //                    self.completeCommand(stopSession: true, error: error)
+    //                }
+    //            }
+    //        } else {
+    //            command.run(session: self, viewDelegate: self.viewDelegate, environment: sessionParams.environment, completion: { [unowned self] result in
+    //                self.handleCommandCompletion(commandResult: result, completion: completion)
+    //            })
+    //        }
+    //    }
     
     private func handleCommandCompletion<TResponse>(commandResult: Result<TResponse, TaskError>, completion: @escaping CompletionResult<TResponse>) {
         switch commandResult {
@@ -145,7 +97,7 @@ public class CardSession: TangemCardSession {
     }
     
     private func startSession() -> TaskError? {
-        guard CardManager.isNFCAvailable else {
+        guard TangemSdk.isNFCAvailable else {
             return .unsupportedDevice
         }
         
@@ -155,9 +107,9 @@ public class CardSession: TangemCardSession {
             reader.startSession(with: initialMessage)
         }
         
+        environment = prepareCardEnvironment(for: cardId)
         return nil
     }
-    
     
     private func completeCommand(error: Error? = nil) {
         releaseCommand()
@@ -180,9 +132,21 @@ public class CardSession: TangemCardSession {
         currentCommand = nil
     }
     
+    private func prepareCardEnvironment(for cardId: String? = nil) -> CardEnvironment {
+        let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
+        var environment = CardEnvironment()
+        environment.cardId = cardId
+        environment.legacyMode = isLegacyMode
+        if config.linkedTerminal && !isLegacyMode {
+            environment.terminalKeys = terminalKeysService.getKeys()
+        }
+        return environment
+    }
+    
     @available(iOS 13.0, *)
-    private func preflightRead(environment: CardEnvironment, completion: @escaping CompletionResult<(card: ReadResponse, environment: CardEnvironment)>) {
-        sendCommand(ReadCommand(), environment: environment) { [weak self] readResult in
+    private func preflightRead(completion: @escaping CompletionResult<ReadResponse>) {
+        let readCommand = ReadCommand()
+        readCommand.sendCommand(transiever: self) { [weak self] readResult in
             guard let self = self else { return }
             
             switch readResult {
@@ -190,7 +154,7 @@ public class CardSession: TangemCardSession {
                 self.stopSession(error: error)
                 completion(.failure(error))
             case .success(let readResponse):
-                if let expectedCardId = environment.cardId,
+                if let expectedCardId = self.environment.cardId,
                     let actualCardId = readResponse.cardId,
                     expectedCardId != actualCardId {
                     let error = TaskError.wrongCard
@@ -199,52 +163,98 @@ public class CardSession: TangemCardSession {
                     return
                 }
                 
-                var newEnvironment = environment
-                if newEnvironment.cardId == nil {
-                    newEnvironment.cardId = readResponse.cardId
+                if self.environment.cardId == nil {
+                    self.environment.cardId = readResponse.cardId
                 }
-                let response = (readResponse, newEnvironment)
-                completion(.success(response))
+                
+                completion(.success(readResponse))
             }
         }
     }
 }
 
-extension CardSession: CommandTransiever {
-    public final func sendCommand<T: ApduSerializable>(_ command: T, environment: CardEnvironment, completion: @escaping CompletionResult<T.CommandResponse>) {
-        do {
-            let commandApdu = try command.serialize(with: environment)
-            sendApdu(commandApdu, environment: environment) { result in
+
+extension TangemCardSession: CardSession {
+    public func stopSession(message: String? = nil) {
+        if let message = message {
+            viewDelegate.showAlertMessage(message)
+        }
+        reader.stopSession()
+    }
+    
+    public func stopSession(error: Error) {
+        reader.stopSession(with: error.localizedDescription)
+    }
+    
+    public func runInSession<T>(command: T, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
+        if let error = startSession() {
+            completion(.failure(error))
+            return
+        }
+        
+        retainCommand(command)
+        
+        if #available(iOS 13.0, *), !(command is ReadCommand) {
+            preflightRead() {[weak self] result in
+                guard let self = self else { return }
+                
                 switch result {
-                case .success(let responseApdu):
-                    do {
-                        let responseData = try command.deserialize(with: environment, from: responseApdu)
-                        completion(.success(responseData))
-                    } catch {
-                        completion(.failure(error.toTaskError()))
-                    }
+                case .success(let preflightResponse):
+                    command.run(session: self, currentCard: preflightResponse, completion: { [weak self] result in
+                        self?.handleCommandCompletion(commandResult: result, completion: completion)
+                    })
                 case .failure(let error):
-                    completion(.failure(error))
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
+                    }
+                    self.completeCommand(error: error)
                 }
             }
-        } catch {
-            completion(.failure(error.toTaskError()))
+        } else {
+            command.run(session: self, currentCard: Card(), completion: { [weak self] result in
+                self?.handleCommandCompletion(commandResult: result, completion: completion)
+            })
         }
     }
     
-    private func sendApdu(_ apdu: CommandApdu, environment: CardEnvironment, completion: @escaping CompletionResult<ResponseApdu>) {
+    @available(iOS 13.0, *)
+    public func runInSession(delegate: @escaping (CommandTransiever, Card, TaskError?) -> Void) {
+        if let error = startSession() {
+            delegate(self, Card(), error)
+            return
+        }
+        
+        preflightRead() {[weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let preflightResponse):
+                delegate(self, preflightResponse, nil)
+            case .failure(let error):
+                delegate(self, Card(), error)
+                self.stopSession(error: error)
+            }
+        }
+    }
+    
+}
+
+extension TangemCardSession: CommandTransiever {
+    public final func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
         reader.send(commandApdu: apdu) { [weak self] commandResponse in
+            guard let self = self else { return }
+            
             switch commandResponse {
             case .success(let responseApdu):
                 switch responseApdu.statusWord {
                 case .needPause:
-                    if let securityDelayResponse = self?.deserializeSecurityDelay(with: environment, from: responseApdu) {
-                        self?.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
+                    if let securityDelayResponse = self.deserializeSecurityDelay(with: self.environment, from: responseApdu) {
+                        self.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
                         if securityDelayResponse.saveToFlash {
-                            self?.reader.restartPolling()
+                            self.reader.restartPolling()
                         }
                     }
-                    self?.sendApdu(apdu, environment: environment, completion: completion)
+                    self.send(apdu: apdu, completion: completion)
                 case .needEcryption:
                     //[REDACTED_TODO_COMMENT]
                     
@@ -273,9 +283,7 @@ extension CardSession: CommandTransiever {
             }
         }
     }
-}
-
-extension CardSession {
+    
     /// Helper method to parse security delay information received from a card.
     /// - Returns: Remaining security delay in milliseconds.
     func deserializeSecurityDelay(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
@@ -286,5 +294,13 @@ extension CardSession {
         
         let saveToFlash = tlv.contains(tag: .flash)
         return (remainingMilliseconds, saveToFlash)
+    }
+}
+
+extension TangemCardSession {
+    public convenience init(cardId: String? = nil) {
+        let reader = CardReaderFactory().createDefaultReader()
+        let delegate = DefaultCardManagerDelegate(reader: reader)
+        self.init(cardId: cardId, cardReader: reader, viewDelegate: delegate)
     }
 }
