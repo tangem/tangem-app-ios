@@ -108,7 +108,7 @@ public final class ReadIssuerExtraDataCommand: Command {
     
     private func readData(_ session: CommandTransiever, _ environment: CardEnvironment) {
         showProgress()
-        session.sendCommand(self, environment: environment) {[unowned self] result in
+        sendCommand(transiever: session) {[unowned self] result in
             switch result {
             case .success(let response):
                 if let dataSize = response.size {
