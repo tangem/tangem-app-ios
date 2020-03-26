@@ -78,7 +78,7 @@ public final class WriteIssuerExtraDataCommand: Command {
     
     private func writeData(_ session: CommandTransiever, _ environment: CardEnvironment) {
         showProgress()
-        session.sendCommand(self, environment: environment) {[unowned self] result in
+        sendCommand(transiever: session) {[unowned self] result in
             switch result {
             case .success(let response):
                 switch self.mode {

@@ -39,7 +39,7 @@ public final class CheckWalletCommand: Command {
     }
     
     public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, completion: @escaping (Result<CheckWalletResponse, TaskError>) -> Void) {
-        session.sendCommand(self, environment: environment) {[weak self] result in
+        sendCommand(transiever: session) {[weak self] result in
             guard let self = self else { return }
             
             switch result {
