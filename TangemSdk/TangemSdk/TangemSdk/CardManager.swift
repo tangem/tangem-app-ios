@@ -250,15 +250,16 @@ public final class CardManager {
        let s = session as! CardSession
         s.startSession(environment: prepareCardEnvironment()) { transiever, viewDelegate, environment, card, error in
             
+            let command = ReadIssuerExtraDataCommand(issuerPublicKey: config.issuerPublicKey)
+            session.run(command, environment: environment) { result in
+                
+            }
+            
+            //            transiever.sendCommand(read, environment: CardEnvironment()) { result in
+            //                //....
+            //            }
+            //            s.stopSession()
         }
-        
-//        s.runInSession { transiever, viewDelegate in
-//            let read = ReadCommand()
-//            transiever.sendCommand(read, environment: CardEnvironment()) { result in
-//                //....
-//            }
-//            s.stopSession()
-//        }
     }
 }
 
@@ -269,3 +270,8 @@ extension CardManager {
         self.init(cardReader: reader, cardManagerDelegate: delegate)
     }
 }
+
+//нужно ли ретейнить Environment?
+//где ретейнить сессию?
+//непонятно про cardId
+//еще упростить cardmanager
