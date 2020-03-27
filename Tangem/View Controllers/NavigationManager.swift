@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemKit
 
 class NavigationManager {
     public var rootViewController: ReaderViewController? {
