@@ -10,7 +10,6 @@ import Foundation
 #if canImport(CoreNFC)
 import CoreNFC
 #endif
-import TangemKit
 import TangemSdk
 
 
