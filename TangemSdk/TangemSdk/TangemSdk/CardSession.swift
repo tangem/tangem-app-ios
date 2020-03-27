@@ -21,7 +21,6 @@ public protocol CardSession {
 public protocol CommandTransiever {
     var viewDelegate: CardManagerDelegate { get }
     var environment: CardEnvironment { get set }
-    //func send<T: CardSessionRunnable>(command: T, completion: @escaping CompletionResult<T.CommandResponse>)
     func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>)
 }
 
