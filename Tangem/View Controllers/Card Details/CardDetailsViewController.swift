@@ -8,7 +8,6 @@
 
 import UIKit
 import QRCode
-import TangemKit
 import CryptoSwift
 import TangemSdk
 
