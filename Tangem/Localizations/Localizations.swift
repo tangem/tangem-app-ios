@@ -524,6 +524,17 @@ class Localizations {
     static let accountNotFound = translate("balance_validator_first_line_account_not_found")
     static let loadMoreXrpToCreateAccount = translate("balance_validator_second_line_create_account_xrp")
     static let lastSignature = translate("last_sig")
+    static let unknownCardState = translate("nfc_unknown_card_state")
+    static let nfcAlertSignCompleted = translate("nfc_alert_sign_completed")
+    static let nfcSessionTimeout = translate("nfc_session_timeout")
+    static let nfcAlertDefault = translate("nfc_alert_default")
+    static let nfcStuckError = translate("nfc_stuck_error")
+    static let slixFailedToParse = "Failed to read the Tag"
+    static let xlmCreateAccountHint = translate("balance_validator_second_line_create_account_instruction")
+    static let xlmAssetCreateAccountHint = translate("balance_validator_second_line_create_account_instruction_asset")
+    static func secondsLeft(_ p1: String) -> String {
+        return translate("nfc_seconds_left", p1)
+    }
 }
 // MARK: - Implementation Details
 
