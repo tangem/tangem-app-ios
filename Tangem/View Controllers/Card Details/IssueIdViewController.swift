@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import TangemKit
 import TangemSdk
 import AVFoundation
 
@@ -209,8 +208,8 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
             return
         }
         
-        let cardId = Data(hexString: card.cardID)
-        let issuerKey = Data(hexString: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
+        let cardId = Data(hex: card.cardID)
+        let issuerKey = Data(hex: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
         let issuerDataCounter = 1
         let startingSignature = CryptoUtils.signSecp256k1(cardId + issuerDataCounter.bytes4 + confirmResponse.issuerData.count.bytes2, with: issuerKey)!
         let finalizingSignature =  CryptoUtils.signSecp256k1(cardId + confirmResponse.issuerData + issuerDataCounter.bytes4, with: issuerKey)!
