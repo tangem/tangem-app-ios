@@ -19,10 +19,7 @@ PODS:
   - BinanceChain/Libraries (1.0.0-beta)
   - BinanceChain/Protobuf (1.0.0-beta)
   - BinanceChain/Util (1.0.0-beta)
-  - Crashlytics (3.14.0):
-    - Fabric (~> 1.10.2)
-  - CryptoSwift (1.0.0)
-  - Fabric (1.10.2)
+  - CryptoSwift (1.3.0)
   - GBAsyncOperation (0.2.1)
   - HDWalletKit (0.3.5):
     - CryptoSwift
@@ -52,7 +49,7 @@ PODS:
   - stellar-ios-mac-sdk (1.7.2)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.0.3)
-  - SwiftLint (0.35.0)
+  - SwiftLint (0.39.1)
   - SwiftProtobuf (1.8.0)
   - SwiftyJSON (5.0.0)
   - web3swift (2.2.1):
@@ -70,9 +67,7 @@ DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BigInt
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.4`)
-  - Crashlytics
   - CryptoSwift
-  - Fabric
   - GBAsyncOperation
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
   - Moya
@@ -89,9 +84,7 @@ SPEC REPOS:
     - Alamofire
     - AnyCodable-FlightSchool
     - BigInt
-    - Crashlytics
     - CryptoSwift
-    - Fabric
     - GBAsyncOperation
     - Moya
     - ObjcExceptionBridging
@@ -136,9 +129,7 @@ SPEC CHECKSUMS:
   AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
   BinanceChain: c873bcf2f40be47dfe35be73a8d7ead6097bb2de
-  Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
-  CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
-  Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
+  CryptoSwift: 1283821600233bdbeb96d7b389c3288c3bf77211
   GBAsyncOperation: 6cdf54862c94d0f2a3fcda2ba294d72f157f31de
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   Moya: f4a4b80ff2f8a4ffc208dfb31cd91636622fee6e
@@ -152,12 +143,12 @@ SPEC CHECKSUMS:
   stellar-ios-mac-sdk: 17ebc6a02aa48fdb48f0fe01718195026d122f31
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
-  SwiftLint: 5553187048b900c91aa03552807681bb6b027846
+  SwiftLint: 55e96a4a4d537d4a3156859fc1c54bd24851a046
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 62e5a35c7a8cad0d160f86253df200fca8580952
+PODFILE CHECKSUM: c2d9e40117ae34e4380538a6b19c860d14ca15be
 
 COCOAPODS: 1.9.1
