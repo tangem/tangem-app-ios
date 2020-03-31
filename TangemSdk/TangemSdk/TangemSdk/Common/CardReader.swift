@@ -18,7 +18,7 @@ public protocol CardReader: class {
     var tagDidConnect: (() -> Void)? {get set}
     func startSession(with message: String?)
     func stopSession(with errorMessage: String?)
-    func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu,TaskError>) -> Void)
+    func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu,SessionError>) -> Void)
     func restartPolling()
 }
 
