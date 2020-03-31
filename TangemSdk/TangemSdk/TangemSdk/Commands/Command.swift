@@ -10,16 +10,6 @@
 import Foundation
 import CoreNFC
 
-public protocol AnyCardSessionRunnable {}
-
-/// Abstract class for all Tangem card commands.
-public protocol CardSessionRunnable: AnyCardSessionRunnable {
-    /// Simple interface for responses received after sending commands to Tangem cards.
-    associatedtype CommandResponse: TlvCodable
-    
-    func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>)
-}
-
 public protocol ApduSerializable: class {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
@@ -37,23 +27,29 @@ public protocol ApduSerializable: class {
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
-public extension ApduSerializable {
+public protocol Command: CardSessionRunnable, ApduSerializable {}
+
+extension Command {
+    public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+        transieve(in: session, completion: completion)
+    }
+    
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
     /// 4 - Timeout setting for ping nfc-module
     func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
         return try! TlvBuilder().append(.legacyMode, value: 4)
     }
     
-    func sendCommand(transiever: CommandTransiever, completion: @escaping CompletionResult<CommandResponse>) {
+    func transieve(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         do {
-            let commandApdu = try serialize(with: transiever.environment)
-            transiever.send(apdu: commandApdu) {[weak self] result in
+            let commandApdu = try serialize(with: session.environment)
+            session.send(apdu: commandApdu) {[weak self] result in
                 guard let self = self else { return }
                 
                 switch result {
                 case .success(let responseApdu):
                     do {
-                        let responseData = try self.deserialize(with: transiever.environment, from: responseApdu)
+                        let responseData = try self.deserialize(with: session.environment, from: responseApdu)
                         completion(.success(responseData))
                     } catch {
                         completion(.failure(error.toTaskError()))
@@ -65,14 +61,6 @@ public extension ApduSerializable {
         } catch {
             completion(.failure(error.toTaskError()))
         }
-    }
-}
-
-public protocol Command: CardSessionRunnable, ApduSerializable {}
-
-public extension Command {
-    func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<CommandResponse>) {
-        sendCommand(transiever: session, completion: completion)
     }
 }
 
