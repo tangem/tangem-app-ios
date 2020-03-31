@@ -196,6 +196,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                 self?.updateUI()
             case .completion(let error):
                 if let error = error, !error.isUserCancelled {
+                    Analytics.log(error: error)
                     self?.handleGenericError(error)
                 }
                 self?.confirmButton.hideActivityIndicator()
@@ -246,6 +247,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                                             case .completion(let error):
                                                 self?.confirmButton.hideActivityIndicator()
                                                 if let error = error, !error.isUserCancelled {
+                                                    Analytics.log(error: error)
                                                     self?.confirmButton?.hideActivityIndicator()
                                                     self?.handleGenericError(error)
                                                 }
