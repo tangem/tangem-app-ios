@@ -33,18 +33,18 @@ public final class SignCommand: Command {
     ///   - hashes: Array of transaction hashes.
     public init(hashes: [Data]) throws {
         guard hashes.count > 0 else {
-            throw TaskError.emptyHashes
+            throw SessionError.emptyHashes
         }
         
         guard hashes.count <= 10 else {
-            throw TaskError.tooMuchHashesInOneTransaction
+            throw SessionError.tooMuchHashesInOneTransaction
         }
         
         hashSize = hashes.first!.count
         var flattenHashes = [Byte]()
         for hash in hashes {
             guard hash.count == hashSize else {
-                throw TaskError.hashSizeMustBeEqual
+                throw SessionError.hashSizeMustBeEqual
             }
             
             flattenHashes.append(contentsOf: hash.toBytes)
@@ -56,7 +56,7 @@ public final class SignCommand: Command {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
             .append(.transactionOutHashSize, value: hashSize)
             .append(.transactionOutHash, value: dataToSign)
         
@@ -80,7 +80,7 @@ public final class SignCommand: Command {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> SignResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.deserializeApduFailed
+            throw SessionError.deserializeApduFailed
         }
         
         let mapper = TlvDecoder(tlv: tlv)
