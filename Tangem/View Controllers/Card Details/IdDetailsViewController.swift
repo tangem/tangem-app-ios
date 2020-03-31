@@ -104,6 +104,7 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
                     case .completion(let error):
                         self.issueNewIdButton.hideActivityIndicator()
                         if let error = error {
+                            Analytics.log(error: error)
                             if !error.isUserCancelled {
                                 self.handleGenericError(error)
                             }
