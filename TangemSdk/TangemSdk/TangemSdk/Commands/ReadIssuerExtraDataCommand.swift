@@ -85,7 +85,7 @@ public final class ReadIssuerExtraDataCommand: Command {
     
     private var issuerPublicKey: Data?
     private var completion: CompletionResult<ReadIssuerExtraDataResponse>?
-    private var viewDelegate: CardManagerDelegate?
+    private var viewDelegate: CardSessionViewDelegate?
     private var issuerData = Data()
     private var issuerDataSize = 0
     
@@ -93,8 +93,8 @@ public final class ReadIssuerExtraDataCommand: Command {
         self.issuerPublicKey = issuerPublicKey
     }
     
-    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
-        guard let issuerPublicKeyFromCard = currentCard.issuerPublicKey else {
+    public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
+        guard let issuerPublicKeyFromCard = session.environment.card?.issuerPublicKey else {
             completion(.failure(.cardError))
             return
         }
@@ -102,13 +102,13 @@ public final class ReadIssuerExtraDataCommand: Command {
             issuerPublicKey = issuerPublicKeyFromCard
         }
         self.completion = completion
-        self.viewDelegate = viewDelegate
-        readData(session, environment)
+        self.viewDelegate = session.viewDelegate
+        readData(session, session.environment)
     }
     
-    private func readData(_ session: CommandTransiever, _ environment: CardEnvironment) {
+    private func readData(_ session: CardSession, _ environment: CardEnvironment) {
         showProgress()
-        sendCommand(transiever: session) {[unowned self] result in
+        transieve(in: session) {[unowned self] result in
             switch result {
             case .success(let response):
                 if let dataSize = response.size {
@@ -156,7 +156,7 @@ public final class ReadIssuerExtraDataCommand: Command {
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
             .append(.mode, value: IssuerExtraDataMode.readOrStartWrite)
             .append(.offset, value: issuerData.count)
         
@@ -166,7 +166,7 @@ public final class ReadIssuerExtraDataCommand: Command {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.deserializeApduFailed
+            throw SessionError.deserializeApduFailed
         }
         
         let mapper = TlvDecoder(tlv: tlv)
