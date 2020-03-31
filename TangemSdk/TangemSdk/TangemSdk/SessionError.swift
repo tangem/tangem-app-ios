@@ -1,5 +1,5 @@
 //
-//  TaskError.swift
+//  SessionError.swift
 //  TangemSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ import CoreNFC
  * An error class that represent typical errors that may occur when performing Tangem SDK tasks.
  * Errors are propagated back to the caller in callbacks.
  */
-public enum TaskError: Int, Error, LocalizedError {
+public enum SessionError: Int, Error, LocalizedError {
     //Serialize/deserialize apdu errors
     case deserializeApduFailed = 1001
     case encodeFailedTypeMismatch = 1002
@@ -70,7 +70,7 @@ public enum TaskError: Int, Error, LocalizedError {
         }
     }
     
-    public static func parse(_ error: Error) -> TaskError {
+    public static func parse(_ error: Error) -> SessionError {
         if let readerError = error as? NFCReaderError {
             switch readerError.code {
             case .readerSessionInvalidationErrorUserCanceled:
@@ -81,7 +81,7 @@ public enum TaskError: Int, Error, LocalizedError {
                 return .nfcReaderError
             }
         } else {
-            return (error as? TaskError) ?? TaskError.unknownError
+            return (error as? SessionError) ?? SessionError.unknownError
         }
     }
 }
