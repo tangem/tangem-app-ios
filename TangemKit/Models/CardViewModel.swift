@@ -62,7 +62,7 @@ public enum Blockchain: String {
 }
 
 public class CardViewModel {
-    
+    public let cardModel: Card
     public var cardEngine: CardEngine!
     public var issuerExtraData: ReadIssuerExtraDataResponse?
     public var status: CardStatus = .loaded
@@ -436,6 +436,7 @@ public class CardViewModel {
     }
     
     public init(_ card: Card) {
+        self.cardModel = card
         cardID = card.cardId ?? ""
         cardPublicKey = card.cardPublicKey?.hex ?? ""
         firmware = card.firmwareVersion  ?? ""
