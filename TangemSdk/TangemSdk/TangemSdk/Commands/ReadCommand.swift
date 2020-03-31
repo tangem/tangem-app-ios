@@ -219,7 +219,9 @@ extension Card {
 public final class ReadCommand: Command {
     public typealias CommandResponse = ReadResponse
     public init() {}
-    
+    deinit {
+           print("read deinit")
+       }
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         /// `CardEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.
@@ -237,7 +239,7 @@ public final class ReadCommand: Command {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> ReadResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.deserializeApduFailed
+            throw SessionError.deserializeApduFailed
         }
         
         let mapper = TlvDecoder(tlv: tlv)
