@@ -12,13 +12,38 @@ import TangemSdk
 class ViewController: UIViewController {
     @IBOutlet weak var logView: UITextView!
     
-    var cardManager: CardManager = CardManager()
+    var tangemSdk = TangemSdk()
     var card: Card?
     var issuerDataResponse: ReadIssuerDataResponse?
     var issuerExtraDataResponse: ReadIssuerExtraDataResponse?
     
     @IBAction func scanCardTapped(_ sender: Any) {
-        cardManager.scanCard {[unowned self] result in
+        if #available(iOS 13.0, *) {
+            tangemSdk.start(cardId: nil) { session, error in
+                let cmd1 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
+                cmd1!.run(in: session, completion: { result in
+                    switch result {
+                    case .success(let response):
+                         let cmd2 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
+                        cmd2!.run(in: session, completion: { result in
+                                           switch result {
+                                           case .success(let response):
+                                              print("ZZZZZZZZZ")
+                                           case .failure(let error):
+                                               print("!!!")
+                                           }
+                                       })
+                    case .failure(let error):
+                        print("!!!")
+                    }
+                })
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+        
+        
+        tangemSdk.scanCard {[unowned self] result in
             switch result {
             case .success(let card):
                 self.card = card
@@ -40,7 +65,7 @@ class ViewController: UIViewController {
                 return
             }
             
-            cardManager.sign(hashes: hashes, cardId: cardId) {[unowned self] result in
+            tangemSdk.sign(hashes: hashes, cardId: cardId) {[unowned self] result in
                 switch result {
                 case .success(let signResponse):
                     self.log(signResponse)
@@ -60,7 +85,7 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.readIssuerData(cardId: cardId){ [unowned self] result in
+            tangemSdk.readIssuerData(cardId: cardId){ [unowned self] result in
                 switch result {
                 case .success(let issuerDataResponse):
                     self.issuerDataResponse = issuerDataResponse
@@ -88,7 +113,7 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.writeIssuerData(cardId: cardId,
+            tangemSdk.writeIssuerData(cardId: cardId,
                                         issuerData: issuerDataResponse.issuerData,
                                         issuerDataSignature: issuerDataResponse.issuerDataSignature) { [unowned self] result in
                                             switch result {
@@ -111,7 +136,7 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.readIssuerExtraData(cardId: cardId){ [unowned self] result in
+            tangemSdk.readIssuerExtraData(cardId: cardId){ [unowned self] result in
                 switch result {
                 case .success(let issuerDataResponse):
                     self.issuerExtraDataResponse = issuerDataResponse
@@ -146,7 +171,7 @@ class ViewController: UIViewController {
         let finalSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
         
         if #available(iOS 13.0, *) {
-            cardManager.writeIssuerExtraData(cardId: cardId,
+            tangemSdk.writeIssuerExtraData(cardId: cardId,
                                              issuerData: sampleData,
                                              startingSignature: startSig,
                                              finalizingSignature: finalSig,
@@ -172,7 +197,7 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.createWallet(cardId: cardId) { [unowned self] result in
+            tangemSdk.createWallet(cardId: cardId) { [unowned self] result in
                 switch result {
                 case .success(let response):
                     self.log(response)
@@ -195,7 +220,7 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.purgeWallet(cardId: cardId) { [unowned self] result in
+            tangemSdk.purgeWallet(cardId: cardId) { [unowned self] result in
                 switch result {
                 case .success(let response):
                     self.log(response)
@@ -218,7 +243,7 @@ class ViewController: UIViewController {
         print(object)
     }
     
-    private func handle(_ error: TaskError?) {
+    private func handle(_ error: SessionError?) {
         if let error = error, !error.isUserCancelled {
             self.log("completed with error: \(error.localizedDescription)")
         }

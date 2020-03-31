@@ -16,14 +16,19 @@ public final class ScanTask: CardSessionRunnable {
     public typealias CommandResponse = Card
     public init() {}
     
-    public func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<Card>) {
-        guard let cardStatus = currentCard.status, cardStatus == .loaded else {
-            completion(.success(currentCard))
+    public func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
+        guard let card = session.environment.card else {
+            completion(.failure(.errorProcessingCommand))
             return
         }
         
-        guard let curve = currentCard.curve,
-            let publicKey = currentCard.walletPublicKey else {
+        guard let cardStatus = card.status, cardStatus == .loaded else {
+            completion(.success(card))
+            return
+        }
+        
+        guard let curve = card.curve,
+            let publicKey = card.walletPublicKey else {
                 completion(.failure(.cardError))
                 return
         }
@@ -32,11 +37,11 @@ public final class ScanTask: CardSessionRunnable {
             completion(.failure(.errorProcessingCommand))
             return
         }
-        
-        checkWalletCommand.run(session: session, currentCard: currentCard) { checkWalletResult in
+
+        checkWalletCommand.run(in: session) { checkWalletResult in
             switch checkWalletResult {
             case .success(_):
-                completion(.success(currentCard))
+                completion(.success(card))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -47,9 +52,9 @@ public final class ScanTask: CardSessionRunnable {
 public final class ScanTaskLegacy: CardSessionRunnable {
     public typealias CommandResponse = Card
     
-    public func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<Card>) {
+    public func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         let readCommand = ReadCommand()
-        readCommand.run(session: session, currentCard: currentCard) {firstResult in
+        readCommand.run(in: session) {firstResult in
             switch firstResult {
             case .failure(let error):
                 completion(.failure(error))
@@ -63,7 +68,7 @@ public final class ScanTaskLegacy: CardSessionRunnable {
                 }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    readCommand.run(session: session, currentCard: currentCard) {secondResult in
+                    readCommand.run(in: session) {secondResult in
                         switch secondResult {
                         case .failure(let error):
                             completion(.failure(error))
