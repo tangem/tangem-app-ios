@@ -1,5 +1,5 @@
 //
-//  CardManagerDelegate.swift
+//  CardSessionViewDelegate.swift
 //  TangemSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import Foundation
 import UIKit
 
 /// Allows interaction with users and shows visual elements.
-/// Its default implementation, `DefaultCardManagerDelegate`, is in our  module.
-public protocol CardManagerDelegate: class {
+/// Its default implementation, `DefaultCardSessionViewDelegate`, is in our  module.
+public protocol CardSessionViewDelegate: class {
     func showAlertMessage(_ text: String)
     
     /// It is called when security delay is triggered by the card. A user is expected to hold the card until the security delay is over.
@@ -24,7 +24,7 @@ public protocol CardManagerDelegate: class {
     func tagDidConnect()
 }
 
-final class DefaultCardManagerDelegate: CardManagerDelegate {
+final class DefaultCardSessionViewDelegate: CardSessionViewDelegate {
     private let reader: CardReader
     
     private lazy var delayFormatter: DateComponentsFormatter = {
