@@ -14,15 +14,15 @@ import Foundation
 public final class CreateWalletTask: CardSessionRunnable {
     public typealias CommandResponse = CreateWalletResponse
     
-    public func run(session: CommandTransiever, currentCard: Card, completion: @escaping CompletionResult<CreateWalletResponse>) {
+    public func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
         
-        guard let curve = currentCard.curve else {
+        guard let curve = session.environment.card?.curve else {
             completion(.failure(.cardError))
             return
         }
         
         let command = CreateWalletCommand()
-        command.run(session: session, currentCard: currentCard) { result in
+        command.run(in: session) { result in
             switch result {
             case .success(let createWalletResponse):
                 if createWalletResponse.status == .loaded {
@@ -31,7 +31,7 @@ public final class CreateWalletTask: CardSessionRunnable {
                         return
                     }
                     
-                    checkWalletCommand.run(session: session, currentCard: currentCard) { checkWalletResult in
+                    checkWalletCommand.run(in: session) { checkWalletResult in
                         switch checkWalletResult {
                         case .success(_):
                             completion(.success(createWalletResponse))
