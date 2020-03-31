@@ -178,25 +178,27 @@ extension ETHEngine: CoinProvider {
         let web = web3(provider: provider)
         
         DispatchQueue.global().async {
-            guard let gasPrice = try? web.eth.getGasPrice() else {
+            do {
+                let gasPrice = try web.eth.getGasPrice()
+                let m = self.getGasLimit()
+                let decimalCount = Int(self.blockchain.decimalCount)
+                let minValue = gasPrice * m
+                let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
+                
+                let normalValue = gasPrice * BigUInt(12) / BigUInt(10) * m
+                let normal = Web3.Utils.formatToEthereumUnits(normalValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
+                
+                let maxValue = gasPrice * BigUInt(15) / BigUInt(10) * m
+                let max = Web3.Utils.formatToEthereumUnits(maxValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
+                
+                let fee = (min.trimZeroes(), normal.trimZeroes(), max.trimZeroes())
+                completion(fee)
+                
+            } catch {
+                Analytics.log(error: error)
                 completion(nil)
-                return
             }
-            let m = self.getGasLimit()
-            let decimalCount = Int(self.blockchain.decimalCount)
-            let minValue = gasPrice * m
-            let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
-            
-            let normalValue = gasPrice * BigUInt(12) / BigUInt(10) * m
-            let normal = Web3.Utils.formatToEthereumUnits(normalValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
-            
-            let maxValue = gasPrice * BigUInt(15) / BigUInt(10) * m
-            let max = Web3.Utils.formatToEthereumUnits(maxValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
-            
-            let fee = (min.trimZeroes(), normal.trimZeroes(), max.trimZeroes())
-            completion(fee)
         }
-        
     }
     
     public func sendToBlockchain(signFromCard: [UInt8], completion: @escaping (Bool, Error?) -> Void) {
