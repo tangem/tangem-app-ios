@@ -41,7 +41,7 @@ public final class WriteIssuerExtraDataCommand: Command {
     private let issuerDataCounter: Int?
     
     private var completion: CompletionResult<WriteIssuerExtraDataResponse>?
-    private var viewDelegate: CardManagerDelegate?
+    private var viewDelegate: CardSessionViewDelegate?
     
     public init(issuerData: Data, issuerPublicKey: Data? = nil, startingSignature: Data, finalizingSignature: Data, issuerDataCounter: Int? = nil) {
         self.issuerData = issuerData
@@ -51,11 +51,10 @@ public final class WriteIssuerExtraDataCommand: Command {
         self.issuerDataCounter = issuerDataCounter
     }
     
-    public func run(session: CommandTransiever, viewDelegate: CardManagerDelegate, environment: CardEnvironment, currentCard: Card, completion: @escaping CompletionResult<WriteIssuerExtraDataResponse>) {
-        
-        guard let settingsMask = currentCard.settingsMask,
-            let issuerPublicKeyFromCard = currentCard.issuerPublicKey,
-            let cardId = environment.cardId else {
+    public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerExtraDataResponse>) {
+        guard let settingsMask = session.environment.card?.settingsMask,
+            let issuerPublicKeyFromCard = session.environment.card?.issuerPublicKey,
+            let cardId = session.environment.card?.cardId else {
                 completion(.failure(.cardError))
                 return
         }
@@ -72,13 +71,13 @@ public final class WriteIssuerExtraDataCommand: Command {
         }
         
         self.completion = completion
-        self.viewDelegate = viewDelegate
-        writeData(session, environment)
+        self.viewDelegate = session.viewDelegate
+        writeData(session, session.environment)
     }
     
-    private func writeData(_ session: CommandTransiever, _ environment: CardEnvironment) {
+    private func writeData(_ session: CardSession, _ environment: CardEnvironment) {
         showProgress()
-        sendCommand(transiever: session) {[unowned self] result in
+        transieve(in: session) {[unowned self] result in
             switch result {
             case .success(let response):
                 switch self.mode {
@@ -134,7 +133,7 @@ public final class WriteIssuerExtraDataCommand: Command {
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
             .append(.mode, value: mode)
         
         switch mode {
@@ -162,7 +161,7 @@ public final class WriteIssuerExtraDataCommand: Command {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerExtraDataResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.deserializeApduFailed
+            throw SessionError.deserializeApduFailed
         }
         
         let mapper = TlvDecoder(tlv: tlv)
