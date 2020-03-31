@@ -243,6 +243,7 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
                     "\(max.rounded(blockchain: .ripple))")
                 completion(fee)
             case .failure(let error):
+                Analytics.log(error: error)
                 print(error.localizedDescription)
                 completion(nil)
             }
