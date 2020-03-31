@@ -33,7 +33,7 @@ public final class PurgeWalletCommand: Command {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
         
         let cApdu = CommandApdu(.purgeWallet, tlv: tlvBuilder.serialize())
         return cApdu
@@ -41,7 +41,7 @@ public final class PurgeWalletCommand: Command {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> PurgeWalletResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.deserializeApduFailed
+            throw SessionError.deserializeApduFailed
         }
         
         let mapper = TlvDecoder(tlv: tlv)
