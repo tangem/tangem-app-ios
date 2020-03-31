@@ -73,6 +73,7 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
                     self.eraseWalletButton.hideActivityIndicator()
                     if let error = error {
                         if !error.isUserCancelled {
+                            Analytics.log(error: error)
                             self.handleGenericError(error)
                         }
                     } else {
