@@ -9,7 +9,7 @@
 import Foundation
 
 extension Error {
-    func toTaskError() -> TaskError {
-        return TaskError.parse(self)
+    func toTaskError() -> SessionError {
+        return SessionError.parse(self)
     }
 }
