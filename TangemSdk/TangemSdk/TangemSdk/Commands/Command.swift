@@ -52,14 +52,14 @@ extension Command {
                         let responseData = try self.deserialize(with: session.environment, from: responseApdu)
                         completion(.success(responseData))
                     } catch {
-                        completion(.failure(error.toTaskError()))
+                        completion(.failure(error.toSessionError()))
                     }
                 case .failure(let error):
                     completion(.failure(error))
                 }
             }
         } catch {
-            completion(.failure(error.toTaskError()))
+            completion(.failure(error.toSessionError()))
         }
     }
 }
