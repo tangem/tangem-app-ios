@@ -77,7 +77,7 @@ public final class TangemSdk {
             cardSession!.start(with: signCommand, completion: completion)
         } catch {
             print(error.localizedDescription)
-            completion(.failure(error.toTaskError()))
+            completion(.failure(error.toSessionError()))
         }
     }
     
@@ -201,14 +201,14 @@ public final class TangemSdk {
         cardSession!.start(with: PurgeWalletCommand(), completion: completion)
     }
     
-    public func start<T>(with runnable: T, cardId: String?, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
-        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+    public func start<T>(with runnable: T, cardId: String?, initialMessage: String? = nil, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
         cardSession!.start(with: runnable, completion: completion)
     }
     
     @available(iOS 13.0, *)
-    public func start(cardId: String?, delegate: @escaping (CardSession, SessionError?) -> Void) {
-        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+    public func start(cardId: String?, initialMessage: String? = nil, delegate: @escaping (CardSession, SessionError?) -> Void) {
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
         cardSession?.start(delegate: delegate)
     }
     
