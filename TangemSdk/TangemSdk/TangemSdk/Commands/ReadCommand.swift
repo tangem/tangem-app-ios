@@ -29,6 +29,34 @@ public struct SigningMethod: OptionSet, Codable {
     public static let signHashSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 4))
     public static let signRawSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 5))
     public static let signPos = SigningMethod(rawValue: 0b10000000|(1 << 6))
+    
+    public func encode(to encoder: Encoder) throws {
+        var values = [String]()
+        if contains(SigningMethod.signHash) {
+            values.append("sign hash")
+        }
+        if contains(SigningMethod.signRaw) {
+            values.append("sign raw transaction")
+        }
+        if contains(SigningMethod.signHashSignedByIssuer) {
+            values.append("sign hash signed by issuer")
+        }
+        if contains(SigningMethod.signRawSignedByIssuer) {
+            values.append("sign raw signed by issuer")
+        }
+        if contains(SigningMethod.signHashSignedByIssuerAndUpdateIssuerData) {
+            values.append("sign hash signed by issuer and update Issuer_Data")
+        }
+        if contains(SigningMethod.signRawSignedByIssuerAndUpdateIssuerData) {
+            values.append("sign raw signed by issuer and update Issuer_Data")
+        }
+        if contains(SigningMethod.signPos) {
+            values.append("sign POS")
+        }
+        
+        var container = encoder.singleValueContainer()
+        try container.encode(values)
+    }
 }
 
 /// Elliptic curve used for wallet key operations.
@@ -43,6 +71,11 @@ public enum CardStatus: Int, Codable {
     case empty = 1
     case loaded = 2
     case purged = 3
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode("\(self)")
+    }
 }
 
 public struct ProductMask: OptionSet, Codable {
@@ -55,6 +88,22 @@ public struct ProductMask: OptionSet, Codable {
     public static let note = ProductMask(rawValue: 0x01)
     public static let tag = ProductMask(rawValue: 0x02)
     public static let card = ProductMask(rawValue: 0x04)
+    
+    public func encode(to encoder: Encoder) throws {
+        var values = [String]()
+        if contains(ProductMask.note) {
+            values.append("note")
+        }
+        if contains(ProductMask.tag) {
+            values.append("tag")
+        }
+        if contains(ProductMask.card) {
+            values.append("card")
+        }
+        
+        var container = encoder.singleValueContainer()
+        try container.encode(values)
+    }
 }
 
 /// Stores and maps Tangem card settings.
@@ -77,6 +126,10 @@ public struct SettingsMask: OptionSet, Codable {
     static let useNDEF = SettingsMask(rawValue: 0x0200)
     static let useDynamicNDEF = SettingsMask(rawValue: 0x0400)
     static let smartSecurityDelay = SettingsMask(rawValue: 0x0800)
+    static let allowUnencrypted = SettingsMask(rawValue: 0x1000)
+    static let allowFastEncryption = SettingsMask(rawValue: 0x2000)
+    static let protectIssuerDataAgainstReplay = SettingsMask(rawValue: 0x4000)
+    static let allowSelectBlockchain = SettingsMask(rawValue: 0x8000)
     static let disablePrecomputedNDEF = SettingsMask(rawValue: 0x00010000)
     static let skipSecurityDelayIfValidatedByIssuer = SettingsMask(rawValue: 0x00020000)
     static let skipCheckPIN2CVCIfValidatedByIssuer = SettingsMask(rawValue: 0x00040000)
@@ -85,7 +138,84 @@ public struct SettingsMask: OptionSet, Codable {
     static let requireTermTxSignature = SettingsMask(rawValue: 0x01000000)
     static let requireTermCertSignature = SettingsMask(rawValue: 0x02000000)
     static let checkPIN3OnCard = SettingsMask(rawValue: 0x04000000)
-    static let protectIssuerDataAgainstReplay = SettingsMask(rawValue: 0x4000)
+
+    public func encode(to encoder: Encoder) throws {
+        var values = [String]()
+        if contains(SettingsMask.isReusable) {
+            values.append("Is_Reusable")
+        }
+        if contains(SettingsMask.useActivation) {
+            values.append("Use_Activation")
+        }
+        if contains(SettingsMask.prohibitPurgeWallet) {
+            values.append("Prohibit_Purge_Wallet")
+        }
+        if contains(SettingsMask.useBlock) {
+            values.append("Use_Block")
+        }
+        if contains(SettingsMask.allowSetPIN1) {
+            values.append("Allow_SET_PIN1")
+        }
+        if contains(SettingsMask.allowSetPIN2) {
+            values.append("Allow_SET_PIN2")
+        }
+        if contains(SettingsMask.useCvc) {
+            values.append("Use_CVC")
+        }
+        if contains(SettingsMask.prohibitDefaultPIN1) {
+            values.append("Prohibit_Default_PIN1")
+        }
+        if contains(SettingsMask.useOneCommandAtTime) {
+            values.append("Use_One_CommandAtTime")
+        }
+        if contains(SettingsMask.useNDEF) {
+            values.append("Use_NDEF")
+        }
+        if contains(SettingsMask.useDynamicNDEF) {
+            values.append("Use_Dynamic_NDEF")
+        }
+        if contains(SettingsMask.smartSecurityDelay) {
+            values.append("Smart_Security_Delay")
+        }
+        if contains(SettingsMask.allowUnencrypted) {
+            values.append("Allow_Unencrypted")
+        }
+        if contains(SettingsMask.allowFastEncryption) {
+            values.append("Allow_Fast_Encryption")
+        }
+        if contains(SettingsMask.protectIssuerDataAgainstReplay) {
+            values.append("Protect_Issuer_Data_Against_Replay")
+        }
+        if contains(SettingsMask.allowSelectBlockchain) {
+            values.append("Allow_Select_Blockchain")
+        }
+        if contains(SettingsMask.disablePrecomputedNDEF) {
+            values.append("Disable_PrecomputedNDEF")
+        }
+        if contains(SettingsMask.skipSecurityDelayIfValidatedByIssuer) {
+            values.append("Skip_Security_Delay_If_Validated_By_Issuer")
+        }
+        if contains(SettingsMask.skipCheckPIN2CVCIfValidatedByIssuer) {
+            values.append("Skip_Check_PIN2_and_CVC_If_Validated_By_Issuer")
+        }
+        if contains(SettingsMask.skipSecurityDelayIfValidatedByLinkedTerminal) {
+            values.append("Skip_Security_Delay_If_Validated_By_Linked_Terminal")
+        }
+        if contains(SettingsMask.restrictOverwriteIssuerExtraDara) {
+            values.append("Restrict_Overwrite_Issuer_Extra_Data")
+        }
+        if contains(SettingsMask.requireTermTxSignature) {
+            values.append("Require_Term_Tx_Signature")
+        }
+        if contains(SettingsMask.requireTermCertSignature) {
+            values.append("Require_Term_Cert_Signature")
+        }
+        if contains(SettingsMask.checkPIN3OnCard) {
+            values.append("Check_PIN3_on_Card")
+        }
+        var container = encoder.singleValueContainer()
+        try container.encode(values)
+    }
 }
 
 /// Detailed information about card contents.
