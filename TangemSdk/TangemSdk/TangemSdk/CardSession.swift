@@ -98,6 +98,10 @@ public class CardSession {
         reader.stopSession(with: error.localizedDescription)
     }
     
+    public func restartPolling() {
+        reader.restartPolling()
+    }
+    
     public final func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
         reader.send(commandApdu: apdu) { [weak self] commandResponse in
             guard let self = self else { return }
