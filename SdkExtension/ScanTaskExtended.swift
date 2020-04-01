@@ -16,6 +16,9 @@ struct ScanTaskExtendedResponse: TlvCodable {
 
 final class ScanTaskExtended: CardSessionRunnable {
     public typealias CommandResponse = ScanTaskExtendedResponse
+    deinit {
+        print("ScanTaskExtended deinit")
+    }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         if #available(iOS 13.0, *) {
