@@ -168,7 +168,7 @@ public final class WriteIssuerExtraDataCommand: Command {
             throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
-        return WriteIssuerDataResponse(cardId: try mapper.decode(.cardId))
+        let decoder = TlvDecoder(tlv: tlv)
+        return WriteIssuerDataResponse(cardId: try decoder.decode(.cardId))
     }
 }
