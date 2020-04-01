@@ -22,7 +22,7 @@ public struct CheckWalletResponse: TlvCodable {
 @available(iOS 13.0, *)
 public final class CheckWalletCommand: Command {
     deinit {
-         print("checkwallet deinit")
+         print("CheckWalletCommand deinit")
     }
     
     public typealias CommandResponse = CheckWalletResponse
