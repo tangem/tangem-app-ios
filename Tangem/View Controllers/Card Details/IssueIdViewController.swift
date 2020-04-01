@@ -7,8 +7,8 @@
 //
 
 import UIKit
-import TangemKit
 import TangemSdk
+import AVFoundation
 
 @available(iOS 13.0, *)
 class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
@@ -109,12 +109,30 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @objc func addPhotoTapped() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .denied:
+            let alert = UIAlertController(title: "Camera access denied", message: "You have not given access to your camera, please adjust your privacy settings", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Settings", style: .cancel) { _ in
+                           if let url = URL(string: UIApplicationOpenSettingsURLString) {
+                               if UIApplication.shared.canOpenURL(url) {
+                                   UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                               }
+                           }
+                       })
+            alert.addAction(UIAlertAction(title: Localizations.generalCancel, style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        default:
+            openCamera()
+        }
+    }
+    
+    func openCamera() {
         let pickerController = UIImagePickerController()
-        pickerController.delegate = self
-        pickerController.allowsEditing = true
-        pickerController.sourceType = .camera
-        pickerController.cameraDevice = .front
-        self.present(pickerController, animated: true)
+              pickerController.delegate = self
+              pickerController.allowsEditing = true
+              pickerController.sourceType = .camera
+              pickerController.cameraDevice = .front
+              self.present(pickerController, animated: true)
     }
     
     func shake(_ view: UIView) {
@@ -132,6 +150,13 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
     func updateUI() {
         let title = state == .confirm ? "Confirm" : "Issue Id"
         confirmButton.setTitle(title, for: .normal)
+        if state == .write {
+            imageView.isUserInteractionEnabled = false
+            firstNameText.isEnabled = false
+            lastNameText.isEnabled = false
+            dobText.isEnabled = false
+            sexSelector.isEnabled = false
+        }
     }
     
     private func confirm() {
@@ -183,18 +208,22 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
             return
         }
         
-        let cardId = Data(hexString: card.cardID)
-        let issuerKey = Data(hexString: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
+        let cardId = Data(hex: card.cardID)
+        let issuerKey = Data(hex: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
         let issuerDataCounter = 1
         let startingSignature = CryptoUtils.signSecp256k1(cardId + issuerDataCounter.bytes4 + confirmResponse.issuerData.count.bytes2, with: issuerKey)!
         let finalizingSignature =  CryptoUtils.signSecp256k1(cardId + confirmResponse.issuerData + issuerDataCounter.bytes4, with: issuerKey)!
         
         confirmButton.showActivityIndicator()
-        cardManager.writeIssuerExtraData(cardId: card.cardID,
-                                         issuerData: confirmResponse.issuerData,
-                                         startingSignature: startingSignature,
-                                         finalizingSignature: finalizingSignature,
-                                         issuerDataCounter: issuerDataCounter) {[weak self] writeResult in
+        
+        let task = WriteIdTask(issuerData: confirmResponse.issuerData,
+                                                 issuerPublicKey: nil,
+                                                 startingSignature: startingSignature,
+                                                 finalizingSignature: finalizingSignature,
+                                                 issuerDataCounter: issuerDataCounter)
+        
+        
+        cardManager.runTask(task) {[weak self] writeResult in
                                             switch writeResult {
                                             case .event:
                                                 if let idEngine = self?.card.cardEngine as? ETHIdEngine {
@@ -208,13 +237,14 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                                                                     UIApplication.navigationManager().navigationController.popToRootViewController(animated: true)
                                                                 })
                                                             } else {
-                                                                let errMsg = (error as? String ?? error?.localizedDescription) ?? ""
+                                                                let errMsg = error?.localizedDescription ?? ""
                                                                 self?.handleTXSendError(message: "\(errMsg)")
                                                             }
                                                         }
                                                     }
                                                 }
                                             case .completion(let error):
+                                                self?.confirmButton.hideActivityIndicator()
                                                 if let error = error, !error.isUserCancelled {
                                                     self?.confirmButton?.hideActivityIndicator()
                                                     self?.handleGenericError(error)
