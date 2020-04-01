@@ -76,11 +76,11 @@ public final class CheckWalletCommand: Command {
             throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return CheckWalletResponse(
-            cardId: try mapper.decode(.cardId),
-            salt: try mapper.decode(.salt),
-            walletSignature: try mapper.decode(.walletSignature))
+            cardId: try decoder.decode(.cardId),
+            salt: try decoder.decode(.salt),
+            walletSignature: try decoder.decode(.walletSignature))
     }
     
     private func verify(response: CheckWalletResponse) -> Bool? {
