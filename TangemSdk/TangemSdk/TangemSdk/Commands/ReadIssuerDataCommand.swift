@@ -54,11 +54,11 @@ public final class ReadIssuerDataCommand: Command {
             throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return ReadIssuerDataResponse(
-            cardId: try mapper.decode(.cardId),
-            issuerData: try mapper.decode(.issuerData),
-            issuerDataSignature: try mapper.decode(.issuerDataSignature),
-            issuerDataCounter: try mapper.decodeOptional(.issuerDataCounter))
+            cardId: try decoder.decode(.cardId),
+            issuerData: try decoder.decode(.issuerData),
+            issuerDataSignature: try decoder.decode(.issuerDataSignature),
+            issuerDataCounter: try decoder.decodeOptional(.issuerDataCounter))
     }
 }
