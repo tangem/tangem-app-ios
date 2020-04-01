@@ -94,7 +94,7 @@ public final class ReadIssuerExtraDataCommand: Command {
     }
     
     deinit {
-        print("Read issuer extra deinit")
+        print("ReadIssuerExtraDataCommand deinit")
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
