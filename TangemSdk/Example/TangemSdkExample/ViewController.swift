@@ -18,31 +18,6 @@ class ViewController: UIViewController {
     var issuerExtraDataResponse: ReadIssuerExtraDataResponse?
     
     @IBAction func scanCardTapped(_ sender: Any) {
-        if #available(iOS 13.0, *) {
-            tangemSdk.start(cardId: nil) { session, error in
-                let cmd1 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
-                cmd1!.run(in: session, completion: { result in
-                    switch result {
-                    case .success(let response):
-                         let cmd2 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
-                        cmd2!.run(in: session, completion: { result in
-                                           switch result {
-                                           case .success(let response):
-                                              print("ZZZZZZZZZ")
-                                           case .failure(let error):
-                                               print("!!!")
-                                           }
-                                       })
-                    case .failure(let error):
-                        print("!!!")
-                    }
-                })
-            }
-        } else {
-            // Fallback on earlier versions
-        }
-        
-        
         tangemSdk.scanCard {[unowned self] result in
             switch result {
             case .success(let card):
@@ -234,6 +209,31 @@ class ViewController: UIViewController {
             self.log("Only iOS 13+")
         }
     }
+    
+    @available(iOS 13.0, *)
+    func chainingExample() {
+        tangemSdk.start(cardId: nil) { session, error in
+            let cmd1 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
+            cmd1!.run(in: session, completion: { result in
+                switch result {
+                case .success(_):
+                    let cmd2 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
+                    cmd2!.run(in: session, completion: { result in
+                        switch result {
+                        case .success(let response2):
+                            print(response2)
+                            session.stop() // close session manually
+                        case .failure(let error):
+                            print(error)
+                        }
+                    })
+                case .failure(let error):
+                    print(error)
+                }
+            })
+        }
+    }
+    
     @IBAction func clearTapped(_ sender: Any) {
         self.logView.text = ""
     }
