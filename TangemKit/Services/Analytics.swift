@@ -31,11 +31,13 @@ class Analytics {
     }
     
     static func logScan(card: Card) {
-        let params = [ParameterKey.blockchain.rawValue: card.cardData?.blockchainName ?? "",
+        let blockchainName = card.cardData?.blockchainName ?? ""
+        let params = [ParameterKey.blockchain.rawValue: blockchainName,
                       ParameterKey.batchId.rawValue: card.cardData?.batchId ?? "",
                       ParameterKey.firmware.rawValue: card.firmwareVersion ?? ""]
         
         FirebaseAnalytics.Analytics.logEvent(Event.cardIsScanned.rawValue, parameters: params)
+        Crashlytics.crashlytics().setCustomValue(blockchainName, forKey: ParameterKey.blockchain.rawValue)
     }
     
     static func logSign(card: Card) {
