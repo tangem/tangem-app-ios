@@ -70,6 +70,15 @@ extension TlvCodable {
     public var description: String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
+        encoder.dataEncodingStrategy = .custom{ data, encoder in
+            var container = encoder.singleValueContainer()
+            return try container.encode(data.asHexString())
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+        
         let data = (try? encoder.encode(self)) ?? Data()
         return String(data: data, encoding: .utf8)!
     }
