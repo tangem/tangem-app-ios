@@ -54,10 +54,10 @@ public final class CreateWalletCommand: Command {
             throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return CreateWalletResponse(
-            cardId: try mapper.decode(.cardId),
-            status: try mapper.decode(.status),
-            walletPublicKey: try mapper.decode(.walletPublicKey))
+            cardId: try decoder.decode(.cardId),
+            status: try decoder.decode(.status),
+            walletPublicKey: try decoder.decode(.walletPublicKey))
     }
 }
