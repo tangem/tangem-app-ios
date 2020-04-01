@@ -90,8 +90,7 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         case .createWallet:
             if #available(iOS 13.0, *) {
                 issueNewIdButton.showActivityIndicator()
-                tangemSdk.createWallet(cardId: card!.cardID) {[weak self] result in
-                    guard let self = self else { return }
+                tangemSdk.createWallet(cardId: card!.cardID) { result in
                     self.issueNewIdButton.hideActivityIndicator()
                     switch result {
                     case .success(let createWalletResponse):

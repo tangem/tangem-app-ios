@@ -17,7 +17,7 @@ public final class ScanTask: CardSessionRunnable {
     public init() {}
     
     deinit {
-        print("skantask deinit")
+        print("ScanTask deinit")
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
