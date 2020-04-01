@@ -7,9 +7,6 @@
 //
 
 import UIKit
-import Fabric
-import Crashlytics
-import TangemKit
 import TangemSdk
 
 extension UIApplication {
@@ -43,10 +40,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window.rootViewController = CardManager.isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
         window.makeKeyAndVisible()
         self.window = window
-        #if BETA
-            Fabric.with([Crashlytics.self])
-        #endif
-        Utils().initialize(legacyMode: NfcUtils.isLegacyDevice)
+        let utils = Utils()
+        utils.initialize(legacyMode: NfcUtils.isLegacyDevice)
+        if !utils.islaunchedBefore {
+            let secureStorage = SecureStorageManager()
+            secureStorage.set([], forKey: StorageKey.cids)
+            utils.setIsLaunchedBefore()
+        }
         
         return true
     }
