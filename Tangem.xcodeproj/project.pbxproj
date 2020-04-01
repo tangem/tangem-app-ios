@@ -170,7 +170,6 @@
 		5DBBA0B823716FB000E0181E /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBA0B723716FB000E0181E /* Settings.bundle */; };
 		5DC4E2472338C4A700D58E43 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5DC4E24A2338C4A700D58E43 /* Localizable.strings */; };
 		5DCA821B23A7A54000B1B3EE /* RobotApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCA821A23A7A54000B1B3EE /* RobotApi.swift */; };
-		5DDB2A6924250AC600AEAEAC /* WriteIdTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDB2A6824250AC600AEAEAC /* WriteIdTask.swift */; };
 		5DE995D92322C91A00623148 /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE995D82322C91A00623148 /* Localizations.swift */; };
 		5DEA04C423D5BFD100EC64BC /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DEA04C323D5BFD100EC64BC /* TangemSdk.framework */; };
 		5DEA04C523D5BFD100EC64BC /* TangemSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5DEA04C323D5BFD100EC64BC /* TangemSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -420,7 +419,6 @@
 		5DC4E2492338C4A700D58E43 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DC4E24B2338C4B700D58E43 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DCA821A23A7A54000B1B3EE /* RobotApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RobotApi.swift; sourceTree = "<group>"; };
-		5DDB2A6824250AC600AEAEAC /* WriteIdTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIdTask.swift; sourceTree = "<group>"; };
 		5DE995D82322C91A00623148 /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
 		5DEA04C323D5BFD100EC64BC /* TangemSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DFB03D32326A35F00E278DD /* StubViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubViewController.swift; sourceTree = "<group>"; };
@@ -937,7 +935,6 @@
 			children = (
 				5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */,
 				5D5A9F8D240FF91B00F9CF29 /* ConfirmIdTask.swift */,
-				5DDB2A6824250AC600AEAEAC /* WriteIdTask.swift */,
 			);
 			path = SdkExtension;
 			sourceTree = "<group>";
@@ -1512,7 +1509,6 @@
 				5D335E6A242E3A650010FA07 /* BCHCardBalanceOperation.swift in Sources */,
 				5D335E90242E3A660010FA07 /* Serializer.swift in Sources */,
 				5D335E3F242E3A650010FA07 /* EthereumNetworkSendOperation.swift in Sources */,
-				5DDB2A6924250AC600AEAEAC /* WriteIdTask.swift in Sources */,
 				5D335E86242E3A660010FA07 /* XRPWallet.swift in Sources */,
 				5D335E85242E3A660010FA07 /* XRPHistoricalTransaction.swift in Sources */,
 				80EC113C229FDD990024118F /* UIViewControllerFeaturesAlertExtension.swift in Sources */,

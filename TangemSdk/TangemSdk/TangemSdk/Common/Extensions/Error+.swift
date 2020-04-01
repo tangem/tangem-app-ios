@@ -8,8 +8,8 @@
 
 import Foundation
 
-extension Error {
-    func toTaskError() -> SessionError {
+public extension Error {
+    func toSessionError() -> SessionError {
         return SessionError.parse(self)
     }
 }
