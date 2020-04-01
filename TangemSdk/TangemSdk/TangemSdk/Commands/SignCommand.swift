@@ -83,11 +83,11 @@ public final class SignCommand: Command {
             throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return SignResponse(
-            cardId: try mapper.decode(.cardId),
-            signature: try mapper.decode(.walletSignature),
-            walletRemainingSignatures: try mapper.decode(.walletRemainingSignatures),
-            walletSignedHashes: try mapper.decode(.walletSignedHashes))
+            cardId: try decoder.decode(.cardId),
+            signature: try decoder.decode(.walletSignature),
+            walletRemainingSignatures: try decoder.decode(.walletRemainingSignatures),
+            walletSignedHashes: try decoder.decode(.walletSignedHashes))
     }
 }
