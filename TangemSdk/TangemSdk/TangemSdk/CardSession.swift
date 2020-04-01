@@ -64,14 +64,11 @@ public class CardSession {
         }
     }
     
-    private var curdel: ((CardSession, SessionError?) -> Void)?
-    
     public func start(delegate: @escaping (CardSession, SessionError?) -> Void) {
         if let error = startSession() {
             delegate(self, error)
             return
         }
-        curdel = delegate
         if #available(iOS 13.0, *) {
             preflightRead() {[weak self] result in
                 guard let self = self else { return }
