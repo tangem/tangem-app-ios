@@ -350,8 +350,8 @@ public final class ReadCommand: Command {
     public typealias CommandResponse = ReadResponse
     public init() {}
     deinit {
-           print("read deinit")
-       }
+        print("ReadCommand deinit")
+    }
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         /// `CardEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.
