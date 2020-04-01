@@ -18,10 +18,10 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     private var state: State = .empty
-    private lazy var cardManager: CardManager = {
-        let manager = CardManager()
-        manager.config.legacyMode = Utils().needLegacyMode
-        return manager
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
     }()
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -86,30 +86,21 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     @IBAction func issueNewidTapped(_ sender: UIButton) {
         switch state {
         case .empty:
-             showIssueIdViewControllerWith(cardDetails: self.card!)
+            showIssueIdViewControllerWith(cardDetails: self.card!)
         case .createWallet:
             if #available(iOS 13.0, *) {
-            issueNewIdButton.showActivityIndicator()
-                cardManager.createWallet(cardId: card!.cardID) {[weak self] taskResponse in
+                issueNewIdButton.showActivityIndicator()
+                tangemSdk.createWallet(cardId: card!.cardID) {[weak self] result in
                     guard let self = self else { return }
-                    
-                    switch taskResponse {
-                    case .event(let createWalletEvent):
-                        switch createWalletEvent {
-                        case .onCreate(let createWalletResponse):
-                            self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
-                        case .onVerify(let isGenuine):
-                            self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
-                        }
-                    case .completion(let error):
-                        self.issueNewIdButton.hideActivityIndicator()
-                        if let error = error {
-                            if !error.isUserCancelled {
-                                self.handleGenericError(error)
-                            }
-                        } else {
-                            self.state = .empty
-                            self.updateUI()
+                    self.issueNewIdButton.hideActivityIndicator()
+                    switch result {
+                    case .success(let createWalletResponse):
+                        self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                        self.state = .empty
+                        self.updateUI()
+                    case .failure(let error):
+                        if !error.isUserCancelled {
+                            self.handleGenericError(error)
                         }
                     }
                 }
