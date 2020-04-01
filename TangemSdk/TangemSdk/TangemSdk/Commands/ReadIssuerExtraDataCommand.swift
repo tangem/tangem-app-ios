@@ -173,13 +173,13 @@ public final class ReadIssuerExtraDataCommand: Command {
             throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return ReadIssuerExtraDataResponse(
-            cardId: try mapper.decode(.cardId),
-            size: try mapper.decodeOptional(.size),
-            issuerData: try mapper.decodeOptional(.issuerData) ?? Data(),
-            issuerDataSignature: try mapper.decodeOptional(.issuerDataSignature),
-            issuerDataCounter: try mapper.decodeOptional(.issuerDataCounter))
+            cardId: try decoder.decode(.cardId),
+            size: try decoder.decodeOptional(.size),
+            issuerData: try decoder.decodeOptional(.issuerData) ?? Data(),
+            issuerDataSignature: try decoder.decodeOptional(.issuerDataSignature),
+            issuerDataCounter: try decoder.decodeOptional(.issuerDataCounter))
     }
 }
 
