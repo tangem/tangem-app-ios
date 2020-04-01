@@ -44,9 +44,9 @@ public final class PurgeWalletCommand: Command {
             throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return PurgeWalletResponse(
-            cardId: try mapper.decode(.cardId),
-            status: try mapper.decode(.status))
+            cardId: try decoder.decode(.cardId),
+            status: try decoder.decode(.status))
     }
 }
