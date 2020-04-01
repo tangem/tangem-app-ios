@@ -66,7 +66,8 @@ final class ConfirmIdTask: CardSessionRunnable {
                  
                  
                 session.viewDelegate.showAlertMessage("Requesting blockchain")
-                 
+             
+        
                  let balanceOp = issuerCardViewModel.balanceRequestOperation(onSuccess: {[weak self] card in
                      idEngine.getHashesToSign(idData: idCardData) {[weak self] data in
                          guard let hashes = data else {
