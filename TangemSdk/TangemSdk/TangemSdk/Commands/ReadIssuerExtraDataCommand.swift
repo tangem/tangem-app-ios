@@ -93,6 +93,10 @@ public final class ReadIssuerExtraDataCommand: Command {
         self.issuerPublicKey = issuerPublicKey
     }
     
+    deinit {
+        print("Read issuer extra deinit")
+    }
+    
     public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
         guard let issuerPublicKeyFromCard = session.environment.card?.issuerPublicKey else {
             completion(.failure(.cardError))
@@ -108,7 +112,7 @@ public final class ReadIssuerExtraDataCommand: Command {
     
     private func readData(_ session: CardSession, _ environment: CardEnvironment) {
         showProgress()
-        transieve(in: session) {[unowned self] result in
+        transieve(in: session) { result in
             switch result {
             case .success(let response):
                 if let dataSize = response.size {
