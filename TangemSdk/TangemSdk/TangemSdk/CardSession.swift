@@ -48,12 +48,16 @@ public class CardSession {
             guard let self = self else { return }
             
             if let error = error {
-                completion(.failure(error))
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
                 return
             }
             
             if #available(iOS 13.0, *), (runnable is ReadCommand) { //We already done ReadCommand on iOS 13
-                completion(.success(self.environment.card as! T.CommandResponse))
+                DispatchQueue.main.async {
+                    completion(.success(self.environment.card as! T.CommandResponse))
+                }
                 return
             }
             
