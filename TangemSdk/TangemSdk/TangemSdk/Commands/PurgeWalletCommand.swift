@@ -29,6 +29,10 @@ public final class PurgeWalletCommand: Command {
     
     public init() {}
     
+    deinit {
+         print("PurgeWalletCommand deinit")
+    }
+    
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
