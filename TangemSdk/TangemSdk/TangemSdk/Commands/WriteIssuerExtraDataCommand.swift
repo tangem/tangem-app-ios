@@ -52,7 +52,7 @@ public final class WriteIssuerExtraDataCommand: Command {
     }
     
     deinit {
-           print("write issuer extra deinit")
+           print("WriteIssuerExtraDataCommand deinit")
        }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerExtraDataResponse>) {
