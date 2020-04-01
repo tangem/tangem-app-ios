@@ -22,7 +22,7 @@ public struct CheckWalletResponse: TlvCodable {
 @available(iOS 13.0, *)
 public final class CheckWalletCommand: Command {
     deinit {
-         print("deinit")
+         print("checkwallet deinit")
     }
     
     public typealias CommandResponse = CheckWalletResponse
@@ -42,9 +42,7 @@ public final class CheckWalletCommand: Command {
         }
     }
     public func run(in session: CardSession, completion: @escaping CompletionResult<CheckWalletResponse>) {
-        transieve(in: session) {[weak self] result in
-            guard let self = self else { return }
-            
+        transieve(in: session) {result in
             switch result {
             case .success(let checkWalletResponse):
                 guard let verifyResult = self.verify(response: checkWalletResponse) else {
