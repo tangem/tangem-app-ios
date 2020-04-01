@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import TangemKit
 import TangemSdk
 
 class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
