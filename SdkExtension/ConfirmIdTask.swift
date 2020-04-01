@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemSdk
-import TangemKit
 
 public struct ConfirmIdResponse {
     let issuerData: Data
