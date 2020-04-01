@@ -13,6 +13,10 @@ import Foundation
 @available(iOS 13.0, *)
 public final class CreateWalletTask: CardSessionRunnable {
     public typealias CommandResponse = CreateWalletResponse
+    public init() {}
+    deinit {
+        print ("CreateWalletTask deinit")
+    }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
         
