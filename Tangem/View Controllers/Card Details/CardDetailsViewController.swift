@@ -500,7 +500,7 @@ extension CardDetailsViewController {
         case .createWallet:
             if #available(iOS 13.0, *) {
                 viewModel.actionButton.showActivityIndicator()
-                tangemSdk.createWallet(cardId: card!.cardID) {[unowned self] result in
+                tangemSdk.createWallet(cardId: card!.cardID) { result in
                     self.viewModel.actionButton.hideActivityIndicator()
                     switch result {
                     case .success(let createWalletResponse):
