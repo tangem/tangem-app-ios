@@ -43,9 +43,7 @@ extension Command {
     func transieve(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         do {
             let commandApdu = try serialize(with: session.environment)
-            session.send(apdu: commandApdu) {[weak self] result in
-                guard let self = self else { return }
-                
+            session.send(apdu: commandApdu) { result in
                 switch result {
                 case .success(let responseApdu):
                     do {
