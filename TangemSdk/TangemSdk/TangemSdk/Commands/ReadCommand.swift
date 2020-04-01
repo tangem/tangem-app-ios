@@ -372,35 +372,35 @@ public final class ReadCommand: Command {
             throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         
         let card = ReadResponse(
-            cardId: try mapper.decodeOptional(.cardId),
-            manufacturerName: try mapper.decodeOptional(.manufacturerName),
-            status: try mapper.decodeOptional(.status),
-            firmwareVersion: try mapper.decodeOptional(.firmwareVersion),
-            cardPublicKey: try mapper.decodeOptional(.cardPublicKey),
-            settingsMask: try mapper.decodeOptional(.settingsMask),
-            issuerPublicKey: try mapper.decodeOptional(.issuerPublicKey),
-            curve: try mapper.decodeOptional(.curveId),
-            maxSignatures: try mapper.decodeOptional(.maxSignatures),
-            signingMethod: try mapper.decodeOptional(.signingMethod),
-            pauseBeforePin2: try mapper.decodeOptional(.pauseBeforePin2),
-            walletPublicKey: try mapper.decodeOptional(.walletPublicKey),
-            walletRemainingSignatures: try mapper.decodeOptional(.walletRemainingSignatures),
-            walletSignedHashes: try mapper.decodeOptional(.walletSignedHashes),
-            health: try mapper.decodeOptional(.health),
-            isActivated: try mapper.decode(.isActivated),
-            activationSeed: try mapper.decodeOptional(.activationSeed),
-            paymentFlowVersion: try mapper.decodeOptional(.paymentFlowVersion),
-            userCounter: try mapper.decodeOptional(.userCounter),
-            terminalIsLinked: try mapper.decode(.isLinked),
+            cardId: try decoder.decodeOptional(.cardId),
+            manufacturerName: try decoder.decodeOptional(.manufacturerName),
+            status: try decoder.decodeOptional(.status),
+            firmwareVersion: try decoder.decodeOptional(.firmwareVersion),
+            cardPublicKey: try decoder.decodeOptional(.cardPublicKey),
+            settingsMask: try decoder.decodeOptional(.settingsMask),
+            issuerPublicKey: try decoder.decodeOptional(.issuerPublicKey),
+            curve: try decoder.decodeOptional(.curveId),
+            maxSignatures: try decoder.decodeOptional(.maxSignatures),
+            signingMethod: try decoder.decodeOptional(.signingMethod),
+            pauseBeforePin2: try decoder.decodeOptional(.pauseBeforePin2),
+            walletPublicKey: try decoder.decodeOptional(.walletPublicKey),
+            walletRemainingSignatures: try decoder.decodeOptional(.walletRemainingSignatures),
+            walletSignedHashes: try decoder.decodeOptional(.walletSignedHashes),
+            health: try decoder.decodeOptional(.health),
+            isActivated: try decoder.decode(.isActivated),
+            activationSeed: try decoder.decodeOptional(.activationSeed),
+            paymentFlowVersion: try decoder.decodeOptional(.paymentFlowVersion),
+            userCounter: try decoder.decodeOptional(.userCounter),
+            terminalIsLinked: try decoder.decode(.isLinked),
             cardData: try deserializeCardData(tlv: tlv),
-            remainingSignatures: try mapper.decodeOptional(.walletRemainingSignatures),
-            signedHashes: try mapper.decodeOptional(.walletSignedHashes),
-            challenge: try mapper.decodeOptional(.challenge),
-            salt: try mapper.decodeOptional(.salt),
-            walletSignature: try mapper.decodeOptional(.walletSignature))
+            remainingSignatures: try decoder.decodeOptional(.walletRemainingSignatures),
+            signedHashes: try decoder.decodeOptional(.walletSignedHashes),
+            challenge: try decoder.decodeOptional(.challenge),
+            salt: try decoder.decodeOptional(.salt),
+            walletSignature: try decoder.decodeOptional(.walletSignature))
         
         return card
     }
@@ -411,17 +411,17 @@ public final class ReadCommand: Command {
                 return nil
         }
         
-        let mapper = TlvDecoder(tlv: cardDataTlv)
+        let decoder = TlvDecoder(tlv: cardDataTlv)
         let cardData = CardData(
-            batchId: try mapper.decodeOptional(.batchId),
-            manufactureDateTime: try mapper.decodeOptional(.manufactureDateTime),
-            issuerName: try mapper.decodeOptional(.issuerName),
-            blockchainName: try mapper.decodeOptional(.blockchainName),
-            manufacturerSignature: try mapper.decodeOptional(.cardIDManufacturerSignature),
-            productMask: try mapper.decodeOptional(.productMask),
-            tokenSymbol: try mapper.decodeOptional(.tokenSymbol),
-            tokenContractAddress: try mapper.decodeOptional(.tokenContractAddress),
-            tokenDecimal: try mapper.decodeOptional(.tokenDecimal))
+            batchId: try decoder.decodeOptional(.batchId),
+            manufactureDateTime: try decoder.decodeOptional(.manufactureDateTime),
+            issuerName: try decoder.decodeOptional(.issuerName),
+            blockchainName: try decoder.decodeOptional(.blockchainName),
+            manufacturerSignature: try decoder.decodeOptional(.cardIDManufacturerSignature),
+            productMask: try decoder.decodeOptional(.productMask),
+            tokenSymbol: try decoder.decodeOptional(.tokenSymbol),
+            tokenContractAddress: try decoder.decodeOptional(.tokenContractAddress),
+            tokenDecimal: try decoder.decodeOptional(.tokenDecimal))
         
         return cardData
     }
