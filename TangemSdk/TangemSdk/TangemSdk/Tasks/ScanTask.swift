@@ -55,6 +55,7 @@ public final class ScanTask: CardSessionRunnable {
 
 public final class ScanTaskLegacy: CardSessionRunnable {
     public typealias CommandResponse = Card
+    public init() {}
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         let readCommand = ReadCommand()
