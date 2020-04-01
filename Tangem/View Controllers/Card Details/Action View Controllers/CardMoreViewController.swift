@@ -8,7 +8,6 @@
 
 import UIKit
 import TangemSdk
-import TangemKit
 
 class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapable {
     
