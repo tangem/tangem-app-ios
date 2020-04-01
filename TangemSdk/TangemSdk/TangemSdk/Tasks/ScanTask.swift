@@ -16,6 +16,10 @@ public final class ScanTask: CardSessionRunnable {
     public typealias CommandResponse = Card
     public init() {}
     
+    deinit {
+        print("skantask deinit")
+    }
+    
     public func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         guard let card = session.environment.card else {
             completion(.failure(.errorProcessingCommand))
