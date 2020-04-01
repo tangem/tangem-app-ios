@@ -23,10 +23,10 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
     public var card: CardViewModel!
     private var photoTaken = false
     private var confirmIdResponse: ConfirmIdResponse?
-    lazy var cardManager: CardManager = {
-        let manager = CardManager()
-        manager.config.legacyMode = Utils().needLegacyMode
-        return manager
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
     }()
     
     override func viewDidLoad() {
@@ -188,18 +188,18 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         confirmButton.showActivityIndicator()
         let issueTask = ConfirmIdTask(fullname: "\(firstName) \(lastName)", birthDay: birthDay, gender: gender, photo: jpgImage)
         issueTask.card = card
-        cardManager.runTask(issueTask) {[weak self] result in
+        tangemSdk.start(with: issueTask, cardId: card.cardID, initialMessage: "Hold your iPhone near the Issuer card") { result in
             switch result {
-            case .event(let response):
-                self?.confirmIdResponse = response
-                self?.state = .write
-                self?.updateUI()
-            case .completion(let error):
-                if let error = error, !error.isUserCancelled {
-                    self?.handleGenericError(error)
+            case .success(let response):
+                self.confirmIdResponse = response
+                self.state = .write
+                self.updateUI()
+            case .failure(let error):
+                if !error.isUserCancelled {
+                    self.handleGenericError(error)
                 }
-                self?.confirmButton.hideActivityIndicator()
             }
+              self.confirmButton.hideActivityIndicator()
         }
     }
     
@@ -216,41 +216,38 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         
         confirmButton.showActivityIndicator()
         
-        let task = WriteIdTask(issuerData: confirmResponse.issuerData,
+        let writeCommand = WriteIssuerExtraDataCommand(issuerData: confirmResponse.issuerData,
                                                  issuerPublicKey: nil,
                                                  startingSignature: startingSignature,
                                                  finalizingSignature: finalizingSignature,
                                                  issuerDataCounter: issuerDataCounter)
         
-        
-        cardManager.runTask(task) {[weak self] writeResult in
-                                            switch writeResult {
-                                            case .event:
-                                                if let idEngine = self?.card.cardEngine as? ETHIdEngine {
-                                                    idEngine.send(signature: confirmResponse.signature) { result, error in
-                                                        DispatchQueue.main.async {
-                                                            self?.confirmButton.hideActivityIndicator()
-                                                            if result {
-                                                                //todo go to read main screen
-                                                                self?.handleSuccess(message: "Id issued succesfully", completion: { [weak self] in
-                                                                      self?.dismiss(animated: true, completion: nil)
-                                                                    UIApplication.navigationManager().navigationController.popToRootViewController(animated: true)
-                                                                })
-                                                            } else {
-                                                                let errMsg = error?.localizedDescription ?? ""
-                                                                self?.handleTXSendError(message: "\(errMsg)")
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            case .completion(let error):
-                                                self?.confirmButton.hideActivityIndicator()
-                                                if let error = error, !error.isUserCancelled {
-                                                    self?.confirmButton?.hideActivityIndicator()
-                                                    self?.handleGenericError(error)
-                                                }
-                                                
-                                            }
+        tangemSdk.start(with: writeCommand, cardId: card.cardID, initialMessage: "Hold your iPhone near the ID card") { result in
+            switch result {
+            case .success:
+                if let idEngine = self.card.cardEngine as? ETHIdEngine {
+                    idEngine.send(signature: confirmResponse.signature) { result, error in
+                        DispatchQueue.main.async {
+                            self.confirmButton.hideActivityIndicator()
+                            if result {
+                                //todo go to read main screen
+                                self.handleSuccess(message: "Id issued succesfully", completion: {
+                                    self.dismiss(animated: true, completion: nil)
+                                    UIApplication.navigationManager().navigationController.popToRootViewController(animated: true)
+                                })
+                            } else {
+                                let errMsg = error?.localizedDescription ?? ""
+                                self.handleTXSendError(message: "\(errMsg)")
+                            }
+                        }
+                    }
+                }
+            case .failure(let error):
+                self.confirmButton.hideActivityIndicator()
+                 if !error.isUserCancelled {
+                    self.handleGenericError(error)
+                   }
+        }
         }
     }
 }
