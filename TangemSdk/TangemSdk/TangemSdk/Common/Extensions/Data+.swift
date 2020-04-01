@@ -119,7 +119,7 @@ extension Data {
             return nil
         }
         
-        let mapper = TlvDecoder(tlv: tlv)
-        return try? mapper.decode(tag)
+        let decoder = TlvDecoder(tlv: tlv)
+        return try? decoder.decode(tag)
     }
 }
