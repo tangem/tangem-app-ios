@@ -10,7 +10,6 @@ import Foundation
 #if canImport(CoreNFC)
 import CoreNFC
 #endif
-import TangemKit
 import TangemSdk
 
 
@@ -600,7 +599,7 @@ class ExtractViewController: ModalActionViewController {
                         }
                     })
                 } else {
-                    let errMsg = (error as? String ?? error?.localizedDescription) ?? ""
+                    let errMsg = error?.localizedDescription ?? ""
                     let apiMsg = self?.coinProvider.getApiDescription() ?? ""
                     self?.handleTXSendError(message: "\(errMsg) (\(apiMsg))")
                 }
