@@ -221,4 +221,15 @@ public final class TangemSdk {
         }
         return environment
     }
+    
+    @available(swift, obsoleted: 1.0, renamed: "start")
+    public func runTask(_ task: Any, cardId: String? = nil, callback: @escaping (Any) -> Void) {
+        
+    }
 }
+
+@available(swift, obsoleted: 1.0, renamed: "TangemSdk")
+public final class CardManager {}
+
+@available(swift, obsoleted: 1.0, renamed: "CardSessionRunnable")
+public final class Task {}
