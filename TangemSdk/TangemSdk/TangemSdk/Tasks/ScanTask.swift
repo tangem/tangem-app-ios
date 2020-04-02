@@ -22,7 +22,7 @@ public final class ScanTask: CardSessionRunnable {
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         guard let card = session.environment.card else {
-            completion(.failure(.errorProcessingCommand))
+            completion(.failure(.missingPreflightRead))
             return
         }
         
@@ -38,7 +38,7 @@ public final class ScanTask: CardSessionRunnable {
         }
         
         guard let checkWalletCommand = CheckWalletCommand(curve: curve, publicKey: publicKey) else {
-            completion(.failure(.errorProcessingCommand))
+            completion(.failure(.failedToGenerateRandomSequence))
             return
         }
 
@@ -102,7 +102,7 @@ public final class ScanTaskLegacy: CardSessionRunnable {
                                 if verifyResult == true {
                                     completion(.success(secondResponse))
                                 } else {
-                                    completion(.failure(.errorProcessingCommand))
+                                    completion(.failure(.cryptoUtilsError))
                                 }
                             } else {
                                 completion(.failure(.verificationFailed))
