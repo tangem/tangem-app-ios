@@ -28,6 +28,8 @@
 	<true/>
 	<key>NFCReaderUsageDescription</key>
 	<string>To Scan Smart Card</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Take photo for issue new ID</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>maax.otf</string>
@@ -67,8 +69,6 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Take photo for issue new ID</string>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
 		<string>A000000812010208</string>
