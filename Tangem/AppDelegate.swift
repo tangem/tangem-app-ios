@@ -8,6 +8,7 @@
 
 import UIKit
 import TangemSdk
+import Firebase
 
 extension UIApplication {
     
@@ -48,6 +49,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             utils.setIsLaunchedBefore()
         }
         
+        FirebaseApp.configure()
+        Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled)
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
         return true
     }
     
