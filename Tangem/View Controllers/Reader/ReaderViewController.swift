@@ -97,6 +97,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        Analytics.log(event: .readyToScan)
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
@@ -118,9 +119,13 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                 self.hintLabel.text = Localizations.readerHintDefault
                 if let error = error {
                     if !error.isUserCancelled {
+                        Analytics.log(error: error)
                         self.handleGenericError(error)
+                    } else {
+                        fatalError()
                     }
                 } else {
+                    Analytics.logScan(card: self.card!.cardModel)
                     guard self.card!.isBlockchainKnown else {
                         self.handleUnknownBlockchainCard()
                         return
