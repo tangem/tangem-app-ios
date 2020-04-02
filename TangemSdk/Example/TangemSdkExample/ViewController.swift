@@ -216,12 +216,17 @@ class ViewController: UIViewController {
             let cmd1 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
             cmd1!.run(in: session, completion: { result in
                 switch result {
-                case .success(_):
+                case .success(let response1):
+                    DispatchQueue.main.async {
+                        self.log(response1)
+                    }
                     let cmd2 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
                     cmd2!.run(in: session, completion: { result in
                         switch result {
                         case .success(let response2):
-                            print(response2)
+                            DispatchQueue.main.async {
+                                self.log(response2)
+                            }
                             session.stop() // close session manually
                         case .failure(let error):
                             print(error)
