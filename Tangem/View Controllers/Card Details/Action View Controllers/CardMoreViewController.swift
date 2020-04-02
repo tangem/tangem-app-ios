@@ -74,7 +74,8 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
                     self.dismiss(animated: true, completion: nil)
                 case .failure(let error):
                     if !error.isUserCancelled {
-                        self.handleGenericError(error)
+                        Analytics.log(error: error)
+                        self.handleGenericError(error)                         
                     }
                 }
             }
