@@ -22,11 +22,7 @@ public final class TlvEncoder {
         switch tag.valueType {
         case .hexString:
             try typeCheck(value, String.self)
-            if tag == .pin || tag == .pin2 {
-                return (value as! String).sha256()
-            } else {
-                return Data(hexString: value as! String)
-            }
+            return Data(hexString: value as! String)
         case .utf8String:
             try typeCheck(value, String.self)
             let string = value as! String + "\0"
