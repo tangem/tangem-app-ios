@@ -34,16 +34,10 @@ extension Command {
         transieve(in: session, completion: completion)
     }
     
-    /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
-    /// 4 - Timeout setting for ping nfc-module
-    func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
-        return try! TlvBuilder().append(.legacyMode, value: 4)
-    }
-    
     func transieve(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         do {
             let commandApdu = try serialize(with: session.environment)
-            session.send(apdu: commandApdu) { result in
+            transieve(in: session, apdu: commandApdu) { result in
                 switch result {
                 case .success(let responseApdu):
                     do {
@@ -59,6 +53,67 @@ extension Command {
         } catch {
             completion(.failure(error.toSessionError()))
         }
+    }
+    
+    func transieve(in session: CardSession, apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
+        session.send(apdu: apdu) {commandResponse in
+            switch commandResponse {
+            case .success(let responseApdu):
+                switch responseApdu.statusWord {
+                case .needPause:
+                    if let securityDelayResponse = self.deserializeSecurityDelay(with: session.environment, from: responseApdu) {
+                        session.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
+                        if securityDelayResponse.saveToFlash {
+                            session.restartPolling()
+                        }
+                    }
+                    self.transieve(in: session, apdu: apdu, completion: completion)
+                case .needEcryption:
+                    //[REDACTED_TODO_COMMENT]
+                    
+                    completion(.failure(SessionError.needEncryption))
+                    
+                case .invalidParams:
+                    //[REDACTED_TODO_COMMENT]
+                    
+                    completion(.failure(SessionError.invalidParams))
+                    
+                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
+                    completion(.success(responseApdu))
+                case .errorProcessingCommand:
+                    completion(.failure(SessionError.errorProcessingCommand))
+                case .invalidState:
+                    completion(.failure(SessionError.invalidState))
+                    
+                case .insNotSupported:
+                    completion(.failure(SessionError.insNotSupported))
+                case .unknown:
+                    print("Unknown sw: \(responseApdu.sw)")
+                    completion(.failure(SessionError.unknownStatus))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
+    /// 4 - Timeout setting for ping nfc-module
+    func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
+        return try! TlvBuilder().append(.legacyMode, value: 4)
+    }
+    
+    
+    /// Helper method to parse security delay information received from a card.
+    /// - Returns: Remaining security delay in milliseconds.
+    private func deserializeSecurityDelay(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
+        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
+            let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
+                return nil
+        }
+        
+        let saveToFlash = tlv.contains(tag: .flash)
+        return (remainingMilliseconds, saveToFlash)
     }
 }
 
