@@ -216,6 +216,6 @@ class TlvTests: XCTestCase {
         
         XCTAssertEqual(try! TlvBuilder().append(.productMask, value: ProductMask.tag).serialize(), Data(hexString: "8A0102"))
         XCTAssertEqual(try! TlvBuilder().append(.transactionOutHashSize, value:9).serialize(), Data(hexString: "510109"))
-        XCTAssertEqual(try! TlvBuilder().append(.pin, value: "12345").serialize(), Data(hexString: "10205994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"))
+        XCTAssertEqual(try! TlvBuilder().append(.pin, value: "12345".sha256()).serialize(), Data(hexString: "10205994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"))
     }
 }
