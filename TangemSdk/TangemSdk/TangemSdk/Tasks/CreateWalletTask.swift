@@ -31,7 +31,7 @@ public final class CreateWalletTask: CardSessionRunnable {
             case .success(let createWalletResponse):
                 if createWalletResponse.status == .loaded {
                     guard let checkWalletCommand = CheckWalletCommand(curve: curve, publicKey: createWalletResponse.walletPublicKey) else {
-                        completion(.failure(.errorProcessingCommand))
+                        completion(.failure(.failedToGenerateRandomSequence))
                         return
                     }
                     
@@ -45,7 +45,7 @@ public final class CreateWalletTask: CardSessionRunnable {
                     }
                     
                 } else {
-                    completion(.failure(.errorProcessingCommand))
+                    completion(.failure(.unknownError))
                 }
             case .failure(let error):
                 completion(.failure(error))
