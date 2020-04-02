@@ -439,6 +439,7 @@ class BTCEngine: CardEngine, CoinProvider {
                     completion(fee)
                 
                 case .failure(let error):
+                    Analytics.log(error: error)
                     print(error)
                     completion(nil)
                 }

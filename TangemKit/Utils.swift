@@ -12,7 +12,7 @@
 public class Utils {
     struct SettingsKeys {
         static let legacyMode = "tangemsdk_legacymode_preference"
-        static let isInitialized = "tangemsdk_preference_initialized"
+        static let analytics = "tangems_analytics_preference"
         static let oldDisclamerShown = "tangem_preference_oldDisclamerShown"
         static let launchedBefore = "tangem_launchedBefore"
     }
@@ -29,6 +29,10 @@ public class Utils {
         UserDefaults.standard.bool(forKey: SettingsKeys.oldDisclamerShown)
     }
     
+    public var isAnalytycsEnabled: Bool {
+        UserDefaults.standard.bool(forKey: SettingsKeys.analytics)
+    }
+    
     public func setOldDisclamerShown() {
         UserDefaults.standard.set(true, forKey: SettingsKeys.oldDisclamerShown)
     }
@@ -38,9 +42,16 @@ public class Utils {
     }
 
     public func initialize(legacyMode: Bool) {
-        if !UserDefaults.standard.bool(forKey: SettingsKeys.isInitialized) {
-            UserDefaults.standard.set(legacyMode, forKey: SettingsKeys.legacyMode)
-            UserDefaults.standard.set(true, forKey: SettingsKeys.isInitialized)
+        if UserDefaults.standard.value(forKey: SettingsKeys.analytics) == nil {
+            UserDefaults.standard.set(true, forKey: SettingsKeys.analytics)
+        }
+        
+        if UserDefaults.standard.value(forKey: SettingsKeys.legacyMode) == nil {
+           UserDefaults.standard.set(legacyMode, forKey: SettingsKeys.legacyMode)
+        }
+        
+        if UserDefaults.standard.value(forKey: SettingsKeys.legacyMode) == nil {
+           UserDefaults.standard.set(legacyMode, forKey: SettingsKeys.legacyMode)
         }
     }
     
