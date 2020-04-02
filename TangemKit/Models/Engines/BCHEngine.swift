@@ -120,6 +120,7 @@ extension BCHEngine: CoinProvider {
         moyaProvider.request(.fee()) {[weak self] result in
             switch result {
             case .failure(let error):
+                Analytics.log(error: error)
                 print(error)
                 completion(nil)
             case .success(let response):
