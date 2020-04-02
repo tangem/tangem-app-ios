@@ -99,6 +99,7 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
                         self.updateUI()
                     case .failure(let error):
                         if !error.isUserCancelled {
+                            Analytics.log(error: error)
                             self.handleGenericError(error)
                         }
                     }

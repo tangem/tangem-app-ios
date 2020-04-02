@@ -97,6 +97,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        Analytics.log(event: .readyToScan)
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
@@ -129,6 +130,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
             case .failure(let error):
                 if !error.isUserCancelled {
+                    Analytics.log(error: error)
                     if error == .verificationFailed {
                         self.handleNonGenuineTangemCard(self.card!) {
                             UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)

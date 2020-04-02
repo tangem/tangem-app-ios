@@ -126,7 +126,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             }, onFailure: { (error, title) in
                 self.isBalanceLoading = false
                 self.viewModel.setWalletInfoLoading(false)
-                
+                Analytics.log(error: error)
                 
                 let errorTitle = title ?? Localizations.generalError
                 let errorMessage = error.localizedDescription
