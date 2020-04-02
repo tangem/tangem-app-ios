@@ -27,12 +27,20 @@ public struct CardEnvironment {
     static let defaultPin1 = "000000"
     static let defaultPin2 = "000"
     public var card: Card? = nil
-    public var pin1: String = CardEnvironment.defaultPin1
-    public var pin2: String = CardEnvironment.defaultPin2
+    public var pin1: Data = defaultPin1.sha256()
+    public var pin2: Data = defaultPin2.sha256()
     public var terminalKeys: KeyPair? = nil
     public var encryptionKey: Data? = nil
     public var legacyMode: Bool = true
     public var cvc: Data? = nil
     
     public init() {}
+    
+    public mutating func set(pin1: String) {
+        self.pin1 = pin1.sha256()
+    }
+    
+    public mutating func set(pin2: String) {
+        self.pin2 = pin2.sha256()
+    }
 }
