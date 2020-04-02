@@ -50,6 +50,10 @@ public final class WriteIssuerDataCommand: Command {
         self.issuerDataCounter = issuerDataCounter
     }
     
+    deinit {
+        print ("WriteIssuerDataCommand deinit")
+    }
+    
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
