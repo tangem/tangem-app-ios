@@ -46,7 +46,7 @@ public final class CheckWalletCommand: Command {
             switch result {
             case .success(let checkWalletResponse):
                 guard let verifyResult = self.verify(response: checkWalletResponse) else {
-                    completion(.failure(.errorProcessingCommand))
+                    completion(.failure(.cryptoUtilsError))
                     return
                 }
                 
