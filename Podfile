@@ -18,6 +18,8 @@ target 'Tangem' do
         pod 'Moya'
         pod 'AnyCodable-FlightSchool'
     pod 'QRCode', '2.0'
+    pod 'Firebase/Analytics'
+    pod 'Firebase/Crashlytics'
    #pod 'TangemSdk', :path => '/TangemSdk'
 end
 
