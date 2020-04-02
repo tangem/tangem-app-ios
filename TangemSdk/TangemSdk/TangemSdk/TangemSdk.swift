@@ -201,13 +201,13 @@ public final class TangemSdk {
         cardSession!.start(with: PurgeWalletCommand(), completion: completion)
     }
     
-    public func start<T>(with runnable: T, cardId: String?, initialMessage: String? = nil, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
+    public func startSession<T>(with runnable: T, cardId: String?, initialMessage: String? = nil, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
         cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
         cardSession!.start(with: runnable, completion: completion)
     }
     
     @available(iOS 13.0, *)
-    public func start(cardId: String?, initialMessage: String? = nil, delegate: @escaping (CardSession, SessionError?) -> Void) {
+    public func startSession(cardId: String?, initialMessage: String? = nil, delegate: @escaping (CardSession, SessionError?) -> Void) {
         cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
         cardSession?.start(delegate: delegate)
     }
