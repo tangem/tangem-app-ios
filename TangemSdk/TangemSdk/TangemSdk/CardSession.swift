@@ -98,72 +98,19 @@ public class CardSession {
     }
     
     public final func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
-        reader.send(commandApdu: apdu) {commandResponse in
-            switch commandResponse {
-            case .success(let responseApdu):
-                switch responseApdu.statusWord {
-                case .needPause:
-                    if let securityDelayResponse = self.deserializeSecurityDelay(with: self.environment, from: responseApdu) {
-                        self.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
-                        if securityDelayResponse.saveToFlash {
-                            self.reader.restartPolling()
-                        }
-                    }
-                    self.send(apdu: apdu, completion: completion)
-                case .needEcryption:
-                    //[REDACTED_TODO_COMMENT]
-                    
-                    completion(.failure(SessionError.needEncryption))
-                    
-                case .invalidParams:
-                    //[REDACTED_TODO_COMMENT]
-                    
-                    completion(.failure(SessionError.invalidParams))
-                    
-                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
-                    completion(.success(responseApdu))
-                case .errorProcessingCommand:
-                    completion(.failure(SessionError.errorProcessingCommand))
-                case .invalidState:
-                    completion(.failure(SessionError.invalidState))
-                    
-                case .insNotSupported:
-                    completion(.failure(SessionError.insNotSupported))
-                case .unknown:
-                    print("Unknown sw: \(responseApdu.sw)")
-                    completion(.failure(SessionError.unknownStatus))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-    
-    /// Helper method to parse security delay information received from a card.
-    /// - Returns: Remaining security delay in milliseconds.
-    private func deserializeSecurityDelay(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
-            let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
-                return nil
-        }
-        
-        let saveToFlash = tlv.contains(tag: .flash)
-        return (remainingMilliseconds, saveToFlash)
+        reader.send(commandApdu: apdu, completion: completion)
     }
     
     private func handleRunnableCompletion<TResponse>(runnableResult: Result<TResponse, SessionError>, completion: @escaping CompletionResult<TResponse>) {
         switch runnableResult {
         case .success(let runnableResponse):
-            DispatchQueue.main.async {
-                completion(.success(runnableResponse))
-            }
-            self.completeRunnable()
+            stop(message: Localization.nfcAlertDefaultDone)
+            DispatchQueue.main.async { completion(.success(runnableResponse)) }
         case .failure(let error):
-            DispatchQueue.main.async {
-                completion(.failure(error))
-            }
-            self.completeRunnable(error: error)
+            stop(error: error)
+            DispatchQueue.main.async { completion(.failure(error)) }
         }
+        setBusy(false)
     }
     
     private func startSession() -> SessionError? {
@@ -176,15 +123,6 @@ public class CardSession {
         
         reader.startSession(with: initialMessage)        
         return nil
-    }
-    
-    private func completeRunnable(error: Error? = nil) {
-        setBusy(false)
-        if let error = error {
-            self.stop(error: error)
-        } else {
-            self.stop(message: Localization.nfcAlertDefaultDone)
-        }
     }
     
     private func setBusy(_ isBusy: Bool) {
