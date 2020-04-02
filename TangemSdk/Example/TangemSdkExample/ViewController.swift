@@ -212,7 +212,7 @@ class ViewController: UIViewController {
     
     @available(iOS 13.0, *)
     func chainingExample() {
-        tangemSdk.start(cardId: nil) { session, error in
+        tangemSdk.startSession(cardId: nil) { session, error in
             let cmd1 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
             cmd1!.run(in: session, completion: { result in
                 switch result {
