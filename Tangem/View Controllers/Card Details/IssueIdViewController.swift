@@ -196,6 +196,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                 self.updateUI()
             case .failure(let error):
                 if !error.isUserCancelled {
+                    Analytics.log(error: error)
                     self.handleGenericError(error)
                 }
             }
@@ -237,6 +238,9 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                                 })
                             } else {
                                 let errMsg = error?.localizedDescription ?? ""
+                                if let error = error {
+                                    Analytics.log(error: error)
+                                }
                                 self.handleTXSendError(message: "\(errMsg)")
                             }
                         }
@@ -245,8 +249,10 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
             case .failure(let error):
                 self.confirmButton.hideActivityIndicator()
                  if !error.isUserCancelled {
+                    Analytics.log(error: error)
                     self.handleGenericError(error)
                    }
+
         }
         }
     }
