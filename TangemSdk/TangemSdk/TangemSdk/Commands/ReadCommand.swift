@@ -313,37 +313,6 @@ public struct Card: TlvCodable {
     public let walletSignature: Data?
 }
 
-extension Card {
-    init() {
-        cardId = nil
-        manufacturerName = nil
-        status = nil
-        firmwareVersion = nil
-        cardPublicKey = nil
-        settingsMask = nil
-        issuerPublicKey = nil
-        curve = nil
-        maxSignatures = nil
-        signingMethod = nil
-        pauseBeforePin2 = nil
-        walletPublicKey = nil
-        walletRemainingSignatures = nil
-        walletSignedHashes = nil
-        health = nil
-        isActivated = false
-        activationSeed = nil
-        paymentFlowVersion = nil
-        userCounter = nil
-        terminalIsLinked = false
-        cardData = nil
-        remainingSignatures = nil
-        signedHashes = nil
-        challenge = nil
-        salt = nil
-        walletSignature = nil
-    }
-}
-
 /// This command receives from the Tangem Card all the data about the card and the wallet,
 ///  including unique card number (CID or cardId) that has to be submitted while calling all other commands.
 public final class ReadCommand: Command {
