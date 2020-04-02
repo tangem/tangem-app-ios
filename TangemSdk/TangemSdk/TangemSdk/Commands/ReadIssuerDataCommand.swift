@@ -40,6 +40,10 @@ public final class ReadIssuerDataCommand: Command {
     
     public init() {}
     
+    deinit {
+        print ("ReadIssuerDataCommand deinit")
+    }
+    
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
