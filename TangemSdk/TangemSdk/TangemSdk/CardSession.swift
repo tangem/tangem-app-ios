@@ -10,10 +10,8 @@ import Foundation
 
 public typealias CompletionResult<T> = (Result<T, SessionError>) -> Void
 
-public protocol AnyCardSessionRunnable {}
-
 /// Abstract class for all Tangem card commands.
-public protocol CardSessionRunnable: AnyCardSessionRunnable {
+public protocol CardSessionRunnable {
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
     func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>)
@@ -22,18 +20,12 @@ public protocol CardSessionRunnable: AnyCardSessionRunnable {
 public class CardSession {
     public let viewDelegate: CardSessionViewDelegate
     public private(set) var environment: CardEnvironment
-
+    public private(set) var isBusy = false
+    
     private let reader: CardReader
     private let semaphore = DispatchSemaphore(value: 1)
     private let initialMessage: String?
-    private var currentRunnable: AnyCardSessionRunnable? = nil
     private var cardId: String?
-    
-    private var isBusy: Bool {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        return currentRunnable != nil || reader.isReady
-    }
 
     public init(environment: CardEnvironment, cardId: String? = nil, initialMessage: String? = nil, cardReader: CardReader, viewDelegate: CardSessionViewDelegate) {
         self.reader = cardReader
@@ -43,10 +35,12 @@ public class CardSession {
         self.cardId = cardId
     }
     
+    deinit {
+        print ("Card session deinit")
+    }
+    
     public func start<T>(with runnable: T, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
-        start {[weak self] session, error in
-            guard let self = self else { return }
-            
+        start {session, error in
             if let error = error {
                 DispatchQueue.main.async {
                     completion(.failure(error))
@@ -55,15 +49,12 @@ public class CardSession {
             }
             
             if #available(iOS 13.0, *), (runnable is ReadCommand) { //We already done ReadCommand on iOS 13
-                DispatchQueue.main.async {
-                    completion(.success(self.environment.card as! T.CommandResponse))
-                }
+                self.handleRunnableCompletion(runnableResult: .success(self.environment.card as! T.CommandResponse), completion: completion)
                 return
             }
             
-            self.retainRunnable(runnable)
-            runnable.run(in: self) { [weak self] result in
-                self?.handleRunnableCompletion(runnableResult: result, completion: completion)
+            runnable.run(in: self) {result in
+                self.handleRunnableCompletion(runnableResult: result, completion: completion)
             }
         }
     }
@@ -74,9 +65,7 @@ public class CardSession {
             return
         }
         if #available(iOS 13.0, *) {
-            preflightRead() {[weak self] result in
-                guard let self = self else { return }
-                
+            preflightRead() {result in
                 switch result {
                 case .success(let preflightResponse):
                     self.environment.card = preflightResponse
@@ -96,10 +85,12 @@ public class CardSession {
             viewDelegate.showAlertMessage(message)
         }
         reader.stopSession()
+        setBusy(false)
     }
     
     public func stop(error: Error) {
         reader.stopSession(with: error.localizedDescription)
+        setBusy(false)
     }
     
     public func restartPolling() {
@@ -107,9 +98,7 @@ public class CardSession {
     }
     
     public final func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
-        reader.send(commandApdu: apdu) { [weak self] commandResponse in
-            guard let self = self else { return }
-            
+        reader.send(commandApdu: apdu) {commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
                 switch responseApdu.statusWord {
@@ -183,12 +172,14 @@ public class CardSession {
         }
         
         if isBusy { return .busy }
+        setBusy(true)
+        
         reader.startSession(with: initialMessage)        
         return nil
     }
     
     private func completeRunnable(error: Error? = nil) {
-        releaseRunnable()
+        setBusy(false)
         if let error = error {
             self.stop(error: error)
         } else {
@@ -196,25 +187,16 @@ public class CardSession {
         }
     }
     
-    private func retainRunnable(_ runnable: AnyCardSessionRunnable) {
+    private func setBusy(_ isBusy: Bool) {
         semaphore.wait()
         defer { semaphore.signal() }
-        currentRunnable = runnable
-    }
-    
-    private func releaseRunnable( ) {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        currentRunnable = nil
+        self.isBusy = isBusy
     }
     
     @available(iOS 13.0, *)
     private func preflightRead(completion: @escaping CompletionResult<ReadResponse>) {
         let readCommand = ReadCommand()
-        retainRunnable(readCommand)
-        readCommand.run(in: self) { [weak self] readResult in
-            guard let self = self else { return }
-            
+        readCommand.run(in: self) { readResult in
             switch readResult {
             case .failure(let error):
                 self.stop(error: error)
@@ -231,7 +213,6 @@ public class CardSession {
                 
                 self.environment.card = readResponse
                 self.cardId = readResponse.cardId
-                self.releaseRunnable()
                 completion(.success(readResponse))
             }
         }
