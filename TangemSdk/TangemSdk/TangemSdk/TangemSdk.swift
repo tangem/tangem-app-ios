@@ -7,21 +7,25 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 
 /// The main interface of Tangem SDK that allows your app to communicate with Tangem cards.
 public final class TangemSdk {
+    /// Check if the current device doesn't support the desired NFC operations
     public static var isNFCAvailable: Bool {
-           #if canImport(CoreNFC)
-           if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
-           return NFCNDEFReaderSession.readingAvailable
-           #else
-           return false
-           #endif
-       }
+        #if canImport(CoreNFC)
+        if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
+        return NFCNDEFReaderSession.readingAvailable
+        #else
+        return false
+        #endif
+    }
     
+    /// Configuration of the Sdk.  Overwrite this setting only if you understand what you do.
     public var config = Config()
- 
+    
     private var cardSession: CardSession? = nil
     private let storageService = SecureStorageService()
     
@@ -29,7 +33,7 @@ public final class TangemSdk {
         let service = TerminalKeysService(secureStorageService: storageService)
         return service
     }()
-
+    
     public init() {}
     
     /**
@@ -161,12 +165,12 @@ public final class TangemSdk {
                                      finalizingSignature: Data,
                                      issuerDataCounter: Int? = nil,
                                      completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
-
+        
         let command = WriteIssuerExtraDataCommand(issuerData: issuerData,
-                                            issuerPublicKey: config.issuerPublicKey,
-                                            startingSignature: startingSignature,
-                                            finalizingSignature: finalizingSignature,
-                                            issuerDataCounter: issuerDataCounter)
+                                                  issuerPublicKey: config.issuerPublicKey,
+                                                  startingSignature: startingSignature,
+                                                  finalizingSignature: finalizingSignature,
+                                                  issuerDataCounter: issuerDataCounter)
         
         cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
         cardSession!.start(with: command, completion: completion)
@@ -201,11 +205,26 @@ public final class TangemSdk {
         cardSession!.start(with: PurgeWalletCommand(), completion: completion)
     }
     
+    /// Allows running a custom bunch of commands in one NFC Session by creating a custom task. Tangem SDK will start a card session, perform preflight `Read` command,
+    /// invoke the `run ` method of `CardSessionRunnable` and close the session.
+    /// You can find the current card in the `environment` property of the `CardSession`
+    /// - Parameters:
+    ///   - runnable: A custom task, adopting `CardSessionRunnable` protocol
+    ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
+    ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+    ///   - completion: Standart completion handler. Invoked on the main thread. `(Swift.Result<CardSessionRunnable.CommandResponse, SessionError>) -> Void`.
     public func startSession<T>(with runnable: T, cardId: String?, initialMessage: String? = nil, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
         cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
         cardSession!.start(with: runnable, completion: completion)
     }
     
+    /// Allows running  a custom bunch of commands in one NFC Session with lightweight closure syntax. Tangem SDK will start a card sesion and perform preflight `Read` command.
+    /// - Parameters:
+    ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
+    ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+    ///   - delegate: At first, you should check that the `SessionError` is not nil, then you can use the `CardSession` to interact with a card.
+    ///   You can find the current card in the `environment` property of the `CardSession`
+    ///   If you need to interact with UI, you should dispatch to the main thread manually
     @available(iOS 13.0, *)
     public func startSession(cardId: String?, initialMessage: String? = nil, delegate: @escaping (CardSession, SessionError?) -> Void) {
         cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
@@ -223,9 +242,7 @@ public final class TangemSdk {
     }
     
     @available(swift, obsoleted: 1.0, renamed: "start")
-    public func runTask(_ task: Any, cardId: String? = nil, callback: @escaping (Any) -> Void) {
-        
-    }
+    public func runTask(_ task: Any, cardId: String? = nil, callback: @escaping (Any) -> Void) {}
 }
 
 @available(swift, obsoleted: 1.0, renamed: "TangemSdk")
