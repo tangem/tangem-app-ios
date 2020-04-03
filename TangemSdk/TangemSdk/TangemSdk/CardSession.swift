@@ -171,9 +171,6 @@ public class CardSession {
         let readCommand = ReadCommand()
         readCommand.run(in: self) { readResult in
             switch readResult {
-            case .failure(let error):
-                self.stop(error: error)
-                completion(.failure(error))
             case .success(let readResponse):
                 if let expectedCardId = self.cardId,
                     let actualCardId = readResponse.cardId,
@@ -187,7 +184,22 @@ public class CardSession {
                 self.environment.card = readResponse
                 self.cardId = readResponse.cardId
                 completion(.success(readResponse))
+            case .failure(let error):
+                if !self.tryHandleError(error) {
+                    self.stop(error: error)
+                    completion(.failure(error))
+                }
             }
+        }
+    }
+    
+    private func tryHandleError(_ error: SessionError) -> Bool {
+        switch error {
+        case .needEncryption:
+             //[REDACTED_TODO_COMMENT]
+            return false
+        default:
+            return false
         }
     }
 }
