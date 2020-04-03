@@ -10,23 +10,43 @@ import Foundation
 
 public typealias CompletionResult<T> = (Result<T, SessionError>) -> Void
 
-/// Abstract class for all Tangem card commands.
+/// Base protocol for run tasks in a card session
 public protocol CardSessionRunnable {
+    
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: TlvCodable
+    
+    /// The starting point for custom business logic. Adopt this protocol and use `TangemSdk.startSession` to run
+    /// - Parameters:
+    ///   - session: You can run commands in this session
+    ///   - completion: Call the completion handler to complete the task.
     func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>)
 }
 
+/// Allows interaction with Tangem cards. Should be open before sending commands
 public class CardSession {
+    /// Allows interaction with users and shows visual elements.
     public let viewDelegate: CardSessionViewDelegate
+    
+    /// Contains data relating to the current Tangem card. It is used in constructing all the commands,
+    /// and commands can modify `CardEnvironment`.
     public private(set) var environment: CardEnvironment
+    
+    /// True when some operation is still in progress.
     public private(set) var isBusy = false
     
     private let reader: CardReader
     private let semaphore = DispatchSemaphore(value: 1)
     private let initialMessage: String?
     private var cardId: String?
-
+    
+    /// Main initializer
+    /// - Parameters:
+    ///   - environment: Contains data relating to a Tangem card
+    ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
+    ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+    ///   - cardReader: NFC-reader implementation
+    ///   - viewDelegate: viewDelegate implementation
     public init(environment: CardEnvironment, cardId: String? = nil, initialMessage: String? = nil, cardReader: CardReader, viewDelegate: CardSessionViewDelegate) {
         self.reader = cardReader
         self.viewDelegate = viewDelegate
@@ -39,6 +59,10 @@ public class CardSession {
         print ("Card session deinit")
     }
     
+    /// This metod starts a card session, performs preflight `Read` command,  invokes the `run ` method of `CardSessionRunnable` and closes the session.
+    /// - Parameters:
+    ///   - runnable: The CardSessionRunnable implemetation
+    ///   - completion: Completion handler. `(Swift.Result<CardSessionRunnable.CommandResponse, SessionError>) -> Void`
     public func start<T>(with runnable: T, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
         start {session, error in
             if let error = error {
@@ -59,6 +83,8 @@ public class CardSession {
         }
     }
     
+    /// Starts a card session and performs preflight `Read` command.
+    /// - Parameter delegate: Delegate with the card session. Can contain error
     public func start(delegate: @escaping (CardSession, SessionError?) -> Void) {
         if let error = startSession() {
             delegate(self, error)
@@ -80,6 +106,8 @@ public class CardSession {
         }
     }
     
+    /// Stops the current session with the text message. If nil, the default message will be shown
+    /// - Parameter message: The message to show
     public func stop(message: String? = nil) {
         if let message = message {
             viewDelegate.showAlertMessage(message)
@@ -88,15 +116,22 @@ public class CardSession {
         setBusy(false)
     }
     
+    /// Stops the current session with the error message.  Error's `localizedDescription` will be used
+    /// - Parameter error: The error to show
     public func stop(error: Error) {
         reader.stopSession(with: error.localizedDescription)
         setBusy(false)
     }
     
+    /// Restarts the polling sequence so the reader session can discover new tags.
     public func restartPolling() {
         reader.restartPolling()
     }
     
+    /// Sends `CommandApdu` to the current card
+    /// - Parameters:
+    ///   - apdu: The apdu to send
+    ///   - completion: Completion handler. Invoked by nfc-reader
     public final func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
         reader.send(commandApdu: apdu, completion: completion)
     }
@@ -158,7 +193,12 @@ public class CardSession {
 }
 
 extension CardSession{
-    public convenience init(environment: CardEnvironment, cardId: String? = nil, initialMessage: String? = nil) {
+    /// Convenience initializer. Uses default cardReader, viewDelegate and CardEnvironment
+    /// - Parameters:
+    ///   - environment: Contains data relating to a Tangem card
+    ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
+    ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+    public convenience init(environment: CardEnvironment = CardEnvironment(), cardId: String? = nil, initialMessage: String? = nil) {
         let reader = CardReaderFactory().createDefaultReader()
         let delegate = DefaultCardSessionViewDelegate(reader: reader)
         self.init(environment: environment, cardId: cardId, initialMessage: initialMessage, cardReader: reader, viewDelegate: delegate)
