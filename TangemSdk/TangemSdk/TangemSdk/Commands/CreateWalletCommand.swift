@@ -21,13 +21,11 @@ public struct CreateWalletResponse: TlvCodable {
 /**
  * This command will create a new wallet on the card having ‘Empty’ state.
  * A key pair WalletPublicKey / WalletPrivateKey is generated and securely stored in the card.
- * App will need to obtain Wallet_PublicKey from the response of [CreateWalletCommand] or [ReadCommand]
+ * App will need to obtain Wallet_PublicKey from the response of `CreateWalletCommand`or `ReadCommand`
  * and then transform it into an address of corresponding blockchain wallet
  * according to a specific blockchain algorithm.
- * WalletPrivateKey is never revealed by the card and will be used by [SignCommand] and [CheckWalletCommand].
+ * WalletPrivateKey is never revealed by the card and will be used by `SignCommand` and `CheckWalletCommand`.
  * RemainingSignature is set to MaxSignatures.
- *
- * @property cardId CID, Unique Tangem card ID number.
  */
 @available(iOS 13.0, *)
 public final class CreateWalletCommand: Command {
