@@ -56,6 +56,8 @@ extension Command {
             switch commandResponse {
             case .success(let responseApdu):
                 switch responseApdu.statusWord {
+                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
+                    completion(.success(responseApdu))
                 case .needPause:
                     if let securityDelayResponse = self.deserializeSecurityDelay(with: session.environment, from: responseApdu) {
                         session.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
@@ -64,33 +66,23 @@ extension Command {
                         }
                     }
                     self.transieve(in: session, apdu: apdu, completion: completion)
-                case .needEcryption:
-                    //[REDACTED_TODO_COMMENT]
-                    
-                    completion(.failure(SessionError.needEncryption))
-                    
-                case .invalidParams:
-                    //[REDACTED_TODO_COMMENT]
-                    
-                    completion(.failure(SessionError.invalidParams))
-                    
-                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
-                    completion(.success(responseApdu))
-                case .errorProcessingCommand:
-                    completion(.failure(SessionError.errorProcessingCommand))
-                case .invalidState:
-                    completion(.failure(SessionError.invalidState))
-                    
-                case .insNotSupported:
-                    completion(.failure(SessionError.insNotSupported))
-                case .unknown:
-                    print("Unknown sw: \(responseApdu.sw)")
-                    completion(.failure(SessionError.unknownStatus))
+                default:
+                    if let error = responseApdu.statusWord.toSessionError() {
+                        if !self.tryHandleError(error) {
+                            completion(.failure(error))
+                        }
+                    } else {
+                        completion(.failure(.unknownError))
+                    }
                 }
             case .failure(let error):
                 completion(.failure(error))
             }
         }
+    }
+    
+    func tryHandleError(_ error: SessionError) -> Bool {
+        return false
     }
     
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
