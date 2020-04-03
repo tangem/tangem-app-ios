@@ -15,16 +15,6 @@ public typealias WriteIssuerExtraDataResponse = WriteIssuerDataResponse
  * Issuer Extra Data is never changed or parsed from within the Tangem COS.
  * The issuer defines purpose of use, format and payload of Issuer Data.
  * For example, this field may contain a photo or biometric information for ID card products.
- * Because of the large size of Issuer_Extra_Data, a series of these commands have to be executed
- * to write entire Issuer_Extra_Data.
- * @param issuerData Data provided by issuer.
- * @param startingSignature Issuer’s signature with Issuer Data Private Key of [cardId],
- * [issuerDataCounter] (if flags Protect_Issuer_Data_Against_Replay and
- * Restrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]) and size of [issuerData].
- * @param finalizingSignature Issuer’s signature with Issuer Data Private Key of [cardId],
- * [issuerData] and [issuerDataCounter] (the latter one only if flags Protect_Issuer_Data_Against_Replay
- * andRestrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]).
- * @param issuerDataCounter An optional counter that protect issuer data against replay attack.
  */
 @available(iOS 13.0, *)
 public final class WriteIssuerExtraDataCommand: Command {
@@ -43,6 +33,15 @@ public final class WriteIssuerExtraDataCommand: Command {
     private var completion: CompletionResult<WriteIssuerExtraDataResponse>?
     private var viewDelegate: CardSessionViewDelegate?
     
+    /// Initializer
+    /// - Parameters:
+    ///   - issuerData: Data provided by issuer
+    ///   - issuerPublicKey: Optional key for check data validity. If nil, `issuerPublicKey` from current card will be used
+    ///   - startingSignature:  Issuer’s signature with Issuer Data Private Key of `cardId`, `issuerDataCounter` (if flags Protect_Issuer_Data_Against_Replay and
+    ///    Restrict_Overwrite_Issuer_Extra_Data are set in `SettingsMask`) and size of `issuerData`.
+    ///   - finalizingSignature: Issuer’s signature with Issuer Data Private Key of `cardId`, `issuerData` and `issuerDataCounter` (the latter one only if flags Protect_Issuer_Data_Against_Replay
+    ///   and Restrict_Overwrite_Issuer_Extra_Data are set in `SettingsMask`).
+    ///   - issuerDataCounter: An optional counter that protect issuer data against replay attack.
     public init(issuerData: Data, issuerPublicKey: Data? = nil, startingSignature: Data, finalizingSignature: Data, issuerDataCounter: Int? = nil) {
         self.issuerData = issuerData
         self.issuerPublicKey = issuerPublicKey
