@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 /// Allows interaction with users and shows visual elements.
-/// Its default implementation, `DefaultCardSessionViewDelegate`, is in our  module.
+/// Its default implementation, `DefaultCardSessionViewDelegate`, is in our SDK.
 public protocol CardSessionViewDelegate: class {
     func showAlertMessage(_ text: String)
     
