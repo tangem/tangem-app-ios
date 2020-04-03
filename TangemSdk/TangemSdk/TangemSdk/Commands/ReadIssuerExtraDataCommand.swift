@@ -76,8 +76,7 @@ public struct ReadIssuerExtraDataResponse: TlvCodable {
  * This command retrieves Issuer Extra Data field and its issuer’s signature.
  * Issuer Extra Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
  * format and payload of Issuer Data. . For example, this field may contain photo or
- * biometric information for ID card product. Because of the large size of Issuer_Extra_Data,
- * a series of these commands have to be executed to read the entire Issuer_Extra_Data.
+ * biometric information for ID card product.
  */
 @available(iOS 13.0, *)
 public final class ReadIssuerExtraDataCommand: Command {
