@@ -21,7 +21,6 @@ public struct PurgeWalletResponse: TlvCodable {
  * the card changes state to ‘Empty’ and a new wallet can be created by CREATE_WALLET command.
  * If Is_Reusable flag is disabled, the card switches to ‘Purged’ state.
  * ‘Purged’ state is final, it makes the card useless.
- * @property cardId CID, Unique Tangem card ID number.
  */
 @available(iOS 13.0, *)
 public final class PurgeWalletCommand: Command {
