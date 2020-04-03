@@ -10,10 +10,8 @@
 import Foundation
 import CoreNFC
 
-public protocol ApduSerializable: class {
-    /// Simple interface for responses received after sending commands to Tangem cards.
-    associatedtype CommandResponse: TlvCodable
-    
+/// The basic protocol for card commands
+public protocol Command: CardSessionRunnable {
     /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
     /// - Parameter environment: `CardEnvironment` of the current card
     /// - Returns: Command data that can be converted to `NFCISO7816APDU` with appropriate initializer
@@ -26,8 +24,6 @@ public protocol ApduSerializable: class {
     /// - Returns: Card response, converted to a `CommandResponse` of a type `T`.
     func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
-
-public protocol Command: CardSessionRunnable, ApduSerializable {}
 
 extension Command {
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
@@ -117,6 +113,7 @@ extension Command {
     }
 }
 
+/// The basic protocol for command response
 public protocol TlvCodable: Codable, CustomStringConvertible {}
 
 extension TlvCodable {
