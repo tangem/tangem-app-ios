@@ -13,10 +13,10 @@ import TangemSdk
 
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
-    private lazy var cardManager: CardManager = {
-        let manager = CardManager()
-        manager.config.legacyMode = Utils().needLegacyMode
-        return manager
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
     }()
     
     @IBOutlet var viewModel: CardDetailsViewModel! {
@@ -500,23 +500,15 @@ extension CardDetailsViewController {
         case .createWallet:
             if #available(iOS 13.0, *) {
                 viewModel.actionButton.showActivityIndicator()
-                cardManager.createWallet(cardId: card!.cardID) {[unowned self] taskResponse in
-                    switch taskResponse {
-                    case .event(let createWalletEvent):
-                        switch createWalletEvent {
-                        case .onCreate(let createWalletResponse):
-                            self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
-                        case .onVerify(let isGenuine):
-                            self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
-                        }
-                    case .completion(let error):
-                        self.viewModel.actionButton.hideActivityIndicator()
-                        if let error = error {
-                            if !error.isUserCancelled {
-                                self.handleGenericError(error)
-                            }
-                        } else {
-                            self.setupWithCardDetails(card: self.card!)
+                tangemSdk.createWallet(cardId: card!.cardID) { result in
+                    self.viewModel.actionButton.hideActivityIndicator()
+                    switch result {
+                    case .success(let createWalletResponse):
+                        self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                        self.setupWithCardDetails(card: self.card!)
+                    case .failure(let error):
+                        if !error.isUserCancelled {
+                            self.handleGenericError(error)
                         }
                     }
                 }
