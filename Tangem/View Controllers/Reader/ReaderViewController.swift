@@ -10,8 +10,8 @@ import UIKit
 import TangemSdk
 
 class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
-    
     var customPresentationController: CustomPresentationController?
+    var isAppLaunched = false
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
@@ -70,7 +70,12 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        scanButtonPressed(self)
+        
+        if isAppLaunched {
+            scanButtonPressed(self)
+        } else {
+            isAppLaunched = true
+        }
     }
     
     override func viewDidLoad() {
