@@ -135,6 +135,12 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
             case .failure(let error):
                 if !error.isUserCancelled {
+                    if #available(iOS 13.0, *) {
+                        task.trace?.incrementMetric("failure", by: 1)
+                    } else {
+                        task.trace?.incrementMetric("failure_legacy", by: 1)
+                    }
+                    task.trace?.stop()
                     Analytics.log(error: error)
                     if error == .verificationFailed {
                         self.handleNonGenuineTangemCard(self.card!) {
@@ -143,6 +149,9 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                     } else {
                         self.handleGenericError(error)
                     }
+                } else {
+                    task.trace?.incrementMetric("userCancelled", by: 1)
+                    task.trace?.stop()
                 }
             }
         }
