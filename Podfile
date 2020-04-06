@@ -20,6 +20,7 @@ target 'Tangem' do
     pod 'QRCode', '2.0'
     pod 'Firebase/Analytics'
     pod 'Firebase/Crashlytics'
+    pod 'Firebase/Performance'
    #pod 'TangemSdk', :path => '/TangemSdk'
 end
 
