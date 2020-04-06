@@ -7,9 +7,13 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
+
 /// The main interface of Tangem SDK that allows your app to communicate with Tangem cards.
-public final class CardManager {
+public final class TangemSdk {
+    /// Check if the current device doesn't support the desired NFC operations
     public static var isNFCAvailable: Bool {
         #if canImport(CoreNFC)
         if NSClassFromString("NFCNDEFReaderSession") == nil { return false }
@@ -19,15 +23,10 @@ public final class CardManager {
         #endif
     }
     
+    /// Configuration of the Sdk.  Overwrite this setting only if you understand what you do.
     public var config = Config()
     
-    /// `cardReader` is an interface that is responsible for NFC connection and  transfer of data to and from the Tangem Card.
-    private let cardReader: CardReader
-    
-    /// An interface that allows interaction with users and shows relevant UI.
-    private let cardManagerDelegate: CardManagerDelegate
-    private var isBusy: Bool = false
-    private var currentTask: AnyTask?
+    private var cardSession: CardSession? = nil
     private let storageService = SecureStorageService()
     
     private lazy var terminalKeysService: TerminalKeysService = {
@@ -35,10 +34,7 @@ public final class CardManager {
         return service
     }()
     
-    public init(cardReader: CardReader, cardManagerDelegate: CardManagerDelegate) {
-        self.cardReader = cardReader
-        self.cardManagerDelegate = cardManagerDelegate
-    }
+    public init() {}
     
     /**
      * To start using any card, you first need to read it using the `scanCard()` method.
@@ -52,9 +48,13 @@ public final class CardManager {
      * `completion(TaskError?)` with an error field null after successful completion of a task or
      *  with an error if some error occurs.
      */
-    public func scanCard(callback: @escaping (TaskEvent<ScanEvent>) -> Void) {
-        let task = ScanTask()
-        runTask(task, callback: callback)
+    public func scanCard(completion: @escaping CompletionResult<Card>) {
+        cardSession = CardSession(environment: buildEnvironment())
+        if #available(iOS 13.0, *) {
+            cardSession!.start(with: ScanTask(), completion: completion)
+        } else {
+            cardSession!.start(with: ScanTaskLegacy(), completion: completion)
+        }
     }
     
     /**
@@ -73,18 +73,16 @@ public final class CardManager {
      * - Parameter cardId: CID, Unique Tangem card ID number
      */
     @available(iOS 13.0, *)
-    public func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void) {
+    public func sign(hashes: [Data], cardId: String, completion: @escaping CompletionResult<SignResponse>) {
         var signCommand: SignCommand
         do {
             signCommand = try SignCommand(hashes: hashes)
+            cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+            cardSession!.start(with: signCommand, completion: completion)
         } catch {
             print(error.localizedDescription)
-            callback(.completion(TaskError.parse(error)))
-            return
+            completion(.failure(error.toSessionError()))
         }
-        
-        let task = SingleCommandTask(signCommand)
-        runTask(task, cardId: cardId, callback: callback)
     }
     
     /**
@@ -98,10 +96,9 @@ public final class CardManager {
      * provides card response in the form of `ReadIssuerDataResponse`.
      */
     @available(iOS 13.0, *)
-    public func readIssuerData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerDataResponse>) -> Void) {
-        let command = ReadIssuerDataCommand()
-        let task = SingleCommandTask(command)
-        runTask(task, cardId: cardId, callback: callback)
+    public func readIssuerData(cardId: String, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+        cardSession!.start(with: ReadIssuerDataCommand(), completion: completion)
     }
     
     /**
@@ -118,10 +115,11 @@ public final class CardManager {
      * provides card response in the form of  `WriteIssuerDataResponse`.
      */
     @available(iOS 13.0, *)
-    public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
+    public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
+        
         let command = WriteIssuerDataCommand(issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
-        let task = SingleCommandTask(command)
-        runTask(task, cardId: cardId, callback: callback)
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+        cardSession!.start(with: command, completion: completion)
     }
     
     /**
@@ -135,9 +133,10 @@ public final class CardManager {
      * provides card response in the form of [ReadIssuerExtraDataResponse].
      */
     @available(iOS 13.0, *)
-    public func readIssuerExtraData(cardId: String, callback: @escaping (TaskEvent<ReadIssuerExtraDataResponse>) -> Void) {
-        let task = ReadIssuerExtraDataTask(issuerPublicKey: config.issuerPublicKey)
-        runTask(task, cardId: cardId, callback: callback)
+    public func readIssuerExtraData(cardId: String, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
+        let command = ReadIssuerExtraDataCommand(issuerPublicKey: config.issuerPublicKey)
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+        cardSession!.start(with: command, completion: completion)
     }
     
     /**
@@ -165,14 +164,16 @@ public final class CardManager {
                                      startingSignature: Data,
                                      finalizingSignature: Data,
                                      issuerDataCounter: Int? = nil,
-                                     callback: @escaping (TaskEvent<WriteIssuerDataResponse>) -> Void) {
+                                     completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
         
-        let task = WriteIssuerExtraDataTask(issuerData: issuerData,
-                                            issuerPublicKey: config.issuerPublicKey,
-                                            startingSignature: startingSignature,
-                                            finalizingSignature: finalizingSignature,
-                                            issuerDataCounter: issuerDataCounter)
-        runTask(task, cardId: cardId, callback: callback)
+        let command = WriteIssuerExtraDataCommand(issuerData: issuerData,
+                                                  issuerPublicKey: config.issuerPublicKey,
+                                                  startingSignature: startingSignature,
+                                                  finalizingSignature: finalizingSignature,
+                                                  issuerDataCounter: issuerDataCounter)
+        
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+        cardSession!.start(with: command, completion: completion)
     }
     
     /**
@@ -186,9 +187,9 @@ public final class CardManager {
      * - Parameter cardId: CID, Unique Tangem card ID number.
      */
     @available(iOS 13.0, *)
-    public func createWallet(cardId: String, callback: @escaping (TaskEvent<CreateWalletEvent>) -> Void) {
-        let task = CreateWalletTask(verifyWallet: true)
-        runTask(task, cardId: cardId, callback: callback)
+    public func createWallet(cardId: String, completion: @escaping CompletionResult<CreateWalletResponse>) {
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+        cardSession!.start(with: CreateWalletTask(), completion: completion)
     }
     
     /**
@@ -199,69 +200,53 @@ public final class CardManager {
      * - Parameter cardId: CID, Unique Tangem card ID number.
      */
     @available(iOS 13.0, *)
-    public func purgeWallet(cardId: String, callback: @escaping (TaskEvent<PurgeWalletResponse>) -> Void) {
-        let command = PurgeWalletCommand()
-        let task = SingleCommandTask(command)
-        runTask(task, cardId: cardId, callback: callback)
+    public func purgeWallet(cardId: String, completion: @escaping CompletionResult<PurgeWalletResponse>) {
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId)
+        cardSession!.start(with: PurgeWalletCommand(), completion: completion)
     }
     
-    /// Allows to run a custom task created outside of this SDK.
-    public func runTask<T>(_ task: Task<T>, cardId: String? = nil, callback: @escaping (TaskEvent<T>) -> Void) {
-        guard CardManager.isNFCAvailable else {
-            callback(.completion(TaskError.unsupportedDevice))
-            return
-        }
-        
-        guard !isBusy else {
-            callback(.completion(TaskError.busy))
-            return
-        }
-        
-        currentTask = task
-        isBusy = true
-        task.reader = cardReader
-        task.delegate = cardManagerDelegate
-        let environment = prepareCardEnvironment(for: cardId)
-        
-        task.run(with: environment) {[weak self] taskResult in
-            switch taskResult {
-            case .event(let event):
-                DispatchQueue.main.async {
-                    callback(.event(event))
-                }
-            case .completion(let error):
-                DispatchQueue.main.async {
-                    callback(.completion(error))
-                }
-                self?.isBusy = false
-                self?.currentTask = nil
-            }
-        }
+    /// Allows running a custom bunch of commands in one NFC Session by creating a custom task. Tangem SDK will start a card session, perform preflight `Read` command,
+    /// invoke the `run ` method of `CardSessionRunnable` and close the session.
+    /// You can find the current card in the `environment` property of the `CardSession`
+    /// - Parameters:
+    ///   - runnable: A custom task, adopting `CardSessionRunnable` protocol
+    ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
+    ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+    ///   - completion: Standart completion handler. Invoked on the main thread. `(Swift.Result<CardSessionRunnable.CommandResponse, SessionError>) -> Void`.
+    public func startSession<T>(with runnable: T, cardId: String?, initialMessage: String? = nil, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
+        cardSession!.start(with: runnable, completion: completion)
     }
     
-    /// Allows to run a custom command created outside of this SDK.
+    /// Allows running  a custom bunch of commands in one NFC Session with lightweight closure syntax. Tangem SDK will start a card sesion and perform preflight `Read` command.
+    /// - Parameters:
+    ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
+    ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+    ///   - delegate: At first, you should check that the `SessionError` is not nil, then you can use the `CardSession` to interact with a card.
+    ///   You can find the current card in the `environment` property of the `CardSession`
+    ///   If you need to interact with UI, you should dispatch to the main thread manually
     @available(iOS 13.0, *)
-    public func runCommand<T: CommandSerializer>(_ command: T, cardId: String? = nil, callback: @escaping (TaskEvent<T.CommandResponse>) -> Void) {
-        let task = SingleCommandTask<T>(command)
-        runTask(task, cardId: cardId, callback: callback)
+    public func startSession(cardId: String?, initialMessage: String? = nil, delegate: @escaping (CardSession, SessionError?) -> Void) {
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
+        cardSession?.start(delegate: delegate)
     }
     
-    private func prepareCardEnvironment(for cardId: String?) -> CardEnvironment {
+    private func buildEnvironment() -> CardEnvironment {
         let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = CardEnvironment()
-        environment.cardId = cardId
         environment.legacyMode = isLegacyMode
         if config.linkedTerminal && !isLegacyMode {
             environment.terminalKeys = terminalKeysService.getKeys()
-        }        
+        }
         return environment
     }
+    
+    @available(swift, obsoleted: 1.0, renamed: "start")
+    public func runTask(_ task: Any, cardId: String? = nil, callback: @escaping (Any) -> Void) {}
 }
 
-extension CardManager {
-    public convenience init(cardReader: CardReader? = nil, cardManagerDelegate: CardManagerDelegate? = nil) {
-        let reader = cardReader ?? CardReaderFactory().createDefaultReader()
-        let delegate = cardManagerDelegate ?? DefaultCardManagerDelegate(reader: reader)
-        self.init(cardReader: reader, cardManagerDelegate: delegate)
-    }
-}
+@available(swift, obsoleted: 1.0, renamed: "TangemSdk")
+public final class CardManager {}
+
+@available(swift, obsoleted: 1.0, renamed: "CardSessionRunnable")
+public final class Task {}
