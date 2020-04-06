@@ -120,7 +120,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                     return
                 }
                 
-                guard !self.card!.productMask.contains(.card) else {
+                guard !self.card!.productMask.contains(.idCard) else {
                     self.card!.issuerExtraData = response.issuerExtraData
                     (self.card!.cardEngine as! ETHIdEngine).setupAddress()
                     UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
