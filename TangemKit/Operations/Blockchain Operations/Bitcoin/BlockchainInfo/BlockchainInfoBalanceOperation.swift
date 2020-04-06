@@ -48,10 +48,10 @@ class BlockchainInfoBalanceOperation: GBAsyncOperation {
             switch result {
             case .success(let value):
                 self?.address = value
-            case .failure(_):
-                break
+                self?.handleRequestFinish()
+            case .failure(let error):
+                self?.failOperationWith(error: error)
             }
-            self?.handleRequestFinish()
         })
         operationQueue.addOperation(operationAddress)
         
@@ -59,10 +59,11 @@ class BlockchainInfoBalanceOperation: GBAsyncOperation {
             switch result {
             case .success(let value):
                 self?.unspent = value
-            case .failure(_):
-                break
+                self?.handleRequestFinish()
+            case .failure(let error):
+                self?.failOperationWith(error: error)
             }
-            self?.handleRequestFinish()
+            
         })
         operationQueue.addOperation(operationUnspent)
     }
