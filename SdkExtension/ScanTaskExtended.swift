@@ -26,7 +26,7 @@ final class ScanTaskExtended: CardSessionRunnable {
             scanTask.run(in: session) { result in
                 switch result {
                 case .success(let card):
-                    if card.cardData?.productMask?.contains(.card) ?? false {
+                    if card.cardData?.productMask?.contains(.idCard) ?? false {
                         self.readIssuerExtraData(in: session, for: card, completion: completion)
                     } else {
                         completion(.success(ScanTaskExtendedResponse(card: card, issuerExtraData: nil)))
