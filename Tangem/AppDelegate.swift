@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().tintColor = .white
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = CardManager.isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
+        window.rootViewController = TangemSdk.isNFCAvailable ? navigationManager?.navigationController : instantiateStub()
         window.makeKeyAndVisible()
         self.window = window
         let utils = Utils()
