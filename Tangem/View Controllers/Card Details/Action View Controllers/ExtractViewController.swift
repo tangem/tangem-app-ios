@@ -242,6 +242,7 @@ class ExtractViewController: ModalActionViewController {
             self.removeLoadingView()
             switch result {
             case .success(let signResponse):
+                self.card.remainingSignatures -= 1
                 Analytics.logSign(card: self.card.cardModel)
                 self.handleSuccessSign(with: Array(signResponse.signature))
             case .failure(let error):
@@ -403,7 +404,7 @@ class ExtractViewController: ModalActionViewController {
         addressLabel.text = card.address
         feeLabel.text = Localizations.commonFeeStub
         amountText.text = card.balance
-        if card.remainingSignatures == "1" {
+        if card.remainingSignatures == 1 {
             amountText.isEnabled = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.handleGenericError(Localizations.lastSignature)
