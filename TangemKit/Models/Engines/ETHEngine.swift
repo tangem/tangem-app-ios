@@ -41,7 +41,7 @@ public class ETHEngine: CardEngine {
     }
     
     public var qrCodePreffix: String {
-        return "ethereum:"
+        return card.isTestBlockchain ? "" : "ethereum:"
     }
     
     public var txCount: Int = -1
