@@ -24,6 +24,32 @@ class TokenCardBalanceOperation: BaseCardBalanceOperation {
 
         card.mult = priceUSD
 
+        let mainBalanceOperation = ETHCardBalanceOperation(card: card, networkUrl: TokenNetwork.eth.rawValue) { [weak self] (result) in
+            switch result {
+            case .success(_):
+                self?.handleMainBalanceLoaded()
+            case .failure(let error):
+                self?.failOperationWith(error: error.0, title: error.title)
+            }
+        }
+        operationQueue.addOperation(mainBalanceOperation)
+        
+    }
+
+    func handleTokenBalanceLoaded(balanceValue: String) {
+        guard !isCancelled else {
+            return
+        }
+        
+        card.walletTokenValue = balanceValue        
+        completeOperation()
+    }
+    
+    func handleMainBalanceLoaded() {
+        guard !isCancelled else {
+            return
+        }
+        
         let tokenBalanceOperation = TokenNetworkBalanceOperation(card: card, network: network) { [weak self] (result) in
             switch result {
             case .success(let value):
@@ -35,31 +61,4 @@ class TokenCardBalanceOperation: BaseCardBalanceOperation {
         }
         operationQueue.addOperation(tokenBalanceOperation)
     }
-
-    func handleTokenBalanceLoaded(balanceValue: String) {
-        guard !isCancelled else {
-            return
-        }
-        
-        card.walletTokenValue = balanceValue        
-
-        let mainBalanceOperation = ETHCardBalanceOperation(card: card, networkUrl: TokenNetwork.eth.rawValue) { [weak self] (result) in
-            switch result {
-            case .success(_):
-                self?.handleMainBalanceLoaded()
-            case .failure(let error):
-                self?.failOperationWith(error: error.0, title: error.title)
-            }
-        }
-        operationQueue.addOperation(mainBalanceOperation)
-    }
-    
-    func handleMainBalanceLoaded() {
-        guard !isCancelled else {
-            return
-        }
-        
-        completeOperation()
-    }
-
 }
