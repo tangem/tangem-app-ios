@@ -723,10 +723,51 @@ public extension CardViewModel {
         return operation
     }
     
-    public func getIdData() -> IdCardData? {
+   func getIdData() -> IdCardData? {
         if let data = issuerExtraData?.issuerData {
             return IdCardData(data)
         }
         return nil
+    }
+    
+    var moreInfoData: String {
+        var strings = ["\(Localizations.detailsCategoryIssuer): \(issuer)",
+            "\(Localizations.detailsCategoryManufacturer): \(manufactureName)",
+            "\(Localizations.detailsRegistrationDate): \(manufactureDateTime)"]
+        
+        if type != .slix2 {
+            strings.append("\(Localizations.detailsFirmware): \(firmware)")
+            strings.append("\(Localizations.detailsRemainingSignatures): \(remainingSignatures)")
+            strings.append("\(Localizations.detailsTitleCardId): \(cardID)")
+        }
+        
+        if #available(iOS 13.0, *) {} else {
+            var cardChallenge: String? = nil
+            if let challenge = challenge, let saltValue = salt {
+                let cardChallenge1 = String(challenge.prefix(3))
+                let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+                let cardChallenge3 = String(saltValue.prefix(3))
+                let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+                cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+            }
+            
+            var verificationChallenge: String? = nil
+            if let challenge = verificationChallenge, let saltValue = verificationSalt {
+                let cardChallenge1 = String(challenge.prefix(3))
+                let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
+                let cardChallenge3 = String(saltValue.prefix(3))
+                let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
+                verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
+            }
+            
+            strings.append("\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)")
+            strings.append("\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)")
+        }
+        
+        if isLinked {
+            strings.append(Localizations.detailsLinkedCard)
+        }
+        
+        return strings.joined(separator: "\n")
     }
 }
