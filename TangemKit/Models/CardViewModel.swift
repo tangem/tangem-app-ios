@@ -152,7 +152,7 @@ public class CardViewModel {
     public var manufactureDateTime: String = ""
     public var manufactureSignature: String = ""
     public var batchId: Int = 0x0
-    public var remainingSignatures: String = ""
+    public var remainingSignatures: Int = -1
     
     public var mult: Double = 0
     
@@ -452,7 +452,7 @@ public class CardViewModel {
         walletPublicKey = card.walletPublicKey?.asHexString() ??  ""
         walletPublicKeyBytesArray = card.walletPublicKey?.bytes ?? []
         maxSignatures = "\(card.maxSignatures ?? -1)"
-        remainingSignatures = "\(card.remainingSignatures ?? -1)"
+        remainingSignatures = card.remainingSignatures ?? -1
         signedHashes = "\(card.walletSignedHashes ?? -1)"
         challenge = card.challenge?.hex.lowercased()
         salt = card.salt?.hex.lowercased()
