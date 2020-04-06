@@ -70,7 +70,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
                 }
                 
                 self.card.mult = 0
-                self.failOperationWith(error: horizonRequestError)
+                self.failOperationWith(error: horizonRequestError.message)
             }
         }
         
