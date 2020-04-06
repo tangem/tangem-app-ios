@@ -87,7 +87,8 @@ public struct ProductMask: OptionSet, Codable {
     
     public static let note = ProductMask(rawValue: 0x01)
     public static let tag = ProductMask(rawValue: 0x02)
-    public static let card = ProductMask(rawValue: 0x04)
+    public static let idCard = ProductMask(rawValue: 0x04)
+    public static let idIssuer = ProductMask(rawValue: 0x08)
     
     public func encode(to encoder: Encoder) throws {
         var values = [String]()
@@ -97,8 +98,11 @@ public struct ProductMask: OptionSet, Codable {
         if contains(ProductMask.tag) {
             values.append("tag")
         }
-        if contains(ProductMask.card) {
-            values.append("card")
+        if contains(ProductMask.idCard) {
+            values.append("idCard")
+        }
+        if contains(ProductMask.idIssuer) {
+            values.append("idIssuer")
         }
         
         var container = encoder.singleValueContainer()
