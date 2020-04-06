@@ -40,14 +40,14 @@ public struct IdCardData {
         }
         
         do {
-            let mapper = TlvMapper(tlv: tlv)
-            fullname = try mapper.map(.fullname)
-            birthDay = try mapper.map(.birthday)
-            gender = try mapper.map(.gender)
-            photo = try mapper.map(.photo)
-            issueDate = try mapper.map(.issueDate)
-            expireDate = try mapper.map(.expireDate)
-            trustedAddress = try mapper.map(.trustedAddress)
+            let decoder = TlvDecoder(tlv: tlv)
+            fullname = try decoder.decode(.fullname)
+            birthDay = try decoder.decode(.birthday)
+            gender = try decoder.decode(.gender)
+            photo = try decoder.decode(.photo)
+            issueDate = try decoder.decode(.issueDate)
+            expireDate = try decoder.decode(.expireDate)
+            trustedAddress = try decoder.decode(.trustedAddress)
         } catch {
             return nil
         }
