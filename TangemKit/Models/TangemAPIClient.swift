@@ -38,16 +38,19 @@ class TangemAPIClient {
                 let unwrappedResponse = response as? HTTPURLResponse,
                 (200 ..< 300) ~= unwrappedResponse.statusCode,
                 error == nil else {
-                    let code = (response as? HTTPURLResponse)?.statusCode ?? 0
-                    let description = (data == nil ? "unknown description" : String(data: data!, encoding: .utf8)) ?? "unknown description"
-                    let errorString = "code: \(code), descr: \(description)"
-                    print(errorString)
                     DispatchQueue.main.async {
                         if let error = error {
-                            completion(.failure("\(errorString), \(error.localizedDescription)"))
+                            completion(.failure(error.localizedDescription))
                             print(error)
                         } else {
-                            completion(.failure(errorString))
+                            if let code = (response as? HTTPURLResponse)?.statusCode,
+                                let data = data,
+                                let description = String(data: data, encoding: .utf8) {
+                                let errorString = "code: \(code), descr: \(description)"
+                                print(errorString)
+                                completion(.failure(errorString))
+                            }
+                            completion(.failure("Unknown network error"))
                         }
                         
                     }
