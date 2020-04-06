@@ -354,7 +354,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     func showUntrustedAlertIfNeeded() {
         guard let card = card,
-            let walletAmount = Double(card.walletValue),
+            let walletAmount = Double(card.balance),
             let signedHashesAmount = Int(card.signedHashes, radix: 16) else {
                 return
         }
