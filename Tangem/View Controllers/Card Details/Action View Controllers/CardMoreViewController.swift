@@ -51,7 +51,7 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
             
             
         ])
-        eraseWalletButton.isEnabled = !(card.settingsMask?.contains(SettingsMask.prohibitPurgeWallet) ?? false) && !card.productMask.contains(.card) && card.hasEmptyWallet && !card.hasPendingTransactions && ( card.isBalanceVerified || (!card.isBalanceVerified && !card.hasAccount))
+        eraseWalletButton.isEnabled = !(card.settingsMask?.contains(SettingsMask.prohibitPurgeWallet) ?? false) && !card.productMask.contains(.idCard) && !card.productMask.contains(.idIssuer) && card.hasEmptyWallet && !card.hasPendingTransactions && ( card.isBalanceVerified || (!card.isBalanceVerified && !card.hasAccount))
         contentLabel.attributedText = attributedText
     }
     
