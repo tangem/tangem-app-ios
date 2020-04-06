@@ -325,7 +325,11 @@ public class CardViewModel {
         }
     }
     
-    var imageName: String {        
+    var imageName: String {
+        if productMask.contains(ProductMask.idIssuer) {
+            return "card-idIssuer"
+        }
+        
         if cardEngine.walletType == .nft {
             return "card-ruNFT"
         }
@@ -578,7 +582,7 @@ public class CardViewModel {
         case .ripple:
             cardEngine = RippleEngine(card: self)
         case .ethereum:
-            if productMask.contains(.card) {
+            if productMask.contains(.idCard) {
                 cardEngine = ETHIdEngine(card: self)
                 return
             }
@@ -688,7 +692,7 @@ public extension CardViewModel {
         case .bitcoin:
             operation = BTCCardBalanceOperation(card: self, completion: onResult)
         case .ethereum:
-            if productMask.contains(.card) {
+            if productMask.contains(.idCard) {
                 return ETHIdCardBalanceOperation(card: self, networkUrl: TokenNetwork.eth.rawValue, completion: onResult)
             }            
             if tokenSymbol != nil {
