@@ -1,14 +1,14 @@
+////
+////  ReadIssuerExtraDataCommand.swift
+////  TangemSdk
+////
+////  Created by [REDACTED_AUTHOR]
+////  Copyright © 2020 Tangem AG. All rights reserved.
+////
 //
-//  ReadIssuerExtraDataCommand.swift
-//  TangemSdk
+//import Foundation
 //
-//  Created by [REDACTED_AUTHOR]
-//  Copyright © 2020 Tangem AG. All rights reserved.
-//
-
-import Foundation
-
-/// This enum specifies modes for `ReadIssuerExtraDataCommand` and  `WriteIssuerExtraDataCommand`.
+///// This enum specifies modes for `ReadIssuerExtraDataCommand` and  `WriteIssuerExtraDataCommand`.
 public enum IssuerExtraDataMode: Byte {
     ///This mode is required to read issuer extra data from the card. This mode is required to initiate writing issuer extra data to the card.
     case readOrStartWrite = 1
@@ -73,28 +73,95 @@ public struct ReadIssuerExtraDataResponse: TlvCodable {
 }
 
 /**
-* This command retrieves Issuer Extra Data field and its issuer’s signature.
-* Issuer Extra Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
-* format and payload of Issuer Data. . For example, this field may contain photo or
-* biometric information for ID card product. Because of the large size of Issuer_Extra_Data,
-* a series of these commands have to be executed to read the entire Issuer_Extra_Data.
-*/
+ * This command retrieves Issuer Extra Data field and its issuer’s signature.
+ * Issuer Extra Data is never changed or parsed from within the Tangem COS. The issuer defines purpose of use,
+ * format and payload of Issuer Data. . For example, this field may contain photo or
+ * biometric information for ID card product.
+ */
 @available(iOS 13.0, *)
-public final class ReadIssuerExtraDataCommand: CommandSerializer {
+public final class ReadIssuerExtraDataCommand: Command {
     public typealias CommandResponse = ReadIssuerExtraDataResponse
     
-    private let offset: Int
+    private var issuerPublicKey: Data?
+    private var completion: CompletionResult<ReadIssuerExtraDataResponse>?
+    private var viewDelegate: CardSessionViewDelegate?
+    private var issuerData = Data()
+    private var issuerDataSize = 0
     
-    public init(offset: Int) {
-        self.offset = offset
+    public init(issuerPublicKey: Data? = nil) {
+        self.issuerPublicKey = issuerPublicKey
+    }
+    
+    deinit {
+        print("ReadIssuerExtraDataCommand deinit")
+    }
+    
+    public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
+        guard let issuerPublicKeyFromCard = session.environment.card?.issuerPublicKey else {
+            completion(.failure(.cardError))
+            return
+        }
+        if issuerPublicKey == nil {
+            issuerPublicKey = issuerPublicKeyFromCard
+        }
+        self.completion = completion
+        self.viewDelegate = session.viewDelegate
+        readData(session, session.environment)
+    }
+    
+    private func readData(_ session: CardSession, _ environment: CardEnvironment) {
+        showProgress()
+        transieve(in: session) { result in
+            switch result {
+            case .success(let response):
+                if let dataSize = response.size {
+                    if dataSize == 0 { //no data
+                        self.completion?(.success(response))
+                        return
+                    } else {
+                        self.issuerDataSize = dataSize // initialize only at start
+                    }
+                }
+                
+                self.issuerData.append(response.issuerData)
+                
+                if response.issuerDataSignature == nil {
+                    self.readData(session, environment)
+                } else {
+                    self.showProgress()
+                    let finalResponse = ReadIssuerExtraDataResponse(cardId: response.cardId,
+                                                                    size: response.size,
+                                                                    issuerData: self.issuerData,
+                                                                    issuerDataSignature: response.issuerDataSignature,
+                                                                    issuerDataCounter: response.issuerDataCounter)
+                    
+                    if let result = finalResponse.verify(publicKey: self.issuerPublicKey!),
+                        result == true {
+                        self.completion?(.success(finalResponse))
+                    } else {
+                        self.completion?(.failure(.verificationFailed))
+                    }
+                }
+            case .failure(let error):
+                self.completion?(.failure(error))
+            }
+        }
+    }
+    
+    private func showProgress() {
+        if issuerDataSize == 0 {
+            return
+        }
+        let progress = Int(round(Float(issuerData.count)/Float(issuerDataSize) * 100.0))
+        viewDelegate?.showAlertMessage(Localization.readProgress(progress.description))
     }
     
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
             .append(.mode, value: IssuerExtraDataMode.readOrStartWrite)
-            .append(.offset, value: offset)
+            .append(.offset, value: issuerData.count)
         
         let cApdu = CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
         return cApdu
@@ -102,21 +169,21 @@ public final class ReadIssuerExtraDataCommand: CommandSerializer {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.serializeCommandError
+            throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return ReadIssuerExtraDataResponse(
-            cardId: try mapper.map(.cardId),
-            size: try mapper.mapOptional(.size),
-            issuerData: try mapper.mapOptional(.issuerData) ?? Data(),
-            issuerDataSignature: try mapper.mapOptional(.issuerDataSignature),
-            issuerDataCounter: try mapper.mapOptional(.issuerDataCounter))
+            cardId: try decoder.decode(.cardId),
+            size: try decoder.decodeOptional(.size),
+            issuerData: try decoder.decodeOptional(.issuerData) ?? Data(),
+            issuerDataSignature: try decoder.decodeOptional(.issuerDataSignature),
+            issuerDataCounter: try decoder.decodeOptional(.issuerDataCounter))
     }
 }
 
 public class IssuerDataVerifier {
-
+    
     public init() {}
     public func verify(cardId: String,
                        issuerData: Data,
@@ -125,12 +192,12 @@ public class IssuerDataVerifier {
                        signature: Data) -> Bool {
         
         if let verifyResult = verify(cardId: cardId,
-                                  issuerData: issuerData,
-                                  issuerDataSize: nil,
-                                  issuerDataCounter: issuerDataCounter,
-                                  publicKey: publicKey,
-                                  signature: signature),
-        verifyResult == true { return true }
+                                     issuerData: issuerData,
+                                     issuerDataSize: nil,
+                                     issuerDataCounter: issuerDataCounter,
+                                     publicKey: publicKey,
+                                     signature: signature),
+            verifyResult == true { return true }
         return false
     }
     
@@ -141,12 +208,12 @@ public class IssuerDataVerifier {
                        signature: Data) -> Bool {
         
         if let verifyResult = verify(cardId: cardId,
-                                  issuerData: nil,
-                                  issuerDataSize: issuerDataSize,
-                                  issuerDataCounter: issuerDataCounter,
-                                  publicKey: publicKey,
-                                  signature: signature),
-        verifyResult == true { return true }
+                                     issuerData: nil,
+                                     issuerDataSize: issuerDataSize,
+                                     issuerDataCounter: issuerDataCounter,
+                                     publicKey: publicKey,
+                                     signature: signature),
+            verifyResult == true { return true }
         return false
     }
     

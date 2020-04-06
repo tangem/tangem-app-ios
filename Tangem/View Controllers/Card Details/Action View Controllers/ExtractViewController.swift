@@ -17,7 +17,11 @@ import TangemSdk
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
     
-    private var cardManager = CardManager()
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
+    }()
     
     var card: CardViewModel!
     var onDone: (()-> Void)?
@@ -232,21 +236,18 @@ class ExtractViewController: ModalActionViewController {
     
     private func sign(data: [Data]) {
         Analytics.log(event: .readyToSign)
-        cardManager.sign(hashes: data, cardId: card.cardID) {[unowned self] taskEvent in
-            switch taskEvent {
-            case .event(let signResponse):
+        tangemSdk.sign(hashes: data, cardId: card.cardID) {[unowned self] result in
+            self.btnSend.hideActivityIndicator()
+            self.updateSendButtonSubtitle()
+            self.removeLoadingView()
+            switch result {
+            case .success(let signResponse):
                 Analytics.logSign(card: self.card.cardModel)
                 self.handleSuccessSign(with: Array(signResponse.signature))
-            case .completion(let error):
-                self.btnSend.hideActivityIndicator()
-                self.updateSendButtonSubtitle()
-                self.removeLoadingView()
-                
-                if let error = error {
-                    if !error.isUserCancelled {
-                         Analytics.log(error: error)
-                         self.handleGenericError(error)
-                    }
+            case .failure(let error):
+                if !error.isUserCancelled {
+                     Analytics.log(error: error)
+                    self.handleGenericError(error)                      
                 }
             }
         }
