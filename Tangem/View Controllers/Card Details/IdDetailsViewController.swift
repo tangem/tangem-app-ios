@@ -116,47 +116,11 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @IBAction func moreTapped(_ sender: Any) {
-        guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+        guard let cardDetails = card?.moreInfoData, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
             return
         }
         
-        var cardChallenge: String? = nil
-        if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var verificationChallenge: String? = nil
-        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
-            "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
-            "\(Localizations.detailsValidationNode): \(cardDetails.node)",
-            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)"]
-        
-        if cardDetails.type != .slix2 {
-            strings.append("\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)")
-            strings.append("\(Localizations.detailsFirmware): \(cardDetails.firmware)")
-            strings.append("\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)")
-            strings.append("\(Localizations.detailsTitleCardId): \(cardDetails.cardID)")
-            strings.append("\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)")
-            strings.append("\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)")
-        }
-        
-        if cardDetails.isLinked {
-            strings.append(Localizations.detailsLinkedCard)
-        }
-        
-        viewController.contentText = strings.joined(separator: "\n")
+        viewController.contentText = cardDetails
         viewController.card = card!
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
