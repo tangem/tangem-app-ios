@@ -157,14 +157,25 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
                     completion(nil, nil)
                     return
             }
-            
-            let operation = self.assetBalance == nil ? ChangeTrustOperation(sourceAccount: sourceKeyPair, asset: asset, limit: Decimal(string: "900000000000.0000000")) :
-                PaymentOperation(sourceAccount: sourceKeyPair,
-                                 destination: destinationKeyPair,
-                                 asset: asset,
-                                 amount: finalAmountDecimal)
-            
-            serializeOperation(operation, completion: completion)
+             
+            if self.assetBalance == nil {
+                let operation = ChangeTrustOperation(sourceAccount: sourceKeyPair, asset: asset, limit: Decimal(string: "900000000000.0000000"))
+                 serializeOperation(operation, completion: completion)
+            } else {
+              checkIfAccountCreated(targetAddress) { [weak self] isCreated in
+                if !isCreated {
+                    completion(nil, Localizations.xlmAssetCreateAccountHint)
+                    return
+                }
+                
+                let operation = PaymentOperation(sourceAccount: sourceKeyPair,
+                                                destination: destinationKeyPair,
+                                                asset: asset,
+                                                amount: finalAmountDecimal)
+                           
+                self?.serializeOperation(operation, completion: completion)
+                }
+            }
         }
     }
     
