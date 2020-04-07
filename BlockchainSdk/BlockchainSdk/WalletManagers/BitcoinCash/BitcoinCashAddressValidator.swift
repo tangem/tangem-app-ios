@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import BinanceChain
+import HDWalletKit
 
 public class BitcoinCashAddressValidator {
     func validate(_ address: String) -> Bool {
