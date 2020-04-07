@@ -16,6 +16,13 @@
 		5D14E4992397B87000C15FC8 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D14E4912397B87000C15FC8 /* Wallet.swift */; };
 		5D14E49C2397B8B000C15FC8 /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D14E49B2397B8B000C15FC8 /* TangemSdk.framework */; };
 		5D14E49D2397B8B000C15FC8 /* TangemSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5D14E49B2397B8B000C15FC8 /* TangemSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		5D26CEE7243CA4E200994CC0 /* DucatusAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEE6243CA4E200994CC0 /* DucatusAddressFactory.swift */; };
+		5D26CEEC243CB92700994CC0 /* BlockcypherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEEB243CB92700994CC0 /* BlockcypherResponse.swift */; };
+		5D26CEEE243CB95000994CC0 /* BlockcypherTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEED243CB95000994CC0 /* BlockcypherTarget.swift */; };
+		5D26CEF1243CB9EA00994CC0 /* BlockchainInfoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEF0243CB9EA00994CC0 /* BlockchainInfoResponse.swift */; };
+		5D26CEF3243CB9FB00994CC0 /* BlockchainInfoTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEF2243CB9FB00994CC0 /* BlockchainInfoTarget.swift */; };
+		5D26CEF6243CBA4300994CC0 /* EstimateFeeTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEF5243CBA4300994CC0 /* EstimateFeeTarget.swift */; };
+		5D26CEF9243CBF2700994CC0 /* BitcoinNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEF8243CBF2700994CC0 /* BitcoinNetworkProvider.swift */; };
 		5D304390239A58C90066B8D9 /* BitcoinWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D30438F239A58C90066B8D9 /* BitcoinWalletManager.swift */; };
 		5D304394239A6A6B0066B8D9 /* CurrencyWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D304393239A6A6B0066B8D9 /* CurrencyWalletManagerFactory.swift */; };
 		5D304397239A6B960066B8D9 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D304396239A6B960066B8D9 /* String+.swift */; };
@@ -48,6 +55,7 @@
 		5D557CB023AA888D009B32AF /* Uint64+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D557CAF23AA888D009B32AF /* Uint64+.swift */; };
 		5D557CB523ACCAD2009B32AF /* BlockcypherProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D557CB423ACCAD2009B32AF /* BlockcypherProvider.swift */; };
 		5D557CB723ACCB48009B32AF /* BitcoinMainProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D557CB623ACCB48009B32AF /* BitcoinMainProvider.swift */; };
+		5D6DEAB6243CC09A00510EC8 /* EthereumTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6DEAB5243CC09A00510EC8 /* EthereumTransactionBuilder.swift */; };
 		5D8653FA23A8C481000DE52D /* StellarNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D8653F923A8C481000DE52D /* StellarNetworkManager.swift */; };
 		5D8653FC23A8C4A9000DE52D /* StellarTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D8653FB23A8C4A9000DE52D /* StellarTransactionBuilder.swift */; };
 		5D8653FE23A8E486000DE52D /* StellarSdk+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D8653FD23A8E486000DE52D /* StellarSdk+.swift */; };
@@ -114,6 +122,13 @@
 		5D14E4902397B87000C15FC8 /* Blockchain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Blockchain.swift; sourceTree = "<group>"; };
 		5D14E4912397B87000C15FC8 /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		5D14E49B2397B8B000C15FC8 /* TangemSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D26CEE6243CA4E200994CC0 /* DucatusAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusAddressFactory.swift; sourceTree = "<group>"; };
+		5D26CEEB243CB92700994CC0 /* BlockcypherResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockcypherResponse.swift; sourceTree = "<group>"; };
+		5D26CEED243CB95000994CC0 /* BlockcypherTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockcypherTarget.swift; sourceTree = "<group>"; };
+		5D26CEF0243CB9EA00994CC0 /* BlockchainInfoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainInfoResponse.swift; sourceTree = "<group>"; };
+		5D26CEF2243CB9FB00994CC0 /* BlockchainInfoTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainInfoTarget.swift; sourceTree = "<group>"; };
+		5D26CEF5243CBA4300994CC0 /* EstimateFeeTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstimateFeeTarget.swift; sourceTree = "<group>"; };
+		5D26CEF8243CBF2700994CC0 /* BitcoinNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinNetworkProvider.swift; sourceTree = "<group>"; };
 		5D30438F239A58C90066B8D9 /* BitcoinWalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinWalletManager.swift; sourceTree = "<group>"; };
 		5D304393239A6A6B0066B8D9 /* CurrencyWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyWalletManagerFactory.swift; sourceTree = "<group>"; };
 		5D304396239A6B960066B8D9 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
@@ -146,6 +161,7 @@
 		5D557CAF23AA888D009B32AF /* Uint64+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Uint64+.swift"; sourceTree = "<group>"; };
 		5D557CB423ACCAD2009B32AF /* BlockcypherProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockcypherProvider.swift; sourceTree = "<group>"; };
 		5D557CB623ACCB48009B32AF /* BitcoinMainProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinMainProvider.swift; sourceTree = "<group>"; };
+		5D6DEAB5243CC09A00510EC8 /* EthereumTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumTransactionBuilder.swift; sourceTree = "<group>"; };
 		5D8653F923A8C481000DE52D /* StellarNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarNetworkManager.swift; sourceTree = "<group>"; };
 		5D8653FB23A8C4A9000DE52D /* StellarTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarTransactionBuilder.swift; sourceTree = "<group>"; };
 		5D8653FD23A8E486000DE52D /* StellarSdk+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StellarSdk+.swift"; sourceTree = "<group>"; };
@@ -219,7 +235,6 @@
 			isa = PBXGroup;
 			children = (
 				5D4B33B923F6E9BD00C93A84 /* BlockchainService */,
-				5DE3BF95239E6D8E00E8815D /* BlockchainUtils */,
 				5D304395239A6B880066B8D9 /* Extensions */,
 				5D14E49F2397B8F800C15FC8 /* Wallets */,
 				5D14E4892397B87000C15FC8 /* WalletManagers */,
@@ -283,9 +298,46 @@
 			path = Wallets;
 			sourceTree = "<group>";
 		};
+		5D26CEEA243CB91200994CC0 /* Blockcypher */ = {
+			isa = PBXGroup;
+			children = (
+				5D26CEEB243CB92700994CC0 /* BlockcypherResponse.swift */,
+				5D26CEED243CB95000994CC0 /* BlockcypherTarget.swift */,
+				5D557CB423ACCAD2009B32AF /* BlockcypherProvider.swift */,
+			);
+			path = Blockcypher;
+			sourceTree = "<group>";
+		};
+		5D26CEEF243CB9D300994CC0 /* BlockchainInfo */ = {
+			isa = PBXGroup;
+			children = (
+				5D26CEF0243CB9EA00994CC0 /* BlockchainInfoResponse.swift */,
+				5D26CEF2243CB9FB00994CC0 /* BlockchainInfoTarget.swift */,
+			);
+			path = BlockchainInfo;
+			sourceTree = "<group>";
+		};
+		5D26CEF4243CBA1F00994CC0 /* EstimateFee */ = {
+			isa = PBXGroup;
+			children = (
+				5D26CEF5243CBA4300994CC0 /* EstimateFeeTarget.swift */,
+			);
+			path = EstimateFee;
+			sourceTree = "<group>";
+		};
+		5D26CEF7243CBB0200994CC0 /* Infura */ = {
+			isa = PBXGroup;
+			children = (
+				5D557CAB23AA70AC009B32AF /* InfuraTarget.swift */,
+				5D47E34D23F4426F00779DFA /* EthereumNetwork.swift */,
+			);
+			path = Infura;
+			sourceTree = "<group>";
+		};
 		5D304395239A6B880066B8D9 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				5DE3BF95239E6D8E00E8815D /* BlockchainUtils */,
 				5DCC817923FAE70500DFC460 /* Moya+Combine */,
 				5D304396239A6B960066B8D9 /* String+.swift */,
 				5DED72B7239FE2E3006D79AE /* Decimal+.swift */,
@@ -313,6 +365,10 @@
 		5D4B33B923F6E9BD00C93A84 /* BlockchainService */ = {
 			isa = PBXGroup;
 			children = (
+				5D26CEF7243CBB0200994CC0 /* Infura */,
+				5D26CEEF243CB9D300994CC0 /* BlockchainInfo */,
+				5D26CEF4243CBA1F00994CC0 /* EstimateFee */,
+				5D26CEEA243CB91200994CC0 /* Blockcypher */,
 				5D4B33D623FAACE400C93A84 /* Bitcore */,
 				5D4B33BA23F6E9EF00C93A84 /* Blockchair */,
 			);
@@ -362,23 +418,14 @@
 			path = Litecoin;
 			sourceTree = "<group>";
 		};
-		5D557CAA23AA6F2A009B32AF /* EthereumNetwork */ = {
-			isa = PBXGroup;
-			children = (
-				5D557CAB23AA70AC009B32AF /* InfuraTarget.swift */,
-				5D557CAD23AA771E009B32AF /* EthereumNetworkManager.swift */,
-				5D47E34D23F4426F00779DFA /* EthereumNetwork.swift */,
-			);
-			path = EthereumNetwork;
-			sourceTree = "<group>";
-		};
 		5D94E55F23A37EF7009C7482 /* Ethereum */ = {
 			isa = PBXGroup;
 			children = (
-				5D557CAA23AA6F2A009B32AF /* EthereumNetwork */,
+				5D557CAD23AA771E009B32AF /* EthereumNetworkManager.swift */,
 				5D94E56023A381F2009C7482 /* EthereumWalletManager.swift */,
 				5D94E56223A38204009C7482 /* EthereumAddressFactory.swift */,
 				5D94E56423A38216009C7482 /* EthereumAddressValidator.swift */,
+				5D6DEAB5243CC09A00510EC8 /* EthereumTransactionBuilder.swift */,
 			);
 			path = Ethereum;
 			sourceTree = "<group>";
@@ -387,6 +434,7 @@
 			isa = PBXGroup;
 			children = (
 				5D977BB523FAEB4500575BE4 /* DucatusNetworkManager.swift */,
+				5D26CEE6243CA4E200994CC0 /* DucatusAddressFactory.swift */,
 			);
 			path = Ducatus;
 			sourceTree = "<group>";
@@ -415,23 +463,15 @@
 		5DE3BFA1239FB41100E8815D /* Bitcoin */ = {
 			isa = PBXGroup;
 			children = (
-				5DE3BFA2239FB4D200E8815D /* BitcoinNetwork */,
+				5DE3BFA3239FB4E500E8815D /* BitcoinNetworkManager.swift */,
+				5D557CB623ACCB48009B32AF /* BitcoinMainProvider.swift */,
 				5D304398239A8C9C0066B8D9 /* BitcoinAddressFactory.swift */,
 				5DAE73BE239AB4C800AC5543 /* BitcoinAddressValidator.swift */,
 				5D30438F239A58C90066B8D9 /* BitcoinWalletManager.swift */,
 				5DED72BB239FEEEC006D79AE /* BitcoinTransactionBuilder.swift */,
+				5D26CEF8243CBF2700994CC0 /* BitcoinNetworkProvider.swift */,
 			);
 			path = Bitcoin;
-			sourceTree = "<group>";
-		};
-		5DE3BFA2239FB4D200E8815D /* BitcoinNetwork */ = {
-			isa = PBXGroup;
-			children = (
-				5D557CB423ACCAD2009B32AF /* BlockcypherProvider.swift */,
-				5DE3BFA3239FB4E500E8815D /* BitcoinNetworkManager.swift */,
-				5D557CB623ACCB48009B32AF /* BitcoinMainProvider.swift */,
-			);
-			path = BitcoinNetwork;
 			sourceTree = "<group>";
 		};
 		5DED72C223A13145006D79AE /* Stellar */ = {
@@ -608,22 +648,27 @@
 				5DED72C623A13377006D79AE /* StellarAddressFactory.swift in Sources */,
 				5D4B33C823F72F2700C93A84 /* BitcoinCashWalletManager.swift in Sources */,
 				5D54FE1823E41CD6009FAC2F /* LitecoinAddressValidator.swift in Sources */,
+				5D26CEF1243CB9EA00994CC0 /* BlockchainInfoResponse.swift in Sources */,
 				5D54FE1A23E41E5A009FAC2F /* LitecoinAddressFactory.swift in Sources */,
 				5D4B33D923FAAD1B00C93A84 /* BitcoreTarget.swift in Sources */,
 				5DED72BC239FEEEC006D79AE /* BitcoinTransactionBuilder.swift in Sources */,
 				5D8653FC23A8C4A9000DE52D /* StellarTransactionBuilder.swift in Sources */,
+				5D26CEEE243CB95000994CC0 /* BlockcypherTarget.swift in Sources */,
 				5DE3BFA4239FB4E500E8815D /* BitcoinNetworkManager.swift in Sources */,
 				5D4B33C223F72C0400C93A84 /* BitcoinCashNetworkManager.swift in Sources */,
 				5D4B33BE23F6EA3700C93A84 /* BlockchairResponses.swift in Sources */,
 				5D4B33C423F72ECD00C93A84 /* BitcoinCashAddressValidator.swift in Sources */,
 				5DE3BF9E239FA2F400E8815D /* SegWitBech32.swift in Sources */,
+				5D6DEAB6243CC09A00510EC8 /* EthereumTransactionBuilder.swift in Sources */,
 				5D94E56323A38204009C7482 /* EthereumAddressFactory.swift in Sources */,
 				5DE3BFA0239FA33800E8815D /* Bech32.swift in Sources */,
 				5D977BB623FAEB4500575BE4 /* DucatusNetworkManager.swift in Sources */,
 				5D14E4992397B87000C15FC8 /* Wallet.swift in Sources */,
 				5DED72C423A1315F006D79AE /* StellarWalletManager.swift in Sources */,
 				5D8653FE23A8E486000DE52D /* StellarSdk+.swift in Sources */,
+				5D26CEF9243CBF2700994CC0 /* BitcoinNetworkProvider.swift in Sources */,
 				5D4B33D523F7DFB400C93A84 /* BinanceTransactionBuilder.swift in Sources */,
+				5D26CEEC243CB92700994CC0 /* BlockcypherResponse.swift in Sources */,
 				5D86540023A906DF000DE52D /* CardManager+.swift in Sources */,
 				5D54FE1E23E4313A009FAC2F /* LitecoinWalletManager.swift in Sources */,
 				5D557CAE23AA771E009B32AF /* EthereumNetworkManager.swift in Sources */,
@@ -641,7 +686,9 @@
 				5D4B33BC23F6EA0500C93A84 /* BlockchairTarget.swift in Sources */,
 				5D94E56723A3946C009C7482 /* Data+.swift in Sources */,
 				5DAE73BF239AB4C800AC5543 /* BitcoinAddressValidator.swift in Sources */,
+				5D26CEF6243CBA4300994CC0 /* EstimateFeeTarget.swift in Sources */,
 				5DED72BA239FE2F8006D79AE /* Int+.swift in Sources */,
+				5D26CEF3243CB9FB00994CC0 /* BlockchainInfoTarget.swift in Sources */,
 				5D4B33CA23F732C800C93A84 /* BitcoinCashTransactionBuilder.swift in Sources */,
 				5DCC817823FAE6F700DFC460 /* MoyaPublisher.swift in Sources */,
 				5D4B33DC23FAAD8300C93A84 /* BitcoreProvider.swift in Sources */,
@@ -652,6 +699,7 @@
 				5DED72C823A13384006D79AE /* StellarAddressValidator.swift in Sources */,
 				5D54FE2023E43E7E009FAC2F /* LitecoinNetworkManager.swift in Sources */,
 				5D557CB723ACCB48009B32AF /* BitcoinMainProvider.swift in Sources */,
+				5D26CEE7243CA4E200994CC0 /* DucatusAddressFactory.swift in Sources */,
 				5D4B33C623F72F1100C93A84 /* BitcoinCashAddressFactory.swift in Sources */,
 				5D14E4982397B87000C15FC8 /* Blockchain.swift in Sources */,
 				5D4B33D323F7DF1F00C93A84 /* BinanceNetworkManager.swift in Sources */,
