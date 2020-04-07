@@ -36,8 +36,8 @@ class BinanceWalletManager: WalletManager, BlockchainProcessable {
     
     private func updateWallet(with response: BinanceInfoResponse) {
         currencyWallet.balances[.coin]?.value = Decimal(response.balance)
-        txBuilder.bnbWallet.sequence = response.sequence
-        txBuilder.bnbWallet.accountNumber = response.accountNumber
+        txBuilder.binanceWallet.sequence = response.sequence
+        txBuilder.binanceWallet.accountNumber = response.accountNumber
         
         let currentDate = Date()
         for  index in currencyWallet.pendingTransactions.indices {
