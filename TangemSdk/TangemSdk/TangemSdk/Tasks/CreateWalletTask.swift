@@ -7,85 +7,48 @@
 //
 
 import Foundation
-/**
- * Events that `CreateWalletTask` returns on completion of its commands.
- * `onCreate(CreateWalletResponse)`: Contains data from a Tangem card after successful completion of `CreateWallet`.
- * `onVerify(Bool)`: Shows whether the Tangem card was verified on completion of `CheckWalletCommand`.  Only if  `verifyWallet` is set to true
- */
-public enum CreateWalletEvent {
-    case onCreate(CreateWalletResponse)
-    case onVerify(Bool)
-}
 
 /// Task that allows to read Tangem card and verify its private key.
-/// It performs `CreateWallet` and `CheckWalletCommand` if  `verifyWallet` is set to true, subsequently.
+/// It performs `CreateWallet` and `CheckWalletCommand`,  subsequently.
 @available(iOS 13.0, *)
-public final class CreateWalletTask: Task<CreateWalletEvent> {
-    private let verifyWallet: Bool
-    
-    /// Defaul initializer
-    /// - Parameter verifyWallet: If true, `CheckWalletCommand` will be executed right after `CreateWallet`. The event `onVerify(Bool)` will be sent
-    init(verifyWallet: Bool) {
-        self.verifyWallet = verifyWallet
+public final class CreateWalletTask: CardSessionRunnable {
+    public typealias CommandResponse = CreateWalletResponse
+    public init() {}
+    deinit {
+        print ("CreateWalletTask deinit")
     }
     
-    override public func onRun(environment: CardEnvironment, currentCard: Card?, callback: @escaping (TaskEvent<CreateWalletEvent>) -> Void) {
-        guard let card = currentCard else {
-            callback(.completion(TaskError.missingPreflightRead))
+    public func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
+        
+        guard let curve = session.environment.card?.curve else {
+            completion(.failure(.cardError))
             return
         }
         
-        guard let curve = card.curve else {
-            callback(.completion(TaskError.errorProcessingCommand))
-            return
-        }
-        
-        sendCommand(CreateWalletCommand(), environment: environment) {[unowned self] result in
+        let command = CreateWalletCommand()
+        command.run(in: session) { result in
             switch result {
             case .success(let createWalletResponse):
-                callback(.event(.onCreate(createWalletResponse)))
-                
-                guard self.verifyWallet else {
-                    callback(.completion())
-                    return
-                }
-                
                 if createWalletResponse.status == .loaded {
-                    self.performCheckWallet(curve: curve, walletPublicKey: createWalletResponse.walletPublicKey, environment: environment, callback: callback)
+                    guard let checkWalletCommand = CheckWalletCommand(curve: curve, publicKey: createWalletResponse.walletPublicKey) else {
+                        completion(.failure(.failedToGenerateRandomSequence))
+                        return
+                    }
+                    
+                    checkWalletCommand.run(in: session) { checkWalletResult in
+                        switch checkWalletResult {
+                        case .success(_):
+                            completion(.success(createWalletResponse))
+                        case .failure(let error):
+                            completion(.failure(error))
+                        }
+                    }
+                    
                 } else {
-                    let error = TaskError.errorProcessingCommand
-                    self.reader.stopSession(errorMessage: error.localizedDescription)
-                    callback(.completion(error))
+                    completion(.failure(.unknownError))
                 }
             case .failure(let error):
-                self.reader.stopSession(errorMessage: error.localizedDescription)
-                callback(.completion(error))
-            }
-        }
-    }
-    
-    private func performCheckWallet(curve: EllipticCurve, walletPublicKey: Data, environment: CardEnvironment, callback: @escaping (TaskEvent<CreateWalletEvent>) -> Void) {
-        guard let checkWalletCommand = CheckWalletCommand() else {
-            let error = TaskError.errorProcessingCommand
-            reader.stopSession(errorMessage: error.localizedDescription)
-            callback(.completion(error))
-            return
-        }
-        
-        sendCommand(checkWalletCommand, environment: environment) {[unowned self] checkWalletResult in
-            switch checkWalletResult {
-            case .failure(let error):
-                self.reader.stopSession(errorMessage: error.localizedDescription)
-                callback(.completion(error))
-            case .success(let checkWalletResponse):
-                self.delegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
-                self.reader.stopSession()
-                if let verifyResult = checkWalletResponse.verify(curve: curve, publicKey: walletPublicKey, challenge: checkWalletCommand.challenge) {
-                    callback(.event(.onVerify(verifyResult)))
-                    callback(.completion())
-                } else {
-                    callback(.completion(TaskError.verificationFailed))
-                }
+                completion(.failure(error))
             }
         }
     }
