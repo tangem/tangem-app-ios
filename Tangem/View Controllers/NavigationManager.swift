@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemKit
 
 class NavigationManager {
     public var rootViewController: ReaderViewController? {
@@ -35,4 +34,14 @@ class NavigationManager {
         navigationController.pushViewController(cardDetailsViewController, animated: true)
     }
     
+    func showIdDetailsViewControllerWith(cardDetails: CardViewModel) {
+        let storyBoard = UIStoryboard(name: "Card", bundle: nil)
+        guard let cardDetailsViewController = storyBoard.instantiateViewController(withIdentifier: "IdDetailsViewController") as? IdDetailsViewController else {
+            return
+        }
+        
+        cardDetailsViewController.card = cardDetails
+        
+        navigationController.pushViewController(cardDetailsViewController, animated: true)
+    }
 }
