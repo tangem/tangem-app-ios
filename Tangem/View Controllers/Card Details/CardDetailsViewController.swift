@@ -8,18 +8,16 @@
 
 import UIKit
 import QRCode
-import TangemKit
-import BinanceChain
 import CryptoSwift
 import TangemSdk
 
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
-    private lazy var cardManager: CardManager = {
-           let manager = CardManager()
-           manager.config.legacyMode = Utils().needLegacyMode
-           return manager
-       }()
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
+    }()
     
     @IBOutlet var viewModel: CardDetailsViewModel! {
         didSet {
@@ -121,19 +119,35 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             } else {
                 self.handleBalanceLoaded(forceUnverifyed)
             }
-            
+            self.card!.hasAccount = true
             self.isBalanceLoading = false
             self.viewModel.setWalletInfoLoading(false)
             
-            }, onFailure: { (error) in
+            }, onFailure: { (error, title) in
                 self.isBalanceLoading = false
                 self.viewModel.setWalletInfoLoading(false)
+                Analytics.log(error: error)
                 
-                let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
-                validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
-                self.present(validationAlert, animated: true, completion: nil)
+                let errorTitle = title ?? Localizations.generalError
+                let errorMessage = error.localizedDescription
                 
-                if card.productMask != .tag {
+                let validationAlert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+                                  validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+                                  self.present(validationAlert, animated: true, completion: nil)
+                
+//                if let msg = error as? String,
+//                    msg == "Account not found" {
+//                   self.card!.hasAccount = false
+//                    let validationAlert = UIAlertController(title: Localizations.accountNotFound, message: Localizations.loadMoreXrpToCreateAccount, preferredStyle: .alert)
+//                    validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+//                    self.present(validationAlert, animated: true, completion: nil)
+//                } else {
+//                    let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
+//                    validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
+//                    self.present(validationAlert, animated: true, completion: nil)
+//                }
+                
+                if !card.productMask.contains(.tag) {
                     self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
                     self.setupBalanceVerified(false)
                 } else {
@@ -272,6 +286,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     func setupBalanceIsBeingVerified() {
         isBalanceVerified = false
+        card?.isBalanceVerified = false
         viewModel.actionButton.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
@@ -281,7 +296,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.extractButton.isEnabled = false
         viewModel.moreButton.isEnabled = false
         viewModel.scanButton.isEnabled = false
-        viewModel.buttonsAvailabilityView.isHidden = false
         
         viewModel.exploreButton.isEnabled = true
         viewModel.copyButton.isEnabled = true
@@ -289,17 +303,15 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     func setupBalanceVerified(_ verified: Bool, customText: String? = nil) {
         isBalanceVerified = verified
-        
+        card?.isBalanceVerified = verified
         viewModel.qrCodeContainerView.isHidden = false
         viewModel.walletAddressLabel.isHidden = false
         viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
-        if let card = card, card.productMask == .note && card.type != .nft {
+        if let card = card, (card.productMask.contains(.note) || card.productMask.contains(.idIssuer)) && card.type != .nft {
             viewModel.loadButton.isEnabled = true
             viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
-            viewModel.buttonsAvailabilityView.isHidden = verified
         } else {
-            viewModel.buttonsAvailabilityView.isHidden = false
             viewModel.loadButton.isEnabled = false
             viewModel.extractButton.isEnabled = false
         }
@@ -333,7 +345,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.extractButton.isHidden = true
         viewModel.actionButton.isHidden = false
         viewModel.actionButton.isEnabled = true
-        viewModel.buttonsAvailabilityView.isHidden = true
         viewModel.walletBlockchainLabel.isHidden = true
         viewModel.qrCodeContainerView.isHidden = true
         viewModel.walletAddressLabel.isHidden = true
@@ -470,42 +481,34 @@ extension CardDetailsViewController {
     @IBAction func actionButtonPressed(_ sender: Any)  {
         switch viewModel.actionButtonState {
         case .claimTag:
-             let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
-                   ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
-                       if let pswd = ac.textFields?.first?.text {
-                           self.performClaim(password: pswd)
-                       }
-                   }))
-                   
-                   ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
-                       // ac.dismiss(animated: true, completion: nil)
-                   }))
-                   
-                   ac.addTextField { textField in
-                       textField.isSecureTextEntry = true
-                   }
-                   
-                   self.present(ac, animated: true, completion: nil)
+            let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
+                if let pswd = ac.textFields?.first?.text {
+                    self.performClaim(password: pswd)
+                }
+            }))
+            
+            ac.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
+                // ac.dismiss(animated: true, completion: nil)
+            }))
+            
+            ac.addTextField { textField in
+                textField.isSecureTextEntry = true
+            }
+            
+            self.present(ac, animated: true, completion: nil)
         case .createWallet:
             if #available(iOS 13.0, *) {
                 viewModel.actionButton.showActivityIndicator()
-                cardManager.createWallet(cardId: card!.cardID) {[unowned self] taskResponse in
-                    switch taskResponse {
-                    case .event(let createWalletEvent):
-                        switch createWalletEvent {
-                        case .onCreate(let createWalletResponse):
-                            self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
-                        case .onVerify(let isGenuine):
-                            self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
-                        }
-                    case .completion(let error):
-                        self.viewModel.actionButton.hideActivityIndicator()
-                        if let error = error {
-                            if !error.isUserCancelled {
-                                self.handleGenericError(error)
-                            }
-                        } else {
-                            self.setupWithCardDetails(card: self.card!)
+                tangemSdk.createWallet(cardId: card!.cardID) { result in
+                    self.viewModel.actionButton.hideActivityIndicator()
+                    switch result {
+                    case .success(let createWalletResponse):
+                        self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                        self.setupWithCardDetails(card: self.card!)
+                    case .failure(let error):
+                        if !error.isUserCancelled {
+                            self.handleGenericError(error)
                         }
                     }
                 }
@@ -515,33 +518,46 @@ extension CardDetailsViewController {
         }
     }
     
-    @IBAction func extractButtonPressed(_ sender: Any) {
-        if #available(iOS 13.0, *), card!.canExtract  {
-            let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
-            viewController.card = card
-            viewController.onDone = { [unowned self] in
-                guard let card = self.card else {
-                    return
-                }
+    @available(iOS 13.0, *)
+    private func showExtraction() {
+        let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
+        viewController.card = card
+        viewController.onDone = { [unowned self] in
+            guard let card = self.card else {
+                return
+            }
+            
+            Utils().setOldDisclamerShown()
+            
+            if card.type == .ducatus {
+                self.latestTxDate = Date()
+            }
+            
+            if card.hasPendingTransactions  {
+                self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+                self.updateBalance(forceUnverifyed: true)
                 
-                if card.type == .ducatus {
-                    self.latestTxDate = Date()
-                }
-                
-                if card.hasPendingTransactions  {
-                    self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
-                    self.updateBalance(forceUnverifyed: true)
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
-                        guard let self = self, !self.isBalanceVerified else {
-                            return
-                        }
-                        
-                        self.updateBalance()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
+                    guard let self = self, !self.isBalanceVerified else {
+                        return
                     }
+                    
+                    self.updateBalance()
                 }
             }
-            self.present(viewController, animated: true, completion: nil)
+        }
+        self.present(viewController, animated: true, completion: nil)
+    }
+    
+    @IBAction func extractButtonPressed(_ sender: Any) {
+        if #available(iOS 13.0, *), card!.canExtract  {
+            if card!.isOldFw && NfcUtils.isLegacyDevice && !Utils().isOldDisclamerShown {
+                handleOldDevice {
+                    self.showExtraction()
+                }
+            } else {
+                showExtraction()
+            }
         } else {
             let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractPlaceholderViewController") as! ExtractPlaceholderViewController
             
@@ -557,114 +573,81 @@ extension CardDetailsViewController {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
-        viewModel.scanButton.showActivityIndicator()
-        cardManager.scanCard {[unowned self] taskEvent in
-            switch taskEvent {
-            case .event(let scanEvent):
-                switch scanEvent {
-                case .onRead(let card):
-                    self.isBalanceLoading = true
-                    self.viewModel.setWalletInfoLoading(true)
-                    self.setupBalanceIsBeingVerified()
-                    self.viewModel.setSubstitutionInfoLoading(true)
-                    self.viewModel.actionButton.isHidden = true
-                    self.viewModel.extractButton.isHidden = false
-                    self.viewModel.loadButton.isHidden = false
-                    if #available(iOS 13.0, *) {} else {
-                        self.viewModel.doubleScanHintLabel.isHidden = false
-                    }
-                     self.card = CardViewModel(card)
-                case .onVerify(let isGenuine):
-                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
-                }
-            case .completion(let error):
-                self.viewModel.scanButton.hideActivityIndicator()
-                if let error = error {
-                    self.isBalanceLoading = false
-                    self.viewModel.setWalletInfoLoading(false)
-                    
-                    if !error.isUserCancelled {
-                        self.handleGenericError(error)
-                        return
-                    }
-                    
-                    if self.isBalanceLoading {
-                        self.handleNonGenuineTangemCard(self.card!) {
-                            self.setupWithCardDetails(card: self.card!)
-                        }
-                        return
-                    }
-                }
-                
-                guard self.card!.status == .loaded else {
-                      self.setupWithCardDetails(card: self.card!)
-                    return
-                }
-                
-                if self.card!.genuinityState == .genuine {
-                    
-                    guard self.card!.isBlockchainKnown else {
-                        self.handleUnknownBlockchainCard {
-                            self.navigationController?.popViewController(animated: true)
-                        }
-                        return
-                    }
-                    
-                    
-                    self.setupWithCardDetails(card: self.card!)
-                    
-                } else {
-                    self.handleNonGenuineTangemCard(self.card!) {
-                        self.setupWithCardDetails(card: self.card!)
-                    }
-                }
-            }
-        }
+        operationQueue.cancelAllOperations()
+        navigationController?.popViewController(animated: true)
+//        viewModel.scanButton.showActivityIndicator()
+//        cardManager.scanCard {[unowned self] taskEvent in
+//            switch taskEvent {
+//            case .event(let scanEvent):
+//                switch scanEvent {
+//                case .onRead(let card):
+//                    self.isBalanceLoading = true
+//                    self.viewModel.setWalletInfoLoading(true)
+//                    self.setupBalanceIsBeingVerified()
+//                    self.viewModel.setSubstitutionInfoLoading(true)
+//                    self.viewModel.actionButton.isHidden = true
+//                    self.viewModel.extractButton.isHidden = false
+//                    self.viewModel.loadButton.isHidden = false
+//                    if #available(iOS 13.0, *) {} else {
+//                        self.viewModel.doubleScanHintLabel.isHidden = false
+//                    }
+//                     self.card = CardViewModel(card)
+//                case .onVerify(let isGenuine):
+//                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
+//                }
+//            case .completion(let error):
+//                self.viewModel.scanButton.hideActivityIndicator()
+//                if let error = error {
+//                    self.isBalanceLoading = false
+//                    self.viewModel.setWalletInfoLoading(false)
+//                    
+//                    if !error.isUserCancelled {
+//                        self.handleGenericError(error)
+//                        return
+//                    }
+//                    
+//                    if self.isBalanceLoading {
+//                        self.handleNonGenuineTangemCard(self.card!) {
+//                            self.setupWithCardDetails(card: self.card!)
+//                        }
+//                        return
+//                    } else {
+//                        return
+//                    }
+//                }
+//                
+//                guard self.card!.status == .loaded else {
+//                      self.setupWithCardDetails(card: self.card!)
+//                    return
+//                }
+//                
+//                if self.card!.genuinityState == .genuine {
+//                    
+//                    guard self.card!.isBlockchainKnown else {
+//                        self.handleUnknownBlockchainCard {
+//                            self.navigationController?.popViewController(animated: true)
+//                        }
+//                        return
+//                    }
+//                    
+//                    
+//                    self.setupWithCardDetails(card: self.card!)
+//                    
+//                } else {
+//                    self.handleNonGenuineTangemCard(self.card!) {
+//                        self.setupWithCardDetails(card: self.card!)
+//                    }
+//                }
+//            }
+//        }
     }
     
     @IBAction func moreButtonPressed(_ sender: Any) {
-        guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+        guard let cardDetails = card?.moreInfoData, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
             return
         }
-        
-        var cardChallenge: String? = nil
-        if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var verificationChallenge: String? = nil
-        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
-            "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
-            "\(Localizations.detailsValidationNode): \(cardDetails.node)",
-            "\(Localizations.signature): \(isBalanceVerified ? Localizations.passed : Localizations.notPassed)",
-            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)"]
-        
-        if cardDetails.type != .slix2 {
-            strings.append("\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)")
-            strings.append("\(Localizations.detailsFirmware): \(cardDetails.firmware)")
-            strings.append("\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)")
-            strings.append("\(Localizations.detailsTitleCardId): \(cardDetails.cardID)")
-            strings.append("\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)")
-            strings.append("\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)")
-        }
-        
-        if cardDetails.isLinked {
-            strings.append(Localizations.detailsLinkedCard)
-        }
-        
-        viewController.contentText = strings.joined(separator: "\n")
+      
+        viewController.contentText = cardDetails
         viewController.card = card!
         viewController.onDone = { [unowned self] in
             self.setupWithCardDetails(card: self.card!)
