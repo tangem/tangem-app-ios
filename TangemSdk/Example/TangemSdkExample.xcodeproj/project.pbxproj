@@ -20,7 +20,20 @@
 		5DBC25C1235F053F005F0C79 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D78C1BF234F435B008D7478 /* Main.storyboard */; };
 		5DBC25CB235F0639005F0C79 /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCA54A0235E0D5900C2BB99 /* TangemSdk.framework */; };
 		5DBC25CC235F0639005F0C79 /* TangemSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCA54A0235E0D5900C2BB99 /* TangemSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E53EB3E723F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */; };
+		E53EB3F123F2D4B10079CC11 /* RobotApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3EE23F2CD860079CC11 /* RobotApi.swift */; };
+		E53EB3F523F32A460079CC11 /* CardsData.plist in Resources */ = {isa = PBXBuildFile; fileRef = E53EB3F423F32A460079CC11 /* CardsData.plist */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E53EB3E923F2C7C90079CC11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D78C1AE234F435B008D7478 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5DBC25B6235F053F005F0C79;
+			remoteInfo = TangemSdkExampleDevelopment;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		5DBC25CD235F0639005F0C79 /* Embed Frameworks */ = {
@@ -51,6 +64,11 @@
 		5DBC25C7235F053F005F0C79 /* TangemSdkExample copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "TangemSdkExample copy-Info.plist"; path = "/Users/alexander.osokin/repos/tangem/tangem-lite/TangemSdk/Example/TangemSdkExample copy-Info.plist"; sourceTree = "<absolute>"; };
 		5DCA54A0235E0D5900C2BB99 /* TangemSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB469095D48EE4BBB18EDFCE /* Pods-TangemSdkExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemSdkExample.release.xcconfig"; path = "Target Support Files/Pods-TangemSdkExample/Pods-TangemSdkExample.release.xcconfig"; sourceTree = "<group>"; };
+		E53EB3E423F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemSdkExampleDevelopmentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkExampleDevelopmentUITests.swift; sourceTree = "<group>"; };
+		E53EB3E823F2C7C90079CC11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E53EB3EE23F2CD860079CC11 /* RobotApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RobotApi.swift; sourceTree = "<group>"; };
+		E53EB3F423F32A460079CC11 /* CardsData.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CardsData.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +88,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E53EB3E123F2C7C90079CC11 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -77,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				5D78C1B8234F435B008D7478 /* TangemSdkExample */,
+				E53EB3E523F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests */,
 				5D78C1B7234F435B008D7478 /* Products */,
 				5D78C1D7234F4400008D7478 /* Frameworks */,
 				BE3AC01BC66047E63E00A34C /* Pods */,
@@ -89,6 +115,7 @@
 			children = (
 				5D78C1B6234F435B008D7478 /* TangemSdkExample.app */,
 				5DBC25C6235F053F005F0C79 /* TangemSdkExampleDevelopment.app */,
+				E53EB3E423F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -123,6 +150,17 @@
 				DB469095D48EE4BBB18EDFCE /* Pods-TangemSdkExample.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		E53EB3E523F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests */ = {
+			isa = PBXGroup;
+			children = (
+				E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */,
+				E53EB3E823F2C7C90079CC11 /* Info.plist */,
+				E53EB3EE23F2CD860079CC11 /* RobotApi.swift */,
+				E53EB3F423F32A460079CC11 /* CardsData.plist */,
+			);
+			path = TangemSdkExampleDevelopmentUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -165,18 +203,40 @@
 			productReference = 5DBC25C6235F053F005F0C79 /* TangemSdkExampleDevelopment.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E53EB3E323F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E53EB3EB23F2C7C90079CC11 /* Build configuration list for PBXNativeTarget "TangemSdkExampleDevelopmentUITests" */;
+			buildPhases = (
+				E53EB3E023F2C7C90079CC11 /* Sources */,
+				E53EB3E123F2C7C90079CC11 /* Frameworks */,
+				E53EB3E223F2C7C90079CC11 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E53EB3EA23F2C7C90079CC11 /* PBXTargetDependency */,
+			);
+			name = TangemSdkExampleDevelopmentUITests;
+			productName = TangemSdkExampleDevelopmentUITests;
+			productReference = E53EB3E423F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		5D78C1AE234F435B008D7478 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1110;
+				LastSwiftUpdateCheck = 1120;
 				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = "Tangem AG";
 				TargetAttributes = {
 					5D78C1B5234F435B008D7478 = {
 						CreatedOnToolsVersion = 11.1;
+					};
+					E53EB3E323F2C7C90079CC11 = {
+						CreatedOnToolsVersion = 11.2.1;
+						TestTargetID = 5DBC25B6235F053F005F0C79;
 					};
 				};
 			};
@@ -195,6 +255,7 @@
 			targets = (
 				5D78C1B5234F435B008D7478 /* TangemSdkExample */,
 				5DBC25B6235F053F005F0C79 /* TangemSdkExampleDevelopment */,
+				E53EB3E323F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -217,6 +278,14 @@
 				5DBC25BF235F053F005F0C79 /* LaunchScreen.storyboard in Resources */,
 				5DBC25C0235F053F005F0C79 /* Assets.xcassets in Resources */,
 				5DBC25C1235F053F005F0C79 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E53EB3E223F2C7C90079CC11 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E53EB3F523F32A460079CC11 /* CardsData.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,7 +352,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E53EB3E023F2C7C90079CC11 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E53EB3E723F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift in Sources */,
+				E53EB3F123F2D4B10079CC11 /* RobotApi.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E53EB3EA23F2C7C90079CC11 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5DBC25B6235F053F005F0C79 /* TangemSdkExampleDevelopment */;
+			targetProxy = E53EB3E923F2C7C90079CC11 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		5D78C1BF234F435B008D7478 /* Main.storyboard */ = {
@@ -497,6 +583,46 @@
 			};
 			name = Release;
 		};
+		E53EB3EC23F2C7C90079CC11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				INFOPLIST_FILE = TangemSdkExampleDevelopmentUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = Tangem.TangemSdkExampleDevelopmentUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TangemSdkExampleDevelopment;
+			};
+			name = Debug;
+		};
+		E53EB3ED23F2C7C90079CC11 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
+				INFOPLIST_FILE = TangemSdkExampleDevelopmentUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = Tangem.TangemSdkExampleDevelopmentUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TangemSdkExampleDevelopment;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -523,6 +649,15 @@
 			buildConfigurations = (
 				5DBC25C4235F053F005F0C79 /* Debug */,
 				5DBC25C5235F053F005F0C79 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E53EB3EB23F2C7C90079CC11 /* Build configuration list for PBXNativeTarget "TangemSdkExampleDevelopmentUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E53EB3EC23F2C7C90079CC11 /* Debug */,
+				E53EB3ED23F2C7C90079CC11 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
