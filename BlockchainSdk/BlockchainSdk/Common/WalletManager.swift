@@ -65,7 +65,7 @@ public protocol TransactionSender {
 
 @available(iOS 13.0, *)
 public protocol TransactionSigner {
-    func sign(hashes: [Data], cardId: String, callback: @escaping (TaskEvent<SignResponse>) -> Void)
+    func sign(hashes: [Data], cardId: String, completion: @escaping (Result<SignResponse, SessionError>) -> Void)
     func sign(hashes: [Data], cardId: String) -> AnyPublisher<SignResponse, Error>
 }
 
