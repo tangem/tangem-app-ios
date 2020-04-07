@@ -11,7 +11,7 @@ import Foundation
 public class CurrencyWalletFactory {
     public func makeWallet(from blockchain: Blockchain, address: String, token: Token?) -> CurrencyWallet {
         switch blockchain {
-        case .bitcoin, .litecoin:
+        case .bitcoin, .litecoin, .ducatus:
             let walletConfig = WalletConfig(allowFeeSelection: true, allowFeeInclusion: true)
             return CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
             
