@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 import Combine
 
-class DucatusNetworkManager {
+class DucatusNetworkManager: BitcoinNetworkProvider {
     let provider: BitcoreProvider
     
     init(address: String) {
@@ -51,5 +51,16 @@ class DucatusNetworkManager {
                     throw "Empty response"
                 }
         }.eraseToAnyPublisher()
+    }
+    
+    @available(iOS 13.0, *)
+    func getFee() -> AnyPublisher<BtcFee, Error> {
+        let fee = BtcFee(minimalKb: 0.00091136,
+                         normalKb: 0.00147456,
+                         priorityKb: 0.003584)
+        
+        return Just(fee)
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
     }
 }
