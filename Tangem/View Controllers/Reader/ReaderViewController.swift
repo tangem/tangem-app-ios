@@ -7,17 +7,16 @@
 //
 
 import UIKit
-import TangemKit
 import TangemSdk
 
 class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
-    
     var customPresentationController: CustomPresentationController?
+    var isAppLaunched = false
     
-    lazy var cardManager: CardManager = {
-        let manager = CardManager()
-        manager.config.legacyMode = Utils().needLegacyMode
-        return manager
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
     }()
     
     private var card: CardViewModel?
@@ -69,6 +68,16 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         self.hintLabel.text = Localizations.readerHintDefault
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if isAppLaunched {
+            scanButtonPressed(self)
+        } else {
+            isAppLaunched = true
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         if #available(iOS 13.0, *) {
@@ -93,44 +102,47 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        Analytics.log(event: .readyToScan)
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
-        cardManager.scanCard {[unowned self] taskEvent in
-            switch taskEvent {
-            case .event(let scanEvent):
-                switch scanEvent {
-                case .onRead(let card):
-                    self.card = CardViewModel(card)
-                case .onVerify(let isGenuine):
-                    self.card?.genuinityState = isGenuine ? .genuine : .nonGenuine
+        let task = ScanTaskExtended()
+        tangemSdk.startSession(with: task, cardId: nil) {[unowned self] result in
+            self.scanButton.hideActivityIndicator()
+            self.hintLabel.text = Localizations.readerHintDefault
+            switch result {
+            case .success(let response):
+                self.card = CardViewModel(response.card)
+                self.card?.genuinityState = .genuine
+                
+                guard self.card!.isBlockchainKnown else {
+                    self.handleUnknownBlockchainCard()
+                    return
                 }
-            case .completion(let error):
-                self.scanButton.hideActivityIndicator()
-                self.hintLabel.text = Localizations.readerHintDefault
-                if let error = error {
-                    if !error.isUserCancelled {
-                        self.handleGenericError(error)
-                    }
-                } else {
-                    guard self.card!.isBlockchainKnown else {
-                        self.handleUnknownBlockchainCard()
-                        return
-                    }
-                    
-                    guard self.card!.status == .loaded else {
-                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-                        return
-                    }
-                    
-                    if self.card!.genuinityState == .genuine {
-                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-                    } else {
+                
+                guard !self.card!.productMask.contains(.idCard) else {
+                    self.card!.issuerExtraData = response.issuerExtraData
+                    (self.card!.cardEngine as! ETHIdEngine).setupAddress()
+                    UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
+                    return
+                }
+                
+                guard self.card!.status == .loaded else {
+                    UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
+                    return
+                }
+                
+                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
+            case .failure(let error):
+                if !error.isUserCancelled {
+                    Analytics.log(error: error)
+                    if error == .verificationFailed {
                         self.handleNonGenuineTangemCard(self.card!) {
                             UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
                         }
+                    } else {
+                        self.handleGenericError(error)
                     }
-                    
                 }
             }
         }

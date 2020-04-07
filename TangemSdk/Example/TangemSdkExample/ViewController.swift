@@ -12,26 +12,20 @@ import TangemSdk
 class ViewController: UIViewController {
     @IBOutlet weak var logView: UITextView!
     
-    var cardManager: CardManager = CardManager()
-    
+    var tangemSdk = TangemSdk()
     var card: Card?
     var issuerDataResponse: ReadIssuerDataResponse?
+    var issuerExtraDataResponse: ReadIssuerExtraDataResponse?
     
     @IBAction func scanCardTapped(_ sender: Any) {
-        cardManager.scanCard {[unowned self] taskEvent in
-            switch taskEvent {
-            case .event(let scanEvent):
-                switch scanEvent {
-                case .onRead(let card):
-                    self.card = card
-                    self.logView.text = ""
-                    self.log("read result: \(card)")
-                case .onVerify(let isGenuine):
-                    self.log("verify result: \(isGenuine)")
-                }
-            case .completion(let error):
+        tangemSdk.scanCard {[unowned self] result in
+            switch result {
+            case .success(let card):
+                self.card = card
+                self.logView.text = ""
+                self.log("read result: \(card)")
+            case .failure(let error):
                 self.handle(error)
-                //handle completion. Unlock UI, etc.
             }
         }
     }
@@ -46,13 +40,12 @@ class ViewController: UIViewController {
                 return
             }
             
-            cardManager.sign(hashes: hashes, cardId: cardId) {[unowned self] taskEvent  in
-                switch taskEvent {
-                case .event(let signResponse):
+            tangemSdk.sign(hashes: hashes, cardId: cardId) {[unowned self] result in
+                switch result {
+                case .success(let signResponse):
                     self.log(signResponse)
-                case .completion(let error):
+                case .failure(let error):
                     self.handle(error)
-                    //handle completion. Unlock UI, etc.
                 }
             }
         } else {
@@ -67,12 +60,12 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.readIssuerData(cardId: cardId){ [unowned self] taskEvent in
-                switch taskEvent {
-                case .event(let issuerDataResponse):
+            tangemSdk.readIssuerData(cardId: cardId){ [unowned self] result in
+                switch result {
+                case .success(let issuerDataResponse):
                     self.issuerDataResponse = issuerDataResponse
                     self.log(issuerDataResponse)
-                case .completion(let error):
+                case .failure(let error):
                     self.handle(error)
                     //handle completion. Unlock UI, etc.
                 }
@@ -95,16 +88,76 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.writeIssuerData(cardId: cardId,
+            tangemSdk.writeIssuerData(cardId: cardId,
                                         issuerData: issuerDataResponse.issuerData,
-                                        issuerDataSignature: issuerDataResponse.issuerDataSignature) { [unowned self] taskEvent in
-                switch taskEvent {
-                case .event(let issuerDataResponse):
+                                        issuerDataSignature: issuerDataResponse.issuerDataSignature) { [unowned self] result in
+                                            switch result {
+                                            case .success(let issuerDataResponse):
+                                                self.log(issuerDataResponse)
+                                            case .failure(let error):
+                                                self.handle(error)
+                                                //handle completion. Unlock UI, etc.
+                                            }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+    }
+    @IBAction func readIssuerExtraDatatapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        
+        if #available(iOS 13.0, *) {
+            tangemSdk.readIssuerExtraData(cardId: cardId){ [unowned self] result in
+                switch result {
+                case .success(let issuerDataResponse):
+                    self.issuerExtraDataResponse = issuerDataResponse
                     self.log(issuerDataResponse)
-                case .completion(let error):
+                    print(issuerDataResponse.issuerData.asHexString())
+                case .failure(let error):
                     self.handle(error)
                     //handle completion. Unlock UI, etc.
                 }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+    }
+    
+    @IBAction func writeIssuerExtraDataTapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        
+        guard let issuerDataResponse = issuerExtraDataResponse else {
+            self.log("Please, run GetIssuerExtraData before")
+            return
+        }
+        let newCounter = (issuerDataResponse.issuerDataCounter ?? 0) + 1
+        let sampleData = Data(repeating: UInt8(1), count: 2000)
+        let issuerKey = Data(hexString: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
+        
+        let startSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + newCounter.bytes4 + sampleData.count.bytes2, with: issuerKey)!
+        let finalSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
+        
+        if #available(iOS 13.0, *) {
+            tangemSdk.writeIssuerExtraData(cardId: cardId,
+                                             issuerData: sampleData,
+                                             startingSignature: startSig,
+                                             finalizingSignature: finalSig,
+                                             issuerDataCounter: newCounter) { [unowned self] result in
+                                                switch result {
+                                                case .success(let writeResponse):
+                                                    self.log(writeResponse)
+                                                case .failure(let error):
+                                                    self.handle(error)
+                                                    //handle completion. Unlock UI, etc.
+                                                }
             }
         } else {
             // Fallback on earlier versions
@@ -119,17 +172,11 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.createWallet(cardId: cardId) { [unowned self] taskEvent in
-                switch taskEvent {
-                case .event(let createWalletEvent):
-                    switch createWalletEvent {
-                    case .onCreate(let response):
-                        self.log(response)
-                    case .onVerify(let isGenuine):
-                        self.log("Verify result: \(isGenuine)")
-                    }
-                    
-                case .completion(let error):
+            tangemSdk.createWallet(cardId: cardId) { [unowned self] result in
+                switch result {
+                case .success(let response):
+                    self.log(response)
+                case .failure(let error):
                     self.handle(error)
                     //handle completion. Unlock UI, etc.
                 }
@@ -148,11 +195,11 @@ class ViewController: UIViewController {
         }
         
         if #available(iOS 13.0, *) {
-            cardManager.purgeWallet(cardId: cardId) { [unowned self] taskEvent in
-                switch taskEvent {
-                case .event(let response):
+            tangemSdk.purgeWallet(cardId: cardId) { [unowned self] result in
+                switch result {
+                case .success(let response):
                     self.log(response)
-                case .completion(let error):
+                case .failure(let error):
                     self.handle(error)
                     //handle completion. Unlock UI, etc.
                 }
@@ -163,12 +210,45 @@ class ViewController: UIViewController {
         }
     }
     
+    @available(iOS 13.0, *)
+    func chainingExample() {
+        tangemSdk.startSession(cardId: nil) { session, error in
+            let cmd1 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
+            cmd1!.run(in: session, completion: { result in
+                switch result {
+                case .success(let response1):
+                    DispatchQueue.main.async {
+                        self.log(response1)
+                    }
+                    let cmd2 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
+                    cmd2!.run(in: session, completion: { result in
+                        switch result {
+                        case .success(let response2):
+                            DispatchQueue.main.async {
+                                self.log(response2)
+                            }
+                            session.stop() // close session manually
+                        case .failure(let error):
+                            print(error)
+                        }
+                    })
+                case .failure(let error):
+                    print(error)
+                }
+            })
+        }
+    }
+    
+    @IBAction func clearTapped(_ sender: Any) {
+        self.logView.text = ""
+    }
+    
     private func log(_ object: Any) {
-        self.logView.text = self.logView.text.appending("\(object)\n")
+        self.logView.text = self.logView.text.appending("\(object)\n\n")
         print(object)
     }
     
-    private func handle(_ error: TaskError?) {
+    private func handle(_ error: SessionError?) {
         if let error = error, !error.isUserCancelled {
             self.log("completed with error: \(error.localizedDescription)")
         }
