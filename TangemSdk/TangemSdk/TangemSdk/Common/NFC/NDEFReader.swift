@@ -16,7 +16,7 @@ public final class NDEFReader: NSObject {
     public var tagDidConnect: (() -> Void)?
     
     private var readerSession: NFCNDEFReaderSession?
-    private var completion: ((Result<ResponseApdu, TaskError>) -> Void)?
+    private var completion: ((Result<ResponseApdu, SessionError>) -> Void)?
 }
 
 extension NDEFReader: NFCNDEFReaderSessionDelegate {
@@ -25,7 +25,7 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
         
         if nfcError.code != .readerSessionInvalidationErrorFirstNDEFTagRead {
             print(nfcError.localizedDescription)
-            completion?(.failure(TaskError.parse(nfcError)))
+            completion?(.failure(SessionError.parse(nfcError)))
         }
     }
     
@@ -57,8 +57,8 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
 }
 
 extension NDEFReader: CardReader {
-    public func startSession() {
-        
+    public var isReady: Bool {
+        return readerSession?.isReady ?? false
     }
     
     public var alertMessage: String {
@@ -66,13 +66,13 @@ extension NDEFReader: CardReader {
         set { readerSession?.alertMessage = newValue }
     }
     
-    public func stopSession(errorMessage: String? = nil) {
+    public func stopSession(with errorMessage: String? = nil) {
         completion = nil
         readerSession?.invalidate()
                 readerSession = nil
     }
     
-    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, TaskError>) -> Void) {
+    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
         self.completion = completion
         if #available(iOS 13.0, *), readerSession != nil {
             readerSession!.restartPolling()
