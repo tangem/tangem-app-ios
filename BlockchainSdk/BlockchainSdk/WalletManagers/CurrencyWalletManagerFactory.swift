@@ -44,6 +44,14 @@ public class CurrencyWalletManagerFactory {
                 $0.wallet = Variable(wallet)
             }.eraseToAnyWalletManager()
             
+        case .ducatus:
+            return BitcoinWalletManager().then {
+                $0.cardId = cardId
+                $0.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: false)
+                $0.network = DucatusNetworkManager(address: address)
+                $0.wallet = Variable(wallet)
+            }.eraseToAnyWalletManager()
+            
         case .stellar(let testnet):
             return StellarWalletManager().then {
                 let url = testnet ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"
