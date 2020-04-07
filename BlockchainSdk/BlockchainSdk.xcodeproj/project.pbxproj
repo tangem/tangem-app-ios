@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -70,8 +70,6 @@
 		5DED72B8239FE2E3006D79AE /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72B7239FE2E3006D79AE /* Decimal+.swift */; };
 		5DED72BA239FE2F8006D79AE /* Int+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72B9239FE2F8006D79AE /* Int+.swift */; };
 		5DED72BC239FEEEC006D79AE /* BitcoinTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72BB239FEEEC006D79AE /* BitcoinTransactionBuilder.swift */; };
-		5DED72BE239FF9F9006D79AE /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72BD239FF9F9006D79AE /* CryptoUtils.swift */; };
-		5DED72C1239FFA7D006D79AE /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = 5DED72C0239FFA7D006D79AE /* secp256k1 */; };
 		5DED72C423A1315F006D79AE /* StellarWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72C323A1315F006D79AE /* StellarWalletManager.swift */; };
 		5DED72C623A13377006D79AE /* StellarAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72C523A13377006D79AE /* StellarAddressFactory.swift */; };
 		5DED72C823A13384006D79AE /* StellarAddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DED72C723A13384006D79AE /* StellarAddressValidator.swift */; };
@@ -170,7 +168,6 @@
 		5DED72B7239FE2E3006D79AE /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
 		5DED72B9239FE2F8006D79AE /* Int+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+.swift"; sourceTree = "<group>"; };
 		5DED72BB239FEEEC006D79AE /* BitcoinTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinTransactionBuilder.swift; sourceTree = "<group>"; };
-		5DED72BD239FF9F9006D79AE /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
 		5DED72C323A1315F006D79AE /* StellarWalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarWalletManager.swift; sourceTree = "<group>"; };
 		5DED72C523A13377006D79AE /* StellarAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAddressFactory.swift; sourceTree = "<group>"; };
 		5DED72C723A13384006D79AE /* StellarAddressValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAddressValidator.swift; sourceTree = "<group>"; };
@@ -183,7 +180,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D14E49C2397B8B000C15FC8 /* TangemSdk.framework in Frameworks */,
-				5DED72C1239FFA7D006D79AE /* secp256k1 in Frameworks */,
 				7386FBD2F78EB76C53BCD1AE /* Pods_BlockchainSdk.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,7 +408,6 @@
 				5DE3BF98239E722400E8815D /* Base58.swift */,
 				5DE3BF9D239FA2F400E8815D /* SegWitBech32.swift */,
 				5DE3BF9F239FA33800E8815D /* Bech32.swift */,
-				5DED72BD239FF9F9006D79AE /* CryptoUtils.swift */,
 			);
 			path = BlockchainUtils;
 			sourceTree = "<group>";
@@ -492,7 +487,6 @@
 			);
 			name = BlockchainSdk;
 			packageProductDependencies = (
-				5DED72C0239FFA7D006D79AE /* secp256k1 */,
 			);
 			productName = BlockchainSdk;
 			productReference = 5D14E46E2397B80F00C15FC8 /* BlockchainSdk.framework */;
@@ -545,7 +539,6 @@
 			);
 			mainGroup = 5D14E4642397B80F00C15FC8;
 			packageReferences = (
-				5DED72BF239FFA7D006D79AE /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
 			);
 			productRefGroup = 5D14E46F2397B80F00C15FC8 /* Products */;
 			projectDirPath = "";
@@ -630,7 +623,6 @@
 				5D14E4992397B87000C15FC8 /* Wallet.swift in Sources */,
 				5DED72C423A1315F006D79AE /* StellarWalletManager.swift in Sources */,
 				5D8653FE23A8E486000DE52D /* StellarSdk+.swift in Sources */,
-				5DED72BE239FF9F9006D79AE /* CryptoUtils.swift in Sources */,
 				5D4B33D523F7DFB400C93A84 /* BinanceTransactionBuilder.swift in Sources */,
 				5D86540023A906DF000DE52D /* CardManager+.swift in Sources */,
 				5D54FE1E23E4313A009FAC2F /* LitecoinWalletManager.swift in Sources */,
@@ -930,25 +922,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		5DED72BF239FFA7D006D79AE /* XCRemoteSwiftPackageReference "secp256k1.swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Boilertalk/secp256k1.swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.4;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		5DED72C0239FFA7D006D79AE /* secp256k1 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5DED72BF239FFA7D006D79AE /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
-			productName = secp256k1;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5D14E4652397B80F00C15FC8 /* Project object */;
 }
