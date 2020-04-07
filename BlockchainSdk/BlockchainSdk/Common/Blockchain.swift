@@ -96,10 +96,10 @@ public enum Blockchain {
         case .ethereum, .rsk:
             return EthereumAddressFactory().makeAddress(from: walletPublicKey)
         case .bitcoinCash:
-            let compressedKey = CryptoUtils.convertKeyToCompressed(walletPublicKey)!
+            let compressedKey = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
             return BitcoinCashAddressFactory().makeAddress(from: compressedKey)
         case .binance(let testnet):
-            let compressedKey = CryptoUtils.convertKeyToCompressed(walletPublicKey)!
+            let compressedKey = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
             return BinanceAddressFactory().makeAddress(from: compressedKey, testnet: testnet)
         }
     }
