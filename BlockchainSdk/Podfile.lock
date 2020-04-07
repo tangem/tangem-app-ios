@@ -8,16 +8,20 @@ PODS:
     - BinanceChain/Libraries
     - BinanceChain/Protobuf
     - BinanceChain/Util
-    - CryptoSwift
+    - HDWalletKit
+    - secp256k1.swift
     - Starscream (~> 3.1)
-    - SwiftDate
+    - SwiftDate (~> 6.0.1)
     - SwiftProtobuf (~> 1.4)
     - SwiftyJSON
     - XCGLogger (~> 7.0)
   - BinanceChain/Libraries (1.0.0-beta)
   - BinanceChain/Protobuf (1.0.0-beta)
   - BinanceChain/Util (1.0.0-beta)
-  - CryptoSwift (1.0.0)
+  - CryptoSwift (1.3.0)
+  - HDWalletKit (0.3.5):
+    - CryptoSwift
+    - secp256k1.swift
   - Moya (13.0.1):
     - Moya/Core (= 13.0.1)
   - Moya/Core (13.0.1):
@@ -40,17 +44,17 @@ PODS:
     - PromiseKit/CorePromise
   - Result (4.1.0)
   - RxSwift (4.5.0)
-  - secp256k1.c (0.1.2)
+  - secp256k1.swift (0.1.4)
   - Starscream (3.1.1)
-  - stellar-ios-mac-sdk (1.7.0)
-  - SwiftDate (6.1.0)
+  - stellar-ios-mac-sdk (1.7.2)
+  - SwiftDate (6.0.3)
   - SwiftProtobuf (1.8.0)
   - SwiftyJSON (5.0.0)
-  - web3.swift.pod (2.2.1):
+  - web3swift (2.2.1):
     - BigInt (~> 4.0)
-    - CryptoSwift (~> 1.0.0)
+    - CryptoSwift
     - PromiseKit (~> 6.8.4)
-    - secp256k1.c (~> 0.1)
+    - secp256k1.swift
     - Starscream (~> 3.1.0)
   - XCGLogger (7.0.1):
     - XCGLogger/Core (= 7.0.1)
@@ -59,13 +63,14 @@ PODS:
 
 DEPENDENCIES:
   - BigInt (~> 4.0)
-  - BinanceChain (from `https://github.com/Tangem/binanceChain.git`, branch `new-sdk`)
+  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.4`)
+  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
   - Moya
   - Moya/RxSwift
   - RxSwift
-  - stellar-ios-mac-sdk
+  - stellar-ios-mac-sdk (~> 1.7.2)
   - SwiftyJSON
-  - web3.swift.pod
+  - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.2`)
 
 SPEC REPOS:
   trunk:
@@ -77,44 +82,56 @@ SPEC REPOS:
     - PromiseKit
     - Result
     - RxSwift
-    - secp256k1.c
+    - secp256k1.swift
     - Starscream
     - stellar-ios-mac-sdk
     - SwiftDate
     - SwiftProtobuf
     - SwiftyJSON
-    - web3.swift.pod
     - XCGLogger
 
 EXTERNAL SOURCES:
   BinanceChain:
-    :branch: new-sdk
-    :git: https://github.com/Tangem/binanceChain.git
+    :git: https://bitbucket.org/tangem/swiftbinancechain.git
+    :tag: 0.0.4
+  HDWalletKit:
+    :git: https://bitbucket.org/tangem/hdwallet.git
+    :tag: 0.3.8
+  web3swift:
+    :git: https://bitbucket.org/tangem/web3swift.git
+    :tag: 2.2.2
 
 CHECKOUT OPTIONS:
   BinanceChain:
-    :commit: 9e0aa056ffda540afb0ce7dff8b76d552f17295c
-    :git: https://github.com/Tangem/binanceChain.git
+    :git: https://bitbucket.org/tangem/swiftbinancechain.git
+    :tag: 0.0.4
+  HDWalletKit:
+    :git: https://bitbucket.org/tangem/hdwallet.git
+    :tag: 0.3.8
+  web3swift:
+    :git: https://bitbucket.org/tangem/web3swift.git
+    :tag: 2.2.2
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
-  BinanceChain: fe431fea49e3859fadbb32543ca1ce91d358278b
-  CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
+  BinanceChain: c873bcf2f40be47dfe35be73a8d7ead6097bb2de
+  CryptoSwift: 1283821600233bdbeb96d7b389c3288c3bf77211
+  HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   Moya: f4a4b80ff2f8a4ffc208dfb31cd91636622fee6e
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   PromiseKit: 9616b0afef31eae56ab9ce044c8ec2b8612a15cd
   Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
   RxSwift: f172070dfd1a93d70a9ab97a5a01166206e1c575
-  secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
+  secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
-  stellar-ios-mac-sdk: d4e826707d24d4c7d16089fe184e0b3a472790d3
-  SwiftDate: fa2bb3962056bb44047b4b85a30044e5eae30b03
+  stellar-ios-mac-sdk: 17ebc6a02aa48fdb48f0fe01718195026d122f31
+  SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  web3.swift.pod: 66048c11416c2e7a9a4b35fe42254d0f0d9db4b1
+  web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: b28673fc93f25cf12e8ed7314b4b9a669e2bc5f8
+PODFILE CHECKSUM: 7f51737370f3a4b32282b17b81c3f3e2fbd35da2
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1
