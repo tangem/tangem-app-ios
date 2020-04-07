@@ -13,8 +13,8 @@ public final class TlvEncoder {
         if let value = value {
             return try Tlv(tag, value: encode(value, for: tag))
         } else {
-             print("Encoding error. Value for tag \(tag) is nil")
-             throw TaskError.serializeCommandError
+            print("Encoding error. Value for tag \(tag) is nil")
+            throw SessionError.encodeFailed
         }
     }
     
@@ -22,11 +22,7 @@ public final class TlvEncoder {
         switch tag.valueType {
         case .hexString:
             try typeCheck(value, String.self)
-            if tag == .pin || tag == .pin2 {
-                return (value as! String).sha256()
-            } else {
-                return Data(hexString: value as! String)
-            }
+            return Data(hexString: value as! String)
         case .utf8String:
             try typeCheck(value, String.self)
             let string = value as! String + "\0"
@@ -34,7 +30,7 @@ public final class TlvEncoder {
                 return data
             } else {
                 print("Encoding error. Failed to convert string to utf8 Data")
-                throw TaskError.encodingError
+                throw SessionError.encodeFailed
             }
         case .byte:
             try typeCheck(value, Int.self)
@@ -42,6 +38,9 @@ public final class TlvEncoder {
         case .intValue:
             try typeCheck(value, Int.self)
             return (value as! Int).bytes4
+        case .uint16:
+            try typeCheck(value, Int.self)
+            return (value as! Int).bytes2
         case .boolValue:
             fatalError("Unsupported")
         case .data:
@@ -54,7 +53,7 @@ public final class TlvEncoder {
                 return data
             } else {
                 print("Encoding error. Failed to convert EllipticCurve to utf8 Data")
-                throw TaskError.encodingError
+                throw SessionError.encodeFailed
             }
         case .dateTime:
             try typeCheck(value, Date.self)
@@ -80,13 +79,17 @@ public final class TlvEncoder {
             try typeCheck(value, SigningMethod.self)
             let method = value as! SigningMethod
             return method.rawValue.byte
+        case .issuerExtraDataMode:
+            try typeCheck(value, IssuerExtraDataMode.self)
+            let mode = value as! IssuerExtraDataMode
+            return Data([mode.rawValue])
         }
     }
     
     private func typeCheck<FromType, ToType>(_ value: FromType, _ to: ToType) throws {
         guard type(of: value) is ToType else {
             print("Encoding error. Value is \(FromType.self). Expected: \(ToType.self)")
-            throw TaskError.serializeCommandError
+            throw SessionError.encodeFailedTypeMismatch
         }
     }
 }
