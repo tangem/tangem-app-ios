@@ -22,4 +22,26 @@ public enum StatusWord: UInt16 {
     case pin2Changed = 0x9002
     case pin3Changed = 0x9003
     //case pinsNotChanged = 0x9000 //equal to processCompleted
+    
+    func toSessionError() -> SessionError? {
+        switch self {
+        case .needPause:
+            return nil
+        case .needEcryption:
+            return SessionError.needEncryption
+        case .invalidParams:
+            return SessionError.invalidParams
+        case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
+            return nil
+        case .errorProcessingCommand:
+            return SessionError.errorProcessingCommand
+        case .invalidState:
+            return SessionError.invalidState
+        case .insNotSupported:
+            return SessionError.insNotSupported
+        case .unknown:
+            return SessionError.unknownStatus
+        }
+    }
 }
+

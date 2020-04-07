@@ -11,14 +11,14 @@ import Foundation
 public final class Localization {
     public static var localizationsBundle: Bundle?
     
-    static let dialogSecurityDelay = string("dialog_security_delay")
-    static let unknownCardState = string("nfc_unknown_card_state")
-    static let nfcAlertSignCompleted = string("nfc_alert_sign_completed")
-    static let nfcSessionTimeout = string("nfc_session_timeout")
-    static let nfcAlertDefault = string("nfc_alert_default")
-    static let nfcAlertDefaultDone = string("nfc_alert_default_done")
-    static let nfcStuckError = string("nfc_stuck_error")
-    static let unknownStatus = string("unknownStatus")
+    public static let dialogSecurityDelay = string("dialog_security_delay")
+    public static let unknownCardState = string("nfc_unknown_card_state")
+    public static let nfcAlertSignCompleted = string("nfc_alert_sign_completed")
+    public static let nfcSessionTimeout = string("nfc_session_timeout")
+    public static let nfcAlertDefault = string("nfc_alert_default")
+    public static let nfcAlertDefaultDone = string("nfc_alert_default_done")
+    public static let nfcStuckError = string("nfc_stuck_error")
+    public static let unknownStatus = string("unknownStatus")
    
     static func genericErrorCode(_ code: String) -> String {
         return string("generic_error_code", code)
@@ -35,8 +35,16 @@ public final class Localization {
     }()
     
     
-    static func secondsLeft(_ p1: String) -> String {
+    public static func secondsLeft(_ p1: String) -> String {
         return string("nfc_seconds_left", p1)
+    }
+    
+    public static func readProgress(_ p1: String) -> String {
+        return string("reading_data_progress", p1)
+    }
+    
+    public static func writeProgress(_ p1: String) -> String {
+        return string("writing_data_progress", p1)
     }
     
     private static func string( _ key: String, _ args: CVarArg...) -> String {
