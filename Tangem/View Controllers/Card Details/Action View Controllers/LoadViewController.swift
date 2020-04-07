@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemKit
 
 protocol LoadViewControllerDelegate: class {
     func loadViewControllerDidCallShowQRCode(_ controller: LoadViewController)
