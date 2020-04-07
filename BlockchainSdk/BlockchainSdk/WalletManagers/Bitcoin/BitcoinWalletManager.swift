@@ -21,17 +21,17 @@ enum BitcoinError: Error {
 
 class BitcoinWalletManager: WalletManager, BlockchainProcessable, FeeProvider {
     typealias TWallet = CurrencyWallet
-    typealias TNetworkManager = BitcoinNetworkManager
+    typealias TNetworkManager = BitcoinNetworkProvider
     typealias TTransactionBuilder = BitcoinTransactionBuilder
     
     var wallet: Variable<CurrencyWallet>!
     var error = PublishSubject<Error>()
     var txBuilder: BitcoinTransactionBuilder!
-    var network: BitcoinNetworkManager!
+    var network: BitcoinNetworkProvider!
     var cardId: String!
-    private var requestDisposable: Disposable?
-    private var currencyWallet: CurrencyWallet { return wallet.value }
+    var currencyWallet: CurrencyWallet { return wallet.value }
     
+    private var requestDisposable: Disposable?
 //    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, blockchain: Blockchain) {
 //
 //        //[REDACTED_TODO_COMMENT]
