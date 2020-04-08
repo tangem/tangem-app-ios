@@ -1,7 +1,0 @@
-sed -i '' -e "s/$1/$2/g" TangemKit.podspec
-
-git add TangemKit.podspec 
-git commit -m "Release $2"
-git tag $2
-git push origin develop --tags
-pod trunk push TangemKit.podspec --allow-warnings
