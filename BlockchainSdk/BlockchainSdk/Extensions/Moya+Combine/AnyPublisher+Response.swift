@@ -63,6 +63,18 @@ public extension AnyPublisher where Output == Response, Failure == MoyaError {
             try response.mapString(atKeyPath: keyPath)
         }
     }
+    
+    /// Maps received data at key path into a String. If the conversion fails, the signal errors.
+    func mapNotEmptyString(atKeyPath keyPath: String? = nil) -> AnyPublisher<String, MoyaError> {
+        return unwrapThrowable { response in
+            let string = try response.mapString(atKeyPath: keyPath)
+            if string.isEmpty {
+                throw MoyaError.stringMapping(response)
+            } else {
+                return string
+            }
+        }
+    }
 
     /// Maps received data at key path into a Decodable object. If the conversion fails, the signal errors.
     func map<D: Decodable>(_ type: D.Type, atKeyPath keyPath: String? = nil, using decoder: JSONDecoder = JSONDecoder(), failsOnEmptyData: Bool = true) -> AnyPublisher<D, MoyaError> {
@@ -114,6 +126,13 @@ extension AnyPublisher where Failure == MoyaError {
             } else {
                 return .underlying(error, nil)
             }
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    public func eraseError() -> AnyPublisher<Output, Error> {
+        return self.mapError { moyaError -> Error in
+            return moyaError as Error
         }
         .eraseToAnyPublisher()
     }
