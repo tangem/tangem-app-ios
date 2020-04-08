@@ -32,7 +32,7 @@ public final class NFCReader: NSObject {
     public let enableSessionInvalidateByTimer = true
     
     private let connectedTag = CurrentValueSubject<NFCTagWrapper?,Never>(nil)
-    private let readerSessionError = CurrentValueSubject<TaskError?,Never>(nil)
+    private let readerSessionError = CurrentValueSubject<SessionError?,Never>(nil)
     private var readerSession: NFCTagReaderSession?
     private var disposeBag: [AnyCancellable]?
     private var currentRetryCount = NFCReader.retryCount
@@ -51,8 +51,8 @@ public final class NFCReader: NSObject {
         guard let session = readerSession,
             session.isReady else { return }
         
-        stopSession(errorMessage: Localization.nfcSessionTimeout)
-        readerSessionError.send(TaskError.nfcTimeout)
+        stopSession(with: Localization.nfcSessionTimeout)
+        readerSessionError.send(SessionError.nfcTimeout)
     }
     
     private func stopTimers() {
@@ -65,7 +65,7 @@ public final class NFCReader: NSObject {
         tagTimer = TangemTimer(timeInterval: NFCReader.tagTimeout, completion: timerTimeout)
         nfcStuckTimer = TangemTimer(timeInterval: NFCReader.nfcStuckTimeout, completion: {[weak self] in
             self?.stopSession()
-            self?.readerSessionError.send(TaskError.nfcStuck)
+            self?.readerSessionError.send(SessionError.nfcStuck)
         })
     }
     
@@ -83,13 +83,17 @@ public final class NFCReader: NSObject {
 
 @available(iOS 13.0, *)
 extension NFCReader: CardReader {
+    public var isReady: Bool {
+        return readerSession?.isReady ?? false
+    }
+    
     public var alertMessage: String {
         get { return readerSession?.alertMessage ?? "" }
         set { readerSession?.alertMessage = newValue }
     }
     
     /// Start session and try to connect with tag
-    public func startSession(message: String?) {
+    public func startSession(with message: String?) {
         if let existingSession = readerSession, existingSession.isReady { return }
         readerSessionError.send(nil)
         connectedTag.send(nil)
@@ -100,7 +104,7 @@ extension NFCReader: CardReader {
         nfcStuckTimer.start()
     }
     
-    public func stopSession(errorMessage: String? = nil) {
+    public func stopSession(with errorMessage: String? = nil) {
         stopTimers()
         readerSessionError.send(nil)
         connectedTag.send(nil)
@@ -115,7 +119,7 @@ extension NFCReader: CardReader {
     /// Send apdu command to connected tag
     /// - Parameter command: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCError otherwise
-    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, TaskError>) -> Void) {
+    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
         let sessionSubscription = readerSessionError
             .compactMap { $0 }
             .sink(receiveValue: { [weak self] error in
@@ -129,7 +133,7 @@ extension NFCReader: CardReader {
                 switch tagWrapper {
                 case .error(let tagError):
                     print(tagError.localizedDescription)
-                    completion(.failure(TaskError.parse(tagError)))
+                    completion(.failure(SessionError.parse(tagError)))
                     self?.cancelSubscriptions()
                 case .tag(let tag):
                     let apdu = NFCISO7816APDU(commandApdu)
@@ -152,7 +156,7 @@ extension NFCReader: CardReader {
         session.restartPolling()
     }
     
-    private func sendCommand(apdu: NFCISO7816APDU, to tag: NFCISO7816Tag, completion: @escaping (Result<ResponseApdu, TaskError>) -> Void) {
+    private func sendCommand(apdu: NFCISO7816APDU, to tag: NFCISO7816Tag, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
         requestTimestamp = Date()
         tag.sendCommand(apdu: apdu) {[weak self] (data, sw1, sw2, error) in
             guard let self = self,
@@ -194,7 +198,7 @@ extension NFCReader: CardReader {
         }
     }
     
-    private func readSlix2Tag(_ tag: NFCISO15693Tag, completion: @escaping (Result<ResponseApdu, TaskError>) -> Void) {
+    private func readSlix2Tag(_ tag: NFCISO15693Tag, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
         tag.readMultipleBlocks(requestFlags: [.highDataRate], blockRange: NSRange(location: 0, length: 40)) { [weak self] data1, error in
             guard let self = self,
                 let session = self.readerSession,
@@ -253,7 +257,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
         stopTimers()
         let nfcError = error as! NFCReaderError
         print(nfcError.localizedDescription)
-        readerSessionError.send(TaskError.parse(nfcError))
+        readerSessionError.send(SessionError.parse(nfcError))
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
