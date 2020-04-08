@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemKit
 
 protocol DefaultErrorAlertsCapable {
     
