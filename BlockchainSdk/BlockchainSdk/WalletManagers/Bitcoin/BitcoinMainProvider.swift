@@ -67,13 +67,8 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
         return blockchainInfoProvider.requestPublisher(.send(txHex: transaction))
-            .tryMap { response throws -> String in
-                if let sendResponse = String(data: response.data, encoding: .utf8), sendResponse.count > 0{
-                    return sendResponse
-                } else {
-                    throw "Empty respomse"
-                }
-        }
+        .mapNotEmptyString()
+        .eraseError()
         .eraseToAnyPublisher()
     }
     
