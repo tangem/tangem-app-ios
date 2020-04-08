@@ -22,7 +22,7 @@ public struct SignResponse: TlvCodable {
 
 /// Signs transaction hashes using a wallet private key, stored on the card.
 @available(iOS 13.0, *)
-public final class SignCommand: CommandSerializer {
+public final class SignCommand: Command {
     public typealias CommandResponse = SignResponse
     
     private let hashSize: Int
@@ -33,18 +33,18 @@ public final class SignCommand: CommandSerializer {
     ///   - hashes: Array of transaction hashes.
     public init(hashes: [Data]) throws {
         guard hashes.count > 0 else {
-            throw TaskError.emptyHashes
+            throw SessionError.emptyHashes
         }
         
         guard hashes.count <= 10 else {
-            throw TaskError.tooMuchHashesInOneTransaction
+            throw SessionError.tooMuchHashesInOneTransaction
         }
         
         hashSize = hashes.first!.count
         var flattenHashes = [Byte]()
         for hash in hashes {
             guard hash.count == hashSize else {
-                throw TaskError.hashSizeMustBeEqual
+                throw SessionError.hashSizeMustBeEqual
             }
             
             flattenHashes.append(contentsOf: hash.toBytes)
@@ -52,11 +52,15 @@ public final class SignCommand: CommandSerializer {
         dataToSign = Data(flattenHashes)
     }
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {        
+    deinit {
+        print("SignCommand deinit")
+    }
+    
+    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
             .append(.transactionOutHashSize, value: hashSize)
             .append(.transactionOutHash, value: dataToSign)
         
@@ -80,14 +84,14 @@ public final class SignCommand: CommandSerializer {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> SignResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.serializeCommandError
+            throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return SignResponse(
-            cardId: try mapper.map(.cardId),
-            signature: try mapper.map(.walletSignature),
-            walletRemainingSignatures: try mapper.map(.walletRemainingSignatures),
-            walletSignedHashes: try mapper.map(.walletSignedHashes))
+            cardId: try decoder.decode(.cardId),
+            signature: try decoder.decode(.walletSignature),
+            walletRemainingSignatures: try decoder.decode(.walletRemainingSignatures),
+            walletSignedHashes: try decoder.decode(.walletSignedHashes))
     }
 }
