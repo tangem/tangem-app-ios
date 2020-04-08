@@ -9,6 +9,7 @@
 import Foundation
 import RxSwift
 import Combine
+import Moya
 
 class DucatusNetworkManager: BitcoinNetworkProvider {
     let provider: BitcoreProvider
