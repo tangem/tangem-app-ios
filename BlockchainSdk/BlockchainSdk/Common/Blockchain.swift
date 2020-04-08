@@ -17,16 +17,15 @@ public enum Blockchain {
     case rsk(testnet: Bool)
     case bitcoinCash(testnet: Bool)
     case binance(testnet: Bool)
-    //    case cardano
-    //    case ripple
+    case cardano
+    //    case xrp
     case ducatus
-    //case tezos
     
     public var isTestnet: Bool {
         switch self {
         case .bitcoin(let testnet):
             return testnet
-        case .litecoin, .ducatus:
+        case .litecoin, .ducatus, .cardano:
             return false
         case .stellar(let testnet):
             return testnet
@@ -47,8 +46,8 @@ public enum Blockchain {
             return 8
         case .ethereum, .rsk:
             return 18
-            //        case .ripple, .cardano:
-            //            return 6
+        case  .cardano: //.ripple,
+            return 6
         case .binance:
             return 8
         case .stellar:
@@ -62,8 +61,8 @@ public enum Blockchain {
             return .down
         case .stellar:
             return .plain
-            //        case .cardano:
-            //            return .up
+        case .cardano:
+            return .up
         }
     }
     public var currencySymbol: String {
@@ -84,6 +83,8 @@ public enum Blockchain {
             return "BNB"
         case .ducatus:
             return "DUC"
+        case .cardano:
+            return "ADA"
         }
     }
     
@@ -105,6 +106,8 @@ public enum Blockchain {
             return BinanceAddressFactory().makeAddress(from: compressedKey, testnet: testnet)
         case .ducatus:
             return DucatusAddressFactory().makeAddress(from: walletPublicKey, testnet: false)
+        case .cardano:
+            return CardanoAddressFactory().makeAddress(from: walletPublicKey)
         }
     }
     
@@ -122,6 +125,8 @@ public enum Blockchain {
             return BitcoinCashAddressValidator().validate(address)
         case .binance(let testnet):
             return BinanceAddressValidator().validate(address, testnet: testnet)
+        case .cardano:
+            return CardanoAddressValidator().validate(address)
         }
     }
     
@@ -137,7 +142,7 @@ public enum Blockchain {
         case "rsk", "rsktoken": return .rsk(testnet: isTestnet)
         case "bch": return .bitcoinCash(testnet: isTestnet)
         case "binance": return .binance(testnet: isTestnet)
-            //case "cardano": return .cardano
+        case "cardano": return .cardano
             //case "xrp": return .ripple
        case "duc": return .ducatus
             //case "tezos": return .tezos

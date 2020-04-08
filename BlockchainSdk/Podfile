@@ -10,7 +10,8 @@ target 'BlockchainSdk' do
     pod 'Moya'
     pod 'RxSwift'
     pod 'Moya/RxSwift'
-    
+    pod 'Sodium'
+    pod 'SwiftCBOR'
     pod 'stellar-ios-mac-sdk', '~> 1.7.2'
     pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.4'
     #pod 'BinanceChain', :path => '/Users/alexander.osokin/repos/tangem/SwiftBinanceChain'

@@ -94,6 +94,14 @@ public class CurrencyWalletManagerFactory {
                 $0.network = BinanceNetworkManager(address: address, isTestNet: testnet)
                 $0.wallet = Variable(wallet)
             }.eraseToAnyWalletManager()
+            
+        case .cardano:
+            return CardanoWalletManager().then {
+                $0.cardId = cardId
+                $0.txBuilder = CardanoTransactionBuilder()
+                $0.network = CardanoNetworkManager()
+                $0.wallet = Variable(wallet)
+            }.eraseToAnyWalletManager()
         }
     }
     
