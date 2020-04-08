@@ -18,6 +18,8 @@ extension String {
     }
 }
 
-extension String: Error {
-    
+extension String: Error, LocalizedError {
+    public var errorDescription: String? {
+        return self
+    }
 }
