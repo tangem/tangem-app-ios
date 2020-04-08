@@ -63,7 +63,7 @@ enum BlockcypherTarget: TargetType {
     
     var task: Task {
         switch self {
-        case .send(let txHex):
+        case .send(let txHex,_,_,_):
             return .requestParameters(parameters: ["tx": txHex], encoding: URLEncoding.default)
         default:
             return .requestPlain
