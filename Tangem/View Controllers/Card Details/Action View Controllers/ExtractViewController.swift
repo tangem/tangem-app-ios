@@ -10,7 +10,6 @@ import Foundation
 #if canImport(CoreNFC)
 import CoreNFC
 #endif
-import TangemKit
 import TangemSdk
 
 
@@ -18,7 +17,11 @@ import TangemSdk
 @available(iOS 13.0, *)
 class ExtractViewController: ModalActionViewController {
     
-    private var cardManager = CardManager()
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
+    }()
     
     var card: CardViewModel!
     var onDone: (()-> Void)?
@@ -232,19 +235,20 @@ class ExtractViewController: ModalActionViewController {
     }
     
     private func sign(data: [Data]) {
-        cardManager.sign(hashes: data, cardId: card.cardID) {[unowned self] taskEvent in
-            switch taskEvent {
-            case .event(let signResponse):
+        Analytics.log(event: .readyToSign)
+        tangemSdk.sign(hashes: data, cardId: card.cardID) {[unowned self] result in
+            self.btnSend.hideActivityIndicator()
+            self.updateSendButtonSubtitle()
+            self.removeLoadingView()
+            switch result {
+            case .success(let signResponse):
+                self.card.remainingSignatures -= 1
+                Analytics.logSign(card: self.card.cardModel)
                 self.handleSuccessSign(with: Array(signResponse.signature))
-            case .completion(let error):
-                self.btnSend.hideActivityIndicator()
-                self.updateSendButtonSubtitle()
-                self.removeLoadingView()
-                
-                if let error = error {
-                    if !error.isUserCancelled {
-                         self.handleGenericError(error)
-                    }
+            case .failure(let error):
+                if !error.isUserCancelled {
+                     Analytics.log(error: error)
+                    self.handleGenericError(error)                      
                 }
             }
         }
@@ -400,7 +404,7 @@ class ExtractViewController: ModalActionViewController {
         addressLabel.text = card.address
         feeLabel.text = Localizations.commonFeeStub
         amountText.text = card.balance
-        if card.remainingSignatures == "1" {
+        if card.remainingSignatures == 1 {
             amountText.isEnabled = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.handleGenericError(Localizations.lastSignature)
@@ -594,15 +598,18 @@ class ExtractViewController: ModalActionViewController {
                 self?.btnSend.hideActivityIndicator()
                 self?.updateSendButtonSubtitle()
                 if result {
+                    Analytics.logTx(blockchainName: self?.card.cardModel.cardData?.blockchainName)
                     self?.handleSuccess(completion: {
                         self?.dismiss(animated: true) {
                             self?.onDone?()
                         }
                     })
                 } else {
-                    let errMsg = error?.localizedDescription ?? ""
-                    let apiMsg = self?.coinProvider.getApiDescription() ?? ""
-                    self?.handleTXSendError(message: "\(errMsg) (\(apiMsg))")
+                    let errMsg = error?.localizedDescription ?? "Failed to send transaction"
+                    let apiMsg = self?.coinProvider.getApiDescription() ?? "default"
+                    let errorString = "\(errMsg) (\(apiMsg))"
+                    Analytics.log(error: error ?? errorString)
+                    self?.handleTXSendError(message: errorString )
                 }
             }
         }

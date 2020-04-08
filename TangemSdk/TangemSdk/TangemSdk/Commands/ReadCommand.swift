@@ -29,6 +29,34 @@ public struct SigningMethod: OptionSet, Codable {
     public static let signHashSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 4))
     public static let signRawSignedByIssuerAndUpdateIssuerData = SigningMethod(rawValue: 0b10000000|(1 << 5))
     public static let signPos = SigningMethod(rawValue: 0b10000000|(1 << 6))
+    
+    public func encode(to encoder: Encoder) throws {
+        var values = [String]()
+        if contains(SigningMethod.signHash) {
+            values.append("sign hash")
+        }
+        if contains(SigningMethod.signRaw) {
+            values.append("sign raw transaction")
+        }
+        if contains(SigningMethod.signHashSignedByIssuer) {
+            values.append("sign hash signed by issuer")
+        }
+        if contains(SigningMethod.signRawSignedByIssuer) {
+            values.append("sign raw signed by issuer")
+        }
+        if contains(SigningMethod.signHashSignedByIssuerAndUpdateIssuerData) {
+            values.append("sign hash signed by issuer and update Issuer_Data")
+        }
+        if contains(SigningMethod.signRawSignedByIssuerAndUpdateIssuerData) {
+            values.append("sign raw signed by issuer and update Issuer_Data")
+        }
+        if contains(SigningMethod.signPos) {
+            values.append("sign POS")
+        }
+        
+        var container = encoder.singleValueContainer()
+        try container.encode(values)
+    }
 }
 
 /// Elliptic curve used for wallet key operations.
@@ -43,6 +71,11 @@ public enum CardStatus: Int, Codable {
     case empty = 1
     case loaded = 2
     case purged = 3
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode("\(self)")
+    }
 }
 
 public struct ProductMask: OptionSet, Codable {
@@ -54,7 +87,27 @@ public struct ProductMask: OptionSet, Codable {
     
     public static let note = ProductMask(rawValue: 0x01)
     public static let tag = ProductMask(rawValue: 0x02)
-    public static let card = ProductMask(rawValue: 0x04)
+    public static let idCard = ProductMask(rawValue: 0x04)
+    public static let idIssuer = ProductMask(rawValue: 0x08)
+    
+    public func encode(to encoder: Encoder) throws {
+        var values = [String]()
+        if contains(ProductMask.note) {
+            values.append("note")
+        }
+        if contains(ProductMask.tag) {
+            values.append("tag")
+        }
+        if contains(ProductMask.idCard) {
+            values.append("idCard")
+        }
+        if contains(ProductMask.idIssuer) {
+            values.append("idIssuer")
+        }
+        
+        var container = encoder.singleValueContainer()
+        try container.encode(values)
+    }
 }
 
 /// Stores and maps Tangem card settings.
@@ -65,27 +118,108 @@ public struct SettingsMask: OptionSet, Codable {
         self.rawValue = rawValue
     }
     
-    static let isReusable = SettingsMask(rawValue: 0x0001)
-    static let useActivation = SettingsMask(rawValue: 0x0002)
-    static let prohibitPurgeWallet = SettingsMask(rawValue: 0x0004)
-    static let useBlock = SettingsMask(rawValue: 0x0008)
-    static let allowSetPIN1 = SettingsMask(rawValue: 0x0010)
-    static let allowSetPIN2 = SettingsMask(rawValue: 0x0020)
-    static let useCvc = SettingsMask(rawValue: 0x0040)
-    static let prohibitDefaultPIN1 = SettingsMask(rawValue: 0x0080)
-    static let useOneCommandAtTime = SettingsMask(rawValue: 0x0100)
-    static let useNDEF = SettingsMask(rawValue: 0x0200)
-    static let useDynamicNDEF = SettingsMask(rawValue: 0x0400)
-    static let smartSecurityDelay = SettingsMask(rawValue: 0x0800)
-    static let disablePrecomputedNDEF = SettingsMask(rawValue: 0x00010000)
-    static let skipSecurityDelayIfValidatedByIssuer = SettingsMask(rawValue: 0x00020000)
-    static let skipCheckPIN2CVCIfValidatedByIssuer = SettingsMask(rawValue: 0x00040000)
-    static let skipSecurityDelayIfValidatedByLinkedTerminal = SettingsMask(rawValue: 0x00080000)
-    static let restrictOverwriteIssuerExtraDara = SettingsMask(rawValue: 0x00100000)
-    static let requireTermTxSignature = SettingsMask(rawValue: 0x01000000)
-    static let requireTermCertSignature = SettingsMask(rawValue: 0x02000000)
-    static let checkPIN3OnCard = SettingsMask(rawValue: 0x04000000)
-    static let protectIssuerDataAgainstReplay = SettingsMask(rawValue: 0x4000)
+    public static let isReusable = SettingsMask(rawValue: 0x0001)
+    public static let useActivation = SettingsMask(rawValue: 0x0002)
+    public static let prohibitPurgeWallet = SettingsMask(rawValue: 0x0004)
+    public static let useBlock = SettingsMask(rawValue: 0x0008)
+    public static let allowSetPIN1 = SettingsMask(rawValue: 0x0010)
+    public static let allowSetPIN2 = SettingsMask(rawValue: 0x0020)
+    public static let useCvc = SettingsMask(rawValue: 0x0040)
+    public static let prohibitDefaultPIN1 = SettingsMask(rawValue: 0x0080)
+    public static let useOneCommandAtTime = SettingsMask(rawValue: 0x0100)
+    public static let useNDEF = SettingsMask(rawValue: 0x0200)
+    public static let useDynamicNDEF = SettingsMask(rawValue: 0x0400)
+    public static let smartSecurityDelay = SettingsMask(rawValue: 0x0800)
+    public static let allowUnencrypted = SettingsMask(rawValue: 0x1000)
+    public static let allowFastEncryption = SettingsMask(rawValue: 0x2000)
+    public static let protectIssuerDataAgainstReplay = SettingsMask(rawValue: 0x4000)
+    public static let allowSelectBlockchain = SettingsMask(rawValue: 0x8000)
+    public static let disablePrecomputedNDEF = SettingsMask(rawValue: 0x00010000)
+    public static let skipSecurityDelayIfValidatedByIssuer = SettingsMask(rawValue: 0x00020000)
+    public static let skipCheckPIN2CVCIfValidatedByIssuer = SettingsMask(rawValue: 0x00040000)
+    public static let skipSecurityDelayIfValidatedByLinkedTerminal = SettingsMask(rawValue: 0x00080000)
+    public static let restrictOverwriteIssuerExtraDara = SettingsMask(rawValue: 0x00100000)
+    public static let requireTermTxSignature = SettingsMask(rawValue: 0x01000000)
+    public static let requireTermCertSignature = SettingsMask(rawValue: 0x02000000)
+    public static let checkPIN3OnCard = SettingsMask(rawValue: 0x04000000)
+
+    public func encode(to encoder: Encoder) throws {
+        var values = [String]()
+        if contains(SettingsMask.isReusable) {
+            values.append("Is_Reusable")
+        }
+        if contains(SettingsMask.useActivation) {
+            values.append("Use_Activation")
+        }
+        if contains(SettingsMask.prohibitPurgeWallet) {
+            values.append("Prohibit_Purge_Wallet")
+        }
+        if contains(SettingsMask.useBlock) {
+            values.append("Use_Block")
+        }
+        if contains(SettingsMask.allowSetPIN1) {
+            values.append("Allow_SET_PIN1")
+        }
+        if contains(SettingsMask.allowSetPIN2) {
+            values.append("Allow_SET_PIN2")
+        }
+        if contains(SettingsMask.useCvc) {
+            values.append("Use_CVC")
+        }
+        if contains(SettingsMask.prohibitDefaultPIN1) {
+            values.append("Prohibit_Default_PIN1")
+        }
+        if contains(SettingsMask.useOneCommandAtTime) {
+            values.append("Use_One_CommandAtTime")
+        }
+        if contains(SettingsMask.useNDEF) {
+            values.append("Use_NDEF")
+        }
+        if contains(SettingsMask.useDynamicNDEF) {
+            values.append("Use_Dynamic_NDEF")
+        }
+        if contains(SettingsMask.smartSecurityDelay) {
+            values.append("Smart_Security_Delay")
+        }
+        if contains(SettingsMask.allowUnencrypted) {
+            values.append("Allow_Unencrypted")
+        }
+        if contains(SettingsMask.allowFastEncryption) {
+            values.append("Allow_Fast_Encryption")
+        }
+        if contains(SettingsMask.protectIssuerDataAgainstReplay) {
+            values.append("Protect_Issuer_Data_Against_Replay")
+        }
+        if contains(SettingsMask.allowSelectBlockchain) {
+            values.append("Allow_Select_Blockchain")
+        }
+        if contains(SettingsMask.disablePrecomputedNDEF) {
+            values.append("Disable_PrecomputedNDEF")
+        }
+        if contains(SettingsMask.skipSecurityDelayIfValidatedByIssuer) {
+            values.append("Skip_Security_Delay_If_Validated_By_Issuer")
+        }
+        if contains(SettingsMask.skipCheckPIN2CVCIfValidatedByIssuer) {
+            values.append("Skip_Check_PIN2_and_CVC_If_Validated_By_Issuer")
+        }
+        if contains(SettingsMask.skipSecurityDelayIfValidatedByLinkedTerminal) {
+            values.append("Skip_Security_Delay_If_Validated_By_Linked_Terminal")
+        }
+        if contains(SettingsMask.restrictOverwriteIssuerExtraDara) {
+            values.append("Restrict_Overwrite_Issuer_Extra_Data")
+        }
+        if contains(SettingsMask.requireTermTxSignature) {
+            values.append("Require_Term_Tx_Signature")
+        }
+        if contains(SettingsMask.requireTermCertSignature) {
+            values.append("Require_Term_Cert_Signature")
+        }
+        if contains(SettingsMask.checkPIN3OnCard) {
+            values.append("Check_PIN3_on_Card")
+        }
+        var container = encoder.singleValueContainer()
+        try container.encode(values)
+    }
 }
 
 /// Detailed information about card contents.
@@ -185,11 +319,12 @@ public struct Card: TlvCodable {
 
 /// This command receives from the Tangem Card all the data about the card and the wallet,
 ///  including unique card number (CID or cardId) that has to be submitted while calling all other commands.
-public final class ReadCommand: CommandSerializer {
+public final class ReadCommand: Command {
     public typealias CommandResponse = ReadResponse
-    
     public init() {}
-    
+    deinit {
+        print("ReadCommand deinit")
+    }
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         /// `CardEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.
@@ -207,38 +342,38 @@ public final class ReadCommand: CommandSerializer {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> ReadResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.serializeCommandError
+            throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         
-        let card = Card(
-            cardId: try mapper.mapOptional(.cardId),
-            manufacturerName: try mapper.mapOptional(.manufacturerName),
-            status: try mapper.mapOptional(.status),
-            firmwareVersion: try mapper.mapOptional(.firmwareVersion),
-            cardPublicKey: try mapper.mapOptional(.cardPublicKey),
-            settingsMask: try mapper.mapOptional(.settingsMask),
-            issuerPublicKey: try mapper.mapOptional(.issuerPublicKey),
-            curve: try mapper.mapOptional(.curveId),
-            maxSignatures: try mapper.mapOptional(.maxSignatures),
-            signingMethod: try mapper.mapOptional(.signingMethod),
-            pauseBeforePin2: try mapper.mapOptional(.pauseBeforePin2),
-            walletPublicKey: try mapper.mapOptional(.walletPublicKey),
-            walletRemainingSignatures: try mapper.mapOptional(.walletRemainingSignatures),
-            walletSignedHashes: try mapper.mapOptional(.walletSignedHashes),
-            health: try mapper.mapOptional(.health),
-            isActivated: try mapper.map(.isActivated),
-            activationSeed: try mapper.mapOptional(.activationSeed),
-            paymentFlowVersion: try mapper.mapOptional(.paymentFlowVersion),
-            userCounter: try mapper.mapOptional(.userCounter),
-            terminalIsLinked: try mapper.map(.isLinked),
+        let card = ReadResponse(
+            cardId: try decoder.decodeOptional(.cardId),
+            manufacturerName: try decoder.decodeOptional(.manufacturerName),
+            status: try decoder.decodeOptional(.status),
+            firmwareVersion: try decoder.decodeOptional(.firmwareVersion),
+            cardPublicKey: try decoder.decodeOptional(.cardPublicKey),
+            settingsMask: try decoder.decodeOptional(.settingsMask),
+            issuerPublicKey: try decoder.decodeOptional(.issuerPublicKey),
+            curve: try decoder.decodeOptional(.curveId),
+            maxSignatures: try decoder.decodeOptional(.maxSignatures),
+            signingMethod: try decoder.decodeOptional(.signingMethod),
+            pauseBeforePin2: try decoder.decodeOptional(.pauseBeforePin2),
+            walletPublicKey: try decoder.decodeOptional(.walletPublicKey),
+            walletRemainingSignatures: try decoder.decodeOptional(.walletRemainingSignatures),
+            walletSignedHashes: try decoder.decodeOptional(.walletSignedHashes),
+            health: try decoder.decodeOptional(.health),
+            isActivated: try decoder.decode(.isActivated),
+            activationSeed: try decoder.decodeOptional(.activationSeed),
+            paymentFlowVersion: try decoder.decodeOptional(.paymentFlowVersion),
+            userCounter: try decoder.decodeOptional(.userCounter),
+            terminalIsLinked: try decoder.decode(.isLinked),
             cardData: try deserializeCardData(tlv: tlv),
-            remainingSignatures: try mapper.mapOptional(.walletRemainingSignatures),
-            signedHashes: try mapper.mapOptional(.walletSignedHashes),
-            challenge: try mapper.mapOptional(.challenge),
-            salt: try mapper.mapOptional(.salt),
-            walletSignature: try mapper.mapOptional(.walletSignature))
+            remainingSignatures: try decoder.decodeOptional(.walletRemainingSignatures),
+            signedHashes: try decoder.decodeOptional(.walletSignedHashes),
+            challenge: try decoder.decodeOptional(.challenge),
+            salt: try decoder.decodeOptional(.salt),
+            walletSignature: try decoder.decodeOptional(.walletSignature))
         
         return card
     }
@@ -249,17 +384,17 @@ public final class ReadCommand: CommandSerializer {
                 return nil
         }
         
-        let mapper = TlvMapper(tlv: cardDataTlv)
+        let decoder = TlvDecoder(tlv: cardDataTlv)
         let cardData = CardData(
-            batchId: try mapper.mapOptional(.batchId),
-            manufactureDateTime: try mapper.mapOptional(.manufactureDateTime),
-            issuerName: try mapper.mapOptional(.issuerName),
-            blockchainName: try mapper.mapOptional(.blockchainName),
-            manufacturerSignature: try mapper.mapOptional(.cardIDManufacturerSignature),
-            productMask: try mapper.mapOptional(.productMask),
-            tokenSymbol: try mapper.mapOptional(.tokenSymbol),
-            tokenContractAddress: try mapper.mapOptional(.tokenContractAddress),
-            tokenDecimal: try mapper.mapOptional(.tokenDecimal))
+            batchId: try decoder.decodeOptional(.batchId),
+            manufactureDateTime: try decoder.decodeOptional(.manufactureDateTime),
+            issuerName: try decoder.decodeOptional(.issuerName),
+            blockchainName: try decoder.decodeOptional(.blockchainName),
+            manufacturerSignature: try decoder.decodeOptional(.cardIDManufacturerSignature),
+            productMask: try decoder.decodeOptional(.productMask),
+            tokenSymbol: try decoder.decodeOptional(.tokenSymbol),
+            tokenContractAddress: try decoder.decodeOptional(.tokenContractAddress),
+            tokenDecimal: try decoder.decodeOptional(.tokenDecimal))
         
         return cardData
     }
