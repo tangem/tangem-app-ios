@@ -66,7 +66,7 @@ class EthereumTransactionBuilder {
         return encodedBytesToSend
     }
     
-    fileprivate func getGasLimit(for amount: Amount) -> BigUInt {
+    func getGasLimit(for amount: Amount) -> BigUInt {
         if amount.type == .coin {
             return 21000
         }
