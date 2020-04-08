@@ -78,14 +78,9 @@ class BlockcypherProvider: BitcoinNetworkProvider {
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
         return provider.requestPublisher(.send(txHex: transaction, coin: coin, chain: chain, accessToken: self.randomToken))
-            .tryMap { response throws -> String in
-                if let sendResponse = String(data: response.data, encoding: .utf8), sendResponse.count > 0{
-                    return sendResponse
-                } else {
-                    throw "Empty respomse"
-                }
-        }
-        .eraseToAnyPublisher()
+            .mapNotEmptyString()
+            .eraseError()
+            .eraseToAnyPublisher()
     }
     
     //[REDACTED_TODO_COMMENT]
