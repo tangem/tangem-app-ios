@@ -39,6 +39,12 @@ public class CurrencyWalletFactory {
         case .binance:
             let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: true)
             return CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
+            
+        case .cardano:
+            let walletConfig = WalletConfig(allowFeeSelection: false, allowFeeInclusion: true)
+            return CurrencyWallet(address: address, blockchain: blockchain, config: walletConfig)
+                
         }
+        
     }
 }
