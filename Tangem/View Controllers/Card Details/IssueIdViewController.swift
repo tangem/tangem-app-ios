@@ -212,8 +212,8 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         let cardId = Data(hex: card.cardID)
         let issuerKey = Data(hex: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
         let issuerDataCounter = 1
-        let startingSignature = CryptoUtils.signSecp256k1(cardId + issuerDataCounter.bytes4 + confirmResponse.issuerData.count.bytes2, with: issuerKey)!
-        let finalizingSignature =  CryptoUtils.signSecp256k1(cardId + confirmResponse.issuerData + issuerDataCounter.bytes4, with: issuerKey)!
+        let startingSignature = Secp256k1Utils.sign(cardId + issuerDataCounter.bytes4 + confirmResponse.issuerData.count.bytes2, with: issuerKey)!
+        let finalizingSignature =  Secp256k1Utils.sign(cardId + confirmResponse.issuerData + issuerDataCounter.bytes4, with: issuerKey)!
         
         confirmButton.showActivityIndicator()
         
