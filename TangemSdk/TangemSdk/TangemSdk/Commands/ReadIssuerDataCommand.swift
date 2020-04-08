@@ -35,15 +35,19 @@ public struct ReadIssuerDataResponse: TlvCodable {
  * wallet balance signed by the issuer or additional issuer’s attestation data.
  */
 @available(iOS 13.0, *)
-public final class ReadIssuerDataCommand: CommandSerializer {
+public final class ReadIssuerDataCommand: Command {
     public typealias CommandResponse = ReadIssuerDataResponse
     
     public init() {}
     
+    deinit {
+        print ("ReadIssuerDataCommand deinit")
+    }
+    
     public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
         
         let cApdu = CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
         return cApdu
@@ -51,14 +55,14 @@ public final class ReadIssuerDataCommand: CommandSerializer {
     
     public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> ReadIssuerDataResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.serializeCommandError
+            throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return ReadIssuerDataResponse(
-            cardId: try mapper.map(.cardId),
-            issuerData: try mapper.map(.issuerData),
-            issuerDataSignature: try mapper.map(.issuerDataSignature),
-            issuerDataCounter: try mapper.mapOptional(.issuerDataCounter))
+            cardId: try decoder.decode(.cardId),
+            issuerData: try decoder.decode(.issuerData),
+            issuerDataSignature: try decoder.decode(.issuerDataSignature),
+            issuerDataCounter: try decoder.decodeOptional(.issuerDataCounter))
     }
 }
