@@ -16,7 +16,8 @@ public class CurrencyWalletManagerFactory {
     
     public func makeWalletManager(from card: Card) -> AnyWalletManager<CurrencyWallet>? {
         guard let blockchainName = card.cardData?.blockchainName,
-            let blockchain = Blockchain.from(blockchainName: blockchainName),
+            let curve = card.curve,
+            let blockchain = Blockchain.from(blockchainName: blockchainName, curve: curve),
             let walletPublicKey = card.walletPublicKey,
             let cardId = card.cardId else {
                 assertionFailure()
@@ -102,6 +103,9 @@ public class CurrencyWalletManagerFactory {
                 $0.network = CardanoNetworkManager()
                 $0.wallet = Variable(wallet)
             }.eraseToAnyWalletManager()
+            
+        case .xrp(let curve):
+            fatalError()
         }
     }
     
