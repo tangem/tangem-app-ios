@@ -16,6 +16,11 @@ extension String {
     func removeHexPrefix() -> String {
         return String(self[self.index(self.startIndex, offsetBy: 2)...])
     }
+    
+    var toUInt8: [UInt8] {
+        let v = self.utf8CString.map({ UInt8($0) })
+        return Array(v[0 ..< (v.count-1)])
+    }
 }
 
 extension String: Error, LocalizedError {
