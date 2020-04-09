@@ -98,7 +98,7 @@ public class CurrencyWalletManagerFactory {
         case .cardano:
             return CardanoWalletManager().then {
                 $0.cardId = cardId
-                $0.txBuilder = CardanoTransactionBuilder()
+                $0.txBuilder = CardanoTransactionBuilder(walletPublicKey: walletPublicKey)
                 $0.network = CardanoNetworkManager()
                 $0.wallet = Variable(wallet)
             }.eraseToAnyWalletManager()
