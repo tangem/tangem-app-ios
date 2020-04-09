@@ -73,6 +73,7 @@
 		5D95437323F3169300C5EF86 /* WalletManager+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D95437223F3169300C5EF86 /* WalletManager+.swift */; };
 		5D95437523F31E0D00C5EF86 /* CurrencyWalletFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D95437423F31E0D00C5EF86 /* CurrencyWalletFactory.swift */; };
 		5D977BB623FAEB4500575BE4 /* DucatusNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D977BB523FAEB4500575BE4 /* DucatusNetworkManager.swift */; };
+		5DA6F7BC243F3C0B0040AB4B /* CBOR+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA6F7BB243F3C0B0040AB4B /* CBOR+.swift */; };
 		5DAE73BF239AB4C800AC5543 /* BitcoinAddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAE73BE239AB4C800AC5543 /* BitcoinAddressValidator.swift */; };
 		5DCC817623FAE6D500DFC460 /* AnyPublisher+Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC817523FAE6D500DFC460 /* AnyPublisher+Response.swift */; };
 		5DCC817823FAE6F700DFC460 /* MoyaPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC817723FAE6F700DFC460 /* MoyaPublisher.swift */; };
@@ -187,6 +188,7 @@
 		5D95437223F3169300C5EF86 /* WalletManager+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletManager+.swift"; sourceTree = "<group>"; };
 		5D95437423F31E0D00C5EF86 /* CurrencyWalletFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyWalletFactory.swift; sourceTree = "<group>"; };
 		5D977BB523FAEB4500575BE4 /* DucatusNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusNetworkManager.swift; sourceTree = "<group>"; };
+		5DA6F7BB243F3C0B0040AB4B /* CBOR+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CBOR+.swift"; sourceTree = "<group>"; };
 		5DAE73BE239AB4C800AC5543 /* BitcoinAddressValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinAddressValidator.swift; sourceTree = "<group>"; };
 		5DCC817523FAE6D500DFC460 /* AnyPublisher+Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+Response.swift"; sourceTree = "<group>"; };
 		5DCC817723FAE6F700DFC460 /* MoyaPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoyaPublisher.swift; sourceTree = "<group>"; };
@@ -364,6 +366,7 @@
 				5D557CAF23AA888D009B32AF /* Uint64+.swift */,
 				5D95437223F3169300C5EF86 /* WalletManager+.swift */,
 				5D84551B243E30E70072155E /* PrimitiveSequence+SwiftyJson.swift */,
+				5DA6F7BB243F3C0B0040AB4B /* CBOR+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -732,6 +735,7 @@
 				5D94E56723A3946C009C7482 /* Data+.swift in Sources */,
 				5DAE73BF239AB4C800AC5543 /* BitcoinAddressValidator.swift in Sources */,
 				5D26CEF6243CBA4300994CC0 /* EstimateFeeTarget.swift in Sources */,
+				5DA6F7BC243F3C0B0040AB4B /* CBOR+.swift in Sources */,
 				5DED72BA239FE2F8006D79AE /* Int+.swift in Sources */,
 				5D26CEF3243CB9FB00994CC0 /* BlockchainInfoTarget.swift in Sources */,
 				5DF8D5B5243DB80C00186BF0 /* CardanoAddressFactory.swift in Sources */,
