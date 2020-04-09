@@ -18,14 +18,14 @@ public enum Blockchain {
     case bitcoinCash(testnet: Bool)
     case binance(testnet: Bool)
     case cardano
-    //    case xrp
+    case xrp(curve: EllipticCurve)
     case ducatus
     
     public var isTestnet: Bool {
         switch self {
         case .bitcoin(let testnet):
             return testnet
-        case .litecoin, .ducatus, .cardano:
+        case .litecoin, .ducatus, .cardano, .xrp:
             return false
         case .stellar(let testnet):
             return testnet
@@ -46,7 +46,7 @@ public enum Blockchain {
             return 8
         case .ethereum, .rsk:
             return 18
-        case  .cardano: //.ripple,
+        case  .cardano, .xrp:
             return 6
         case .binance:
             return 8
@@ -59,7 +59,7 @@ public enum Blockchain {
         switch self {
         case .bitcoin, .litecoin, .ethereum, .rsk, .bitcoinCash, .binance, .ducatus:
             return .down
-        case .stellar:
+        case .stellar, .xrp:
             return .plain
         case .cardano:
             return .up
@@ -85,6 +85,8 @@ public enum Blockchain {
             return "DUC"
         case .cardano:
             return "ADA"
+        case .xrp:
+            return "XRP"
         }
     }
     
@@ -108,6 +110,15 @@ public enum Blockchain {
             return DucatusAddressFactory().makeAddress(from: walletPublicKey, testnet: false)
         case .cardano:
             return CardanoAddressFactory().makeAddress(from: walletPublicKey)
+        case .xrp(let curve):
+            var key: Data
+            switch curve {
+            case .secp256k1:
+                key = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
+            case .ed25519:
+                key = [UInt8(0xED)] + walletPublicKey
+            }
+            return XRPAddressFactory().makeAddress(from: key)
         }
     }
     
@@ -127,10 +138,12 @@ public enum Blockchain {
             return BinanceAddressValidator().validate(address, testnet: testnet)
         case .cardano:
             return CardanoAddressValidator().validate(address)
+        case .xrp:
+            return XRPAddressValidator().validate(address)
         }
     }
     
-    public static func from(blockchainName: String) -> Blockchain? {
+    public static func from(blockchainName: String, curve: EllipticCurve) -> Blockchain? {
         let testnetAttribute = "/test"
         let isTestnet = blockchainName.contains(testnetAttribute)
         let cleanName = blockchainName.remove(testnetAttribute).lowercased()
@@ -143,9 +156,8 @@ public enum Blockchain {
         case "bch": return .bitcoinCash(testnet: isTestnet)
         case "binance": return .binance(testnet: isTestnet)
         case "cardano": return .cardano
-            //case "xrp": return .ripple
-       case "duc": return .ducatus
-            //case "tezos": return .tezos
+        case "xrp": return .xrp(curve: curve)
+        case "duc": return .ducatus
         default: return nil
         }
     }
