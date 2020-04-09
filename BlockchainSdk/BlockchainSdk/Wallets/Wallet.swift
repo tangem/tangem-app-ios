@@ -26,7 +26,7 @@ public struct WalletConfig {
 public struct Amount {
     let type: AmountType
     let currencySymbol: String
-    var value: Decimal?
+    var value: Decimal? //[REDACTED_TODO_COMMENT]
     let address: String
     let decimals: Int
     
@@ -57,11 +57,12 @@ public struct Amount {
 
 public struct Transaction {
     public let amount: Amount
-    public let fee: Amount?
+    public let fee: Amount? //[REDACTED_TODO_COMMENT]
     public let sourceAddress: String
     public let destinationAddress: String
     public internal(set) var date: Date? = nil
     public internal(set) var status: TransactionStatus = .unconfirmed
+    public internal(set) var hash: String? = nil
 }
 
 public enum TransactionStatus {
