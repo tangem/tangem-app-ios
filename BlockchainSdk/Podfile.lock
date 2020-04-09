@@ -1,5 +1,6 @@
 PODS:
   - Alamofire (4.9.1)
+  - AnyCodable-FlightSchool (0.2.3)
   - BigInt (4.0.0)
   - BinanceChain (1.0.0-beta):
     - BinanceChain/Core (= 1.0.0-beta)
@@ -64,6 +65,7 @@ PODS:
     - ObjcExceptionBridging
 
 DEPENDENCIES:
+  - AnyCodable-FlightSchool
   - BigInt (~> 4.0)
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.4`)
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
@@ -79,6 +81,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Alamofire
+    - AnyCodable-FlightSchool
     - BigInt
     - CryptoSwift
     - Moya
@@ -120,6 +123,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
   BinanceChain: c873bcf2f40be47dfe35be73a8d7ead6097bb2de
   CryptoSwift: 1283821600233bdbeb96d7b389c3288c3bf77211
@@ -140,6 +144,6 @@ SPEC CHECKSUMS:
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: f782dce692cf461138aacee3415faa1dd6de61d9
+PODFILE CHECKSUM: aaba3ffe638b587afa3d3bf412958db547309679
 
 COCOAPODS: 1.9.1
