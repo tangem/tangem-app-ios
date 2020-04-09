@@ -52,3 +52,18 @@ extension CardanoWalletManager: FeeProvider {
         <#code#>
     }
 }
+
+@available(iOS 13.0, *)
+extension CardanoWalletManager: TransactionSizeEstimator {
+    func getEstimateSize(for transaction: Transaction) -> Decimal? {
+        guard let unspentOutputsCount = txBuilder.unspentOutputs?.count else {
+            return nil
+        }
+        
+        guard let tx = txBuilder.buildForSend(transaction: transaction, signature: Data(repeating: UInt8(0x01), count: 64 * unspentOutputsCount)) else {
+            return nil
+        }
+        
+        return Decimal(tx.count + 1)
+    }
+}
