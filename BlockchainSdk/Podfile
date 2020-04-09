@@ -19,4 +19,5 @@ target 'BlockchainSdk' do
     #pod 'HDWalletKit', :path => '/Users/alexander.osokin/repos/tangem/HDWallet'
     #pod 'web3swift', :path => '/Users/alexander.osokin/repos/tangem/web3swift'
     pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.2'
+    pod 'AnyCodable-FlightSchool'
 end
