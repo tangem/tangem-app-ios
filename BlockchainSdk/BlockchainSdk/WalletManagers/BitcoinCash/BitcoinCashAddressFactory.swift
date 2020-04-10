@@ -8,11 +8,13 @@
 
 import Foundation
 import HDWalletKit
+import TangemSdk
 
 public class BitcoinCashAddressFactory {
     public func makeAddress(from walletPublicKey: Data) -> String {
+        let compressedKey = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
         let prefix = Data([UInt8(0x00)]) //public key hash
-        let payload = RIPEMD160.hash(message: walletPublicKey.sha256())
+        let payload = RIPEMD160.hash(message: compressedKey.sha256())
         let walletAddress = HDWalletKit.Bech32.encode(prefix + payload, prefix: "bitcoincash")
         return walletAddress
     }
