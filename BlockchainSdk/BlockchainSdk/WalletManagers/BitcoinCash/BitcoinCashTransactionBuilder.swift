@@ -18,7 +18,7 @@ class BitcoinCashTransactionBuilder {
     
     init(walletAddress: String, walletPublicKey: Data, isTestnet: Bool) {
         self.walletAddress = walletAddress
-        self.walletPublicKey = walletPublicKey
+        self.walletPublicKey = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
         self.isTestnet = isTestnet
     }
     
