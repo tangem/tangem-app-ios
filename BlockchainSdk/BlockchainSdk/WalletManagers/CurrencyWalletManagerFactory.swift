@@ -105,7 +105,12 @@ public class CurrencyWalletManagerFactory {
             }.eraseToAnyWalletManager()
             
         case .xrp(let curve):
-            fatalError()
+          return XRPWalletManager().then {
+                $0.cardId = cardId
+                $0.txBuilder = XRPTransactionBuilder(walletPublicKey: walletPublicKey, curve: curve)
+                $0.network = XRPNetworkManager()
+                $0.wallet = Variable(wallet)
+            }.eraseToAnyWalletManager()
         }
     }
     
