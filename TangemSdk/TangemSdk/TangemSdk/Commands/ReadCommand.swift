@@ -325,8 +325,8 @@ public final class ReadCommand: Command {
     deinit {
         print("ReadCommand deinit")
     }
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
-        /// `CardEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
+    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
+        /// `SessionEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.
         /// In order to obtain card’s data, [ReadCommand] should use the correct pin 1 value.
         /// The card will not respond if wrong pin 1 has been submitted.
@@ -340,7 +340,7 @@ public final class ReadCommand: Command {
         return cApdu
     }
     
-    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> ReadResponse {
+    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> ReadResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
