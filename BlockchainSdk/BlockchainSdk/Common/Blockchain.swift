@@ -101,24 +101,15 @@ public enum Blockchain {
         case .ethereum, .rsk:
             return EthereumAddressFactory().makeAddress(from: walletPublicKey)
         case .bitcoinCash:
-            let compressedKey = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
-            return BitcoinCashAddressFactory().makeAddress(from: compressedKey)
+            return BitcoinCashAddressFactory().makeAddress(from: walletPublicKey)
         case .binance(let testnet):
-            let compressedKey = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
-            return BinanceAddressFactory().makeAddress(from: compressedKey, testnet: testnet)
+            return BinanceAddressFactory().makeAddress(from: walletPublicKey, testnet: testnet)
         case .ducatus:
             return DucatusAddressFactory().makeAddress(from: walletPublicKey, testnet: false)
         case .cardano:
             return CardanoAddressFactory().makeAddress(from: walletPublicKey)
         case .xrp(let curve):
-            var key: Data
-            switch curve {
-            case .secp256k1:
-                key = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
-            case .ed25519:
-                key = [UInt8(0xED)] + walletPublicKey
-            }
-            return XRPAddressFactory().makeAddress(from: key)
+            return XRPAddressFactory().makeAddress(from: walletPublicKey, curve: curve)
         }
     }
     
