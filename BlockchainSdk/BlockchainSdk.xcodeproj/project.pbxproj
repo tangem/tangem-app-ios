@@ -101,6 +101,10 @@
 		5DAE73BF239AB4C800AC5543 /* BitcoinAddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAE73BE239AB4C800AC5543 /* BitcoinAddressValidator.swift */; };
 		5DC7DD5E243F8398008F83F2 /* XRPAddressValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC7DD5D243F8398008F83F2 /* XRPAddressValidator.swift */; };
 		5DC7DD60243F83E6008F83F2 /* XRPAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC7DD5F243F83E6008F83F2 /* XRPAddressFactory.swift */; };
+		5DC7DD62244077D7008F83F2 /* XRPNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC7DD61244077D7008F83F2 /* XRPNetworkManager.swift */; };
+		5DC7DD64244077E4008F83F2 /* XRPTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC7DD63244077E4008F83F2 /* XRPTransactionBuilder.swift */; };
+		5DC7DD66244077F2008F83F2 /* XRPWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC7DD65244077F2008F83F2 /* XRPWalletManager.swift */; };
+		5DC7DD6824408266008F83F2 /* XrpResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC7DD6724408266008F83F2 /* XrpResponse.swift */; };
 		5DCC817623FAE6D500DFC460 /* AnyPublisher+Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC817523FAE6D500DFC460 /* AnyPublisher+Response.swift */; };
 		5DCC817823FAE6F700DFC460 /* MoyaPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC817723FAE6F700DFC460 /* MoyaPublisher.swift */; };
 		5DE3BF97239E6DAB00E8815D /* RIPEMD160.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3BF96239E6DAB00E8815D /* RIPEMD160.swift */; };
@@ -242,6 +246,10 @@
 		5DAE73BE239AB4C800AC5543 /* BitcoinAddressValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinAddressValidator.swift; sourceTree = "<group>"; };
 		5DC7DD5D243F8398008F83F2 /* XRPAddressValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressValidator.swift; sourceTree = "<group>"; };
 		5DC7DD5F243F83E6008F83F2 /* XRPAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressFactory.swift; sourceTree = "<group>"; };
+		5DC7DD61244077D7008F83F2 /* XRPNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPNetworkManager.swift; sourceTree = "<group>"; };
+		5DC7DD63244077E4008F83F2 /* XRPTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPTransactionBuilder.swift; sourceTree = "<group>"; };
+		5DC7DD65244077F2008F83F2 /* XRPWalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPWalletManager.swift; sourceTree = "<group>"; };
+		5DC7DD6724408266008F83F2 /* XrpResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XrpResponse.swift; sourceTree = "<group>"; };
 		5DCC817523FAE6D500DFC460 /* AnyPublisher+Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+Response.swift"; sourceTree = "<group>"; };
 		5DCC817723FAE6F700DFC460 /* MoyaPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoyaPublisher.swift; sourceTree = "<group>"; };
 		5DE3BF96239E6DAB00E8815D /* RIPEMD160.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RIPEMD160.swift; sourceTree = "<group>"; };
@@ -285,6 +293,7 @@
 			isa = PBXGroup;
 			children = (
 				5D01BCE1243F7F7E0048D1BA /* XrpTarget.swift */,
+				5DC7DD6724408266008F83F2 /* XrpResponse.swift */,
 			);
 			path = XRP;
 			sourceTree = "<group>";
@@ -616,6 +625,9 @@
 				5D01BCE3243F80DC0048D1BA /* XRPKit */,
 				5DC7DD5D243F8398008F83F2 /* XRPAddressValidator.swift */,
 				5DC7DD5F243F83E6008F83F2 /* XRPAddressFactory.swift */,
+				5DC7DD61244077D7008F83F2 /* XRPNetworkManager.swift */,
+				5DC7DD63244077E4008F83F2 /* XRPTransactionBuilder.swift */,
+				5DC7DD65244077F2008F83F2 /* XRPWalletManager.swift */,
 			);
 			path = XRP;
 			sourceTree = "<group>";
@@ -845,6 +857,7 @@
 				5D01BD03243F80DC0048D1BA /* XRPLedger.swift in Sources */,
 				5D01BD0F243F80DC0048D1BA /* XRPAccount.swift in Sources */,
 				5D01BD14243F80DC0048D1BA /* URandom.swift in Sources */,
+				5DC7DD64244077E4008F83F2 /* XRPTransactionBuilder.swift in Sources */,
 				5D304390239A58C90066B8D9 /* BitcoinWalletManager.swift in Sources */,
 				5D4B33DA23FAAD1B00C93A84 /* BitcoreResponse.swift in Sources */,
 				5DE3BF99239E722400E8815D /* Base58.swift in Sources */,
@@ -898,6 +911,7 @@
 				5D47E34E23F4426F00779DFA /* EthereumNetwork.swift in Sources */,
 				5D01BD0C243F80DC0048D1BA /* XRPWallet.swift in Sources */,
 				5D006ACD239950F9008BA04D /* CurrencyWallet.swift in Sources */,
+				5DC7DD66244077F2008F83F2 /* XRPWalletManager.swift in Sources */,
 				5D4B33CF23F7DC6600C93A84 /* BinanceAddressValidator.swift in Sources */,
 				5D14E4972397B87000C15FC8 /* WalletManager.swift in Sources */,
 				5D557CAC23AA70AC009B32AF /* InfuraTarget.swift in Sources */,
@@ -912,10 +926,12 @@
 				5D01BD11243F80DC0048D1BA /* Entropy.swift in Sources */,
 				5DF8D5B5243DB80C00186BF0 /* CardanoAddressFactory.swift in Sources */,
 				5D4B33CA23F732C800C93A84 /* BitcoinCashTransactionBuilder.swift in Sources */,
+				5DC7DD62244077D7008F83F2 /* XRPNetworkManager.swift in Sources */,
 				5D845516243DEAC80072155E /* AdaliteTarget.swift in Sources */,
 				5DCC817823FAE6F700DFC460 /* MoyaPublisher.swift in Sources */,
 				5D4B33DC23FAAD8300C93A84 /* BitcoreProvider.swift in Sources */,
 				5D304397239A6B960066B8D9 /* String+.swift in Sources */,
+				5DC7DD6824408266008F83F2 /* XrpResponse.swift in Sources */,
 				5D4B33CD23F7DC0400C93A84 /* BinanceWalletManager.swift in Sources */,
 				5D01BD16243F80DC0048D1BA /* Serializer.swift in Sources */,
 				5D557CB523ACCAD2009B32AF /* BlockcypherProvider.swift in Sources */,
