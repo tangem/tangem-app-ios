@@ -61,7 +61,7 @@ public final class CheckWalletCommand: Command {
         }
     }
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.cardId, value: environment.card?.cardId)
@@ -71,7 +71,7 @@ public final class CheckWalletCommand: Command {
         return cApdu
     }
     
-    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> CheckWalletResponse {
+    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> CheckWalletResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
