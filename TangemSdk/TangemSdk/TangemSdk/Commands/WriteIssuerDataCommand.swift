@@ -54,7 +54,7 @@ public final class WriteIssuerDataCommand: Command {
         print ("WriteIssuerDataCommand deinit")
     }
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.cardId, value: environment.card?.cardId)
@@ -69,7 +69,7 @@ public final class WriteIssuerDataCommand: Command {
         return cApdu
     }
     
-    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerDataResponse {
+    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerDataResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }

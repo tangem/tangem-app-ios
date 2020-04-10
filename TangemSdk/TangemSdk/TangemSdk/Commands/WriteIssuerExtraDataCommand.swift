@@ -31,7 +31,7 @@ public final class WriteIssuerExtraDataCommand: Command {
     private let issuerDataCounter: Int?
     
     private var completion: CompletionResult<WriteIssuerExtraDataResponse>?
-    private var viewDelegate: CardSessionViewDelegate?
+    private var viewDelegate: SessionViewDelegate?
     
     /// Initializer
     /// - Parameters:
@@ -75,10 +75,10 @@ public final class WriteIssuerExtraDataCommand: Command {
         
         self.completion = completion
         self.viewDelegate = session.viewDelegate
-        writeData(session, session.environment)
+        writeData(session)
     }
     
-    private func writeData(_ session: CardSession, _ environment: CardEnvironment) {
+    private func writeData(_ session: CardSession) {
         showProgress()
         transieve(in: session) {result in
             switch result {
@@ -86,13 +86,13 @@ public final class WriteIssuerExtraDataCommand: Command {
                 switch self.mode {
                 case .readOrStartWrite:
                     self.mode = .writePart
-                    self.writeData( session, environment)
+                    self.writeData(session)
                 case .writePart:
                     self.offset += WriteIssuerExtraDataCommand.singleWriteSize
                     if self.offset >= self.issuerData.count {
                         self.mode = .finalizeWrite
                     }
-                   self.writeData( session, environment)
+                   self.writeData(session)
                 case .finalizeWrite:
                     self.viewDelegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
                     self.completion?(.success(response))
@@ -133,7 +133,7 @@ public final class WriteIssuerExtraDataCommand: Command {
         viewDelegate?.showAlertMessage(Localization.writeProgress(progress.description))
     }
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.cardId, value: environment.card?.cardId)
@@ -162,7 +162,7 @@ public final class WriteIssuerExtraDataCommand: Command {
         return cApdu
     }
     
-    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerExtraDataResponse {
+    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerExtraDataResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
