@@ -19,7 +19,7 @@ enum BitcoinError: Error {
     case failedToCalculateTxSize
 }
 
-class BitcoinWalletManager: WalletManager<CurrencyWallet>, FeeProvider {
+class BitcoinWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: BitcoinTransactionBuilder!
     var network: BitcoinNetworkProvider!
     var currencyWallet: CurrencyWallet { return wallet.value }
