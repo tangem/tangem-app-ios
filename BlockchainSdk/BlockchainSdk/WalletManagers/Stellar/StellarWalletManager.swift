@@ -75,10 +75,7 @@ extension StellarWalletManager: TransactionSender {
         }
         .eraseToAnyPublisher()
     }
-}
-
-@available(iOS 13.0, *)
-extension StellarWalletManager: FeeProvider {
+    
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
         if let feeValue = self.baseFee {
             let feeAmount = Amount(with: currencyWallet.blockchain, address: source, value: feeValue)
