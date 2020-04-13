@@ -18,22 +18,15 @@ enum StellarError: Error {
     case requestFailed
 }
 
-class StellarWalletManager: WalletManager, BlockchainProcessable {
-    typealias TTransactionBuilder = StellarTransactionBuilder
-    typealias TNetworkManager = StellarNetworkManager
-    typealias TWallet = CurrencyWallet
-        
+class StellarWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: StellarTransactionBuilder!
     var network: StellarNetworkManager!
-    var cardId: String!
-    var wallet: Variable<CurrencyWallet>!
-    var error = PublishSubject<Error>()
     var stellarSdk: StellarSDK!
     private var baseFee: Decimal?
     private var requestDisposable: Disposable?
     private var currencyWallet: CurrencyWallet { return wallet.value }
     
-    func update() {
+    override func update() {
         let assetCode = currencyWallet.balances[.token]?.currencySymbol
         requestDisposable = network
             .getInfo(accountId: currencyWallet.address, assetCode: assetCode)
@@ -95,3 +88,5 @@ extension StellarWalletManager: FeeProvider {
         }
     }
 }
+
+extension StellarWalletManager: ThenProcessable { }
