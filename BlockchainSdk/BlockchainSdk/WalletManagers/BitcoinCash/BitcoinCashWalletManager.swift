@@ -11,7 +11,7 @@ import TangemSdk
 import Combine
 import RxSwift
 
-class BitcoinCashWalletManager: WalletManager<CurrencyWallet>, FeeProvider {
+class BitcoinCashWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: BitcoinCashTransactionBuilder!
     var network: BitcoinCashNetworkManager!
     private var requestDisposable: Disposable?
@@ -39,9 +39,11 @@ class BitcoinCashWalletManager: WalletManager<CurrencyWallet>, FeeProvider {
                 }
                 
                 let fee = (feePerByte * estimatedTxSize)
-              
+                let relayFee = Decimal(0.00001)
+                let finalFee = fee >= relayFee ? fee : relayFee
+                
                 return [
-                    Amount(with: self.currencyWallet.blockchain, address: source, value: fee)
+                    Amount(with: self.currencyWallet.blockchain, address: source, value: finalFee)
                 ]
         }
         .eraseToAnyPublisher()
