@@ -36,7 +36,7 @@ class CardanoWalletManager: WalletManager<CurrencyWallet> {
     }
     
     private func updateWallet(with response: (AdaliteBalanceResponse,[AdaliteUnspentOutput])) {
-        currencyWallet.balances[.coin]?.value = response.0.balance
+        currencyWallet.add(coinValue: response.0.balance)
         txBuilder.unspentOutputs = response.1
         
         currencyWallet.pendingTransactions = currencyWallet.pendingTransactions.compactMap { pendingTx in
@@ -77,7 +77,7 @@ extension CardanoWalletManager: TransactionSender {
     }
     
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-           guard let estimatedTxSize = self.getEstimateSize(for: Transaction(amount: amount, fee: nil, sourceAddress: source, destinationAddress: destination)) else {
+           guard let estimatedTxSize = self.getEstimateSize(for: Transaction(amount: amount, fee: Amount(with: amount, value: 0.0001), sourceAddress: source, destinationAddress: destination)) else {
                return Fail(error: CardanoError.failedToCalculateTxSize).eraseToAnyPublisher()
            }
            

@@ -73,13 +73,12 @@ class CardanoTransactionBuilder {
     }
     
     private func buildTransactionBody(from transaction: Transaction, walletAmount: Decimal) -> Data? {
-        guard let fee = transaction.fee?.value,
-            let amount = transaction.amount.value, let unspentOutputs = self.unspentOutputs else {
+        guard let unspentOutputs = self.unspentOutputs else {
                 return nil
         }
         let convertValue = pow(10, Blockchain.cardano.decimalCount)
-        let feeConverted = fee * convertValue
-        let amountConverted = amount * convertValue
+        let feeConverted = transaction.fee.value * convertValue
+        let amountConverted = transaction.amount.value * convertValue
         let walletAmountConverted = walletAmount * convertValue
         let change = walletAmountConverted - amountConverted - feeConverted
         
