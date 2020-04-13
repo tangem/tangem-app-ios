@@ -11,51 +11,11 @@ import TangemSdk
 import Combine
 import RxSwift
 
-public protocol WalletManager {
-    associatedtype WalletType: Wallet
-    
-    var cardId: String! {get}
-    var wallet: Variable<WalletType>! {get}
-    var error: PublishSubject<Error> {get}
-    func update()
-}
-
-extension WalletManager {
-    func eraseToAnyWalletManager() -> AnyWalletManager<WalletType> {
-        return AnyWalletManager<WalletType>(self)
-    }
-}
-
-final public class AnyWalletManager<WalletType: Wallet>: WalletManager {
-    public var cardId: String!
-    public var wallet: Variable<WalletType>!
-    public var error: PublishSubject<Error> = .init()
-    public func update() {}
-    
-    private let updateBlock: () -> Void
-    private let cardIdBlock: () -> String
-    private let walletBlock: () -> Variable<WalletType>
-    private let loadingErrorBlock: () -> PublishSubject<Error>
-    
-    init<WalletManagerType: WalletManager>(_ walletManager: WalletManagerType) where WalletManagerType.WalletType == WalletType {
-        updateBlock = { walletManager.update() }
-        cardIdBlock = { walletManager.cardId }
-        walletBlock = { walletManager.wallet }
-        loadingErrorBlock = { walletManager.error }
-    }
-}
-
-protocol BlockchainProcessable {
-    associatedtype TransactionBuilder
-    associatedtype NetworkManager
-    
-    var txBuilder: TransactionBuilder!  {get}
-    var network: NetworkManager!  {get}
-}
-
-@available(iOS 13.0, *)
-protocol TransactionSizeEstimator {
-    func getEstimateSize(for transaction: Transaction) -> Decimal?
+public class WalletManager<TWallet: Wallet> {
+    var cardId: String!
+    var wallet: Variable<TWallet>!
+    var error: PublishSubject<Error> = .init()
+    func update() {}
 }
 
 @available(iOS 13.0, *)
