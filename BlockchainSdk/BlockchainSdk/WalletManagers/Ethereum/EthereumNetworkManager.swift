@@ -48,16 +48,20 @@ class EthereumNetworkManager {
     @available(iOS 13.0, *)
     func getGasPrice() -> AnyPublisher<BigUInt, Error> {
         let future = Future<BigUInt,Error> {[unowned self] promise in
-                let network = self.network == .mainnet ? Networks.Mainnet : Networks.Custom(networkID: self.network.chainId)
-                let provider = Web3HttpProvider(self.network.url, network: network, keystoreManager: nil)!
-                let web = web3(provider: provider)
-                
-                guard let gasPrice = try? web.eth.getGasPrice() else {
-                    promise(.failure(EthereumError.failedToGetFee))
-                    return
-                }
+            guard let web3Network = self.network.getWeb3Network() else {
+                promise(.failure(EthereumError.failedToGetFee))
+                return
+            }
             
-                promise(.success(gasPrice))
+            let provider = Web3HttpProvider(self.network.url, network: web3Network, keystoreManager: nil)!
+            let web = web3(provider: provider)
+            
+            guard let gasPrice = try? web.eth.getGasPrice() else {
+                promise(.failure(EthereumError.failedToGetFee))
+                return
+            }
+            
+            promise(.success(gasPrice))
         }
         return AnyPublisher(future)
     }
