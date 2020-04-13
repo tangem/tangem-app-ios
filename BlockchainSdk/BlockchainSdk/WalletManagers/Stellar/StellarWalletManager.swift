@@ -27,9 +27,8 @@ class StellarWalletManager: WalletManager<CurrencyWallet> {
     private var currencyWallet: CurrencyWallet { return wallet.value }
     
     override func update() {
-        let assetCode = currencyWallet.balances[.token]?.currencySymbol
         requestDisposable = network
-            .getInfo(accountId: currencyWallet.address, assetCode: assetCode)
+            .getInfo(accountId: currencyWallet.address, assetCode: currencyWallet.token?.currencySymbol)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
@@ -39,11 +38,12 @@ class StellarWalletManager: WalletManager<CurrencyWallet> {
     
     private func updateWallet(with response: StellarResponse) {
         txBuilder.sequence = response.sequence
-        let fullReserve = currencyWallet.balances.contains(where: { $0.key == .token }) ? response.baseReserve * 3 : response.baseReserve * 2
-        currencyWallet.balances[.coin]?.value = response.balance - fullReserve
-        currencyWallet.balances[.token]?.value = response.assetBalance
-        currencyWallet.balances[.reserve]?.value = fullReserve
-        
+        let fullReserve = currencyWallet.token != nil ? response.baseReserve * 3 : response.baseReserve * 2
+        currencyWallet.add(reserveValue: fullReserve)
+        currencyWallet.add(coinValue: response.balance - fullReserve)
+        if let assetBalance = response.assetBalance {
+            currencyWallet.add(tokenValue: assetBalance)
+        }
         let currentDate = Date()
         for  index in currencyWallet.pendingTransactions.indices {
             if DateInterval(start: currencyWallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
