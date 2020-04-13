@@ -10,9 +10,10 @@ import Foundation
 
 public struct Transaction {
     public let amount: Amount
-    public let fee: Amount? //[REDACTED_TODO_COMMENT]
+    public let fee: Amount
     public let sourceAddress: String
     public let destinationAddress: String
+    public let contractAddress: String? = nil
     public internal(set) var date: Date? = nil
     public internal(set) var status: TransactionStatus = .unconfirmed
     public internal(set) var hash: String? = nil
@@ -23,7 +24,7 @@ public enum TransactionStatus {
     case confirmed
 }
 
-struct ValidationError: OptionSet {
+struct ValidationError: OptionSet, Error {
     let rawValue: Int
     static let wrongAmount = ValidationError(rawValue: 0 << 1)
     static let wrongFee = ValidationError(rawValue: 0 << 2)
