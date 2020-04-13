@@ -1,5 +1,5 @@
 //
-//  BlockchainFactory.swift
+//  WalletManagerFactory.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
