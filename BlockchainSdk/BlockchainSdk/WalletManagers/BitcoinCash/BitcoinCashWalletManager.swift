@@ -11,21 +11,13 @@ import TangemSdk
 import Combine
 import RxSwift
 
-class BitcoinCashWalletManager: WalletManager, BlockchainProcessable, FeeProvider {
-    typealias TWallet = CurrencyWallet
-    typealias TNetworkManager = BitcoinCashNetworkManager
-    typealias TTransactionBuilder = BitcoinCashTransactionBuilder
-    
-    var wallet: Variable<CurrencyWallet>!
-    var error = PublishSubject<Error>()
+class BitcoinCashWalletManager: WalletManager<CurrencyWallet>, FeeProvider {
     var txBuilder: BitcoinCashTransactionBuilder!
     var network: BitcoinCashNetworkManager!
-    var cardId: String!
     private var requestDisposable: Disposable?
     private var currencyWallet: CurrencyWallet { return wallet.value }
     
-
-    func update() {//check it
+    override func update() {//check it
         requestDisposable = network
             .getInfo()
             .subscribe(onSuccess: {[unowned self] response in
@@ -55,6 +47,18 @@ class BitcoinCashWalletManager: WalletManager, BlockchainProcessable, FeeProvide
         .eraseToAnyPublisher()
     }
     
+    private func getEstimateSize(for transaction: Transaction) -> Decimal? {
+        guard let unspentOutputsCount = txBuilder.unspentOutputs?.count else {
+            return nil
+        }
+        
+        guard let tx = txBuilder.buildForSend(transaction: transaction, signature: Data(repeating: UInt8(0x01), count: 64 * unspentOutputsCount)) else {
+            return nil
+        }
+        
+        return Decimal(tx.count + 1)
+    }
+    
     //[REDACTED_TODO_COMMENT]
     private func updateWallet(with response: BitcoinResponse) {
         currencyWallet.balances[.coin]?.value = response.balance
@@ -66,21 +70,6 @@ class BitcoinCashWalletManager: WalletManager, BlockchainProcessable, FeeProvide
         } else {
             currencyWallet.pendingTransactions = []
         }
-    }
-}
-
-@available(iOS 13.0, *)
-extension BitcoinCashWalletManager: TransactionSizeEstimator {
-    func getEstimateSize(for transaction: Transaction) -> Decimal? {
-        guard let unspentOutputsCount = txBuilder.unspentOutputs?.count else {
-            return nil
-        }
-        
-        guard let tx = txBuilder.buildForSend(transaction: transaction, signature: Data(repeating: UInt8(0x01), count: 64 * unspentOutputsCount)) else {
-            return nil
-        }
-        
-        return Decimal(tx.count + 1)
     }
 }
 
@@ -107,3 +96,6 @@ extension BitcoinCashWalletManager: TransactionSender {
         .eraseToAnyPublisher()
     }
 }
+
+
+extension BitcoinCashWalletManager: ThenProcessable { }
