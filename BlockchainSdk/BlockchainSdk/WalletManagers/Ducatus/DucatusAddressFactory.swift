@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import TangemSdk
 
 public class DucatusAddressFactory: BitcoinAddressFactory {
     override func getNetwork(_ testnet: Bool) -> Data {
-        return Data([UInt8(31)])
+        return Data([UInt8(0x31)])
     }
 }
