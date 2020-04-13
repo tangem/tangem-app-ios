@@ -58,17 +58,19 @@ enum BlockchairTarget: TargetType {
     }
     
     var task: Task {
+        var parameters =  ["key":apiKey]
         switch self {
         case .address:
-            return .requestParameters(parameters: ["transaction_details" : "true"], encoding: URLEncoding.default)
+            parameters["transaction_details"] = "true"
         case .fee:
-            return .requestPlain
+            break
         case .send(let txHex, _):
-            return .requestParameters(parameters: ["data": txHex], encoding: URLEncoding.default)
+            parameters["data"] = txHex
         }
+        return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
     }
     
-    public var headers: [String: String]? {
+    var headers: [String: String]? {
         switch self {
         case .address, .fee:
             return ["Content-Type": "application/json"]
@@ -77,4 +79,7 @@ enum BlockchairTarget: TargetType {
         }
     }
     
+    private var apiKey: String {
+        return "A___0Shpsu4KagE7oSabrw20DfXAqWlT"
+    }
 }
