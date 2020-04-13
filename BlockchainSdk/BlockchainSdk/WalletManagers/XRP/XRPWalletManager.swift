@@ -11,29 +11,21 @@ import RxSwift
 import Combine
 import TangemSdk
 
-class XRPWalletManager: WalletManager, BlockchainProcessable {
-    typealias TWallet = CurrencyWallet
-       typealias TNetworkManager = XRPNetworkManager
-       typealias TTransactionBuilder = XRPTransactionBuilder
-       
-       var wallet: Variable<CurrencyWallet>!
-       var error = PublishSubject<Error>()
-       var txBuilder: XRPTransactionBuilder!
-       var network: XRPNetworkManager!
-       var cardId: String!
-       var currencyWallet: CurrencyWallet { return wallet.value }
-       
-       private var requestDisposable: Disposable?
-       
-       func update() {//check it
-           requestDisposable = network
-               .getInfo(account: currencyWallet.address)
-               .subscribe(onSuccess: {[unowned self] response in
-                   self.updateWallet(with: response)
-                   }, onError: {[unowned self] error in
-                       self.error.onNext(error)
-               })
-       }
+class XRPWalletManager: WalletManager<CurrencyWallet> {
+    var txBuilder: XRPTransactionBuilder!
+    var network: XRPNetworkManager!
+    var currencyWallet: CurrencyWallet { return wallet.value }    
+    private var requestDisposable: Disposable?
+    
+    override func update() {//check it
+        requestDisposable = network
+            .getInfo(account: currencyWallet.address)
+            .subscribe(onSuccess: {[unowned self] response in
+                self.updateWallet(with: response)
+                }, onError: {[unowned self] error in
+                    self.error.onNext(error)
+            })
+    }
     
     private func updateWallet(with response: XrpInfoResponse) {
         currencyWallet.balances[.coin]?.value = response.balance/Decimal(1000000)
@@ -104,3 +96,5 @@ extension XRPWalletManager: TransactionSender {
         .eraseToAnyPublisher()
     }
 }
+
+extension XRPWalletManager: ThenProcessable { }
