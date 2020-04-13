@@ -23,7 +23,7 @@ class EthereumWalletManager: WalletManager<CurrencyWallet> {
 
     override func update() {
         requestDisposable = network
-            .getInfo(address: currencyWallet.address, contractAddress: currencyWallet.balances[.token]!.address)
+            .getInfo(address: currencyWallet.address, contractAddress: currencyWallet.token?.contractAddress)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
@@ -32,8 +32,10 @@ class EthereumWalletManager: WalletManager<CurrencyWallet> {
     }
     
     private func updateWallet(with response: EthereumResponse) {
-        currencyWallet.balances[.coin]?.value = response.balance
-        currencyWallet.balances[.token]?.value = response.tokenBalance
+        currencyWallet.add(coinValue: response.balance)
+        if let tokenBalance = response.tokenBalance {
+            currencyWallet.add(tokenValue: tokenBalance)
+        }
         txCount = response.txCount
         pendingTxCount = response.txCount
         if txCount == pendingTxCount {
@@ -42,7 +44,7 @@ class EthereumWalletManager: WalletManager<CurrencyWallet> {
             }
         } else {
             if currencyWallet.pendingTransactions.isEmpty {
-                currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: currencyWallet.blockchain, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
+                currencyWallet.addIncomingTransaction()
             }
         }
     }
