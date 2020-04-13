@@ -13,22 +13,15 @@ import Combine
 import RxSwift
 import TangemSdk
 
-class EthereumWalletManager: WalletManager, BlockchainProcessable {
-    typealias TTransactionBuilder = EthereumTransactionBuilder
-    typealias TNetworkManager = EthereumNetworkManager
-    typealias TWallet = CurrencyWallet
-    
+class EthereumWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: EthereumTransactionBuilder!
     var network: EthereumNetworkManager!
-    var cardId: String!
-    var wallet: Variable<CurrencyWallet>!
-    var error = PublishSubject<Error>()
-    public var txCount: Int = -1
-    public var pendingTxCount: Int = -1
+    var txCount: Int = -1
+    var pendingTxCount: Int = -1
     private var requestDisposable: Disposable?
     private var currencyWallet: CurrencyWallet { return wallet.value }
 
-    func update() {
+    override func update() {
         requestDisposable = network
             .getInfo(address: currencyWallet.address, contractAddress: currencyWallet.balances[.token]!.address)
             .subscribe(onSuccess: {[unowned self] response in
@@ -114,32 +107,6 @@ enum EthereumError: Error {
     case failedToBuildHash
 }
 
-extension EthereumTransaction {
-    func encodeForSend(chainID: BigUInt? = nil) -> Data? {
-        
-        let encodeV = chainID == nil ? self.v :
-            self.v - 27 + chainID! * 2 + 35
-        
-        let fields = [self.nonce, self.gasPrice, self.gasLimit, self.to.addressData, self.value, self.data, encodeV, self.r, self.s] as [AnyObject]
-        return RLP.encode(fields)
-    }
-    
-    init?(amount: BigUInt, fee: BigUInt, targetAddress: String, nonce: BigUInt, gasLimit: BigUInt = 21000, data: Data, v: BigUInt = 0, r: BigUInt = 0, s: BigUInt = 0) {
-        let gasPrice = fee / gasLimit
-        
-        guard let ethAddress = EthereumAddress(targetAddress) else {
-            return nil
-        }
-        
-        self.init( nonce: nonce,
-                   gasPrice: gasPrice,
-                   gasLimit: gasLimit,
-                   to: ethAddress,
-                   value: amount,
-                   data: data,
-                   v: v,
-                   r: r,
-                   s: s)
-    }
-}
 
+
+extension EthereumWalletManager: ThenProcessable { }
