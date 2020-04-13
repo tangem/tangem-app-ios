@@ -23,10 +23,7 @@ public class WalletManagerFactory {
         }
         
         let address = blockchain.makeAddress(from: walletPublicKey)
-        let wallet = CurrencyWallet(address: address, blockchain: blockchain)
-        if let token =  getToken(from: card) {
-            wallet.add(amount: Amount(with: token))
-        }
+        let wallet = CurrencyWallet(address: address, blockchain: blockchain, token: getToken(from: card))
         
         switch blockchain {
         case .bitcoin(let testnet):
@@ -123,10 +120,4 @@ public class WalletManagerFactory {
         }
         return nil
     }
-}
-
-public struct Token {
-    let currencySymbol: String
-    let contractAddress: String
-    let decimalCount: Int
 }
