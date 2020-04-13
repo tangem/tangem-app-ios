@@ -13,6 +13,7 @@ struct BlockcypherAddressResponse : Codable {
     let balance: Int?
     let unconfirmed_balance: Int?
     let txrefs: [BlockcypherTxref]?
+    let unconfirmed_txrefs: [BlockcypherTxref]?
 }
 
 struct BlockcypherTxref: Codable {
@@ -27,4 +28,9 @@ struct BlockcypherFeeResponse: Codable {
     let low_fee_per_kb: Int64?
     let medium_fee_per_kb: Int64?
     let high_fee_per_kb: Int64?
+}
+
+struct BlockcypherTx: Codable {
+    let hex: String?
+    let addresses: [String]?
 }
