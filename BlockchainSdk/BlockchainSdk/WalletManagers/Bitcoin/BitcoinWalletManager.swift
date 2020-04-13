@@ -44,7 +44,7 @@ class BitcoinWalletManager: WalletManager<CurrencyWallet> {
                 let normalPerByte = response.normalKb/kb
                 let maxPerByte = response.priorityKb/kb
                 
-                guard let estimatedTxSize = self.getEstimateSize(for: Transaction(amount: amount, fee: nil, sourceAddress: source, destinationAddress: destination)) else {
+                guard let estimatedTxSize = self.getEstimateSize(for: Transaction(amount: amount, fee: Amount(with: amount, value: 0.0001), sourceAddress: source, destinationAddress: destination)) else {
                     throw BitcoinError.failedToCalculateTxSize
                 }
                 
@@ -62,11 +62,11 @@ class BitcoinWalletManager: WalletManager<CurrencyWallet> {
     
     //[REDACTED_TODO_COMMENT]
     private func updateWallet(with response: BitcoinResponse) {
-        currencyWallet.balances[.coin]?.value = response.balance
+        currencyWallet.add(coinValue: response.balance)
         txBuilder.unspentOutputs = response.txrefs
         if response.hasUnconfirmed {
             if currencyWallet.pendingTransactions.isEmpty {
-                currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: currencyWallet.blockchain, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
+                currencyWallet.addIncomingTransaction()
             }
         } else {
             currencyWallet.pendingTransactions = []
