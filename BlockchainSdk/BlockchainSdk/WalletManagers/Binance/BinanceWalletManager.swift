@@ -42,22 +42,6 @@ class BinanceWalletManager: WalletManager<CurrencyWallet> {
 }
 
 @available(iOS 13.0, *)
-extension BinanceWalletManager: FeeProvider {
-    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-        return network.getFee()
-            .tryMap { feeString throws -> [Amount] in
-                guard let feeValue = Decimal(feeString) else {
-                    throw "Failed to get fee"
-                }
-                
-                return [Amount(with: self.currencyWallet.blockchain, address: source, value: feeValue)]
-        }
-         .eraseToAnyPublisher()
-    }
-}
-
-
-@available(iOS 13.0, *)
 extension BinanceWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
         guard let amountValue = transaction.amount.value else {
@@ -82,6 +66,18 @@ extension BinanceWalletManager: TransactionSender {
         }
         .eraseToAnyPublisher()
     }
+    
+    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
+           return network.getFee()
+               .tryMap { feeString throws -> [Amount] in
+                   guard let feeValue = Decimal(feeString) else {
+                       throw "Failed to get fee"
+                   }
+                   
+                   return [Amount(with: self.currencyWallet.blockchain, address: source, value: feeValue)]
+           }
+            .eraseToAnyPublisher()
+       }
 }
 
 extension BinanceWalletManager: ThenProcessable { }
