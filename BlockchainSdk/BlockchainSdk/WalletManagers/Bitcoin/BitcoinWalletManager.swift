@@ -19,25 +19,13 @@ enum BitcoinError: Error {
     case failedToCalculateTxSize
 }
 
-class BitcoinWalletManager: WalletManager, BlockchainProcessable, FeeProvider {
-    typealias TWallet = CurrencyWallet
-    typealias TNetworkManager = BitcoinNetworkProvider
-    typealias TTransactionBuilder = BitcoinTransactionBuilder
-    
-    var wallet: Variable<CurrencyWallet>!
-    var error = PublishSubject<Error>()
+class BitcoinWalletManager: WalletManager<CurrencyWallet>, FeeProvider {
     var txBuilder: BitcoinTransactionBuilder!
     var network: BitcoinNetworkProvider!
-    var cardId: String!
     var currencyWallet: CurrencyWallet { return wallet.value }
-    
     private var requestDisposable: Disposable?
-//    init(cardId: String, walletPublicKey: Data, walletConfig: WalletConfig, blockchain: Blockchain) {
-//
-//        //[REDACTED_TODO_COMMENT]
-//    }
-    
-    func update() {//check it
+
+    override func update() {//check it
         requestDisposable = network
             .getInfo()
             .subscribe(onSuccess: {[unowned self] response in
@@ -84,11 +72,8 @@ class BitcoinWalletManager: WalletManager, BlockchainProcessable, FeeProvider {
             currencyWallet.pendingTransactions = []
         }
     }
-}
-
-@available(iOS 13.0, *)
-extension BitcoinWalletManager: TransactionSizeEstimator {
-    func getEstimateSize(for transaction: Transaction) -> Decimal? {
+    
+    private func getEstimateSize(for transaction: Transaction) -> Decimal? {
         guard let unspentOutputsCount = txBuilder.unspentOutputs?.count else {
             return nil
         }
@@ -100,6 +85,7 @@ extension BitcoinWalletManager: TransactionSizeEstimator {
         return Decimal(tx.count + 1)
     }
 }
+
 
 @available(iOS 13.0, *)
 extension BitcoinWalletManager: TransactionSender {
@@ -124,3 +110,5 @@ extension BitcoinWalletManager: TransactionSender {
         .eraseToAnyPublisher()
     }
 }
+
+extension BitcoinWalletManager: ThenProcessable { }
