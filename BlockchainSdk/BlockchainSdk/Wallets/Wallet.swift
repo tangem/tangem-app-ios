@@ -15,4 +15,5 @@ public protocol Wallet: class {
     var shareUrl: String? {get}
     var allowExtract: Bool {get}
     var allowLoad: Bool {get}
+    var token: Token? {get}
 }
