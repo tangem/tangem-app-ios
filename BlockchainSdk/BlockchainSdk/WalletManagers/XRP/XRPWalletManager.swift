@@ -43,24 +43,6 @@ class XRPWalletManager: WalletManager<CurrencyWallet> {
 }
 
 @available(iOS 13.0, *)
-extension XRPWalletManager: FeeProvider {
-    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-        return network.getFee()
-            .map { xrpFeeResponse -> [Amount] in
-                let min = xrpFeeResponse.min/Decimal(1000000)
-                let normal = xrpFeeResponse.normal/Decimal(1000000)
-                let max = xrpFeeResponse.max/Decimal(1000000)
-                
-                let minAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: min)
-                let normalAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: normal)
-                let maxAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: max)
-                return [minAmount, normalAmount, maxAmount]
-        }
-        .eraseToAnyPublisher()
-    }
-}
-
-@available(iOS 13.0, *)
 extension XRPWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
         guard let walletReserve = currencyWallet.balances[.reserve]?.value,
@@ -92,6 +74,21 @@ extension XRPWalletManager: TransactionSender {
                     self.currencyWallet.add(transaction: transaction)
                     return true
             }
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
+        return network.getFee()
+            .map { xrpFeeResponse -> [Amount] in
+                let min = xrpFeeResponse.min/Decimal(1000000)
+                let normal = xrpFeeResponse.normal/Decimal(1000000)
+                let max = xrpFeeResponse.max/Decimal(1000000)
+                
+                let minAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: min)
+                let normalAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: normal)
+                let maxAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: max)
+                return [minAmount, normalAmount, maxAmount]
         }
         .eraseToAnyPublisher()
     }

@@ -75,31 +75,28 @@ extension CardanoWalletManager: TransactionSender {
         }
         .eraseToAnyPublisher()
     }
-}
-
-@available(iOS 13.0, *)
-extension CardanoWalletManager: FeeProvider {
-    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-        guard let estimatedTxSize = self.getEstimateSize(for: Transaction(amount: amount, fee: nil, sourceAddress: source, destinationAddress: destination)) else {
-            return Fail(error: CardanoError.failedToCalculateTxSize).eraseToAnyPublisher()
-        }
-        
-        let a = Decimal(0.155381)
-        let b = Decimal(0.000043946)
-        
-        let feeValue = a + b * estimatedTxSize
-        let feeAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: feeValue)
-        return Result.Publisher([feeAmount]).eraseToAnyPublisher()
-    }
     
-    private func getEstimateSize(for transaction: Transaction) -> Decimal? {
-        guard let walletAmount = currencyWallet.balances[.coin]?.value,
-            let tx = txBuilder.buildForSend(transaction: transaction, walletAmount: walletAmount, signature: Data(repeating: UInt8(0x01), count: 64)) else {
-                return nil
-        }
-        
-        return Decimal(tx.tx.count)
-    }
+    func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
+           guard let estimatedTxSize = self.getEstimateSize(for: Transaction(amount: amount, fee: nil, sourceAddress: source, destinationAddress: destination)) else {
+               return Fail(error: CardanoError.failedToCalculateTxSize).eraseToAnyPublisher()
+           }
+           
+           let a = Decimal(0.155381)
+           let b = Decimal(0.000043946)
+           
+           let feeValue = a + b * estimatedTxSize
+           let feeAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: feeValue)
+           return Result.Publisher([feeAmount]).eraseToAnyPublisher()
+       }
+       
+       private func getEstimateSize(for transaction: Transaction) -> Decimal? {
+           guard let walletAmount = currencyWallet.balances[.coin]?.value,
+               let tx = txBuilder.buildForSend(transaction: transaction, walletAmount: walletAmount, signature: Data(repeating: UInt8(0x01), count: 64)) else {
+                   return nil
+           }
+           
+           return Decimal(tx.tx.count)
+       }
 }
 
 extension CardanoWalletManager: ThenProcessable { }
