@@ -22,10 +22,8 @@ class EthereumTransactionBuilder {
     public func buildForSign(transaction: Transaction, nonce: Int) -> (hash: Data, transaction: EthereumTransaction)? {
         let nonceValue = BigUInt(nonce)
         
-        guard let fee = transaction.fee,
-            let amountDecimal = transaction.amount.value,
-            let feeValue = Web3.Utils.parseToBigUInt("\(fee)", decimals: fee.decimals),
-            let amountValue = Web3.Utils.parseToBigUInt("\(amountDecimal)", decimals: transaction.amount.decimals) else {
+        guard let feeValue = Web3.Utils.parseToBigUInt("\(transaction.fee.value)", decimals: transaction.fee.decimals),
+            let amountValue = Web3.Utils.parseToBigUInt("\(transaction.amount.value)", decimals: transaction.amount.decimals) else {
                 return nil
         }
         
@@ -34,9 +32,13 @@ class EthereumTransactionBuilder {
             return nil
         }
         
+        guard let targetAddr = transaction.amount.type == .coin ? transaction.destinationAddress: transaction.contractAddress else {
+            return nil
+        }
+        
         guard let transaction = EthereumTransaction(amount: transaction.amount.type == .coin ? amountValue : BigUInt.zero,
                                                     fee: feeValue,
-                                                    targetAddress: transaction.destinationAddress,
+                                                    targetAddress: targetAddr,
                                                     nonce: nonceValue,
                                                     gasLimit: gasLimit,
                                                     data: data) else {
@@ -81,8 +83,7 @@ class EthereumTransactionBuilder {
             return Data()
         }
         
-        guard let amountDecimal = amount.value,
-            let amountValue = Web3.Utils.parseToBigUInt("\(amountDecimal)", decimals: amount.decimals) else {
+        guard let amountValue = Web3.Utils.parseToBigUInt("\(amount.value)", decimals: amount.decimals) else {
                 return nil
         }
         

@@ -67,15 +67,12 @@ class XRPTransactionBuilder {
     }
     
     private func buildTransaction(from transaction: Transaction) -> XRPTransaction? {
-        guard let fee = transaction.fee?.value,
-            let amount = transaction.amount.value,
-            let account = account,
-            let sequence = sequence else {
+        guard let account = account, let sequence = sequence else {
                 return nil
         }
          
-        let amountDrops = amount * Decimal(1000000)
-        let feeDrops = fee * Decimal(1000000)
+        let amountDrops = transaction.amount.value * Decimal(1000000)
+        let feeDrops = transaction.fee.value * Decimal(1000000)
          
          
          // dictionary containing partial transaction fields
