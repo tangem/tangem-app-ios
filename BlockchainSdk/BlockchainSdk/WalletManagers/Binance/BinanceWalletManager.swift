@@ -28,7 +28,7 @@ class BinanceWalletManager: WalletManager<CurrencyWallet> {
     }
     
     private func updateWallet(with response: BinanceInfoResponse) {
-        currencyWallet.balances[.coin]?.value = Decimal(response.balance)
+        currencyWallet.add(coinValue: Decimal(response.balance))
         txBuilder.binanceWallet.sequence = response.sequence
         txBuilder.binanceWallet.accountNumber = response.accountNumber
         
@@ -44,11 +44,7 @@ class BinanceWalletManager: WalletManager<CurrencyWallet> {
 @available(iOS 13.0, *)
 extension BinanceWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
-        guard let amountValue = transaction.amount.value else {
-            return Fail(error: BitcoinError.failedToBuildHash).eraseToAnyPublisher()
-        }
-        
-        let msg = txBuilder.buildForSign(amount: amountValue, targetAddress: transaction.destinationAddress)
+        let msg = txBuilder.buildForSign(amount: transaction.amount.value, targetAddress: transaction.destinationAddress)
         let hash = msg.encodeForSignature()
         return signer.sign(hashes: [hash], cardId: cardId)
             .tryMap {[unowned self] response in
