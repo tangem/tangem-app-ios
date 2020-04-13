@@ -28,62 +28,68 @@ class StellarTransactionBuilder {
     @available(iOS 13.0, *)
     public func buildForSign(transaction: Transaction) -> AnyPublisher<(hash: Data, transaction: stellarsdk.TransactionXDR), Error> {
         let future = Future<(hash: Data, transaction: stellarsdk.TransactionXDR), Error> {[weak self] promise in
-            self?.buildForSign(transaction: transaction, completion: { response in
-                guard let response = response else {
-                    promise(.failure(StellarError.failedToBuildTransaction))
-                    return
+            self?.buildForSign(transaction: transaction, completion: { result in
+                switch result {
+                case .success(let response):
+                    promise(.success(response))
+                case .failure(let error):
+                    promise(.failure(error))
                 }
-                
-                promise(.success(response))
             })
         }
         return AnyPublisher(future)
     }
     
     @available(iOS 13.0, *)
-    public func buildForSign(transaction: Transaction, completion: @escaping ((hash: Data, transaction: stellarsdk.TransactionXDR)?) -> Void ) {
+    public func buildForSign(transaction: Transaction, completion: @escaping (Result<(hash: Data, transaction: stellarsdk.TransactionXDR), Error>) -> Void ) {
         guard let destinationKeyPair = try? KeyPair(accountId: transaction.destinationAddress),
             let sourceKeyPair = try? KeyPair(accountId: transaction.sourceAddress) else {
-                completion(nil)
+                completion(.failure(StellarError.failedToBuildTransaction))
                 return
         }
         
         if transaction.amount.type == .coin {
-            guard let amount = transaction.amount.value else {
-                completion(nil)
-                return
-            }
-            
             checkIfAccountCreated(transaction.destinationAddress) { [weak self] isCreated in
                 let operation = isCreated ? PaymentOperation(sourceAccount: nil,
                                                              destination: destinationKeyPair,
                                                              asset: Asset(type: AssetType.ASSET_TYPE_NATIVE)!,
-                                                             amount: amount ) :
-                    CreateAccountOperation(destination: destinationKeyPair, startBalance: amount)
+                                                             amount: transaction.amount.value ) :
+                    CreateAccountOperation(destination: destinationKeyPair, startBalance: transaction.amount.value)
                 
                 self?.serializeOperation(operation, sourceKeyPair: sourceKeyPair, completion: completion)
             }
         } else if transaction.amount.type == .token {
-            guard let keyPair = try? KeyPair(accountId: transaction.amount.address),
+            guard let contractAddress = transaction.contractAddress, let keyPair = try? KeyPair(accountId: contractAddress),
                 let asset = createNonNativeAsset(code: transaction.amount.currencySymbol, issuer: keyPair) else {
-                    completion(nil)
+                    completion(.failure(StellarError.failedToBuildTransaction))
                     return
             }
             
-            var operation: stellarsdk.Operation
-            if let amount = transaction.amount.value {
-                operation = PaymentOperation(sourceAccount: sourceKeyPair,
-                                             destination: destinationKeyPair,
-                                             asset: asset,
-                                             amount: amount)
+            if  transaction.amount.value > 0 {
+                 checkIfAccountCreated(transaction.destinationAddress) { [weak self] isCreated in
+                    if !isCreated {
+                        completion(.failure(StellarError.failedToBuildTransaction)) // [REDACTED_TODO_COMMENT]
+                        return
+                    }
+                    
+                   let operation = PaymentOperation(sourceAccount: sourceKeyPair,
+                                                                destination: destinationKeyPair,
+                                                                asset: asset,
+                                                                amount: transaction.amount.value)
+                    
+                self?.serializeOperation(operation, sourceKeyPair: sourceKeyPair, completion: completion)
+                    
+                }
+                
+                
+               
             } else {
-                operation = ChangeTrustOperation(sourceAccount: sourceKeyPair, asset: asset, limit: Decimal(string: "900000000000.0000000"))
+                let operation = ChangeTrustOperation(sourceAccount: sourceKeyPair, asset: asset, limit: Decimal(string: "900000000000.0000000"))
+                serializeOperation(operation, sourceKeyPair: sourceKeyPair, completion: completion)
             }
-            
-            serializeOperation(operation, sourceKeyPair: sourceKeyPair, completion: completion)
         }
         assertionFailure("unsuported amount type")
-        completion(nil)
+       completion(.failure(StellarError.failedToBuildTransaction))
     }
     
     @available(iOS 13.0, *)
@@ -119,10 +125,10 @@ class StellarTransactionBuilder {
         }
     }
     
-    private func serializeOperation(_ operation: stellarsdk.Operation, sourceKeyPair: KeyPair, completion: @escaping ((hash: Data, transaction: stellarsdk.TransactionXDR)?) -> Void ) {
+    private func serializeOperation(_ operation: stellarsdk.Operation, sourceKeyPair: KeyPair, completion: @escaping (Result<(hash: Data, transaction: stellarsdk.TransactionXDR), Error>) -> Void ) {
         guard let xdrOperation = try? operation.toXDR(),
             let seqNumber = sequence else {
-                completion(nil)
+                completion(.failure(StellarError.failedToBuildTransaction))
                 return
         }
         
@@ -138,10 +144,10 @@ class StellarTransactionBuilder {
         
         let network = isTestnet ? Network.testnet : Network.public
         guard let hash = try? tx.hash(network: network) else {
-            completion(nil)
+            completion(.failure(StellarError.failedToBuildTransaction))
             return
         }
         
-        completion((hash, tx))
+        completion(.success((hash, tx)))
     }
 }
