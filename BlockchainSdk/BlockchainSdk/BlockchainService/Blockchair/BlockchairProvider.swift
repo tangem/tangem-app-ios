@@ -29,11 +29,8 @@ class BlockchairProvider {
         return provider
             .rx
             .request(.address(address: address, endpoint: endpoint))
-            .map { [unowned self] response throws -> BitcoinResponse in
-                guard let json = try? JSON(data: response.data) else {
-                    throw "Json mapping error"
-                }
-                
+            .mapSwiftyJSON()
+            .map { [unowned self] json -> BitcoinResponse in
                 let data = json["data"]
                 let addr = data["\(self.address)"]
                 let address = addr["address"]
@@ -77,11 +74,8 @@ class BlockchairProvider {
     @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
         return provider.requestPublisher(.fee(endpoint: endpoint))
-            .tryMap { response throws -> BtcFee in
-                guard let json = try? JSON(data: response.data) else {
-                    throw "Can't load fee"
-                }
-                
+            .mapSwiftyJSON()
+            .tryMap { json throws -> BtcFee in
                 let data = json["data"]
                 guard let feePerByteSatoshi = data["suggested_transaction_fee_per_byte_sat"].int  else {
                     throw "Can't load fee"
@@ -97,11 +91,8 @@ class BlockchairProvider {
     @available(iOS 13.0, *)
     func send(transaction: String) -> AnyPublisher<String, Error> {
         return provider.requestPublisher(.send(txHex: transaction, endpoint: endpoint))
-            .tryMap { response throws -> String in
-                guard let json = try? JSON(data: response.data) else {
-                    throw "Map response failed"
-                }
-                
+            .mapSwiftyJSON()
+            .tryMap { json throws -> String in
                 let data = json["data"]
                 
                 guard let hash = data["transaction_hash"].string else {

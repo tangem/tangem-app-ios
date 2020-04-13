@@ -49,13 +49,13 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
     
     @available(iOS 13.0, *)
     func getFee() -> AnyPublisher<BtcFee, Error> {
-        return Publishers.Zip3(estimateFeeProvider.requestPublisher(.minimal),
-                               estimateFeeProvider.requestPublisher(.normal),
-                               estimateFeeProvider.requestPublisher(.priority))
+        return Publishers.Zip3(estimateFeeProvider.requestPublisher(.minimal).mapString(),
+                               estimateFeeProvider.requestPublisher(.normal).mapString(),
+                               estimateFeeProvider.requestPublisher(.priority).mapString())
             .tryMap { response throws -> BtcFee in
-                guard let min = Decimal(String(data: response.0.data, encoding: .utf8)),
-                    let normal = Decimal(String(data: response.1.data, encoding: .utf8)),
-                    let priority = Decimal(String(data: response.2.data, encoding: .utf8)) else {
+                guard let min = Decimal(response.0),
+                    let normal = Decimal(response.1),
+                    let priority = Decimal(response.2) else {
                         throw "Fee request error"
                 }
                 
