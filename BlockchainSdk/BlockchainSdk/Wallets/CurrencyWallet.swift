@@ -10,19 +10,28 @@ import Foundation
 
 public class CurrencyWallet: Wallet, TransactionValidator {
     public let blockchain: Blockchain
-    public let config: WalletConfig
     public let exploreUrl: String? = nil
     public let shareUrl: String? = nil
     var pendingTransactions: [Transaction] = []
-    var balances: [AmountType:Amount] = [:]
+    var balances: [Amount.AmountType:Amount] = [:]
     public var address: String {
         return balances[.coin]!.address
     }
     
-    init(address: String, blockchain: Blockchain, config: WalletConfig) {
+    public var allowLoad: Bool {
+        return true
+    }
+    
+    public var allowExtract: Bool {
+        return true
+    }
+    
+    init(address: String, blockchain: Blockchain) {
         self.blockchain = blockchain
-        self.config = config
         add(amount: Amount(with: blockchain, address: address))
+        if blockchain.needReserve {
+            add(amount: Amount(with: blockchain, address: address, type: .reserve))
+        }
     }
     
     func validateTransaction(amount: Amount, fee: Amount?) -> ValidationError? {
