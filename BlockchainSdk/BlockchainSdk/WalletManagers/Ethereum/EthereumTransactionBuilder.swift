@@ -13,11 +13,9 @@ import TangemSdk
 
 class EthereumTransactionBuilder {
     private let walletPublicKey: Data
-    private let isTestnet: Bool
     private let network: EthereumNetwork
-    init(walletPublicKey: Data, isTestnet: Bool, network: EthereumNetwork ) {
+    init(walletPublicKey: Data, network: EthereumNetwork) {
         self.walletPublicKey = walletPublicKey
-        self.isTestnet = isTestnet
         self.network = network
     }
     
