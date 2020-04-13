@@ -90,6 +90,15 @@ public enum Blockchain {
         }
     }
     
+    public var needReserve: Bool {
+        switch self {
+        case .stellar, .xrp:
+            return true
+        default:
+            return false
+        }
+    }
+    
     public func makeAddress(from walletPublicKey: Data) -> String {
         switch self {
         case .bitcoin(let testnet):
