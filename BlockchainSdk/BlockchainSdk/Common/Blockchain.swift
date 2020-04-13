@@ -14,7 +14,7 @@ public enum Blockchain {
     case litecoin
     case stellar(testnet: Bool)
     case ethereum(testnet: Bool)
-    case rsk(testnet: Bool)
+    case rsk
     case bitcoinCash(testnet: Bool)
     case binance(testnet: Bool)
     case cardano
@@ -25,13 +25,11 @@ public enum Blockchain {
         switch self {
         case .bitcoin(let testnet):
             return testnet
-        case .litecoin, .ducatus, .cardano, .xrp:
+        case .litecoin, .ducatus, .cardano, .xrp, .rsk:
             return false
         case .stellar(let testnet):
             return testnet
         case .ethereum(let testnet):
-            return testnet
-        case .rsk(let testnet):
             return testnet
         case .bitcoinCash(let testnet):
             return testnet
@@ -152,7 +150,7 @@ public enum Blockchain {
         case "xlm", "asset", "xlm-tag": return .stellar(testnet: isTestnet)
         case "eth", "token", "nfttoken": return .ethereum(testnet: isTestnet)
         case "ltc": return .litecoin
-        case "rsk", "rsktoken": return .rsk(testnet: isTestnet)
+        case "rsk", "rsktoken": return .rsk
         case "bch": return .bitcoinCash(testnet: isTestnet)
         case "binance": return .binance(testnet: isTestnet)
         case "cardano": return .cardano
