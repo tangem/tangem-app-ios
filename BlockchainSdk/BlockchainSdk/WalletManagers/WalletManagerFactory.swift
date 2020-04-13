@@ -65,17 +65,18 @@ public class WalletManagerFactory {
             }
             
         case .ethereum(let testnet):
+            let ethereumNetwork = testnet ? EthereumNetwork.testnet : EthereumNetwork.mainnet
             return EthereumWalletManager().then {
                 $0.cardId = cardId
-                $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet, network: .mainnet)
-                $0.network = EthereumNetworkManager(network: .mainnet)
+                $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, network: ethereumNetwork)
+                $0.network = EthereumNetworkManager(network: ethereumNetwork)
                 $0.wallet = Variable(wallet)
             }
             
-        case .rsk(let testnet):
+        case .rsk:
             return EthereumWalletManager().then {
                 $0.cardId = cardId
-                $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet, network: .rsk)
+                $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, network: .rsk)
                 $0.network = EthereumNetworkManager(network: .rsk)
                 $0.wallet = Variable(wallet)
             }
