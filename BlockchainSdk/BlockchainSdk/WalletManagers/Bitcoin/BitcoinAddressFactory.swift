@@ -22,6 +22,6 @@ public class BitcoinAddressFactory {
     }
     
     func getNetwork(_ testnet: Bool) -> Data {
-        return testnet ? Data(hex:"6F") : Data(hex:"00")
+        return testnet ? Data([UInt8(0x6F)]): Data([UInt8(0x00)])
     }
 }
