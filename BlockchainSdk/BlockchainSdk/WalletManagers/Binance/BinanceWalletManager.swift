@@ -10,21 +10,14 @@ import Foundation
 import Combine
 import RxSwift
 
-class BinanceWalletManager: WalletManager, BlockchainProcessable {
-    typealias TWallet = CurrencyWallet
-    typealias TNetworkManager = BinanceNetworkManager
-    typealias TTransactionBuilder = BinanceTransactionBuilder
-    
-    var wallet: Variable<CurrencyWallet>!
-    var error = PublishSubject<Error>()
+class BinanceWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: BinanceTransactionBuilder!
     var network: BinanceNetworkManager!
-    var cardId: String!
     private var requestDisposable: Disposable?
     private var currencyWallet: CurrencyWallet { return wallet.value }
     private var latestTxDate: Date?
     
-    func update() {//check it
+    override func update() {//check it
         requestDisposable = network
             .getInfo()
             .subscribe(onSuccess: {[unowned self] response in
@@ -90,3 +83,5 @@ extension BinanceWalletManager: TransactionSender {
         .eraseToAnyPublisher()
     }
 }
+
+extension BinanceWalletManager: ThenProcessable { }
