@@ -23,10 +23,6 @@ class BitcoinCashTransactionBuilder {
     }
     
     public func buildForSign(transaction: Transaction) -> [Data]? {
-        guard let fee = transaction.fee?.value, let amount = transaction.amount.value else {
-            return nil
-        }
-        
         guard let legacyWalletAddress = try? BitcoinCashAddress(walletAddress).base58,
             let legacyTargetAddress =  try? BitcoinCashAddress(transaction.destinationAddress).base58 else {
                 return nil
@@ -40,8 +36,8 @@ class BitcoinCashTransactionBuilder {
             return nil
         }
         
-        let amountSatoshi = amount * Decimal(100000000)
-        let changeSatoshi = calculateChange(unspents: unspents, amount: amount, fee: fee)
+        let amountSatoshi = transaction.amount.value  * Decimal(100000000)
+        let changeSatoshi = calculateChange(unspents: unspents, amount: transaction.amount.value , fee: transaction.fee.value )
         
         var hashes = [Data]()
         
@@ -58,8 +54,7 @@ class BitcoinCashTransactionBuilder {
     }
     
     public func buildForSend(transaction: Transaction, signature: Data) -> Data? {
-        guard let fee = transaction.fee?.value, let unspentOutputs = unspentOutputs,
-            let amount = transaction.amount.value else {
+        guard let unspentOutputs = unspentOutputs else {
                 return nil
         }
         
@@ -74,8 +69,8 @@ class BitcoinCashTransactionBuilder {
                 return nil
         }
         
-        let amountSatoshi = amount * Decimal(100000000)
-        let changeSatoshi = calculateChange(unspents: unspents, amount: amount, fee: fee)
+        let amountSatoshi = transaction.amount.value  * Decimal(100000000)
+        let changeSatoshi = calculateChange(unspents: unspents, amount: transaction.amount.value , fee: transaction.fee.value )
         
         let tx = buildTxBody(unspents: unspents, amount: amountSatoshi, change: changeSatoshi, targetAddress: legacyTargetAddress, index: nil)
         return tx
