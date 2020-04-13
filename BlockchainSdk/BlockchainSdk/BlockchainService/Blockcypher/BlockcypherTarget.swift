@@ -12,6 +12,7 @@ import Moya
 enum BlockcypherCoin: String {
     case btc
     case ltc
+    case eth
 }
 
 enum BlockcypherChain: String {
@@ -19,41 +20,40 @@ enum BlockcypherChain: String {
     case test3
 }
 
-enum BlockcypherTarget: TargetType {
-    case address(address:String, coin: BlockcypherCoin, chain: BlockcypherChain)
-    case fee(coin: BlockcypherCoin, chain: BlockcypherChain)
-    case send(txHex: String, coin: BlockcypherCoin, chain: BlockcypherChain, accessToken: String)
-    
-    var baseURL: URL {
-        switch self {
-        case .address(_, let coin, let chain):
-            return baseUrl(coin: coin, chain: chain)
-        case .fee(let coin, let chain):
-            return baseUrl(coin: coin, chain: chain)
-        case .send(_, let coin, let chain, _):
-            return baseUrl(coin: coin, chain: chain)
-        }
+struct BlockcypherTarget: TargetType {
+    enum BlockcypherTargetType {
+        case address(address:String)
+        case fee
+        case send(txHex: String)
+        case txs(txHash: String)
     }
     
+    let coin: BlockcypherCoin
+    let chain: BlockcypherChain
+    let token: String?
+    let targetType: BlockcypherTargetType
+    
+    var baseURL: URL { URL(string: "https://api.blockcypher.com/v1/\(coin.rawValue)/\(chain.rawValue)")! }
+    
     var path: String {
-        switch self {
-        case .address(let address, _, _):
-            return "/addrs/\(address)?unspentOnly=true&includeScript=true"
+        switch targetType {
+        case .address(let address):
+            return "/addrs/\(address)"
         case .fee:
             return ""
-        case .send(_, _, _, let token):
-            return "/txs/push?token=\(token)"
+        case .send:
+            return "/txs/push"
+        case .txs(let txHash):
+            return "/txs/\(txHash)"
         }
     }
     
     var method: Moya.Method {
-        switch self {
-        case .address:
+        switch targetType {
+        case .address, .fee, .txs:
             return .get
-        case .fee:
-            return .post
         case .send:
-            return .get
+            return .post
         }
     }
     
@@ -62,19 +62,21 @@ enum BlockcypherTarget: TargetType {
     }
     
     var task: Task {
-        switch self {
-        case .send(let txHex,_,_,_):
-            return .requestParameters(parameters: ["tx": txHex], encoding: URLEncoding.default)
-        default:
-            return .requestPlain
+        var parameters = token == nil ? [:] : ["token":token!]
+        
+        switch targetType {
+        case .address:
+            parameters["unspentOnly"] = "true"
+            parameters["includeScript"] = "true"
+        case .send(let txHex):
+            parameters["tx"] = txHex
+        default: break
         }
+        
+        return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
     }
     
     var headers: [String : String]? {
         return nil
-    }
-    
-    private func baseUrl(coin: BlockcypherCoin, chain: BlockcypherChain) -> URL {
-        return URL(string: "https://api.blockcypher.com/v1/\(coin.rawValue)/\(chain.rawValue)")!
     }
 }
