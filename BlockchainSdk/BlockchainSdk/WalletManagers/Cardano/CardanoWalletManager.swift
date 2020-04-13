@@ -18,21 +18,14 @@ enum CardanoError: Error {
     case failedToCalculateTxSize
 }
 
-class CardanoWalletManager: WalletManager, BlockchainProcessable {
-    typealias TWallet = CurrencyWallet
-    typealias TNetworkManager = CardanoNetworkManager
-    typealias TTransactionBuilder = CardanoTransactionBuilder
-    
-    var wallet: Variable<CurrencyWallet>!
-    var error = PublishSubject<Error>()
+class CardanoWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: CardanoTransactionBuilder!
     var network: CardanoNetworkManager!
-    var cardId: String!
     var currencyWallet: CurrencyWallet { return wallet.value }
     
     private var requestDisposable: Disposable?
     
-    func update() {//check it
+    override func update() {//check it
         requestDisposable = network
             .getInfo(address: currencyWallet.address)
             .subscribe(onSuccess: {[unowned self] response in
@@ -98,16 +91,15 @@ extension CardanoWalletManager: FeeProvider {
         let feeAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: feeValue)
         return Result.Publisher([feeAmount]).eraseToAnyPublisher()
     }
-}
-
-@available(iOS 13.0, *)
-extension CardanoWalletManager: TransactionSizeEstimator {
-    func getEstimateSize(for transaction: Transaction) -> Decimal? {
+    
+    private func getEstimateSize(for transaction: Transaction) -> Decimal? {
         guard let walletAmount = currencyWallet.balances[.coin]?.value,
             let tx = txBuilder.buildForSend(transaction: transaction, walletAmount: walletAmount, signature: Data(repeating: UInt8(0x01), count: 64)) else {
-            return nil
+                return nil
         }
         
         return Decimal(tx.tx.count)
     }
 }
+
+extension CardanoWalletManager: ThenProcessable { }
