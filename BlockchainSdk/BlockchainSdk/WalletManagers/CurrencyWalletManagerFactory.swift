@@ -11,10 +11,8 @@ import TangemSdk
 import stellarsdk
 import RxSwift
 
-public class CurrencyWalletManagerFactory {
-    let walletFactory = CurrencyWalletFactory()
-    
-    public func makeWalletManager(from card: Card) -> AnyWalletManager<CurrencyWallet>? {
+public class WalletManagerFactory {
+    public func makeWalletManager(from card: Card) -> WalletManager<CurrencyWallet>? {
         guard let blockchainName = card.cardData?.blockchainName,
             let curve = card.curve,
             let blockchain = Blockchain.from(blockchainName: blockchainName, curve: curve),
@@ -24,9 +22,11 @@ public class CurrencyWalletManagerFactory {
                 return nil
         }
         
-        let token = getToken(from: card)
         let address = blockchain.makeAddress(from: walletPublicKey)
-        let wallet = walletFactory.makeWallet(from: blockchain, address: address, token: token)
+        let wallet = CurrencyWallet(address: address, blockchain: blockchain)
+        if let token =  getToken(from: card) {
+            wallet.add(amount: Amount(with: token))
+        }
         
         switch blockchain {
         case .bitcoin(let testnet):
@@ -35,7 +35,7 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: testnet)
                 $0.network = BitcoinNetworkManager(address: address, isTestNet: testnet)
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .litecoin:
             return LitecoinWalletManager().then {
@@ -43,7 +43,7 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: false)
                 $0.network = LitecoinNetworkManager(address: address, isTestNet: false)
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .ducatus:
             return BitcoinWalletManager().then {
@@ -51,7 +51,7 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: false)
                 $0.network = DucatusNetworkManager(address: address)
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .stellar(let testnet):
             return StellarWalletManager().then {
@@ -62,7 +62,7 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = StellarTransactionBuilder(stellarSdk: stellarSdk, walletPublicKey: walletPublicKey, isTestnet: testnet)
                 $0.network = StellarNetworkManager(stellarSdk: stellarSdk)
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .ethereum(let testnet):
             return EthereumWalletManager().then {
@@ -70,7 +70,7 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet, network: .mainnet)
                 $0.network = EthereumNetworkManager(network: .mainnet)
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .rsk(let testnet):
             return EthereumWalletManager().then {
@@ -78,7 +78,7 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet, network: .rsk)
                 $0.network = EthereumNetworkManager(network: .rsk)
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .bitcoinCash(let testnet):
             return BitcoinCashWalletManager().then {
@@ -86,7 +86,7 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = BitcoinCashTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: testnet)
                 $0.network = BitcoinCashNetworkManager(address: address)
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .binance(let testnet):
             return BinanceWalletManager().then {
@@ -94,7 +94,7 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = BinanceTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet)
                 $0.network = BinanceNetworkManager(address: address, isTestNet: testnet)
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .cardano:
             return CardanoWalletManager().then {
@@ -102,15 +102,15 @@ public class CurrencyWalletManagerFactory {
                 $0.txBuilder = CardanoTransactionBuilder(walletPublicKey: walletPublicKey)
                 $0.network = CardanoNetworkManager()
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
             
         case .xrp(let curve):
-          return XRPWalletManager().then {
+            return XRPWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = XRPTransactionBuilder(walletPublicKey: walletPublicKey, curve: curve)
                 $0.network = XRPNetworkManager()
                 $0.wallet = Variable(wallet)
-            }.eraseToAnyWalletManager()
+            }
         }
     }
     
