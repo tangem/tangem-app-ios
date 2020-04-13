@@ -14,9 +14,6 @@ import RxSwift
 class StellarNetworkManager {
     let stellarSdk: StellarSDK
     
-//    let account = PassthroughSubject<AccountResponse, Error>()
-//    let ledger = PassthroughSubject<LedgerResponse, Error>()
-    
     init(stellarSdk: StellarSDK) {
         self.stellarSdk = stellarSdk
     }
