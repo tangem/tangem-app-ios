@@ -28,13 +28,14 @@ class XRPWalletManager: WalletManager<CurrencyWallet> {
     }
     
     private func updateWallet(with response: XrpInfoResponse) {
-        currencyWallet.balances[.coin]?.value = response.balance/Decimal(1000000)
-        currencyWallet.balances[.reserve]?.value =  (response.balance - response.reserve)/Decimal(1000000)
+        currencyWallet.add(coinValue: response.balance/Decimal(1000000))
+        currencyWallet.add(reserveValue: (response.balance - response.reserve)/Decimal(1000000))
+
         txBuilder.account = currencyWallet.address
         txBuilder.sequence = response.sequence
         if response.balance != response.unconfirmedBalance {
             if currencyWallet.pendingTransactions.isEmpty {
-                currencyWallet.pendingTransactions.append(Transaction(amount: Amount(with: currencyWallet.blockchain, address: ""), fee: nil, sourceAddress: "unknown", destinationAddress: currencyWallet.address))
+                currencyWallet.addIncomingTransaction()
             }
         } else {
             currencyWallet.pendingTransactions = []
@@ -46,15 +47,14 @@ class XRPWalletManager: WalletManager<CurrencyWallet> {
 extension XRPWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
         guard let walletReserve = currencyWallet.balances[.reserve]?.value,
-            let amountToSend = transaction.amount.value,
             let hashToSign = txBuilder.buildForSign(transaction: transaction) else {
-                return Fail(error: "Missing reserve ").eraseToAnyPublisher()
+                return Fail(error: "Missing reserve").eraseToAnyPublisher()
         }
         
         return network
             .checkAccountCreated(account: transaction.sourceAddress)
             .tryMap{ isAccountCreated in
-                if !isAccountCreated && amountToSend < walletReserve {
+                if !isAccountCreated && transaction.amount.value < walletReserve {
                     throw "Target account is not created. Amount to send should be \(walletReserve) XRP + fee or more"
                 }
         }
