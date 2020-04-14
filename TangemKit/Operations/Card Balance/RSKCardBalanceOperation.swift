@@ -17,12 +17,10 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
         }
 
         card.mult = priceUSD
-        
-        if !hasToken {
-            getMainBalance()
-            return
-        }
-        
+        getMainBalance()
+    }
+    
+    func getTokenBalance() {
         let tokenBalanceOperation = TokenNetworkBalanceOperation(card: card, network: .rsk) { [weak self] (result) in
             switch result {
             case .success(let value):
@@ -41,27 +39,30 @@ class RSKCardBalanceOperation: BaseCardBalanceOperation {
         }
         
         card.walletTokenValue = balanceValue        
-        getMainBalance()
+        completeOperation()
     }
     
     func getMainBalance() {
         let mainBalanceOperation = ETHCardBalanceOperation(card: card, networkUrl: TokenNetwork.rsk.rawValue) { [weak self] (result) in
-                  switch result {
-                  case .success:
-                      self?.handleMainBalanceLoaded()
-                  case .failure(let error):
-                      self?.card.mult = 0
-                      self?.failOperationWith(error: error.0, title: error.title)
-                  }
-              }
-              operationQueue.addOperation(mainBalanceOperation)
+            switch result {
+            case .success:
+                self?.handleMainBalanceLoaded()
+            case .failure(let error):
+                self?.card.mult = 0
+                self?.failOperationWith(error: error.0, title: error.title)
+            }
+        }
+        operationQueue.addOperation(mainBalanceOperation)
     }
     
     func handleMainBalanceLoaded() {
         guard !isCancelled else {
             return
         }
-        completeOperation()
+        if hasToken {
+            getTokenBalance()
+        } else {
+            completeOperation()
+        }
     }
-
 }
