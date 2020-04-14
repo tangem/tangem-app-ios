@@ -77,7 +77,7 @@ final class ConfirmIdTask: CardSessionRunnable {
                          
                         session.viewDelegate.showAlertMessage("Signing")
                          session.restartPolling()
-                         self?.sign(in: session, hashes: hashes, environment: session.environment)
+                         self?.sign(in: session, hashes: hashes)
                      }
                  }) { _,_  in
                     completion(.failure(.errorProcessingCommand))
@@ -86,7 +86,7 @@ final class ConfirmIdTask: CardSessionRunnable {
                  operationQueue.addOperation(balanceOp!)
       }
     
-    private func sign(in session: CardSession, hashes: [Data], environment: CardEnvironment) {
+    private func sign(in session: CardSession, hashes: [Data]) {
         do {
         let signCommand = try SignCommand(hashes: hashes)
             signCommand.run(in: session) { result in
