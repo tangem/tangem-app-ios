@@ -42,7 +42,7 @@ final class ConfirmIdTask: CardSessionRunnable {
                  let idEngine = card.cardEngine as! ETHIdEngine
                  let issuerCardViewModel = CardViewModel(issuerCard)
                  
-                 guard idEngine.trustedKeys.contains(issuerCardViewModel.walletPublicKey) else {
+                guard idEngine.card.trustedKeys.contains(issuerCardViewModel.walletPublicKey) else {
                       completion(.failure(.wrongCard))
                                         return
                  }
