@@ -84,7 +84,7 @@ public final class ReadIssuerExtraDataCommand: Command {
     
     private var issuerPublicKey: Data?
     private var completion: CompletionResult<ReadIssuerExtraDataResponse>?
-    private var viewDelegate: CardSessionViewDelegate?
+    private var viewDelegate: SessionViewDelegate?
     private var issuerData = Data()
     private var issuerDataSize = 0
     
@@ -106,10 +106,10 @@ public final class ReadIssuerExtraDataCommand: Command {
         }
         self.completion = completion
         self.viewDelegate = session.viewDelegate
-        readData(session, session.environment)
+        readData(session)
     }
     
-    private func readData(_ session: CardSession, _ environment: CardEnvironment) {
+    private func readData(_ session: CardSession) {
         showProgress()
         transieve(in: session) { result in
             switch result {
@@ -126,7 +126,7 @@ public final class ReadIssuerExtraDataCommand: Command {
                 self.issuerData.append(response.issuerData)
                 
                 if response.issuerDataSignature == nil {
-                    self.readData(session, environment)
+                    self.readData(session)
                 } else {
                     self.showProgress()
                     let finalResponse = ReadIssuerExtraDataResponse(cardId: response.cardId,
@@ -156,7 +156,7 @@ public final class ReadIssuerExtraDataCommand: Command {
         viewDelegate?.showAlertMessage(Localization.readProgress(progress.description))
     }
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.cardId, value: environment.card?.cardId)
@@ -167,7 +167,7 @@ public final class ReadIssuerExtraDataCommand: Command {
         return cApdu
     }
     
-    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
+    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
