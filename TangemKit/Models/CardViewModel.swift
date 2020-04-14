@@ -62,6 +62,10 @@ public enum Blockchain: String {
 }
 
 public class CardViewModel {
+    public let trustedKeys = ["04EAD74FEEE4061044F46B19EB654CEEE981E9318F0C8FE99AF5CDB9D779D2E52BB51EA2D14545E0B323F7A90CF4CC72753C973149009C10DB2D83DCEC28487729", //Sergio Mello
+         "046D998FE88FB33A57404E152AF028DEDF6720A3FA6AAE630D51D31CA413C3E6BB1FC5CC53A9484D744EA2A1E6A3D6A88AC963F4D671887F939778B30A6146E7B0", //Regina Latypova
+         "041DCEFEF8FA536EE746707E800400C61B7F87B1E06A58F1AA04B4C0E36DF445655A089C351AE670FA5778620F06624FB4014C1B07EB436B8D47186B063530B560"] //Alexander Osokin
+    
     public let cardModel: Card
     public var cardEngine: CardEngine!
     public var issuerExtraData: ReadIssuerExtraDataResponse?
@@ -326,7 +330,7 @@ public class CardViewModel {
     }
     
     var imageName: String {
-        if productMask.contains(ProductMask.idIssuer) {
+        if productMask.contains(ProductMask.idIssuer) || trustedKeys.contains(walletPublicKey) {
             return "card-idIssuer"
         }
         
