@@ -26,11 +26,11 @@ public protocol CardSessionRunnable {
 /// Allows interaction with Tangem cards. Should be open before sending commands
 public class CardSession {
     /// Allows interaction with users and shows visual elements.
-    public let viewDelegate: CardSessionViewDelegate
+    public let viewDelegate: SessionViewDelegate
     
     /// Contains data relating to the current Tangem card. It is used in constructing all the commands,
-    /// and commands can modify `CardEnvironment`.
-    public private(set) var environment: CardEnvironment
+    /// and commands can modify `SessionEnvironment`.
+    public private(set) var environment: SessionEnvironment
     
     /// True when some operation is still in progress.
     public private(set) var isBusy = false
@@ -47,7 +47,7 @@ public class CardSession {
     ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
     ///   - cardReader: NFC-reader implementation
     ///   - viewDelegate: viewDelegate implementation
-    public init(environment: CardEnvironment, cardId: String? = nil, initialMessage: String? = nil, cardReader: CardReader, viewDelegate: CardSessionViewDelegate) {
+    public init(environment: SessionEnvironment, cardId: String? = nil, initialMessage: String? = nil, cardReader: CardReader, viewDelegate: SessionViewDelegate) {
         self.reader = cardReader
         self.viewDelegate = viewDelegate
         self.environment = environment
@@ -86,15 +86,17 @@ public class CardSession {
     /// Starts a card session and performs preflight `Read` command.
     /// - Parameter delegate: Delegate with the card session. Can contain error
     public func start(delegate: @escaping (CardSession, SessionError?) -> Void) {
-        if let error = startSession() {
-            delegate(self, error)
+        do {
+            try startSession()
+        } catch {
+            delegate(self, error as? SessionError)
             return
         }
+
         if #available(iOS 13.0, *) {
             preflightRead() {result in
                 switch result {
-                case .success(let preflightResponse):
-                    self.environment.card = preflightResponse
+                case .success:
                     delegate(self, nil)
                 case .failure(let error):
                     delegate(self, error)
@@ -145,19 +147,16 @@ public class CardSession {
             stop(error: error)
             DispatchQueue.main.async { completion(.failure(error)) }
         }
-        setBusy(false)
     }
     
-    private func startSession() -> SessionError? {
+    private func startSession() throws {
         guard TangemSdk.isNFCAvailable else {
-            return .unsupportedDevice
+            throw SessionError.unsupportedDevice
         }
         
-        if isBusy { return .busy }
+        if isBusy { throw SessionError.busy }
         setBusy(true)
-        
-        reader.startSession(with: initialMessage)        
-        return nil
+        reader.startSession(with: initialMessage)
     }
     
     private func setBusy(_ isBusy: Bool) {
@@ -205,14 +204,14 @@ public class CardSession {
 }
 
 extension CardSession{
-    /// Convenience initializer. Uses default cardReader, viewDelegate and CardEnvironment
+    /// Convenience initializer. Uses default cardReader, viewDelegate and SessionEnvironment
     /// - Parameters:
     ///   - environment: Contains data relating to a Tangem card
     ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
     ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-    public convenience init(environment: CardEnvironment = CardEnvironment(), cardId: String? = nil, initialMessage: String? = nil) {
+    public convenience init(environment: SessionEnvironment = SessionEnvironment(), cardId: String? = nil, initialMessage: String? = nil) {
         let reader = CardReaderFactory().createDefaultReader()
-        let delegate = DefaultCardSessionViewDelegate(reader: reader)
+        let delegate = DefaultSessionViewDelegate(reader: reader)
         self.init(environment: environment, cardId: cardId, initialMessage: initialMessage, cardReader: reader, viewDelegate: delegate)
     }
 }
