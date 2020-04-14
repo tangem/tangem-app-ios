@@ -13,16 +13,16 @@ import CoreNFC
 /// The basic protocol for card commands
 public protocol Command: CardSessionRunnable {
     /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
-    /// - Parameter environment: `CardEnvironment` of the current card
+    /// - Parameter environment: `SessionEnvironment` of the current card
     /// - Returns: Command data that can be converted to `NFCISO7816APDU` with appropriate initializer
-    func serialize(with environment: CardEnvironment) throws -> CommandApdu
+    func serialize(with environment: SessionEnvironment) throws -> CommandApdu
     
     /// Deserializes data, received from a card and stored in `ResponseApdu`  into an array of `Tlv`. Then this method maps it into a `CommandResponse`.
     /// - Parameters:
-    ///   - environment: `CardEnvironment` of the current card
+    ///   - environment: `SessionEnvironment` of the current card
     ///   - apdu: Received data
     /// - Returns: Card response, converted to a `CommandResponse` of a type `T`.
-    func deserialize(with environment: CardEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
+    func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
 extension Command {
@@ -33,7 +33,7 @@ extension Command {
     func transieve(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         do {
             let commandApdu = try serialize(with: session.environment)
-            transieve(in: session, apdu: commandApdu) { result in
+            transieve(apdu: commandApdu, in: session) { result in
                 switch result {
                 case .success(let responseApdu):
                     do {
@@ -51,7 +51,7 @@ extension Command {
         }
     }
     
-    func transieve(in session: CardSession, apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
+    func transieve(apdu: CommandApdu, in session: CardSession, completion: @escaping CompletionResult<ResponseApdu>) {
         session.send(apdu: apdu) {commandResponse in
             switch commandResponse {
             case .success(let responseApdu):
@@ -65,7 +65,7 @@ extension Command {
                             session.restartPolling()
                         }
                     }
-                    self.transieve(in: session, apdu: apdu, completion: completion)
+                    self.transieve(apdu: apdu, in: session, completion: completion)
                 default:
                     if let error = responseApdu.statusWord.toSessionError() {
                         if !self.tryHandleError(error) {
@@ -94,7 +94,7 @@ extension Command {
     
     /// Helper method to parse security delay information received from a card.
     /// - Returns: Remaining security delay in milliseconds.
-    private func deserializeSecurityDelay(with environment: CardEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
+    private func deserializeSecurityDelay(with environment: SessionEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
             let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
                 return nil
