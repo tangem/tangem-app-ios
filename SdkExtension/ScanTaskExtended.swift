@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import Firebase
 
 struct ScanTaskExtendedResponse: TlvCodable {
     let card: Card
@@ -16,12 +17,25 @@ struct ScanTaskExtendedResponse: TlvCodable {
 
 final class ScanTaskExtended: CardSessionRunnable {
     public typealias CommandResponse = ScanTaskExtendedResponse
+    
+    var trace: Trace?
+    
+    init() {
+        if #available(iOS 13.0, *) {
+            trace = Performance.startTrace(name: "CardTapUserTimer")
+        } else {
+            trace = Performance.startTrace(name: "CardTapUserTimer_legacy")
+        }
+    }
+    
     deinit {
         print("ScanTaskExtended deinit")
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         if #available(iOS 13.0, *) {
+            trace?.incrementMetric("success", by: 1)
+            trace?.stop()
             let scanTask = ScanTask()
             scanTask.run(in: session) { result in
                 switch result {
@@ -39,6 +53,8 @@ final class ScanTaskExtended: CardSessionRunnable {
         } else {
             let scanTaskLegacy = ScanTaskLegacy()
             scanTaskLegacy.run(in: session) { result in
+                self.trace?.incrementMetric("success_legacy", by: 1)
+                self.trace?.stop()
                 switch result {
                 case .success(let card):
                     completion(.success(ScanTaskExtendedResponse(card: card, issuerExtraData: nil)))
