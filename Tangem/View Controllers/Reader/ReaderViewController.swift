@@ -113,6 +113,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
             switch result {
             case .success(let response):
                 self.card = CardViewModel(response.card)
+                Analytics.logScan(card: response.card)
                 self.card?.genuinityState = .genuine
                 
                 guard self.card!.isBlockchainKnown else {
