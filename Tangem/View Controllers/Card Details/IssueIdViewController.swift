@@ -113,7 +113,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         case .denied:
             let alert = UIAlertController(title: "Camera access denied", message: "You have not given access to your camera, please adjust your privacy settings", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Settings", style: .cancel) { _ in
-                           if let url = URL(string: UIApplicationOpenSettingsURLString) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
                                if UIApplication.shared.canOpenURL(url) {
                                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                                }
@@ -182,7 +182,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         
         
         let gender = sexSelector.selectedSegmentIndex == 0 ? "F" : "M"
-        let jpgImage = UIImageJPEGRepresentation(image, 0.9)!
+        let jpgImage = image.jpegData(compressionQuality: 0.9)!
         let birthDay = (dobText.inputView as! UIDatePicker).date
         
         confirmButton.showActivityIndicator()
@@ -276,8 +276,8 @@ extension IssueIdViewController: UIImagePickerControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        if let image = info[UIImagePickerControllerEditedImage] as? UIImage {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             let scaled = resize(image)
             imageView.image = scaled
             photoTaken = true
