@@ -1,6 +1,6 @@
-//import CEd25519
+import TangemSdk_CEd25519
 
-public final class PrivateKey {
+final class PrivateKey {
     private let buffer: [UInt8]
     
     public init(_ bytes: [UInt8]) throws {
