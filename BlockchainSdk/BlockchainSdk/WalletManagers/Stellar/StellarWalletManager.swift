@@ -23,33 +23,32 @@ class StellarWalletManager: WalletManager<CurrencyWallet> {
     var network: StellarNetworkManager!
     var stellarSdk: StellarSDK!
     private var baseFee: Decimal?
-    private var requestDisposable: Disposable?
-    private var currencyWallet: CurrencyWallet { return wallet.value }
     
     override func update() {
         requestDisposable = network
-            .getInfo(accountId: currencyWallet.address, assetCode: currencyWallet.token?.currencySymbol)
+            .getInfo(accountId: wallet.address, assetCode: wallet.token?.currencySymbol)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
-                    self.error.onNext(error)
+                    self.onError.onNext(error)
             })
     }
     
     private func updateWallet(with response: StellarResponse) {
         txBuilder.sequence = response.sequence
-        let fullReserve = currencyWallet.token != nil ? response.baseReserve * 3 : response.baseReserve * 2
-        currencyWallet.add(reserveValue: fullReserve)
-        currencyWallet.add(coinValue: response.balance - fullReserve)
+        let fullReserve = wallet.token != nil ? response.baseReserve * 3 : response.baseReserve * 2
+        wallet.add(reserveValue: fullReserve)
+        wallet.add(coinValue: response.balance - fullReserve)
         if let assetBalance = response.assetBalance {
-            currencyWallet.add(tokenValue: assetBalance)
+            wallet.add(tokenValue: assetBalance)
         }
         let currentDate = Date()
-        for  index in currencyWallet.pendingTransactions.indices {
-            if DateInterval(start: currencyWallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
-                currencyWallet.pendingTransactions[index].status = .confirmed
+        for  index in wallet.pendingTransactions.indices {
+            if DateInterval(start: wallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
+                wallet.pendingTransactions[index].status = .confirmed
             }
         }
+        walletDidUpdate()
     }
 }
 
@@ -70,7 +69,8 @@ extension StellarWalletManager: TransactionSender {
         }
         .flatMap {[unowned self] in self.network.send(transaction: $0)}
         .map {[unowned self] in
-            self.currencyWallet.add(transaction: transaction)
+            self.wallet.add(transaction: transaction)
+            self.walletDidUpdate()
             return $0
         }
         .eraseToAnyPublisher()
@@ -78,7 +78,7 @@ extension StellarWalletManager: TransactionSender {
     
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
         if let feeValue = self.baseFee {
-            let feeAmount = Amount(with: currencyWallet.blockchain, address: source, value: feeValue)
+            let feeAmount = Amount(with: wallet.blockchain, address: source, value: feeValue)
             return Result.Publisher([feeAmount]).eraseToAnyPublisher()
         } else {
             return Fail(error: StellarError.noFee).eraseToAnyPublisher()

@@ -1,11 +1,11 @@
 PODS:
-  - Alamofire (4.9.1)
+  - Alamofire (5.1.0)
   - AnyCodable-FlightSchool (0.2.3)
   - BigInt (4.0.0)
   - BinanceChain (1.0.0-beta):
     - BinanceChain/Core (= 1.0.0-beta)
   - BinanceChain/Core (1.0.0-beta):
-    - Alamofire (~> 4.8)
+    - Alamofire
     - BinanceChain/Libraries
     - BinanceChain/Protobuf
     - BinanceChain/Util
@@ -34,58 +34,58 @@ PODS:
     - TangemSdk
     - web3swift
   - CryptoSwift (1.3.0)
-  - Firebase/Analytics (6.21.0):
+  - Firebase/Analytics (6.22.0):
     - Firebase/Core
-  - Firebase/Core (6.21.0):
+  - Firebase/Core (6.22.0):
     - Firebase/CoreOnly
-    - FirebaseAnalytics (= 6.4.0)
-  - Firebase/CoreOnly (6.21.0):
-    - FirebaseCore (= 6.6.5)
-  - Firebase/Crashlytics (6.21.0):
+    - FirebaseAnalytics (= 6.4.1)
+  - Firebase/CoreOnly (6.22.0):
+    - FirebaseCore (= 6.6.6)
+  - Firebase/Crashlytics (6.22.0):
     - Firebase/CoreOnly
-    - FirebaseCrashlytics (~> 4.0.0-beta.6)
-  - Firebase/Performance (6.21.0):
+    - FirebaseCrashlytics (~> 4.0.0-beta.7)
+  - Firebase/Performance (6.22.0):
     - Firebase/CoreOnly
     - FirebasePerformance (~> 3.1.11)
   - FirebaseABTesting (3.2.0):
     - FirebaseAnalyticsInterop (~> 1.3)
     - FirebaseCore (~> 6.1)
     - Protobuf (>= 3.9.2, ~> 3.9)
-  - FirebaseAnalytics (6.4.0):
+  - FirebaseAnalytics (6.4.1):
     - FirebaseCore (~> 6.6)
     - FirebaseInstallations (~> 1.1)
-    - GoogleAppMeasurement (= 6.4.0)
+    - GoogleAppMeasurement (= 6.4.1)
     - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
     - GoogleUtilities/MethodSwizzler (~> 6.0)
     - GoogleUtilities/Network (~> 6.0)
     - "GoogleUtilities/NSData+zlib (~> 6.0)"
     - nanopb (= 0.3.9011)
   - FirebaseAnalyticsInterop (1.5.0)
-  - FirebaseCore (6.6.5):
+  - FirebaseCore (6.6.6):
     - FirebaseCoreDiagnostics (~> 1.2)
     - FirebaseCoreDiagnosticsInterop (~> 1.2)
     - GoogleUtilities/Environment (~> 6.5)
     - GoogleUtilities/Logger (~> 6.5)
-  - FirebaseCoreDiagnostics (1.2.2):
+  - FirebaseCoreDiagnostics (1.2.3):
     - FirebaseCoreDiagnosticsInterop (~> 1.2)
     - GoogleDataTransportCCTSupport (~> 2.0)
     - GoogleUtilities/Environment (~> 6.5)
     - GoogleUtilities/Logger (~> 6.5)
     - nanopb (~> 0.3.901)
   - FirebaseCoreDiagnosticsInterop (1.2.0)
-  - FirebaseCrashlytics (4.0.0-beta.6):
+  - FirebaseCrashlytics (4.0.0-beta.7):
     - FirebaseAnalyticsInterop (~> 1.2)
     - FirebaseCore (~> 6.6)
     - FirebaseInstallations (~> 1.1)
-    - GoogleDataTransport (~> 5.1)
-    - GoogleDataTransportCCTSupport (>= 2.0.1, ~> 2.0)
+    - GoogleDataTransport (>= 5.1.1, ~> 5.1)
+    - GoogleDataTransportCCTSupport (>= 2.0.2, ~> 2.0)
     - nanopb (~> 0.3.901)
     - PromisesObjC (~> 1.2)
   - FirebaseInstallations (1.1.1):
     - FirebaseCore (~> 6.6)
     - GoogleUtilities/UserDefaults (~> 6.5)
     - PromisesObjC (~> 1.2)
-  - FirebaseInstanceID (4.3.2):
+  - FirebaseInstanceID (4.3.3):
     - FirebaseCore (~> 6.6)
     - FirebaseInstallations (~> 1.0)
     - GoogleUtilities/Environment (~> 6.5)
@@ -110,14 +110,14 @@ PODS:
     - "GoogleUtilities/NSData+zlib (~> 6.2)"
     - Protobuf (>= 3.9.2, ~> 3.9)
   - GBAsyncOperation (0.2.1)
-  - GoogleAppMeasurement (6.4.0):
+  - GoogleAppMeasurement (6.4.1):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
     - GoogleUtilities/MethodSwizzler (~> 6.0)
     - GoogleUtilities/Network (~> 6.0)
     - "GoogleUtilities/NSData+zlib (~> 6.0)"
     - nanopb (= 0.3.9011)
-  - GoogleDataTransport (5.1.0)
-  - GoogleDataTransportCCTSupport (2.0.1):
+  - GoogleDataTransport (5.1.1)
+  - GoogleDataTransportCCTSupport (2.0.2):
     - GoogleDataTransport (~> 5.1)
     - nanopb (~> 0.3.901)
   - GoogleToolboxForMac/Defines (2.2.2)
@@ -149,14 +149,13 @@ PODS:
     - CryptoSwift
     - secp256k1.swift
   - KeychainSwift (19.0.0)
-  - Moya (13.0.1):
-    - Moya/Core (= 13.0.1)
-  - Moya/Core (13.0.1):
-    - Alamofire (~> 4.1)
-    - Result (~> 4.1)
-  - Moya/RxSwift (13.0.1):
+  - Moya (14.0.0):
+    - Moya/Core (= 14.0.0)
+  - Moya/Core (14.0.0):
+    - Alamofire (~> 5.0)
+  - Moya/RxSwift (14.0.0):
     - Moya/Core
-    - RxSwift (~> 4.0)
+    - RxSwift (~> 5.0)
   - nanopb (0.3.9011):
     - nanopb/decode (= 0.3.9011)
     - nanopb/encode (= 0.3.9011)
@@ -177,12 +176,11 @@ PODS:
   - PromisesObjC (1.2.8)
   - Protobuf (3.11.4)
   - QRCode (2.0)
-  - Result (4.1.0)
-  - RxSwift (4.5.0)
+  - RxSwift (5.1.1)
   - secp256k1.swift (0.1.4)
   - Sodium (0.8.0)
   - Starscream (3.1.1)
-  - stellar-ios-mac-sdk (1.7.2)
+  - stellar-ios-mac-sdk (1.7.3)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.0.3)
   - SwiftProtobuf (1.8.0)
@@ -202,7 +200,7 @@ PODS:
     - ObjcExceptionBridging
 
 DEPENDENCIES:
-  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.4`)
+  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.6`)
   - BlockchainSdk (from `/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk`)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -212,7 +210,7 @@ DEPENDENCIES:
   - QRCode (= 2.0)
   - stellar-ios-mac-sdk (~> 1.7.2)
   - TangemSdk (from `/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk`)
-  - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.2`)
+  - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.3`)
 
 SPEC REPOS:
   trunk:
@@ -247,7 +245,6 @@ SPEC REPOS:
     - PromisesObjC
     - Protobuf
     - QRCode
-    - Result
     - RxSwift
     - secp256k1.swift
     - Sodium
@@ -262,7 +259,7 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
-    :tag: 0.0.4
+    :tag: 0.0.6
   BlockchainSdk:
     :path: "/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk"
   HDWalletKit:
@@ -272,68 +269,67 @@ EXTERNAL SOURCES:
     :path: "/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk"
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
-    :tag: 2.2.2
+    :tag: 2.2.3
 
 CHECKOUT OPTIONS:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
-    :tag: 0.0.4
+    :tag: 0.0.6
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
-    :tag: 2.2.2
+    :tag: 2.2.3
 
 SPEC CHECKSUMS:
-  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  Alamofire: 9d5c5f602928e512395b30950c5984eca840093c
   AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
-  BinanceChain: c873bcf2f40be47dfe35be73a8d7ead6097bb2de
+  BinanceChain: 3f6724155e3d65f6f9ca86b20343cf316f9eabf6
   BlockchainSdk: 45989b2cb35c1fa059de28084985d917050e1173
   CryptoSwift: 1283821600233bdbeb96d7b389c3288c3bf77211
-  Firebase: f378c80340dd41c0ad0914af740c021eb282a04b
+  Firebase: 32f9520684e87c7af3f0704f7f88042626d6b536
   FirebaseABTesting: 821a3a3e4a145987e80fee3657c4de1cb9adf693
-  FirebaseAnalytics: a1a0b3327ceb5cd5b4bacffdb293f6c909aa087d
+  FirebaseAnalytics: 83f822fd0d33a46f49f89b8c3ab16ab4d89df08a
   FirebaseAnalyticsInterop: 3f86269c38ae41f47afeb43ebf32a001f58fcdae
-  FirebaseCore: 9f495d3afacb7b558711e6218ebb14b1c51b5802
-  FirebaseCoreDiagnostics: e9b4cd8ba60dee0f2d13347332e4b7898cca5b61
+  FirebaseCore: 9aca0f1fffb405176ba15311a5621fcde4106fcf
+  FirebaseCoreDiagnostics: 13a6564cd6d5375066bbc8940cc1753af24497f3
   FirebaseCoreDiagnosticsInterop: 296e2c5f5314500a850ad0b83e9e7c10b011a850
-  FirebaseCrashlytics: b9e729da8b80d9c45f234f791a73b5fe647d4c31
+  FirebaseCrashlytics: ad2e8527a7efd9a7e708d5abe57318ced2e1dbd1
   FirebaseInstallations: acb3216eb9784d3b1d2d2d635ff74fa892cc0c44
-  FirebaseInstanceID: 7ee0d6777013bb952f377b41965bf132b6a075be
+  FirebaseInstanceID: 4b87a9a75ef628a53bb5de46e4d4cecfcce88c02
   FirebasePerformance: 5652d2004001e886da6dca04f478c695f87c4702
   FirebaseRemoteConfig: 47abf7a04a9082091955ea555aa79cfdd249b19c
   GBAsyncOperation: 6cdf54862c94d0f2a3fcda2ba294d72f157f31de
-  GoogleAppMeasurement: 6e68a94d0eaeb1d73ef6b0ed4f7334e29d63ae29
-  GoogleDataTransport: b29a21d813e906014ca16c00897827e40e4a24ab
-  GoogleDataTransportCCTSupport: 6f15a89b0ca35d6fa523e1f752ef818588885988
+  GoogleAppMeasurement: e49be3954045b17d046f271b9cc1ec052bad9702
+  GoogleDataTransport: 6ffa4dd0b6d547f8d27b91bd92fa9e197a3f5f1f
+  GoogleDataTransportCCTSupport: 12f02e5c8f09c055615de90bcd5ba2c375546051
   GoogleToolboxForMac: 800648f8b3127618c1b59c7f97684427630c5ea3
   GoogleUtilities: ad0f3b691c67909d03a3327cc205222ab8f42e0e
   GTMSessionFetcher: cea130bbfe5a7edc8d06d3f0d17288c32ffe9925
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
-  Moya: f4a4b80ff2f8a4ffc208dfb31cd91636622fee6e
+  Moya: 5b45dacb75adb009f97fde91c204c1e565d31916
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   PromiseKit: 9616b0afef31eae56ab9ce044c8ec2b8612a15cd
   PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   Protobuf: 176220c526ad8bd09ab1fb40a978eac3fef665f7
   QRCode: f98a1886c8f37523704a7512a4c0cd45b34c18a4
-  Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
-  RxSwift: f172070dfd1a93d70a9ab97a5a01166206e1c575
+  RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
-  stellar-ios-mac-sdk: 17ebc6a02aa48fdb48f0fe01718195026d122f31
+  stellar-ios-mac-sdk: e656dba16cbb108bd5f83b67acd55a2e25e75d24
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  TangemSdk: beeaa90d6c451a09b72b575f51f8a1626b69ec42
+  TangemSdk: 835de9c781335fdd9d4af6a04dfe4fc5a2d90a58
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: c8a63635173ba9900a0dc4174de7ca5810cb32a7
+PODFILE CHECKSUM: 3ee26696a5c32504ed0190eb1c4cd6022a2586c8
 
 COCOAPODS: 1.9.1
