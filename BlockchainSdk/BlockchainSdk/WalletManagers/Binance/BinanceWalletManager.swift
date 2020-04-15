@@ -13,8 +13,6 @@ import RxSwift
 class BinanceWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: BinanceTransactionBuilder!
     var network: BinanceNetworkManager!
-    private var requestDisposable: Disposable?
-    private var currencyWallet: CurrencyWallet { return wallet.value }
     private var latestTxDate: Date?
     
     override func update() {//check it
@@ -23,21 +21,22 @@ class BinanceWalletManager: WalletManager<CurrencyWallet> {
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
-                    self.error.onNext(error)
+                    self.onError.onNext(error)
             })
     }
     
     private func updateWallet(with response: BinanceInfoResponse) {
-        currencyWallet.add(coinValue: Decimal(response.balance))
+        wallet.add(coinValue: Decimal(response.balance))
         txBuilder.binanceWallet.sequence = response.sequence
         txBuilder.binanceWallet.accountNumber = response.accountNumber
         
         let currentDate = Date()
-        for  index in currencyWallet.pendingTransactions.indices {
-            if DateInterval(start: currencyWallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
-                currencyWallet.pendingTransactions[index].status = .confirmed
+        for  index in wallet.pendingTransactions.indices {
+            if DateInterval(start: wallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
+                wallet.pendingTransactions[index].status = .confirmed
             }
         }
+        walletDidUpdate()
     }
 }
 
@@ -55,8 +54,9 @@ extension BinanceWalletManager: TransactionSender {
         }
         .flatMap {[unowned self] in
             self.network.send(transaction: $0).map {[unowned self] response in
-                self.currencyWallet.add(transaction: transaction)
+                self.wallet.add(transaction: transaction)
                 self.latestTxDate = Date()
+                self.walletDidUpdate()
                 return true
             }
         }
@@ -70,7 +70,7 @@ extension BinanceWalletManager: TransactionSender {
                        throw "Failed to get fee"
                    }
                    
-                   return [Amount(with: self.currencyWallet.blockchain, address: source, value: feeValue)]
+                   return [Amount(with: self.wallet.blockchain, address: source, value: feeValue)]
            }
             .eraseToAnyPublisher()
        }
