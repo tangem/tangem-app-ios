@@ -22,17 +22,13 @@ enum BitcoinError: Error {
 class BitcoinWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: BitcoinTransactionBuilder!
     var network: BitcoinNetworkProvider!
-    var currencyWallet: CurrencyWallet { return wallet.value }
-    private var requestDisposable: Disposable?
-
-    override func update() {//check it
-        requestDisposable = network
-            .getInfo()
-            .subscribe(onSuccess: {[unowned self] response in
+    override func update() {
+        requestDisposable = network.getInfo()
+        .subscribe( onSuccess: { response in
                 self.updateWallet(with: response)
-                }, onError: {[unowned self] error in
-                    self.error.onNext(error)
-            })
+        }, onError: { error in
+            self.onError.onNext(error)
+        })
     }
     
     @available(iOS 13.0, *)
@@ -52,9 +48,9 @@ class BitcoinWalletManager: WalletManager<CurrencyWallet> {
                 let normalFee = (normalPerByte * estimatedTxSize)
                 let maxFee = (maxPerByte * estimatedTxSize)
                 return [
-                    Amount(with: self.currencyWallet.blockchain, address: source, value: minFee),
-                    Amount(with: self.currencyWallet.blockchain, address: source, value: normalFee),
-                    Amount(with: self.currencyWallet.blockchain, address: source, value: maxFee)
+                    Amount(with: self.wallet.blockchain, address: source, value: minFee),
+                    Amount(with: self.wallet.blockchain, address: source, value: normalFee),
+                    Amount(with: self.wallet.blockchain, address: source, value: maxFee)
                 ]
         }
         .eraseToAnyPublisher()
@@ -62,15 +58,16 @@ class BitcoinWalletManager: WalletManager<CurrencyWallet> {
     
     //[REDACTED_TODO_COMMENT]
     private func updateWallet(with response: BitcoinResponse) {
-        currencyWallet.add(coinValue: response.balance)
+        wallet.add(coinValue: response.balance)
         txBuilder.unspentOutputs = response.txrefs
         if response.hasUnconfirmed {
-            if currencyWallet.pendingTransactions.isEmpty {
-                currencyWallet.addIncomingTransaction()
+            if wallet.pendingTransactions.isEmpty {
+                wallet.addIncomingTransaction()
             }
         } else {
-            currencyWallet.pendingTransactions = []
+            wallet.pendingTransactions = []
         }
+       walletDidUpdate()
     }
     
     private func getEstimateSize(for transaction: Transaction) -> Decimal? {
@@ -103,7 +100,8 @@ extension BitcoinWalletManager: TransactionSender {
         }
         .flatMap {[unowned self] in
             self.network.send(transaction: $0).map {[unowned self] response in
-                self.currencyWallet.add(transaction: transaction)
+                self.wallet.add(transaction: transaction)
+                self.walletDidUpdate()
                 return true
             }
         }

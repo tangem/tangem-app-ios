@@ -41,7 +41,7 @@ Use BlockchainSdk for Tangem wallet integration
 
   s.dependency 'BigInt'
   s.dependency 'SwiftyJSON'
-  s.dependency 'Moya' 
+  s.dependency 'Moya'
   s.dependency 'RxSwift'
   s.dependency 'Moya/RxSwift'
   s.dependency 'Sodium' 
