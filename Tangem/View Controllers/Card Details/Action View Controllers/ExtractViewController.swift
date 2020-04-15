@@ -103,7 +103,7 @@ class ExtractViewController: ModalActionViewController {
             
             let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
                        toolbar.items = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-                                        UIBarButtonItem(title: Localizations.commonNext, style: UIBarButtonItemStyle.done, target: self, action: #selector(nextInputField))]
+                                        UIBarButtonItem(title: Localizations.commonNext, style: UIBarButtonItem.Style.done, target: self, action: #selector(nextInputField))]
                        
             targetAddressText.inputAccessoryView = toolbar
         }
@@ -258,13 +258,13 @@ class ExtractViewController: ModalActionViewController {
         if let window = self.view.window {
             let view = UIView(frame: window.bounds)
             view.backgroundColor = UIColor.init(white: 0.0, alpha: 0.6)
-            let indicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
+            let indicator = UIActivityIndicatorView(style: .white)
             view.addSubview(indicator)
             view.tag = 0781
             indicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
             indicator.startAnimating()
             window.addSubview(view)
-            window.bringSubview(toFront: view)
+            window.bringSubviewToFront(view)
         }
     }
     
