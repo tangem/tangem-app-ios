@@ -86,7 +86,11 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
                 .catchError{ error in
                     if case let MoyaError.objectMapping(mappingError, response) = error {
                         let stringError = try response.mapString()
-                        throw stringError
+                        if stringError == "No free outputs to spend" {
+                            return .just(BlockchainInfoUnspentResponse(unspent_outputs: []))
+                        } else {
+                            throw stringError
+                        }
                     } else {
                         throw error
                     }
