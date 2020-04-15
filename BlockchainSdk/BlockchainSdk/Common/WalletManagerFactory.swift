@@ -12,6 +12,8 @@ import stellarsdk
 import RxSwift
 
 public class WalletManagerFactory {
+    public init() {}
+    
     public func makeWalletManager(from card: Card) -> WalletManager<CurrencyWallet>? {
         guard let blockchainName = card.cardData?.blockchainName,
             let curve = card.curve,
@@ -31,9 +33,10 @@ public class WalletManagerFactory {
                 $0.cardId = cardId
                 $0.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: testnet)
                 $0.network = BitcoinNetworkManager(address: address, isTestNet: testnet)
-                $0.wallet = Variable(wallet)
+                $0.wallet = wallet
             }
-            
+        default: fatalError()
+           /*
         case .litecoin:
             return LitecoinWalletManager().then {
                 $0.cardId = cardId
@@ -108,7 +111,7 @@ public class WalletManagerFactory {
                 $0.txBuilder = XRPTransactionBuilder(walletPublicKey: walletPublicKey, curve: curve)
                 $0.network = XRPNetworkManager()
                 $0.wallet = Variable(wallet)
-            }
+            }*/
         }
     }
     
