@@ -14,39 +14,38 @@ import TangemSdk
 class XRPWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: XRPTransactionBuilder!
     var network: XRPNetworkManager!
-    var currencyWallet: CurrencyWallet { return wallet.value }    
-    private var requestDisposable: Disposable?
     
     override func update() {//check it
         requestDisposable = network
-            .getInfo(account: currencyWallet.address)
+            .getInfo(account: wallet.address)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
-                    self.error.onNext(error)
+                    self.onError.onNext(error)
             })
     }
     
     private func updateWallet(with response: XrpInfoResponse) {
-        currencyWallet.add(coinValue: response.balance/Decimal(1000000))
-        currencyWallet.add(reserveValue: (response.balance - response.reserve)/Decimal(1000000))
+        wallet.add(coinValue: response.balance/Decimal(1000000))
+        wallet.add(reserveValue: (response.balance - response.reserve)/Decimal(1000000))
 
-        txBuilder.account = currencyWallet.address
+        txBuilder.account = wallet.address
         txBuilder.sequence = response.sequence
         if response.balance != response.unconfirmedBalance {
-            if currencyWallet.pendingTransactions.isEmpty {
-                currencyWallet.addIncomingTransaction()
+            if wallet.pendingTransactions.isEmpty {
+                wallet.addIncomingTransaction()
             }
         } else {
-            currencyWallet.pendingTransactions = []
+            wallet.pendingTransactions = []
         }
+        walletDidUpdate()
     }
 }
 
 @available(iOS 13.0, *)
 extension XRPWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
-        guard let walletReserve = currencyWallet.balances[.reserve]?.value,
+        guard let walletReserve = wallet.balances[.reserve]?.value,
             let hashToSign = txBuilder.buildForSign(transaction: transaction) else {
                 return Fail(error: "Missing reserve").eraseToAnyPublisher()
         }
@@ -71,7 +70,8 @@ extension XRPWalletManager: TransactionSender {
         .flatMap{[unowned self] builderResponse in
             self.network.send(blob: builderResponse)
                 .map{[unowned self] response in
-                    self.currencyWallet.add(transaction: transaction)
+                    self.wallet.add(transaction: transaction)
+                    self.walletDidUpdate()
                     return true
             }
         }
@@ -85,9 +85,9 @@ extension XRPWalletManager: TransactionSender {
                 let normal = xrpFeeResponse.normal/Decimal(1000000)
                 let max = xrpFeeResponse.max/Decimal(1000000)
                 
-                let minAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: min)
-                let normalAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: normal)
-                let maxAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: max)
+                let minAmount = Amount(with: self.wallet.blockchain, address: self.wallet.address, value: min)
+                let normalAmount = Amount(with: self.wallet.blockchain, address: self.wallet.address, value: normal)
+                let maxAmount = Amount(with: self.wallet.blockchain, address: self.wallet.address, value: max)
                 return [minAmount, normalAmount, maxAmount]
         }
         .eraseToAnyPublisher()
