@@ -18,35 +18,34 @@ class EthereumWalletManager: WalletManager<CurrencyWallet> {
     var network: EthereumNetworkManager!
     var txCount: Int = -1
     var pendingTxCount: Int = -1
-    private var requestDisposable: Disposable?
-    private var currencyWallet: CurrencyWallet { return wallet.value }
 
     override func update() {
         requestDisposable = network
-            .getInfo(address: currencyWallet.address, contractAddress: currencyWallet.token?.contractAddress)
+            .getInfo(address: wallet.address, contractAddress: wallet.token?.contractAddress)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
-                    self.error.onNext(error)
+                    self.onError.onNext(error)
             })
     }
     
     private func updateWallet(with response: EthereumResponse) {
-        currencyWallet.add(coinValue: response.balance)
+        wallet.add(coinValue: response.balance)
         if let tokenBalance = response.tokenBalance {
-            currencyWallet.add(tokenValue: tokenBalance)
+            wallet.add(tokenValue: tokenBalance)
         }
         txCount = response.txCount
         pendingTxCount = response.txCount
         if txCount == pendingTxCount {
-            for  index in currencyWallet.pendingTransactions.indices {
-                currencyWallet.pendingTransactions[index].status = .confirmed
+            for  index in wallet.pendingTransactions.indices {
+                wallet.pendingTransactions[index].status = .confirmed
             }
         } else {
-            if currencyWallet.pendingTransactions.isEmpty {
-                currencyWallet.addIncomingTransaction()
+            if wallet.pendingTransactions.isEmpty {
+                wallet.addIncomingTransaction()
             }
         }
+          walletDidUpdate()
     }
 }
 
@@ -65,7 +64,8 @@ extension EthereumWalletManager: TransactionSender {
                 let txHexString = "0x\(tx.toHexString())"
                 return self.network.send(transaction: txHexString)}
             .map {[unowned self] response in
-                self.currencyWallet.add(transaction: transaction)
+                self.wallet.add(transaction: transaction)
+                self.walletDidUpdate()
                 return true
         }
     .eraseToAnyPublisher()
@@ -75,7 +75,7 @@ extension EthereumWalletManager: TransactionSender {
         return network.getGasPrice()
             .tryMap { [unowned self] gasPrice throws -> [Amount] in
                 let m = self.txBuilder.getGasLimit(for: amount)
-                let decimalCount = self.currencyWallet.blockchain.decimalCount
+                let decimalCount = self.wallet.blockchain.decimalCount
                 let minValue = gasPrice * m
                 let min = Web3.Utils.formatToEthereumUnits(minValue, toUnits: .eth, decimals: decimalCount, decimalSeparator: ".", fallbackToScientific: false)!
                 
@@ -91,9 +91,9 @@ extension EthereumWalletManager: TransactionSender {
                         throw EthereumError.failedToGetFee
                 }
                 
-                let minAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: minDecimal)
-                let normalAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: normalDecimal)
-                let maxAmount = Amount(with: self.currencyWallet.blockchain, address: self.currencyWallet.address, value: maxDecimal)
+                let minAmount = Amount(with: self.wallet.blockchain, address: self.wallet.address, value: minDecimal)
+                let normalAmount = Amount(with: self.wallet.blockchain, address: self.wallet.address, value: normalDecimal)
+                let maxAmount = Amount(with: self.wallet.blockchain, address: self.wallet.address, value: maxDecimal)
                 
                 return [minAmount, normalAmount, maxAmount]
         }
