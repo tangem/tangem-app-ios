@@ -21,11 +21,11 @@ enum BlockchainInfoTarget: TargetType {
     var path: String {
         switch self {
         case .unspents(let address):
-            return "/unspent?active=\(address)"
+            return "/unspent"
         case .send(_):
             return "/pushtx"
         case .address(let address):
-            return "/\(address)?limit=5"
+            return "/rawaddr/\(address)"
         }
     }
     
@@ -46,16 +46,23 @@ enum BlockchainInfoTarget: TargetType {
     
     var task: Task {
         switch self {
+        case .address:
+            return .requestParameters(parameters: ["limit": "5"], encoding: URLEncoding.default)
+        case .unspents(let address):
+            return .requestParameters(parameters: ["active": address], encoding: URLEncoding.default)
         case .send(let txHex):
             let params = "tx=\(txHex)"
             let body = params.data(using: .utf8)!
             return .requestData(body)
-        default:
-            return .requestPlain
         }
     }
     
     var headers: [String : String]? {
-        return ["application/x-www-form-urlencoded":"Content-Type"]
+        switch self {
+        case .send:
+            return ["Content-Type": "application/x-www-form-urlencoded"]
+        default:
+            return ["Content-Type": "application/json"]
+        }
     }
 }
