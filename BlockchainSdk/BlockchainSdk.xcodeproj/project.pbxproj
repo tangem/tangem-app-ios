@@ -38,8 +38,6 @@
 		5D14E4972397B87000C15FC8 /* WalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D14E48F2397B87000C15FC8 /* WalletManager.swift */; };
 		5D14E4982397B87000C15FC8 /* Blockchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D14E4902397B87000C15FC8 /* Blockchain.swift */; };
 		5D14E4992397B87000C15FC8 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D14E4912397B87000C15FC8 /* Wallet.swift */; };
-		5D14E49C2397B8B000C15FC8 /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D14E49B2397B8B000C15FC8 /* TangemSdk.framework */; };
-		5D14E49D2397B8B000C15FC8 /* TangemSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5D14E49B2397B8B000C15FC8 /* TangemSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5D26CEE7243CA4E200994CC0 /* DucatusAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEE6243CA4E200994CC0 /* DucatusAddressFactory.swift */; };
 		5D26CEEC243CB92700994CC0 /* BlockcypherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEEB243CB92700994CC0 /* BlockcypherResponse.swift */; };
 		5D26CEEE243CB95000994CC0 /* BlockcypherTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEED243CB95000994CC0 /* BlockcypherTarget.swift */; };
@@ -133,20 +131,6 @@
 			remoteInfo = BlockchainSdk;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		5D14E49E2397B8B000C15FC8 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				5D14E49D2397B8B000C15FC8 /* TangemSdk.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		438C3138ADC1FC1290BE3BA2 /* Pods-BlockchainSdk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlockchainSdk.release.xcconfig"; path = "Target Support Files/Pods-BlockchainSdk/Pods-BlockchainSdk.release.xcconfig"; sourceTree = "<group>"; };
@@ -275,7 +259,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D14E49C2397B8B000C15FC8 /* TangemSdk.framework in Frameworks */,
 				7386FBD2F78EB76C53BCD1AE /* Pods_BlockchainSdk.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -381,6 +364,7 @@
 		5D14E4642397B80F00C15FC8 = {
 			isa = PBXGroup;
 			children = (
+				5D14E4722397B80F00C15FC8 /* Info.plist */,
 				5D14E4702397B80F00C15FC8 /* BlockchainSdk */,
 				5D14E47B2397B80F00C15FC8 /* BlockchainSdkTests */,
 				5D14E46F2397B80F00C15FC8 /* Products */,
@@ -407,7 +391,6 @@
 				5D14E4892397B87000C15FC8 /* WalletManagers */,
 				5D14E48B2397B87000C15FC8 /* Common */,
 				5D14E4712397B80F00C15FC8 /* BlockchainSdk.h */,
-				5D14E4722397B80F00C15FC8 /* Info.plist */,
 			);
 			path = BlockchainSdk;
 			sourceTree = "<group>";
@@ -727,7 +710,6 @@
 				5D14E46A2397B80F00C15FC8 /* Sources */,
 				5D14E46B2397B80F00C15FC8 /* Frameworks */,
 				5D14E46C2397B80F00C15FC8 /* Resources */,
-				5D14E49E2397B8B000C15FC8 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1107,7 +1089,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = BlockchainSdk/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1134,7 +1116,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = BlockchainSdk/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
