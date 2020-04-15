@@ -180,15 +180,15 @@ extension CardDetailsViewModel {
     
     func updateWalletAddress(_ text: String) {
         let paragraphStyle = paragraphStyleWith(lineSpacingChange: 5.0)
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
-                                                                           NSAttributedStringKey.kern : 0.88])
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.paragraphStyle : paragraphStyle,
+                                                                           NSAttributedString.Key.kern : 0.88])
         walletAddressLabel.attributedText = attributedText
     }
     
     func updateWalletBalanceIsBeingVerified() {
         let text = Localizations.loadedWalletVerifyingInBlockchain
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88,
-                                                                           NSAttributedStringKey.foregroundColor : UIColor.black])
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88,
+                                                                           NSAttributedString.Key.foregroundColor : UIColor.black])
         balanceVerificationLabel.attributedText = attributedText
     }
     
@@ -197,24 +197,24 @@ extension CardDetailsViewModel {
         if let customText = customText, !customText.isEmpty {
             text = customText
         }
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88,
-                                                                           NSAttributedStringKey.foregroundColor : verified ? UIColor.tgm_green() : UIColor.tgm_red()])
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88,
+                                                                           NSAttributedString.Key.foregroundColor : verified ? UIColor.tgm_green() : UIColor.tgm_red()])
         balanceVerificationLabel.attributedText = attributedText
     }
     
     func updateWalletBalanceNoWallet() {
         let string = "\(Localizations.loadedWalletNoCompatibleWallet)."
-        let attributedText = NSAttributedString(string: string, attributes: [NSAttributedStringKey.kern : 0.88,
-                                                                             NSAttributedStringKey.foregroundColor : UIColor.tgm_red()])
+        let attributedText = NSAttributedString(string: string, attributes: [NSAttributedString.Key.kern : 0.88,
+                                                                             NSAttributedString.Key.foregroundColor : UIColor.tgm_red()])
         balanceVerificationLabel.attributedText = attributedText
     }
     
     func updateWalletBalance(title: String, subtitle: String? = nil) {
-        let attributedText = NSMutableAttributedString(string: title, attributes: [NSAttributedStringKey.kern : 0.3])
+        let attributedText = NSMutableAttributedString(string: title, attributes: [NSAttributedString.Key.kern : 0.3])
 
         if let subtitle = subtitle {
             let subtitleAttributedString = NSAttributedString(string: subtitle, 
-                                                              attributes: [NSAttributedStringKey.font : UIFont.tgm_maaxFontWith(size: 14, weight: .medium)])
+                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 14, weight: .medium)])
             attributedText.append(subtitleAttributedString)
         }        
         
@@ -222,7 +222,7 @@ extension CardDetailsViewModel {
     }
     
     func updateBlockchainName(_ text: String) {
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedStringKey.kern : 0.88])
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88])
         walletBlockchainLabel.attributedText = attributedText
     }
     
