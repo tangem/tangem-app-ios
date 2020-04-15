@@ -48,10 +48,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             secureStorage.set([], forKey: StorageKey.cids)
             utils.setIsLaunchedBefore()
         }
-        
         FirebaseApp.configure()
-        Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled)
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
+        
+        #if DEBUG
+            Firebase.Analytics.setAnalyticsCollectionEnabled(false)
+            Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #else
+            Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled)
+            Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
+        #endif
         return true
     }
     
