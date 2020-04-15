@@ -1,6 +1,6 @@
-//import CEd25519
+import TangemSdk_CEd25519
 
-public final class EDKeyPair {
+final class EDKeyPair {
     public let publicKey: PublicKey
     public let privateKey: PrivateKey
 
