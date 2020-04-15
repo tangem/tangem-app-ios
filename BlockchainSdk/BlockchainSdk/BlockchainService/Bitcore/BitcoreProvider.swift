@@ -13,7 +13,7 @@ import Combine
 
 class BitcoreProvider {
     let address: String
-    let provider = MoyaProvider<BitcoreTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
+    let provider = MoyaProvider<BitcoreTarget>(plugins: [NetworkLoggerPlugin()])
     
     init(address: String) {
         self.address = address
