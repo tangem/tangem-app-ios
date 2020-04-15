@@ -1,11 +1,11 @@
 PODS:
-  - Alamofire (4.9.1)
+  - Alamofire (5.1.0)
   - AnyCodable-FlightSchool (0.2.3)
   - BigInt (4.0.0)
   - BinanceChain (1.0.0-beta):
     - BinanceChain/Core (= 1.0.0-beta)
   - BinanceChain/Core (1.0.0-beta):
-    - Alamofire (~> 4.8)
+    - Alamofire
     - BinanceChain/Libraries
     - BinanceChain/Protobuf
     - BinanceChain/Util
@@ -24,14 +24,13 @@ PODS:
     - CryptoSwift
     - secp256k1.swift
   - KeychainSwift (19.0.0)
-  - Moya (13.0.1):
-    - Moya/Core (= 13.0.1)
-  - Moya/Core (13.0.1):
-    - Alamofire (~> 4.1)
-    - Result (~> 4.1)
-  - Moya/RxSwift (13.0.1):
+  - Moya (14.0.0):
+    - Moya/Core (= 14.0.0)
+  - Moya/Core (14.0.0):
+    - Alamofire (~> 5.0)
+  - Moya/RxSwift (14.0.0):
     - Moya/Core
-    - RxSwift (~> 4.0)
+    - RxSwift (~> 5.0)
   - ObjcExceptionBridging (1.0.1):
     - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
   - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
@@ -44,8 +43,12 @@ PODS:
     - PromiseKit/CorePromise
   - PromiseKit/UIKit (6.8.5):
     - PromiseKit/CorePromise
-  - Result (4.1.0)
-  - RxSwift (4.5.0)
+  - RxCocoa (5.1.1):
+    - RxRelay (~> 5)
+    - RxSwift (~> 5)
+  - RxRelay (5.1.1):
+    - RxSwift (~> 5)
+  - RxSwift (5.1.1)
   - secp256k1.swift (0.1.4)
   - Sodium (0.8.0)
   - Starscream (3.1.1)
@@ -71,17 +74,18 @@ PODS:
 DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BigInt (~> 4.0)
-  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.4`)
+  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.6`)
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
   - Moya
   - Moya/RxSwift
+  - RxCocoa
   - RxSwift
   - Sodium
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
   - TangemSdk (from `/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk`)
-  - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.2`)
+  - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.3`)
 
 SPEC REPOS:
   trunk:
@@ -93,7 +97,8 @@ SPEC REPOS:
     - Moya
     - ObjcExceptionBridging
     - PromiseKit
-    - Result
+    - RxCocoa
+    - RxRelay
     - RxSwift
     - secp256k1.swift
     - Sodium
@@ -108,7 +113,7 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
-    :tag: 0.0.4
+    :tag: 0.0.6
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
@@ -116,32 +121,33 @@ EXTERNAL SOURCES:
     :path: "/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk"
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
-    :tag: 2.2.2
+    :tag: 2.2.3
 
 CHECKOUT OPTIONS:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
-    :tag: 0.0.4
+    :tag: 0.0.6
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
-    :tag: 2.2.2
+    :tag: 2.2.3
 
 SPEC CHECKSUMS:
-  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  Alamofire: 9d5c5f602928e512395b30950c5984eca840093c
   AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
-  BinanceChain: c873bcf2f40be47dfe35be73a8d7ead6097bb2de
+  BinanceChain: 3f6724155e3d65f6f9ca86b20343cf316f9eabf6
   CryptoSwift: 1283821600233bdbeb96d7b389c3288c3bf77211
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
-  Moya: f4a4b80ff2f8a4ffc208dfb31cd91636622fee6e
+  Moya: 5b45dacb75adb009f97fde91c204c1e565d31916
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   PromiseKit: 9616b0afef31eae56ab9ce044c8ec2b8612a15cd
-  Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
-  RxSwift: f172070dfd1a93d70a9ab97a5a01166206e1c575
+  RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
+  RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
+  RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
@@ -150,10 +156,10 @@ SPEC CHECKSUMS:
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  TangemSdk: 4fa45dc9e1c8f687a4086e2261518d4f60fb542e
+  TangemSdk: beeaa90d6c451a09b72b575f51f8a1626b69ec42
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: f01d320e5629d9db1099791ddf4ee86f1743868c
+PODFILE CHECKSUM: b2a376516604b763780ef98716f2f405d3ffd633
 
 COCOAPODS: 1.9.1
