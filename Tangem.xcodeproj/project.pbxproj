@@ -219,7 +219,7 @@
 		8D946D8E2018DA92006C73D9 /* Reader.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8C2018DA92006C73D9 /* Reader.storyboard */; };
 		8D946D902018DA92006C73D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8F2018DA92006C73D9 /* Assets.xcassets */; };
 		8D946D932018DA92006C73D9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */; };
-		B1FEF070153C749010F4F939 /* (null) in Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (Required, ); }; };
+		B1FEF070153C749010F4F939 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -478,7 +478,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1FEF070153C749010F4F939 /* (null) in Frameworks */,
+				B1FEF070153C749010F4F939 /* BuildFile in Frameworks */,
 				1B792C4A5B67552C41885260 /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1339,7 +1339,6 @@
 				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCode/QRCode.framework",
-				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Sodium/Sodium.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
@@ -1373,7 +1372,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCode.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sodium.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
