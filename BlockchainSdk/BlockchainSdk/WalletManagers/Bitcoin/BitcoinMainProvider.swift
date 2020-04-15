@@ -12,8 +12,8 @@ import Combine
 import RxSwift
 
 class BitcoinMainProvider: BitcoinNetworkProvider {
-    let blockchainInfoProvider = MoyaProvider<BlockchainInfoTarget>()
-    let estimateFeeProvider = MoyaProvider<EstimateFeeTarget>()
+    let blockchainInfoProvider = MoyaProvider<BlockchainInfoTarget>(plugins: [NetworkLoggerPlugin()])
+    let estimateFeeProvider = MoyaProvider<EstimateFeeTarget>(plugins: [NetworkLoggerPlugin()])
     
     let address: String
     
@@ -82,6 +82,14 @@ class BitcoinMainProvider: BitcoinNetworkProvider {
             blockchainInfoProvider
                 .rx
                 .request(.unspents(address: address))
-                .map(BlockchainInfoUnspentResponse.self))
+                .map(BlockchainInfoUnspentResponse.self)
+                .catchError{ error in
+                    if case let MoyaError.objectMapping(mappingError, response) = error {
+                        let stringError = try response.mapString()
+                        throw stringError
+                    } else {
+                        throw error
+                    }
+            })
     }
 }
