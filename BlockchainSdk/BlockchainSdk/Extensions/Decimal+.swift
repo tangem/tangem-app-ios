@@ -52,7 +52,7 @@ extension Decimal {
         return result
     }
     
-    public func rounded(blockchain: Blockchain) -> Decimal {
+    func rounded(blockchain: Blockchain) -> Decimal {
         return rounded(Int(blockchain.decimalCount), blockchain.roundingMode)
     }
 }
