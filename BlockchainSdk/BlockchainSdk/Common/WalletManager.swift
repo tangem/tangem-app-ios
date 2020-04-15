@@ -12,10 +12,18 @@ import Combine
 import RxSwift
 
 public class WalletManager<TWallet: Wallet> {
-    var cardId: String!
-    var wallet: Variable<TWallet>!
-    var error: PublishSubject<Error> = .init()
-    func update() {}
+    public var cardId: String!
+    public var wallet: TWallet!
+    public var onWallet: PublishSubject<TWallet> = .init()
+    public var onError: PublishSubject<Error> = .init()
+    
+    var requestDisposable: Disposable?
+    
+    public func update() {}
+    
+    func walletDidUpdate() {
+        onWallet.onNext(wallet)
+    }
 }
 
 @available(iOS 13.0, *)
