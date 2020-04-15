@@ -14,8 +14,6 @@ import RxSwift
 class BitcoinCashWalletManager: WalletManager<CurrencyWallet> {
     var txBuilder: BitcoinCashTransactionBuilder!
     var network: BitcoinCashNetworkManager!
-    private var requestDisposable: Disposable?
-    private var currencyWallet: CurrencyWallet { return wallet.value }
     
     override func update() {//check it
         requestDisposable = network
@@ -23,7 +21,7 @@ class BitcoinCashWalletManager: WalletManager<CurrencyWallet> {
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
                 }, onError: {[unowned self] error in
-                    self.error.onNext(error)
+                    self.onError.onNext(error)
             })
     }
     
@@ -43,7 +41,7 @@ class BitcoinCashWalletManager: WalletManager<CurrencyWallet> {
                 let finalFee = fee >= relayFee ? fee : relayFee
                 
                 return [
-                    Amount(with: self.currencyWallet.blockchain, address: source, value: finalFee)
+                    Amount(with: self.wallet.blockchain, address: source, value: finalFee)
                 ]
         }
         .eraseToAnyPublisher()
@@ -63,15 +61,17 @@ class BitcoinCashWalletManager: WalletManager<CurrencyWallet> {
     
     //[REDACTED_TODO_COMMENT]
     private func updateWallet(with response: BitcoinResponse) {
-        currencyWallet.add(coinValue: response.balance)
+        wallet.add(coinValue: response.balance)
         txBuilder.unspentOutputs = response.txrefs
         if response.hasUnconfirmed {
-            if currencyWallet.pendingTransactions.isEmpty {
-                currencyWallet.addIncomingTransaction()
+            if wallet.pendingTransactions.isEmpty {
+                wallet.addIncomingTransaction()
             }
         } else {
-            currencyWallet.pendingTransactions = []
+            wallet.pendingTransactions = []
         }
+        
+        walletDidUpdate()
     }
 }
 
@@ -91,7 +91,8 @@ extension BitcoinCashWalletManager: TransactionSender {
         }
         .flatMap {[unowned self] in
             self.network.send(transaction: $0).map {[unowned self] response in
-                self.currencyWallet.add(transaction: transaction)
+                self.wallet.add(transaction: transaction)
+                self.walletDidUpdate()
                 return true
             }
         }

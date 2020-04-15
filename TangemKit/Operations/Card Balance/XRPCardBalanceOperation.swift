@@ -12,7 +12,7 @@ import SwiftyJSON
 
 class XRPCardBalanceOperation: BaseCardBalanceOperation {
     
-    let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
+    let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin()])
     
     override func handleMarketInfoLoaded(priceUSD: Double) {
         guard !isCancelled else {
