@@ -44,6 +44,8 @@ Use TangemSdk for Tangem cards integration
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
 
+  s.resource_bundle = { "TangemSdk" => ["TangemSdk/TangemSdk/**/*.lproj/*.strings"] }
+
   s.dependency 'secp256k1.swift'
   s.dependency 'KeychainSwift'
 
