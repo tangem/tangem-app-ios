@@ -96,7 +96,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
                 } else if card.type == .slix2 {
                     self.handleBalanceLoadedSlix2()
                 } else {
-                    self.handleBalanceLoaded(false) //[REDACTED_TODO_COMMENT]
+                    self.handleBalanceLoaded(true) //[REDACTED_TODO_COMMENT]
                 }
                 self.card!.hasAccount = true
                 self.isBalanceLoading = false
