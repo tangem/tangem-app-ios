@@ -19,6 +19,20 @@ PODS:
   - BinanceChain/Libraries (1.0.0-beta)
   - BinanceChain/Protobuf (1.0.0-beta)
   - BinanceChain/Util (1.0.0-beta)
+  - BlockchainSdk (0.0.1):
+    - AnyCodable-FlightSchool
+    - BigInt
+    - BinanceChain
+    - HDWalletKit
+    - Moya
+    - Moya/RxSwift
+    - RxSwift
+    - Sodium
+    - stellar-ios-mac-sdk
+    - SwiftCBOR
+    - SwiftyJSON
+    - TangemSdk
+    - web3swift
   - CryptoSwift (1.3.0)
   - Firebase/Analytics (6.21.0):
     - Firebase/Core
@@ -134,11 +148,15 @@ PODS:
   - HDWalletKit (0.3.5):
     - CryptoSwift
     - secp256k1.swift
+  - KeychainSwift (19.0.0)
   - Moya (13.0.1):
     - Moya/Core (= 13.0.1)
   - Moya/Core (13.0.1):
     - Alamofire (~> 4.1)
     - Result (~> 4.1)
+  - Moya/RxSwift (13.0.1):
+    - Moya/Core
+    - RxSwift (~> 4.0)
   - nanopb (0.3.9011):
     - nanopb/decode (= 0.3.9011)
     - nanopb/encode (= 0.3.9011)
@@ -160,15 +178,18 @@ PODS:
   - Protobuf (3.11.4)
   - QRCode (2.0)
   - Result (4.1.0)
+  - RxSwift (4.5.0)
   - secp256k1.swift (0.1.4)
   - Sodium (0.8.0)
   - Starscream (3.1.1)
   - stellar-ios-mac-sdk (1.7.2)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.0.3)
-  - SwiftLint (0.39.1)
   - SwiftProtobuf (1.8.0)
   - SwiftyJSON (5.0.0)
+  - TangemSdk (0.1.0):
+    - KeychainSwift
+    - secp256k1.swift
   - web3swift (2.2.1):
     - BigInt (~> 4.0)
     - CryptoSwift
@@ -181,22 +202,16 @@ PODS:
     - ObjcExceptionBridging
 
 DEPENDENCIES:
-  - AnyCodable-FlightSchool
-  - BigInt
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.4`)
-  - CryptoSwift
+  - BlockchainSdk (from `/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk`)
   - Firebase/Analytics
   - Firebase/Crashlytics
   - Firebase/Performance
   - GBAsyncOperation
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
-  - Moya
   - QRCode (= 2.0)
-  - Sodium
   - stellar-ios-mac-sdk (~> 1.7.2)
-  - SwiftCBOR
-  - SwiftLint
-  - SwiftyJSON
+  - TangemSdk (from `/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk`)
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.2`)
 
 SPEC REPOS:
@@ -224,6 +239,7 @@ SPEC REPOS:
     - GoogleToolboxForMac
     - GoogleUtilities
     - GTMSessionFetcher
+    - KeychainSwift
     - Moya
     - nanopb
     - ObjcExceptionBridging
@@ -232,13 +248,13 @@ SPEC REPOS:
     - Protobuf
     - QRCode
     - Result
+    - RxSwift
     - secp256k1.swift
     - Sodium
     - Starscream
     - stellar-ios-mac-sdk
     - SwiftCBOR
     - SwiftDate
-    - SwiftLint
     - SwiftProtobuf
     - SwiftyJSON
     - XCGLogger
@@ -247,9 +263,13 @@ EXTERNAL SOURCES:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
     :tag: 0.0.4
+  BlockchainSdk:
+    :path: "/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
+  TangemSdk:
+    :path: "/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk"
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.2
@@ -270,6 +290,7 @@ SPEC CHECKSUMS:
   AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
   BinanceChain: c873bcf2f40be47dfe35be73a8d7ead6097bb2de
+  BlockchainSdk: 45989b2cb35c1fa059de28084985d917050e1173
   CryptoSwift: 1283821600233bdbeb96d7b389c3288c3bf77211
   Firebase: f378c80340dd41c0ad0914af740c021eb282a04b
   FirebaseABTesting: 821a3a3e4a145987e80fee3657c4de1cb9adf693
@@ -291,6 +312,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: ad0f3b691c67909d03a3327cc205222ab8f42e0e
   GTMSessionFetcher: cea130bbfe5a7edc8d06d3f0d17288c32ffe9925
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
+  KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
   Moya: f4a4b80ff2f8a4ffc208dfb31cd91636622fee6e
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
@@ -299,18 +321,19 @@ SPEC CHECKSUMS:
   Protobuf: 176220c526ad8bd09ab1fb40a978eac3fef665f7
   QRCode: f98a1886c8f37523704a7512a4c0cd45b34c18a4
   Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
+  RxSwift: f172070dfd1a93d70a9ab97a5a01166206e1c575
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
   stellar-ios-mac-sdk: 17ebc6a02aa48fdb48f0fe01718195026d122f31
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
-  SwiftLint: 55e96a4a4d537d4a3156859fc1c54bd24851a046
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
+  TangemSdk: beeaa90d6c451a09b72b575f51f8a1626b69ec42
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 32991b45d397eb1368854f04671044504b93813c
+PODFILE CHECKSUM: c8a63635173ba9900a0dc4174de7ca5810cb32a7
 
 COCOAPODS: 1.9.1
