@@ -66,7 +66,7 @@ open class CardanoTransaction {
         }
         
         let targetAddressBytes: [UInt8] = Array(targetAddress.base58DecodedData!)
-        guard let targetAddressItem = try? CBORDecoder(input: targetAddressBytes).decodeItem(), let targetAddressItemCBOR = targetAddressItem else {
+        guard let targetAddressItemCBOR = try? CBORDecoder(input: targetAddressBytes).decodeItem() else {
             assertionFailure()
             return
         }
@@ -75,7 +75,7 @@ open class CardanoTransaction {
         transactionOutputsCBOR.append(CBOR.array([targetAddressItemCBOR, CBOR.unsignedInt(amountLong)]))
         
         let currentWalletAddressBytes: [UInt8] = Array(cardWalletAddress.base58DecodedData!)
-        guard let currentWalletAddressItem = try? CBORDecoder(input: currentWalletAddressBytes).decodeItem(), let currentWalletAddressCBOR = currentWalletAddressItem else {
+        guard let currentWalletAddressCBOR = try? CBORDecoder(input: currentWalletAddressBytes).decodeItem() else {
             assertionFailure()
             return
         }
