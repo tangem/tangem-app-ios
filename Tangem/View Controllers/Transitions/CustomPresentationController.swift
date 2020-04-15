@@ -52,7 +52,7 @@ class CustomPresentationController: UIPresentationController {
         self.dimmingView = dimmingView
         containerView.addSubview(dimmingView)
         
-        let presentationRoundedCornerView = UIView(frame: UIEdgeInsetsInsetRect(presentationWrapperView.bounds, UIEdgeInsetsMake(0, 0, -Constants.kCornerRadius, 0)))
+        let presentationRoundedCornerView = UIView(frame: presentationWrapperView.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: -Constants.kCornerRadius, right: 0)))
         presentationRoundedCornerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         presentationRoundedCornerView.layer.cornerRadius = Constants.kCornerRadius
         presentationRoundedCornerView.layer.masksToBounds = true
@@ -62,7 +62,7 @@ class CustomPresentationController: UIPresentationController {
         // This also matches the size of presentedViewControllerWrapperView's
         // bounds to the size of -frameOfPresentedViewInContainerView.
         
-        let presentedViewControllerWrapperView = UIView(frame: UIEdgeInsetsInsetRect(presentationRoundedCornerView.bounds, UIEdgeInsetsMake(0, 0, Constants.kCornerRadius, 0)))
+        let presentedViewControllerWrapperView = UIView(frame: presentationRoundedCornerView.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: Constants.kCornerRadius, right: 0)))
         presentedViewControllerWrapperView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         // Add presentedViewControllerView -> presentedViewControllerWrapperView.
