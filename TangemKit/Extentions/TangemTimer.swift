@@ -25,7 +25,7 @@ class TangemTimer {
                 self?.completionHandler()
             })
             self.timer!.tolerance = 0.1 * self.timeInterval
-            RunLoop.main.add(self.timer!, forMode: .commonModes)
+            RunLoop.main.add(self.timer!, forMode: .common)
         }
     }
     
