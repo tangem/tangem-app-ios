@@ -84,7 +84,7 @@ class WebSocket: NSObject, XRPWebSocket, URLSessionWebSocketDelegate {
     func handleResponse(data: Data) {
         if let response = try? JSONDecoder().decode(XRPWebSocketResponse.self, from: data) {
             self.delegate?.onResponse(connection: self, response: response)
-        } else if let jsonOptional = try? JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary, let json = jsonOptional {
+        } else if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
             self.delegate?.onStream(connection: self, object: json)
         }
         
