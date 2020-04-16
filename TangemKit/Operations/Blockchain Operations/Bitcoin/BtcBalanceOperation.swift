@@ -17,7 +17,7 @@ class BtcBalanceOperation: GBAsyncOperation {
     
     private let operationQueue = OperationQueue()
     private unowned let engine: BTCEngine
-    private var retryCount = 1
+    private var retryCount = 2
     private let blockcyperApi: BlockcyperApi
     
     init(with engine: BTCEngine, blockcyperApi: BlockcyperApi, completion: @escaping (TangemObjectResult<BtcResponse>) -> Void) {
