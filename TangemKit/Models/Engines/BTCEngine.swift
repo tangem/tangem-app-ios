@@ -105,7 +105,7 @@ class BTCEngine: CardEngine, CoinProvider {
     var change: Decimal?
     
     func switchBackend() {
-        currentBackend =  (currentBackend == .blockcypher) ? .blockchainInfo : .blockcypher
+        currentBackend = .blockcypher
     }
     
     func getApiDescription() -> String {
