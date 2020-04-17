@@ -2,13 +2,13 @@ platform :ios, '11.0'
 use_frameworks!
 inhibit_all_warnings!
 target 'Tangem' do
-        #pod 'BigInt'
-        #pod 'CryptoSwift'
-        #pod 'SwiftyJSON'
-        #pod 'SwiftLint'
+        pod 'BigInt'
+        pod 'CryptoSwift'
+        pod 'SwiftyJSON'
+        pod 'SwiftLint'
         pod 'GBAsyncOperation'
-       # pod 'SwiftCBOR'
-        #pod 'Sodium'
+        pod 'SwiftCBOR'
+        pod 'Sodium'
         pod 'stellar-ios-mac-sdk', '~> 1.7.2'
         pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.6'
            #pod 'BinanceChain', :path => '/Users/alexander.osokin/repos/tangem/SwiftBinanceChain'
@@ -16,14 +16,14 @@ target 'Tangem' do
            #pod 'HDWalletKit', :path => '/Users/alexander.osokin/repos/tangem/HDWallet'
            #pod 'web3swift', :path => '/Users/alexander.osokin/repos/tangem/web3swift'
         pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.3'
-       # pod 'Moya'
-        #pod 'AnyCodable-FlightSchool'
+        pod 'Moya'
+        pod 'AnyCodable-FlightSchool'
     pod 'QRCode', '2.0'
     pod 'Firebase/Analytics'
     pod 'Firebase/Crashlytics'
     pod 'Firebase/Performance'
-    pod 'TangemSdk', :path => '/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk'
-    pod 'BlockchainSdk', :path => '/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk'
+    pod 'TangemSdk', :path => 'TangemSdk'
+    #pod 'BlockchainSdk', :path => '/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk'
 end
 
 pre_install do |installer|
