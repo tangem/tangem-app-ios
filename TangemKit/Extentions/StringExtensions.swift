@@ -31,3 +31,9 @@ public extension String {
         }
     }
 }
+
+extension String: Error, LocalizedError {
+    public var errorDescription: String? {
+        return self
+    }
+}
