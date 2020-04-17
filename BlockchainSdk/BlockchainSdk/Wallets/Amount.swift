@@ -8,17 +8,21 @@
 
 import Foundation
 
-public struct Amount {
+public struct Amount: CustomStringConvertible {
     public enum AmountType {
         case coin
         case token
         case reserve
     }
     
-    let type: AmountType
-    let currencySymbol: String
-    var value: Decimal
-    let decimals: Int
+    public let type: AmountType
+    public let currencySymbol: String
+    public var value: Decimal
+    public let decimals: Int
+    
+    public var description: String {
+        return "\(value.rounded(decimals)) \(currencySymbol)"
+    }
     
     public init(with blockchain: Blockchain, address: String, type: AmountType = .coin, value: Decimal) { //[REDACTED_TODO_COMMENT]
         self.type = type
