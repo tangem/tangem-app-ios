@@ -10,8 +10,6 @@ import UIKit
 import QRCode
 import CryptoSwift
 import TangemSdk
-import BlockchainSdk
-import RxSwift
 
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
@@ -37,7 +35,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     var dispatchWorkItem: DispatchWorkItem?
     
     let storageManager: StorageManagerType = SecureStorageManager()
-    var disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,6 +75,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         self.isBalanceLoading = true
         self.viewModel.setWalletInfoLoading(true)
         fetchWalletBalance(card: card, forceUnverifyed: forceUnverifyed)
+        
     }
     
     func setupWithCardDetails(card: CardViewModel) {
@@ -86,45 +84,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.setWalletInfoLoading(true)
         viewModel.doubleScanHintLabel.isHidden = true
         fetchSubstitutionInfo(card: card)
-        
-        self.card!.walletManager.onWallet.subscribe(
-            onNext: { wallet in
-                self.card = card
-                
-                if card.type == .nft {
-                    self.handleBalanceLoadedNFT()
-                } else if card.type == .slix2 {
-                    self.handleBalanceLoadedSlix2()
-                } else {
-                    self.handleBalanceLoaded(true) //[REDACTED_TODO_COMMENT]
-                }
-                self.card!.hasAccount = true
-                self.isBalanceLoading = false
-                self.viewModel.setWalletInfoLoading(false)
-        }).disposed(by: disposeBag)
-        
-        self.card!.walletManager.onError.subscribe(
-            onNext: { error in
-                self.isBalanceLoading = false
-                self.viewModel.setWalletInfoLoading(false)
-                Analytics.log(error: error)
-                
-                let errorTitle = /*title ?? */Localizations.generalError //[REDACTED_TODO_COMMENT]
-                let errorMessage = error.localizedDescription
-                
-                let validationAlert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
-                validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: nil))
-                self.present(validationAlert, animated: true, completion: nil)
-                
-                
-                if !card.productMask.contains(.tag) {
-                    self.viewModel.updateWalletBalance(title: "-- " + card.walletUnits)
-                    self.setupBalanceVerified(false)
-                } else {
-                    self.viewModel.updateWalletBalance(title: "--")
-                    self.setupBalanceVerified(false, customText: Localizations.loadedWalletErrorObtainingBlockchainData)
-                }
-        }).disposed(by: disposeBag)
     }
     
     func fetchSubstitutionInfo(card: CardViewModel) {
@@ -143,15 +102,13 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     func fetchWalletBalance(card: CardViewModel, forceUnverifyed: Bool = false) {
+        
         guard card.isWallet else {
             isBalanceLoading = false
             viewModel.setWalletInfoLoading(false)
             setupBalanceNoWallet()
             return
         }
-        card.walletManager.update()
-        return
-
         let operation = card.balanceRequestOperation(onSuccess: {[unowned self] (card) in
             self.card = card
             
@@ -300,7 +257,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             return
         }
         
-        let hasBalance = NSDecimalNumber(string: card.walletTokenValue).doubleValue > 0 
+        let hasBalance = NSDecimalNumber(string: card.walletTokenValue).doubleValue > 0
         let balanceTitle = hasBalance ? Localizations.genuine : Localizations.notFound
         
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
@@ -636,19 +593,19 @@ extension CardDetailsViewController {
 //                    }
 //                     self.card = CardViewModel(card)
 //                case .onVerify(let isGenuine):
-//                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
+//                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
 //                }
 //            case .completion(let error):
 //                self.viewModel.scanButton.hideActivityIndicator()
 //                if let error = error {
 //                    self.isBalanceLoading = false
 //                    self.viewModel.setWalletInfoLoading(false)
-//                    
+//
 //                    if !error.isUserCancelled {
 //                        self.handleGenericError(error)
 //                        return
 //                    }
-//                    
+//
 //                    if self.isBalanceLoading {
 //                        self.handleNonGenuineTangemCard(self.card!) {
 //                            self.setupWithCardDetails(card: self.card!)
@@ -658,24 +615,24 @@ extension CardDetailsViewController {
 //                        return
 //                    }
 //                }
-//                
+//
 //                guard self.card!.status == .loaded else {
 //                      self.setupWithCardDetails(card: self.card!)
 //                    return
 //                }
-//                
+//
 //                if self.card!.genuinityState == .genuine {
-//                    
+//
 //                    guard self.card!.isBlockchainKnown else {
 //                        self.handleUnknownBlockchainCard {
 //                            self.navigationController?.popViewController(animated: true)
 //                        }
 //                        return
 //                    }
-//                    
-//                    
+//
+//
 //                    self.setupWithCardDetails(card: self.card!)
-//                    
+//
 //                } else {
 //                    self.handleNonGenuineTangemCard(self.card!) {
 //                        self.setupWithCardDetails(card: self.card!)
