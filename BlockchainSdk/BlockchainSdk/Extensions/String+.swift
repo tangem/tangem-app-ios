@@ -21,6 +21,14 @@ extension String {
         let v = self.utf8CString.map({ UInt8($0) })
         return Array(v[0 ..< (v.count-1)])
     }
+    
+    func capitalizingFirstLetter() -> String {
+        return prefix(1).capitalized + dropFirst()
+    }
+    
+    mutating func capitalizeFirstLetter() {
+        self = self.capitalizingFirstLetter()
+    }
 }
 
 extension String: Error, LocalizedError {
