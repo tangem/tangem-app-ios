@@ -88,6 +88,16 @@ public enum Blockchain {
         }
     }
     
+    public var displayName: String {
+        switch self {
+        case .bitcoinCash:
+            return "Bitcoin Cash"
+        default:
+            let name = "\(self)".capitalizingFirstLetter()
+            return isTestnet ?  name + " test" : name
+        }
+    }
+    
     public func makeAddress(from walletPublicKey: Data) -> String {
         switch self {
         case .bitcoin(let testnet):
