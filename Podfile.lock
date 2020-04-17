@@ -19,20 +19,6 @@ PODS:
   - BinanceChain/Libraries (1.0.0-beta)
   - BinanceChain/Protobuf (1.0.0-beta)
   - BinanceChain/Util (1.0.0-beta)
-  - BlockchainSdk (0.0.1):
-    - AnyCodable-FlightSchool
-    - BigInt
-    - BinanceChain
-    - HDWalletKit
-    - Moya
-    - Moya/RxSwift
-    - RxSwift
-    - Sodium
-    - stellar-ios-mac-sdk
-    - SwiftCBOR
-    - SwiftyJSON
-    - TangemSdk
-    - web3swift
   - CryptoSwift (1.3.0)
   - Firebase/Analytics (6.22.0):
     - Firebase/Core
@@ -153,9 +139,6 @@ PODS:
     - Moya/Core (= 14.0.0)
   - Moya/Core (14.0.0):
     - Alamofire (~> 5.0)
-  - Moya/RxSwift (14.0.0):
-    - Moya/Core
-    - RxSwift (~> 5.0)
   - nanopb (0.3.9011):
     - nanopb/decode (= 0.3.9011)
     - nanopb/encode (= 0.3.9011)
@@ -176,13 +159,13 @@ PODS:
   - PromisesObjC (1.2.8)
   - Protobuf (3.11.4)
   - QRCode (2.0)
-  - RxSwift (5.1.1)
   - secp256k1.swift (0.1.4)
   - Sodium (0.8.0)
   - Starscream (3.1.1)
   - stellar-ios-mac-sdk (1.7.3)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.0.3)
+  - SwiftLint (0.39.2)
   - SwiftProtobuf (1.8.0)
   - SwiftyJSON (5.0.0)
   - TangemSdk (0.1.0):
@@ -200,16 +183,23 @@ PODS:
     - ObjcExceptionBridging
 
 DEPENDENCIES:
+  - AnyCodable-FlightSchool
+  - BigInt
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.6`)
-  - BlockchainSdk (from `/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk`)
+  - CryptoSwift
   - Firebase/Analytics
   - Firebase/Crashlytics
   - Firebase/Performance
   - GBAsyncOperation
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
+  - Moya
   - QRCode (= 2.0)
+  - Sodium
   - stellar-ios-mac-sdk (~> 1.7.2)
-  - TangemSdk (from `/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk`)
+  - SwiftCBOR
+  - SwiftLint
+  - SwiftyJSON
+  - TangemSdk (from `TangemSdk`)
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.3`)
 
 SPEC REPOS:
@@ -245,13 +235,13 @@ SPEC REPOS:
     - PromisesObjC
     - Protobuf
     - QRCode
-    - RxSwift
     - secp256k1.swift
     - Sodium
     - Starscream
     - stellar-ios-mac-sdk
     - SwiftCBOR
     - SwiftDate
+    - SwiftLint
     - SwiftProtobuf
     - SwiftyJSON
     - XCGLogger
@@ -260,13 +250,11 @@ EXTERNAL SOURCES:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
     :tag: 0.0.6
-  BlockchainSdk:
-    :path: "/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
   TangemSdk:
-    :path: "/Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk"
+    :path: TangemSdk
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.3
@@ -287,7 +275,6 @@ SPEC CHECKSUMS:
   AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
   BinanceChain: 3f6724155e3d65f6f9ca86b20343cf316f9eabf6
-  BlockchainSdk: 45989b2cb35c1fa059de28084985d917050e1173
   CryptoSwift: 1283821600233bdbeb96d7b389c3288c3bf77211
   Firebase: 32f9520684e87c7af3f0704f7f88042626d6b536
   FirebaseABTesting: 821a3a3e4a145987e80fee3657c4de1cb9adf693
@@ -317,19 +304,19 @@ SPEC CHECKSUMS:
   PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   Protobuf: 176220c526ad8bd09ab1fb40a978eac3fef665f7
   QRCode: f98a1886c8f37523704a7512a4c0cd45b34c18a4
-  RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
   stellar-ios-mac-sdk: e656dba16cbb108bd5f83b67acd55a2e25e75d24
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
+  SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   TangemSdk: 835de9c781335fdd9d4af6a04dfe4fc5a2d90a58
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 3ee26696a5c32504ed0190eb1c4cd6022a2586c8
+PODFILE CHECKSUM: 770a7c38f47c52fe7c6a747bb497177b637fe4bd
 
 COCOAPODS: 1.9.1
