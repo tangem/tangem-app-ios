@@ -24,7 +24,7 @@ public struct Amount: CustomStringConvertible {
         return "\(value.rounded(decimals)) \(currencySymbol)"
     }
     
-    public init(with blockchain: Blockchain, address: String, type: AmountType = .coin, value: Decimal) { //[REDACTED_TODO_COMMENT]
+    public init(with blockchain: Blockchain, address: String, type: AmountType = .coin, value: Decimal) {
         self.type = type
         currencySymbol = blockchain.currencySymbol
         decimals = blockchain.decimalCount
