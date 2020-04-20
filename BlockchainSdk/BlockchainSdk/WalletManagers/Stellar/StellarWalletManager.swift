@@ -18,19 +18,20 @@ enum StellarError: Error {
     case requestFailed
 }
 
-class StellarWalletManager: WalletManager<CurrencyWallet> {
+class StellarWalletManager: WalletManager {
     var txBuilder: StellarTransactionBuilder!
     var network: StellarNetworkManager!
     var stellarSdk: StellarSDK!
     private var baseFee: Decimal?
     
-    override func update() {
+    override func update(completion: @escaping (Result<Wallet, Error>)-> Void)  {
         requestDisposable = network
             .getInfo(accountId: wallet.address, assetCode: wallet.token?.currencySymbol)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
-                }, onError: {[unowned self] error in
-                    self.onError.onNext(error)
+                completion(.success(self.wallet))
+                }, onError: {error in
+                    completion(.failure(error))
             })
     }
     
@@ -43,12 +44,11 @@ class StellarWalletManager: WalletManager<CurrencyWallet> {
             wallet.add(tokenValue: assetBalance)
         }
         let currentDate = Date()
-        for  index in wallet.pendingTransactions.indices {
-            if DateInterval(start: wallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
-                wallet.pendingTransactions[index].status = .confirmed
+        for  index in wallet.transactions.indices {
+            if DateInterval(start: wallet.transactions[index].date!, end: currentDate).duration > 10 {
+                wallet.transactions[index].status = .confirmed
             }
         }
-        walletDidUpdate()
     }
 }
 
@@ -70,7 +70,6 @@ extension StellarWalletManager: TransactionSender {
         .flatMap {[unowned self] in self.network.send(transaction: $0)}
         .map {[unowned self] in
             self.wallet.add(transaction: transaction)
-            self.walletDidUpdate()
             return $0
         }
         .eraseToAnyPublisher()
