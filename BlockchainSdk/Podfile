@@ -7,7 +7,6 @@ target 'BlockchainSdk' do
     pod 'SwiftyJSON'
     pod 'Moya'
     pod 'RxSwift'
-    pod 'RxCocoa'
     pod 'Moya/RxSwift'
     pod 'Sodium'
     pod 'SwiftCBOR'

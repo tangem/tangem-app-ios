@@ -14,27 +14,22 @@ import RxSwift
 public class WalletManagerFactory {
     public init() {}
     
-    public func makeWalletManager(from card: Card) -> WalletManager<CurrencyWallet>? {
+    public func makeWalletManager(from card: Card) -> WalletManager? {
         guard let blockchainName = card.cardData?.blockchainName,
             let curve = card.curve,
             let blockchain = Blockchain.from(blockchainName: blockchainName, curve: curve),
             let walletPublicKey = card.walletPublicKey,
-            let cardId = card.cardId,
-            let productMask = card.cardData?.productMask else {
+            let cardId = card.cardId else {
                 assertionFailure()
                 return nil
         }
         
         let address = blockchain.makeAddress(from: walletPublicKey)
         let token = getToken(from: card)
+        let wallet = Wallet(blockchain: blockchain, address: address, token: token)
         
         switch blockchain {
         case .bitcoin(let testnet):
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: "https://blockchain.info/address/\(address)")!,
-                                        shareString: "bitcoin:\(address)")
-            
             return BitcoinWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: testnet)
@@ -43,11 +38,6 @@ public class WalletManagerFactory {
             }
             
         case .litecoin:
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: "https://live.blockcypher.com/ltc/address/\(address)")!,
-                                        shareString: "litecoin:\(address)")
-            
             return LitecoinWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: false)
@@ -56,10 +46,6 @@ public class WalletManagerFactory {
             }
             
         case .ducatus:
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: "https://insight.ducatus.io/#/DUC/mainnet/address/\(address)")!)
-            
             return BitcoinWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = BitcoinTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: false)
@@ -68,19 +54,6 @@ public class WalletManagerFactory {
             }
             
         case .stellar(let testnet):
-            let baseUrl = testnet ? "https://stellar.expert/explorer/testnet/account/" : "https://stellar.expert/explorer/public/account/"
-            let exploreLink =  baseUrl + address
-            
-            let walletType: WalletType = blockchainName == "xlm-tag" || productMask.contains(.tag) ? .nft : .default
-            
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: exploreLink)!,
-                                        shareString: "sharePrefix\(address)",
-                                        token: token,
-                                        walletType: walletType)
-            
-            
             return StellarWalletManager().then {
                 let url = testnet ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"
                 let stellarSdk = StellarSDK(withHorizonUrl: url)
@@ -92,21 +65,6 @@ public class WalletManagerFactory {
             }
             
         case .ethereum(let testnet):
-            let sharePrefix = testnet ? "" : "ethereum:"
-            let baseUrl = testnet ? "https://rinkeby.etherscan.io/address/" : "https://etherscan.io/address/"
-            let exploreLink = token == nil ? baseUrl + address :
-            "https://etherscan.io/token/\(token!.contractAddress)?a=\(address)"
-            
-            let walletType: WalletType = blockchainName == "nfttoken" || (token?.currencySymbol.contains("nft", ignoreCase: true) ?? false) ?
-                .nft : .default
-            
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: exploreLink)!,
-                                        shareString: "\(sharePrefix)\(address)",
-                                        token: token,
-                                        walletType: walletType)
-            
             let ethereumNetwork = testnet ? EthereumNetwork.testnet : EthereumNetwork.mainnet
             return EthereumWalletManager().then {
                 $0.cardId = cardId
@@ -116,17 +74,6 @@ public class WalletManagerFactory {
             }
             
         case .rsk:
-            var exploreLink = "https://explorer.rsk.co/address/\(address)"
-            if token != nil {
-                exploreLink += "?__tab=tokens"
-            }
-            
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: exploreLink)!,
-                                        shareString: nil,
-                                        token: token)
-            
             return EthereumWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, network: .rsk)
@@ -135,10 +82,6 @@ public class WalletManagerFactory {
             }
             
         case .bitcoinCash(let testnet):
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: "https://blockchair.com/bitcoin-cash/address/\(address)")!)
-            
             return BitcoinCashWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = BitcoinCashTransactionBuilder(walletAddress: address, walletPublicKey: walletPublicKey, isTestnet: testnet)
@@ -147,10 +90,6 @@ public class WalletManagerFactory {
             }
             
         case .binance(let testnet):
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: "https://explorer.binance.org/address/\(address)")!)
-            
             return BinanceWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = BinanceTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet)
@@ -159,10 +98,6 @@ public class WalletManagerFactory {
             }
             
         case .cardano:
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: "https://cardanoexplorer.com/address/\(address)")!)
-            
             return CardanoWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = CardanoTransactionBuilder(walletPublicKey: walletPublicKey)
@@ -171,11 +106,6 @@ public class WalletManagerFactory {
             }
             
         case .xrp(let curve):
-            let wallet = CurrencyWallet(blockchain: blockchain,
-                                        address: address,
-                                        exploreUrl: URL(string: "https://xrpscan.com/account/\(address)")!,
-                                        shareString: "ripple:\(address)")
-            
             return XRPWalletManager().then {
                 $0.cardId = cardId
                 $0.txBuilder = XRPTransactionBuilder(walletPublicKey: walletPublicKey, curve: curve)
