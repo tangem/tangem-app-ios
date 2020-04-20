@@ -20,10 +20,10 @@ enum CardanoError: Error {
 
 class CardanoWalletManager: WalletManager {
     var txBuilder: CardanoTransactionBuilder!
-    var network: CardanoNetworkManager!
+    var networkService: CardanoNetworkService!
     
     override func update(completion: @escaping (Result<Wallet, Error>)-> Void) {//check it
-        requestDisposable = network
+        requestDisposable = networkService
             .getInfo(address: wallet.address)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
@@ -64,7 +64,7 @@ extension CardanoWalletManager: TransactionSender {
                 return tx
         }
         .flatMap {[unowned self] builderResponse in
-            self.network.send(base64EncodedTx: builderResponse.tx.base64EncodedString()).map {[unowned self] response in
+            self.networkService.send(base64EncodedTx: builderResponse.tx.base64EncodedString()).map {[unowned self] response in
                 var sendedTx = transaction
                 sendedTx.hash = builderResponse.hash
                 self.wallet.add(transaction: sendedTx)

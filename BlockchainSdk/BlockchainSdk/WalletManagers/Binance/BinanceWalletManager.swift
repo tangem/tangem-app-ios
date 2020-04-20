@@ -12,11 +12,11 @@ import RxSwift
 
 class BinanceWalletManager: WalletManager {
     var txBuilder: BinanceTransactionBuilder!
-    var network: BinanceNetworkManager!
+    var networkService: BinanceNetworkService!
     private var latestTxDate: Date?
     
     override func update(completion: @escaping (Result<Wallet, Error>)-> Void) {//check it
-        requestDisposable = network
+        requestDisposable = networkService
             .getInfo()
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
@@ -53,7 +53,7 @@ extension BinanceWalletManager: TransactionSender {
                 return tx
         }
         .flatMap {[unowned self] in
-            self.network.send(transaction: $0).map {[unowned self] response in
+            self.networkService.send(transaction: $0).map {[unowned self] response in
                 self.wallet.add(transaction: transaction)
                 self.latestTxDate = Date()
                 return true
@@ -63,7 +63,7 @@ extension BinanceWalletManager: TransactionSender {
     }
     
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-        return network.getFee()
+        return networkService.getFee()
             .tryMap { feeString throws -> [Amount] in
                 guard let feeValue = Decimal(feeString) else {
                     throw "Failed to get fee"
