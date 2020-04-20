@@ -1,5 +1,5 @@
 //
-//  LitecoinNetworkManager.swift
+//  LitecoinNetworkService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import RxSwift
 
-class LitecoinNetworkManager: BitcoinNetworkManager {
+class LitecoinNetworkService: BitcoinNetworkService {
     convenience init(address: String, isTestNet:Bool) {
         var providers = [BitcoinNetworkApi:BitcoinNetworkProvider]()
         providers[.blockcypher] = BlockcypherProvider(address: address, coin: .ltc, chain: .main)
