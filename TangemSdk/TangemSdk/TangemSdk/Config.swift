@@ -27,6 +27,8 @@ public struct Config {
      */
     public var linkedTerminal: Bool = true
     
+    
+    /// If not nil, will be used to validate Issuer data and issuer extra data. If nil, issuerPublicKey from current card will be used
     public var issuerPublicKey: Data?
 }
 
