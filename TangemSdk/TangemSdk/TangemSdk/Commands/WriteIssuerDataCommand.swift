@@ -21,7 +21,7 @@ public struct WriteIssuerDataResponse: TlvCodable {
  * wallet balance signed by the issuer or additional issuer’s attestation data.
  */
 @available(iOS 13.0, *)
-public final class WriteIssuerDataCommand: CommandSerializer {
+public final class WriteIssuerDataCommand: Command {
     public typealias CommandResponse = WriteIssuerDataResponse
     /// Data provided by issuer
     public let issuerData: Data
@@ -50,10 +50,14 @@ public final class WriteIssuerDataCommand: CommandSerializer {
         self.issuerDataCounter = issuerDataCounter
     }
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+    deinit {
+        print ("WriteIssuerDataCommand deinit")
+    }
+    
+    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
             .append(.issuerData, value: issuerData)
             .append(.issuerDataSignature, value: issuerDataSignature)
         
@@ -65,12 +69,12 @@ public final class WriteIssuerDataCommand: CommandSerializer {
         return cApdu
     }
     
-    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerDataResponse {
+    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerDataResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.serializeCommandError
+            throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
-        return WriteIssuerDataResponse(cardId: try mapper.map(.cardId))
+        let decoder = TlvDecoder(tlv: tlv)
+        return WriteIssuerDataResponse(cardId: try decoder.decode(.cardId))
     }
 }
