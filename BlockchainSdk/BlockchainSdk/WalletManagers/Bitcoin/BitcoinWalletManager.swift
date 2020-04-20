@@ -21,10 +21,10 @@ enum BitcoinError: Error {
 
 class BitcoinWalletManager: WalletManager {
     var txBuilder: BitcoinTransactionBuilder!
-    var network: BitcoinNetworkProvider!
+    var networkService: BitcoinNetworkProvider!
     
     override func update(completion: @escaping (Result<Wallet, Error>)-> Void)  {
-        requestDisposable = network.getInfo()
+        requestDisposable = networkService.getInfo()
             .subscribe( onSuccess: { response in
                 self.updateWallet(with: response)
                 completion(.success(self.wallet))
@@ -35,7 +35,7 @@ class BitcoinWalletManager: WalletManager {
     
     @available(iOS 13.0, *)
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-        return network.getFee()
+        return networkService.getFee()
             .tryMap {[unowned self] response throws -> [Amount] in
                 let kb = Decimal(1024)
                 let minPerByte = response.minimalKb/kb
@@ -99,7 +99,7 @@ extension BitcoinWalletManager: TransactionSender {
                 return tx.toHexString()
         }
         .flatMap {[unowned self] in
-            self.network.send(transaction: $0).map {[unowned self] response in
+            self.networkService.send(transaction: $0).map {[unowned self] response in
                 self.wallet.add(transaction: transaction)
                 return true
             }
