@@ -13,19 +13,20 @@ import Combine
 import RxSwift
 import TangemSdk
 
-class EthereumWalletManager: WalletManager<CurrencyWallet> {
+class EthereumWalletManager: WalletManager {
     var txBuilder: EthereumTransactionBuilder!
     var network: EthereumNetworkManager!
     var txCount: Int = -1
     var pendingTxCount: Int = -1
 
-    override func update() {
+    override func update(completion: @escaping (Result<Wallet, Error>)-> Void) {
         requestDisposable = network
             .getInfo(address: wallet.address, contractAddress: wallet.token?.contractAddress)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
-                }, onError: {[unowned self] error in
-                    self.onError.onNext(error)
+                completion(.success(self.wallet))
+                }, onError: { error in
+                    completion(.failure(error))
             })
     }
     
@@ -37,15 +38,14 @@ class EthereumWalletManager: WalletManager<CurrencyWallet> {
         txCount = response.txCount
         pendingTxCount = response.txCount
         if txCount == pendingTxCount {
-            for  index in wallet.pendingTransactions.indices {
-                wallet.pendingTransactions[index].status = .confirmed
+            for  index in wallet.transactions.indices {
+                wallet.transactions[index].status = .confirmed
             }
         } else {
-            if wallet.pendingTransactions.isEmpty {
+            if wallet.transactions.isEmpty {
                 wallet.addIncomingTransaction()
             }
         }
-          walletDidUpdate()
     }
 }
 
@@ -65,7 +65,6 @@ extension EthereumWalletManager: TransactionSender {
                 return self.network.send(transaction: txHexString)}
             .map {[unowned self] response in
                 self.wallet.add(transaction: transaction)
-                self.walletDidUpdate()
                 return true
         }
     .eraseToAnyPublisher()
