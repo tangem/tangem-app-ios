@@ -43,11 +43,6 @@ PODS:
     - PromiseKit/CorePromise
   - PromiseKit/UIKit (6.8.5):
     - PromiseKit/CorePromise
-  - RxCocoa (5.1.1):
-    - RxRelay (~> 5)
-    - RxSwift (~> 5)
-  - RxRelay (5.1.1):
-    - RxSwift (~> 5)
   - RxSwift (5.1.1)
   - secp256k1.swift (0.1.4)
   - Sodium (0.8.0)
@@ -78,7 +73,6 @@ DEPENDENCIES:
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
   - Moya
   - Moya/RxSwift
-  - RxCocoa
   - RxSwift
   - Sodium
   - stellar-ios-mac-sdk
@@ -97,8 +91,6 @@ SPEC REPOS:
     - Moya
     - ObjcExceptionBridging
     - PromiseKit
-    - RxCocoa
-    - RxRelay
     - RxSwift
     - secp256k1.swift
     - Sodium
@@ -145,8 +137,6 @@ SPEC CHECKSUMS:
   Moya: 5b45dacb75adb009f97fde91c204c1e565d31916
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   PromiseKit: 9616b0afef31eae56ab9ce044c8ec2b8612a15cd
-  RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
-  RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
   RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
@@ -156,10 +146,10 @@ SPEC CHECKSUMS:
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  TangemSdk: beeaa90d6c451a09b72b575f51f8a1626b69ec42
+  TangemSdk: 835de9c781335fdd9d4af6a04dfe4fc5a2d90a58
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: b2a376516604b763780ef98716f2f405d3ffd633
+PODFILE CHECKSUM: 2e3da45c95e1209ba5a8bc2bda067ed961309923
 
 COCOAPODS: 1.9.1
