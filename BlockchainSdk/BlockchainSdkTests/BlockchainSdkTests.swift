@@ -42,6 +42,6 @@ class BlockchainSdkTests: XCTestCase {
     func testBtcAddress() {
         let btcAddress = "1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs"
         let publicKey = Data(hex: "0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352")
-        XCTAssertEqual(BitcoinAddressFactory().makeAddress(from: publicKey, testnet: false), btcAddress)
+        XCTAssertEqual(BitcoinAddressService().makeAddress(from: publicKey, testnet: false), btcAddress)
     }
 }
