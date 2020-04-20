@@ -7,17 +7,16 @@
 //
 
 import UIKit
-import TangemKit
 import TangemSdk
 
 class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
-    
     var customPresentationController: CustomPresentationController?
+    var isAppLaunched = false
     
-    lazy var cardManager: CardManager = {
-        let manager = CardManager()
-        manager.config.legacyMode = Utils().needLegacyMode
-        return manager
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
     }()
     
     private var card: CardViewModel?
@@ -70,8 +69,13 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-         super.viewDidAppear(animated)
-         scanButtonPressed(self)
+        super.viewDidAppear(animated)
+        
+        if isAppLaunched {
+            scanButtonPressed(self)
+        } else {
+            isAppLaunched = true
+        }
     }
     
     override func viewDidLoad() {
@@ -98,53 +102,57 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
+        Analytics.log(event: .readyToScan)
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
         let task = ScanTaskExtended()
-        cardManager.runTask(task, cardId: nil) {[unowned self] taskEvent in
-            switch taskEvent {
-            case .event(let scanEvent):
-                switch scanEvent {
-                case .onRead(let card):
-                    self.card = CardViewModel(card)
-                case .onIssuerExtraDataRead(let extraData):
-                    self.card!.issuerExtraData = extraData
-                    (self.card!.cardEngine as! ETHIdEngine).setupAddress()
-                case .onVerify(let isGenuine):
-                    self.card?.genuinityState = isGenuine ? .genuine : .nonGenuine
+        tangemSdk.startSession(with: task, cardId: nil) {[unowned self] result in
+            self.scanButton.hideActivityIndicator()
+            self.hintLabel.text = Localizations.readerHintDefault
+            switch result {
+            case .success(let response):
+                self.card = CardViewModel(response.card)
+                Analytics.logScan(card: response.card)
+                self.card?.genuinityState = .genuine
+                
+                guard self.card!.isBlockchainKnown else {
+                    self.handleUnknownBlockchainCard()
+                    return
                 }
-            case .completion(let error):
-                self.scanButton.hideActivityIndicator()
-                self.hintLabel.text = Localizations.readerHintDefault
-                if let error = error {
-                    if !error.isUserCancelled {
-                        self.handleGenericError(error)
-                    }
-                } else {
-                    guard self.card!.isBlockchainKnown else {
-                        self.handleUnknownBlockchainCard()
-                        return
-                    }
-                    
-                    guard !self.card!.productMask.contains(.card) else {
-                        UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
-                        return
-                    }
-                    
-                    guard self.card!.status == .loaded else {
-                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-                        return
-                    }
-                    
-                    if self.card!.genuinityState == .genuine {
-                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
+                
+                guard !self.card!.productMask.contains(.idCard) else {
+                    self.card!.issuerExtraData = response.issuerExtraData
+                    (self.card!.cardEngine as! ETHIdEngine).setupAddress()
+                    UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
+                    return
+                }
+                
+                guard self.card!.status == .loaded else {
+                    UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
+                    return
+                }
+                
+                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
+            case .failure(let error):
+                if !error.isUserCancelled {
+                    if #available(iOS 13.0, *) {
+                        task.trace?.incrementMetric("failure", by: 1)
                     } else {
+                        task.trace?.incrementMetric("failure_legacy", by: 1)
+                    }
+                    task.trace?.stop()
+                    Analytics.log(error: error)
+                    if error == .verificationFailed {
                         self.handleNonGenuineTangemCard(self.card!) {
                             UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
                         }
+                    } else {
+                        self.handleGenericError(error)
                     }
-                    
+                } else {
+                    task.trace?.incrementMetric("userCancelled", by: 1)
+                    task.trace?.stop()
                 }
             }
         }
