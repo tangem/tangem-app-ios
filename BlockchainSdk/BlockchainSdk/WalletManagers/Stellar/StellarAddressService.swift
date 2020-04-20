@@ -1,5 +1,5 @@
 //
-//  StellarAddressFactory.swift
+//  StellarAddressService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import stellarsdk
 
-public class StellarAddressFactory {
+public class StellarAddressService: AddressService {
     public func makeAddress(from walletPublicKey: Data) -> String {
         guard let publicKey = try? PublicKey(Array(walletPublicKey)) else {
             return ""
@@ -17,5 +17,10 @@ public class StellarAddressFactory {
         
         let keyPair = KeyPair(publicKey: publicKey)
         return keyPair.accountId
+    }
+    
+    public func validate(_ address: String) -> Bool {
+        let keyPair = try? KeyPair(accountId: address)
+        return keyPair != nil
     }
 }
