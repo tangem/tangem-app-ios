@@ -8,16 +8,15 @@
 
 import UIKit
 import QRCode
-import TangemKit
 import CryptoSwift
 import TangemSdk
 
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
-    private lazy var cardManager: CardManager = {
-        let manager = CardManager()
-        manager.config.legacyMode = Utils().needLegacyMode
-        return manager
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
     }()
     
     @IBOutlet var viewModel: CardDetailsViewModel! {
@@ -127,7 +126,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             }, onFailure: { (error, title) in
                 self.isBalanceLoading = false
                 self.viewModel.setWalletInfoLoading(false)
-                
+                Analytics.log(error: error)
                 
                 let errorTitle = title ?? Localizations.generalError
                 let errorMessage = error.localizedDescription
@@ -309,7 +308,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         viewModel.walletAddressLabel.isHidden = false
         viewModel.walletBlockchainLabel.isHidden = false
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
-        if let card = card, card.productMask.contains(.note) && card.type != .nft {
+        if let card = card, (card.productMask.contains(.note) || card.productMask.contains(.idIssuer)) && card.type != .nft {
             viewModel.loadButton.isEnabled = true
             viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
         } else {
@@ -355,7 +354,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     func showUntrustedAlertIfNeeded() {
         guard let card = card,
-            let walletAmount = Double(card.walletValue),
+            let walletAmount = Double(card.balance),
             let signedHashesAmount = Int(card.signedHashes, radix: 16) else {
                 return
         }
@@ -501,23 +500,15 @@ extension CardDetailsViewController {
         case .createWallet:
             if #available(iOS 13.0, *) {
                 viewModel.actionButton.showActivityIndicator()
-                cardManager.createWallet(cardId: card!.cardID) {[unowned self] taskResponse in
-                    switch taskResponse {
-                    case .event(let createWalletEvent):
-                        switch createWalletEvent {
-                        case .onCreate(let createWalletResponse):
-                            self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
-                        case .onVerify(let isGenuine):
-                            self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
-                        }
-                    case .completion(let error):
-                        self.viewModel.actionButton.hideActivityIndicator()
-                        if let error = error {
-                            if !error.isUserCancelled {
-                                self.handleGenericError(error)
-                            }
-                        } else {
-                            self.setupWithCardDetails(card: self.card!)
+                tangemSdk.createWallet(cardId: card!.cardID) { result in
+                    self.viewModel.actionButton.hideActivityIndicator()
+                    switch result {
+                    case .success(let createWalletResponse):
+                        self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                        self.setupWithCardDetails(card: self.card!)
+                    case .failure(let error):
+                        if !error.isUserCancelled {
+                            self.handleGenericError(error)
                         }
                     }
                 }
@@ -652,48 +643,11 @@ extension CardDetailsViewController {
     }
     
     @IBAction func moreButtonPressed(_ sender: Any) {
-        guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+        guard let cardDetails = card?.moreInfoData, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
             return
         }
-        
-        var cardChallenge: String? = nil
-        if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var verificationChallenge: String? = nil
-        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
-            "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
-            "\(Localizations.detailsValidationNode): \(cardDetails.node)",
-            "\(Localizations.signature): \(isBalanceVerified ? Localizations.passed : Localizations.notPassed)",
-            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)"]
-        
-        if cardDetails.type != .slix2 {
-            strings.append("\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)")
-            strings.append("\(Localizations.detailsFirmware): \(cardDetails.firmware)")
-            strings.append("\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)")
-            strings.append("\(Localizations.detailsTitleCardId): \(cardDetails.cardID)")
-            strings.append("\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)")
-            strings.append("\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)")
-        }
-        
-        if cardDetails.isLinked {
-            strings.append(Localizations.detailsLinkedCard)
-        }
-        
-        viewController.contentText = strings.joined(separator: "\n")
+      
+        viewController.contentText = cardDetails
         viewController.card = card!
         viewController.onDone = { [unowned self] in
             self.setupWithCardDetails(card: self.card!)
