@@ -21,32 +21,35 @@ public struct PurgeWalletResponse: TlvCodable {
  * the card changes state to ‘Empty’ and a new wallet can be created by CREATE_WALLET command.
  * If Is_Reusable flag is disabled, the card switches to ‘Purged’ state.
  * ‘Purged’ state is final, it makes the card useless.
- * @property cardId CID, Unique Tangem card ID number.
  */
 @available(iOS 13.0, *)
-public final class PurgeWalletCommand: CommandSerializer {
+public final class PurgeWalletCommand: Command {
     public typealias CommandResponse = PurgeWalletResponse
     
     public init() {}
     
-    public func serialize(with environment: CardEnvironment) throws -> CommandApdu {
+    deinit {
+         print("PurgeWalletCommand deinit")
+    }
+    
+    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
-            .append(.cardId, value: environment.cardId)
+            .append(.cardId, value: environment.card?.cardId)
         
         let cApdu = CommandApdu(.purgeWallet, tlv: tlvBuilder.serialize())
         return cApdu
     }
     
-    public func deserialize(with environment: CardEnvironment, from responseApdu: ResponseApdu) throws -> PurgeWalletResponse {
+    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> PurgeWalletResponse {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw TaskError.serializeCommandError
+            throw SessionError.deserializeApduFailed
         }
         
-        let mapper = TlvMapper(tlv: tlv)
+        let decoder = TlvDecoder(tlv: tlv)
         return PurgeWalletResponse(
-            cardId: try mapper.map(.cardId),
-            status: try mapper.map(.status))
+            cardId: try decoder.decode(.cardId),
+            status: try decoder.decode(.status))
     }
 }
