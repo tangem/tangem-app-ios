@@ -237,15 +237,15 @@ class ExtractViewController: ModalActionViewController {
     private func sign(data: [Data]) {
         Analytics.log(event: .readyToSign)
         tangemSdk.sign(hashes: data, cardId: card.cardID) {[unowned self] result in
-            self.btnSend.hideActivityIndicator()
-            self.updateSendButtonSubtitle()
-            self.removeLoadingView()
             switch result {
             case .success(let signResponse):
                 self.card.remainingSignatures -= 1
                 Analytics.logSign(card: self.card.cardModel)
                 self.handleSuccessSign(with: Array(signResponse.signature))
             case .failure(let error):
+                self.btnSend.hideActivityIndicator()
+                self.updateSendButtonSubtitle()
+                self.removeLoadingView()
                 if !error.isUserCancelled {
                      Analytics.log(error: error)
                     self.handleGenericError(error)                      
