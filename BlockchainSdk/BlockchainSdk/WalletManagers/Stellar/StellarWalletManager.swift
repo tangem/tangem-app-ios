@@ -20,12 +20,12 @@ enum StellarError: Error {
 
 class StellarWalletManager: WalletManager {
     var txBuilder: StellarTransactionBuilder!
-    var network: StellarNetworkManager!
+    var networkService: StellarNetworkService!
     var stellarSdk: StellarSDK!
     private var baseFee: Decimal?
     
     override func update(completion: @escaping (Result<Wallet, Error>)-> Void)  {
-        requestDisposable = network
+        requestDisposable = networkService
             .getInfo(accountId: wallet.address, assetCode: wallet.token?.currencySymbol)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
@@ -67,7 +67,7 @@ extension StellarWalletManager: TransactionSender {
             
             return tx
         }
-        .flatMap {[unowned self] in self.network.send(transaction: $0)}
+        .flatMap {[unowned self] in self.networkService.send(transaction: $0)}
         .map {[unowned self] in
             self.wallet.add(transaction: transaction)
             return $0

@@ -99,47 +99,11 @@ public enum Blockchain {
     }
     
     public func makeAddress(from walletPublicKey: Data) -> String {
-        switch self {
-        case .bitcoin(let testnet):
-            return BitcoinAddressFactory().makeAddress(from: walletPublicKey, testnet: testnet)
-        case .litecoin:
-            return LitecoinAddressFactory().makeAddress(from: walletPublicKey, testnet: false)
-        case .stellar:
-            return StellarAddressFactory().makeAddress(from: walletPublicKey)
-        case .ethereum, .rsk:
-            return EthereumAddressFactory().makeAddress(from: walletPublicKey)
-        case .bitcoinCash:
-            return BitcoinCashAddressFactory().makeAddress(from: walletPublicKey)
-        case .binance(let testnet):
-            return BinanceAddressFactory().makeAddress(from: walletPublicKey, testnet: testnet)
-        case .ducatus:
-            return DucatusAddressFactory().makeAddress(from: walletPublicKey, testnet: false)
-        case .cardano:
-            return CardanoAddressFactory().makeAddress(from: walletPublicKey)
-        case .xrp(let curve):
-            return XRPAddressFactory().makeAddress(from: walletPublicKey, curve: curve)
-        }
+        return getAddressService().makeAddress(from: walletPublicKey)
     }
     
     public func validate(address: String) -> Bool {
-        switch self {
-        case .bitcoin(let testnet):
-            return BitcoinAddressValidator().validate(address, testnet: testnet)
-        case .litecoin, .ducatus:
-            return LitecoinAddressValidator().validate(address, testnet: false)
-        case .stellar:
-            return StellarAddressValidator().validate(address)
-        case .ethereum, .rsk:
-            return EthereumAddressValidator().validate(address)
-        case .bitcoinCash:
-            return BitcoinCashAddressValidator().validate(address)
-        case .binance(let testnet):
-            return BinanceAddressValidator().validate(address, testnet: testnet)
-        case .cardano:
-            return CardanoAddressValidator().validate(address)
-        case .xrp:
-            return XRPAddressValidator().validate(address)
-        }
+        return getAddressService().validate(address)
     }
     
     public func getShareString(from address: String) -> String {
@@ -208,6 +172,29 @@ public enum Blockchain {
         case "xrp": return .xrp(curve: curve)
         case "duc": return .ducatus
         default: return nil
+        }
+    }
+    
+    func getAddressService() -> AddressService {
+        switch self {
+        case .bitcoin(let testnet):
+            return BitcoinAddressService(testnet: testnet)
+        case .litecoin:
+            return LitecoinAddressService(testnet: false)
+        case .stellar:
+            return StellarAddressService()
+        case .ethereum, .rsk:
+            return EthereumAddressService()
+        case .bitcoinCash:
+            return BitcoinCashAddressService()
+        case .binance(let testnet):
+            return BinanceAddressService(testnet: testnet)
+        case .ducatus:
+            return DucatusAddressService(testnet: false)
+        case .cardano:
+            return CardanoAddressService()
+        case .xrp(let curve):
+            return XRPAddressService(curve: curve)
         }
     }
 }

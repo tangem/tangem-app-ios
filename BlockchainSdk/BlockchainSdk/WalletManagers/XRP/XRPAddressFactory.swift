@@ -1,5 +1,5 @@
 //
-//  XRPAddressFactory.swift
+//  XRPAddressService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-public class XRPAddressFactory {
+public class XRPAddressService {
     public func makeAddress(from walletPublicKey: Data, curve: EllipticCurve) -> String {
         var key: Data
         switch curve {
@@ -23,5 +23,9 @@ public class XRPAddressFactory {
         let checkSum = Data(buffer.sha256().sha256()[0..<4])
         let walletAddress = String(base58: buffer + checkSum, alphabet: Base58String.xrpAlphabet)
         return walletAddress
+    }
+    
+    public func validate(_ address: String) -> Bool {
+        return XRPWallet.validate(address: address)
     }
 }
