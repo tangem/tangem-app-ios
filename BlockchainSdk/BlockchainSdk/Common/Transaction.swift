@@ -35,9 +35,14 @@ public enum TransactionStatus {
     case confirmed
 }
 
-struct ValidationError: OptionSet, Error {
-    let rawValue: Int
-    static let wrongAmount = ValidationError(rawValue: 0 << 1)
-    static let wrongFee = ValidationError(rawValue: 0 << 2)
-    static let wrongTotal = ValidationError(rawValue: 0 << 3)
+public struct TransactionError: OptionSet, Error {
+    public let rawValue: Int
+    
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+    
+    static let wrongAmount = TransactionError(rawValue: 0 << 1)
+    static let wrongFee = TransactionError(rawValue: 0 << 2)
+    static let wrongTotal = TransactionError(rawValue: 0 << 3)
 }
