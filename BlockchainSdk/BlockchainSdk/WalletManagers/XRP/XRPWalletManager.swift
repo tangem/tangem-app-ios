@@ -13,10 +13,10 @@ import TangemSdk
 
 class XRPWalletManager: WalletManager {
     var txBuilder: XRPTransactionBuilder!
-    var network: XRPNetworkManager!
+    var networkService: XRPNetworkService!
     
     override func update(completion: @escaping (Result<Wallet, Error>)-> Void) {
-        requestDisposable = network
+        requestDisposable = networkService
             .getInfo(account: wallet.address)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
@@ -50,7 +50,7 @@ extension XRPWalletManager: TransactionSender {
                 return Fail(error: "Missing reserve").eraseToAnyPublisher()
         }
         
-        return network
+        return networkService
             .checkAccountCreated(account: transaction.sourceAddress)
             .tryMap{ isAccountCreated in
                 if !isAccountCreated && transaction.amount.value < walletReserve {
@@ -68,7 +68,7 @@ extension XRPWalletManager: TransactionSender {
             return tx
         }
         .flatMap{[unowned self] builderResponse in
-            self.network.send(blob: builderResponse)
+            self.networkService.send(blob: builderResponse)
                 .map{[unowned self] response in
                     self.wallet.add(transaction: transaction)
                     return true
@@ -78,7 +78,7 @@ extension XRPWalletManager: TransactionSender {
     }
     
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-        return network.getFee()
+        return networkService.getFee()
             .map { xrpFeeResponse -> [Amount] in
                 let min = xrpFeeResponse.min/Decimal(1000000)
                 let normal = xrpFeeResponse.normal/Decimal(1000000)
