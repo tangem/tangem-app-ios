@@ -9,8 +9,14 @@
 import Foundation
 import TangemSdk
 
-public class XRPAddressService {
-    public func makeAddress(from walletPublicKey: Data, curve: EllipticCurve) -> String {
+public class XRPAddressService: AddressService {
+    let curve: EllipticCurve
+    
+    init(curve: EllipticCurve) {
+        self.curve = curve
+    }
+    
+    public func makeAddress(from walletPublicKey: Data) -> String {
         var key: Data
         switch curve {
         case .secp256k1:
