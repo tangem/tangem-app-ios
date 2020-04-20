@@ -22,26 +22,14 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>Fabric</key>
-	<dict>
-		<key>APIKey</key>
-		<string>68e061ccd83942d8d4bb729f253bed3295927dba</string>
-		<key>Kits</key>
-		<array>
-			<dict>
-				<key>KitInfo</key>
-				<dict/>
-				<key>KitName</key>
-				<string>Crashlytics</string>
-			</dict>
-		</array>
-	</dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
 	<string>To Scan Smart Card</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Take photo for issue new ID</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>maax.otf</string>
@@ -81,8 +69,6 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Take photo for issue new ID</string>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
 		<string>A000000812010208</string>
