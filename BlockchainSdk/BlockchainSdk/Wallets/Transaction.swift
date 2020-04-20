@@ -41,7 +41,3 @@ struct ValidationError: OptionSet, Error {
     static let wrongFee = ValidationError(rawValue: 0 << 2)
     static let wrongTotal = ValidationError(rawValue: 0 << 3)
 }
-
-protocol TransactionValidator {
-    func validateTransaction(amount: Amount, fee: Amount?) -> ValidationError?
-}
