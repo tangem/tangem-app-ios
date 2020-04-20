@@ -24,37 +24,6 @@ public struct Wallet {
         self.shareString = blockchain.getShareString(from: address)
         self.token = token
     }
-
-    
-    func validateTransaction(amount: Amount, fee: Amount?) -> ValidationError? { //[REDACTED_TODO_COMMENT]
-        guard validate(amount: amount) else {
-            return .wrongAmount
-        }
-        
-        guard let fee = fee else {
-            return nil
-        }
-        
-        guard validate(amount: fee) else {
-            return .wrongFee
-        }
-        
-        if amount.type == fee.type,
-            !validate(amount: Amount(with: amount, value: amount.value + fee.value)) {
-            return .wrongTotal
-        }
-        
-        return nil
-    }
-    
-    private func validate(amount: Amount) -> Bool { //[REDACTED_TODO_COMMENT]
-        guard amount.value > 0,
-            let total = amounts[amount.type]?.value, total >= amount.value else {
-                return false
-        }
-        
-        return true
-    }
     
     mutating func add(amount: Amount) {
         amounts[amount.type] = amount
@@ -88,22 +57,5 @@ public struct Wallet {
         var tx = Transaction(amount: dummyAmount, fee: dummyAmount, sourceAddress: "unknown", destinationAddress: address)
         tx.date = Date()
         transactions.append(tx)
-    }
-    
-    func createTransaction(amount: Amount, fee: Amount, destinationAddress: String) -> Result<Transaction,ValidationError> { //[REDACTED_TODO_COMMENT]
-        let transaction = Transaction(amount: amount,
-                                      fee: fee,
-                                      sourceAddress: address,
-                                      destinationAddress: destinationAddress,
-                                      contractAddress: token?.contractAddress,
-                                      date: Date(),
-                                      status: .unconfirmed,
-                                      hash: nil)
-
-        if let error = validateTransaction(amount: amount, fee: fee)  {
-            return .failure(error)
-        } else {
-            return .success(transaction)
-        }
     }
 }
