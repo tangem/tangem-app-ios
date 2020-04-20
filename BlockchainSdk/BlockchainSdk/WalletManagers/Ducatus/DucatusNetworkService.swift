@@ -1,5 +1,5 @@
 //
-//  DucatusNetworkManager.swift
+//  DucatusNetworkService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import RxSwift
 import Combine
 import Moya
 
-class DucatusNetworkManager: BitcoinNetworkProvider {
+class DucatusNetworkService: BitcoinNetworkProvider {
     let provider: BitcoreProvider
     
     init(address: String) {
