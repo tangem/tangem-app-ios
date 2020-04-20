@@ -15,12 +15,12 @@ import TangemSdk
 
 class EthereumWalletManager: WalletManager {
     var txBuilder: EthereumTransactionBuilder!
-    var network: EthereumNetworkManager!
+    var networkService: EthereumNetworkService!
     var txCount: Int = -1
     var pendingTxCount: Int = -1
 
     override func update(completion: @escaping (Result<Wallet, Error>)-> Void) {
-        requestDisposable = network
+        requestDisposable = networkService
             .getInfo(address: wallet.address, contractAddress: wallet.token?.contractAddress)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
@@ -62,7 +62,7 @@ extension EthereumWalletManager: TransactionSender {
                     throw BitcoinError.failedToBuildTransaction
                 }
                 let txHexString = "0x\(tx.toHexString())"
-                return self.network.send(transaction: txHexString)}
+                return self.networkService.send(transaction: txHexString)}
             .map {[unowned self] response in
                 self.wallet.add(transaction: transaction)
                 return true
@@ -71,7 +71,7 @@ extension EthereumWalletManager: TransactionSender {
     }
     
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount],Error> {
-        return network.getGasPrice()
+        return networkService.getGasPrice()
             .tryMap { [unowned self] gasPrice throws -> [Amount] in
                 let m = self.txBuilder.getGasLimit(for: amount)
                 let decimalCount = self.wallet.blockchain.decimalCount
