@@ -121,8 +121,6 @@ class BlockcypherProvider: BitcoinNetworkProvider {
         .eraseError()
     }
     
-    
-    //[REDACTED_TODO_COMMENT]
     private func getRandomToken() -> String {
         let tokens: [String] = ["aa8184b0e0894b88a5688e01b3dc1e82",
                                 "56c4ca23c6484c8f8864c32fde4def8d",
