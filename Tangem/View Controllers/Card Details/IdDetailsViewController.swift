@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import TangemKit
 import TangemSdk
 
 class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
@@ -19,10 +18,10 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     private var state: State = .empty
-    private lazy var cardManager: CardManager = {
-        let manager = CardManager()
-        manager.config.legacyMode = Utils().needLegacyMode
-        return manager
+    lazy var tangemSdk: TangemSdk = {
+        let sdk = TangemSdk()
+        sdk.config.legacyMode = Utils().needLegacyMode
+        return sdk
     }()
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -87,30 +86,21 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     @IBAction func issueNewidTapped(_ sender: UIButton) {
         switch state {
         case .empty:
-             showIssueIdViewControllerWith(cardDetails: self.card!)
+            showIssueIdViewControllerWith(cardDetails: self.card!)
         case .createWallet:
             if #available(iOS 13.0, *) {
-            issueNewIdButton.showActivityIndicator()
-                cardManager.createWallet(cardId: card!.cardID) {[weak self] taskResponse in
-                    guard let self = self else { return }
-                    
-                    switch taskResponse {
-                    case .event(let createWalletEvent):
-                        switch createWalletEvent {
-                        case .onCreate(let createWalletResponse):
-                            self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
-                        case .onVerify(let isGenuine):
-                            self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
-                        }
-                    case .completion(let error):
-                        self.issueNewIdButton.hideActivityIndicator()
-                        if let error = error {
-                            if !error.isUserCancelled {
-                                self.handleGenericError(error)
-                            }
-                        } else {
-                            self.state = .empty
-                            self.updateUI()
+                issueNewIdButton.showActivityIndicator()
+                tangemSdk.createWallet(cardId: card!.cardID) { result in
+                    self.issueNewIdButton.hideActivityIndicator()
+                    switch result {
+                    case .success(let createWalletResponse):
+                        self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
+                        self.state = .empty
+                        self.updateUI()
+                    case .failure(let error):
+                        if !error.isUserCancelled {
+                            Analytics.log(error: error)
+                            self.handleGenericError(error)
                         }
                     }
                 }
@@ -126,47 +116,11 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     }
     
     @IBAction func moreTapped(_ sender: Any) {
-        guard let cardDetails = card, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+        guard let cardDetails = card?.moreInfoData, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
             return
         }
         
-        var cardChallenge: String? = nil
-        if let challenge = cardDetails.challenge, let saltValue = cardDetails.salt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            cardChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var verificationChallenge: String? = nil
-        if let challenge = cardDetails.verificationChallenge, let saltValue = cardDetails.verificationSalt {
-            let cardChallenge1 = String(challenge.prefix(3))
-            let cardChallenge2 = String(challenge[challenge.index(challenge.endIndex,offsetBy:-3)...])
-            let cardChallenge3 = String(saltValue.prefix(3))
-            let cardChallenge4 = String(saltValue[saltValue.index(saltValue.endIndex,offsetBy:-3)...])
-            verificationChallenge = [cardChallenge1, cardChallenge2, cardChallenge3, cardChallenge4].joined(separator: " ")
-        }
-        
-        var strings = ["\(Localizations.detailsCategoryIssuer): \(cardDetails.issuer)",
-            "\(Localizations.detailsCategoryManufacturer): \(cardDetails.manufactureName)",
-            "\(Localizations.detailsValidationNode): \(cardDetails.node)",
-            "\(Localizations.detailsRegistrationDate): \(cardDetails.manufactureDateTime)"]
-        
-        if cardDetails.type != .slix2 {
-            strings.append("\(Localizations.detailsCardIdentity): \(cardDetails.isAuthentic ? Localizations.detailsAttested.lowercased() : Localizations.detailsNotConfirmed)")
-            strings.append("\(Localizations.detailsFirmware): \(cardDetails.firmware)")
-            strings.append("\(Localizations.detailsRemainingSignatures): \(cardDetails.remainingSignatures)")
-            strings.append("\(Localizations.detailsTitleCardId): \(cardDetails.cardID)")
-            strings.append("\(Localizations.challenge) 1: \(cardChallenge ?? Localizations.notAvailable)")
-            strings.append("\(Localizations.challenge) 2: \(verificationChallenge ?? Localizations.notAvailable)")
-        }
-        
-        if cardDetails.isLinked {
-            strings.append(Localizations.detailsLinkedCard)
-        }
-        
-        viewController.contentText = strings.joined(separator: "\n")
+        viewController.contentText = cardDetails
         viewController.card = card!
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
