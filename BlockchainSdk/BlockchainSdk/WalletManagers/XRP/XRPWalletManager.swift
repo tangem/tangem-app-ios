@@ -11,41 +11,41 @@ import RxSwift
 import Combine
 import TangemSdk
 
-class XRPWalletManager: WalletManager<CurrencyWallet> {
+class XRPWalletManager: WalletManager {
     var txBuilder: XRPTransactionBuilder!
     var network: XRPNetworkManager!
     
-    override func update() {//check it
+    override func update(completion: @escaping (Result<Wallet, Error>)-> Void) {
         requestDisposable = network
             .getInfo(account: wallet.address)
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
-                }, onError: {[unowned self] error in
-                    self.onError.onNext(error)
+                completion(.success(self.wallet))
+                }, onError: {error in
+                    completion(.failure(error))
             })
     }
     
     private func updateWallet(with response: XrpInfoResponse) {
         wallet.add(coinValue: response.balance/Decimal(1000000))
         wallet.add(reserveValue: (response.balance - response.reserve)/Decimal(1000000))
-
+        
         txBuilder.account = wallet.address
         txBuilder.sequence = response.sequence
         if response.balance != response.unconfirmedBalance {
-            if wallet.pendingTransactions.isEmpty {
+            if wallet.transactions.isEmpty {
                 wallet.addIncomingTransaction()
             }
         } else {
-            wallet.pendingTransactions = []
+            wallet.transactions = []
         }
-        walletDidUpdate()
     }
 }
 
 @available(iOS 13.0, *)
 extension XRPWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Bool, Error> {
-        guard let walletReserve = wallet.balances[.reserve]?.value,
+        guard let walletReserve = wallet.amounts[.reserve]?.value,
             let hashToSign = txBuilder.buildForSign(transaction: transaction) else {
                 return Fail(error: "Missing reserve").eraseToAnyPublisher()
         }
@@ -71,7 +71,6 @@ extension XRPWalletManager: TransactionSender {
             self.network.send(blob: builderResponse)
                 .map{[unowned self] response in
                     self.wallet.add(transaction: transaction)
-                    self.walletDidUpdate()
                     return true
             }
         }
