@@ -19,16 +19,18 @@ enum BitcoinError: Error {
     case failedToCalculateTxSize
 }
 
-class BitcoinWalletManager: WalletManager<CurrencyWallet> {
+class BitcoinWalletManager: WalletManager {
     var txBuilder: BitcoinTransactionBuilder!
     var network: BitcoinNetworkProvider!
-    override func update() {
+    
+    override func update(completion: @escaping (Result<Wallet, Error>)-> Void)  {
         requestDisposable = network.getInfo()
-        .subscribe( onSuccess: { response in
+            .subscribe( onSuccess: { response in
                 self.updateWallet(with: response)
-        }, onError: { error in
-            self.onError.onNext(error)
-        })
+                completion(.success(self.wallet))
+            }, onError: { error in
+                completion(.failure(error))
+            })
     }
     
     @available(iOS 13.0, *)
@@ -56,18 +58,16 @@ class BitcoinWalletManager: WalletManager<CurrencyWallet> {
         .eraseToAnyPublisher()
     }
     
-    //[REDACTED_TODO_COMMENT]
     private func updateWallet(with response: BitcoinResponse) {
         wallet.add(coinValue: response.balance)
         txBuilder.unspentOutputs = response.txrefs
         if response.hasUnconfirmed {
-            if wallet.pendingTransactions.isEmpty {
+            if wallet.transactions.isEmpty {
                 wallet.addIncomingTransaction()
             }
         } else {
-            wallet.pendingTransactions = []
+            wallet.transactions = []
         }
-       walletDidUpdate()
     }
     
     private func getEstimateSize(for transaction: Transaction) -> Decimal? {
@@ -101,7 +101,6 @@ extension BitcoinWalletManager: TransactionSender {
         .flatMap {[unowned self] in
             self.network.send(transaction: $0).map {[unowned self] response in
                 self.wallet.add(transaction: transaction)
-                self.walletDidUpdate()
                 return true
             }
         }
