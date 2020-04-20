@@ -114,12 +114,12 @@ extension Data {
         return res as Data
     }
     
-    func mapTlv<T>(tag: TlvTag) -> T? {
+    func decodeTlv<T>(tag: TlvTag) -> T? {
         guard let tlv = Tlv.deserialize(self) else{
             return nil
         }
         
-        let mapper = TlvMapper(tlv: tlv)
-        return try? mapper.map(tag)
+        let decoder = TlvDecoder(tlv: tlv)
+        return try? decoder.decode(tag)
     }
 }
