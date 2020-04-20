@@ -142,6 +142,56 @@ public enum Blockchain {
         }
     }
     
+    public func getShareString(from address: String) -> String {
+        switch self {
+        case .bitcoin:
+            return "bitcoin:\(address)"
+        case .ethereum(let testnet):
+            let sharePrefix = testnet ? "" : "ethereum:"
+            return "\(sharePrefix)\(address)"
+        case .litecoin:
+            return "litecoin:\(address)"
+        case .xrp:
+            return "ripple:\(address)"
+        default:
+            return "\(address)"
+        }
+    }
+    
+    public func getExploreURL(from address: String, token: Token? = nil) -> URL {
+        switch self {
+        case .binance:
+            return URL(string: "https://explorer.binance.org/address/\(address)")!
+        case .bitcoin:
+            return URL(string: "https://blockchain.info/address/\(address)")!
+        case .bitcoinCash:
+            return URL(string: "https://blockchair.com/bitcoin-cash/address/\(address)")!
+        case .cardano:
+            return URL(string: "https://cardanoexplorer.com/address/\(address)")!
+        case .ducatus:
+            return URL(string: "https://insight.ducatus.io/#/DUC/mainnet/address/\(address)")!
+        case .ethereum(let testnet):
+            let baseUrl = testnet ? "https://rinkeby.etherscan.io/address/" : "https://etherscan.io/address/"
+            let exploreLink = token == nil ? baseUrl + address :
+            "https://etherscan.io/token/\(token!.contractAddress)?a=\(address)"
+            return URL(string: exploreLink)!
+        case .litecoin:
+            return URL(string: "https://live.blockcypher.com/ltc/address/\(address)")!
+        case .rsk:
+            var exploreLink = "https://explorer.rsk.co/address/\(address)"
+            if token != nil {
+                exploreLink += "?__tab=tokens"
+            }
+            return URL(string: exploreLink)!
+        case .stellar(let testnet):
+            let baseUrl = testnet ? "https://stellar.expert/explorer/testnet/account/" : "https://stellar.expert/explorer/public/account/"
+            let exploreLink =  baseUrl + address
+            return URL(string: exploreLink)!
+        case .xrp:
+            return URL(string: "https://xrpscan.com/account/\(address)")!
+        }
+    }
+    
     public static func from(blockchainName: String, curve: EllipticCurve) -> Blockchain? {
         let testnetAttribute = "/test"
         let isTestnet = blockchainName.contains(testnetAttribute)
