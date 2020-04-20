@@ -1,5 +1,5 @@
 //
-//  DucatusAddressFactory.swift
+//  DucatusAddressService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-public class DucatusAddressFactory: BitcoinAddressFactory {
+public class DucatusAddressService: BitcoinAddressService {
     override func getNetwork(_ testnet: Bool) -> Data {
         return Data([UInt8(0x31)])
     }
