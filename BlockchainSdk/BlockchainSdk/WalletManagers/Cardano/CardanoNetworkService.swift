@@ -1,5 +1,5 @@
 //
-//  CardanoNetworkManager.swift
+//  CardanoNetworkService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import Combine
 import RxSwift
 import SwiftyJSON
 
-class CardanoNetworkManager {
+class CardanoNetworkService {
     private var adaliteUrl: AdaliteUrl = .url1
     private let provider = MoyaProvider<AdaliteTarget>()
     

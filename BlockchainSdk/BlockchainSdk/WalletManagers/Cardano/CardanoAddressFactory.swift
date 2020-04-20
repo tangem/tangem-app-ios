@@ -1,5 +1,5 @@
 //
-//  CardanoAddressFactory.swift
+//  CardanoAddressService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Sodium
 import SwiftCBOR
 import CryptoSwift
 
-public class CardanoAddressFactory {
+public class CardanoAddressService {
     public func makeAddress(from walletPublicKey: Data) -> String {
         let hexPublicKeyExtended = walletPublicKey + Data(repeating: 0, count: 32)
         let forSha3 = ([0, [0, CBOR.byteString(hexPublicKeyExtended.toBytes)], [:]] as CBOR).encode()
@@ -23,5 +23,34 @@ public class CardanoAddressFactory {
         let hexAddress = ([addrItem, CBOR.unsignedInt(checksum)] as CBOR).encode()
         let walletAddress = String(base58: Data(hexAddress))
         return walletAddress
+    }
+    
+    public func validate(_ address: String) -> Bool {
+        guard !address.isEmpty else {
+            return false
+        }
+        
+        guard let decoded58 = address.base58DecodedData?.bytes,
+            decoded58.count > 0 else {
+                return false
+        }
+        
+        guard let cborArray = try? CBORDecoder(input: decoded58).decodeItem(),
+            let addressArray = cborArray[0],
+            let checkSumArray = cborArray[1] else {
+                return false
+        }
+        
+        guard case let CBOR.tagged(_, cborByteString) = addressArray,
+            case let CBOR.byteString(addressBytes) = cborByteString else {
+                return false
+        }
+        
+        guard case let CBOR.unsignedInt(checksum) = checkSumArray else {
+            return false
+        }
+        
+        let calculatedChecksum = UInt64(addressBytes.crc32())
+        return calculatedChecksum == checksum
     }
 }
