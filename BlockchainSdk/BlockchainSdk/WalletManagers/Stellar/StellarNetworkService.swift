@@ -1,5 +1,5 @@
 //
-//  StellarNetworkManager.swift
+//  StellarNetworkService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import stellarsdk
 import Combine
 import RxSwift
 
-class StellarNetworkManager {
+class StellarNetworkService {
     let stellarSdk: StellarSDK
     
     init(stellarSdk: StellarSDK) {
