@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5D006ACD239950F9008BA04D /* CurrencyWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D006ACC239950F9008BA04D /* CurrencyWallet.swift */; };
+		5D006ACD239950F9008BA04D /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D006ACC239950F9008BA04D /* Wallet.swift */; };
 		5D01BCE2243F7F7E0048D1BA /* XrpTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D01BCE1243F7F7E0048D1BA /* XrpTarget.swift */; };
 		5D01BD01243F80DC0048D1BA /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 5D01BCE4243F80DC0048D1BA /* LICENSE */; };
 		5D01BD02243F80DC0048D1BA /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 5D01BCE5243F80DC0048D1BA /* README.md */; };
@@ -37,7 +37,6 @@
 		5D14E47F2397B80F00C15FC8 /* BlockchainSdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D14E4712397B80F00C15FC8 /* BlockchainSdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5D14E4972397B87000C15FC8 /* WalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D14E48F2397B87000C15FC8 /* WalletManager.swift */; };
 		5D14E4982397B87000C15FC8 /* Blockchain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D14E4902397B87000C15FC8 /* Blockchain.swift */; };
-		5D14E4992397B87000C15FC8 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D14E4912397B87000C15FC8 /* Wallet.swift */; };
 		5D26CEE7243CA4E200994CC0 /* DucatusAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEE6243CA4E200994CC0 /* DucatusAddressFactory.swift */; };
 		5D26CEEC243CB92700994CC0 /* BlockcypherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEEB243CB92700994CC0 /* BlockcypherResponse.swift */; };
 		5D26CEEE243CB95000994CC0 /* BlockcypherTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26CEED243CB95000994CC0 /* BlockcypherTarget.swift */; };
@@ -135,7 +134,7 @@
 /* Begin PBXFileReference section */
 		438C3138ADC1FC1290BE3BA2 /* Pods-BlockchainSdk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlockchainSdk.release.xcconfig"; path = "Target Support Files/Pods-BlockchainSdk/Pods-BlockchainSdk.release.xcconfig"; sourceTree = "<group>"; };
 		5879E1BF1F869A097665DCFC /* Pods_BlockchainSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlockchainSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		5D006ACC239950F9008BA04D /* CurrencyWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyWallet.swift; sourceTree = "<group>"; };
+		5D006ACC239950F9008BA04D /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		5D01BCE1243F7F7E0048D1BA /* XrpTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XrpTarget.swift; sourceTree = "<group>"; };
 		5D01BCE4243F80DC0048D1BA /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		5D01BCE5243F80DC0048D1BA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -168,7 +167,6 @@
 		5D14E47E2397B80F00C15FC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D14E48F2397B87000C15FC8 /* WalletManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletManager.swift; sourceTree = "<group>"; };
 		5D14E4902397B87000C15FC8 /* Blockchain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Blockchain.swift; sourceTree = "<group>"; };
-		5D14E4912397B87000C15FC8 /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		5D14E49B2397B8B000C15FC8 /* TangemSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D26CEE6243CA4E200994CC0 /* DucatusAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusAddressFactory.swift; sourceTree = "<group>"; };
 		5D26CEEB243CB92700994CC0 /* BlockcypherResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockcypherResponse.swift; sourceTree = "<group>"; };
@@ -442,8 +440,7 @@
 		5D14E49F2397B8F800C15FC8 /* Wallets */ = {
 			isa = PBXGroup;
 			children = (
-				5D14E4912397B87000C15FC8 /* Wallet.swift */,
-				5D006ACC239950F9008BA04D /* CurrencyWallet.swift */,
+				5D006ACC239950F9008BA04D /* Wallet.swift */,
 				5DEAFA8D244472CD0032E316 /* Amount.swift */,
 				5DEAFA8F244473460032E316 /* Transaction.swift */,
 				5DEAFA932444C5300032E316 /* Token.swift */,
@@ -873,7 +870,6 @@
 				5DEAFA90244473460032E316 /* Transaction.swift in Sources */,
 				5D977BB623FAEB4500575BE4 /* DucatusNetworkManager.swift in Sources */,
 				5D845511243DE9CD0072155E /* CardanoTransactionBuilder.swift in Sources */,
-				5D14E4992397B87000C15FC8 /* Wallet.swift in Sources */,
 				5DED72C423A1315F006D79AE /* StellarWalletManager.swift in Sources */,
 				5D8653FE23A8E486000DE52D /* StellarSdk+.swift in Sources */,
 				5D01BD12243F80DC0048D1BA /* IssuedAmount.swift in Sources */,
@@ -896,7 +892,7 @@
 				5D304394239A6A6B0066B8D9 /* WalletManagerFactory.swift in Sources */,
 				5D47E34E23F4426F00779DFA /* EthereumNetwork.swift in Sources */,
 				5D01BD0C243F80DC0048D1BA /* XRPWallet.swift in Sources */,
-				5D006ACD239950F9008BA04D /* CurrencyWallet.swift in Sources */,
+				5D006ACD239950F9008BA04D /* Wallet.swift in Sources */,
 				5DC7DD66244077F2008F83F2 /* XRPWalletManager.swift in Sources */,
 				5D4B33CF23F7DC6600C93A84 /* BinanceAddressValidator.swift in Sources */,
 				5D14E4972397B87000C15FC8 /* WalletManager.swift in Sources */,
