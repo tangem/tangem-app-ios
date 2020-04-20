@@ -1,5 +1,5 @@
 //
-//  AddressValidator.swift
+//  BitcoinAddressService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,13 +7,28 @@
 //
 
 import Foundation
+import TangemSdk
 
-public class BitcoinAddressValidator {
-    var possibleFirstCharacters: [String] {
-        ["1","2","3","n","m"]
+public class BitcoinAddressService: AddressService {
+    let testnet: Bool
+    var possibleFirstCharacters: [String] { ["1","2","3","n","m"] }
+    
+    init(testnet: Bool) {
+        self.testnet = testnet
     }
     
-    func validate(_ address: String, testnet: Bool) -> Bool {
+    public func makeAddress(from walletPublicKey: Data) -> String {
+        let hash = walletPublicKey.sha256()
+        let ripemd160Hash = RIPEMD160.hash(message: hash)
+        let netSelectionByte = getNetwork(testnet)
+        let entendedRipemd160Hash = netSelectionByte + ripemd160Hash
+        let sha = entendedRipemd160Hash.sha256().sha256()
+        let ripemd160HashWithChecksum = entendedRipemd160Hash + sha[..<4]
+        let base58 = String(base58: ripemd160HashWithChecksum)
+        return base58
+    }
+    
+    public func validate(_ address: String) -> Bool {
         guard !address.isEmpty else { return false }
         
         if possibleFirstCharacters.contains(String(address.first!)) {
@@ -46,5 +61,9 @@ public class BitcoinAddressValidator {
         }
         
         return true
+    }
+    
+    func getNetwork(_ testnet: Bool) -> Data {
+        return testnet ? Data([UInt8(0x6F)]): Data([UInt8(0x00)])
     }
 }

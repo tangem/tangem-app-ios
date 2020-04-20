@@ -1,5 +1,5 @@
 //
-//  BinanceNetworkManager.swift
+//  BinanceNetworkService.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import BinanceChain
 import RxSwift
 import Combine
 
-class BinanceNetworkManager {
+class BinanceNetworkService {
     let binance: BinanceChain
     let address: String
     let testnet: Bool
