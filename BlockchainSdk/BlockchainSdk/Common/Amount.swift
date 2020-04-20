@@ -45,5 +45,3 @@ public struct Amount: CustomStringConvertible {
         self.value = value
     }
 }
-
-
