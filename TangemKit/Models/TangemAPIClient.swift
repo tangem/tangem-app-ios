@@ -49,8 +49,9 @@ class TangemAPIClient {
                                 let errorString = "code: \(code), descr: \(description)"
                                 print(errorString)
                                 completion(.failure(errorString))
+                            } else {
+                                completion(.failure("Unknown network error"))
                             }
-                            completion(.failure("Unknown network error"))
                         }
                         
                     }
