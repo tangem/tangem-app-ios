@@ -10,7 +10,4 @@
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:tangem-ios-kit/TangemKit/TangemKit.xcodeproj">
-   </FileRef>
 </Workspace>
