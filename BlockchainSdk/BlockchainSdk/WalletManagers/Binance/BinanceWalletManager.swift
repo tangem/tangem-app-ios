@@ -10,18 +10,19 @@ import Foundation
 import Combine
 import RxSwift
 
-class BinanceWalletManager: WalletManager<CurrencyWallet> {
+class BinanceWalletManager: WalletManager {
     var txBuilder: BinanceTransactionBuilder!
     var network: BinanceNetworkManager!
     private var latestTxDate: Date?
     
-    override func update() {//check it
+    override func update(completion: @escaping (Result<Wallet, Error>)-> Void) {//check it
         requestDisposable = network
             .getInfo()
             .subscribe(onSuccess: {[unowned self] response in
                 self.updateWallet(with: response)
-                }, onError: {[unowned self] error in
-                    self.onError.onNext(error)
+                completion(.success(self.wallet))
+                }, onError: {error in
+                    completion(.failure(error))
             })
     }
     
@@ -31,12 +32,11 @@ class BinanceWalletManager: WalletManager<CurrencyWallet> {
         txBuilder.binanceWallet.accountNumber = response.accountNumber
         
         let currentDate = Date()
-        for  index in wallet.pendingTransactions.indices {
-            if DateInterval(start: wallet.pendingTransactions[index].date!, end: currentDate).duration > 10 {
-                wallet.pendingTransactions[index].status = .confirmed
+        for  index in wallet.transactions.indices {
+            if DateInterval(start: wallet.transactions[index].date!, end: currentDate).duration > 10 {
+                wallet.transactions[index].status = .confirmed
             }
         }
-        walletDidUpdate()
     }
 }
 
@@ -56,7 +56,6 @@ extension BinanceWalletManager: TransactionSender {
             self.network.send(transaction: $0).map {[unowned self] response in
                 self.wallet.add(transaction: transaction)
                 self.latestTxDate = Date()
-                self.walletDidUpdate()
                 return true
             }
         }
@@ -64,16 +63,16 @@ extension BinanceWalletManager: TransactionSender {
     }
     
     func getFee(amount: Amount, source: String, destination: String) -> AnyPublisher<[Amount], Error> {
-           return network.getFee()
-               .tryMap { feeString throws -> [Amount] in
-                   guard let feeValue = Decimal(feeString) else {
-                       throw "Failed to get fee"
-                   }
-                   
-                   return [Amount(with: self.wallet.blockchain, address: source, value: feeValue)]
-           }
-            .eraseToAnyPublisher()
-       }
+        return network.getFee()
+            .tryMap { feeString throws -> [Amount] in
+                guard let feeValue = Decimal(feeString) else {
+                    throw "Failed to get fee"
+                }
+                
+                return [Amount(with: self.wallet.blockchain, address: source, value: feeValue)]
+        }
+        .eraseToAnyPublisher()
+    }
 }
 
 extension BinanceWalletManager: ThenProcessable { }
