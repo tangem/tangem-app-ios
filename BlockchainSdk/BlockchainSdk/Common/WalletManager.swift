@@ -11,18 +11,14 @@ import TangemSdk
 import Combine
 import RxSwift
 
-public class WalletManager<TWallet: Wallet> {
+public class WalletManager {
     public var cardId: String!
-    public var wallet: TWallet!
-    public var onWallet: PublishSubject<TWallet> = .init()
-    public var onError: PublishSubject<Error> = .init()
-    
+    public var wallet: Wallet!
+
     var requestDisposable: Disposable?
     
-    public func update() {}
-    
-    func walletDidUpdate() {
-        onWallet.onNext(wallet)
+    public func update(completion: @escaping (Result<Wallet, Error>)-> Void) {
+        fatalError("You should override this method")
     }
 }
 
@@ -36,3 +32,6 @@ public protocol TransactionSender {
 public protocol TransactionSigner {
     func sign(hashes: [Data], cardId: String) -> AnyPublisher<SignResponse, Error>
 }
+
+
+
