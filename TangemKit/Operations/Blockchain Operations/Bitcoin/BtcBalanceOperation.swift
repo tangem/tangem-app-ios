@@ -86,7 +86,7 @@ class BtcBalanceOperation: GBAsyncOperation {
                     let btx = BtcTx(tx_hash: hash, tx_output_n: n, value: UInt64(val))
                     return btx
                 } ?? []
-                
+
                 let btcResponse = BtcResponse(balance: satoshiBalance, unconfirmed_balance: uncBalance, txrefs: txs)
                 
                 self?.completeOperation(btcResponse)
