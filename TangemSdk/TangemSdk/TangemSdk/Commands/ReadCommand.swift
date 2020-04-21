@@ -317,6 +317,15 @@ public struct Card: TlvCodable {
     public let walletSignature: Data?
 }
 
+public extension Card {
+    var firmwareVersionValue: Double? {
+        if let firmwareVersion = firmwareVersion?.remove("d SDK").remove("r").remove("\0") {
+            return Double(firmwareVersion)
+        }
+        return nil
+    }
+}
+
 /// This command receives from the Tangem Card all the data about the card and the wallet,
 ///  including unique card number (CID or cardId) that has to be submitted while calling all other commands.
 public final class ReadCommand: Command {
