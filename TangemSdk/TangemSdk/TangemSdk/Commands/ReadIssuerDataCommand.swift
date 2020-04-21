@@ -27,13 +27,12 @@ public struct ReadIssuerDataResponse: TlvCodable {
     /// then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
     public let issuerDataCounter: Int?
     
-    public func verify(publicKey: Data) -> Bool? {
-        let verifier = IssuerDataVerifier()
-        return verifier.verify(cardId: cardId,
-                               issuerData: issuerData,
-                               issuerDataCounter: issuerDataCounter,
-                               publicKey: publicKey,
-                               signature: issuerDataSignature)
+    public func verify(with publicKey: Data) -> Bool? {
+        return IssuerDataVerifier.verify(cardId: cardId,
+                                         issuerData: issuerData,
+                                         issuerDataCounter: issuerDataCounter,
+                                         publicKey: publicKey,
+                                         signature: issuerDataSignature)
     }
 }
 
@@ -70,7 +69,7 @@ public final class ReadIssuerDataCommand: Command {
         transieve(in: session) { result in
             switch result {
             case .success(let response):
-                if let result = response.verify(publicKey: self.issuerPublicKey!),
+                if let result = response.verify(with: self.issuerPublicKey!),
                     result == true {
                     completion(.success(response))
                 } else {
