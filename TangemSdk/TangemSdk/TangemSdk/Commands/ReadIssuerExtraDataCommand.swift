@@ -64,10 +64,10 @@ public struct ReadIssuerExtraDataResponse: TlvCodable {
         }
         
         return IssuerDataVerifier.verify(cardId: cardId,
-                               issuerData: issuerData,
-                               issuerDataCounter: issuerDataCounter,
-                               publicKey: publicKey,
-                               signature: signature)
+                                         issuerData: issuerData,
+                                         issuerDataCounter: issuerDataCounter,
+                                         publicKey: publicKey,
+                                         signature: signature)
     }
 }
 
