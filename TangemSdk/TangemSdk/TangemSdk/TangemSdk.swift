@@ -95,7 +95,7 @@ public final class TangemSdk {
      */
     @available(iOS 13.0, *)
     public func readIssuerData(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
-        startSession(with: ReadIssuerDataCommand(), cardId: cardId, initialMessage: initialMessage, completion: completion)
+        startSession(with: ReadIssuerDataCommand(issuerPublicKey: config.issuerPublicKey), cardId: cardId, initialMessage: initialMessage, completion: completion)
     }
     
     /**
@@ -113,7 +113,7 @@ public final class TangemSdk {
      */
     @available(iOS 13.0, *)
     public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, initialMessage: String? = nil, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
-        let command = WriteIssuerDataCommand(issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter)
+        let command = WriteIssuerDataCommand(issuerData: issuerData, issuerDataSignature: issuerDataSignature, issuerDataCounter: issuerDataCounter, issuerPublicKey: config.issuerPublicKey)
         startSession(with: command, cardId: cardId, initialMessage: initialMessage, completion: completion)
     }
     
