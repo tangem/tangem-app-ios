@@ -97,13 +97,15 @@ public final class ReadIssuerExtraDataCommand: Command {
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
-        guard let issuerPublicKeyFromCard = session.environment.card?.issuerPublicKey else {
-            completion(.failure(.cardError))
+        if issuerPublicKey == nil {
+            issuerPublicKey = session.environment.card?.issuerPublicKey
+        }
+        
+        guard issuerPublicKey != nil else {
+            completion(.failure(.missingIssuerPublicKey))
             return
         }
-        if issuerPublicKey == nil {
-            issuerPublicKey = issuerPublicKeyFromCard
-        }
+        
         self.completion = completion
         self.viewDelegate = session.viewDelegate
         readData(session)
