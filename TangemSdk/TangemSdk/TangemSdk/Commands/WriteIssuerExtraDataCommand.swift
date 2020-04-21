@@ -56,7 +56,6 @@ public final class WriteIssuerExtraDataCommand: Command {
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerExtraDataResponse>) {
         guard let settingsMask = session.environment.card?.settingsMask,
-            let issuerPublicKeyFromCard = session.environment.card?.issuerPublicKey,
             let cardId = session.environment.card?.cardId else {
                 completion(.failure(.cardError))
                 return
@@ -67,10 +66,18 @@ public final class WriteIssuerExtraDataCommand: Command {
             return
         }
         
-        guard verify(with: cardId,
-                     issuerPublicKey: issuerPublicKey ?? issuerPublicKeyFromCard) else {
-                        completion(.failure(.verificationFailed))
-                        return
+        if issuerPublicKey == nil {
+            issuerPublicKey = session.environment.card?.issuerPublicKey
+        }
+        
+        guard issuerPublicKey != nil else {
+            completion(.failure(.missingIssuerPublicKey))
+            return
+        }
+        
+        guard verify(with: cardId) else {
+            completion(.failure(.verificationFailed))
+            return
         }
         
         self.completion = completion
@@ -109,17 +116,17 @@ public final class WriteIssuerExtraDataCommand: Command {
         return offset..<offset + to
     }
     
-    private func verify(with cardId: String, issuerPublicKey: Data) -> Bool {
+    private func verify(with cardId: String) -> Bool {
         let startingVerifierResult = IssuerDataVerifier().verify(cardId: cardId,
                                                                  issuerDataSize: issuerData.count,
                                                                  issuerDataCounter: issuerDataCounter,
-                                                                 publicKey: issuerPublicKey,
+                                                                 publicKey: issuerPublicKey!,
                                                                  signature: startingSignature)
         
         let finalizingVerifierResult = IssuerDataVerifier().verify(cardId: cardId,
                                                                    issuerData: issuerData,
                                                                    issuerDataCounter: issuerDataCounter,
-                                                                   publicKey: issuerPublicKey,
+                                                                   publicKey: issuerPublicKey!,
                                                                    signature: finalizingSignature)
         
         return startingVerifierResult && finalizingVerifierResult
