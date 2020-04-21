@@ -1,4 +1,4 @@
-#include "ed25519.h"
+#include "tangemsdk_ed25519.h"
 #include "ge.h"
 #include "sc.h"
 #include "sha512.h"
