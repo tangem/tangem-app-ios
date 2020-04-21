@@ -112,10 +112,10 @@ public final class WriteIssuerDataCommand: Command {
     }
     
     private func verify(with cardId: String) -> Bool {
-        return IssuerDataVerifier().verify(cardId: cardId,
-                                           issuerData: issuerData,
-                                           issuerDataCounter: issuerDataCounter,
-                                           publicKey: issuerPublicKey!,
-                                           signature: issuerDataSignature)
+        return IssuerDataVerifier.verify(cardId: cardId,
+                                         issuerData: issuerData,
+                                         issuerDataCounter: issuerDataCounter,
+                                         publicKey: issuerPublicKey!,
+                                         signature: issuerDataSignature)
     }
 }
