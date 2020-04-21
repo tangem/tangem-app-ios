@@ -18,7 +18,7 @@ class DucatusCardBalanceOperation: BaseCardBalanceOperation {
         
         card.mult = priceUSD
         
-        let provider = MoyaProvider<BitcoreTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
+        let provider = MoyaProvider<BitcoreTarget>(plugins: [NetworkLoggerPlugin()])
         let ducatusEngine = card.cardEngine as! DucatusEngine
         
         
