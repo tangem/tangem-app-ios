@@ -72,7 +72,7 @@ public final class SignCommand: Command {
          * (this key should be generated and securily stored by the application).
          */
         if let keys = environment.terminalKeys,
-            let signedData = CryptoUtils.signSecp256k1(dataToSign, with: keys.privateKey) {
+            let signedData = Secp256k1Utils.sign(dataToSign, with: keys.privateKey) {
             try tlvBuilder
                 .append(.terminalTransactionSignature, value: signedData)
                 .append(.terminalPublicKey, value: keys.publicKey)

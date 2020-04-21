@@ -113,7 +113,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         case .denied:
             let alert = UIAlertController(title: "Camera access denied", message: "You have not given access to your camera, please adjust your privacy settings", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Settings", style: .cancel) { _ in
-                           if let url = URL(string: UIApplicationOpenSettingsURLString) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
                                if UIApplication.shared.canOpenURL(url) {
                                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                                }
@@ -182,7 +182,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         
         
         let gender = sexSelector.selectedSegmentIndex == 0 ? "F" : "M"
-        let jpgImage = UIImageJPEGRepresentation(image, 0.9)!
+        let jpgImage = image.jpegData(compressionQuality: 0.9)!
         let birthDay = (dobText.inputView as! UIDatePicker).date
         
         confirmButton.showActivityIndicator()
@@ -212,8 +212,8 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         let cardId = Data(hex: card.cardID)
         let issuerKey = Data(hex: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
         let issuerDataCounter = 1
-        let startingSignature = CryptoUtils.signSecp256k1(cardId + issuerDataCounter.bytes4 + confirmResponse.issuerData.count.bytes2, with: issuerKey)!
-        let finalizingSignature =  CryptoUtils.signSecp256k1(cardId + confirmResponse.issuerData + issuerDataCounter.bytes4, with: issuerKey)!
+        let startingSignature = Secp256k1Utils.sign(cardId + issuerDataCounter.bytes4 + confirmResponse.issuerData.count.bytes2, with: issuerKey)!
+        let finalizingSignature =  Secp256k1Utils.sign(cardId + confirmResponse.issuerData + issuerDataCounter.bytes4, with: issuerKey)!
         
         confirmButton.showActivityIndicator()
         
@@ -276,8 +276,8 @@ extension IssueIdViewController: UIImagePickerControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        if let image = info[UIImagePickerControllerEditedImage] as? UIImage {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             let scaled = resize(image)
             imageView.image = scaled
             photoTaken = true
