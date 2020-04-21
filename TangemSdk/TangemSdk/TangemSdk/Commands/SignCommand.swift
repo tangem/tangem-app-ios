@@ -72,8 +72,11 @@ public final class SignCommand: Command {
          * The Tangem card will not enforce security delay if [SignCommand] will be called with
          * TerminalTransactionSignature parameter containing a correct signature of raw data to be signed made with TerminalPrivateKey
          * (this key should be generated and securily stored by the application).
+         * COS version 2.30 and later.
          */
-        if let keys = environment.terminalKeys,
+        let fwVersion = environment.card?.firmwareVersionValue ?? 2.30
+        if let keys = environment.terminalKeys, fwVersion >= 2.30,
+            
             let signedData = Secp256k1Utils.sign(flattenHashes, with: keys.privateKey) {
             try tlvBuilder
                 .append(.terminalTransactionSignature, value: signedData)
