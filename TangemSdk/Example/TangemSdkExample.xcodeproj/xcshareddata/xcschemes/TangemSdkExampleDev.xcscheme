@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1110"
+   LastUpgradeVersion = "1140"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -17,7 +17,7 @@
                BlueprintIdentifier = "5DBC25B6235F053F005F0C79"
                BuildableName = "TangemSdkExampleDevelopment.app"
                BlueprintName = "TangemSdkExampleDevelopment"
-               ReferencedContainer = "container:TangemSDKExample.xcodeproj">
+               ReferencedContainer = "container:TangemSdkExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "E53EB3E323F2C7C90079CC11"
                BuildableName = "TangemSdkExampleDevelopmentUITests.xctest"
                BlueprintName = "TangemSdkExampleDevelopmentUITests"
-               ReferencedContainer = "container:TangemSDKExample.xcodeproj">
+               ReferencedContainer = "container:TangemSdkExample.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -57,7 +57,7 @@
             BlueprintIdentifier = "5DBC25B6235F053F005F0C79"
             BuildableName = "TangemSdkExampleDevelopment.app"
             BlueprintName = "TangemSdkExampleDevelopment"
-            ReferencedContainer = "container:TangemSDKExample.xcodeproj">
+            ReferencedContainer = "container:TangemSdkExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -74,7 +74,7 @@
             BlueprintIdentifier = "5DBC25B6235F053F005F0C79"
             BuildableName = "TangemSdkExampleDevelopment.app"
             BlueprintName = "TangemSdkExampleDevelopment"
-            ReferencedContainer = "container:TangemSDKExample.xcodeproj">
+            ReferencedContainer = "container:TangemSdkExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
