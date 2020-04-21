@@ -25,44 +25,46 @@ public struct SignResponse: TlvCodable {
 public final class SignCommand: Command {
     public typealias CommandResponse = SignResponse
     
-    private let hashSize: Int
-    private let dataToSign: Data
+    private let hashes: [Data]
     
     /// Command initializer
     /// - Parameters:
     ///   - hashes: Array of transaction hashes.
-    public init(hashes: [Data]) throws {
-        guard hashes.count > 0 else {
-            throw SessionError.emptyHashes
-        }
-        
-        guard hashes.count <= 10 else {
-            throw SessionError.tooMuchHashesInOneTransaction
-        }
-        
-        hashSize = hashes.first!.count
-        var flattenHashes = [Byte]()
-        for hash in hashes {
-            guard hash.count == hashSize else {
-                throw SessionError.hashSizeMustBeEqual
-            }
-            
-            flattenHashes.append(contentsOf: hash.toBytes)
-        }
-        dataToSign = Data(flattenHashes)
+    public init(hashes: [Data]) {
+        self.hashes = hashes
     }
     
     deinit {
         print("SignCommand deinit")
     }
     
+    public func run(in session: CardSession, completion: @escaping CompletionResult<SignResponse>) {
+        guard hashes.count > 0 else {
+            completion(.failure(.emptyHashes))
+            return
+        }
+        
+        guard hashes.count <= 10 else {
+            completion(.failure(.tooMuchHashesInOneTransaction))
+            return
+        }
+        
+        transieve(in: session, completion: completion)
+    }
+    
     public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
+        let hashSize = hashes.first!.count
+        let flattenHashes = Data(hashes.joined())
+        guard flattenHashes.count % hashSize == 0 else {
+            throw SessionError.hashSizeMustBeEqual
+        }
+        
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
             .append(.cardId, value: environment.card?.cardId)
             .append(.transactionOutHashSize, value: hashSize)
-            .append(.transactionOutHash, value: dataToSign)
+            .append(.transactionOutHash, value: flattenHashes)
         
         /**
          * Application can optionally submit a public key Terminal_PublicKey in [SignCommand].
@@ -72,7 +74,7 @@ public final class SignCommand: Command {
          * (this key should be generated and securily stored by the application).
          */
         if let keys = environment.terminalKeys,
-            let signedData = Secp256k1Utils.sign(dataToSign, with: keys.privateKey) {
+            let signedData = Secp256k1Utils.sign(flattenHashes, with: keys.privateKey) {
             try tlvBuilder
                 .append(.terminalTransactionSignature, value: signedData)
                 .append(.terminalPublicKey, value: keys.publicKey)
