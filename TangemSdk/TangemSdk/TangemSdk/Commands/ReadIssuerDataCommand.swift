@@ -55,7 +55,7 @@ public final class ReadIssuerDataCommand: Command {
     deinit {
         print ("ReadIssuerDataCommand deinit")
     }
-        
+    
     public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
         if issuerPublicKey == nil {
             issuerPublicKey = session.environment.card?.issuerPublicKey
