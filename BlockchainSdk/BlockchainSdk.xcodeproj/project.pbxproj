@@ -369,10 +369,10 @@
 		5D14E4702397B80F00C15FC8 /* BlockchainSdk */ = {
 			isa = PBXGroup;
 			children = (
-				5D4B33B923F6E9BD00C93A84 /* BlockchainService */,
-				5D304395239A6B880066B8D9 /* Extensions */,
 				5D14E48B2397B87000C15FC8 /* Common */,
 				5D14E4892397B87000C15FC8 /* WalletManagers */,
+				5D4B33B923F6E9BD00C93A84 /* BlockchainService */,
+				5D304395239A6B880066B8D9 /* Extensions */,
 				5D14E4712397B80F00C15FC8 /* BlockchainSdk.h */,
 			);
 			path = BlockchainSdk;
@@ -390,8 +390,6 @@
 		5D14E4892397B87000C15FC8 /* WalletManagers */ = {
 			isa = PBXGroup;
 			children = (
-				5D304393239A6A6B0066B8D9 /* WalletManagerFactory.swift */,
-				5D14E48F2397B87000C15FC8 /* WalletManager.swift */,
 				5DC7DD5C243F8375008F83F2 /* XRP */,
 				5DF8D5B3243DB7EE00186BF0 /* Cardano */,
 				5D977BB423FAEB3700575BE4 /* Ducatus */,
@@ -414,6 +412,8 @@
 				5D14E4902397B87000C15FC8 /* Blockchain.swift */,
 				5DEAFA932444C5300032E316 /* Token.swift */,
 				5DD831BB244DF5BD00F80CEA /* AddressService.swift */,
+				5D14E48F2397B87000C15FC8 /* WalletManager.swift */,
+				5D304393239A6A6B0066B8D9 /* WalletManagerFactory.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
