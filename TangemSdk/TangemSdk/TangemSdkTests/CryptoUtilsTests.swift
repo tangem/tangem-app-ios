@@ -30,7 +30,7 @@ class CryptoUtilsTests: XCTestCase {
         let publicKey = Data(hexString: "0432f507f6a3029028faa5913838c50f5ff3355b9b000b51889d03a2bdb96570cd750e8187482a27ca9d2dd0c92c632155d0384521ed406753c9883621ad0da68c")
         
         let dummyData = Data(repeating: UInt8(1), count: 64)
-        let signature = CryptoUtils.signSecp256k1(dummyData, with: privateKey)
+        let signature = Secp256k1Utils.sign(dummyData, with: privateKey)
         XCTAssertNotNil(signature)
         
         let verify = CryptoUtils.vefify(curve: .secp256k1, publicKey: publicKey, message: dummyData, signature: signature!)

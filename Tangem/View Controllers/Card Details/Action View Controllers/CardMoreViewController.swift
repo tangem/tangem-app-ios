@@ -45,9 +45,9 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
         super.viewWillAppear(animated)
         
         let paragraphStyle = paragraphStyleWith(lineSpacingChange: 10.0, alignment: .left)
-        let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
-                                                                                  NSAttributedStringKey.kern : 1.12,
-                                                                                  NSAttributedStringKey.font : UIFont.systemFont(ofSize: 17, weight: .regular)
+        let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedString.Key.paragraphStyle : paragraphStyle,
+                                                                                  NSAttributedString.Key.kern : 1.12,
+                                                                                  NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17, weight: .regular)
             
             
         ])
