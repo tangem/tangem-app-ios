@@ -10,10 +10,10 @@ import Foundation
 
 class IssuerDataVerifier {
     static func verify(cardId: String,
-                issuerData: Data,
-                issuerDataCounter: Int?,
-                publicKey: Data,
-                signature: Data) -> Bool {
+                       issuerData: Data,
+                       issuerDataCounter: Int?,
+                       publicKey: Data,
+                       signature: Data) -> Bool {
         
         if let verifyResult = verify(cardId: cardId,
                                      issuerData: issuerData,
@@ -26,10 +26,10 @@ class IssuerDataVerifier {
     }
     
     static func verify(cardId: String,
-                issuerDataSize: Int,
-                issuerDataCounter: Int?,
-                publicKey: Data,
-                signature: Data) -> Bool {
+                       issuerDataSize: Int,
+                       issuerDataCounter: Int?,
+                       publicKey: Data,
+                       signature: Data) -> Bool {
         
         if let verifyResult = verify(cardId: cardId,
                                      issuerData: nil,
@@ -42,11 +42,11 @@ class IssuerDataVerifier {
     }
     
     private static func verify(cardId: String,
-                        issuerData: Data?,
-                        issuerDataSize: Int?,
-                        issuerDataCounter: Int?,
-                        publicKey: Data,
-                        signature: Data) -> Bool? {
+                               issuerData: Data?,
+                               issuerDataSize: Int?,
+                               issuerDataCounter: Int?,
+                               publicKey: Data,
+                               signature: Data) -> Bool? {
         
         let encoder = TlvEncoder()
         var data = Data()
