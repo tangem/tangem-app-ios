@@ -27,18 +27,26 @@ Use TangemSdk for Tangem cards integration
   s.author           = { 'Tangem AG' => '' }
   s.source           = { :git => 'https://github.com/TangemCash/tangem-sdk-ios.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  
+  s.preserve_paths = 'TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519/*.{modulemap}'
 
   s.ios.deployment_target = '11.0'
-
-  s.source_files = 'TangemSdk/TangemSdk/**/*'
+  s.source_files = 'TangemSdk/TangemSdk/**/*.{h,m,swift,c}'
   
+  s.pod_target_xcconfig = {
+      'SWIFT_INCLUDE_PATHS' => '$(PODS_TARGET_SRCROOT)/TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519/**'
+  }
+
   # s.resource_bundles = {
   #   'TangemSdk' => ['TangemSdk/Assets/*.png']
-  # }
+  # 
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
 
+  s.resource_bundle = { "TangemSdk" => ["TangemSdk/TangemSdk/**/*.lproj/*.strings"] }
+
   s.dependency 'secp256k1.swift'
   s.dependency 'KeychainSwift'
+
 end
