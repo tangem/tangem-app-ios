@@ -44,14 +44,47 @@ public final class WriteIssuerDataCommand: Command {
      *   - issuerDataCounter: An optional counter that protect issuer data against replay attack. When flag `Protect_Issuer_Data_Against_Replay` set in `SettingsMask`
      * then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
      */
-    public init(issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil) {
+    
+    private var issuerPublicKey: Data?
+    
+    public init(issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, issuerPublicKey: Data? = nil) {
         self.issuerData = issuerData
         self.issuerDataSignature = issuerDataSignature
         self.issuerDataCounter = issuerDataCounter
+        self.issuerPublicKey = issuerPublicKey
     }
     
     deinit {
-        print ("WriteIssuerDataCommand deinit")
+        print("WriteIssuerDataCommand deinit")
+    }
+    
+    public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
+        guard let settingsMask = session.environment.card?.settingsMask,
+            let cardId = session.environment.card?.cardId else {
+                completion(.failure(.cardError))
+                return
+        }
+        
+        if settingsMask.contains(.protectIssuerDataAgainstReplay) && issuerDataCounter == nil {
+            completion(.failure(.missingCounter))
+            return
+        }
+        
+        if issuerPublicKey == nil {
+            issuerPublicKey = session.environment.card?.issuerPublicKey
+        }
+        
+        guard issuerPublicKey != nil else {
+            completion(.failure(.missingIssuerPublicKey))
+            return
+        }
+        
+        guard verify(with: cardId) else {
+            completion(.failure(.verificationFailed))
+            return
+        }
+        
+        transieve(in: session, completion: completion)
     }
     
     public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
@@ -76,5 +109,13 @@ public final class WriteIssuerDataCommand: Command {
         
         let decoder = TlvDecoder(tlv: tlv)
         return WriteIssuerDataResponse(cardId: try decoder.decode(.cardId))
+    }
+    
+    private func verify(with cardId: String) -> Bool {
+        return IssuerDataVerifier().verify(cardId: cardId,
+                                           issuerData: issuerData,
+                                           issuerDataCounter: issuerDataCounter,
+                                           publicKey: issuerPublicKey!,
+                                           signature: issuerDataSignature)
     }
 }
