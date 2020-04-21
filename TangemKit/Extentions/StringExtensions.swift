@@ -8,12 +8,6 @@
 
 import Foundation
 
-extension String: Error, LocalizedError {
-    public var errorDescription: String? {
-        return self
-    }
-}
-
 public extension String {
     var cardFormatted: String {
         var resultString = ""
@@ -35,5 +29,11 @@ public extension String {
         } else {
             return self
         }
+    }
+}
+
+extension String: Error, LocalizedError {
+    public var errorDescription: String? {
+        return self
     }
 }
