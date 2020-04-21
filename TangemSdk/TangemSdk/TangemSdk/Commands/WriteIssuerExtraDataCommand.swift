@@ -51,8 +51,8 @@ public final class WriteIssuerExtraDataCommand: Command {
     }
     
     deinit {
-           print("WriteIssuerExtraDataCommand deinit")
-       }
+        print("WriteIssuerExtraDataCommand deinit")
+    }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerExtraDataResponse>) {
         guard let settingsMask = session.environment.card?.settingsMask,
@@ -99,7 +99,7 @@ public final class WriteIssuerExtraDataCommand: Command {
                     if self.offset >= self.issuerData.count {
                         self.mode = .finalizeWrite
                     }
-                   self.writeData(session)
+                    self.writeData(session)
                 case .finalizeWrite:
                     self.viewDelegate?.showAlertMessage(Localization.nfcAlertDefaultDone)
                     self.completion?(.success(response))
@@ -118,16 +118,16 @@ public final class WriteIssuerExtraDataCommand: Command {
     
     private func verify(with cardId: String) -> Bool {
         let startingVerifierResult = IssuerDataVerifier.verify(cardId: cardId,
-                                                                 issuerDataSize: issuerData.count,
-                                                                 issuerDataCounter: issuerDataCounter,
-                                                                 publicKey: issuerPublicKey!,
-                                                                 signature: startingSignature)
+                                                               issuerDataSize: issuerData.count,
+                                                               issuerDataCounter: issuerDataCounter,
+                                                               publicKey: issuerPublicKey!,
+                                                               signature: startingSignature)
         
         let finalizingVerifierResult = IssuerDataVerifier.verify(cardId: cardId,
-                                                                   issuerData: issuerData,
-                                                                   issuerDataCounter: issuerDataCounter,
-                                                                   publicKey: issuerPublicKey!,
-                                                                   signature: finalizingSignature)
+                                                                 issuerData: issuerData,
+                                                                 issuerDataCounter: issuerDataCounter,
+                                                                 publicKey: issuerPublicKey!,
+                                                                 signature: finalizingSignature)
         
         return startingVerifierResult && finalizingVerifierResult
     }
