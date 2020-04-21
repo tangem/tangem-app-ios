@@ -117,13 +117,13 @@ public final class WriteIssuerExtraDataCommand: Command {
     }
     
     private func verify(with cardId: String) -> Bool {
-        let startingVerifierResult = IssuerDataVerifier().verify(cardId: cardId,
+        let startingVerifierResult = IssuerDataVerifier.verify(cardId: cardId,
                                                                  issuerDataSize: issuerData.count,
                                                                  issuerDataCounter: issuerDataCounter,
                                                                  publicKey: issuerPublicKey!,
                                                                  signature: startingSignature)
         
-        let finalizingVerifierResult = IssuerDataVerifier().verify(cardId: cardId,
+        let finalizingVerifierResult = IssuerDataVerifier.verify(cardId: cardId,
                                                                    issuerData: issuerData,
                                                                    issuerDataCounter: issuerDataCounter,
                                                                    publicKey: issuerPublicKey!,
