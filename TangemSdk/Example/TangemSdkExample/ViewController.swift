@@ -86,11 +86,17 @@ class ViewController: UIViewController {
             self.log("Please, run GetIssuerData before")
             return
         }
-
+        
+        let newCounter = (issuerDataResponse.issuerDataCounter ?? 0) + 1
+        let sampleData = Data(repeating: UInt8(1), count: 100)
+        let issuerKey = Data(hexString: "")
+        let sig = Secp256k1Utils.sign(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
+        
         if #available(iOS 13.0, *) {
             tangemSdk.writeIssuerData(cardId: cardId,
-                                        issuerData: issuerDataResponse.issuerData,
-                                        issuerDataSignature: issuerDataResponse.issuerDataSignature) { [unowned self] result in
+                                        issuerData: sampleData,
+                                        issuerDataSignature: sig,
+                                        issuerDataCounter: newCounter) { [unowned self] result in
                                             switch result {
                                             case .success(let issuerDataResponse):
                                                 self.log(issuerDataResponse)
@@ -140,7 +146,7 @@ class ViewController: UIViewController {
         }
         let newCounter = (issuerDataResponse.issuerDataCounter ?? 0) + 1
         let sampleData = Data(repeating: UInt8(1), count: 2000)
-        let issuerKey = Data(hexString: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
+        let issuerKey = Data(hexString: "")
 
         let startSig = Secp256k1Utils.sign(Data(hexString: cardId) + newCounter.bytes4 + sampleData.count.bytes2, with: issuerKey)!
         let finalSig = Secp256k1Utils.sign(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
@@ -251,6 +257,7 @@ class ViewController: UIViewController {
     private func handle(_ error: SessionError?) {
         if let error = error, !error.isUserCancelled {
             self.log("completed with error: \(error.localizedDescription)")
+            self.log("description: \(error)")
         }
     }
 }
