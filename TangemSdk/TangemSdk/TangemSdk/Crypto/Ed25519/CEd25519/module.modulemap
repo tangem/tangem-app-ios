@@ -1,0 +1,4 @@
+module TangemSdk_CEd25519 [system] {
+  header "include/tangemsdk_ed25519.h"
+  export *
+}
