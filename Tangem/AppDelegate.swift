@@ -24,14 +24,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var navigationManager: NavigationManager?
     
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil)  -> Bool {
         
         initializeNavigationManager()
         
         // Override point for customization after application launch.
         let attrs = [
-            NSAttributedStringKey.font: UIFont.systemFont(ofSize: 17, weight: UIFont.Weight.regular),
-            NSAttributedStringKey.foregroundColor: UIColor.white
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: UIFont.Weight.regular),
+            NSAttributedString.Key.foregroundColor: UIColor.white
         ]
         UINavigationBar.appearance().titleTextAttributes = attrs
         UINavigationBar.appearance().barStyle = .blackOpaque
@@ -48,10 +48,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             secureStorage.set([], forKey: StorageKey.cids)
             utils.setIsLaunchedBefore()
         }
-        
         FirebaseApp.configure()
-        Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled)
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
+        
+        #if DEBUG
+            Firebase.Analytics.setAnalyticsCollectionEnabled(false)
+            Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #else
+            Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled)
+            Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
+        #endif
         return true
     }
     
@@ -71,7 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return stubViewController
     }
     
-    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         guard userActivity.activityType == NSUserActivityTypeBrowsingWeb else {
             return false
         }
@@ -79,15 +84,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 12, *) {
             if checkUserActivityForBackgroundNFC(userActivity) {
                 self.navigationManager?.navigationController.popToRootViewController(animated: false)
-//                DispatchQueue.main.async {
-//                    self.navigationManager?.rootViewController?.scanButtonPressed(self)
-//                }
+                //                DispatchQueue.main.async {
+                //                    self.navigationManager?.rootViewController?.scanButtonPressed(self)
+                //                }
                 return true
             } else {
                 return false
             }
         }
-
+        
         return true
     }
     
