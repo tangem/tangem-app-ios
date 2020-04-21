@@ -1,6 +1,6 @@
-//import CEd25519
+import TangemSdk_CEd25519
 
-public final class Seed {
+final class Seed {
     private let buffer: [UInt8]
 
     init(unchecked bytes: [UInt8]) {
