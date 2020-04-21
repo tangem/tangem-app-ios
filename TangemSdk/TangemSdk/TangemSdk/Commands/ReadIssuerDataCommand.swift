@@ -26,6 +26,15 @@ public struct ReadIssuerDataResponse: TlvCodable {
     /// An optional counter that protect issuer data against replay attack. When flag `Protect_Issuer_Data_Against_Replay` set in `SettingsMask`
     /// then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
     public let issuerDataCounter: Int?
+    
+    public func verify(publicKey: Data) -> Bool? {
+        let verifier = IssuerDataVerifier()
+        return verifier.verify(cardId: cardId,
+                               issuerData: issuerData,
+                               issuerDataCounter: issuerDataCounter,
+                               publicKey: publicKey,
+                               signature: issuerDataSignature)
+    }
 }
 
 /**
@@ -38,10 +47,39 @@ public struct ReadIssuerDataResponse: TlvCodable {
 public final class ReadIssuerDataCommand: Command {
     public typealias CommandResponse = ReadIssuerDataResponse
     
-    public init() {}
+    private var issuerPublicKey: Data?
+    
+    public init(issuerPublicKey: Data? = nil) {
+        self.issuerPublicKey = issuerPublicKey
+    }
     
     deinit {
         print ("ReadIssuerDataCommand deinit")
+    }
+        
+    public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
+        if issuerPublicKey == nil {
+            issuerPublicKey = session.environment.card?.issuerPublicKey
+        }
+        
+        guard issuerPublicKey != nil else {
+            completion(.failure(.missingIssuerPublicKey))
+            return
+        }
+        
+        transieve(in: session) { result in
+            switch result {
+            case .success(let response):
+                if let result = response.verify(publicKey: self.issuerPublicKey!),
+                    result == true {
+                    completion(.success(response))
+                } else {
+                    completion(.failure(.verificationFailed))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
     
     public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
