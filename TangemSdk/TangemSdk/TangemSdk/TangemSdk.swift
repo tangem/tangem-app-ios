@@ -220,7 +220,7 @@ public final class TangemSdk {
         let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = SessionEnvironment()
         environment.legacyMode = isLegacyMode
-        if config.linkedTerminal && !isLegacyMode {
+        if config.linkedTerminal /*&& !isLegacyMode*/ {
             environment.terminalKeys = terminalKeysService.getKeys()
         }
         return environment
