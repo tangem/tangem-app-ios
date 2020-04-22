@@ -268,7 +268,7 @@ public struct Card: TlvCodable {
     public let maxSignatures: Int?
     /// Defines what data should be submitted to SIGN command.
     public let signingMethod: SigningMethod?
-    /// Delay in seconds before COS executes commands protected by PIN2.
+    /// Delay in centiseconds before COS executes commands protected by PIN2. This is a security delay value
     public let pauseBeforePin2: Int?
     /// Public key of the blockchain wallet.
     public let walletPublicKey: Data?
@@ -323,6 +323,10 @@ public extension Card {
             return Double(firmwareVersion)
         }
         return nil
+    }
+    
+    var isLinkedTerminalSupported: Bool {
+        return settingsMask?.contains(SettingsMask.skipSecurityDelayIfValidatedByLinkedTerminal) ?? false
     }
 }
 
