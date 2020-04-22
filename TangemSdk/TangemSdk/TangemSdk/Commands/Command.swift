@@ -88,7 +88,11 @@ extension Command {
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
     /// 4 - Timeout setting for ping nfc-module
     func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
-        return try! TlvBuilder().append(.legacyMode, value: 4)
+        let builder = TlvBuilder()
+        if legacyMode {
+            try! builder.append(.legacyMode, value: 4)
+        }
+        return builder
     }
     
     
