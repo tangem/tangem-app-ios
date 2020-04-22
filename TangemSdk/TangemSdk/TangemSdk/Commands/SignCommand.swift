@@ -26,6 +26,12 @@ public final class SignCommand: Command {
     public typealias CommandResponse = SignResponse
     
     private let hashes: [Data]
+    private var responces: [SignResponse] = []
+    private var currentChunk = 0
+    private let chunkSize: Int = 10
+    private lazy var numberOfChunks: Int = {
+        return stride(from: 0, to: hashes.count, by: chunkSize).underestimatedCount
+    }()
     
     /// Command initializer
     /// - Parameters:
@@ -44,26 +50,59 @@ public final class SignCommand: Command {
             return
         }
         
-        guard hashes.count <= 10 else {
+        let isLinkedTerminalSupported = session.environment.card?.isLinkedTerminalSupported ?? false
+        let hasTerminalKeys = session.environment.terminalKeys != nil
+        let delay = session.environment.card?.pauseBeforePin2 ?? 3000
+        let hasSmallDelay = ( delay * numberOfChunks) <= 5000
+        guard hashes.count <= 10 || (isLinkedTerminalSupported && hasTerminalKeys) || hasSmallDelay else {
             completion(.failure(.tooMuchHashesInOneTransaction))
             return
         }
-        
-        transieve(in: session, completion: completion)
-    }
-    
-    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
-        let hashSize = hashes.first!.count
-        let flattenHashes = Data(hashes.joined())
-        guard flattenHashes.count % hashSize == 0 else {
-            throw SessionError.hashSizeMustBeEqual
+
+        guard !hashes.contains(where: { $0.count != hashes.first!.count }) else {
+            completion(.failure(.hashSizeMustBeEqual))
+            return
         }
         
+        sign(in: session, completion: completion)
+    }
+    
+    func sign(in session: CardSession, completion: @escaping CompletionResult<SignResponse>) {
+        if currentChunk == numberOfChunks {
+            let lastResponse = responces.last!
+            let finalResponse = SignResponse(cardId: lastResponse.cardId,
+                                             signature: Data(responces.map{ $0.signature }.joined()),
+                                             walletRemainingSignatures: lastResponse.walletRemainingSignatures,
+                                             walletSignedHashes: lastResponse.walletSignedHashes)
+            
+            completion(.success(finalResponse))
+            return
+        }
+        
+        if numberOfChunks > 1 {
+            session.viewDelegate.showAlertMessage("Signing part \(currentChunk + 1) of \(numberOfChunks)")
+        }
+        
+        transieve(in: session) { result in
+            switch result {
+            case .success(let response):
+                self.responces.append(response)
+                self.currentChunk += 1
+                self.sign(in: session, completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    
+    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
+        let flattenHashes = Data(hashes[getChunk()].joined())
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.pin2, value: environment.pin2)
             .append(.cardId, value: environment.card?.cardId)
-            .append(.transactionOutHashSize, value: hashSize)
+            .append(.transactionOutHashSize, value: hashes.first!.count)
             .append(.transactionOutHash, value: flattenHashes)
         
         /**
@@ -74,9 +113,8 @@ public final class SignCommand: Command {
          * (this key should be generated and securily stored by the application).
          * COS version 2.30 and later.
          */
-        let fwVersion = environment.card?.firmwareVersionValue ?? 2.30
-        if let keys = environment.terminalKeys, fwVersion >= 2.30,
-            
+        let isLinkedTerminalSupported = environment.card?.isLinkedTerminalSupported ?? false
+        if let keys = environment.terminalKeys, isLinkedTerminalSupported,
             let signedData = Secp256k1Utils.sign(flattenHashes, with: keys.privateKey) {
             try tlvBuilder
                 .append(.terminalTransactionSignature, value: signedData)
@@ -98,5 +136,11 @@ public final class SignCommand: Command {
             signature: try decoder.decode(.walletSignature),
             walletRemainingSignatures: try decoder.decode(.walletRemainingSignatures),
             walletSignedHashes: try decoder.decode(.walletSignedHashes))
+    }
+    
+    private func getChunk() -> Range<Int> {
+        let from = currentChunk * chunkSize
+        let to = min(from + chunkSize, hashes.count)
+        return from..<to
     }
 }
