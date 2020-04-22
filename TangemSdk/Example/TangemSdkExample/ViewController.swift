@@ -32,9 +32,8 @@ class ViewController: UIViewController {
 
     @IBAction func signHashesTapped(_ sender: Any) {
         if #available(iOS 13.0, *) {
-            let hash1 = Data(repeating: 1, count: 32) //dummy hashes
-            let hash2 = Data(repeating: 2, count: 32)
-            let hashes = [hash1, hash2]
+            let hash1 = Data(repeating: 6, count: 32) //dummy hashes
+            let hashes = Array<Data>(repeating: hash1, count: 30)
             guard let cardId = card?.cardId else {
                 self.log("Please, scan card before")
                 return
