@@ -28,7 +28,9 @@ public final class SignCommand: Command {
     private let hashes: [Data]
     private var responces: [SignResponse] = []
     private var currentChunk = 0
-    private let chunkSize: Int = 10
+    private lazy var chunkSize: Int = {
+        return NfcUtils.isPoorNfcQualityDevice ? 2 : 10
+    }()
     private lazy var numberOfChunks: Int = {
         return stride(from: 0, to: hashes.count, by: chunkSize).underestimatedCount
     }()
@@ -49,16 +51,16 @@ public final class SignCommand: Command {
             completion(.failure(.emptyHashes))
             return
         }
-        
+    
         let isLinkedTerminalSupported = session.environment.card?.isLinkedTerminalSupported ?? false
         let hasTerminalKeys = session.environment.terminalKeys != nil
         let delay = session.environment.card?.pauseBeforePin2 ?? 3000
-        let hasSmallDelay = ( delay * numberOfChunks) <= 5000
-        guard hashes.count <= 10 || (isLinkedTerminalSupported && hasTerminalKeys) || hasSmallDelay else {
+        let hasEnoughDelay = (delay * numberOfChunks) <= 5000
+        guard hashes.count <= chunkSize || (isLinkedTerminalSupported && hasTerminalKeys) || hasEnoughDelay else {
             completion(.failure(.tooMuchHashesInOneTransaction))
             return
         }
-
+        
         guard !hashes.contains(where: { $0.count != hashes.first!.count }) else {
             completion(.failure(.hashSizeMustBeEqual))
             return
@@ -136,6 +138,12 @@ public final class SignCommand: Command {
             signature: try decoder.decode(.walletSignature),
             walletRemainingSignatures: try decoder.decode(.walletRemainingSignatures),
             walletSignedHashes: try decoder.decode(.walletSignedHashes))
+    }
+    
+    public func tryHandleError(_ error: SessionError) -> SessionError? {
+        if error == SessionError.unknownStatus {
+            return SessionError.nfcStuck
+        } else { return error }
     }
     
     private func getChunk() -> Range<Int> {
