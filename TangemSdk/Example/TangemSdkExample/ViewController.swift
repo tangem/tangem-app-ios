@@ -32,9 +32,7 @@ class ViewController: UIViewController {
 
     @IBAction func signHashesTapped(_ sender: Any) {
         if #available(iOS 13.0, *) {
-            let hash1 = Data(repeating: 1, count: 32) //dummy hashes
-            let hash2 = Data(repeating: 2, count: 32)
-            let hashes = [hash1, hash2]
+            let hashes = (0..<15).map {_ -> Data in getRandomHash()}
             guard let cardId = card?.cardId else {
                 self.log("Please, scan card before")
                 return
@@ -259,5 +257,12 @@ class ViewController: UIViewController {
             self.log("completed with error: \(error.localizedDescription)")
             self.log("description: \(error)")
         }
+    }
+    
+    private func getRandomHash(size: Int = 32) -> Data {
+        let array = (0..<size).map{ _ -> UInt8 in
+            UInt8(arc4random_uniform(255))
+        }
+        return Data(array)
     }
 }
