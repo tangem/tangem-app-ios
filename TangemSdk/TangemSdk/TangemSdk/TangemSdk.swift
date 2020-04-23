@@ -217,10 +217,9 @@ public final class TangemSdk {
     }
     
     private func buildEnvironment() -> SessionEnvironment {
-        let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = SessionEnvironment()
-        environment.legacyMode = isLegacyMode
-        if config.linkedTerminal /*&& !isLegacyMode*/ {
+        environment.legacyMode = config.legacyMode ?? NfcUtils.isPoorNfcQualityDevice
+        if config.linkedTerminal ?? !NfcUtils.isPoorNfcQualityDevice {
             environment.terminalKeys = terminalKeysService.getKeys()
         }
         return environment
