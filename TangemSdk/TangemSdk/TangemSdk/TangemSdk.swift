@@ -73,14 +73,7 @@ public final class TangemSdk {
      */
     @available(iOS 13.0, *)
     public func sign(hashes: [Data], cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<SignResponse>) {
-        var signCommand: SignCommand
-        do {
-            signCommand = try SignCommand(hashes: hashes)
-            startSession(with: signCommand, cardId: cardId, initialMessage: initialMessage, completion: completion)
-        } catch {
-            print(error.localizedDescription)
-            completion(.failure(error.toSessionError()))
-        }
+        startSession(with: SignCommand(hashes: hashes), cardId: cardId, initialMessage: initialMessage, completion: completion)
     }
     
     /**
@@ -224,10 +217,9 @@ public final class TangemSdk {
     }
     
     private func buildEnvironment() -> SessionEnvironment {
-        let isLegacyMode = config.legacyMode ?? NfcUtils.isLegacyDevice
         var environment = SessionEnvironment()
-        environment.legacyMode = isLegacyMode
-        if config.linkedTerminal && !isLegacyMode {
+        environment.legacyMode = config.legacyMode ?? NfcUtils.isPoorNfcQualityDevice
+        if config.linkedTerminal ?? !NfcUtils.isPoorNfcQualityDevice {
             environment.terminalKeys = terminalKeysService.getKeys()
         }
         return environment

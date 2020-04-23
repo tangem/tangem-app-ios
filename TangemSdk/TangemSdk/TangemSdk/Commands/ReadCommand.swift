@@ -268,7 +268,7 @@ public struct Card: TlvCodable {
     public let maxSignatures: Int?
     /// Defines what data should be submitted to SIGN command.
     public let signingMethod: SigningMethod?
-    /// Delay in seconds before COS executes commands protected by PIN2.
+    /// Delay in centiseconds before COS executes commands protected by PIN2. This is a security delay value
     public let pauseBeforePin2: Int?
     /// Public key of the blockchain wallet.
     public let walletPublicKey: Data?
@@ -315,6 +315,19 @@ public struct Card: TlvCodable {
     public let salt: Data?
     /// [Challenge, Salt] SHA256 signature signed with Wallet_PrivateKey
     public let walletSignature: Data?
+}
+
+public extension Card {
+    var firmwareVersionValue: Double? {
+        if let firmwareVersion = firmwareVersion?.remove("d SDK").remove("r").remove("\0") {
+            return Double(firmwareVersion)
+        }
+        return nil
+    }
+    
+    var isLinkedTerminalSupported: Bool {
+        return settingsMask?.contains(SettingsMask.skipSecurityDelayIfValidatedByLinkedTerminal) ?? false
+    }
 }
 
 /// This command receives from the Tangem Card all the data about the card and the wallet,
