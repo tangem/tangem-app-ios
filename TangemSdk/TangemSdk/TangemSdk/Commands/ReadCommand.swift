@@ -33,25 +33,25 @@ public struct SigningMethod: OptionSet, Codable {
     public func encode(to encoder: Encoder) throws {
         var values = [String]()
         if contains(SigningMethod.signHash) {
-            values.append("sign hash")
+            values.append("SignHash")
         }
         if contains(SigningMethod.signRaw) {
-            values.append("sign raw transaction")
+            values.append("SignRaw")
         }
         if contains(SigningMethod.signHashSignedByIssuer) {
-            values.append("sign hash signed by issuer")
+            values.append("SignHashSignedByIssuer")
         }
         if contains(SigningMethod.signRawSignedByIssuer) {
-            values.append("sign raw signed by issuer")
+            values.append("SignRawSignedByIssuer")
         }
         if contains(SigningMethod.signHashSignedByIssuerAndUpdateIssuerData) {
-            values.append("sign hash signed by issuer and update Issuer_Data")
+            values.append("SignHashSignedByIssuerAndUpdateIssuerData")
         }
         if contains(SigningMethod.signRawSignedByIssuerAndUpdateIssuerData) {
-            values.append("sign raw signed by issuer and update Issuer_Data")
+            values.append("SignRawSignedByIssuerAndUpdateIssuerData")
         }
         if contains(SigningMethod.signPos) {
-            values.append("sign POS")
+            values.append("SignPos")
         }
         
         var container = encoder.singleValueContainer()
@@ -63,6 +63,11 @@ public struct SigningMethod: OptionSet, Codable {
 public enum EllipticCurve: String, Codable {
     case secp256k1
     case ed25519
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode("\(self)".capitalized)
+    }
 }
 
 /// Status of the card and its wallet.
@@ -74,7 +79,7 @@ public enum CardStatus: Int, Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode("\(self)")
+        try container.encode("\(self)".capitalized)
     }
 }
 
@@ -93,16 +98,16 @@ public struct ProductMask: OptionSet, Codable {
     public func encode(to encoder: Encoder) throws {
         var values = [String]()
         if contains(ProductMask.note) {
-            values.append("note")
+            values.append("Note")
         }
         if contains(ProductMask.tag) {
-            values.append("tag")
+            values.append("Tag")
         }
         if contains(ProductMask.idCard) {
-            values.append("idCard")
+            values.append("IdCard")
         }
         if contains(ProductMask.idIssuer) {
-            values.append("idIssuer")
+            values.append("IdIssuer")
         }
         
         var container = encoder.singleValueContainer()
@@ -146,76 +151,76 @@ public struct SettingsMask: OptionSet, Codable {
     public func encode(to encoder: Encoder) throws {
         var values = [String]()
         if contains(SettingsMask.isReusable) {
-            values.append("Is_Reusable")
+            values.append("IsReusable")
         }
         if contains(SettingsMask.useActivation) {
-            values.append("Use_Activation")
+            values.append("UseActivation")
         }
         if contains(SettingsMask.prohibitPurgeWallet) {
-            values.append("Prohibit_Purge_Wallet")
+            values.append("ProhibitPurgeWallet")
         }
         if contains(SettingsMask.useBlock) {
-            values.append("Use_Block")
+            values.append("UseBlock")
         }
         if contains(SettingsMask.allowSetPIN1) {
-            values.append("Allow_SET_PIN1")
+            values.append("AllowSetPIN1")
         }
         if contains(SettingsMask.allowSetPIN2) {
-            values.append("Allow_SET_PIN2")
+            values.append("AllowSetPIN2")
         }
         if contains(SettingsMask.useCvc) {
-            values.append("Use_CVC")
+            values.append("UseCvc")
         }
         if contains(SettingsMask.prohibitDefaultPIN1) {
-            values.append("Prohibit_Default_PIN1")
+            values.append("ProhibitDefaultPIN1")
         }
         if contains(SettingsMask.useOneCommandAtTime) {
-            values.append("Use_One_CommandAtTime")
+            values.append("UseOneCommandAtTime")
         }
         if contains(SettingsMask.useNDEF) {
-            values.append("Use_NDEF")
+            values.append("UseNDEF")
         }
         if contains(SettingsMask.useDynamicNDEF) {
-            values.append("Use_Dynamic_NDEF")
+            values.append("UseDynamicNDEF")
         }
         if contains(SettingsMask.smartSecurityDelay) {
-            values.append("Smart_Security_Delay")
+            values.append("SmartSecurityDelay")
         }
         if contains(SettingsMask.allowUnencrypted) {
-            values.append("Allow_Unencrypted")
+            values.append("AllowUnencrypted")
         }
         if contains(SettingsMask.allowFastEncryption) {
-            values.append("Allow_Fast_Encryption")
+            values.append("AllowFastEncryption")
         }
         if contains(SettingsMask.protectIssuerDataAgainstReplay) {
-            values.append("Protect_Issuer_Data_Against_Replay")
+            values.append("ProtectIssuerDataAgainstReplay")
         }
         if contains(SettingsMask.allowSelectBlockchain) {
-            values.append("Allow_Select_Blockchain")
+            values.append("AllowSelectBlockchain")
         }
         if contains(SettingsMask.disablePrecomputedNDEF) {
-            values.append("Disable_PrecomputedNDEF")
+            values.append("DisablePrecomputedNDEF")
         }
         if contains(SettingsMask.skipSecurityDelayIfValidatedByIssuer) {
-            values.append("Skip_Security_Delay_If_Validated_By_Issuer")
+            values.append("SkipSecurityDelayIfValidatedByIssuer")
         }
         if contains(SettingsMask.skipCheckPIN2CVCIfValidatedByIssuer) {
-            values.append("Skip_Check_PIN2_and_CVC_If_Validated_By_Issuer")
+            values.append("SkipCheckPIN2CVCIfValidatedByIssuer")
         }
         if contains(SettingsMask.skipSecurityDelayIfValidatedByLinkedTerminal) {
-            values.append("Skip_Security_Delay_If_Validated_By_Linked_Terminal")
+            values.append("SkipSecurityDelayIfValidatedByLinkedTerminal")
         }
         if contains(SettingsMask.restrictOverwriteIssuerExtraDara) {
-            values.append("Restrict_Overwrite_Issuer_Extra_Data")
+            values.append("RestrictOverwriteIssuerExtraDara")
         }
         if contains(SettingsMask.requireTermTxSignature) {
-            values.append("Require_Term_Tx_Signature")
+            values.append("RequireTermTxSignature")
         }
         if contains(SettingsMask.requireTermCertSignature) {
-            values.append("Require_Term_Cert_Signature")
+            values.append("RequireTermCertSignature")
         }
         if contains(SettingsMask.checkPIN3OnCard) {
-            values.append("Check_PIN3_on_Card")
+            values.append("CheckPIN3OnCard")
         }
         var container = encoder.singleValueContainer()
         try container.encode(values)
