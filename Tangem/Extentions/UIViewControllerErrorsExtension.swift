@@ -61,7 +61,7 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
     }
     
     func handleUnknownBlockchainCard(_ completion: @escaping () -> Void = {}) {
-        let alert = UIAlertController(title: Localizations.dialogWarning, message: Localizations.alertUnknownBlockchain, preferredStyle: .alert)
+        let alert = UIAlertController(title: Localizations.uh, message: Localizations.alertUnknownBlockchain, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: { (_) in
             completion()
         }))
