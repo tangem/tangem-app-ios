@@ -31,6 +31,7 @@ Use TangemSdk for Tangem cards integration
   s.preserve_paths = 'TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519/*.{modulemap}'
 
   s.ios.deployment_target = '11.0'
+  s.swift_version = '5.0'
   s.source_files = 'TangemSdk/TangemSdk/**/*.{h,m,swift,c}'
   
   s.pod_target_xcconfig = {
