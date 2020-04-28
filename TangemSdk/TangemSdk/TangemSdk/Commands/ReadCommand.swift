@@ -354,12 +354,11 @@ public final class ReadCommand: Command {
             try tlvBuilder.append(.terminalPublicKey, value: keys.publicKey)
         }
         
-        let cApdu = CommandApdu(.read, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.read, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> ReadResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
