@@ -9,6 +9,7 @@
 import Foundation
 
 public struct Config {
+    public init() {}
     /**
      This feature forces low-level NFC communication between the Tangem card and the particular device. If it’s set to true, Tangem Card will send low-level packets to the device’s NFC chip every about 50ms. It will prevent some chip’s firmware bugs on iPhone 7/7+, when iOS is stoping NFC session due to losing the tag. Also, it will make NFC interaction slower. Change this setting only if you understand what you do.
     
