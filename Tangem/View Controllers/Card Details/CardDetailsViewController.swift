@@ -551,7 +551,7 @@ extension CardDetailsViewController {
     
     @IBAction func extractButtonPressed(_ sender: Any) {
         if #available(iOS 13.0, *), card!.canExtract  {
-            if card!.isOldFw && NfcUtils.isLegacyDevice && !Utils().isOldDisclamerShown {
+            if card!.isOldFw && NfcUtils.isPoorNfcQualityDevice && !Utils().isOldDisclamerShown {
                 handleOldDevice {
                     self.showExtraction()
                 }
