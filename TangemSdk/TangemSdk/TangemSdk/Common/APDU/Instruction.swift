@@ -25,4 +25,6 @@ public enum Instruction: Byte {
     case purgeWallet = 0xFC
     case activate = 0xFE
     case openSession = 0xFF
+    case writeUserData = 0xE0
+    case readUserData = 0xE1
 }
