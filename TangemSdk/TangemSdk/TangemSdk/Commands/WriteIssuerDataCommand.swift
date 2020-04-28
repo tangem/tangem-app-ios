@@ -98,12 +98,11 @@ public final class WriteIssuerDataCommand: Command {
             try tlvBuilder.append(.issuerDataCounter, value: counter)
         }
         
-        let cApdu = CommandApdu(.writeIssuerData, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.writeIssuerData, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerDataResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> WriteIssuerDataResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         

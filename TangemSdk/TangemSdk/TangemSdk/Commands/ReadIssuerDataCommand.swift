@@ -86,12 +86,11 @@ public final class ReadIssuerDataCommand: Command {
             .append(.pin, value: environment.pin1)
             .append(.cardId, value: environment.card?.cardId)
         
-        let cApdu = CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> ReadIssuerDataResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadIssuerDataResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
