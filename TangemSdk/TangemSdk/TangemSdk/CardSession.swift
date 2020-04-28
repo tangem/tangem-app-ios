@@ -202,16 +202,3 @@ public class CardSession {
         }
     }
 }
-
-extension CardSession{
-    /// Convenience initializer. Uses default cardReader, viewDelegate and SessionEnvironment
-    /// - Parameters:
-    ///   - environment: Contains data relating to a Tangem card
-    ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
-    ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-    public convenience init(environment: SessionEnvironment = SessionEnvironment(), cardId: String? = nil, initialMessage: String? = nil) {
-        let reader = CardReaderFactory().createDefaultReader()
-        let delegate = DefaultSessionViewDelegate(reader: reader)
-        self.init(environment: environment, cardId: cardId, initialMessage: initialMessage, cardReader: reader, viewDelegate: delegate)
-    }
-}
