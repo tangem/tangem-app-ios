@@ -78,6 +78,8 @@
 		5DC62D3E23506CF300195A51 /* TlvDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC62D3D23506CF300195A51 /* TlvDecoder.swift */; };
 		5DCAA7872383DDC200249F42 /* ReadIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */; };
 		5DCAA7892383E25200249F42 /* WriteIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */; };
+		5DE5550C2458408B000E1816 /* ReadUserDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE5550B2458408B000E1816 /* ReadUserDataCommand.swift */; };
+		5DE5550E2458409E000E1816 /* WriteUserDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE5550D2458409E000E1816 /* WriteUserDataCommand.swift */; };
 		5DE59F2B23D96F8B00312DA4 /* NfcUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE59F2A23D96F8B00312DA4 /* NfcUtils.swift */; };
 		5DE59F2D23D96FE500312DA4 /* TerminalKeysService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE59F2C23D96FE500312DA4 /* TerminalKeysService.swift */; };
 		5DE59F2F23D9703A00312DA4 /* SecureStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE59F2E23D9703A00312DA4 /* SecureStorageService.swift */; };
@@ -175,6 +177,8 @@
 		5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadIssuerDataCommand.swift; sourceTree = "<group>"; };
 		5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataCommand.swift; sourceTree = "<group>"; };
 		5DDF4F89235F06F600E46EAB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5DE5550B2458408B000E1816 /* ReadUserDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadUserDataCommand.swift; sourceTree = "<group>"; };
+		5DE5550D2458409E000E1816 /* WriteUserDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteUserDataCommand.swift; sourceTree = "<group>"; };
 		5DE59F2A23D96F8B00312DA4 /* NfcUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NfcUtils.swift; sourceTree = "<group>"; };
 		5DE59F2C23D96FE500312DA4 /* TerminalKeysService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeysService.swift; sourceTree = "<group>"; };
 		5DE59F2E23D9703A00312DA4 /* SecureStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStorageService.swift; sourceTree = "<group>"; };
@@ -282,6 +286,8 @@
 				5D6831D323DB31AB0095BB1D /* PurgeWalletCommand.swift */,
 				5D85A80524069C840038A2D0 /* ReadIssuerExtraDataCommand.swift */,
 				5D85A80724069C9A0038A2D0 /* WriteIssuerExtraDataCommand.swift */,
+				5DE5550B2458408B000E1816 /* ReadUserDataCommand.swift */,
+				5DE5550D2458409E000E1816 /* WriteUserDataCommand.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -601,10 +607,12 @@
 				5D273A0D234F270200ACDA11 /* Seed.swift in Sources */,
 				5D7F6644235F30B5008149B1 /* NDEFReader.swift in Sources */,
 				5DA5B618233E124A0058C720 /* StatusWord.swift in Sources */,
+				5DE5550C2458408B000E1816 /* ReadUserDataCommand.swift in Sources */,
 				5DA5B616233E12170058C720 /* Instruction.swift in Sources */,
 				5D6A92DC2344E3A500158457 /* Localization.swift in Sources */,
 				5DFFC1A1234DC715001C2F35 /* CryptoUtils.swift in Sources */,
 				5D58202224221E2B0057EF40 /* SessionError.swift in Sources */,
+				5DE5550E2458409E000E1816 /* WriteUserDataCommand.swift in Sources */,
 				5D273A00234F270200ACDA11 /* key_exchange.c in Sources */,
 				5DE59F2B23D96F8B00312DA4 /* NfcUtils.swift in Sources */,
 				5DA5B61A233E12780058C720 /* TlvTag.swift in Sources */,
