@@ -322,8 +322,8 @@ class ViewController: UIViewController {
         print(object)
     }
     
-    private func handle(_ error: SessionError?) {
-        if let error = error, !error.isUserCancelled {
+    private func handle(_ error: SessionError) {
+        if !error.isUserCancelled {
             self.log("completed with error: \(error.localizedDescription)")
             self.log("description: \(error)")
         }
