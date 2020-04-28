@@ -478,6 +478,7 @@ class Localizations {
     static let disclamerNfcNotShow = translate("disclamer_nfc_notshow")
     static let moreInfo = translate("common_more_info")
     static let ok = translate("common_ok")
+    static let uh = translate("common_uh")
     static let success = translate("common_success")
     static let alertParseFailed = translate("alert_parse_failed")
     static let alertReadProtected = translate("alert_read_protected")
