@@ -30,7 +30,7 @@ Tangem is a Swiss-based secure hardware wallet manufacturer that enables blockch
   s.ios.deployment_target = '11.0'
   s.swift_version = '5.0'
   s.source_files = 'TangemSdk/TangemSdk/**/*.{h,m,swift,c}'
-  
+  s.preserve_paths = 'TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519/*.{modulemap}'
   s.pod_target_xcconfig = {
       'SWIFT_INCLUDE_PATHS' => '$(PODS_TARGET_SRCROOT)/TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519/**'
   }
