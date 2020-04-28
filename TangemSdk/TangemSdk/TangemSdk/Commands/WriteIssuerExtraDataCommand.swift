@@ -165,12 +165,11 @@ public final class WriteIssuerExtraDataCommand: Command {
             try tlvBuilder.append(.issuerDataSignature, value: finalizingSignature)
         }
         
-        let cApdu = CommandApdu(.writeIssuerData, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.writeIssuerData, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> WriteIssuerExtraDataResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> WriteIssuerExtraDataResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
