@@ -38,12 +38,11 @@ public final class PurgeWalletCommand: Command {
             .append(.pin2, value: environment.pin2)
             .append(.cardId, value: environment.card?.cardId)
         
-        let cApdu = CommandApdu(.purgeWallet, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.purgeWallet, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> PurgeWalletResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> PurgeWalletResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
