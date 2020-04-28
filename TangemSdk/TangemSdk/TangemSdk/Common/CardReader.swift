@@ -32,8 +32,10 @@ public extension CardReader {
     }
 }
 
-class CardReaderFactory {
-    func createDefaultReader() -> CardReader {
+public class CardReaderFactory {
+    public init() {}
+    
+    public func createDefaultReader() -> CardReader {
         if #available(iOS 13.0, *) {
             return NFCReader()
         } else {
