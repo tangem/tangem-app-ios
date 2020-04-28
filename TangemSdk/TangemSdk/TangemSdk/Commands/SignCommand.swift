@@ -123,12 +123,11 @@ public final class SignCommand: Command {
                 .append(.terminalPublicKey, value: keys.publicKey)
         }
         
-        let cApdu = CommandApdu(.sign, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.sign, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> SignResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> SignResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
