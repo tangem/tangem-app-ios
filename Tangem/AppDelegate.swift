@@ -42,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window.makeKeyAndVisible()
         self.window = window
         let utils = Utils()
-        utils.initialize(legacyMode: NfcUtils.isLegacyDevice)
+        utils.initialize(legacyMode: NfcUtils.isPoorNfcQualityDevice)
         if !utils.islaunchedBefore {
             let secureStorage = SecureStorageManager()
             secureStorage.set([], forKey: StorageKey.cids)
