@@ -164,12 +164,11 @@ public final class ReadIssuerExtraDataCommand: Command {
             .append(.mode, value: IssuerExtraDataMode.readOrStartWrite)
             .append(.offset, value: issuerData.count)
         
-        let cApdu = CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
