@@ -42,11 +42,9 @@ public final class TangemSdk {
      * it obtains the card data. Optionally, if the card contains a wallet (private and public key pair),
      * it proves that the wallet owns a private key that corresponds to a public one.
      *
-     * - Parameter callback:This method  will send the following events in a callback:
-     * `onRead(Card)` after completing `ReadCommand`
-     * `onVerify(Bool)` after completing `CheckWalletCommand`
-     * `completion(TaskError?)` with an error field null after successful completion of a task or
-     *  with an error if some error occurs.
+     * - Parameters:
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<Card,SessionError>`
      */
     public func scanCard(initialMessage: String? = nil, completion: @escaping CompletionResult<Card>) {
         if #available(iOS 13.0, *) {
@@ -61,15 +59,15 @@ public final class TangemSdk {
      * Simultaneous signing of array of hashes in a single `SignCommand` is required to support
      * Bitcoin-type multi-input blockchains (UTXO).
      * The `SignCommand` will return a corresponding array of signatures.
-     *
-     * - Parameter callback: This method  will send the following events in a callback:
-     * `SignResponse` after completing `SignCommand`
-     * `completion(TaskError?)` with an error field null after successful completion of a task or with an error if some error occurs.
      * Please note that Tangem cards usually protect the signing with a security delay
      * that may last up to 90 seconds, depending on a card.
-     * It is for `CardManagerDelegate` to notify users of security delay.
-     * - Parameter hashes: Array of transaction hashes. It can be from one or up to ten hashes of the same length.
-     * - Parameter cardId: CID, Unique Tangem card ID number
+     * It is for `SessionViewDelegate` to notify users of security delay.
+     *
+     * - Parameters:
+     *   - hashes: Array of transaction hashes. It can be from one or up to ten hashes of the same length.
+     *   - cardId: CID, Unique Tangem card ID number
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns  `Swift.Result<SignResponse,SessionError>`
      */
     @available(iOS 13.0, *)
     public func sign(hashes: [Data], cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<SignResponse>) {
@@ -83,8 +81,8 @@ public final class TangemSdk {
      * wallet balance signed by the issuer or additional issuer’s attestation data.
      * - Parameters:
      *   - cardId: CID, Unique Tangem card ID number.
-     *   - callback: is triggered on the completion of the `ReadIssuerDataCommand`,
-     * provides card response in the form of `ReadIssuerDataResponse`.
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<ReadIssuerDataResponse,SessionError>`
      */
     @available(iOS 13.0, *)
     public func readIssuerData(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
@@ -101,8 +99,8 @@ public final class TangemSdk {
      *   - issuerData: Data provided by issuer.
      *   - issuerDataSignature: Issuer’s signature of `issuerData` with Issuer Data Private Key (which is kept on card).
      *   - issuerDataCounter: An optional counter that protect issuer data against replay attack.
-     *   - callback: is triggered on the completion of the `WriteIssuerDataCommand`,
-     * provides card response in the form of  `WriteIssuerDataResponse`.
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<WriteIssuerDataResponse,SessionError>`
      */
     @available(iOS 13.0, *)
     public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, initialMessage: String? = nil, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
@@ -116,9 +114,11 @@ public final class TangemSdk {
      * format and payload of Issuer Data. . For example, this field may contain photo or
      * biometric information for ID card product. Because of the large size of Issuer_Extra_Data,
      * a series of these commands have to be executed to read the entire Issuer_Extra_Data.
-     * @param cardId CID, Unique Tangem card ID number.
-     * @param callback is triggered on the completion of the [ReadIssuerExtraDataTask],
-     * provides card response in the form of [ReadIssuerExtraDataResponse].
+     *
+     * - Parameters:
+     *   - cardId:  CID, Unique Tangem card ID number.
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<ReadIssuerExtraDataResponse,SessionError>`
      */
     @available(iOS 13.0, *)
     public func readIssuerExtraData(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
@@ -133,17 +133,18 @@ public final class TangemSdk {
      * For example, this field may contain a photo or biometric information for ID card products.
      * Because of the large size of Issuer_Extra_Data, a series of these commands have to be executed
      * to write entire Issuer_Extra_Data.
-     * @param cardId CID, Unique Tangem card ID number.
-     * @param issuerData Data provided by issuer.
-     * @param startingSignature Issuer’s signature with Issuer Data Private Key of [cardId],
-     * [issuerDataCounter] (if flags Protect_Issuer_Data_Against_Replay and
-     * Restrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]) and size of [issuerData].
-     * @param finalizingSignature Issuer’s signature with Issuer Data Private Key of [cardId],
-     * [issuerData] and [issuerDataCounter] (the latter one only if flags Protect_Issuer_Data_Against_Replay
-     * andRestrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]).
-     * @param issuerDataCounter An optional counter that protect issuer data against replay attack.
-     * @param callback is triggered on the completion of the [WriteIssuerDataCommand],
-     * provides card response in the form of [WriteIssuerDataResponse].
+     *
+     * - Parameters:
+     *   - cardId:  CID, Unique Tangem card ID number.
+     *   - issuerData: Data provided by issuer.
+     *   - startingSignature: Issuer’s signature with Issuer Data Private Key of [cardId],
+     *   [issuerDataCounter] (if flags Protect_Issuer_Data_Against_Replay and
+     *   Restrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]) and size of [issuerData].
+     *   - finalizingSignature:  Issuer’s signature with Issuer Data Private Key of [cardId],
+     *   [issuerData] and [issuerDataCounter] (the latter one only if flags Protect_Issuer_Data_Against_Replay
+     *   and Restrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]).
+     *   - issuerDataCounter:  An optional counter that protect issuer data against replay attack.
+     *   - completion: Returns `Swift.Result<WriteIssuerDataResponse,SessionError>`
      */
     @available(iOS 13.0, *)
     public func writeIssuerExtraData(cardId: String,
@@ -164,6 +165,80 @@ public final class TangemSdk {
     }
     
     /**
+     * This method launches a [ReadUserDataCommand]
+     *
+     * This command returns two up to 512-byte User_Data, User_Protected_Data and two counters User_Counter and
+     * User_Protected_Counter fields.
+     * User_Data and User_ProtectedData are never changed or parsed by the executable code the Tangem COS.
+     * The App defines purpose of use, format and it's payload. For example, this field may contain cashed information
+     * from blockchain to accelerate preparing new transaction.
+     * User_Counter and User_ProtectedCounter are counters, that initial values can be set by App and increased on every signing
+     * of new transaction (on SIGN command that calculate new signatures). The App defines purpose of use.
+     * For example, this fields may contain blockchain nonce value.
+     *
+     * - Parameters:
+     *   - cardId:  CID, Unique Tangem card ID number.
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<ReadUserDataResponse,SessionError>`
+     */
+    @available(iOS 13.0, *)
+    public func readUserData(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<ReadUserDataResponse>) {
+        startSession(with: ReadUserDataCommand(), cardId: cardId, initialMessage: initialMessage, completion: completion)
+    }
+    
+    /**
+     * This method launches a [WriteUserDataCommand]
+     *
+     * This command writes some UserData, and UserCounter fields.
+     * User_Data are never changed or parsed by the executable code the Tangem COS.
+     * The App defines purpose of use, format and it's payload. For example, this field may contain cashed information
+     * from blockchain to accelerate preparing new transaction.
+     * User_Counter are counter, that initial value can be set by App and increased on every signing
+     * of new transaction (on SIGN command that calculate new signatures). The App defines purpose of use.
+     * For example, this fields may contain blockchain nonce value.
+     *
+     * Writing of UserCounter and UserData is protected only by PIN1.
+     * - Parameters:
+     *   - cardId:  CID, Unique Tangem card ID number.
+     *   - userData: Data defined by user’s App
+     *   - userCounter: Counter initialized by user’s App and increased on every signing of new transaction
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<WriteUserDataResponse,SessionError>`
+     */
+    @available(iOS 13.0, *)
+    public func writeUserData(cardId: String, userData: Data, userCounter: Int,
+                              initialMessage: String? = nil, completion: @escaping CompletionResult<WriteUserDataResponse>) {
+        let writeUserDataCommand = WriteUserDataCommand(userData: userData, userCounter: userCounter)
+        startSession(with: writeUserDataCommand, cardId: cardId, initialMessage: initialMessage, completion: completion)
+    }
+    
+    /**
+     * This method launches a [WriteUserDataCommand]
+     *
+     * This command writes some UserProtectedData and UserProtectedCounter fields.
+     * User_ProtectedData are never changed or parsed by the executable code the Tangem COS.
+     * The App defines purpose of use, format and it's payload. For example, this field may contain cashed information
+     * from blockchain to accelerate preparing new transaction.
+     * User_ProtectedCounter are counter, that initial value can be set by App and increased on every signing
+     * of new transaction (on SIGN command that calculate new signatures). The App defines purpose of use.
+     * For example, this fields may contain blockchain nonce value.
+     *
+     * UserProtectedCounter and UserProtectedData is protected by PIN1 and need additionally PIN2 to confirmation.
+     * - Parameters:
+     *   - cardId:  CID, Unique Tangem card ID number.
+     *   - userProtectedData: Data defined by user’s App (confirmed by PIN2)
+     *   - userProtectedCounter: Counter initialized by user’s App (confirmed by PIN2) and increased on every signing of new transaction
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<WriteUserDataResponse,SessionError>`
+     */
+    @available(iOS 13.0, *)
+    public func writeUserProtectedData(cardId: String, userProtectedData: Data, userProtectedCounter: Int,
+                              initialMessage: String? = nil, completion: @escaping CompletionResult<WriteUserDataResponse>) {
+        let writeUserDataCommand = WriteUserDataCommand(userProtectedData: userProtectedData, userProtectedCounter: userProtectedCounter)
+        startSession(with: writeUserDataCommand, cardId: cardId, initialMessage: initialMessage, completion: completion)
+    }
+    
+    /**
      * This command will create a new wallet on the card having ‘Empty’ state.
      * A key pair WalletPublicKey / WalletPrivateKey is generated and securely stored in the card.
      * App will need to obtain Wallet_PublicKey from the response of `CreateWalletCommand` or `ReadCommand`
@@ -171,7 +246,10 @@ public final class TangemSdk {
      * according to a specific blockchain algorithm.
      * WalletPrivateKey is never revealed by the card and will be used by `SignCommand` and `CheckWalletCommand`.
      * RemainingSignature is set to MaxSignatures.
-     * - Parameter cardId: CID, Unique Tangem card ID number.
+     * - Parameters:
+     *   - cardId:  CID, Unique Tangem card ID number.
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<CreateWalletResponse,SessionError>`
      */
     @available(iOS 13.0, *)
     public func createWallet(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<CreateWalletResponse>) {
@@ -183,7 +261,10 @@ public final class TangemSdk {
      * the card changes state to ‘Empty’ and a new wallet can be created by `CREATE_WALLET` command.
      * If Is_Reusable flag is disabled, the card switches to ‘Purged’ state.
      * ‘Purged’ state is final, it makes the card useless.
-     * - Parameter cardId: CID, Unique Tangem card ID number.
+     * - Parameters:
+     *   - cardId:  CID, Unique Tangem card ID number.
+     *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
+     *   - completion: Returns `Swift.Result<PurgeWalletResponse,SessionError>`
      */
     @available(iOS 13.0, *)
     public func purgeWallet(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<PurgeWalletResponse>) {
