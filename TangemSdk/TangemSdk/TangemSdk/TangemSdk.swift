@@ -23,18 +23,33 @@ public final class TangemSdk {
         #endif
     }
     
-    /// Configuration of the Sdk.  Overwrite this setting only if you understand what you do.
+    /// Configuration of the SDK. Do not change the default values unless you know what you are doing
     public var config = Config()
     
-    private var cardSession: CardSession? = nil
+    private let reader: CardReader
+    private let viewDelegate: SessionViewDelegate
     private let storageService = SecureStorageService()
+    private var cardSession: CardSession? = nil
     
     private lazy var terminalKeysService: TerminalKeysService = {
         let service = TerminalKeysService(secureStorageService: storageService)
         return service
     }()
     
-    public init() {}
+    /// Default initializer
+    /// - Parameters:
+    ///   - cardReader: An interface that is responsible for NFC connection and transfer of data to and from the Tangem Card.
+    ///   If nil, its default implementation will be used
+    ///   - viewDelegate:  An interface that allows interaction with users and shows relevant UI.
+    ///   If nil, its default implementation will be used
+    ///   - config: Allows to change a number of parameters for communication with Tangem cards.
+    ///   Do not change the default values unless you know what you are doing.
+    public init(cardReader: CardReader? = nil, viewDelegate: SessionViewDelegate? = nil, config: Config = Config()) {
+        let reader = cardReader ?? CardReaderFactory().createDefaultReader()
+        self.reader = reader
+        self.viewDelegate = viewDelegate ?? DefaultSessionViewDelegate(reader: reader)
+        self.config = config
+    }
     
     /**
      * To start using any card, you first need to read it using the `scanCard()` method.
@@ -280,7 +295,7 @@ public final class TangemSdk {
     ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
     ///   - completion: Standart completion handler. Invoked on the main thread. `(Swift.Result<CardSessionRunnable.CommandResponse, SessionError>) -> Void`.
     public func startSession<T>(with runnable: T, cardId: String?, initialMessage: String? = nil, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
-        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage, cardReader: reader, viewDelegate: viewDelegate)
         cardSession!.start(with: runnable, completion: completion)
     }
     
@@ -293,7 +308,7 @@ public final class TangemSdk {
     ///   If you need to interact with UI, you should dispatch to the main thread manually
     @available(iOS 13.0, *)
     public func startSession(cardId: String?, initialMessage: String? = nil, delegate: @escaping (CardSession, SessionError?) -> Void) {
-        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage)
+        cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage, cardReader: reader, viewDelegate: viewDelegate)
         cardSession?.start(delegate: delegate)
     }
     
