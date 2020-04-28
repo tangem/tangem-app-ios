@@ -171,8 +171,8 @@ public class CardSession {
         readCommand.run(in: self) { readResult in
             switch readResult {
             case .success(let readResponse):
-                if let expectedCardId = self.cardId,
-                    let actualCardId = readResponse.cardId,
+                if let expectedCardId = self.cardId?.uppercased(),
+                    let actualCardId = readResponse.cardId?.uppercased(),
                     expectedCardId != actualCardId {
                     let error = SessionError.wrongCard
                     self.stop(error: error)
