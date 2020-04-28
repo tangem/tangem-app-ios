@@ -75,136 +75,104 @@ import the framework with `import TangemSdk`.
 Tangem SDK is a self-sufficient solution that implements a card abstraction model, methods of interaction with the card and interactions with the user via UI.
 
 ### Initialization
-To get started, you need to create an instance of the `CardManager` class. It provides the simple way of interacting with the card.
+To get started, you need to create an instance of the `TangemSdk` class. It provides the simple way of interacting with the card.
 
 ```swift
-let cardManager = CardManager()
+let sdk = TangemSdk()
 ```
 
 The universal initializer allows you to create an instance of the class that you can use immediately without any additional setup. 
 
-You can also use a custom initializer, which allows you to pass your implementation of `CardReader` protocol to communicate with a card as well as the implementation of `CardManagerDelegate` protocol to create a custom user interface.
+You can also use a custom initializer, which allows you to pass your implementation of `CardReader` protocol to communicate with a card as well as the implementation of `SessionViewDelegate` protocol to create a custom user interface.
 You can read more about this in [Customization](#сustomization).
 
 ### Tasks
 
 #### Scan card 
-To start using any card, you first need to read it using the ` scanCard()` method. This method launches an NFC session, and once it’s connected with the card, it obtains the card data. Optionally, if the card contains a wallet (private and public key pair), it proves that the wallet owns a private key that corresponds to a public one.
+To start using any card, you first need to read it using the  `scanCard()` method. This method launches an NFC session, and once it’s connected with the card, it obtains the card data. Optionally, if the card contains a wallet (private and public key pair), it proves that the wallet owns a private key that corresponds to a public one.
 
 Example:
 
 ```swift
-cardManager.scanCard { taskEvent in
-    switch taskEvent {  
-    case .event(let scanEvent):
-        switch scanEvent {
-        case .onRead(let card):
-            print("Read result: \(card)")
-        case .onVerify(let isGenuine):
-            print("Verication result: \(isGenuine)")
+tangemSdk.scanCard { result in
+    switch result {
+    case .success(let card):
+        print("Read result: \(card)")
+    case .failure(let error):
+        if !error.isUserCancelled {
+            print("Completed with error: \(error.localizedDescription), details: \(error)")
         }
-    case .completion(let error):
-        if let error = error {
-            if case .userCancelled = error {
-                // If user canceled operation manually, then do nothing
-            } else {
-                print("Completed with error: \(error.localizedDescription)")
-            }
-        }
-        //Handle completion. Unlock UI, etc.
     }
 }
-
 ```
-
-Communication with the card is an asynchronous operation. In order to get a result for the method, you need to subscribe to the task callback. 
-
-Every task can invoke callback several times with different events:
-
-`.completion(Error)` – this event is triggered only once when task is completely finished. It means that it's the final callback. If error is not nil, then something went wrong during the operation.
-
-`.event(<T>)` –  this event is triggered when one of operations inside the task is completed. 
-
-**Possible events of the Scan card task:**
-
-`.onRead(let card)` – this event is triggered after the card has been successfully read. In addition, the obtained card object is contained inside the enum. At this stage, the authenticity of the card is ***NOT*** verified.
-
-`.onVerify(let isGenuine)` – this event is triggered when the card’s authenticity has been verified. If the card is authentic, isGenuine will be set to true, otherwise, it will be set to false.
 
 #### Sign
 This method allows you to sign one or multiple hashes. Simultaneous signing of array of hashes in a single SIGN command is required to support Bitcoin-type multi-input blockchains (UTXO). The SIGN command will return a corresponding array of signatures.
 
 ```swift
 let hashes = [hash1, hash2]
-guard let cardId = card?.cardId else {
-    print("Please, scan card before")
-    return
-}
-cardManager.sign(hashes: hashes, cardId: cardId) { taskEvent in
-    switch taskEvent {
-    case .event(let signResponse):
-        print(signResponse)
-    case .completion(let error):
-        if let error = error {
-            if case .userCancelled = error {
-                // User cancelled the operation, do nothing
-            } else {
-                print("Completed with error: \(error.localizedDescription)")
-            }
+let cardId = ...
+
+tangemSdk.sign(hashes: hashes, cardId: cardId) { result in
+    switch result {
+    case .success(let signResponse):
+        print("Result: \(signResponse)")
+    case .failure(let error):
+        if !error.isUserCancelled {
+            print("Completed with error: \(error.localizedDescription), details: \(error)")
         }
-        // Handle completion. Unlock UI, etc.
     }
 }
 ```
 
 ## Customization
 ### UI
-If the interaction with user is required, the SDK performs the entire cycle of this interaction. In order to change the appearance or behavior of the user UI, you can provide you own implementation of the `CardManagerDelegate` protocol. After this, initialize the `CardManager` class with your delegate class.
+If the interaction with user is required, the SDK performs the entire cycle of this interaction. In order to change the appearance or behavior of the user UI, you can provide you own implementation of the `SessionViewDelegate` protocol. After this, initialize the `TangemSdk` class with your delegate class.
 
 ```swift
-let myCardManagerDelegate = MyCardManagerDelegate()
-let cardManager = CardManager(cardManagerDelegate: myCardManagerDelegate)
+let mySessionViewDelegate = MySessionViewDelegate()
+let tangemSdk = TangemSdk(cardReader: nil, viewDelegate: myCardManagerDelegate)
 ```
 
-> If you pass nil instead of `cardManagerDelegate`, the SDK won’t be able to process errors that require user intervention and return them to `.failure(let error)`.
-
 ### Tasks
-`CardManager` only covers general tasks. If you want to trigger card commands in a certain order, you need to create your own task.
+`TangemSdk` only covers general tasks. If you want to trigger card commands in a certain order, you have to options:
 
-To do this, you need to create a subclass of the `Task` class, and override the `onRun(..)` method.
+1) You can adopt `CardSessionRunnable` protocol and then use `run` method for your custom logic. You can run other commands and tasks via theirs `run` method.  You can use `ScanTask` as a reference.
 
-Then call the `runTask(..)` method of the `CardManager` class with you task.
+Then call the `startSession(with runnable ...)` method of the `TangemSdk` class with you task.
 
 ```swift
 let task = YourTask()
-cardManager.runTask(task) { taskEvent in
-    // Handle your events
-}
+tangemSdk.startSession(with: task), completion: completion)
 ```
-> For example, you want to read the card and immediately sign a transaction on it within one NFC session. In such a case, you need to inherit from the `Task` class and override the `onRun(..)` method, in which you implement the required behavior.
 
-It’s possible to run just one command without the need to create a separate task by using the `runCommand(..)` method.
-> For example, if you need to read the card details, but don’t need to check the authenticity. 
+2) You can use `startSession(cardId: String?, initialMessage: String? = nil, delegate: @escaping (CardSession, SessionError?) -> Void)` method of the  `TangemSdk`
+
 ```swift
-// Create command
-let readCommand = ReadCommand()
-// Run command with the callback
-cardManager.runCommand(readCommand) { taskEvent in
-    switch taskEvent {
-    case .event(let response):
-        if let publicKey = response.cardPublicKey {
-            // Get public key from card
-            print("Card public key: \(publicKey)")
-        }
-    case .completion(let error):
-        if let error = error {
-            if case .userCancelled = error {
-                // User cancelled the operation, do nothing
-            } else {
-                print("completed with error: \(error.localizedDescription)")
+tangemSdk.startSession(cardId: nil) { session, error in
+    let cmd1 = ReadCommand()
+    cmd1!.run(in: session, completion: { result in
+        switch result {
+        case .success(let response1):
+            DispatchQueue.main.async { // Switch to UI thread manually
+                self.log(response1)
             }
+            let cmd2 = CheckWalletCommand(...)
+            cmd2!.run(in: session, completion: { result in
+                switch result {
+                case .success(let response2):
+                    DispatchQueue.main.async {
+                        self.log(response2)
+                    }
+                    session.stop() // Close session manually
+                case .failure(let error):
+                    print(error)
+                }
+            })
+        case .failure(let error):
+            print(error)
         }
-    }
+    })
 }
 ```
 
