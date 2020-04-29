@@ -40,9 +40,9 @@ public final class WriteUserDataCommand: Command {
     ///   - userData: Some user data to write. Protected only by PIN1
     ///   - userCounter: Counter, that initial values can be set by App and increased on every signing
     ///    of new transaction (on SIGN command that calculate new signatures). The App defines purpose of use.
-    ///    For example, this fields may contain blockchain nonce value.
+    ///    For example, this fields may contain blockchain nonce value.  If nil, the current counter value will not be overwritten.
     ///   - userProtectedData: Some protected user data to write.  Protected  by PIN1 and PIN2
-    ///   - userProtectedCounter: Same as userCounter, but for userProtectedData
+    ///   - userProtectedCounter: Same as userCounter, but for userProtectedData.  If nil, the current counter value will not be overwritten.
     public init(userData: Data?, userCounter: Int?, userProtectedData: Data?, userProtectedCounter: Int?) {
         self.userData = userData
         self.userCounter = userCounter
@@ -55,16 +55,16 @@ public final class WriteUserDataCommand: Command {
     ///   - userData: Some user data to write
     ///   - userCounter: Counter, that initial values can be set by App and increased on every signing
     ///    of new transaction (on SIGN command that calculate new signatures). The App defines purpose of use.
-    ///    For example, this fields may contain blockchain nonce value.
-    public convenience init(userData: Data, userCounter: Int) {
+    ///    For example, this fields may contain blockchain nonce value. If nil, the current counter value will not be overwritten.
+    public convenience init(userData: Data, userCounter: Int?) {
         self.init(userData: userData, userCounter: userCounter, userProtectedData: nil, userProtectedCounter: nil)
     }
     
     /// Convenience initializer for writing userProtectedData only
     /// - Parameters:
     ///   - userProtectedData: Some protected user data to write.  Protected  by PIN1 and PIN2
-    ///   - userProtectedCounter: Same as userCounter, but for userProtectedData
-    public convenience init(userProtectedData: Data, userProtectedCounter: Int) {
+    ///   - userProtectedCounter: Same as userCounter, but for userProtectedData. If nil, the current counter value will not be overwritten.
+    public convenience init(userProtectedData: Data, userProtectedCounter: Int?) {
         self.init(userData: nil, userCounter: nil, userProtectedData: userProtectedData, userProtectedCounter: userProtectedCounter)
     }
     
@@ -73,17 +73,27 @@ public final class WriteUserDataCommand: Command {
             .append(.cardId, value: environment.card?.cardId)
             .append(.pin, value: environment.pin1)
         
-        if let userData = userData, let userCounter = userCounter {
+        if let userData = userData {
             try tlvBuilder.append(.userData, value: userData)
-                .append(.userCounter, value: userCounter)
         }
         
-        if let userProtectedData = userProtectedData, let userProtectedCounter = userProtectedCounter {
+        if let userCounter = userCounter {
+            try tlvBuilder.append(.userCounter, value: userCounter)
+        }
+        
+        if let userProtectedData = userProtectedData {
             try tlvBuilder.append(.userProtectedData, value: userProtectedData)
-                .append(.userProtectedCounter, value: userProtectedCounter)
+        }
+        
+        if let userProtectedCounter = userProtectedCounter {
+            try tlvBuilder.append(.userProtectedCounter, value: userProtectedCounter)
                 .append(.pin2, value: environment.pin2)
         }
         
+        if userProtectedData != nil || userProtectedCounter != nil {
+            try tlvBuilder.append(.pin2, value: environment.pin2)
+        }
+    
         return CommandApdu(.writeUserData, tlv: tlvBuilder.serialize())
     }
     
