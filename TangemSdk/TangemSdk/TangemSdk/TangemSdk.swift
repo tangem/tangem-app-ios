@@ -216,12 +216,12 @@ public final class TangemSdk {
      * - Parameters:
      *   - cardId:  CID, Unique Tangem card ID number.
      *   - userData: Data defined by user’s App
-     *   - userCounter: Counter initialized by user’s App and increased on every signing of new transaction
+     *   - userCounter: Counter initialized by user’s App and increased on every signing of new transaction.  If nil, the current counter value will not be overwritten.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
      *   - completion: Returns `Swift.Result<WriteUserDataResponse,SessionError>`
      */
     @available(iOS 13.0, *)
-    public func writeUserData(cardId: String, userData: Data, userCounter: Int,
+    public func writeUserData(cardId: String, userData: Data, userCounter: Int?,
                               initialMessage: String? = nil, completion: @escaping CompletionResult<WriteUserDataResponse>) {
         let writeUserDataCommand = WriteUserDataCommand(userData: userData, userCounter: userCounter)
         startSession(with: writeUserDataCommand, cardId: cardId, initialMessage: initialMessage, completion: completion)
@@ -242,12 +242,12 @@ public final class TangemSdk {
      * - Parameters:
      *   - cardId:  CID, Unique Tangem card ID number.
      *   - userProtectedData: Data defined by user’s App (confirmed by PIN2)
-     *   - userProtectedCounter: Counter initialized by user’s App (confirmed by PIN2) and increased on every signing of new transaction
+     *   - userProtectedCounter: Counter initialized by user’s App (confirmed by PIN2) and increased on every signing of new transaction.  If nil, the current counter value will not be overwritten.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
      *   - completion: Returns `Swift.Result<WriteUserDataResponse,SessionError>`
      */
     @available(iOS 13.0, *)
-    public func writeUserProtectedData(cardId: String, userProtectedData: Data, userProtectedCounter: Int,
+    public func writeUserProtectedData(cardId: String, userProtectedData: Data, userProtectedCounter: Int?,
                               initialMessage: String? = nil, completion: @escaping CompletionResult<WriteUserDataResponse>) {
         let writeUserDataCommand = WriteUserDataCommand(userProtectedData: userProtectedData, userProtectedCounter: userProtectedCounter)
         startSession(with: writeUserDataCommand, cardId: cardId, initialMessage: initialMessage, completion: completion)
