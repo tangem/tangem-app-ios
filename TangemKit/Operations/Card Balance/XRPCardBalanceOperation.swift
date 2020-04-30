@@ -31,6 +31,7 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
                 }
                 
                 if let code = xrpResult.error_code, code == 19 {
+                    self?.card.hasAccount = false
                     self?.failOperationWith(error: Localizations.loadMoreXrpToCreateAccount, title: Localizations.accountNotFound)
                     return
                 }
