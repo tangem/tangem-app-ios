@@ -69,21 +69,27 @@ class ETHIdCardBalanceOperation: BaseCardBalanceOperation {
         let operation: BtcRequestOperation<BlockcypherTx> = BtcRequestOperation(endpoint: BlockcypherEndpoint.txs(txHash: txHash, api: .eth), completion: { [weak self] (result) in
             switch result {
             case .success(let response):
-                guard let addresses = response.addresses else {
+                guard let addresses = response.addresses?.map ({return $0.stripHexPrefix().lowercased()}) else {
                     self?.failOperationWith(error: "Failed to get data from blockchain")
                     return
                 }
                 
-                guard let approvalAddreses = (self?.card.cardEngine as? ETHIdEngine)?.approvalAddresses else {
-                    return
-                }
-                
-                approvalAddreses.forEach { element in
-                    if addresses.contains(element) {
+                if let approvalAddress = self?.card.getIdData()?.trustedAddress.stripHexPrefix().lowercased() {
+                    if addresses.contains(approvalAddress) {
                         self?.handleTxsComplete(hasTrusted: true)
                         return
                     }
                 }
+//                guard let approvalAddreses = (self?.card.cardEngine as? ETHIdEngine)?.approvalAddresses else {
+//                    return
+//                }
+                
+//                approvalAddreses.forEach { element in
+//                    if addresses.contains(element) {
+//                        self?.handleTxsComplete(hasTrusted: true)
+//                        return
+//                    }
+//                }
                 
                 self?.performTxsRequest()
             case .failure(let error):
