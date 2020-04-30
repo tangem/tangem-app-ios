@@ -10,7 +10,7 @@ import Foundation
 import Moya
 
 class DucatusEngine: LTCEngine {
-   let provider = MoyaProvider<BitcoreTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
+   let provider = MoyaProvider<BitcoreTarget>(plugins: [NetworkLoggerPlugin()])
     
     override var trait: CoinTrait {
         .all
