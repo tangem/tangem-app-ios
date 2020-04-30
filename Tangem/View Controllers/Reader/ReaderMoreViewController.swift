@@ -18,8 +18,8 @@ class ReaderMoreViewController: ModalActionViewController {
         super.viewWillAppear(animated)
         
         let paragraphStyle = paragraphStyleWith(lineSpacingChange: 10.0)
-        let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
-                                                                                  NSAttributedStringKey.kern : 1.12])
+        let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedString.Key.paragraphStyle : paragraphStyle,
+                                                                                  NSAttributedString.Key.kern : 1.12])
         
         contentLabel.attributedText = attributedText
     }
