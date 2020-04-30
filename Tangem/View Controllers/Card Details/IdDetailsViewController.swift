@@ -31,6 +31,11 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             statusLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
         }
     }
+    @IBOutlet weak var issuedByLabel: UILabel! {
+        didSet {
+            issuedByLabel.font = UIFont.tgm_maaxFontWith(size: 16, weight: .regular)
+        }
+    }
     @IBOutlet weak var idLabel: UILabel! {
         didSet {
             idLabel.font = UIFont.tgm_maaxFontWith(size: 20, weight: .medium)
@@ -196,7 +201,14 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             let engine = card.cardEngine as! ETHIdEngine
             
             self?.statusLabel.textColor = engine.hasApprovalTx ?  UIColor.tgm_green() : UIColor.tgm_red()
-            self?.statusLabel.text = engine.hasApprovalTx ?  "Verified" : "Not registered"
+            let approvalAddress = card.getIdData()?.trustedAddress ?? ""
+            if engine.hasApprovalTx {
+                self?.statusLabel.text = "Verified"
+                self?.issuedByLabel.text = "Issued by \(approvalAddress)"
+            } else {
+                self?.statusLabel.text = "Not registered"
+                self?.issuedByLabel.text = ""
+            }
         }) {[weak self] _,_ in
             self?.scrollView.refreshControl?.endRefreshing()
             let validationAlert = UIAlertController(title: Localizations.generalError, message: Localizations.loadedWalletErrorObtainingBlockchainData, preferredStyle: .alert)
