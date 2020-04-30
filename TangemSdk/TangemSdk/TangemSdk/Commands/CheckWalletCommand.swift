@@ -67,12 +67,11 @@ public final class CheckWalletCommand: Command {
             .append(.cardId, value: environment.card?.cardId)
             .append(.challenge, value: challenge)
         
-        let cApdu = CommandApdu(.checkWallet, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.checkWallet, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> CheckWalletResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CheckWalletResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
