@@ -71,7 +71,10 @@ public enum TlvTag: Byte {
     case isActivated = 0x3A
     case activationSeed = 0x3B
     case paymentFlowVersion = 0x54
+    case userData = 0x2A
+    case userProtectedData = 0x2B
     case userCounter = 0x2C
+    case userProtectedCounter = 0x2D
     case resetPin = 0x36
     case codePageAddress = 0x40
     case codePageCount = 0x41
@@ -110,7 +113,6 @@ public enum TlvTag: Byte {
     case expireDate = 0xD5
     case trustedAddress = 0xD6
     
-    
     /// `TlvValueType` associated with a `TlvTag`
     var valueType: TlvValueType {
         switch self {
@@ -122,7 +124,7 @@ public enum TlvTag: Byte {
         case .curveId:
             return .ellipticCurve
         case .maxSignatures, .pauseBeforePin2,
-             .walletRemainingSignatures, .walletSignedHashes, .health, .userCounter, .tokenDecimal, .issuerDataCounter:
+             .walletRemainingSignatures, .walletSignedHashes, .health, .userProtectedCounter, .userCounter, .tokenDecimal, .issuerDataCounter:
             return .intValue
         case .isActivated, .isLinked:
             return .boolValue
