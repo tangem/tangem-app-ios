@@ -13,7 +13,7 @@ protocol DefaultErrorAlertsCapable {
     func handleCardParserWrongTLV(completion: @escaping () -> Void)
     func handleCardParserLockedCard(completion: @escaping () -> Void)
     func handleReaderSessionError(completion: @escaping () -> Void)
-    func handleNonGenuineTangemCard(_ card: CardViewModel, completion: @escaping () -> Void)
+    func handleNonGenuineTangemCard(completion: @escaping () -> Void)
     func handleUntrustedCard()
     func handleTXSendError(message: String)
     func handleTXBuildError()
@@ -52,7 +52,7 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
         self.present(validationAlert, animated: true, completion: nil)
     }
     
-    func handleNonGenuineTangemCard(_ card: CardViewModel, completion: @escaping () -> Void = {}) {
+    func handleNonGenuineTangemCard(completion: @escaping () -> Void = {}) {
         let validationAlert = UIAlertController(title: Localizations.dialogWarning, message: Localizations.alertFailedAttest, preferredStyle: .alert)
         validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: { (_) in
             completion()
@@ -61,7 +61,7 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
     }
     
     func handleUnknownBlockchainCard(_ completion: @escaping () -> Void = {}) {
-        let alert = UIAlertController(title: Localizations.dialogWarning, message: Localizations.alertUnknownBlockchain, preferredStyle: .alert)
+        let alert = UIAlertController(title: Localizations.uh, message: Localizations.alertUnknownBlockchain, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: { (_) in
             completion()
         }))
