@@ -11,7 +11,7 @@ import CryptoSwift
 import Moya
 
 public class RippleEngine: CardEngine {
-    let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin(verbose: true)])
+    let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin()])
     unowned public var card: CardViewModel
     
     public var blockchainDisplayName: String {
