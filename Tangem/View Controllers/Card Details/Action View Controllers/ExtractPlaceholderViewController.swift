@@ -22,8 +22,8 @@ class ExtractPlaceholderViewController: UIViewController {
         super.viewWillAppear(animated)
  
         let paragraphStyle = paragraphStyleWith(lineSpacingChange: 8.0, alignment: .center)
-        let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedStringKey.paragraphStyle : paragraphStyle,
-                                                                                  NSAttributedStringKey.kern : 1.12])
+        let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedString.Key.paragraphStyle : paragraphStyle,
+                                                                                  NSAttributedString.Key.kern : 1.12])
         
         contentLabel.attributedText = attributedText
     }
