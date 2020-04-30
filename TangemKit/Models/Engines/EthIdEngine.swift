@@ -15,9 +15,9 @@ public class ETHIdEngine: CardEngine {
     var ethEngine: ETHEngine?
     var issuerCard: CardViewModel?
     
-    public lazy var approvalAddresses: [String] = {
-        return card.trustedKeys.map{calculateAddress(from: $0).stripHexPrefix()}
-    }()
+//    public lazy var approvalAddresses: [String] = {
+//        return card.trustedKeys.map{calculateAddress(from: $0).stripHexPrefix()}
+//    }()
     
     var chainId: BigUInt {
         return 1
