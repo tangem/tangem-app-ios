@@ -240,7 +240,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 5D78C1B1234F435B008D7478 /* Build configuration list for PBXProject "TangemSDKExample" */;
+			buildConfigurationList = 5D78C1B1234F435B008D7478 /* Build configuration list for PBXProject "TangemSdkExample" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -520,6 +520,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSDKExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INCLUDE_PATHS = "$(inherited) /Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk/TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -540,6 +541,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemSDKExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INCLUDE_PATHS = "$(inherited) /Users/alexander.osokin/repos/tangem/tangem-ios/TangemSdk/TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -626,7 +628,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		5D78C1B1234F435B008D7478 /* Build configuration list for PBXProject "TangemSDKExample" */ = {
+		5D78C1B1234F435B008D7478 /* Build configuration list for PBXProject "TangemSdkExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5D78C1C8234F435C008D7478 /* Debug */,
