@@ -47,12 +47,11 @@ public final class CreateWalletCommand: Command {
             try tlvBuilder.append(.cvc, value: cvc)
         }
         
-        let cApdu = CommandApdu(.createWallet, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.createWallet, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> CreateWalletResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CreateWalletResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
