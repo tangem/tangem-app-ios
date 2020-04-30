@@ -24,7 +24,7 @@ class TangemTimer {
             self.timer = Timer(timeInterval: self.timeInterval, repeats: false, block: {[weak self] timer in
                 self?.completion()
             })
-            self.timer!.tolerance = 0.1 * self.timeInterval
+            self.timer!.tolerance = 0.05 * self.timeInterval
             RunLoop.main.add(self.timer!, forMode: RunLoop.Mode.common)
         }
     }
