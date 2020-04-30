@@ -121,8 +121,11 @@ public enum SessionError: Int, Error, LocalizedError {
     
     case unknownError = 6000
     
-    /// This error is returned when `issuerDataCounter ` requires to perform operation
+    /// This error is returned when `issuerDataCounter` requires to perform operation
     case missingCounter = 7001
+    
+    /// This error is returned when `issuerPublicKey` requires to perform operation
+    case missingIssuerPublicKey = 7002
     
     public var errorDescription: String? {
         switch self {

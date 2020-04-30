@@ -38,7 +38,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -257,7 +257,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             return
         }
         
-        let hasBalance = NSDecimalNumber(string: card.walletTokenValue).doubleValue > 0 
+        let hasBalance = NSDecimalNumber(string: card.walletTokenValue).doubleValue > 0
         let balanceTitle = hasBalance ? Localizations.genuine : Localizations.notFound
         
         viewModel.updateWalletBalance(title: balanceTitle, subtitle: nil)
@@ -551,7 +551,7 @@ extension CardDetailsViewController {
     
     @IBAction func extractButtonPressed(_ sender: Any) {
         if #available(iOS 13.0, *), card!.canExtract  {
-            if card!.isOldFw && NfcUtils.isLegacyDevice && !Utils().isOldDisclamerShown {
+            if card!.isOldFw && NfcUtils.isPoorNfcQualityDevice && !Utils().isOldDisclamerShown {
                 handleOldDevice {
                     self.showExtraction()
                 }
@@ -593,19 +593,19 @@ extension CardDetailsViewController {
 //                    }
 //                     self.card = CardViewModel(card)
 //                case .onVerify(let isGenuine):
-//                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine                    
+//                    self.card!.genuinityState = isGenuine ? .genuine : .nonGenuine
 //                }
 //            case .completion(let error):
 //                self.viewModel.scanButton.hideActivityIndicator()
 //                if let error = error {
 //                    self.isBalanceLoading = false
 //                    self.viewModel.setWalletInfoLoading(false)
-//                    
+//
 //                    if !error.isUserCancelled {
 //                        self.handleGenericError(error)
 //                        return
 //                    }
-//                    
+//
 //                    if self.isBalanceLoading {
 //                        self.handleNonGenuineTangemCard(self.card!) {
 //                            self.setupWithCardDetails(card: self.card!)
@@ -615,24 +615,24 @@ extension CardDetailsViewController {
 //                        return
 //                    }
 //                }
-//                
+//
 //                guard self.card!.status == .loaded else {
 //                      self.setupWithCardDetails(card: self.card!)
 //                    return
 //                }
-//                
+//
 //                if self.card!.genuinityState == .genuine {
-//                    
+//
 //                    guard self.card!.isBlockchainKnown else {
 //                        self.handleUnknownBlockchainCard {
 //                            self.navigationController?.popViewController(animated: true)
 //                        }
 //                        return
 //                    }
-//                    
-//                    
+//
+//
 //                    self.setupWithCardDetails(card: self.card!)
-//                    
+//
 //                } else {
 //                    self.handleNonGenuineTangemCard(self.card!) {
 //                        self.setupWithCardDetails(card: self.card!)
