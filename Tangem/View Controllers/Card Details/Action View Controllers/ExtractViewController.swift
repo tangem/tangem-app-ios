@@ -419,7 +419,7 @@ class ExtractViewController: ModalActionViewController {
         amountUnitsLabel.text = card.units.uppercased()
         view.addGestureRecognizer(recognizer)
         
-        topStackView.setCustomSpacing(20.0, after: amountStackView)
+        //topStackView.setCustomSpacing(20.0, after: amountStackView)
     }
     
     @objc private func dismissKeyboard() {
