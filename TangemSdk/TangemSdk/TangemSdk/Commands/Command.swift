@@ -11,7 +11,7 @@ import Foundation
 import CoreNFC
 
 /// The basic protocol for card commands
-public protocol Command: CardSessionRunnable {
+public protocol Command: CardSessionRunnable, ErrorHandler {
     /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
     /// - Parameter environment: `SessionEnvironment` of the current card
     /// - Returns: Command data that can be converted to `NFCISO7816APDU` with appropriate initializer
@@ -28,6 +28,10 @@ public protocol Command: CardSessionRunnable {
 extension Command {
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         transieve(in: session, completion: completion)
+    }
+    
+    public func tryHandleError(_ error: SessionError) -> SessionError? {
+        return error
     }
     
     func transieve(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
@@ -68,8 +72,8 @@ extension Command {
                     self.transieve(apdu: apdu, in: session, completion: completion)
                 default:
                     if let error = responseApdu.statusWord.toSessionError() {
-                        if !self.tryHandleError(error) {
-                            completion(.failure(error))
+                        if let newError = self.tryHandleError(error) {
+                            completion(.failure(newError))
                         }
                     } else {
                         completion(.failure(.unknownError))
@@ -81,14 +85,14 @@ extension Command {
         }
     }
     
-    func tryHandleError(_ error: SessionError) -> Bool {
-        return false
-    }
-    
     /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
     /// 4 - Timeout setting for ping nfc-module
     func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
-        return try! TlvBuilder().append(.legacyMode, value: 4)
+        let builder = TlvBuilder()
+        if legacyMode {
+            try! builder.append(.legacyMode, value: 4)
+        }
+        return builder
     }
     
     
@@ -118,10 +122,16 @@ extension TlvCodable {
         }
         
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US")
         dateFormatter.dateStyle = .medium
         encoder.dateEncodingStrategy = .formatted(dateFormatter)
         
         let data = (try? encoder.encode(self)) ?? Data()
         return String(data: data, encoding: .utf8)!
     }
+}
+
+
+public protocol ErrorHandler {
+    func tryHandleError(_ error: SessionError) -> SessionError?
 }
