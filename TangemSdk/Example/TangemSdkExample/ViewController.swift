@@ -32,9 +32,7 @@ class ViewController: UIViewController {
     
     @IBAction func signHashesTapped(_ sender: Any) {
         if #available(iOS 13.0, *) {
-            let hash1 = Data(repeating: 1, count: 32) //dummy hashes
-            let hash2 = Data(repeating: 2, count: 32)
-            let hashes = [hash1, hash2]
+            let hashes = (0..<15).map {_ -> Data in getRandomHash()}
             guard let cardId = card?.cardId else {
                 self.log("Please, scan card before")
                 return
@@ -87,17 +85,23 @@ class ViewController: UIViewController {
             return
         }
         
+        let newCounter = (issuerDataResponse.issuerDataCounter ?? 0) + 1
+        let sampleData = Data(repeating: UInt8(1), count: 100)
+        let issuerKey = Data(hexString: "")
+        let sig = Secp256k1Utils.sign(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
+        
         if #available(iOS 13.0, *) {
             tangemSdk.writeIssuerData(cardId: cardId,
-                                        issuerData: issuerDataResponse.issuerData,
-                                        issuerDataSignature: issuerDataResponse.issuerDataSignature) { [unowned self] result in
-                                            switch result {
-                                            case .success(let issuerDataResponse):
-                                                self.log(issuerDataResponse)
-                                            case .failure(let error):
-                                                self.handle(error)
-                                                //handle completion. Unlock UI, etc.
-                                            }
+                                      issuerData: sampleData,
+                                      issuerDataSignature: sig,
+                                      issuerDataCounter: newCounter) { [unowned self] result in
+                                        switch result {
+                                        case .success(let issuerDataResponse):
+                                            self.log(issuerDataResponse)
+                                        case .failure(let error):
+                                            self.handle(error)
+                                            //handle completion. Unlock UI, etc.
+                                        }
             }
         } else {
             // Fallback on earlier versions
@@ -140,24 +144,24 @@ class ViewController: UIViewController {
         }
         let newCounter = (issuerDataResponse.issuerDataCounter ?? 0) + 1
         let sampleData = Data(repeating: UInt8(1), count: 2000)
-        let issuerKey = Data(hexString: "11121314151617184771ED81F2BACF57479E4735EB1405083927372D40DA9E92")
+        let issuerKey = Data(hexString: "")
         
-        let startSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + newCounter.bytes4 + sampleData.count.bytes2, with: issuerKey)!
-        let finalSig = CryptoUtils.signSecp256k1(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
+        let startSig = Secp256k1Utils.sign(Data(hexString: cardId) + newCounter.bytes4 + sampleData.count.bytes2, with: issuerKey)!
+        let finalSig = Secp256k1Utils.sign(Data(hexString: cardId) + sampleData + newCounter.bytes4, with: issuerKey)!
         
         if #available(iOS 13.0, *) {
             tangemSdk.writeIssuerExtraData(cardId: cardId,
-                                             issuerData: sampleData,
-                                             startingSignature: startSig,
-                                             finalizingSignature: finalSig,
-                                             issuerDataCounter: newCounter) { [unowned self] result in
-                                                switch result {
-                                                case .success(let writeResponse):
-                                                    self.log(writeResponse)
-                                                case .failure(let error):
-                                                    self.handle(error)
-                                                    //handle completion. Unlock UI, etc.
-                                                }
+                                           issuerData: sampleData,
+                                           startingSignature: startSig,
+                                           finalizingSignature: finalSig,
+                                           issuerDataCounter: newCounter) { [unowned self] result in
+                                            switch result {
+                                            case .success(let writeResponse):
+                                                self.log(writeResponse)
+                                            case .failure(let error):
+                                                self.handle(error)
+                                                //handle completion. Unlock UI, etc.
+                                            }
             }
         } else {
             // Fallback on earlier versions
@@ -210,6 +214,76 @@ class ViewController: UIViewController {
         }
     }
     
+    @IBAction func readUserDataTapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        
+        if #available(iOS 13.0, *) {
+            tangemSdk.readUserData(cardId: cardId) { [unowned self] result in
+                switch result {
+                case .success(let response):
+                    self.log(response)
+                case .failure(let error):
+                    self.handle(error)
+                    //handle completion. Unlock UI, etc.
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+    }
+    
+    
+    @IBAction func writeUserDataTapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        let userData = Data(hexString: "0102030405060708")
+        
+        if #available(iOS 13.0, *) {
+            tangemSdk.writeUserData(cardId: cardId, userData: userData, userCounter: 1){ [unowned self] result in
+                switch result {
+                case .success(let response):
+                    self.log(response)
+                case .failure(let error):
+                    self.handle(error)
+                    //handle completion. Unlock UI, etc.
+                }
+            }
+
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+    }
+    
+    @IBAction func writeUserProtectedDataTapped(_ sender: Any) {
+        guard let cardId = card?.cardId else {
+            self.log("Please, scan card before")
+            return
+        }
+        let userData = Data(hexString: "01010101010101")
+        
+        if #available(iOS 13.0, *) {
+            tangemSdk.writeUserProtectedData(cardId: cardId, userProtectedData: userData, userProtectedCounter: 1 ){ [unowned self] result in
+                switch result {
+                case .success(let response):
+                    self.log(response)
+                case .failure(let error):
+                    self.handle(error)
+                    //handle completion. Unlock UI, etc.
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+            self.log("Only iOS 13+")
+        }
+    }
+    
     @available(iOS 13.0, *)
     func chainingExample() {
         tangemSdk.startSession(cardId: nil) { session, error in
@@ -248,9 +322,17 @@ class ViewController: UIViewController {
         print(object)
     }
     
-    private func handle(_ error: SessionError?) {
-        if let error = error, !error.isUserCancelled {
+    private func handle(_ error: SessionError) {
+        if !error.isUserCancelled {
             self.log("completed with error: \(error.localizedDescription)")
+            self.log("description: \(error)")
         }
+    }
+    
+    private func getRandomHash(size: Int = 32) -> Data {
+        let array = (0..<size).map{ _ -> UInt8 in
+            UInt8(arc4random_uniform(255))
+        }
+        return Data(array)
     }
 }
