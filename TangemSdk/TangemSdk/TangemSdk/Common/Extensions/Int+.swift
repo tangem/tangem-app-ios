@@ -43,3 +43,10 @@ extension Int {
         return data
     }
 }
+
+extension UInt64 {
+    public var bytes8LE: Data{
+        let data = withUnsafeBytes(of: self) { Data($0) }
+        return data
+    }
+}
