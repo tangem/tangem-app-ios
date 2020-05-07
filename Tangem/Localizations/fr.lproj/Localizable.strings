@@ -133,7 +133,7 @@
 "dialog_you_may_be_required_to_repeat" = "Vous devrez peut-être répéter cette opération plusieurs fois en fonction des performances NFC de votre smartphone.\nCeci est fait pour sécuriser vos fonds.";
 
 /*  */
-"alert_unknown_blockchain" = "This is a genuine Tangem card. Please follow instructions written on the card to install the official app";
+"alert_unknown_blockchain" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
 
 /* menu main */
 "main_menu_manage_pin_1" = "Gérer le code PIN de l'utilisateur…";
@@ -784,6 +784,8 @@
 "common_success" = "Succès";
 
 "common_ok" = "Ok";
+
+"common_uh" = "Uh oh!";
 
 "alert_parse_failed" = "Impossible d'analyser les données reçues du billet de banque";
 
