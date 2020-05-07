@@ -310,15 +310,20 @@ public struct Card: TlvCodable {
     
     //MARK: Dynamic NDEF
     /// Remaining number of allowed transaction signatures
+    @available(*, deprecated, message: "Use walletRemainingSignatures instead")
     public let remainingSignatures: Int?
     /// Number of hashes signed after personalization (there can be
     /// severeal hases in one transaction)
+    @available(*, deprecated, message: "Use walletSignedHashes instead")
     public var signedHashes: Int?
     /// First part of a message signed by card
+    @available(*, deprecated, message: "Will be removed in future version")
     public let challenge: Data?
     /// Second part of a message signed by card
+    @available(*, deprecated, message: "Will be removed in future version")
     public let salt: Data?
     /// [Challenge, Salt] SHA256 signature signed with Wallet_PrivateKey
+    @available(*, deprecated, message: "Will be removed in future version")
     public let walletSignature: Data?
 }
 
