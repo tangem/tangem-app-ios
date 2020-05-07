@@ -61,6 +61,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
                 
                 if case .notFound = horizonRequestError {
                     self.card.mult = 0
+                    self.card.hasAccount = false
                     if self.card.tokenSymbol != nil {
                         self.failOperationWith(error: Localizations.xlmAssetCreateAccountHint, title: Localizations.accountNotFound)
                     } else {
