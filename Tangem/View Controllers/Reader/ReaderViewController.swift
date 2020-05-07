@@ -144,9 +144,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                     task.trace?.stop()
                     Analytics.log(error: error)
                     if error == .verificationFailed {
-                        self.handleNonGenuineTangemCard(self.card!) {
-                            UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-                        }
+                        self.handleNonGenuineTangemCard() {}
                     } else {
                         self.handleGenericError(error)
                     }
