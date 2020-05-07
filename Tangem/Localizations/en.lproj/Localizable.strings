@@ -654,6 +654,8 @@
 
 "common_ok" = "Ok";
 
+"common_uh" = "Uh oh!";
+
 "alert_parse_failed" = "Failed to parse data received from the banknote";
 
 "alert_read_protected" = "This app can’t read protected Tangem banknotes";
@@ -662,7 +664,7 @@
 
 "alert_failed_attest" = "Your iPhone device does not allow to attest the card. Please check elsewhere if possible";
 
-"alert_unknown_blockchain" = "This is a genuine Tangem card. Please follow instructions written on the card to install the official app";
+"alert_unknown_blockchain" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
 
 "alert_no_issuer_sign" = "Transaction must be signed by issuer";
 
@@ -766,3 +768,5 @@
 
 /*  */
 "loaded_wallet_error_obtaining_blockchain_data" = "Cannot obtain data from blockchain";
+
+
