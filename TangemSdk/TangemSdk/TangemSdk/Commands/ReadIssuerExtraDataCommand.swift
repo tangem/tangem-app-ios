@@ -58,17 +58,16 @@ public struct ReadIssuerExtraDataResponse: TlvCodable {
         self.issuerDataCounter = issuerDataCounter
     }
     
-    public func verify(publicKey: Data) -> Bool? {
+    public func verify(with publicKey: Data) -> Bool? {
         guard let signature = issuerDataSignature else {
             return nil
         }
         
-        let verifier = IssuerDataVerifier()
-        return verifier.verify(cardId: cardId,
-                               issuerData: issuerData,
-                               issuerDataCounter: issuerDataCounter,
-                               publicKey: publicKey,
-                               signature: signature)
+        return IssuerDataVerifier.verify(cardId: cardId,
+                                         issuerData: issuerData,
+                                         issuerDataCounter: issuerDataCounter,
+                                         publicKey: publicKey,
+                                         signature: signature)
     }
 }
 
@@ -97,13 +96,15 @@ public final class ReadIssuerExtraDataCommand: Command {
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
-        guard let issuerPublicKeyFromCard = session.environment.card?.issuerPublicKey else {
-            completion(.failure(.cardError))
+        if issuerPublicKey == nil {
+            issuerPublicKey = session.environment.card?.issuerPublicKey
+        }
+        
+        guard issuerPublicKey != nil else {
+            completion(.failure(.missingIssuerPublicKey))
             return
         }
-        if issuerPublicKey == nil {
-            issuerPublicKey = issuerPublicKeyFromCard
-        }
+        
         self.completion = completion
         self.viewDelegate = session.viewDelegate
         readData(session)
@@ -135,7 +136,7 @@ public final class ReadIssuerExtraDataCommand: Command {
                                                                     issuerDataSignature: response.issuerDataSignature,
                                                                     issuerDataCounter: response.issuerDataCounter)
                     
-                    if let result = finalResponse.verify(publicKey: self.issuerPublicKey!),
+                    if let result = finalResponse.verify(with: self.issuerPublicKey!),
                         result == true {
                         self.completion?(.success(finalResponse))
                     } else {
@@ -163,12 +164,11 @@ public final class ReadIssuerExtraDataCommand: Command {
             .append(.mode, value: IssuerExtraDataMode.readOrStartWrite)
             .append(.offset, value: issuerData.count)
         
-        let cApdu = CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
-        return cApdu
+        return CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from responseApdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
-        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey) else {
+    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
+        guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
         
@@ -180,69 +180,4 @@ public final class ReadIssuerExtraDataCommand: Command {
             issuerDataSignature: try decoder.decodeOptional(.issuerDataSignature),
             issuerDataCounter: try decoder.decodeOptional(.issuerDataCounter))
     }
-}
-
-public class IssuerDataVerifier {
-    
-    public init() {}
-    public func verify(cardId: String,
-                       issuerData: Data,
-                       issuerDataCounter: Int?,
-                       publicKey: Data,
-                       signature: Data) -> Bool {
-        
-        if let verifyResult = verify(cardId: cardId,
-                                     issuerData: issuerData,
-                                     issuerDataSize: nil,
-                                     issuerDataCounter: issuerDataCounter,
-                                     publicKey: publicKey,
-                                     signature: signature),
-            verifyResult == true { return true }
-        return false
-    }
-    
-    public func verify(cardId: String,
-                       issuerDataSize: Int,
-                       issuerDataCounter: Int?,
-                       publicKey: Data,
-                       signature: Data) -> Bool {
-        
-        if let verifyResult = verify(cardId: cardId,
-                                     issuerData: nil,
-                                     issuerDataSize: issuerDataSize,
-                                     issuerDataCounter: issuerDataCounter,
-                                     publicKey: publicKey,
-                                     signature: signature),
-            verifyResult == true { return true }
-        return false
-    }
-    
-    private func verify(cardId: String,
-                        issuerData: Data?,
-                        issuerDataSize: Int?,
-                        issuerDataCounter: Int?,
-                        publicKey: Data,
-                        signature: Data) -> Bool? {
-        
-        let encoder = TlvEncoder()
-        var data = Data()
-        do {
-            data += try encoder.encode(.cardId, value: cardId).value
-            if let issuerData = issuerData {
-                data += try encoder.encode(.issuerData, value: issuerData).value
-            }
-            if let counter = issuerDataCounter {
-                data += try encoder.encode(.issuerDataCounter, value: counter).value
-            }
-            if let size = issuerDataSize {
-                data += try encoder.encode(.size, value: size).value
-            }
-        } catch { return nil }
-        
-        return CryptoUtils.vefify(curve: .secp256k1,
-                                  publicKey: publicKey,
-                                  message: data,
-                                  signature: signature)
-    }
-    
 }
