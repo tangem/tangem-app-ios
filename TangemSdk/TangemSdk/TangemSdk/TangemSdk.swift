@@ -12,6 +12,7 @@ import CoreNFC
 #endif
 
 /// The main interface of Tangem SDK that allows your app to communicate with Tangem cards.
+@available(iOS 13.0, *)
 public final class TangemSdk {
     /// Check if the current device doesn't support the desired NFC operations
     public static var isNFCAvailable: Bool {
@@ -62,11 +63,7 @@ public final class TangemSdk {
      *   - completion: Returns `Swift.Result<Card,SessionError>`
      */
     public func scanCard(initialMessage: String? = nil, completion: @escaping CompletionResult<Card>) {
-        if #available(iOS 13.0, *) {
-            startSession(with: ScanTask(), cardId: nil, initialMessage: initialMessage, completion: completion)
-        } else {
-            startSession(with: ScanTaskLegacy(), cardId: nil, initialMessage: initialMessage, completion: completion)
-        }
+        startSession(with: ScanTask(), cardId: nil, initialMessage: initialMessage, completion: completion)
     }
     
     /**
