@@ -11,6 +11,7 @@ import Foundation
 import CoreNFC
 
 /// The basic protocol for card commands
+@available(iOS 13.0, *)
 public protocol Command: CardSessionRunnable, ErrorHandler {
     /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
     /// - Parameter environment: `SessionEnvironment` of the current card
@@ -25,6 +26,7 @@ public protocol Command: CardSessionRunnable, ErrorHandler {
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
+@available(iOS 13.0, *)
 extension Command {
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         transieve(in: session, completion: completion)
@@ -98,7 +100,7 @@ extension Command {
     
     /// Helper method to parse security delay information received from a card.
     /// - Returns: Remaining security delay in milliseconds.
-    private func deserializeSecurityDelay(with environment: SessionEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
+     private func deserializeSecurityDelay(with environment: SessionEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
             let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
                 return nil
@@ -125,7 +127,6 @@ extension TlvCodable {
         dateFormatter.locale = Locale(identifier: "en_US")
         dateFormatter.dateStyle = .medium
         encoder.dateEncodingStrategy = .formatted(dateFormatter)
-        
         let data = (try? encoder.encode(self)) ?? Data()
         return String(data: data, encoding: .utf8)!
     }
@@ -135,3 +136,4 @@ extension TlvCodable {
 public protocol ErrorHandler {
     func tryHandleError(_ error: SessionError) -> SessionError?
 }
+
