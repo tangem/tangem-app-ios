@@ -16,7 +16,7 @@ final class NDEFReader: NSObject {
     static let tangemWalletRecordType = "tangem.com:wallet"
     
     @available(iOS 13.0, *)
-    var tagConnected: CurrentValueSubject<NFCTagType?,SessionError> {
+    var tag: CurrentValueSubject<NFCTagType?,SessionError> {
         fatalError("Unsupported")
     }
     
