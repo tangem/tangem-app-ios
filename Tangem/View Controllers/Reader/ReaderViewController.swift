@@ -13,6 +13,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     var customPresentationController: CustomPresentationController?
     var isAppLaunched = false
     
+    @available(iOS 13.0, *)
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
         sdk.config.legacyMode = Utils().needLegacyMode
@@ -106,53 +107,57 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
-        let task = ScanTaskExtended()
-        tangemSdk.startSession(with: task, cardId: nil) {[unowned self] result in
-            self.scanButton.hideActivityIndicator()
-            self.hintLabel.text = Localizations.readerHintDefault
-            switch result {
-            case .success(let response):
-                self.card = CardViewModel(response.card)
-                Analytics.logScan(card: response.card)
-                self.card?.genuinityState = .genuine
-                
-                guard self.card!.isBlockchainKnown else {
-                    self.handleUnknownBlockchainCard()
-                    return
-                }
-                
-                guard !self.card!.productMask.contains(.idCard) else {
-                    self.card!.issuerExtraData = response.issuerExtraData
-                    (self.card!.cardEngine as! ETHIdEngine).setupAddress()
-                    UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
-                    return
-                }
-                
-                guard self.card!.status == .loaded else {
+        if #available(iOS 13.0, *) {
+             let task = ScanTaskExtended()
+            tangemSdk.startSession(with: task, cardId: nil) {[unowned self] result in
+                self.scanButton.hideActivityIndicator()
+                self.hintLabel.text = Localizations.readerHintDefault
+                switch result {
+                case .success(let response):
+                    self.card = CardViewModel(response.card)
+                    Analytics.logScan(card: response.card)
+                    self.card?.genuinityState = .genuine
+                    
+                    guard self.card!.isBlockchainKnown else {
+                        self.handleUnknownBlockchainCard()
+                        return
+                    }
+                    
+                    guard !self.card!.productMask.contains(.idCard) else {
+                        self.card!.issuerExtraData = response.issuerExtraData
+                        (self.card!.cardEngine as! ETHIdEngine).setupAddress()
+                        UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
+                        return
+                    }
+                    
+                    guard self.card!.status == .loaded else {
+                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
+                        return
+                    }
+                    
                     UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-                    return
-                }
-                
-                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-            case .failure(let error):
-                if !error.isUserCancelled {
-                    if #available(iOS 13.0, *) {
-                        task.trace?.incrementMetric("failure", by: 1)
+                case .failure(let error):
+                    if !error.isUserCancelled {
+                      //  if #available(iOS 13.0, *) {
+                            task.trace?.incrementMetric("failure", by: 1)
+//                        } else {
+//                            task.trace?.incrementMetric("failure_legacy", by: 1)
+//                        }
+                        task.trace?.stop()
+                        Analytics.log(error: error)
+                        if error == .verificationFailed {
+                            self.handleNonGenuineTangemCard() {}
+                        } else {
+                            self.handleGenericError(error)
+                        }
                     } else {
-                        task.trace?.incrementMetric("failure_legacy", by: 1)
+                        task.trace?.incrementMetric("userCancelled", by: 1)
+                        task.trace?.stop()
                     }
-                    task.trace?.stop()
-                    Analytics.log(error: error)
-                    if error == .verificationFailed {
-                        self.handleNonGenuineTangemCard() {}
-                    } else {
-                        self.handleGenericError(error)
-                    }
-                } else {
-                    task.trace?.incrementMetric("userCancelled", by: 1)
-                    task.trace?.stop()
                 }
             }
+        } else {
+            // Fallback on earlier versions
         }
     }
     
