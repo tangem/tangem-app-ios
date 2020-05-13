@@ -21,7 +21,10 @@ public protocol SessionViewDelegate: class {
     func requestPin(completion: @escaping () -> Result<String, Error>)
     
      /// It is called when tag was found
-    func tagDidConnect()
+    func tagConnected()
+    
+     /// It is called when tag was lost
+    func tagLost()
 }
 
 final class DefaultSessionViewDelegate: SessionViewDelegate {
@@ -54,7 +57,11 @@ final class DefaultSessionViewDelegate: SessionViewDelegate {
         //[REDACTED_TODO_COMMENT]
     }
     
-    func tagDidConnect() {
+    func tagConnected() {
         print("tag did connect")
+    }
+    
+    func tagLost() {
+        print("tag lost")
     }
 }
