@@ -41,10 +41,10 @@ public class CardSession {
     private let reader: CardReader
     private let semaphore = DispatchSemaphore(value: 1)
     private let initialMessage: String?
-    private var cardId: String?
+    private let cardId: String?
     private var sendSubscription: [AnyCancellable] = []
     private var connectedTagSubscription: [AnyCancellable] = []
-    private var runnableDelegate: ((CardSession, SessionError?) -> Void)?
+    
     /// Main initializer
     /// - Parameters:
     ///   - environment: Contains data relating to a Tangem card
@@ -91,14 +91,39 @@ public class CardSession {
     }
     
     /// Starts a card session and performs preflight `Read` command.
-    /// - Parameter delegate: Delegate with the card session. Can contain error
-    public func start(delegate: @escaping (CardSession, SessionError?) -> Void) {
-        do {
-            try startSession()
-            runnableDelegate = delegate
-        } catch {
-            delegate(self, error as? SessionError)
+    /// - Parameter callback: Delegate with the card session. Can contain error
+    public func start(_ callback: @escaping (CardSession, SessionError?) -> Void) {
+        guard TangemSdk.isNFCAvailable else {
+            callback(self, .unsupportedDevice)
+            return
         }
+        
+        guard !isBusy else {
+            callback(self, .busy)
+            return
+        }
+        
+        setBusy(true)
+        
+        reader.tag
+            .dropFirst()
+            .filter { [unowned self] in $0 == nil || self.environment.card == nil && self.sendSubscription.isEmpty }
+            .sink(receiveCompletion: { [unowned self] readerCompletion in
+                if case let .failure(error) = readerCompletion, self.environment.card == nil && self.sendSubscription.isEmpty {
+                    callback(self, error)
+                    self.stop(error: error)
+                }}, receiveValue: { [unowned self] tag in
+                    if let tag = tag {
+                        self.viewDelegate.tagConnected()
+                        self.initializeSession(tag, callback)
+                    } else {
+                        self.environment.encryptionKey = nil
+                        self.viewDelegate.tagLost()
+                    }
+            })
+            .store(in: &connectedTagSubscription)
+        
+        reader.startSession(with: initialMessage)
     }
     
     /// Stops the current session with the text message. If nil, the default message will be shown
@@ -111,7 +136,6 @@ public class CardSession {
         setBusy(false)
         connectedTagSubscription = []
         sendSubscription = []
-        runnableDelegate = nil
     }
     
     /// Stops the current session with the error message.  Error's `localizedDescription` will be used
@@ -121,7 +145,6 @@ public class CardSession {
         setBusy(false)
         connectedTagSubscription = []
         sendSubscription = []
-        runnableDelegate = nil
     }
     
     /// Restarts the polling sequence so the reader session can discover new tags.
@@ -134,27 +157,16 @@ public class CardSession {
     ///   - apdu: The apdu to send
     ///   - completion: Completion handler. Invoked by nfc-reader
     public final func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
-        reader.tagConnected
-            .compactMap({ $0 })
+        reader.tag
+            .compactMap{ $0 }
             .sink(receiveCompletion: { readerCompletion in
                 if case let .failure(error) = readerCompletion {
                     completion(.failure(error))
                 }
-            }, receiveValue: { [weak self] tag in
-                switch tag {
-                case .tag:
-                    //openSession if environment.encryptionKey is nil
-                    self?.reader.send(apdu: apdu) { [weak self] result in
-                        self?.sendSubscription = []
-                        completion(result)
-                    }
-                case .slix2:
-                    self?.reader.readSlix2Tag() { [weak self] result in
-                        self?.sendSubscription = []
-                        completion(result)
-                    }
-                case .unknown:
-                    assertionFailure("Unsupported tag")
+            }, receiveValue: { [unowned self] _ in
+                self.reader.send(apdu: apdu) { [weak self] result in
+                    self?.sendSubscription = []
+                    completion(result)
                 }
             })
             .store(in: &sendSubscription)
@@ -171,51 +183,6 @@ public class CardSession {
         }
     }
     
-    private func startSession() throws {
-        guard TangemSdk.isNFCAvailable else {
-            throw SessionError.unsupportedDevice
-        }
-        
-        if isBusy { throw SessionError.busy }
-        setBusy(true)
-        
-        reader.tagConnected
-            .dropFirst()
-            .sink(receiveCompletion: { [weak self] readerCompletion in
-                guard let self = self else { return }
-                
-                if case let .failure(error) = readerCompletion, !self.reader.isReady {
-                    self.runnableDelegate?(self, error)
-                    self.stop(error: error)
-                }
-                }, receiveValue: { [weak self] tag in
-                    guard let self = self else { return }
-                    
-                    if let tag = tag {
-                        self.viewDelegate.tagConnected()
-                        if tag == .tag && self.environment.card == nil  {
-                            self.preflightCheck() { [weak self] result in
-                                guard let self = self else { return }
-                                
-                                switch result {
-                                case .success:
-                                    self.runnableDelegate?(self, nil)
-                                case .failure(let error):
-                                    self.runnableDelegate?(self, error)
-                                    self.stop(error: error)
-                                }
-                            }
-                        }
-                    } else {
-                        self.environment.encryptionKey = nil
-                        self.viewDelegate.tagLost()
-                    }
-            })
-            .store(in: &connectedTagSubscription)
-        
-        reader.startSession(with: initialMessage)
-    }
-    
     private func setBusy(_ isBusy: Bool) {
         semaphore.wait()
         defer { semaphore.signal() }
@@ -223,29 +190,56 @@ public class CardSession {
     }
     
     @available(iOS 13.0, *)
-    private func preflightCheck(completion: @escaping CompletionResult<ReadResponse>) {
+    private func initializeSession(_ tagType: NFCTagType, _ callback: @escaping (CardSession, SessionError?) -> Void) {
         let readCommand = ReadCommand()
-        readCommand.run(in: self) { [weak self] readResult in
-            guard let self = self else { return }
-            
-            switch readResult {
-            case .success(let readResponse):
-                if let expectedCardId = self.cardId?.uppercased(),
-                    let actualCardId = readResponse.cardId?.uppercased(),
-                    expectedCardId != actualCardId {
-                    let error = SessionError.wrongCard
-                    completion(.failure(error))
-                    return
-                }
+        switch tagType {
+        case .tag:
+            readCommand.run(in: self) { [weak self] readResult in
+                guard let self = self else { return }
                 
-                self.environment.card = readResponse
-                self.cardId = readResponse.cardId
-                completion(.success(readResponse))
-            case .failure(let error):
-                if !self.tryHandleError(error) {
-                    completion(.failure(error))
+                switch readResult {
+                case .success(let readResponse):
+                    if let expectedCardId = self.cardId?.uppercased(),
+                        let actualCardId = readResponse.cardId?.uppercased(),
+                        expectedCardId != actualCardId {
+                        let error = SessionError.wrongCard
+                        callback(self, error)
+                        self.stop(error: error)
+                        return
+                    }
+                    
+                    self.environment.card = readResponse
+                    callback(self, nil)
+                case .failure(let error):
+                    if !self.tryHandleError(error) {
+                        callback(self, error)
+                        self.stop(error: error)
+                    }
                 }
             }
+        case .slix2:
+            self.reader.readSlix2Tag() {[weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .success(let responseApdu):
+                    do {
+                        self.environment.card = try readCommand.deserialize(with: self.environment, from: responseApdu)
+                        self.stop()
+                        callback(self, nil)
+                    } catch {
+                        let sessionError = error.toSessionError()
+                        self.stop(error: sessionError)
+                        callback(self, sessionError)
+                    }
+                case .failure(let error):
+                    self.stop(error: error)
+                    callback(self, error)
+                }
+            }
+        default:
+            assertionFailure("Unsupported tag")
+            callback(self, .unknownError)
         }
     }
     
