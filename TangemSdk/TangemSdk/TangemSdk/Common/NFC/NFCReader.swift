@@ -20,7 +20,7 @@ final class NFCReader: NSObject {
     static let retryCount = 10
     static let timestampTolerance = 2.0
     
-    private(set) var tagConnected: CurrentValueSubject<NFCTagType?, SessionError> = .init(nil)
+    private(set) var tag: CurrentValueSubject<NFCTagType?, SessionError> = .init(nil)
     let enableSessionInvalidateByTimer = true
     
     private let loggingEnabled = true
@@ -114,8 +114,10 @@ extension NFCReader: CardReader {
         readerSessionError = nil
         connectedTag = nil
         log("Restart polling")
-        tagConnected.send(nil)
-        session.restartPolling()
+        tag.send(nil)
+        DispatchQueue.global().async {
+            session.restartPolling()
+        }
     }
     
     /// Send apdu command to connected tag
@@ -138,6 +140,7 @@ extension NFCReader: CardReader {
             completion(.failure(.unsupportedCommand))
             return
         }
+        
         requestTimestamp = Date()
         tag.sendCommand(apdu: NFCISO7816APDU(apdu)) {[weak self] (data, sw1, sw2, error) in
             guard let self = self,
@@ -254,8 +257,8 @@ extension NFCReader: NFCTagReaderSessionDelegate {
         let nfcError = error as! NFCReaderError
         print(nfcError.localizedDescription)
         readerSessionError = SessionError.parse(nfcError)
-        tagConnected.send(completion: .failure(readerSessionError!))
-        tagConnected = .init(nil)
+        tag.send(completion: .failure(readerSessionError!))
+        tag = .init(nil)
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
@@ -271,7 +274,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
             self.tagTimer.start()
             self.connectedTag = nfcTag
             let tagType = self.getTagType(nfcTag)
-            self.tagConnected.send(tagType)
+            self.tag.send(tagType)
             
             if tagType == .tag {
                 self.idleTimer.start()

@@ -23,7 +23,7 @@ public protocol CardReader: class {
     var isReady: Bool { get }
     var alertMessage: String {get set}
     @available(iOS 13.0, *)
-    var tagConnected: CurrentValueSubject<NFCTagType?,SessionError> {get}
+    var tag: CurrentValueSubject<NFCTagType?,SessionError> {get}
     func startSession(with message: String?)
     func stopSession(with errorMessage: String?)
     func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu,SessionError>) -> Void)
