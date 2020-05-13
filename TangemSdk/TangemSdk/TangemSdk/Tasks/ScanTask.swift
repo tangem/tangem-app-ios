@@ -54,7 +54,7 @@ public final class ScanTask: CardSessionRunnable {
 }
 
 /// Task that allows to read Tangem card and verify its private key on iOS 11 and iOS 12 only. You should use `ScanTask` for iOS 13 and newer
-public final class ScanTaskLegacy: CardSessionRunnable {
+/*public final class ScanTaskLegacy: CardSessionRunnable {
     public typealias CommandResponse = Card
     public init() {}
     
@@ -114,5 +114,4 @@ public final class ScanTaskLegacy: CardSessionRunnable {
             }
         }
     }
-    
-}
+}*/
