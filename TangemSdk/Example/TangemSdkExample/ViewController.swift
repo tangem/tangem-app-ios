@@ -32,7 +32,7 @@ class ViewController: UIViewController {
     
     @IBAction func signHashesTapped(_ sender: Any) {
         if #available(iOS 13.0, *) {
-            let hashes = (0..<15).map {_ -> Data in getRandomHash()}
+            let hashes = (0..<5).map {_ -> Data in getRandomHash()}
             guard let cardId = card?.cardId else {
                 self.log("Please, scan card before")
                 return
