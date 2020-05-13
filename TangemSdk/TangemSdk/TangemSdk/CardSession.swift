@@ -7,10 +7,12 @@
 //
 
 import Foundation
+import Combine
 
 public typealias CompletionResult<T> = (Result<T, SessionError>) -> Void
 
 /// Base protocol for run tasks in a card session
+@available(iOS 13.0, *)
 public protocol CardSessionRunnable {
     
     /// Simple interface for responses received after sending commands to Tangem cards.
@@ -24,6 +26,7 @@ public protocol CardSessionRunnable {
 }
 
 /// Allows interaction with Tangem cards. Should be open before sending commands
+@available(iOS 13.0, *)
 public class CardSession {
     /// Allows interaction with users and shows visual elements.
     public let viewDelegate: SessionViewDelegate
@@ -39,7 +42,9 @@ public class CardSession {
     private let semaphore = DispatchSemaphore(value: 1)
     private let initialMessage: String?
     private var cardId: String?
-    
+    private var sendSubscription: [AnyCancellable] = []
+    private var connectedTagSubscription: [AnyCancellable] = []
+    private var runnableDelegate: ((CardSession, SessionError?) -> Void)?
     /// Main initializer
     /// - Parameters:
     ///   - environment: Contains data relating to a Tangem card
@@ -64,7 +69,9 @@ public class CardSession {
     ///   - runnable: The CardSessionRunnable implemetation
     ///   - completion: Completion handler. `(Swift.Result<CardSessionRunnable.CommandResponse, SessionError>) -> Void`
     public func start<T>(with runnable: T, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
-        start {session, error in
+        start {[weak self] session, error in
+            guard let self = self else { return }
+            
             if let error = error {
                 DispatchQueue.main.async {
                     completion(.failure(error))
@@ -72,7 +79,7 @@ public class CardSession {
                 return
             }
             
-            if #available(iOS 13.0, *), (runnable is ReadCommand) { //We already done ReadCommand on iOS 13
+            if (runnable is ReadCommand) && self.environment.card != nil { //We already done ReadCommand on iOS 13 for cards
                 self.handleRunnableCompletion(runnableResult: .success(self.environment.card as! T.CommandResponse), completion: completion)
                 return
             }
@@ -88,23 +95,9 @@ public class CardSession {
     public func start(delegate: @escaping (CardSession, SessionError?) -> Void) {
         do {
             try startSession()
+            runnableDelegate = delegate
         } catch {
             delegate(self, error as? SessionError)
-            return
-        }
-
-        if #available(iOS 13.0, *) {
-            preflightRead() {result in
-                switch result {
-                case .success:
-                    delegate(self, nil)
-                case .failure(let error):
-                    delegate(self, error)
-                    self.stop(error: error)
-                }
-            }
-        } else {
-            delegate(self, nil)
         }
     }
     
@@ -116,6 +109,9 @@ public class CardSession {
         }
         reader.stopSession()
         setBusy(false)
+        connectedTagSubscription = []
+        sendSubscription = []
+        runnableDelegate = nil
     }
     
     /// Stops the current session with the error message.  Error's `localizedDescription` will be used
@@ -123,6 +119,9 @@ public class CardSession {
     public func stop(error: Error) {
         reader.stopSession(with: error.localizedDescription)
         setBusy(false)
+        connectedTagSubscription = []
+        sendSubscription = []
+        runnableDelegate = nil
     }
     
     /// Restarts the polling sequence so the reader session can discover new tags.
@@ -135,7 +134,30 @@ public class CardSession {
     ///   - apdu: The apdu to send
     ///   - completion: Completion handler. Invoked by nfc-reader
     public final func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
-        reader.send(commandApdu: apdu, completion: completion)
+        reader.tagConnected
+            .compactMap({ $0 })
+            .sink(receiveCompletion: { readerCompletion in
+                if case let .failure(error) = readerCompletion {
+                    completion(.failure(error))
+                }
+            }, receiveValue: { [weak self] tag in
+                switch tag {
+                case .tag:
+                    //openSession if environment.encryptionKey is nil
+                    self?.reader.send(apdu: apdu) { [weak self] result in
+                        self?.sendSubscription = []
+                        completion(result)
+                    }
+                case .slix2:
+                    self?.reader.readSlix2Tag() { [weak self] result in
+                        self?.sendSubscription = []
+                        completion(result)
+                    }
+                case .unknown:
+                    assertionFailure("Unsupported tag")
+                }
+            })
+            .store(in: &sendSubscription)
     }
     
     private func handleRunnableCompletion<TResponse>(runnableResult: Result<TResponse, SessionError>, completion: @escaping CompletionResult<TResponse>) {
@@ -156,6 +178,41 @@ public class CardSession {
         
         if isBusy { throw SessionError.busy }
         setBusy(true)
+        
+        reader.tagConnected
+            .dropFirst()
+            .sink(receiveCompletion: { [weak self] readerCompletion in
+                guard let self = self else { return }
+                
+                if case let .failure(error) = readerCompletion, !self.reader.isReady {
+                    self.runnableDelegate?(self, error)
+                    self.stop(error: error)
+                }
+                }, receiveValue: { [weak self] tag in
+                    guard let self = self else { return }
+                    
+                    if let tag = tag {
+                        self.viewDelegate.tagConnected()
+                        if tag == .tag && self.environment.card == nil  {
+                            self.preflightCheck() { [weak self] result in
+                                guard let self = self else { return }
+                                
+                                switch result {
+                                case .success:
+                                    self.runnableDelegate?(self, nil)
+                                case .failure(let error):
+                                    self.runnableDelegate?(self, error)
+                                    self.stop(error: error)
+                                }
+                            }
+                        }
+                    } else {
+                        self.environment.encryptionKey = nil
+                        self.viewDelegate.tagLost()
+                    }
+            })
+            .store(in: &connectedTagSubscription)
+        
         reader.startSession(with: initialMessage)
     }
     
@@ -166,16 +223,17 @@ public class CardSession {
     }
     
     @available(iOS 13.0, *)
-    private func preflightRead(completion: @escaping CompletionResult<ReadResponse>) {
+    private func preflightCheck(completion: @escaping CompletionResult<ReadResponse>) {
         let readCommand = ReadCommand()
-        readCommand.run(in: self) { readResult in
+        readCommand.run(in: self) { [weak self] readResult in
+            guard let self = self else { return }
+            
             switch readResult {
             case .success(let readResponse):
                 if let expectedCardId = self.cardId?.uppercased(),
                     let actualCardId = readResponse.cardId?.uppercased(),
                     expectedCardId != actualCardId {
                     let error = SessionError.wrongCard
-                    self.stop(error: error)
                     completion(.failure(error))
                     return
                 }
@@ -185,7 +243,6 @@ public class CardSession {
                 completion(.success(readResponse))
             case .failure(let error):
                 if !self.tryHandleError(error) {
-                    self.stop(error: error)
                     completion(.failure(error))
                 }
             }
@@ -195,7 +252,7 @@ public class CardSession {
     private func tryHandleError(_ error: SessionError) -> Bool {
         switch error {
         case .needEncryption:
-             //[REDACTED_TODO_COMMENT]
+            //[REDACTED_TODO_COMMENT]
             return false
         default:
             return false
