@@ -80,7 +80,7 @@ final class ConfirmIdTask: CardSessionRunnable {
                 }
                 
                 session.viewDelegate.showAlertMessage("Signing")
-                session.restartPolling()
+              //  session.restartPolling()
                 self.sign(in: session, hashes: hashes)
             }
         }) { _,_  in

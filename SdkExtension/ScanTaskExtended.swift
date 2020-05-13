@@ -15,17 +15,14 @@ struct ScanTaskExtendedResponse: TlvCodable {
     let issuerExtraData: ReadIssuerExtraDataResponse?
 }
 
+@available(iOS 13.0, *)
 final class ScanTaskExtended: CardSessionRunnable {
     public typealias CommandResponse = ScanTaskExtendedResponse
     
     var trace: Trace?
     
     init() {
-        if #available(iOS 13.0, *) {
-            trace = Performance.startTrace(name: "CardTapUserTimer")
-        } else {
-            trace = Performance.startTrace(name: "CardTapUserTimer_legacy")
-        }
+        trace = Performance.startTrace(name: "CardTapUserTimer")
     }
     
     deinit {
@@ -33,7 +30,7 @@ final class ScanTaskExtended: CardSessionRunnable {
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        if #available(iOS 13.0, *) {
+//        if #available(iOS 13.0, *) {
             trace?.incrementMetric("success", by: 1)
             trace?.stop()
             let scanTask = ScanTask()
@@ -50,19 +47,19 @@ final class ScanTaskExtended: CardSessionRunnable {
                     completion(.failure(error))
                 }
             }
-        } else {
-            let scanTaskLegacy = ScanTaskLegacy()
-            scanTaskLegacy.run(in: session) { result in
-                self.trace?.incrementMetric("success_legacy", by: 1)
-                self.trace?.stop()
-                switch result {
-                case .success(let card):
-                    completion(.success(ScanTaskExtendedResponse(card: card, issuerExtraData: nil)))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
-        }
+//        } else {
+//            let scanTaskLegacy = ScanTaskLegacy()
+//            scanTaskLegacy.run(in: session) { result in
+//                self.trace?.incrementMetric("success_legacy", by: 1)
+//                self.trace?.stop()
+//                switch result {
+//                case .success(let card):
+//                    completion(.success(ScanTaskExtendedResponse(card: card, issuerExtraData: nil)))
+//                case .failure(let error):
+//                    completion(.failure(error))
+//                }
+//            }
+//        }
     }
     
     @available(iOS 13.0, *)
