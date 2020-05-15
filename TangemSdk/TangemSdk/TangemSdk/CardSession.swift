@@ -16,7 +16,7 @@ public typealias CompletionResult<T> = (Result<T, SessionError>) -> Void
 public protocol CardSessionRunnable {
     
     /// Simple interface for responses received after sending commands to Tangem cards.
-    associatedtype CommandResponse: TlvCodable
+    associatedtype CommandResponse: ResponseCodable
     
     /// The starting point for custom business logic. Adopt this protocol and use `TangemSdk.startSession` to run
     /// - Parameters:
@@ -28,23 +28,24 @@ public protocol CardSessionRunnable {
 /// Allows interaction with Tangem cards. Should be open before sending commands
 @available(iOS 13.0, *)
 public class CardSession {
+    enum CardSessionState {
+        case inactive
+        case active
+    }
     /// Allows interaction with users and shows visual elements.
     public let viewDelegate: SessionViewDelegate
     
     /// Contains data relating to the current Tangem card. It is used in constructing all the commands,
     /// and commands can modify `SessionEnvironment`.
     public private(set) var environment: SessionEnvironment
-    
-    /// True when some operation is still in progress.
-    public private(set) var isBusy = false
+    public private(set) var connectedTag: NFCTagType? = nil
     
     private let reader: CardReader
-    private let semaphore = DispatchSemaphore(value: 1)
     private let initialMessage: String?
     private let cardId: String?
     private var sendSubscription: [AnyCancellable] = []
     private var connectedTagSubscription: [AnyCancellable] = []
-    
+    private var state: CardSessionState = .inactive
     /// Main initializer
     /// - Parameters:
     ///   - environment: Contains data relating to a Tangem card
@@ -79,7 +80,7 @@ public class CardSession {
                 return
             }
             
-            if (runnable is ReadCommand) && self.environment.card != nil { //We already done ReadCommand on iOS 13 for cards
+            if (runnable is ReadCommand) { //We already done ReadCommand on iOS 13 for cards
                 self.handleRunnableCompletion(runnableResult: .success(self.environment.card as! T.CommandResponse), completion: completion)
                 return
             }
@@ -98,28 +99,37 @@ public class CardSession {
             return
         }
         
-        guard !isBusy else {
+        guard state == .inactive else {
             callback(self, .busy)
             return
         }
         
-        setBusy(true)
+        state = .active
         
-        reader.tag
+        reader.tag //Subscription for handle tag lost/connected events
             .dropFirst()
-            .filter { [unowned self] in $0 == nil || self.environment.card == nil && self.sendSubscription.isEmpty }
-            .sink(receiveCompletion: { [unowned self] readerCompletion in
-                if case let .failure(error) = readerCompletion, self.environment.card == nil && self.sendSubscription.isEmpty {
-                    callback(self, error)
-                    self.stop(error: error)
-                }}, receiveValue: { [unowned self] tag in
-                    if let tag = tag {
+            .sink(receiveCompletion: {_ in},
+                  receiveValue: {[unowned self] tag in
+                    if tag != nil {
+                        self.connectedTag = tag
                         self.viewDelegate.tagConnected()
-                        self.initializeSession(tag, callback)
                     } else {
+                        self.connectedTag = nil
                         self.environment.encryptionKey = nil
                         self.viewDelegate.tagLost()
                     }
+            })
+            .store(in: &connectedTagSubscription)
+        
+        reader.tag //Subscription for session initialization and handling any error before session is activated
+            .compactMap{ $0 }
+            .first()
+            .sink(receiveCompletion: { [unowned self] readerCompletion in
+                if case let .failure(error) = readerCompletion {
+                    self.stop(error: error)
+                    callback(self, error)
+                }}, receiveValue: { [unowned self] tag in
+                    self.initializeSession(tag, callback)
             })
             .store(in: &connectedTagSubscription)
         
@@ -133,7 +143,7 @@ public class CardSession {
             viewDelegate.showAlertMessage(message)
         }
         reader.stopSession()
-        setBusy(false)
+        state = .inactive
         connectedTagSubscription = []
         sendSubscription = []
     }
@@ -142,7 +152,7 @@ public class CardSession {
     /// - Parameter error: The error to show
     public func stop(error: Error) {
         reader.stopSession(with: error.localizedDescription)
-        setBusy(false)
+        state = .inactive
         connectedTagSubscription = []
         sendSubscription = []
     }
@@ -157,10 +167,21 @@ public class CardSession {
     ///   - apdu: The apdu to send
     ///   - completion: Completion handler. Invoked by nfc-reader
     public final func send(apdu: CommandApdu, completion: @escaping CompletionResult<ResponseApdu>) {
+        guard sendSubscription.isEmpty else {
+            completion(.failure(.busy))
+            return
+        }
+        
+        guard state == .active else {
+            completion(.failure(.sessionInactive))
+            return
+        }
+        
         reader.tag
             .compactMap{ $0 }
-            .sink(receiveCompletion: { readerCompletion in
+            .sink(receiveCompletion: { [weak self] readerCompletion in
                 if case let .failure(error) = readerCompletion {
+                    self?.sendSubscription = []
                     completion(.failure(error))
                 }
             }, receiveValue: { [unowned self] _ in
@@ -183,18 +204,11 @@ public class CardSession {
         }
     }
     
-    private func setBusy(_ isBusy: Bool) {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        self.isBusy = isBusy
-    }
-    
     @available(iOS 13.0, *)
     private func initializeSession(_ tagType: NFCTagType, _ callback: @escaping (CardSession, SessionError?) -> Void) {
-        let readCommand = ReadCommand()
         switch tagType {
         case .tag:
-            readCommand.run(in: self) { [weak self] readResult in
+            ReadCommand().run(in: self) { [weak self] readResult in
                 guard let self = self else { return }
                 
                 switch readResult {
@@ -224,7 +238,7 @@ public class CardSession {
                 switch result {
                 case .success(let responseApdu):
                     do {
-                        self.environment.card = try readCommand.deserialize(with: self.environment, from: responseApdu)
+                        self.environment.card = try CardDeserializer.deserialize(with: self.environment, from: responseApdu)
                         self.stop()
                         callback(self, nil)
                     } catch {
