@@ -94,6 +94,9 @@ public enum SessionError: Int, Error, LocalizedError {
     /// This error is returned when the current device doesn't support the desired NFC operations
     case unsupportedDevice = 4002
     
+    /// Start session before
+    case sessionInactive = 4003
+    
     /// It seems that NFC does not work properly on your iPhone. Try to reboot your iPhone
     case nfcStuck = 5000
     
