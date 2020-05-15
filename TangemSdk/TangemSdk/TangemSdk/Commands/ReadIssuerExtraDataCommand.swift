@@ -25,7 +25,7 @@ public enum IssuerExtraDataMode: Byte {
     case finalizeWrite = 3
 }
 
-public struct ReadIssuerExtraDataResponse: TlvCodable {
+public struct ReadIssuerExtraDataResponse: ResponseCodable {
     /// Unique Tangem card ID number
     public let cardId: String
     /// Size of all Issuer_Extra_Data field.
@@ -58,7 +58,7 @@ public struct ReadIssuerExtraDataResponse: TlvCodable {
         self.issuerDataCounter = issuerDataCounter
     }
     
-    public func verify(with publicKey: Data) -> Bool? {
+    func verify(with publicKey: Data) -> Bool? {
         guard let signature = issuerDataSignature else {
             return nil
         }
