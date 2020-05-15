@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct ConfirmIdResponse: TlvCodable {
+struct ConfirmIdResponse: ResponseCodable {
     let issuerData: Data
     let signature: Data
 }
