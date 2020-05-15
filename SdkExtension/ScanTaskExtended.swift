@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import Firebase
 
-struct ScanTaskExtendedResponse: TlvCodable {
+struct ScanTaskExtendedResponse: ResponseCodable {
     let card: Card
     let issuerExtraData: ReadIssuerExtraDataResponse?
 }
