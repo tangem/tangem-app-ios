@@ -112,9 +112,9 @@ extension Command {
 }
 
 /// The basic protocol for command response
-public protocol TlvCodable: Codable, CustomStringConvertible {}
+public protocol ResponseCodable: Codable, CustomStringConvertible {}
 
-extension TlvCodable {
+extension ResponseCodable {
     public var description: String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
@@ -136,4 +136,3 @@ extension TlvCodable {
 public protocol ErrorHandler {
     func tryHandleError(_ error: SessionError) -> SessionError?
 }
-
