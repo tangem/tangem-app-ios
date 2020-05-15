@@ -228,7 +228,7 @@ public struct SettingsMask: OptionSet, Codable {
 }
 
 /// Detailed information about card contents.
-public struct CardData: TlvCodable {
+public struct CardData: ResponseCodable {
     /// Tangem internal manufacturing batch ID.
     public let batchId: String?
     /// Timestamp of manufacturing.
@@ -250,7 +250,7 @@ public struct CardData: TlvCodable {
 }
 
 ///Response for `ReadCommand`. Contains detailed card information.
-public struct Card: TlvCodable {
+public struct Card: ResponseCodable {
     /// Unique Tangem card ID number.
     public let cardId: String?
     /// Name of Tangem card manufacturer.
@@ -364,6 +364,12 @@ public final class ReadCommand: Command {
     }
     
     public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadResponse {
+        return try CardDeserializer.deserialize(with: environment, from: apdu)
+    }
+}
+
+struct CardDeserializer {
+    static func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
@@ -401,7 +407,7 @@ public final class ReadCommand: Command {
         return card
     }
     
-    private func deserializeCardData(tlv: [Tlv]) throws -> CardData? {
+    static private func deserializeCardData(tlv: [Tlv]) throws -> CardData? {
         guard let cardDataValue = tlv.value(for: .cardData),
             let cardDataTlv = Tlv.deserialize(cardDataValue) else {
                 return nil
