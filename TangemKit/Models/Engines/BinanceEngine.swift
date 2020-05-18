@@ -16,7 +16,7 @@ class BinanceEngine: CardEngine {
     var binance: BinanceChain!
     private var hashesToSign: Data?
     var blockchainDisplayName: String {
-        return "Binance"
+        return card.tokenSymbol == nil ? "Binance" : "Binance asset"
     }
     
     var walletType: WalletType {
@@ -86,7 +86,11 @@ extension BinanceEngine: CoinProvider {
     }
     
     var coinTraitCollection: CoinTrait {
-        return .allowsFeeInclude
+        return isExtractCoin ? .allowsFeeInclude : .none
+    }
+    
+    var isExtractCoin: Bool {
+        return card.tokenSymbol == nil || Decimal(string: card.walletTokenValue ?? "0") ?? 0 <= 0
     }
     
     func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
@@ -95,8 +99,8 @@ extension BinanceEngine: CoinProvider {
                 return nil
         }
         
-        let finalAmount = includeFee ? amountValue - feeValue : amountValue
-        let msg = txBuilder.buildForSign(amount: finalAmount, targetAddress: targetAddress)
+        let finalAmount = includeFee && isExtractCoin ? amountValue - feeValue : amountValue
+        let msg = txBuilder.buildForSign(amount: finalAmount, targetAddress: targetAddress, contractAddress: isExtractCoin ? nil : card.tokenContractAddress)
         let hash = msg.encodeForSignature()
         hashesToSign = hash
         return [hash]
@@ -193,9 +197,10 @@ class BinanceTransactionBuilder {
     private var message: Message?
     
     
-    func buildForSign(amount: Decimal, targetAddress: String) -> Message {
-        message = Message.transfer(symbol: "BNB", amount: Double("\(amount)")!, to: targetAddress, wallet: binanceWallet)
-       return message!
+    func buildForSign(amount: Decimal, targetAddress: String, contractAddress: String?) -> Message {
+        let symbol = contractAddress ?? "BNB"
+        message = Message.transfer(symbol: symbol, amount: Double("\(amount)")!, to: targetAddress, wallet: binanceWallet)
+        return message!
     }
     
     func buildForSend(signature: Data) -> Message? {
