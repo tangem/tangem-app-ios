@@ -96,7 +96,7 @@ extension BinanceEngine: CoinProvider {
         }
         
         let finalAmount = includeFee ? amountValue - feeValue : amountValue
-        let msg = txBuilder.buildForSign(amount: finalAmount, targetAddress: targetAddress)
+        let msg = txBuilder.buildForSign(amount: finalAmount, targetAddress: targetAddress, contractAddress: card.tokenContractAddress)
         let hash = msg.encodeForSignature()
         hashesToSign = hash
         return [hash]
@@ -193,9 +193,10 @@ class BinanceTransactionBuilder {
     private var message: Message?
     
     
-    func buildForSign(amount: Decimal, targetAddress: String) -> Message {
-        message = Message.transfer(symbol: "BNB", amount: Double("\(amount)")!, to: targetAddress, wallet: binanceWallet)
-       return message!
+    func buildForSign(amount: Decimal, targetAddress: String, contractAddress: String?) -> Message {
+        let symbol = contractAddress ?? "BNB"
+        message = Message.transfer(symbol: symbol, amount: Double("\(amount)")!, to: targetAddress, wallet: binanceWallet)
+        return message!
     }
     
     func buildForSend(signature: Data) -> Message? {
