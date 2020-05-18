@@ -17,24 +17,29 @@ class BNBCardBalanceOperation: BaseCardBalanceOperation {
         
         card.mult = priceUSD
         
-        let operation = BinanceNetworkBalanceOperation(address: card.address, isTestNet: card.isTestBlockchain) { [weak self] (result) in
+        let operation = BinanceNetworkBalanceOperation(address: card.address, token: card.tokenContractAddress, isTestNet: card.isTestBlockchain) { [weak self] (result) in
             switch result {
             case .success(let value):
-                self?.handleBalanceLoaded(balanceValue: value.0, account: value.1, sequence: value.2)
+                self?.handleBalanceLoaded(balanceValue: value.0, tokenValue: value.1, account: value.2, sequence: value.3)
             case .failure(let error):
                 self?.card.mult = 0
-                self?.failOperationWith(error: error)
+                if error.localizedDescription.contains(find: "account not found") {
+                    self?.failOperationWith(error: "Account not found")
+                } else {
+                    self?.failOperationWith(error: error)
+                }
             }
         }
         operationQueue.addOperation(operation)
     }
     
-    func handleBalanceLoaded(balanceValue: String, account: Int, sequence: Int) {
+    func handleBalanceLoaded(balanceValue: String, tokenValue: String?, account: Int, sequence: Int) {
         guard !isCancelled else {
             return
         }
         
         card.walletValue = balanceValue
+        card.walletTokenValue = tokenValue
         let engine = (card.cardEngine as! BinanceEngine)
         engine.txBuilder.binanceWallet.sequence = sequence
         engine.txBuilder.binanceWallet.accountNumber = account
