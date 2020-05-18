@@ -14,7 +14,7 @@ class BTCEngine: CardEngine, CoinProvider {
         return  ["1","2","3","n","m"]
     }
     
-    var fixedFee: String? {
+    var relayFee: Decimal? {
         nil
     }
     
@@ -404,12 +404,7 @@ class BTCEngine: CardEngine, CoinProvider {
     }
     
     func getFee(targetAddress: String, amount: String, completion: @escaping ((min: String, normal: String, max: String)?) -> Void) {
-        if let fixedFee = self.fixedFee {
-            completion((fixedFee, fixedFee, fixedFee))
-            return
-        }
-        
-        let feeRequestOperation = BtcFeeOperation(with: self, completion: {[weak self] result in
+        let feeRequestOperation = BtcFeeOperation(with: self, blockcyperApi: blockcyperApi, completion: {[weak self] result in
                 switch result {
                 case .success(let feeResponse):
                     guard let self = self else {
@@ -429,9 +424,16 @@ class BTCEngine: CardEngine, CoinProvider {
                             return
                     }
                     let estimatedTxSize = Decimal(testTx.count + 1)
-                    let minFee = (minPerByte * estimatedTxSize)
-                    let normalFee = (normalPerByte * estimatedTxSize)
-                    let maxFee = (maxPerByte * estimatedTxSize)
+                    
+                    var minFee = (minPerByte * estimatedTxSize)
+                    var normalFee = (normalPerByte * estimatedTxSize)
+                    var maxFee = (maxPerByte * estimatedTxSize)
+                    
+                    if let relayFee = self.relayFee {
+                        minFee = max(minFee, relayFee)
+                        normalFee = max(normalFee, relayFee)
+                        maxFee = max(maxFee, relayFee)
+                    }
                     
                     let fee = ("\(minFee.rounded(blockchain: .bitcoin))",
                         "\(normalFee.rounded(blockchain: .bitcoin))",
