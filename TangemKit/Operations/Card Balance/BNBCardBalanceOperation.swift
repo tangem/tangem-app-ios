@@ -23,7 +23,11 @@ class BNBCardBalanceOperation: BaseCardBalanceOperation {
                 self?.handleBalanceLoaded(balanceValue: value.0, tokenValue: value.1, account: value.2, sequence: value.3)
             case .failure(let error):
                 self?.card.mult = 0
-                self?.failOperationWith(error: error)
+                if error.localizedDescription.contains(find: "account not found") {
+                    self?.failOperationWith(error: "Account not found")
+                } else {
+                    self?.failOperationWith(error: error)
+                }
             }
         }
         operationQueue.addOperation(operation)
