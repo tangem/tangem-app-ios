@@ -19,10 +19,12 @@ class BtcFeeOperation: GBAsyncOperation {
     private let operationQueue = OperationQueue()
     private unowned let engine: BTCEngine
     private var retryCount = 1
+    private let blockcyperApi: BlockcyperApi
     
-    init(with engine: BTCEngine, completion: @escaping (TangemObjectResult<BtcFee>) -> Void) {
+    init(with engine: BTCEngine, blockcyperApi: BlockcyperApi, completion: @escaping (TangemObjectResult<BtcFee>) -> Void) {
         self.completion = completion
         self.engine = engine
+        self.blockcyperApi = blockcyperApi
     }
     
     override func main() {
@@ -65,7 +67,7 @@ class BtcFeeOperation: GBAsyncOperation {
     
     func getBlockcypherRequest() -> GBAsyncOperation {
         let feeRequestOperation: BtcRequestOperation<BlockcypherFeeResponse> =
-            BtcRequestOperation(endpoint: BlockcypherEndpoint.fee(api: .btc)) {[weak self] result in
+            BtcRequestOperation(endpoint: BlockcypherEndpoint.fee(api: blockcyperApi)) {[weak self] result in
                 switch result {
                 case .success(let feeResponse):
                     guard let minKb = feeResponse.low_fee_per_kb,
