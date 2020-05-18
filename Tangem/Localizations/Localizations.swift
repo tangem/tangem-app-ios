@@ -536,6 +536,7 @@ class Localizations {
     static func secondsLeft(_ p1: String) -> String {
         return translate("nfc_seconds_left", p1)
     }
+    static let oldIOS12 = translate("oldIOS12")
 }
 // MARK: - Implementation Details
 
