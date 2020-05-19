@@ -769,4 +769,4 @@
 /*  */
 "loaded_wallet_error_obtaining_blockchain_data" = "Cannot obtain data from blockchain";
 
-
+"oldIOS12" = "Tangem is deprecating support of iOS 12 in a new security update. Please update to iOS 13 and the latest version of Tangem App to maintain security with our products.";
