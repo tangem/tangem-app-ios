@@ -22,6 +22,7 @@ class CardDetailsViewModel: NSObject {
     
     // MARK: Image Views
     
+    @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var qrCodeImageView: UIImageView!
     @IBOutlet weak var cardImageView: UIImageView!
     
@@ -44,32 +45,16 @@ class CardDetailsViewModel: NSObject {
         }
     }
     
-    @IBOutlet weak var doubleScanHintLabel: UILabel! {
-        didSet {
-            doubleScanHintLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
-            doubleScanHintLabel.textColor = UIColor.tgm_red()
-            doubleScanHintLabel.text = Localizations.doubleScanHint
-        }
-    }
-    //    [REDACTED_USERNAME] weak var networkSafetyDescriptionLabel: UILabel! {
-//        didSet {
-//            networkSafetyDescriptionLabel.font = UIFont.tgm_maaxFontWith(size: 12)
-//        }
-//    }
     
     @IBOutlet weak var walletAddressLabel: UILabel! {
         didSet {
-            walletAddressLabel.font = UIFont.tgm_maaxFontWith(size: 14, weight: .medium)
+            walletAddressLabel.font = UIFont.tgm_maaxFontWith(size: 13, weight: .medium)
+            walletAddressLabel.adjustsFontSizeToFitWidth = true
+            walletAddressLabel.minimumScaleFactor = 0.7
         }
     }
     
     // MARK: Buttons
-    
-    @IBOutlet weak var buttonsAvailabilityView: UIView! {
-        didSet {
-            buttonsAvailabilityView.isHidden = true
-        }
-    }
     
     @IBOutlet weak var loadButton: UIButton! {
         didSet {
@@ -145,23 +130,9 @@ class CardDetailsViewModel: NSObject {
     
     // MARK: Other
     
-    @IBOutlet weak var balanceVerificationActivityIndicator: UIActivityIndicatorView!
-    
-    @IBOutlet weak var cardWalletInfoView: UIView! {
-        didSet {
-            let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapBalance))
-            tapRecognizer.numberOfTapsRequired = 1
-            cardWalletInfoView.addGestureRecognizer(tapRecognizer)
-        }
-    }
-    @IBOutlet weak var cardWalletInfoLoadingView: UIView!
+    @IBOutlet weak var cardWalletInfoView: UIView!
+
     @IBOutlet weak var qrCodeContainerView: UIView!
-    
-    @objc func didTapBalance() {
-       onBalanceTap?(false)
-    }
-    
-    public var onBalanceTap: ((Bool) -> Void)?
 }
 
 extension CardDetailsViewModel {
@@ -171,10 +142,17 @@ extension CardDetailsViewModel {
     }
     
     func setWalletInfoLoading(_ loading: Bool) {
-        UIView.animate(withDuration: 0.1) {
-            self.cardWalletInfoView.isHidden = loading
-            self.cardWalletInfoLoadingView.isHidden = !loading
-            self.buttonsAvailabilityView.isHidden = !loading
+            self.actionButton.isEnabled = !loading
+            self.extractButton.isEnabled = !loading
+            self.loadButton.isEnabled = !loading
+        
+        if loading {
+            if let rc = scrollView.refreshControl, !rc.isRefreshing {
+                rc.beginRefreshing()
+                scrollView.setContentOffset(CGPoint(x: 0, y: scrollView.contentOffset.y - rc.frame.height), animated: true)
+            }
+        } else {
+            scrollView.refreshControl?.endRefreshing()
         }
     }
     
@@ -186,10 +164,10 @@ extension CardDetailsViewModel {
     }
     
     func updateWalletBalanceIsBeingVerified() {
-        let text = Localizations.loadedWalletVerifyingInBlockchain
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88,
-                                                                           NSAttributedString.Key.foregroundColor : UIColor.black])
-        balanceVerificationLabel.attributedText = attributedText
+//        let text = Localizations.loadedWalletVerifyingInBlockchain
+//        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88,
+//                                                                           NSAttributedString.Key.foregroundColor : UIColor.black])
+//        balanceVerificationLabel.attributedText = attributedText
     }
     
     func updateWalletBalanceVerification(_ verified: Bool, customText: String? = nil) {
