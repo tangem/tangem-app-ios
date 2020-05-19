@@ -218,6 +218,13 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
                 balanceTitle = card.walletValue + " " + card.walletUnits
                 balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
             }
+        } else if let bnbEngine = card.cardEngine as? BinanceEngine {
+            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.tokenSymbol, (Decimal(string: walletTokenValue) ?? 0) > 0 {
+                balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
+                balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee"
+            } else {
+                balanceTitle = card.walletValue + " " + card.walletUnits
+            }
         }
         else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
