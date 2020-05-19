@@ -13,7 +13,7 @@ import CoreNFC
  * An error class that represent typical errors that may occur when performing Tangem SDK tasks.
  * Errors are propagated back to the caller in callbacks.
  */
-public enum SessionError: Int, Error, LocalizedError {
+public enum SessionError: Int, Error, LocalizedError, Encodable {
     /// This error is returned when the `ResponseApdu` cannot deserialize bytes to `[Tlv]`
     case deserializeApduFailed = 1001
     
@@ -137,6 +137,10 @@ public enum SessionError: Int, Error, LocalizedError {
     /// This error is returned when `issuerPublicKey` requires to perform operation
     case missingIssuerPublicKey = 7002
     
+    public var code: Int {
+        return rawValue
+    }
+    
     public var errorDescription: String? {
         switch self {
         case .nfcTimeout:
@@ -144,8 +148,16 @@ public enum SessionError: Int, Error, LocalizedError {
         case .nfcStuck:
             return Localization.nfcStuckError
         default:
-            return Localization.genericErrorCode("\(self.rawValue)")
+            let description = "\(self)".capitalizingFirst()
+            return Localization.genericErrorCode("\(self.rawValue). \(description)")
         }
+    }
+    
+    public var jsonDescription: String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
+        let data = (try? encoder.encode(self)) ?? Data()
+        return String(data: data, encoding: .utf8)!
     }
     
     public var isUserCancelled: Bool {
@@ -205,5 +217,13 @@ public enum SessionError: Int, Error, LocalizedError {
         } else {
             return (error as? SessionError) ?? SessionError.unknownError
         }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var error = [String:String]()
+        error["code"] = String(describing: code)
+        error["localizedDescription"] = localizedDescription
+        var container = encoder.singleValueContainer()
+        try container.encode(error)
     }
 }
