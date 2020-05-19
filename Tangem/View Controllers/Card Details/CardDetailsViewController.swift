@@ -11,7 +11,7 @@ import QRCode
 import CryptoSwift
 import TangemSdk
 
-class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
+class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UIScrollViewDelegate {
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
@@ -19,11 +19,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         return sdk
     }()
     
-    @IBOutlet var viewModel: CardDetailsViewModel! {
-        didSet {
-            viewModel.onBalanceTap = updateBalance
-        }
-    }
+    @IBOutlet var viewModel: CardDetailsViewModel!
     
     var card: CardViewModel?
     var isBalanceVerified = false
@@ -39,6 +35,15 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+        viewModel.scrollView.refreshControl = UIRefreshControl()
+        viewModel.scrollView.delegate = self
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        if let refreshing = scrollView.refreshControl?.isRefreshing, refreshing == true {
+            updateBalance()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -82,7 +87,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         setupBalanceIsBeingVerified()
         viewModel.setSubstitutionInfoLoading(true)
         viewModel.setWalletInfoLoading(true)
-        viewModel.doubleScanHintLabel.isHidden = true
         fetchSubstitutionInfo(card: card)
     }
     
@@ -122,7 +126,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             self.card!.hasAccount = true
             self.isBalanceLoading = false
             self.viewModel.setWalletInfoLoading(false)
-            
             }, onFailure: { (error, title) in
                 self.isBalanceLoading = false
                 self.viewModel.setWalletInfoLoading(false)
@@ -181,8 +184,6 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
-        viewModel.balanceVerificationActivityIndicator.stopAnimating()
-        
         if card.cardID.starts(with: "10") {
             viewModel.loadButton.isHidden = true
             viewModel.extractButton.backgroundColor = UIColor(red: 249.0/255.0, green: 175.0/255.0, blue: 37.0/255.0, alpha: 1.0)
@@ -217,6 +218,13 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
                 balanceTitle = card.walletValue + " " + card.walletUnits
                 balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
             }
+        } else if let bnbEngine = card.cardEngine as? BinanceEngine {
+            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.tokenSymbol, (Decimal(string: walletTokenValue) ?? 0) > 0 {
+                balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
+                balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee"
+            } else {
+                balanceTitle = card.walletValue + " " + card.walletUnits
+            }
         }
         else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
@@ -238,13 +246,13 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             if interval > 30 {
                 self.latestTxDate = nil
             } else {
-                setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+                setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait)")
                 return
             }
         }
         
         guard !forceUnverifyed && !card.hasPendingTransactions else {
-            setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+            setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait)")
             return
         }
         
@@ -534,7 +542,7 @@ extension CardDetailsViewController {
             }
             
             if card.hasPendingTransactions  {
-                self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait). \(Localizations.tapToRetry)")
+                self.setupBalanceVerified(false, customText: "\(Localizations.loadedWalletMessageWait)")
                 self.updateBalance(forceUnverifyed: true)
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
