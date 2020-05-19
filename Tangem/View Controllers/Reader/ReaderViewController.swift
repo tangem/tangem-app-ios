@@ -76,6 +76,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
             scanButtonPressed(self)
         } else {
             isAppLaunched = true
+            handleIOS12()
         }
     }
     
