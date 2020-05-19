@@ -92,15 +92,15 @@ public class CardSession {
     }
     
     /// Starts a card session and performs preflight `Read` command.
-    /// - Parameter callback: Delegate with the card session. Can contain error
-    public func start(_ callback: @escaping (CardSession, SessionError?) -> Void) {
+    /// - Parameter onSessionStarted: Delegate with the card session. Can contain error
+    public func start(_ onSessionStarted: @escaping (CardSession, SessionError?) -> Void) {
         guard TangemSdk.isNFCAvailable else {
-            callback(self, .unsupportedDevice)
+            onSessionStarted(self, .unsupportedDevice)
             return
         }
         
         guard state == .inactive else {
-            callback(self, .busy)
+            onSessionStarted(self, .busy)
             return
         }
         
@@ -127,9 +127,9 @@ public class CardSession {
             .sink(receiveCompletion: { [unowned self] readerCompletion in
                 if case let .failure(error) = readerCompletion {
                     self.stop(error: error)
-                    callback(self, error)
+                    onSessionStarted(self, error)
                 }}, receiveValue: { [unowned self] tag in
-                    self.initializeSession(tag, callback)
+                    self.preflightCheck(tag, onSessionStarted)
             })
             .store(in: &connectedTagSubscription)
         
@@ -205,7 +205,7 @@ public class CardSession {
     }
     
     @available(iOS 13.0, *)
-    private func initializeSession(_ tagType: NFCTagType, _ callback: @escaping (CardSession, SessionError?) -> Void) {
+    private func preflightCheck(_ tagType: NFCTagType, _ onSessionStarted: @escaping (CardSession, SessionError?) -> Void) {
         switch tagType {
         case .tag:
             ReadCommand().run(in: self) { [weak self] readResult in
@@ -217,16 +217,16 @@ public class CardSession {
                         let actualCardId = readResponse.cardId?.uppercased(),
                         expectedCardId != actualCardId {
                         let error = SessionError.wrongCard
-                        callback(self, error)
+                        onSessionStarted(self, error)
                         self.stop(error: error)
                         return
                     }
                     
                     self.environment.card = readResponse
-                    callback(self, nil)
+                    onSessionStarted(self, nil)
                 case .failure(let error):
                     if !self.tryHandleError(error) {
-                        callback(self, error)
+                        onSessionStarted(self, error)
                         self.stop(error: error)
                     }
                 }
@@ -240,20 +240,20 @@ public class CardSession {
                     do {
                         self.environment.card = try CardDeserializer.deserialize(with: self.environment, from: responseApdu)
                         self.stop()
-                        callback(self, nil)
+                        onSessionStarted(self, nil)
                     } catch {
                         let sessionError = error.toSessionError()
                         self.stop(error: sessionError)
-                        callback(self, sessionError)
+                        onSessionStarted(self, sessionError)
                     }
                 case .failure(let error):
                     self.stop(error: error)
-                    callback(self, error)
+                    onSessionStarted(self, error)
                 }
             }
         default:
             assertionFailure("Unsupported tag")
-            callback(self, .unknownError)
+            onSessionStarted(self, .unknownError)
         }
     }
     
