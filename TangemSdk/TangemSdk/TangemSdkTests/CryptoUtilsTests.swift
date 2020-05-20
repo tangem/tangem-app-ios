@@ -20,9 +20,9 @@ class CryptoUtilsTests: XCTestCase {
     }
     
     func testGeneratePrivateKey() {
-        let privateKey = CryptoUtils.generateRandomBytes(count: 32)
+        let privateKey = try! CryptoUtils.generateRandomBytes(count: 32)
         XCTAssertNotNil(privateKey)
-        XCTAssertEqual(privateKey!.count, 32)
+        XCTAssertEqual(privateKey.count, 32)
     }
     
     func testSecp256k1Sign() {
