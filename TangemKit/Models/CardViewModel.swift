@@ -171,15 +171,12 @@ public class CardViewModel {
         return cardEngine.walletUnits
     }
     public var walletTokenUnits: String? {
-        if let tokenEngine = cardEngine as? TokenEngine {
-            return tokenEngine.walletTokenUnits
-        }
-        return nil
+        return tokenSymbol
     }
     
     public var units: String {
         if let tokenValue = walletTokenValue, tokenValue != "0" {
-            return (walletTokenUnits ?? tokenSymbol) ?? walletUnits
+            return walletTokenUnits ?? walletUnits
         } else {
             return walletUnits
         }
@@ -195,6 +192,14 @@ public class CardViewModel {
     
     public var hasEmptyWallet: Bool {
         if let total = Decimal(string: balance), total == 0, isWallet {
+            return true
+        } else {
+          return false
+        }
+    }
+    
+    public var hasEnoughFee: Bool {
+        if let total = Decimal(string: walletValue), total > 0 {
             return true
         } else {
             return false
