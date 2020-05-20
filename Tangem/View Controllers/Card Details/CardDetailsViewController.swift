@@ -53,7 +53,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             assertionFailure()
             return
         }
-           
+        
         setupWithCardDetails(card: card)
     }
     
@@ -84,6 +84,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
     }
     
     func setupWithCardDetails(card: CardViewModel) {
+        viewModel.scrollView.refreshControl?.beginRefreshing()
         setupBalanceIsBeingVerified()
         viewModel.setSubstitutionInfoLoading(true)
         viewModel.setWalletInfoLoading(true)
@@ -225,14 +226,14 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
                 balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
             }
         }
-//        else if let bnbEngine = card.cardEngine as? BinanceEngine {
-//            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.tokenSymbol, (Decimal(string: walletTokenValue) ?? 0) > 0 {
-//                balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
-//                balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee"
-//            } else {
-//                balanceTitle = card.walletValue + " " + card.walletUnits
-//            }
-//        }
+            //        else if let bnbEngine = card.cardEngine as? BinanceEngine {
+            //            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.tokenSymbol, (Decimal(string: walletTokenValue) ?? 0) > 0 {
+            //                balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
+            //                balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee"
+            //            } else {
+            //                balanceTitle = card.walletValue + " " + card.walletUnits
+            //            }
+            //        }
         else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
             balanceTitle = walletTokenValue + " " + walletTokenUnits
@@ -319,6 +320,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
     func setupBalanceVerified(_ verified: Bool, customText: String? = nil) {
         isBalanceVerified = verified
         card?.isBalanceVerified = verified
+        viewModel.actionButton.isHidden = true
         viewModel.qrCodeContainerView.isHidden = false
         viewModel.walletAddressLabel.isHidden = false
         viewModel.walletBlockchainLabel.isHidden = false
@@ -518,22 +520,24 @@ extension CardDetailsViewController {
                 tangemSdk.startSession(cardId: card!.cardID) { [weak self] session, error in
                     guard let self = self else { return }
                     
-                    DispatchQueue.main.async {
-                        if let error = error {
+                    if let error = error {
+                        DispatchQueue.main.async {
                             if !error.isUserCancelled {
                                 self.handleGenericError(error)
                             }
                             self.viewModel.actionButton.hideActivityIndicator()
-                            return
                         }
+                        return
                     }
+                    
                     
                     CreateWalletTask().run(in: session) { createWalletResult in
                         switch createWalletResult {
                         case .success(let createWalletResponse):
                             DispatchQueue.main.async {
                                 self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
-                                self.setupWithCardDetails(card: self.card!)
+                                self.viewModel.updateWalletAddress(self.card!.address)
+                                self.updateBalance()
                             }
                             ReadCommand().run(in: session) { readResult in
                                 DispatchQueue.main.async {
