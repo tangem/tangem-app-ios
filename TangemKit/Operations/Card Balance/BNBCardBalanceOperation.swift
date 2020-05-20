@@ -24,6 +24,7 @@ class BNBCardBalanceOperation: BaseCardBalanceOperation {
             case .failure(let error):
                 self?.card.mult = 0
                 if error.localizedDescription.contains(find: "account not found") {
+                    self?.card.hasAccount = false
                     self?.failOperationWith(error: "Account not found")
                 } else {
                     self?.failOperationWith(error: error)
