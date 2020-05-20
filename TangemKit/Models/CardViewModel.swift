@@ -67,7 +67,7 @@ public class CardViewModel {
         "046D998FE88FB33A57404E152AF028DEDF6720A3FA6AAE630D51D31CA413C3E6BB1FC5CC53A9484D744EA2A1E6A3D6A88AC963F4D671887F939778B30A6146E7B0", //Regina Latypova
         "041DCEFEF8FA536EE746707E800400C61B7F87B1E06A58F1AA04B4C0E36DF445655A089C351AE670FA5778620F06624FB4014C1B07EB436B8D47186B063530B560"] //Alexander Osokin
     
-    public let cardModel: Card
+    public var cardModel: Card
     public var cardEngine: CardEngine!
     public var issuerExtraData: ReadIssuerExtraDataResponse?
     public var status: CardStatus = .loaded
@@ -461,7 +461,7 @@ public class CardViewModel {
         walletPublicKey = card.walletPublicKey?.asHexString() ??  ""
         walletPublicKeyBytesArray = card.walletPublicKey?.bytes ?? []
         maxSignatures = "\(card.maxSignatures ?? -1)"
-        remainingSignatures = card.remainingSignatures ?? -1
+        remainingSignatures = card.walletRemainingSignatures ?? -1
         signedHashes = "\(card.walletSignedHashes ?? -1)"
         challenge = card.challenge?.hex.lowercased()
         salt = card.salt?.hex.lowercased()
@@ -477,6 +477,11 @@ public class CardViewModel {
         isLinked = card.terminalIsLinked
         securityDelay = card.pauseBeforePin2
         setupEngine()
+    }
+    
+    public func updateCard(_ card: Card) {
+        self.cardModel = card
+        remainingSignatures = card.walletRemainingSignatures ?? -1
     }
     
     public func setupWallet(status: CardStatus, walletPublicKey: Data?) {
@@ -744,9 +749,11 @@ public extension CardViewModel {
             "\(Localizations.detailsCategoryManufacturer): \(manufactureName)",
             "\(Localizations.detailsRegistrationDate): \(manufactureDateTime)"]
         
+        let sigs = remainingSignatures == -1 ? "" : "\(remainingSignatures)"
+        
         if type != .slix2 {
             strings.append("\(Localizations.detailsFirmware): \(firmware)")
-            strings.append("\(Localizations.detailsRemainingSignatures): \(remainingSignatures)")
+            strings.append("\(Localizations.detailsRemainingSignatures): \(sigs)")
             strings.append("\(Localizations.detailsTitleCardId): \(cardID)")
         }
         
