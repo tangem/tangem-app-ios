@@ -18,7 +18,6 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
         }
     }
     
-    var contentText = ""
     var onDone: (()-> Void)?
     var card: CardViewModel!
     lazy var tangemSdk: TangemSdk = {
@@ -43,15 +42,17 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 10.0, alignment: .left)
-        let attributedText = NSAttributedString(string: contentText, attributes: [NSAttributedString.Key.paragraphStyle : paragraphStyle,
-                                                                                  NSAttributedString.Key.kern : 1.12,
-                                                                                  NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17, weight: .regular)
-            
-            
-        ])
+        updateText()
         eraseWalletButton.isEnabled = !(card.settingsMask?.contains(SettingsMask.prohibitPurgeWallet) ?? false) && !card.productMask.contains(.idCard) && !card.productMask.contains(.idIssuer) && card.hasEmptyWallet && !card.hasPendingTransactions && ( card.isBalanceVerified || (!card.isBalanceVerified && !card.hasAccount))
+       
+    }
+    
+    
+    private func updateText() {
+        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 10.0, alignment: .left)
+        let attributedText = NSAttributedString(string: card.moreInfoData, attributes: [NSAttributedString.Key.paragraphStyle : paragraphStyle,
+                                                                                        NSAttributedString.Key.kern : 1.12,
+                                                                                        NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17, weight: .regular)])
         contentLabel.attributedText = attributedText
     }
     
@@ -69,6 +70,7 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
                 self.eraseWalletButton.hideActivityIndicator()
                 switch result {
                 case .success(let purgeWalletResponse):
+                    self.card.remainingSignatures = -1
                     self.card.setupWallet(status: purgeWalletResponse.status, walletPublicKey: nil)
                     self.onDone?()
                     self.dismiss(animated: true, completion: nil)
