@@ -10,10 +10,6 @@ import Foundation
 
 class TokenEngine: ETHEngine {
     
-    public var walletTokenUnits: String? {
-        return card.tokenSymbol
-    }
-    
     override var walletType: WalletType {
         
         if let symbol = card.tokenSymbol, symbol.containsIgnoringCase(find: "NFT:"){
@@ -34,6 +30,10 @@ class TokenEngine: ETHEngine {
         default:
             return .eth
         }
+    }
+    
+    public override var blockchainDisplayName: String {
+        return "Ethereum smart contract token"
     }
     
     override var walletUnits: String {
