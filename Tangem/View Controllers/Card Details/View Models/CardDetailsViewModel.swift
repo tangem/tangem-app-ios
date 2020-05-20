@@ -192,7 +192,7 @@ extension CardDetailsViewModel {
 
         if let subtitle = subtitle {
             let subtitleAttributedString = NSAttributedString(string: subtitle, 
-                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 14, weight: .medium)])
+                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 18, weight: .medium)])
             attributedText.append(subtitleAttributedString)
         }        
         
