@@ -146,12 +146,7 @@ extension CardDetailsViewModel {
             self.extractButton.isEnabled = !loading
             self.loadButton.isEnabled = !loading
         
-        if loading {
-            if let rc = scrollView.refreshControl, !rc.isRefreshing {
-                rc.beginRefreshing()
-                scrollView.setContentOffset(CGPoint(x: 0, y: scrollView.contentOffset.y - rc.frame.height), animated: true)
-            }
-        } else {
+        if !loading {
             scrollView.refreshControl?.endRefreshing()
         }
     }
@@ -192,7 +187,7 @@ extension CardDetailsViewModel {
 
         if let subtitle = subtitle {
             let subtitleAttributedString = NSAttributedString(string: subtitle, 
-                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 14, weight: .medium)])
+                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 18, weight: .medium)])
             attributedText.append(subtitleAttributedString)
         }        
         
