@@ -175,7 +175,13 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             assertionFailure()
             return
         }
-        let blockchainName = card.cardEngine.blockchainDisplayName
+        
+        var blockchainName = ""
+        if let tokenSymbol = card.tokenSymbol {
+            blockchainName = tokenSymbol + " (\(card.cardEngine.blockchainDisplayName))"
+        } else {
+            blockchainName = card.cardEngine.blockchainDisplayName
+        }
         let name = card.isTestBlockchain ? "\(blockchainName) \(Localizations.test)" : blockchainName
         viewModel.updateBlockchainName(name)
         viewModel.updateWalletAddress(card.address)
