@@ -53,7 +53,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             assertionFailure()
             return
         }
-        
+           
         setupWithCardDetails(card: card)
     }
     
@@ -115,7 +115,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         }
         let operation = card.balanceRequestOperation(onSuccess: {[unowned self] (card) in
             self.card = card
-            
+            self.viewModel.setWalletInfoLoading(false)
             if card.type == .nft {
                 self.handleBalanceLoadedNFT()
             } else if card.type == .slix2 {
@@ -125,7 +125,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             }
             self.card!.hasAccount = true
             self.isBalanceLoading = false
-            self.viewModel.setWalletInfoLoading(false)
+            
             }, onFailure: { (error, title) in
                 self.isBalanceLoading = false
                 self.viewModel.setWalletInfoLoading(false)
@@ -218,18 +218,19 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
                 balanceTitle = card.walletValue + " " + card.walletUnits
                 balanceSubtitle = "\n+ " + "\(walletReserve) \(card.walletUnits) \(Localizations.reserve)"
             }
-        } else if let bnbEngine = card.cardEngine as? BinanceEngine {
-            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.tokenSymbol, (Decimal(string: walletTokenValue) ?? 0) > 0 {
-                balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
-                balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee"
-            } else {
-                balanceTitle = card.walletValue + " " + card.walletUnits
-            }
         }
+//        else if let bnbEngine = card.cardEngine as? BinanceEngine {
+//            if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.tokenSymbol, (Decimal(string: walletTokenValue) ?? 0) > 0 {
+//                balanceTitle = "\(walletTokenValue) \(walletTokenUnits)"
+//                balanceSubtitle = "\n\(card.walletValue) \(card.walletUnits) for fee"
+//            } else {
+//                balanceTitle = card.walletValue + " " + card.walletUnits
+//            }
+//        }
         else if let walletTokenValue = card.walletTokenValue, let walletTokenUnits = card.walletTokenUnits {
             // Tokens
             balanceTitle = walletTokenValue + " " + walletTokenUnits
-            balanceSubtitle = "\n+ " + card.walletValue + " " + card.walletUnits
+            balanceSubtitle = "\n+ " + card.walletValue + " " + card.walletUnits + " for fee"
         } else {
             balanceTitle = card.walletValue + " " + card.walletUnits
         }
@@ -318,7 +319,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         viewModel.updateWalletBalanceVerification(verified, customText: customText)
         if let card = card, (card.productMask.contains(.note) || card.productMask.contains(.idIssuer)) && card.type != .nft {
             viewModel.loadButton.isEnabled = true
-            viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet
+            viewModel.extractButton.isEnabled = verified && !card.hasEmptyWallet && card.hasEnoughFee
         } else {
             viewModel.loadButton.isEnabled = false
             viewModel.extractButton.isEnabled = false
