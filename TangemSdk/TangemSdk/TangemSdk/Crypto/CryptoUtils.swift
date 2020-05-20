@@ -17,14 +17,14 @@ public final class CryptoUtils {
      *
      * - Parameter count: length of the array that is to be generated.
      */
-    public static func generateRandomBytes(count: Int) -> Data? {
+    public static func generateRandomBytes(count: Int) throws -> Data  {
         var bytes = [Byte](repeating: 0, count: count)
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
         
         if status == errSecSuccess {
             return Data(bytes)
         } else {
-            return nil
+            throw SessionError.failedToGenerateRandomSequence
         }
     }
     
