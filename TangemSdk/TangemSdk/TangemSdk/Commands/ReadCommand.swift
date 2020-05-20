@@ -345,10 +345,28 @@ public extension Card {
 @available(iOS 13.0, *)
 public final class ReadCommand: Command {
     public typealias CommandResponse = ReadResponse
+    
+    public var needPreflightRead: Bool {
+        return false
+    }
+    
     public init() {}
     deinit {
         print("ReadCommand deinit")
     }
+    
+    public func run(in session: CardSession, completion: @escaping CompletionResult<ReadResponse>) {
+        transieve(in: session) { result in
+            switch result {
+            case .success(let readResponse):
+                session.environment.card = readResponse
+                completion(.success(readResponse))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
     public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         /// `SessionEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.

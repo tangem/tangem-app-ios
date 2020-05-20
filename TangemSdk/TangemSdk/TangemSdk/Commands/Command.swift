@@ -27,7 +27,7 @@ public protocol Command: CardSessionRunnable, ErrorHandler {
 }
 
 @available(iOS 13.0, *)
-extension Command {
+extension Command {    
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         transieve(in: session, completion: completion)
     }
