@@ -146,12 +146,7 @@ extension CardDetailsViewModel {
             self.extractButton.isEnabled = !loading
             self.loadButton.isEnabled = !loading
         
-        if loading {
-            if let rc = scrollView.refreshControl, !rc.isRefreshing {
-                rc.beginRefreshing()
-                scrollView.setContentOffset(CGPoint(x: 0, y: scrollView.contentOffset.y - rc.frame.height), animated: true)
-            }
-        } else {
+        if !loading {
             scrollView.refreshControl?.endRefreshing()
         }
     }
