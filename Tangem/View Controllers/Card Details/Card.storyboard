@@ -34,7 +34,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Avd-ez-2CK">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="553"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="545"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vgg-PE-syF">
                                         <rect key="frame" x="37.5" y="16" width="300" height="160"/>
@@ -175,8 +175,8 @@
                                     <constraint firstItem="OXE-6A-lHc" firstAttribute="top" secondItem="urx-lf-qZ1" secondAttribute="bottom" constant="8" id="zld-c3-fg6"/>
                                 </constraints>
                             </scrollView>
-                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="5pd-nS-j4U">
-                                <rect key="frame" x="19.5" y="561" width="336" height="60"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="5pd-nS-j4U">
+                                <rect key="frame" x="19.5" y="553" width="336" height="60"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="y7C-IT-DFE">
                                         <rect key="frame" x="0.0" y="0.0" width="160" height="60"/>
@@ -267,8 +267,8 @@
                             <constraint firstItem="5pd-nS-j4U" firstAttribute="top" secondItem="Avd-ez-2CK" secondAttribute="bottom" constant="8" id="aDT-x6-8b5"/>
                             <constraint firstItem="5pd-nS-j4U" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="0Mf-hu-CmN" secondAttribute="leading" constant="8" id="afw-gE-J9K"/>
                             <constraint firstAttribute="trailing" secondItem="yPP-d2-WIV" secondAttribute="trailing" constant="40" id="eOM-t1-WKa"/>
-                            <constraint firstItem="yPP-d2-WIV" firstAttribute="top" secondItem="5pd-nS-j4U" secondAttribute="bottom" constant="8" id="fri-IP-Foc"/>
-                            <constraint firstAttribute="bottom" secondItem="yPP-d2-WIV" secondAttribute="bottom" constant="8" id="hui-0c-39c"/>
+                            <constraint firstItem="yPP-d2-WIV" firstAttribute="top" secondItem="5pd-nS-j4U" secondAttribute="bottom" constant="16" id="fri-IP-Foc"/>
+                            <constraint firstItem="bgh-A2-K6Q" firstAttribute="bottom" secondItem="yPP-d2-WIV" secondAttribute="bottom" constant="8" id="hui-0c-39c"/>
                             <constraint firstItem="5pd-nS-j4U" firstAttribute="centerX" secondItem="0Mf-hu-CmN" secondAttribute="centerX" id="lVW-Jo-Wp6"/>
                             <constraint firstItem="bgh-A2-K6Q" firstAttribute="trailing" secondItem="Avd-ez-2CK" secondAttribute="trailing" id="ymu-bw-ewJ"/>
                         </constraints>
