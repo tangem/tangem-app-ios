@@ -32,6 +32,10 @@ class TokenEngine: ETHEngine {
         }
     }
     
+    public override var blockchainDisplayName: String {
+        return "Ethereum smart contract token"
+    }
+    
     override var walletUnits: String {
         return "ETH"
     }
