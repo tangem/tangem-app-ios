@@ -15,6 +15,7 @@ public typealias CompletionResult<T> = (Result<T, SessionError>) -> Void
 @available(iOS 13.0, *)
 public protocol CardSessionRunnable {
     
+    var needPreflightRead: Bool {get}
     /// Simple interface for responses received after sending commands to Tangem cards.
     associatedtype CommandResponse: ResponseCodable
     
@@ -23,6 +24,13 @@ public protocol CardSessionRunnable {
     ///   - session: You can run commands in this session
     ///   - completion: Call the completion handler to complete the task.
     func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>)
+}
+
+@available(iOS 13.0, *)
+extension CardSessionRunnable {
+    public var needPreflightRead: Bool {
+        return true
+    }
 }
 
 /// Allows interaction with Tangem cards. Should be open before sending commands
@@ -37,7 +45,7 @@ public class CardSession {
     
     /// Contains data relating to the current Tangem card. It is used in constructing all the commands,
     /// and commands can modify `SessionEnvironment`.
-    public private(set) var environment: SessionEnvironment
+    public internal(set) var environment: SessionEnvironment
     public private(set) var connectedTag: NFCTagType? = nil
     
     private let reader: CardReader
@@ -70,18 +78,13 @@ public class CardSession {
     ///   - runnable: The CardSessionRunnable implemetation
     ///   - completion: Completion handler. `(Swift.Result<CardSessionRunnable.CommandResponse, SessionError>) -> Void`
     public func start<T>(with runnable: T, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
-        start {[weak self] session, error in
+        start(needPreflightRead: runnable.needPreflightRead) {[weak self] session, error in
             guard let self = self else { return }
             
             if let error = error {
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
-                return
-            }
-            
-            if (runnable is ReadCommand) { //We already done ReadCommand on iOS 13 for cards
-                self.handleRunnableCompletion(runnableResult: .success(self.environment.card as! T.CommandResponse), completion: completion)
                 return
             }
             
@@ -93,7 +96,7 @@ public class CardSession {
     
     /// Starts a card session and performs preflight `Read` command.
     /// - Parameter onSessionStarted: Delegate with the card session. Can contain error
-    public func start(_ onSessionStarted: @escaping (CardSession, SessionError?) -> Void) {
+    public func start(needPreflightRead: Bool = true, _ onSessionStarted: @escaping (CardSession, SessionError?) -> Void) {
         guard TangemSdk.isNFCAvailable else {
             onSessionStarted(self, .unsupportedDevice)
             return
@@ -129,7 +132,11 @@ public class CardSession {
                     self.stop(error: error)
                     onSessionStarted(self, error)
                 }}, receiveValue: { [unowned self] tag in
-                    self.preflightCheck(tag, onSessionStarted)
+                    if tag == .tag && needPreflightRead {
+                        self.preflightCheck(onSessionStarted)
+                    } else {
+                        onSessionStarted(self, nil)
+                    }
             })
             .store(in: &connectedTagSubscription)
         
@@ -193,6 +200,12 @@ public class CardSession {
             .store(in: &sendSubscription)
     }
     
+    /// Perform read slix2 tags
+    /// - Parameter completion: Completion handler. Invoked by nfc-reader
+    public final func readSlix2Tag(completion: @escaping (Result<ResponseApdu, SessionError>) -> Void)  {
+        reader.readSlix2Tag(completion: completion)
+    }
+    
     private func handleRunnableCompletion<TResponse>(runnableResult: Result<TResponse, SessionError>, completion: @escaping CompletionResult<TResponse>) {
         switch runnableResult {
         case .success(let runnableResponse):
@@ -205,55 +218,28 @@ public class CardSession {
     }
     
     @available(iOS 13.0, *)
-    private func preflightCheck(_ tagType: NFCTagType, _ onSessionStarted: @escaping (CardSession, SessionError?) -> Void) {
-        switch tagType {
-        case .tag:
-            ReadCommand().run(in: self) { [weak self] readResult in
-                guard let self = self else { return }
-                
-                switch readResult {
-                case .success(let readResponse):
-                    if let expectedCardId = self.cardId?.uppercased(),
-                        let actualCardId = readResponse.cardId?.uppercased(),
-                        expectedCardId != actualCardId {
-                        let error = SessionError.wrongCard
-                        onSessionStarted(self, error)
-                        self.stop(error: error)
-                        return
-                    }
-                    
-                    self.environment.card = readResponse
-                    onSessionStarted(self, nil)
-                case .failure(let error):
-                    if !self.tryHandleError(error) {
-                        onSessionStarted(self, error)
-                        self.stop(error: error)
-                    }
-                }
-            }
-        case .slix2:
-            self.reader.readSlix2Tag() {[weak self] result in
-                guard let self = self else { return }
-                
-                switch result {
-                case .success(let responseApdu):
-                    do {
-                        self.environment.card = try CardDeserializer.deserialize(with: self.environment, from: responseApdu)
-                        self.stop()
-                        onSessionStarted(self, nil)
-                    } catch {
-                        let sessionError = error.toSessionError()
-                        self.stop(error: sessionError)
-                        onSessionStarted(self, sessionError)
-                    }
-                case .failure(let error):
-                    self.stop(error: error)
+    private func preflightCheck(_ onSessionStarted: @escaping (CardSession, SessionError?) -> Void) {
+        ReadCommand().run(in: self) { [weak self] readResult in
+            guard let self = self else { return }
+            
+            switch readResult {
+            case .success(let readResponse):
+                if let expectedCardId = self.cardId?.uppercased(),
+                    let actualCardId = readResponse.cardId?.uppercased(),
+                    expectedCardId != actualCardId {
+                    let error = SessionError.wrongCard
                     onSessionStarted(self, error)
+                    self.stop(error: error)
+                    return
+                }
+            
+                onSessionStarted(self, nil)
+            case .failure(let error):
+                if !self.tryHandleError(error) {
+                    onSessionStarted(self, error)
+                    self.stop(error: error)
                 }
             }
-        default:
-            assertionFailure("Unsupported tag")
-            onSessionStarted(self, .unknownError)
         }
     }
     
