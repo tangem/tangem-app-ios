@@ -121,11 +121,10 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UISc
     }
     
     @IBAction func moreTapped(_ sender: Any) {
-        guard let cardDetails = card?.moreInfoData, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
+        guard let _ = card?.moreInfoData, let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CardMoreViewController") as? CardMoreViewController else {
             return
         }
         
-        viewController.contentText = cardDetails
         viewController.card = card!
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
