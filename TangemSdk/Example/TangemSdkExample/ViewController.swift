@@ -12,7 +12,12 @@ import TangemSdk
 class ViewController: UIViewController {
     @IBOutlet weak var logView: UITextView!
     
-    var tangemSdk = TangemSdk()
+    lazy var tangemSdk: TangemSdk = {
+        var config = Config()
+        config.linkedTerminal = false
+        return TangemSdk(config: config)
+    }()
+    
     var card: Card?
     var issuerDataResponse: ReadIssuerDataResponse?
     var issuerExtraDataResponse: ReadIssuerExtraDataResponse?
