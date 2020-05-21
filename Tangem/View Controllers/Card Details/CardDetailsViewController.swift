@@ -536,7 +536,7 @@ extension CardDetailsViewController {
                 return
             }
             
-            Utils().setOldDisclamerShown()
+             Utils().setOldDisclamerShown()
             
             if card.type == .ducatus {
                 self.latestTxDate = Date()
