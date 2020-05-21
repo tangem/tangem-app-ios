@@ -25,6 +25,8 @@ public protocol SessionViewDelegate: class {
     
      /// It is called when tag was lost
     func tagLost()
+    
+    func wrongCard(message: String?)
 }
 
 final class DefaultSessionViewDelegate: SessionViewDelegate {
@@ -63,5 +65,17 @@ final class DefaultSessionViewDelegate: SessionViewDelegate {
     
     func tagLost() {
         print("tag lost")
+    }
+    
+    func wrongCard(message: String?) {
+        let notificationGenerator = UINotificationFeedbackGenerator()
+        notificationGenerator.notificationOccurred(.error)
+        if let message = message {
+            let oldMessage = reader.alertMessage
+            showAlertMessage(message)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.showAlertMessage(oldMessage)
+            }
+        }
     }
 }
