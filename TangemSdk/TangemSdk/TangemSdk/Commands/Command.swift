@@ -37,6 +37,11 @@ extension Command {
     }
     
     func transieve(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+        if needPreflightRead && session.environment.card == nil {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+        
         do {
             let commandApdu = try serialize(with: session.environment)
             transieve(apdu: commandApdu, in: session) { result in
