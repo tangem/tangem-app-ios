@@ -30,6 +30,7 @@ final class NFCReader: NSObject {
     private var currentRetryCount = NFCReader.retryCount
     private var requestTimestamp: Date?
     private var cancelled: Bool = false
+    private let lock = DispatchSemaphore(value: 1)
     
     /// Workaround for session timeout error (60 sec)
     private var sessionTimer: TangemTimer!
@@ -108,16 +109,16 @@ extension NFCReader: CardReader {
     }
     
     func restartPolling() {
-        guard let session = readerSession, session.isReady else { return }
+        lock.wait()
+        defer {lock.signal()}
+        guard let session = readerSession, session.isReady, connectedTag != nil else { return }
         tagTimer.stop()
         idleTimer.stop()
         readerSessionError = nil
         connectedTag = nil
         log("Restart polling")
         tag.send(nil)
-        DispatchQueue.global().async {
-            session.restartPolling()
-        }
+        session.restartPolling()
     }
     
     /// Send apdu command to connected tag

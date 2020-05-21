@@ -108,7 +108,7 @@ public class CardSession {
         }
         
         state = .active
-        
+        viewDelegate.sessionStarted()
         reader.tag //Subscription for handle tag lost/connected events
             .dropFirst()
             .sink(receiveCompletion: {_ in},
@@ -132,9 +132,11 @@ public class CardSession {
                     self.stop(error: error)
                     onSessionStarted(self, error)
                 }}, receiveValue: { [unowned self] tag in
+                    self.viewDelegate.sessionStarted()
                     if tag == .tag && needPreflightRead {
                         self.preflightCheck(onSessionStarted)
                     } else {
+                        self.viewDelegate.sessionInitialized()
                         onSessionStarted(self, nil)
                     }
             })
@@ -153,6 +155,7 @@ public class CardSession {
         state = .inactive
         connectedTagSubscription = []
         sendSubscription = []
+        viewDelegate.sessionStopped()
     }
     
     /// Stops the current session with the error message.  Error's `localizedDescription` will be used
@@ -162,6 +165,7 @@ public class CardSession {
         state = .inactive
         connectedTagSubscription = []
         sendSubscription = []
+        viewDelegate.sessionStopped()
     }
     
     /// Restarts the polling sequence so the reader session can discover new tags.
@@ -229,14 +233,14 @@ public class CardSession {
                 if let expectedCardId = self.cardId?.uppercased(),
                     let actualCardId = readResponse.cardId?.uppercased(),
                     expectedCardId != actualCardId {
-                    self.viewDelegate.wrongCard(message: SessionError.wrongCard.localizedDescription)
-                    self.restartPolling()
+                    self.viewDelegate.wrongCard(message: SessionError.wrongCard.localizedDescription)                    
                     DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                        self.restartPolling()
                         self.preflightCheck(onSessionStarted)
                     }
                     return
                 }
-            
+                self.viewDelegate.sessionInitialized()
                 onSessionStarted(self, nil)
             case .failure(let error):
                 if !self.tryHandleError(error) {
