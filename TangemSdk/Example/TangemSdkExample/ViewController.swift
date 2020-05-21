@@ -288,14 +288,14 @@ class ViewController: UIViewController {
     func chainingExample() {
         tangemSdk.startSession(cardId: nil) { session, error in
             let cmd1 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
-            cmd1!.run(in: session, completion: { result in
+            cmd1.run(in: session, completion: { result in
                 switch result {
                 case .success(let response1):
                     DispatchQueue.main.async {
                         self.log(response1)
                     }
                     let cmd2 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
-                    cmd2!.run(in: session, completion: { result in
+                    cmd2.run(in: session, completion: { result in
                         switch result {
                         case .success(let response2):
                             DispatchQueue.main.async {
