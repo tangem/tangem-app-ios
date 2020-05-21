@@ -19,12 +19,11 @@ public final class CreateWalletTask: CardSessionRunnable {
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
-        
         guard let curve = session.environment.card?.curve else {
             completion(.failure(.cardError))
             return
         }
-        
+
         let command = CreateWalletCommand()
         command.run(in: session) { result in
             switch result {
