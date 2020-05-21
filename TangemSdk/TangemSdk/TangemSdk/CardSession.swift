@@ -229,9 +229,11 @@ public class CardSession {
                 if let expectedCardId = self.cardId?.uppercased(),
                     let actualCardId = readResponse.cardId?.uppercased(),
                     expectedCardId != actualCardId {
-                    let error = SessionError.wrongCard
-                    onSessionStarted(self, error)
-                    self.stop(error: error)
+                    self.viewDelegate.wrongCard(message: SessionError.wrongCard.localizedDescription)
+                    self.restartPolling()
+                    DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                        self.preflightCheck(onSessionStarted)
+                    }
                     return
                 }
             
