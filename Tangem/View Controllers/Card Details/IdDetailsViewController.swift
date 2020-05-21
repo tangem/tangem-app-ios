@@ -10,7 +10,7 @@ import UIKit
 import TangemSdk
 
 @available(iOS 13.0, *)
-class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
+class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UIScrollViewDelegate {
 
     enum State {
         case empty
@@ -167,13 +167,14 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
                 sexLabel.text = "Sex: \(idData.gender)"
                 nameLabel.text = idData.fullname
                 imageView.image = UIImage(data: idData.photo)
-                
                 scrollView.refreshControl = UIRefreshControl()
-                scrollView.refreshControl?.addTarget(self, action:
-                    #selector(handleRefresh),
-                                                     for: .valueChanged)
             }
         }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        scrollView.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -191,6 +192,12 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
         
         if state == .id {
             scrollView.refreshControl?.beginRefreshing()
+            refreshData()
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        if let refreshing = scrollView.refreshControl?.isRefreshing, refreshing == true {
             refreshData()
         }
     }
@@ -232,9 +239,5 @@ class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable {
             self.present(cardDetailsViewController, animated: true, completion: nil)
             
         }
-    }
-    
-    @objc func handleRefresh() {
-        refreshData()
     }
 }
