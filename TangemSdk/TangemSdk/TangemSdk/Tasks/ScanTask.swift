@@ -56,12 +56,7 @@ public final class ScanTask: CardSessionRunnable {
                         return
                 }
 
-                guard let checkWalletCommand = CheckWalletCommand(curve: curve, publicKey: publicKey) else {
-                    completion(.failure(.failedToGenerateRandomSequence))
-                    return
-                }
-                
-                checkWalletCommand.run(in: session) { checkWalletResult in
+                CheckWalletCommand(curve: curve, publicKey: publicKey).run(in: session) { checkWalletResult in
                     switch checkWalletResult {
                     case .success(_):
                         completion(.success(card))
