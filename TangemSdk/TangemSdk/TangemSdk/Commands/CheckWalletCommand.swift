@@ -31,7 +31,7 @@ public final class CheckWalletCommand: Command {
     private let curve: EllipticCurve
     private let publicKey: Data
     
-    public init?(curve: EllipticCurve, publicKey: Data) {
+    public init(curve: EllipticCurve, publicKey: Data) {
         self.curve = curve
         self.publicKey = publicKey
     }
