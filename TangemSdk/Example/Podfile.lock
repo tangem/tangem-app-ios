@@ -1,7 +1,7 @@
 PODS:
   - KeychainSwift (19.0.0)
   - secp256k1.swift (0.1.4)
-  - TangemSdk (0.1.0):
+  - TangemSdk (2.0.2):
     - KeychainSwift
     - secp256k1.swift
 
@@ -20,7 +20,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
-  TangemSdk: 835de9c781335fdd9d4af6a04dfe4fc5a2d90a58
+  TangemSdk: 83fb1bd83420b24ae1d5d3abcee67abdab98a6c1
 
 PODFILE CHECKSUM: 20c172d2ff1af337b3d8780444d5fbb4474a01fd
 
