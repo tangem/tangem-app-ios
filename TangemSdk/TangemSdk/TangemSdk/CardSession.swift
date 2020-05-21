@@ -192,6 +192,8 @@ public class CardSession {
                     completion(.failure(error))
                 }
             }, receiveValue: { [unowned self] _ in
+                //open session if need
+                //apdu.encrypt
                 self.reader.send(apdu: apdu) { [weak self] result in
                     self?.sendSubscription = []
                     completion(result)
