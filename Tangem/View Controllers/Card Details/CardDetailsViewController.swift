@@ -178,8 +178,9 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         }
         
         var blockchainName = ""
-        if let tokenSymbol = card.tokenSymbol {
-            blockchainName = tokenSymbol + " (\(card.cardEngine.blockchainDisplayName))"
+        if let tokenSymbol = card.tokenSymbol, card.cardEngine.walletType != .slix2,
+            card.cardEngine.walletType != .nft {
+            blockchainName = tokenSymbol + "\n\(card.cardEngine.blockchainDisplayName)"
         } else {
             blockchainName = card.cardEngine.blockchainDisplayName
         }
