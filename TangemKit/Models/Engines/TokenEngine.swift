@@ -33,7 +33,15 @@ class TokenEngine: ETHEngine {
     }
     
     public override var blockchainDisplayName: String {
-        return "Ethereum smart contract token"
+        if walletType == .nft {
+            return
+                """
+                Tangem TAG
+                Ethereum non-fungible token
+                """
+        } else {
+            return "Ethereum smart contract token"
+        }
     }
     
     override var walletUnits: String {
