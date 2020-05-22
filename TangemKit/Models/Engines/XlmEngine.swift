@@ -26,7 +26,7 @@ public class XlmEngine: CardEngine {
                 """
         }
         else {
-            return card.tokenSymbol ?? "Stellar"
+            return  card.tokenSymbol == nil ?  "Stellar" : "Stellar Asset"
         }
     }
     
