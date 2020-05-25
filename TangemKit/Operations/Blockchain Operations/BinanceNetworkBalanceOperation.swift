@@ -50,13 +50,13 @@ class BinanceNetworkBalanceOperation: GBAsyncOperation {
                     var tokenFinalBalance: String? = nil
                     if let token = self.token {
                         let tokenBalance = balances?.first(where: { $0["symbol"].stringValue == token })
-                        tokenFinalBalance = tokenBalance?["free"].string ?? "0"
+                        tokenFinalBalance = NSDecimalNumber(string: tokenBalance?["free"].string ?? "0").stringValue
                     }
                     
                     let walletValue = NSDecimalNumber(string: balanceString)
                     let accountNumber = balanceInfo["account_number"].intValue
                     let sequence = balanceInfo["sequence"].intValue
-                    self.completeOperationWith(balance: walletValue.stringValue, tokenBalance: NSDecimalNumber(string: tokenFinalBalance).stringValue, accountNumber: accountNumber, sequence: sequence)
+                    self.completeOperationWith(balance: walletValue.stringValue, tokenBalance: tokenFinalBalance, accountNumber: accountNumber, sequence: sequence)
                 } catch {
                     self.failOperationWith(error: error)
                 }
