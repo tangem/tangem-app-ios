@@ -58,20 +58,7 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
                 self.sequence = accountResponse.sequenceNumber
                 self.handleRequestComplete()
             case .failure(let horizonRequestError):
-                
-                if case .notFound = horizonRequestError {
-                    self.card.mult = 0
-                    self.card.hasAccount = false
-                    if self.card.tokenSymbol != nil {
-                        self.failOperationWith(error: Localizations.xlmAssetCreateAccountHint, title: Localizations.accountNotFound)
-                    } else {
-                        self.failOperationWith(error: Localizations.xlmCreateAccountHint, title: Localizations.accountNotFound)
-                    }
-                    return
-                }
-                
-                self.card.mult = 0
-                self.failOperationWith(error: horizonRequestError.message)
+                self.failOperationWith(error: horizonRequestError)
             }
         }
         
@@ -210,5 +197,25 @@ class XlmCardBalanceOperation: BaseCardBalanceOperation {
         lock.wait()
         defer { lock.signal() }
         return pendingRequests != 0
+    }
+    
+    func failOperationWith(error: HorizonRequestError) {
+        guard !isCancelled else {
+            return
+        }
+        
+        if case .notFound = error {
+            self.card.mult = 0
+            self.card.hasAccount = false
+            if self.card.tokenSymbol != nil {
+                 completion(.failure(Localizations.xlmAssetCreateAccountHint, title: Localizations.accountNotFound))
+            } else {
+                completion(.failure(Localizations.xlmCreateAccountHint, title: Localizations.accountNotFound))
+            }
+            return
+        } else {
+            completion(.failure(error.message, title: nil))
+        }
+        finish()
     }
 }
