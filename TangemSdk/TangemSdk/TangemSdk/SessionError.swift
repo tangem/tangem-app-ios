@@ -94,12 +94,16 @@ public enum SessionError: Int, Error, LocalizedError, Encodable {
     /// This error is returned when the current device doesn't support the desired NFC operations
     case unsupportedDevice = 4002
     
+    /// Start session before
+    case sessionInactive = 4003
+    
     /// It seems that NFC does not work properly on your iPhone. Try to reboot your iPhone
     case nfcStuck = 5000
     
-    // Underlying NFC reader errors
     case nfcTimeout = 5001
     case nfcReaderError = 5002
+    
+    // Underlying NFC reader errors
     case readerErrorUnsupportedFeature = 5003
     case readerErrorSecurityViolation = 5004
     case readerErrorInvalidParameter = 5005
@@ -118,6 +122,12 @@ public enum SessionError: Int, Error, LocalizedError, Encodable {
     case ndefReaderSessionErrorTagUpdateFailure = 5018
     case ndefReaderSessionErrorTagSizeTooSmall = 5019
     case ndefReaderSessionErrorZeroLengthMessage = 5020
+    
+    /// Command was sent to wrong tag type
+    case unsupportedCommand = 5021
+    
+    /// You must connect to tag beforehand
+    case connectedTagMissing = 5022
     
     case unknownError = 6000
     
