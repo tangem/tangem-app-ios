@@ -11,6 +11,7 @@ import Foundation
 import CoreNFC
 
 /// The basic protocol for card commands
+@available(iOS 13.0, *)
 public protocol Command: CardSessionRunnable, ErrorHandler {
     /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
     /// - Parameter environment: `SessionEnvironment` of the current card
@@ -25,7 +26,8 @@ public protocol Command: CardSessionRunnable, ErrorHandler {
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
 
-extension Command {
+@available(iOS 13.0, *)
+extension Command {    
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         transieve(in: session, completion: completion)
     }
@@ -35,6 +37,11 @@ extension Command {
     }
     
     func transieve(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+        if needPreflightRead && session.environment.card == nil {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+        
         do {
             let commandApdu = try serialize(with: session.environment)
             transieve(apdu: commandApdu, in: session) { result in
@@ -98,7 +105,7 @@ extension Command {
     
     /// Helper method to parse security delay information received from a card.
     /// - Returns: Remaining security delay in milliseconds.
-    private func deserializeSecurityDelay(with environment: SessionEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
+     private func deserializeSecurityDelay(with environment: SessionEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
             let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
                 return nil
@@ -110,9 +117,9 @@ extension Command {
 }
 
 /// The basic protocol for command response
-public protocol TlvCodable: Codable, CustomStringConvertible {}
+public protocol ResponseCodable: Codable, CustomStringConvertible {}
 
-extension TlvCodable {
+extension ResponseCodable {
     public var description: String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
@@ -125,7 +132,6 @@ extension TlvCodable {
         dateFormatter.locale = Locale(identifier: "en_US")
         dateFormatter.dateStyle = .medium
         encoder.dateEncodingStrategy = .formatted(dateFormatter)
-        
         let data = (try? encoder.encode(self)) ?? Data()
         return String(data: data, encoding: .utf8)!
     }
