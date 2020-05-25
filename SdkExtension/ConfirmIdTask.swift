@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct ConfirmIdResponse: TlvCodable {
+struct ConfirmIdResponse: ResponseCodable {
     let issuerData: Data
     let signature: Data
 }
@@ -80,7 +80,7 @@ final class ConfirmIdTask: CardSessionRunnable {
                 }
                 
                 session.viewDelegate.showAlertMessage("Signing")
-                session.restartPolling()
+              //  session.restartPolling()
                 self.sign(in: session, hashes: hashes)
             }
         }) { _,_  in
