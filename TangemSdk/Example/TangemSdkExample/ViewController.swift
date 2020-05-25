@@ -12,7 +12,12 @@ import TangemSdk
 class ViewController: UIViewController {
     @IBOutlet weak var logView: UITextView!
     
-    var tangemSdk = TangemSdk()
+    lazy var tangemSdk: TangemSdk = {
+        var config = Config()
+        config.linkedTerminal = false
+        return TangemSdk(config: config)
+    }()
+    
     var card: Card?
     var issuerDataResponse: ReadIssuerDataResponse?
     var issuerExtraDataResponse: ReadIssuerExtraDataResponse?
@@ -32,7 +37,7 @@ class ViewController: UIViewController {
     
     @IBAction func signHashesTapped(_ sender: Any) {
         if #available(iOS 13.0, *) {
-            let hashes = (0..<15).map {_ -> Data in getRandomHash()}
+            let hashes = (0..<5).map {_ -> Data in getRandomHash()}
             guard let cardId = card?.cardId else {
                 self.log("Please, scan card before")
                 return
@@ -288,14 +293,14 @@ class ViewController: UIViewController {
     func chainingExample() {
         tangemSdk.startSession(cardId: nil) { session, error in
             let cmd1 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
-            cmd1!.run(in: session, completion: { result in
+            cmd1.run(in: session, completion: { result in
                 switch result {
                 case .success(let response1):
                     DispatchQueue.main.async {
                         self.log(response1)
                     }
                     let cmd2 = CheckWalletCommand(curve: session.environment.card!.curve!, publicKey: session.environment.card!.walletPublicKey!)
-                    cmd2!.run(in: session, completion: { result in
+                    cmd2.run(in: session, completion: { result in
                         switch result {
                         case .success(let response2):
                             DispatchQueue.main.async {
