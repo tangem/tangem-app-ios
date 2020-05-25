@@ -25,19 +25,11 @@ public struct CommandApdu: Equatable {
     fileprivate let data: Data
     fileprivate let le: Int
     
-    /// Optional encryption
-    private let encryptionKey: Data?
-    
     /// Convinience initializer
     /// - Parameter instruction: Instruction code
     /// - Parameter tlv: data
-    /// - Parameter encryptionMode:  optional encryption mode. Default to none
-    /// - Parameter encryptionKey:  optional encryption
-    public init(_ instruction: Instruction, tlv: Data, encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) {
-        self.init(ins: instruction.rawValue,
-                  p1: encryptionMode.rawValue,
-                  tlv: tlv,
-                  encryptionKey: encryptionKey)
+    public init(_ instruction: Instruction, tlv: Data) {
+        self.init(ins: instruction.rawValue, tlv: tlv)
     }
     
     /// Raw initializer
@@ -53,17 +45,23 @@ public struct CommandApdu: Equatable {
                 p1: Byte = 0x0,
                 p2: Byte = 0x0,
                 le: Int = -1,
-                tlv: Data,
-                encryptionKey: Data? = nil) {
+                tlv: Data) {
         self.cla = cla
         self.ins = ins
         self.p1 = p1
         self.p2 = p2
         self.le = le
-        self.encryptionKey = encryptionKey
         data = tlv
-        
-        //[REDACTED_TODO_COMMENT]
+    }
+    
+    
+    /// <#Description#>
+    /// - Parameters:
+    /// - Parameter encryptionMode:  optional encryption mode. Default to none
+    /// - Parameter encryptionKey:  optional encryption
+    /// - Returns: <#description#>
+    public func encrypt(encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) -> CommandApdu {
+        return self
     }
 }
 
