@@ -12,6 +12,7 @@ import CoreNFC
 #endif
 
 /// The main interface of Tangem SDK that allows your app to communicate with Tangem cards.
+@available(iOS 13.0, *)
 public final class TangemSdk {
     /// Check if the current device doesn't support the desired NFC operations
     public static var isNFCAvailable: Bool {
@@ -62,11 +63,7 @@ public final class TangemSdk {
      *   - completion: Returns `Swift.Result<Card,SessionError>`
      */
     public func scanCard(initialMessage: String? = nil, completion: @escaping CompletionResult<Card>) {
-        if #available(iOS 13.0, *) {
-            startSession(with: ScanTask(), cardId: nil, initialMessage: initialMessage, completion: completion)
-        } else {
-            startSession(with: ScanTaskLegacy(), cardId: nil, initialMessage: initialMessage, completion: completion)
-        }
+        startSession(with: ScanTask(), cardId: nil, initialMessage: initialMessage, completion: completion)
     }
     
     /**
@@ -303,13 +300,13 @@ public final class TangemSdk {
     /// - Parameters:
     ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
     ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-    ///   - delegate: At first, you should check that the `SessionError` is not nil, then you can use the `CardSession` to interact with a card.
+    ///   - callback: At first, you should check that the `SessionError` is not nil, then you can use the `CardSession` to interact with a card.
     ///   You can find the current card in the `environment` property of the `CardSession`
     ///   If you need to interact with UI, you should dispatch to the main thread manually
     @available(iOS 13.0, *)
-    public func startSession(cardId: String?, initialMessage: String? = nil, delegate: @escaping (CardSession, SessionError?) -> Void) {
+    public func startSession(cardId: String?, initialMessage: String? = nil, callback: @escaping (CardSession, SessionError?) -> Void) {
         cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage, cardReader: reader, viewDelegate: viewDelegate)
-        cardSession?.start(delegate: delegate)
+        cardSession?.start(callback)
     }
     
     private func buildEnvironment() -> SessionEnvironment {

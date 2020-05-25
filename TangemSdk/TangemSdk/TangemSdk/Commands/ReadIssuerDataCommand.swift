@@ -9,7 +9,7 @@
 import Foundation
 
 /// Deserialized response from the Tangem card after `ReadIssuerDataCommand`.
-public struct ReadIssuerDataResponse: TlvCodable {
+public struct ReadIssuerDataResponse: ResponseCodable {
     /// Unique Tangem card ID number
     public let cardId: String
     /// Data defined by issuer
@@ -27,7 +27,7 @@ public struct ReadIssuerDataResponse: TlvCodable {
     /// then this value is mandatory and must increase on each execution of `WriteIssuerDataCommand`.
     public let issuerDataCounter: Int?
     
-    public func verify(with publicKey: Data) -> Bool? {
+    func verify(with publicKey: Data) -> Bool? {
         return IssuerDataVerifier.verify(cardId: cardId,
                                          issuerData: issuerData,
                                          issuerDataCounter: issuerDataCounter,
