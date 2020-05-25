@@ -69,6 +69,11 @@ public final class ReadIssuerDataCommand: Command {
         transieve(in: session) { result in
             switch result {
             case .success(let response):
+                guard response.issuerData.count > 0 else {
+                    completion(.success(response))
+                    return
+                }
+                
                 if let result = response.verify(with: self.issuerPublicKey!),
                     result == true {
                     completion(.success(response))
