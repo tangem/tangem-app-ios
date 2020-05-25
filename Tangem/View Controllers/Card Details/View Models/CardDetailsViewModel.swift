@@ -30,27 +30,25 @@ class CardDetailsViewModel: NSObject {
     
     @IBOutlet weak var balanceLabel: UILabel! {
         didSet {
-            balanceLabel.font = UIFont.tgm_maaxFontWith(size: 24, weight: .medium)
+            balanceLabel.font = UIFont.tgm_maaxFontWith(size: 20, weight: .medium)
         }
     }
     @IBOutlet weak var balanceVerificationLabel: UILabel! {
         didSet {
-            balanceVerificationLabel.font = UIFont.tgm_maaxFontWith(size: 14, weight: .medium)
+            balanceVerificationLabel.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
         }
     }
     
     @IBOutlet weak var walletBlockchainLabel: UILabel! {
         didSet {
-            walletBlockchainLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
+            walletBlockchainLabel.font = UIFont.tgm_maaxFontWith(size: 18, weight: .medium)
         }
     }
     
     
     @IBOutlet weak var walletAddressLabel: UILabel! {
         didSet {
-            walletAddressLabel.font = UIFont.tgm_maaxFontWith(size: 13, weight: .medium)
-            walletAddressLabel.adjustsFontSizeToFitWidth = true
-            walletAddressLabel.minimumScaleFactor = 0.7
+            walletAddressLabel.font = UIFont.tgm_maaxFontWith(size: 15, weight: .medium)
         }
     }
     
@@ -146,20 +144,13 @@ extension CardDetailsViewModel {
             self.extractButton.isEnabled = !loading
             self.loadButton.isEnabled = !loading
         
-        if loading {
-            if let rc = scrollView.refreshControl, !rc.isRefreshing {
-                rc.beginRefreshing()
-                scrollView.setContentOffset(CGPoint(x: 0, y: scrollView.contentOffset.y - rc.frame.height), animated: true)
-            }
-        } else {
+        if !loading {
             scrollView.refreshControl?.endRefreshing()
         }
     }
     
     func updateWalletAddress(_ text: String) {
-        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 5.0)
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.paragraphStyle : paragraphStyle,
-                                                                           NSAttributedString.Key.kern : 0.88])
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88])
         walletAddressLabel.attributedText = attributedText
     }
     
@@ -192,7 +183,7 @@ extension CardDetailsViewModel {
 
         if let subtitle = subtitle {
             let subtitleAttributedString = NSAttributedString(string: subtitle, 
-                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 14, weight: .medium)])
+                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 16, weight: .medium)])
             attributedText.append(subtitleAttributedString)
         }        
         
