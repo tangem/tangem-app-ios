@@ -9,7 +9,7 @@
 import Foundation
 
 /// Deserialized response from the Tangem card after `WriteIssuerDataCommand`.
-public struct WriteIssuerDataResponse: TlvCodable {
+public struct WriteIssuerDataResponse: ResponseCodable {
     /// Unique Tangem card ID number
     public let cardId: String
 }
@@ -59,8 +59,13 @@ public final class WriteIssuerDataCommand: Command {
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
-        guard let settingsMask = session.environment.card?.settingsMask,
-            let cardId = session.environment.card?.cardId else {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+        
+        guard let settingsMask = card.settingsMask,
+            let cardId = card.cardId else {
                 completion(.failure(.cardError))
                 return
         }
