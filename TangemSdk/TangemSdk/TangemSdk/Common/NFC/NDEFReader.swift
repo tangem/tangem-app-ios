@@ -8,18 +8,24 @@
 
 import Foundation
 import CoreNFC
+import Combine
 
 /// Provides NFC communication between an  application and Tangem card (iOS 12 and earlier)
-public final class NDEFReader: NSObject {
+
+final class NDEFReader: NSObject {
     static let tangemWalletRecordType = "tangem.com:wallet"
     
-    public var tagDidConnect: (() -> Void)?
+    @available(iOS 13.0, *)
+    var tag: CurrentValueSubject<NFCTagType?,SessionError> {
+        fatalError("Unsupported")
+    }
     
     private var readerSession: NFCNDEFReaderSession?
     private var completion: ((Result<ResponseApdu, SessionError>) -> Void)?
 }
 
 extension NDEFReader: NFCNDEFReaderSessionDelegate {
+    
     public func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
         let nfcError = error as! NFCReaderError
         
@@ -30,7 +36,6 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
     }
     
     public func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
-        tagDidConnect?()
         let bytes: [Byte] = messages.flatMap { message -> [NFCNDEFPayload] in
             return message.records
         }.filter{ record -> Bool in
@@ -57,6 +62,10 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
 }
 
 extension NDEFReader: CardReader {
+    public func readSlix2Tag(completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
+        assertionFailure("Unsupported")
+    }
+    
     public var isReady: Bool {
         return readerSession?.isReady ?? false
     }
@@ -69,10 +78,10 @@ extension NDEFReader: CardReader {
     public func stopSession(with errorMessage: String? = nil) {
         completion = nil
         readerSession?.invalidate()
-                readerSession = nil
+        readerSession = nil
     }
     
-    public func send(commandApdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
+    public func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
         self.completion = completion
         if #available(iOS 13.0, *), readerSession != nil {
             readerSession!.restartPolling()
