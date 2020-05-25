@@ -19,23 +19,17 @@ public final class CreateWalletTask: CardSessionRunnable {
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
-        
         guard let curve = session.environment.card?.curve else {
             completion(.failure(.cardError))
             return
         }
-        
+
         let command = CreateWalletCommand()
         command.run(in: session) { result in
             switch result {
             case .success(let createWalletResponse):
                 if createWalletResponse.status == .loaded {
-                    guard let checkWalletCommand = CheckWalletCommand(curve: curve, publicKey: createWalletResponse.walletPublicKey) else {
-                        completion(.failure(.failedToGenerateRandomSequence))
-                        return
-                    }
-                    
-                    checkWalletCommand.run(in: session) { checkWalletResult in
+                    CheckWalletCommand(curve: curve, publicKey: createWalletResponse.walletPublicKey).run(in: session) { checkWalletResult in
                         switch checkWalletResult {
                         case .success(_):
                             completion(.success(createWalletResponse))
