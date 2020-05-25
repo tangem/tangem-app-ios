@@ -34,7 +34,7 @@
 		5D273A0D234F270200ACDA11 /* Seed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2739F6234F270200ACDA11 /* Seed.swift */; };
 		5D41EA0623D19BAD004DE701 /* TangemTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D41EA0523D19BAD004DE701 /* TangemTimer.swift */; };
 		5D437EEB237BE980009C82A8 /* TlvTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D437EEA237BE980009C82A8 /* TlvTests.swift */; };
-		5D5369D224461F62002886E0 /* module.modulemap in Sources */ = {isa = PBXBuildFile; fileRef = 5D5369D124461F62002886E0 /* module.modulemap */; };
+		5D5369D224461F62002886E0 /* module.modulemap in Resources */ = {isa = PBXBuildFile; fileRef = 5D5369D124461F62002886E0 /* module.modulemap */; };
 		5D58202024221E060057EF40 /* CardSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58201F24221E060057EF40 /* CardSession.swift */; };
 		5D58202224221E2B0057EF40 /* SessionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58202124221E2B0057EF40 /* SessionError.swift */; };
 		5D58B4BF233E4C6B00F33764 /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D58B4BE233E4C6B00F33764 /* InputStream+.swift */; };
@@ -78,6 +78,8 @@
 		5DC62D3E23506CF300195A51 /* TlvDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DC62D3D23506CF300195A51 /* TlvDecoder.swift */; };
 		5DCAA7872383DDC200249F42 /* ReadIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */; };
 		5DCAA7892383E25200249F42 /* WriteIssuerDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */; };
+		5DD5368B2476B3FB00F5DE88 /* Success.ahap in Resources */ = {isa = PBXBuildFile; fileRef = 5DD536892476B3FA00F5DE88 /* Success.ahap */; };
+		5DD5368C2476B3FB00F5DE88 /* Error.ahap in Resources */ = {isa = PBXBuildFile; fileRef = 5DD5368A2476B3FB00F5DE88 /* Error.ahap */; };
 		5DE5550C2458408B000E1816 /* ReadUserDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE5550B2458408B000E1816 /* ReadUserDataCommand.swift */; };
 		5DE5550E2458409E000E1816 /* WriteUserDataCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE5550D2458409E000E1816 /* WriteUserDataCommand.swift */; };
 		5DE59F2B23D96F8B00312DA4 /* NfcUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE59F2A23D96F8B00312DA4 /* NfcUtils.swift */; };
@@ -176,6 +178,8 @@
 		5DC62D3D23506CF300195A51 /* TlvDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TlvDecoder.swift; sourceTree = "<group>"; };
 		5DCAA7862383DDC200249F42 /* ReadIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadIssuerDataCommand.swift; sourceTree = "<group>"; };
 		5DCAA7882383E25200249F42 /* WriteIssuerDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataCommand.swift; sourceTree = "<group>"; };
+		5DD536892476B3FA00F5DE88 /* Success.ahap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Success.ahap; sourceTree = "<group>"; };
+		5DD5368A2476B3FB00F5DE88 /* Error.ahap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Error.ahap; sourceTree = "<group>"; };
 		5DDF4F89235F06F600E46EAB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5DE5550B2458408B000E1816 /* ReadUserDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadUserDataCommand.swift; sourceTree = "<group>"; };
 		5DE5550D2458409E000E1816 /* WriteUserDataCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteUserDataCommand.swift; sourceTree = "<group>"; };
@@ -358,6 +362,7 @@
 				5D6A92E12345F28F00158457 /* Commands */,
 				5DF7CFCA233D034E00461F4D /* Common */,
 				5DFFC1A2234DC969001C2F35 /* Crypto */,
+				5DD536882476B3FA00F5DE88 /* Haptics */,
 			);
 			path = TangemSdk;
 			sourceTree = "<group>";
@@ -375,6 +380,15 @@
 				5D437EEA237BE980009C82A8 /* TlvTests.swift */,
 			);
 			path = TangemSdkTests;
+			sourceTree = "<group>";
+		};
+		5DD536882476B3FA00F5DE88 /* Haptics */ = {
+			isa = PBXGroup;
+			children = (
+				5DD536892476B3FA00F5DE88 /* Success.ahap */,
+				5DD5368A2476B3FB00F5DE88 /* Error.ahap */,
+			);
+			path = Haptics;
 			sourceTree = "<group>";
 		};
 		5DE59F2723D96F5C00312DA4 /* Services */ = {
@@ -545,7 +559,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DD5368C2476B3FB00F5DE88 /* Error.ahap in Resources */,
+				5D5369D224461F62002886E0 /* module.modulemap in Resources */,
 				5D6A92D82344E2D700158457 /* Localizable.strings in Resources */,
+				5DD5368B2476B3FB00F5DE88 /* Success.ahap in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,7 +609,6 @@
 				5D2739FE234F270200ACDA11 /* sign.c in Sources */,
 				5D6831D423DB31AB0095BB1D /* PurgeWalletCommand.swift in Sources */,
 				5DCAA7872383DDC200249F42 /* ReadIssuerDataCommand.swift in Sources */,
-				5D5369D224461F62002886E0 /* module.modulemap in Sources */,
 				5D273A04234F270200ACDA11 /* keypair.c in Sources */,
 				5DA5B61C233E12B30058C720 /* Tlv.swift in Sources */,
 				5D7D5FB223449D4000058D69 /* SessionEnvironment.swift in Sources */,
@@ -839,7 +855,7 @@
 					"-weak_framework",
 					CryptoKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.tangemSdk.TangemSdk;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.tangemSdk.example;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/TangemSdk/Crypto/Ed25519/CEd25519";
@@ -878,7 +894,7 @@
 					"-weak_framework",
 					CryptoKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.tangemSdk.TangemSdk;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.tangemSdk.example;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/TangemSdk/Crypto/Ed25519/CEd25519";
