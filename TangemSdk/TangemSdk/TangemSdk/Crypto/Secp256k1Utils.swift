@@ -61,7 +61,7 @@ public final class Secp256k1Utils {
     public static func generateKeyPair() -> KeyPair? {
         guard let ctx = context else { return nil }
         
-        guard let privateKey = CryptoUtils.generateRandomBytes(count: 32)?.toBytes else { return nil }
+        guard let privateKey = (try? CryptoUtils.generateRandomBytes(count: 32))?.toBytes else { return nil }
         
         guard secp256k1_ec_seckey_verify(ctx, privateKey) == 1 else { return nil }
         
