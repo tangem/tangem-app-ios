@@ -24,6 +24,7 @@ protocol DefaultErrorAlertsCapable {
     func handleGenericError(_ error: Error, completion: (() -> Void)?)
     func handleStart2CoinLoad()
     func handleOldDevice(completion: @escaping () -> Void)
+    func handleIOS12()
 }
 
 extension DefaultErrorAlertsCapable where Self: UIViewController {
@@ -142,4 +143,12 @@ extension DefaultErrorAlertsCapable where Self: UIViewController {
            }))
            self.present(validationAlert, animated: true, completion: nil)
        }
+    
+    func handleIOS12() {
+        if #available(iOS 13.0, *) {} else {
+            let validationAlert = UIAlertController(title: Localizations.dialogWarning, message: Localizations.oldIOS12, preferredStyle: .alert)
+            validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: { (_) in}))
+            self.present(validationAlert, animated: true, completion: nil)
+        }
+    }
 }
