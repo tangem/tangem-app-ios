@@ -115,7 +115,7 @@ public protocol TlvCodable: Codable, CustomStringConvertible {}
 extension TlvCodable {
     public var description: String {
         let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
+        encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
         encoder.dataEncodingStrategy = .custom{ data, encoder in
             var container = encoder.singleValueContainer()
             return try container.encode(data.asHexString())
