@@ -901,3 +901,5 @@
 
 /*  */
 "balance_validator_second_line_create_account_xrp" = "Chargez plus de 20 XRP pour créer un compte";
+
+"oldIOS12" = "Tangem is deprecating support of iOS 12 in a new security update. Please update to iOS 13 and the latest version of Tangem App to maintain security with our products.";
