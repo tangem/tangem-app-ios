@@ -22,6 +22,7 @@ class CardDetailsViewModel: NSObject {
     
     // MARK: Image Views
     
+    @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var qrCodeImageView: UIImageView!
     @IBOutlet weak var cardImageView: UIImageView!
     
@@ -29,47 +30,29 @@ class CardDetailsViewModel: NSObject {
     
     @IBOutlet weak var balanceLabel: UILabel! {
         didSet {
-            balanceLabel.font = UIFont.tgm_maaxFontWith(size: 24, weight: .medium)
+            balanceLabel.font = UIFont.tgm_maaxFontWith(size: 20, weight: .medium)
         }
     }
     @IBOutlet weak var balanceVerificationLabel: UILabel! {
         didSet {
-            balanceVerificationLabel.font = UIFont.tgm_maaxFontWith(size: 14, weight: .medium)
+            balanceVerificationLabel.font = UIFont.tgm_maaxFontWith(size: 16, weight: .medium)
         }
     }
     
     @IBOutlet weak var walletBlockchainLabel: UILabel! {
         didSet {
-            walletBlockchainLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
+            walletBlockchainLabel.font = UIFont.tgm_maaxFontWith(size: 18, weight: .medium)
         }
     }
     
-    @IBOutlet weak var doubleScanHintLabel: UILabel! {
-        didSet {
-            doubleScanHintLabel.font = UIFont.tgm_maaxFontWith(size: 17, weight: .medium)
-            doubleScanHintLabel.textColor = UIColor.tgm_red()
-            doubleScanHintLabel.text = Localizations.doubleScanHint
-        }
-    }
-    //    [REDACTED_USERNAME] weak var networkSafetyDescriptionLabel: UILabel! {
-//        didSet {
-//            networkSafetyDescriptionLabel.font = UIFont.tgm_maaxFontWith(size: 12)
-//        }
-//    }
     
     @IBOutlet weak var walletAddressLabel: UILabel! {
         didSet {
-            walletAddressLabel.font = UIFont.tgm_maaxFontWith(size: 14, weight: .medium)
+            walletAddressLabel.font = UIFont.tgm_maaxFontWith(size: 15, weight: .medium)
         }
     }
     
     // MARK: Buttons
-    
-    @IBOutlet weak var buttonsAvailabilityView: UIView! {
-        didSet {
-            buttonsAvailabilityView.isHidden = true
-        }
-    }
     
     @IBOutlet weak var loadButton: UIButton! {
         didSet {
@@ -145,23 +128,9 @@ class CardDetailsViewModel: NSObject {
     
     // MARK: Other
     
-    @IBOutlet weak var balanceVerificationActivityIndicator: UIActivityIndicatorView!
-    
-    @IBOutlet weak var cardWalletInfoView: UIView! {
-        didSet {
-            let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapBalance))
-            tapRecognizer.numberOfTapsRequired = 1
-            cardWalletInfoView.addGestureRecognizer(tapRecognizer)
-        }
-    }
-    @IBOutlet weak var cardWalletInfoLoadingView: UIView!
+    @IBOutlet weak var cardWalletInfoView: UIView!
+
     @IBOutlet weak var qrCodeContainerView: UIView!
-    
-    @objc func didTapBalance() {
-       onBalanceTap?(false)
-    }
-    
-    public var onBalanceTap: ((Bool) -> Void)?
 }
 
 extension CardDetailsViewModel {
@@ -171,25 +140,25 @@ extension CardDetailsViewModel {
     }
     
     func setWalletInfoLoading(_ loading: Bool) {
-        UIView.animate(withDuration: 0.1) {
-            self.cardWalletInfoView.isHidden = loading
-            self.cardWalletInfoLoadingView.isHidden = !loading
-            self.buttonsAvailabilityView.isHidden = !loading
+            self.actionButton.isEnabled = !loading
+            self.extractButton.isEnabled = !loading
+            self.loadButton.isEnabled = !loading
+        
+        if !loading {
+            scrollView.refreshControl?.endRefreshing()
         }
     }
     
     func updateWalletAddress(_ text: String) {
-        let paragraphStyle = paragraphStyleWith(lineSpacingChange: 5.0)
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.paragraphStyle : paragraphStyle,
-                                                                           NSAttributedString.Key.kern : 0.88])
+        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88])
         walletAddressLabel.attributedText = attributedText
     }
     
     func updateWalletBalanceIsBeingVerified() {
-        let text = Localizations.loadedWalletVerifyingInBlockchain
-        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88,
-                                                                           NSAttributedString.Key.foregroundColor : UIColor.black])
-        balanceVerificationLabel.attributedText = attributedText
+//        let text = Localizations.loadedWalletVerifyingInBlockchain
+//        let attributedText = NSAttributedString(string: text, attributes: [NSAttributedString.Key.kern : 0.88,
+//                                                                           NSAttributedString.Key.foregroundColor : UIColor.black])
+//        balanceVerificationLabel.attributedText = attributedText
     }
     
     func updateWalletBalanceVerification(_ verified: Bool, customText: String? = nil) {
@@ -214,7 +183,7 @@ extension CardDetailsViewModel {
 
         if let subtitle = subtitle {
             let subtitleAttributedString = NSAttributedString(string: subtitle, 
-                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 14, weight: .medium)])
+                                                              attributes: [NSAttributedString.Key.font : UIFont.tgm_maaxFontWith(size: 16, weight: .medium)])
             attributedText.append(subtitleAttributedString)
         }        
         
