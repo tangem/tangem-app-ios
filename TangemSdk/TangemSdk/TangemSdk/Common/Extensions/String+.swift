@@ -22,4 +22,8 @@ public extension String {
         let data = Data(Array(utf8))
         return data.getSha512()
     }
+    
+    internal func capitalizingFirst() -> String {
+        return prefix(1).capitalized + dropFirst()
+    }
 }
