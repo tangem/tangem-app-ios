@@ -9,16 +9,16 @@
 import Foundation
 
 class LTCEngine: BTCEngine {
+    override var relayFee: Decimal {
+        Decimal(0.00001)
+    }
+    
     override var blockcyperApi: BlockcyperApi {
         .ltc
     }
     
     override var trait: CoinTrait {
         .allowsFeeInclude
-    }
-    
-    override var fixedFee: String? {
-        "0.00001"
     }
     
     override var possibleFirstAddressCharacters: [String] {
