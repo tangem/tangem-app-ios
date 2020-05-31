@@ -367,7 +367,7 @@ public final class ReadCommand: Command {
         }
     }
     
-    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
+    func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         /// `SessionEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.
         /// In order to obtain card’s data, [ReadCommand] should use the correct pin 1 value.
@@ -381,7 +381,7 @@ public final class ReadCommand: Command {
         return CommandApdu(.read, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadResponse {
+    func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadResponse {
         return try CardDeserializer.deserialize(with: environment, from: apdu)
     }
 }
