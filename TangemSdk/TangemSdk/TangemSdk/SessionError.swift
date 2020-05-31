@@ -137,6 +137,10 @@ public enum SessionError: Int, Error, LocalizedError, Encodable {
     /// This error is returned when `issuerPublicKey` requires to perform operation
     case missingIssuerPublicKey = 7002
     
+    case failedToEstablishEncryption = 8000
+    
+    case invalidResponse = 8001
+    
     public var code: Int {
         return rawValue
     }

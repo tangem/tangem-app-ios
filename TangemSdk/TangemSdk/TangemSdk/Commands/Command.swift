@@ -10,9 +10,10 @@
 import Foundation
 import CoreNFC
 
-/// The basic protocol for card commands
-@available(iOS 13.0, *)
-public protocol Command: CardSessionRunnable, ErrorHandler {
+protocol ApduSerializable {
+    /// Simple interface for responses received after sending commands to Tangem cards.
+    associatedtype CommandResponse: ResponseCodable
+    
     /// Serializes data into an array of `Tlv`, then creates `CommandApdu` with this data.
     /// - Parameter environment: `SessionEnvironment` of the current card
     /// - Returns: Command data that can be converted to `NFCISO7816APDU` with appropriate initializer
@@ -25,6 +26,22 @@ public protocol Command: CardSessionRunnable, ErrorHandler {
     /// - Returns: Card response, converted to a `CommandResponse` of a type `T`.
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CommandResponse
 }
+
+extension ApduSerializable {
+    /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
+    /// 4 - Timeout setting for ping nfc-module
+    func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
+        let builder = TlvBuilder()
+        if legacyMode {
+            try! builder.append(.legacyMode, value: 4)
+        }
+        return builder
+    }
+}
+
+/// The basic protocol for card commands
+@available(iOS 13.0, *)
+protocol Command: ApduSerializable, CardSessionRunnable, ErrorHandler {}
 
 @available(iOS 13.0, *)
 extension Command {    
@@ -44,7 +61,7 @@ extension Command {
         
         do {
             let commandApdu = try serialize(with: session.environment)
-            transieve(apdu: commandApdu, in: session) { result in
+            session.send(apdu: commandApdu) { result in
                 switch result {
                 case .success(let responseApdu):
                     do {
@@ -62,45 +79,35 @@ extension Command {
         }
     }
     
-    func transieve(apdu: CommandApdu, in session: CardSession, completion: @escaping CompletionResult<ResponseApdu>) {
-        session.send(apdu: apdu) {commandResponse in
-            switch commandResponse {
-            case .success(let responseApdu):
-                switch responseApdu.statusWord {
-                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
-                    completion(.success(responseApdu))
-                case .needPause:
-                    if let securityDelayResponse = self.deserializeSecurityDelay(with: session.environment, from: responseApdu) {
-                        session.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
-                        if securityDelayResponse.saveToFlash {
-                            session.restartPolling()
-                        }
-                    }
-                    self.transieve(apdu: apdu, in: session, completion: completion)
-                default:
-                    if let error = responseApdu.statusWord.toSessionError() {
-                        if let newError = self.tryHandleError(error) {
-                            completion(.failure(newError))
-                        }
-                    } else {
-                        completion(.failure(.unknownError))
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-    
-    /// Fix nfc issues with long-running commands and security delay for iPhone 7/7+. Card firmware 2.39
-    /// 4 - Timeout setting for ping nfc-module
-    func createTlvBuilder(legacyMode: Bool) -> TlvBuilder {
-        let builder = TlvBuilder()
-        if legacyMode {
-            try! builder.append(.legacyMode, value: 4)
-        }
-        return builder
-    }
+//    func transieve(apdu: CommandApdu, in session: CardSession, completion: @escaping CompletionResult<ResponseApdu>) {
+//        session.send(apdu: apdu) {commandResponse in
+//            switch commandResponse {
+//            case .success(let responseApdu):
+//                switch responseApdu.statusWord {
+//                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
+//                    completion(.success(responseApdu))
+//                case .needPause:
+//                    if let securityDelayResponse = self.deserializeSecurityDelay(with: session.environment, from: responseApdu) {
+//                        session.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
+//                        if securityDelayResponse.saveToFlash {
+//                            session.restartPolling()
+//                        }
+//                    }
+//                    self.transieve(apdu: apdu, in: session, completion: completion)
+//                default:
+//                    if let error = responseApdu.statusWord.toSessionError() {
+//                        if let newError = self.tryHandleError(error) {
+//                            completion(.failure(newError))
+//                        }
+//                    } else {
+//                        completion(.failure(.unknownError))
+//                    }
+//                }
+//            case .failure(let error):
+//                completion(.failure(error))
+//            }
+//        }
+//    }
     
     
     /// Helper method to parse security delay information received from a card.
