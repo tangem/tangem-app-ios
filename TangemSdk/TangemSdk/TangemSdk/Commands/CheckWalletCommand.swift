@@ -61,7 +61,7 @@ public final class CheckWalletCommand: Command {
         }
     }
     
-    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
+    func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         challenge = try CryptoUtils.generateRandomBytes(count: 16)
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
@@ -71,7 +71,7 @@ public final class CheckWalletCommand: Command {
         return CommandApdu(.checkWallet, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CheckWalletResponse {
+    func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CheckWalletResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
