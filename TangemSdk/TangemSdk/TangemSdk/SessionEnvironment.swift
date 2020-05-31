@@ -10,9 +10,9 @@ import Foundation
 
 //All encryption modes
 public enum EncryptionMode: Byte {
-    case none = 0x0
-    case fast = 0x1
-    case strong = 0x2
+    case none = 0x00
+    case fast = 0x01
+    case strong = 0x02
 }
 
 public struct KeyPair: Equatable {
@@ -38,7 +38,10 @@ public struct SessionEnvironment {
     
     /// Keys for Linked Terminal feature
     public var terminalKeys: KeyPair? = nil
+    
+    public var encryptionMode: EncryptionMode = .none
     public var encryptionKey: Data? = nil
+
     public var cvc: Data? = nil
     
     var legacyMode: Bool = true
