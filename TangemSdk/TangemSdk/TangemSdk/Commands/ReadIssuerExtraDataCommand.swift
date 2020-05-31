@@ -157,7 +157,7 @@ public final class ReadIssuerExtraDataCommand: Command {
         viewDelegate?.showAlertMessage(Localization.readProgress(progress.description))
     }
     
-    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
+    func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
             .append(.cardId, value: environment.card?.cardId)
@@ -167,7 +167,7 @@ public final class ReadIssuerExtraDataCommand: Command {
         return CommandApdu(.readIssuerData, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
+    func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadIssuerExtraDataResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
