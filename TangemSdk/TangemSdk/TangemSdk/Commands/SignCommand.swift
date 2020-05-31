@@ -99,7 +99,7 @@ public final class SignCommand: Command {
     }
     
     
-    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
+    func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let flattenHashes = Data(hashes[getChunk()].joined())
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
@@ -127,7 +127,7 @@ public final class SignCommand: Command {
         return CommandApdu(.sign, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> SignResponse {
+    func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> SignResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
