@@ -7,22 +7,42 @@
 //
 
 import Foundation
-import KeychainSwift
+import Security
 
 /// Helper class for Keychain
 class SecureStorageService: NSObject {
     func get(key: String) -> Any? {
-        let keychain = KeychainSwift()
-        if let data = keychain.getData(key) {
+        let query: [String: Any] = [
+            kSecClass as String      : kSecClassGenericPassword,
+            kSecAttrAccount as String : key,
+            kSecMatchLimit as String  : kSecMatchLimitOne,
+            kSecReturnData as String : true
+        ]
+        
+        var result: AnyObject?
+        let status = withUnsafeMutablePointer(to: &result) {
+            SecItemCopyMatching(query as CFDictionary, UnsafeMutablePointer($0))
+        }
+        
+        if status == noErr, let data = result as? Data {
             return NSKeyedUnarchiver.unarchiveObject(with: data)
         }
+        
         return nil
     }
     
-    func store(object: Any, key: String) {
+    @discardableResult
+    func store(object: Any, key: String) -> Bool {
         let data = NSKeyedArchiver.archivedData(withRootObject: object)
-        let keychain = KeychainSwift()
-        keychain.synchronizable = false
-        keychain.set(data, forKey: key, withAccess: .accessibleWhenUnlocked)
+        
+        let query: [String : Any] = [
+            kSecClass as String : kSecClassGenericPassword,
+            kSecAttrAccount as String : key,
+            kSecValueData as String : data,
+            kSecAttrAccessible  as String : kSecAttrAccessibleWhenUnlocked
+        ]
+        
+        let status = SecItemAdd(query as CFDictionary, nil)
+        return status == errSecSuccess
     }
 }

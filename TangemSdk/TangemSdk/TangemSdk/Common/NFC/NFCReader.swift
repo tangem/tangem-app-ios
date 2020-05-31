@@ -14,7 +14,7 @@ import CoreNFC
 @available(iOS 13.0, *)
 final class NFCReader: NSObject {
     static let tagTimeout = 18.0
-    static let idleTimeout = 2.0
+    static let idleTimeout = 60.0 //todo: return back to 2
     static let sessionTimeout = 52.0
     static let nfcStuckTimeout = 5.0
     static let retryCount = 10
@@ -277,7 +277,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
             let tagType = self.getTagType(nfcTag)
             self.tag.send(tagType)
             
-            if tagType == .tag {
+            if case .tag = tagType {
                 self.idleTimer.start()
             }
         }
@@ -285,8 +285,8 @@ extension NFCReader: NFCTagReaderSessionDelegate {
     
     private func getTagType(_ nfcTag: NFCTag) -> NFCTagType {
         switch nfcTag {
-        case .iso7816:
-            return .tag
+        case .iso7816(let iso7816Tag):
+            return .tag(uid: iso7816Tag.identifier)
         case .iso15693:
             return .slix2
         default:
