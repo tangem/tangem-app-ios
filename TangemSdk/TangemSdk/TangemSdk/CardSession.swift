@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CommonCrypto
 
 public typealias CompletionResult<T> = (Result<T, SessionError>) -> Void
 
@@ -133,7 +134,7 @@ public class CardSession {
                     onSessionStarted(self, error)
                 }}, receiveValue: { [unowned self] tag in
                     self.viewDelegate.sessionStarted()
-                    if tag == .tag && needPreflightRead {
+                    if case .tag = tag, needPreflightRead {
                         self.preflightCheck(onSessionStarted)
                     } else {
                         self.viewDelegate.sessionInitialized()
@@ -189,22 +190,77 @@ public class CardSession {
         }
         
         reader.tag
-            .compactMap{ $0 }
-            .sink(receiveCompletion: { [weak self] readerCompletion in
+            .compactMap{ _ in }
+            .flatMap { self.sendInternalCombine(apdu: apdu) }
+            .sink(receiveCompletion: { readerCompletion in
+                self.sendSubscription = []
                 if case let .failure(error) = readerCompletion {
-                    self?.sendSubscription = []
                     completion(.failure(error))
                 }
-            }, receiveValue: { [unowned self] _ in
-                //open session if need
-                //apdu.encrypt
-                self.reader.send(apdu: apdu) { [weak self] result in
-                    self?.sendSubscription = []
-                    completion(result)
-                }
+            }, receiveValue: { responseApdu in
+                self.sendSubscription = []
+                completion(.success(responseApdu))
             })
             .store(in: &sendSubscription)
     }
+    
+    private func sendInternalCombine(apdu: CommandApdu) -> Future<ResponseApdu,SessionError> {
+        let future = Future<ResponseApdu,SessionError> { promise in
+            self.sendInternal(apdu: apdu, completion: promise)
+        }
+        return future
+    }
+    
+    private func sendInternal(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu,SessionError>) -> Void) {
+        print("sendInternal: \(Instruction(rawValue: apdu.ins)!)")
+        guard let apduEncrypted = try? apdu.encrypt(encryptionMode: self.environment.encryptionMode, encryptionKey: self.environment.encryptionKey) else {
+            completion(.failure(.failedToEstablishEncryption))
+            return
+        }
+        
+        self.reader.send(apdu: apduEncrypted) { [unowned self] result in
+            switch result {
+            case .success(let responseApdu):
+                switch responseApdu.statusWord {
+                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
+                    guard let decryptedApdu = try? responseApdu.decrypt(encryptionKey: self.environment.encryptionKey) else {
+                        completion(.failure(.failedToEstablishEncryption))
+                        return
+                    }
+                    
+                    completion(.success(decryptedApdu))
+                case .needPause:
+                    if let securityDelayResponse = self.deserializeSecurityDelay(with: self.environment, from: responseApdu) {
+                        self.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
+                        if securityDelayResponse.saveToFlash && self.environment.encryptionMode == .none {
+                            self.restartPolling()
+                        } else {
+                            self.sendInternal(apdu: apdu, completion: completion)
+                        }
+                    }
+                default:
+                    if let error = responseApdu.statusWord.toSessionError() {
+                        self.tryHandleError(error) { handleErrorResult in
+                            switch handleErrorResult {
+                            case .success:
+                                   print("error handled")
+                                   if apduEncrypted.ins != Instruction.openSession.rawValue {
+                                    self.sendInternal(apdu: apdu, completion: completion)
+                                }
+                            case .failure(let error):
+                                completion(.failure(error))
+                            }
+                        }
+                    } else {
+                        completion(.failure(.unknownError))
+                    }
+                }
+            case .failure(let error):
+                 completion(.failure(error))
+            }
+        }
+    }
+    
     
     /// Perform read slix2 tags
     /// - Parameter completion: Completion handler. Invoked by nfc-reader
@@ -243,21 +299,84 @@ public class CardSession {
                 self.viewDelegate.sessionInitialized()
                 onSessionStarted(self, nil)
             case .failure(let error):
-                if !self.tryHandleError(error) {
-                    onSessionStarted(self, error)
-                    self.stop(error: error)
-                }
+                  onSessionStarted(self, error)
+                  self.stop(error: error)
             }
         }
     }
     
-    private func tryHandleError(_ error: SessionError) -> Bool {
+    private func tryHandleError(_ error: SessionError, completion: @escaping CompletionResult<Void>) {
         switch error {
         case .needEncryption:
-            //[REDACTED_TODO_COMMENT]
-            return false
+            switch self.environment.encryptionMode {
+            case .none:
+                print("try fast enctiption")
+                self.environment.encryptionKey = nil
+                self.environment.encryptionMode = .fast
+            case .fast:
+                 print("try strong enctiption")
+                self.environment.encryptionKey = nil
+                self.environment.encryptionMode = .strong
+            case .strong:
+                assertionFailure("Encryption doesn't work")
+                completion(.failure(.needEncryption))
+            }
+            self.establishEncryption(completion: completion)
         default:
-            return false
+            completion(.failure(error))
         }
     }
+    
+    private func establishEncryption(completion: @escaping CompletionResult<Void>) {
+        guard let encryptionHelper = EncryptionHelperFactory.make(for: environment.encryptionMode) else {
+            completion(.failure(.failedToEstablishEncryption))
+            return
+        }
+        let openSessionCommand = OpenSessionCommand(sessionKeyA: encryptionHelper.keyA)
+        let openSesssionApdu = try! openSessionCommand.serialize(with: environment)
+        sendInternal(apdu: openSesssionApdu) { result in
+            switch result {
+            case .success(let responseApdu):
+                let response = try! openSessionCommand.deserialize(with: self.environment, from: responseApdu)
+                
+                var uid: Data
+                if let uidFromResponse = response.uid {
+                    uid = uidFromResponse
+                } else {
+                    if case let .tag(tagUid) = self.connectedTag {
+                        uid = tagUid
+                    } else {
+                        completion(.failure(.failedToEstablishEncryption))
+                        return
+                    }
+                }
+                
+                guard let protocolKey = self.environment.pin1.pbkdf2sha256(salt: uid, rounds: 50),
+                let secret = encryptionHelper.generateSecret(keyB: response.sessionKeyB) else {
+                    completion(.failure(.failedToEstablishEncryption))
+                    return
+                }
+                
+                let sessionKey = (secret + protocolKey).getSha256()
+                self.environment.encryptionKey = sessionKey
+                completion(.success(()))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    /// Helper method to parse security delay information received from a card.
+    /// - Returns: Remaining security delay in milliseconds.
+     private func deserializeSecurityDelay(with environment: SessionEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
+        guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
+            let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
+                return nil
+        }
+        
+        let saveToFlash = tlv.contains(tag: .flash)
+        return (remainingMilliseconds, saveToFlash)
+    }
 }
+
+//ed25519 from cryptokit?
