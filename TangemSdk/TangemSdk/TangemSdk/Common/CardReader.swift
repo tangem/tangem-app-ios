@@ -11,7 +11,7 @@ import CoreNFC
 import Combine
 
 public enum NFCTagType{
-    case tag
+    case tag(uid: Data)
     case slix2
     case unknown
 }
@@ -27,6 +27,8 @@ public protocol CardReader: class {
     func startSession(with message: String?)
     func stopSession(with errorMessage: String?)
     func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu,SessionError>) -> Void)
+    @available(iOS 13.0, *)
+    func sendPublisher(apdu: CommandApdu) -> AnyPublisher<ResponseApdu, SessionError>
     func readSlix2Tag(completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) 
     func restartPolling()
 }
