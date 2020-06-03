@@ -14,7 +14,7 @@ import CoreNFC
 @available(iOS 13.0, *)
 final class NFCReader: NSObject {
     static let tagTimeout = 18.0
-    static let idleTimeout = 60.0 //todo: return back to 2
+    static let idleTimeout = 2.0
     static let sessionTimeout = 52.0
     static let nfcStuckTimeout = 5.0
     static let retryCount = 10
@@ -141,7 +141,7 @@ extension NFCReader: CardReader {
             completion(.failure(.unsupportedCommand))
             return
         }
-        
+     
         requestTimestamp = Date()
         tag.sendCommand(apdu: NFCISO7816APDU(apdu)) {[weak self] (data, sw1, sw2, error) in
             guard let self = self,
