@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,6 +13,7 @@
 		5D78C1C1234F435B008D7478 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D78C1BF234F435B008D7478 /* Main.storyboard */; };
 		5D78C1C3234F435C008D7478 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D78C1C2234F435C008D7478 /* Assets.xcassets */; };
 		5D78C1C6234F435C008D7478 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D78C1C4234F435C008D7478 /* LaunchScreen.storyboard */; };
+		5D7F4E3C2487B68300A1700D /* TangemSdkExampleDevelopmentUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */; };
 		5DBC25B9235F053F005F0C79 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78C1BD234F435B008D7478 /* ViewController.swift */; };
 		5DBC25BA235F053F005F0C79 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78C1B9234F435B008D7478 /* AppDelegate.swift */; };
 		5DBC25BF235F053F005F0C79 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D78C1C4234F435C008D7478 /* LaunchScreen.storyboard */; };
@@ -20,7 +21,6 @@
 		5DBC25C1235F053F005F0C79 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D78C1BF234F435B008D7478 /* Main.storyboard */; };
 		5DBC25CB235F0639005F0C79 /* TangemSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCA54A0235E0D5900C2BB99 /* TangemSdk.framework */; };
 		5DBC25CC235F0639005F0C79 /* TangemSdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCA54A0235E0D5900C2BB99 /* TangemSdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		E53EB3E723F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3E623F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift */; };
 		E53EB3F123F2D4B10079CC11 /* RobotApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53EB3EE23F2CD860079CC11 /* RobotApi.swift */; };
 		E53EB3F523F32A460079CC11 /* CardsData.plist in Resources */ = {isa = PBXBuildFile; fileRef = E53EB3F423F32A460079CC11 /* CardsData.plist */; };
 /* End PBXBuildFile section */
@@ -240,7 +240,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 5D78C1B1234F435B008D7478 /* Build configuration list for PBXProject "TangemSdkExample" */;
+			buildConfigurationList = 5D78C1B1234F435B008D7478 /* Build configuration list for PBXProject "TangemSDKExample" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -354,8 +354,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E53EB3E723F2C7C90079CC11 /* TangemSdkExampleDevelopmentUITests.swift in Sources */,
 				E53EB3F123F2D4B10079CC11 /* RobotApi.swift in Sources */,
+				5D7F4E3C2487B68300A1700D /* TangemSdkExampleDevelopmentUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -626,7 +626,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		5D78C1B1234F435B008D7478 /* Build configuration list for PBXProject "TangemSdkExample" */ = {
+		5D78C1B1234F435B008D7478 /* Build configuration list for PBXProject "TangemSDKExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5D78C1C8234F435C008D7478 /* Debug */,
