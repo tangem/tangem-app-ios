@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import secp256k1
+import TangemSdk_secp256k1
 
 public final class Secp256k1Utils {
     static let context = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN|SECP256K1_CONTEXT_VERIFY))
@@ -277,5 +277,18 @@ public final class Secp256k1Utils {
         secp256k1_ecdsa_signature_serialize_compact(ctx, &serialized, &normalized)
         
         return Data(serialized)
+    }
+    
+    public static func getSharedSecret(privateKey: Data, publicKey: Data) -> Data? {
+        guard let ctx = context else { return nil }
+        
+        let privkey = privateKey.toBytes
+        var pubkey = secp256k1_pubkey()
+        guard secp256k1_ec_pubkey_parse(ctx, &pubkey, publicKey.toBytes, 65) == 1 else { return nil }
+        
+        var sharedSecret = Array(repeating: UInt8(0), count: 32)
+        guard secp256k1_ecdh(ctx, &sharedSecret, &pubkey, privkey, nil, nil) == 1 else { return nil }
+        
+        return Data(sharedSecret)
     }
 }

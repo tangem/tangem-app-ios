@@ -10,7 +10,6 @@ import Foundation
 import CryptoKit
 import CommonCrypto
 
-
 extension Data {
     public func asHexString() -> String {
         return self.map { return String(format: "%02X", $0) }.joined()
@@ -121,5 +120,81 @@ extension Data {
         
         let decoder = TlvDecoder(tlv: tlv)
         return try? decoder.decode(tag)
+    }
+    
+    public func pbkdf2(hash: CCPBKDFAlgorithm,
+                salt: Data,
+                keyByteCount: Int,
+                rounds: Int) -> Data? {
+        var derivedKeyData = Data(repeating: 0, count: keyByteCount)
+        let derivedCount = derivedKeyData.count
+        
+        let derivationStatus: OSStatus = derivedKeyData.withUnsafeMutableBytes { derivedKeyBytes in
+            let derivedKeyRawBytes = derivedKeyBytes.bindMemory(to: UInt8.self).baseAddress
+            return salt.withUnsafeBytes { saltBytes in
+                let rawBytes = saltBytes.bindMemory(to: UInt8.self).baseAddress
+                return self.withUnsafeBytes { pointer in
+                    let typedPointer = pointer.bindMemory(to: Int8.self).baseAddress
+                    return CCKeyDerivationPBKDF(
+                        CCPBKDFAlgorithm(kCCPBKDF2),
+                        typedPointer,
+                        self.count,
+                        rawBytes,
+                        salt.count,
+                        hash,
+                        UInt32(rounds),
+                        derivedKeyRawBytes,
+                        derivedCount)
+                }
+                
+                
+            }
+        }
+        
+        return derivationStatus == kCCSuccess ? derivedKeyData : nil
+    }
+    
+    public func pbkdf2sha256(salt: Data, rounds: Int) -> Data? {
+       return pbkdf2(hash: CCPBKDFAlgorithm(kCCPRFHmacAlgSHA256), salt: salt, keyByteCount: 32, rounds: rounds)
+    }
+    
+    //SO14443A
+    public func crc16() -> Data {
+        var wCRC = Int32(0x6363) // ITU-V.41
+        forEach { byte in
+            var chBlock = UInt8(byte)
+            chBlock ^= UInt8(wCRC & 0x00FF)
+            chBlock = chBlock ^ (chBlock << 4)
+            let p1 = (wCRC >> 8) ^ (Int32(chBlock) & 0xFF) << 8 & 0xFFFF
+            let p2 = ((Int32(chBlock) & 0xFF) << 3) & 0xFFFF
+            let p3 = ((Int32(chBlock) & 0xFF) >> 4) & 0xFFFF
+            wCRC = p1 ^ p2 ^ p3
+        }
+        return Data([UInt8(wCRC & 0xFF), UInt8((wCRC & 0xFFFF) >> 8)])
+    }
+    
+    /// Encrypt data with  AES256-CBC and PKCS7
+    /// - Parameter encryptionKey: key to encrypt
+    /// - Throws: encription errors
+    /// - Returns: Encripted data
+    public func encrypt(with encryptionKey: Data) throws -> Data {
+        return try CryptoUtils.crypt(operation: kCCEncrypt,
+                                     algorithm: kCCAlgorithmAES,
+                                     options: kCCOptionPKCS7Padding,
+                                     key: encryptionKey,
+                                     dataIn: self)
+    }
+    
+    /// Decrypt data with  AES256-CBC and PKCS7
+    /// - Parameter encryptionKey: key to decrypt
+    /// - Throws: decryption errors
+    /// - Returns: Decrypted data
+    public func decrypt(with encryptionKey: Data) throws -> Data {
+        return try CryptoUtils.crypt(operation: kCCDecrypt,
+                                     algorithm: kCCAlgorithmAES,
+                                     options: kCCOptionPKCS7Padding,
+                                     key: encryptionKey,
+                                     dataIn: self)
+        
     }
 }

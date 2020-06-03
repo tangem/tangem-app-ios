@@ -1,27 +1,16 @@
 PODS:
-  - KeychainSwift (19.0.0)
-  - secp256k1.swift (0.1.4)
-  - TangemSdk (2.0.2):
-    - KeychainSwift
-    - secp256k1.swift
+  - TangemSdk (2.0.2)
 
 DEPENDENCIES:
   - TangemSdk (from `../`)
-
-SPEC REPOS:
-  trunk:
-    - KeychainSwift
-    - secp256k1.swift
 
 EXTERNAL SOURCES:
   TangemSdk:
     :path: "../"
 
 SPEC CHECKSUMS:
-  KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
-  secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
-  TangemSdk: 83fb1bd83420b24ae1d5d3abcee67abdab98a6c1
+  TangemSdk: df9452c43c53c2db88915e4bd70f20b1d28f794b
 
-PODFILE CHECKSUM: 20c172d2ff1af337b3d8780444d5fbb4474a01fd
+PODFILE CHECKSUM: be1805be942a19caf457f3018cb3c355a23961f1
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.2
