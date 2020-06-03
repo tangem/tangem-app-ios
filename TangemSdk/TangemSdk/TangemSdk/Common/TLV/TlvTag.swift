@@ -61,6 +61,7 @@ public enum TlvTag: Byte {
     case cvc = 0x19
     case sessionKeyA = 0x1A
     case sessionKeyB = 0x1B
+    case uid = 0x0B
     case manufacturerName = 0x20
     case manufacturerSignature = 0x21
     case issuerPublicKey = 0x30
