@@ -121,10 +121,20 @@ extension NFCReader: CardReader {
         session.restartPolling()
     }
     
+    
+    /// Send apdu command to connected tag in Combine style
+    /// - Parameter apdu: serialized apdu
+    /// - Returns: ResponseApdu or NFCError otherwise
+    func sendPublisher(apdu: CommandApdu) -> AnyPublisher<ResponseApdu, SessionError> {
+        return Deferred {Future<ResponseApdu, SessionError>() { promise in
+            self.send(apdu: apdu) { promise($0) }
+            }}.eraseToAnyPublisher()
+    }
+    
     /// Send apdu command to connected tag
     /// - Parameter apdu: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCError otherwise
-    func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
+    func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void)   {
         idleTimer.stop()
         
         if let error = readerSessionError {
