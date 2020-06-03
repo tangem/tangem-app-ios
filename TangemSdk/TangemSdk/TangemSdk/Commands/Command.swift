@@ -61,7 +61,7 @@ extension Command {
         
         do {
             let commandApdu = try serialize(with: session.environment)
-            session.send(apdu: commandApdu) { result in
+            transieve(apdu: commandApdu, in: session) { result in
                 switch result {
                 case .success(let responseApdu):
                     do {
@@ -78,41 +78,61 @@ extension Command {
             completion(.failure(error.toSessionError()))
         }
     }
-    
-//    func transieve(apdu: CommandApdu, in session: CardSession, completion: @escaping CompletionResult<ResponseApdu>) {
-//        session.send(apdu: apdu) {commandResponse in
-//            switch commandResponse {
-//            case .success(let responseApdu):
-//                switch responseApdu.statusWord {
-//                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
-//                    completion(.success(responseApdu))
-//                case .needPause:
-//                    if let securityDelayResponse = self.deserializeSecurityDelay(with: session.environment, from: responseApdu) {
-//                        session.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
-//                        if securityDelayResponse.saveToFlash {
-//                            session.restartPolling()
-//                        }
-//                    }
-//                    self.transieve(apdu: apdu, in: session, completion: completion)
-//                default:
-//                    if let error = responseApdu.statusWord.toSessionError() {
-//                        if let newError = self.tryHandleError(error) {
-//                            completion(.failure(newError))
-//                        }
-//                    } else {
-//                        completion(.failure(.unknownError))
-//                    }
-//                }
-//            case .failure(let error):
-//                completion(.failure(error))
-//            }
-//        }
-//    }
-    
+        
+    private func transieve(apdu: CommandApdu, in session: CardSession, completion: @escaping CompletionResult<ResponseApdu>) {
+        print("transieve: \(Instruction(rawValue: apdu.ins)!)")
+        guard let apduEncrypted = try? apdu.encrypt(encryptionMode: session.environment.encryptionMode, encryptionKey: session.environment.encryptionKey) else {
+            completion(.failure(.failedToEstablishEncryption))
+            return
+        }
+        
+        session.send(apdu: apduEncrypted) { result in
+            switch result {
+            case .success(let responseApdu):
+                switch responseApdu.statusWord {
+                case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
+                    guard let decryptedApdu = try? responseApdu.decrypt(encryptionKey: session.environment.encryptionKey) else {
+                        completion(.failure(.failedToEstablishEncryption))
+                        return
+                    }
+                    
+                    completion(.success(decryptedApdu))
+                case .needPause:
+                    if let securityDelayResponse = self.deserializeSecurityDelay(with: session.environment, from: responseApdu) {
+                        session.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
+                        if securityDelayResponse.saveToFlash && session.environment.encryptionMode == .none {
+                            session.restartPolling()
+                        } else {
+                            self.transieve(apdu: apdu, in: session, completion: completion)
+                        }
+                    }
+                    
+                case .needEcryption:
+                    switch session.environment.encryptionMode {
+                    case .none:
+                        print("try fast enctiption")
+                        session.environment.encryptionKey = nil
+                        session.environment.encryptionMode = .fast
+                    case .fast:
+                        print("try strong enctiption")
+                        session.environment.encryptionKey = nil
+                        session.environment.encryptionMode = .strong
+                    case .strong:
+                        break
+                    }
+                    self.transieve(apdu: apdu, in: session, completion: completion)
+                default:
+                    completion(.failure(responseApdu.statusWord.toSessionError() ?? .unknownError))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
     
     /// Helper method to parse security delay information received from a card.
     /// - Returns: Remaining security delay in milliseconds.
-     private func deserializeSecurityDelay(with environment: SessionEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
+    private func deserializeSecurityDelay(with environment: SessionEnvironment, from responseApdu: ResponseApdu) -> (remainingMilliseconds: Int, saveToFlash: Bool)? {
         guard let tlv = responseApdu.getTlvData(encryptionKey: environment.encryptionKey),
             let remainingMilliseconds = tlv.value(for: .pause)?.toInt() else {
                 return nil
