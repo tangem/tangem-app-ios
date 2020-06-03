@@ -38,7 +38,7 @@ public final class ReadUserDataCommand: Command {
     
     public init() {}
     
-    public func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
+    func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.cardId, value: environment.card?.cardId)
             .append(.pin, value: environment.pin1)
@@ -46,7 +46,7 @@ public final class ReadUserDataCommand: Command {
         return CommandApdu(.readUserData, tlv: tlvBuilder.serialize())
     }
     
-    public func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadUserDataResponse {
+    func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadUserDataResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
             throw SessionError.deserializeApduFailed
         }
