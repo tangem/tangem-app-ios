@@ -26,26 +26,36 @@ Tangem is a Swiss-based secure hardware wallet manufacturer that enables blockch
   s.author           = { 'Tangem' => 'hello@tangem.com' }
   s.source           = { :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/Tangem'
-
+  s.platform = :ios
   s.ios.deployment_target = '11.0'
   s.swift_version = '5.0'
-  s.source_files = 'TangemSdk/TangemSdk/**/*.{h,m,swift,c}'
-  s.preserve_paths = 'TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519/*.{modulemap}'
+
+  s.source_files = 'TangemSdk/TangemSdk/**/*.{swift}', 
+		   'TangemSdk/TangemSdk/TangemSdk.h',
+   		   'TangemSdk/TangemSdk/Crypto/secp256k1/src/*.{h,c}',
+	           'TangemSdk/TangemSdk/Crypto/secp256k1/src/include/*.{h,c}',
+  		   'TangemSdk/TangemSdk/Crypto/secp256k1/src/modules/{recovery,ecdh}/*.{h,c}',
+		   'TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519/**/*{h,c}'
+
+  s.exclude_files = 'TangemSdk/TangemSdk/Crypto/secp256k1/src/*test*.{c,h}', 
+		    'TangemSdk/TangemSdk/Crypto/secp256k1/src/gen_context.c', 
+		    'TangemSdk/TangemSdk/Crypto/secp256k1/src/*bench*.{c,h}', 
+                    'TangemSdk/TangemSdk/Crypto/secp256k1/contrib/*',
+		    'TangemSdk/TangemSdk/Crypto/secp256k1/src/modules/{recovery,ecdh}/*test*.{c,h}'
+
+ 
+  s.preserve_path = 'TangemSdk/TangemSdk/module.modulemap'
+  s.public_header_files = 'TangemSdk/TangemSdk/TangemSdk.h'
   s.pod_target_xcconfig = {
-      'SWIFT_INCLUDE_PATHS' => '$(PODS_TARGET_SRCROOT)/TangemSdk/TangemSdk/Crypto/Ed25519/CEd25519/**'
+    'SWIFT_INCLUDE_PATHS' => '$(PODS_TARGET_SRCROOT)/TangemSdk/**',
+    'OTHER_CFLAGS' => '-pedantic -Wall -Wextra -Wcast-align -Wnested-externs -Wshadow -Wstrict-prototypes -Wno-shorten-64-to-32 -Wno-conditional-uninitialized -Wno-unused-function -Wno-long-long -Wno-overlength-strings -O3',
   }
 
   # s.resource_bundles = {
   #   'TangemSdk' => ['TangemSdk/Assets/*.png']
   # 
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
+  s.weak_frameworks = 'CoreNFC', 'CryptoKit', 'Combine'
 
-  s.resource_bundle = { "TangemSdk" => [
-"TangemSdk/TangemSdk/**/*.lproj/*.strings", 
-"TangemSdk/TangemSdk/Haptics/*.ahap"] }
-
-  s.dependency 'secp256k1.swift'
-  s.dependency 'KeychainSwift'
+  s.resource_bundle = { "TangemSdk" => ["TangemSdk/TangemSdk/**/*.lproj/*.strings", "TangemSdk/TangemSdk/Haptics/*.ahap"] }
 end
