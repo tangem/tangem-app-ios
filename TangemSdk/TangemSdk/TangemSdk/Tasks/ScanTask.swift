@@ -24,7 +24,7 @@ public final class ScanTask: CardSessionRunnable {
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
-        if let tag = session.connectedTag, tag == .slix2 {
+        if let tag = session.connectedTag, case .slix2 = tag {
             session.readSlix2Tag() { result in
                 switch result {
                 case .success(let responseApdu):
