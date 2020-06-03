@@ -37,7 +37,31 @@ public struct ResponseApdu {
         //[REDACTED_TODO_COMMENT]
         return tlv
     }
+    
+    func decrypt(encryptionKey: Data?) throws -> ResponseApdu {
+        guard let key = encryptionKey else {
+            return self
+        }
+        
+        let decryptedData = try data.decrypt(with: key)
+        guard decryptedData.count >= 4 else {
+            throw SessionError.invalidResponse
+        }
+        
+        let length = decryptedData[0...1].toInt()
+        let crc = decryptedData[2...3]
+        let payload = decryptedData[4...]
+        
+        guard length == payload.count, crc == payload.crc16() else {
+            throw SessionError.invalidResponse
+        }
+        
+        return ResponseApdu(payload, self.sw1, self.sw2)
+    }
 }
+
+
+
 
 //Slix2 tag support. [REDACTED_TODO_COMMENT]
 @available(iOS 13.0, *)
