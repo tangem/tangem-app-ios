@@ -191,19 +191,17 @@ public class CardSession {
         
         reader.tag
             .compactMap{ $0 }
-            .flatMap{ _ in self.establishEncryption() }
+            .flatMap{ _ in self.establishEncryptionPublisher() }
+            .flatMap{ self.reader.sendPublisher(apdu: apdu)}
             .sink(receiveCompletion: { readerCompletion in
                 self.sendSubscription = []
                 if case let .failure(error) = readerCompletion {
                     completion(.failure(error))
                 }
-            }, receiveValue: { _ in
-                  print("receiveValue")
-                
-                self.reader.send(apdu: apdu) { sendResult in
-                    self.sendSubscription = []
-                    completion(sendResult)
-                }
+            }, receiveValue: { responseApdu in
+                print("receiveValue")
+                self.sendSubscription = []
+                completion(.success(responseApdu))
             })
             .store(in: &sendSubscription)
     }
@@ -245,58 +243,49 @@ public class CardSession {
                 self.viewDelegate.sessionInitialized()
                 onSessionStarted(self, nil)
             case .failure(let error):
-                  onSessionStarted(self, error)
-                  self.stop(error: error)
+                onSessionStarted(self, error)
+                self.stop(error: error)
             }
         }
     }
     
-    private func establishEncryption() -> AnyPublisher<Void, SessionError> {
-        let future = Future<Void, SessionError>() { promise in
-            if self.environment.encryptionMode == .none || self.environment.encryptionKey != nil {
-                promise(.success(()))
-                return
-            }
-            
-            guard let encryptionHelper = EncryptionHelperFactory.make(for: self.environment.encryptionMode) else {
-                promise(.failure(.failedToEstablishEncryption))
-                return
-            }
-            let openSessionCommand = OpenSessionCommand(sessionKeyA: encryptionHelper.keyA)
-            let openSesssionApdu = try! openSessionCommand.serialize(with: self.environment)
-            self.reader.send(apdu: openSesssionApdu) { result in
-                switch result {
-                case .success(let responseApdu):
-                    let response = try! openSessionCommand.deserialize(with: self.environment, from: responseApdu)
-                    
-                    var uid: Data
-                    if let uidFromResponse = response.uid {
-                        uid = uidFromResponse
-                    } else {
-                        if case let .tag(tagUid) = self.connectedTag {
-                            uid = tagUid
-                        } else {
-                            promise(.failure(.failedToEstablishEncryption))
-                            return
-                        }
-                    }
-                    
-                    guard let protocolKey = self.environment.pin1.pbkdf2sha256(salt: uid, rounds: 50),
-                    let secret = encryptionHelper.generateSecret(keyB: response.sessionKeyB) else {
-                        promise(.failure(.failedToEstablishEncryption))
-                        return
-                    }
-                    
-                    let sessionKey = (secret + protocolKey).getSha256()
-                    self.environment.encryptionKey = sessionKey
-                    promise(.success(()))
-                case .failure(let error):
-                    promise(.failure(error))
-                }
-            }
-            
+    private func establishEncryptionPublisher() -> AnyPublisher<Void, SessionError> {
+        if self.environment.encryptionMode == .none || self.environment.encryptionKey != nil {
+            return Just(()).setFailureType(to: SessionError.self).eraseToAnyPublisher()
         }
-        return AnyPublisher(future)
+        
+        guard let encryptionHelper = EncryptionHelperFactory.make(for: self.environment.encryptionMode) else {
+            return Fail(error: .failedToEstablishEncryption).eraseToAnyPublisher()
+        }
+        
+        let openSessionCommand = OpenSessionCommand(sessionKeyA: encryptionHelper.keyA)
+        let openSesssionApdu = try! openSessionCommand.serialize(with: self.environment)
+        
+        return reader
+            .sendPublisher(apdu: openSesssionApdu)
+            .flatMap { responseApdu -> AnyPublisher<Void, SessionError> in
+                let response = try! openSessionCommand.deserialize(with: self.environment, from: responseApdu)
+                
+                var uid: Data
+                if let uidFromResponse = response.uid {
+                    uid = uidFromResponse
+                } else {
+                    if case let .tag(tagUid) = self.connectedTag {
+                        uid = tagUid
+                    } else {
+                        return Fail(error: .failedToEstablishEncryption).eraseToAnyPublisher()
+                    }
+                }
+                
+                guard let protocolKey = self.environment.pin1.pbkdf2sha256(salt: uid, rounds: 50),
+                    let secret = encryptionHelper.generateSecret(keyB: response.sessionKeyB) else {
+                        return Fail(error: .failedToEstablishEncryption).eraseToAnyPublisher()
+                }
+                
+                let sessionKey = (secret + protocolKey).getSha256()
+                self.environment.encryptionKey = sessionKey
+                return Just(()).setFailureType(to: SessionError.self).eraseToAnyPublisher()
+        }.eraseToAnyPublisher()
     }
 }
 
