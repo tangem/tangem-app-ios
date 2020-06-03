@@ -62,6 +62,12 @@ extension NDEFReader: NFCNDEFReaderSessionDelegate {
 }
 
 extension NDEFReader: CardReader {
+    @available(iOS 13.0, *)
+    func sendPublisher(apdu: CommandApdu) -> AnyPublisher<ResponseApdu, SessionError> {
+        assertionFailure("Not implemented")
+        return Fail(error: SessionError.unknownError).eraseToAnyPublisher()
+    }
+    
     public func readSlix2Tag(completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
         assertionFailure("Unsupported")
     }
