@@ -121,10 +121,20 @@ extension NFCReader: CardReader {
         session.restartPolling()
     }
     
+    
+    /// Send apdu command to connected tag in Combine style
+    /// - Parameter apdu: serialized apdu
+    /// - Returns: ResponseApdu or NFCError otherwise
+    func sendPublisher(apdu: CommandApdu) -> AnyPublisher<ResponseApdu, SessionError> {
+        return Deferred {Future<ResponseApdu, SessionError>() { promise in
+            self.send(apdu: apdu) { promise($0) }
+            }}.eraseToAnyPublisher()
+    }
+    
     /// Send apdu command to connected tag
     /// - Parameter apdu: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCError otherwise
-    func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
+    func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void)   {
         idleTimer.stop()
         
         if let error = readerSessionError {
@@ -141,7 +151,7 @@ extension NFCReader: CardReader {
             completion(.failure(.unsupportedCommand))
             return
         }
-        
+     
         requestTimestamp = Date()
         tag.sendCommand(apdu: NFCISO7816APDU(apdu)) {[weak self] (data, sw1, sw2, error) in
             guard let self = self,
@@ -277,7 +287,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
             let tagType = self.getTagType(nfcTag)
             self.tag.send(tagType)
             
-            if tagType == .tag {
+            if case .tag = tagType {
                 self.idleTimer.start()
             }
         }
@@ -285,8 +295,8 @@ extension NFCReader: NFCTagReaderSessionDelegate {
     
     private func getTagType(_ nfcTag: NFCTag) -> NFCTagType {
         switch nfcTag {
-        case .iso7816:
-            return .tag
+        case .iso7816(let iso7816Tag):
+            return .tag(uid: iso7816Tag.identifier)
         case .iso15693:
             return .slix2
         default:
