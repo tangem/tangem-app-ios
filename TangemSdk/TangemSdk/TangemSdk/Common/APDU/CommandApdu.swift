@@ -9,14 +9,15 @@
 import Foundation
 import CoreNFC
 
-
 /// Class that provides conversion of serialized request and Instruction code
 /// to a raw data that can be sent to the card.
-public struct CommandApdu: Equatable {    
+public struct CommandApdu: Equatable {
+    /// Instruction code that determines the type of request for the card.
+    let ins: Byte
+    
     //MARK: Header
     fileprivate let cla: Byte
-    /// Instruction code that determines the type of request for the card.
-    fileprivate let ins: Byte
+
     fileprivate let p1:  Byte
     fileprivate let p2:  Byte
     
@@ -54,14 +55,19 @@ public struct CommandApdu: Equatable {
         data = tlv
     }
     
-    
-    /// <#Description#>
+    /// Encrypt APDU
     /// - Parameters:
-    /// - Parameter encryptionMode:  optional encryption mode. Default to none
-    /// - Parameter encryptionKey:  optional encryption
-    /// - Returns: <#description#>
-    public func encrypt(encryptionMode: EncryptionMode = .none, encryptionKey: Data? = nil) -> CommandApdu {
-        return self
+    /// - Parameter encryptionMode: encryption mode
+    /// - Parameter encryptionKey: encryption key
+    /// - Returns: Encrypted APDU
+    public func encrypt(encryptionMode: EncryptionMode, encryptionKey: Data?) throws -> CommandApdu {
+        guard encryptionMode != .none, let encryptionKey = encryptionKey, p1 == EncryptionMode.none.rawValue else { //skip if already enctypted, encryptionMode == NONE or emptyEncriptionKey
+            return self
+        }
+        let crc = data.crc16()
+        let tlvDataToEncrypt = data.count.bytes2 + crc + data
+        let encryptedPayload = try tlvDataToEncrypt.encrypt(with: encryptionKey)
+        return CommandApdu(cla: self.cla, ins: self.ins, p1: encryptionMode.rawValue, p2: self.p2, le: self.le, tlv: Data(encryptedPayload))
     }
 }
 
