@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import CommonCrypto
+
 
 public final class CryptoUtils {
     
@@ -20,7 +22,6 @@ public final class CryptoUtils {
     public static func generateRandomBytes(count: Int) throws -> Data  {
         var bytes = [Byte](repeating: 0, count: count)
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        
         if status == errSecSuccess {
             return Data(bytes)
         } else {
@@ -51,4 +52,26 @@ public final class CryptoUtils {
             return result
         }
     }
+    
+    public static func crypt(operation: Int, algorithm: Int, options: Int, key: Data, dataIn: Data) throws -> Data {
+        return try key.withUnsafeBytes { keyUnsafeRawBufferPointer in
+            return try dataIn.withUnsafeBytes { dataInUnsafeRawBufferPointer in
+                // Give the data out some breathing room for PKCS7's padding.
+                let dataOutSize: Int = dataIn.count + kCCBlockSizeAES128*2
+                let dataOut = UnsafeMutableRawPointer.allocate(byteCount: dataOutSize,
+                                                               alignment: 1)
+                defer { dataOut.deallocate() }
+                var dataOutMoved: Int = 0
+                let status = CCCrypt(CCOperation(operation), CCAlgorithm(algorithm),
+                                     CCOptions(options),
+                                     keyUnsafeRawBufferPointer.baseAddress, key.count,
+                                     nil,
+                                     dataInUnsafeRawBufferPointer.baseAddress, dataIn.count,
+                                     dataOut, dataOutSize, &dataOutMoved)
+                guard status == kCCSuccess else { throw status }
+                return Data(bytes: dataOut, count: dataOutMoved)
+            }
+        }
+    }
 }
+
