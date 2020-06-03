@@ -22,6 +22,7 @@ target 'Tangem' do
     pod 'Firebase/Analytics'
     pod 'Firebase/Crashlytics'
     pod 'Firebase/Performance'
+    pod 'KeychainSwift'
     pod 'TangemSdk', :path => 'TangemSdk'
     #pod 'BlockchainSdk', :path => '/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk'
 end
