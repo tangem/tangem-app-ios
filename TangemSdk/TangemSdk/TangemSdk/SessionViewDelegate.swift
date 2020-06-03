@@ -16,7 +16,7 @@ public protocol SessionViewDelegate: class {
     func showAlertMessage(_ text: String)
     
     /// It is called when security delay is triggered by the card. A user is expected to hold the card until the security delay is over.
-    func showSecurityDelay(remainingMilliseconds: Int)
+    func showSecurityDelay(remainingMilliseconds: Int) //todo: rename santiseconds
     
     /// It is called when a user is expected to enter pin code.
     func requestPin(completion: @escaping () -> Result<String, Error>)
@@ -45,7 +45,7 @@ final class DefaultSessionViewDelegate: SessionViewDelegate {
     private lazy var delayFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = .full
-        formatter.allowedUnits = .second
+        formatter.allowedUnits = [.second, .nanosecond]
         return formatter
     }()
     
