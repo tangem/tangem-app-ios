@@ -328,7 +328,7 @@ class ViewController: UIViewController {
         print(object)
     }
     
-    private func handle(_ error: SessionError) {
+    private func handle(_ error: TangemSdkError) {
         if !error.isUserCancelled {
             self.log("\(error.localizedDescription)")
         }
