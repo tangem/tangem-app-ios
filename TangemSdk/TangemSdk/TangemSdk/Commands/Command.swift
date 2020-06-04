@@ -41,7 +41,10 @@ extension ApduSerializable {
 
 /// The basic protocol for card commands
 @available(iOS 13.0, *)
-protocol Command: ApduSerializable, CardSessionRunnable, ErrorHandler {}
+protocol Command: ApduSerializable, CardSessionRunnable {
+    func performPreCheck(_ card: Card) -> TangemSdkError?
+    func performAfterCheck(_ card: Card?, _ error: TangemSdkError) -> TangemSdkError?
+}
 
 @available(iOS 13.0, *)
 extension Command {    
@@ -49,7 +52,11 @@ extension Command {
         transieve(in: session, completion: completion)
     }
     
-    public func tryHandleError(_ error: SessionError) -> SessionError? {
+    func performPreCheck(_ card: Card) -> TangemSdkError? {
+        return nil
+    }
+    
+    func performAfterCheck(_ card: Card?, _ error: TangemSdkError) -> TangemSdkError? {
         return error
     }
     
@@ -57,6 +64,13 @@ extension Command {
         if needPreflightRead && session.environment.card == nil {
             completion(.failure(.missingPreflightRead))
             return
+        }
+        
+        if session.environment.handleErrors, let card = session.environment.card {
+            if let error = performPreCheck(card) {
+                completion(.failure(error))
+                return
+            }
         }
         
         do {
@@ -68,35 +82,29 @@ extension Command {
                         let responseData = try self.deserialize(with: session.environment, from: responseApdu)
                         completion(.success(responseData))
                     } catch {
-                        completion(.failure(error.toSessionError()))
+                        completion(.failure(error.toTangemSdkError()))
                     }
                 case .failure(let error):
-                    completion(.failure(error))
+                    if session.environment.handleErrors, let handledError = self.performAfterCheck(session.environment.card, error) {
+                        completion(.failure(handledError))
+                    } else {
+                        completion(.failure(error))
+                    }
                 }
             }
         } catch {
-            completion(.failure(error.toSessionError()))
+            completion(.failure(error.toTangemSdkError()))
         }
     }
         
     private func transieve(apdu: CommandApdu, in session: CardSession, completion: @escaping CompletionResult<ResponseApdu>) {
         print("transieve: \(Instruction(rawValue: apdu.ins)!)")
-        guard let apduEncrypted = try? apdu.encrypt(encryptionMode: session.environment.encryptionMode, encryptionKey: session.environment.encryptionKey) else {
-            completion(.failure(.failedToEstablishEncryption))
-            return
-        }
-        
-        session.send(apdu: apduEncrypted) { result in
+        session.send(apdu: apdu) { result in
             switch result {
             case .success(let responseApdu):
                 switch responseApdu.statusWord {
                 case .processCompleted, .pin1Changed, .pin2Changed, .pin3Changed:
-                    guard let decryptedApdu = try? responseApdu.decrypt(encryptionKey: session.environment.encryptionKey) else {
-                        completion(.failure(.failedToEstablishEncryption))
-                        return
-                    }
-                    
-                    completion(.success(decryptedApdu))
+                    completion(.success(responseApdu))
                 case .needPause:
                     if let securityDelayResponse = self.deserializeSecurityDelay(with: session.environment, from: responseApdu) {
                         session.viewDelegate.showSecurityDelay(remainingMilliseconds: securityDelayResponse.remainingMilliseconds)
@@ -110,11 +118,11 @@ extension Command {
                 case .needEcryption:
                     switch session.environment.encryptionMode {
                     case .none:
-                        print("try fast enctiption")
+                        print("try fast encryption")
                         session.environment.encryptionKey = nil
                         session.environment.encryptionMode = .fast
                     case .fast:
-                        print("try strong enctiption")
+                        print("try strong encryption")
                         session.environment.encryptionKey = nil
                         session.environment.encryptionMode = .strong
                     case .strong:
@@ -122,7 +130,7 @@ extension Command {
                     }
                     self.transieve(apdu: apdu, in: session, completion: completion)
                 default:
-                    completion(.failure(responseApdu.statusWord.toSessionError() ?? .unknownError))
+                    completion(.failure(responseApdu.statusWord.toTangemSdkError() ?? .unknownError))
                 }
             case .failure(let error):
                 completion(.failure(error))
@@ -162,9 +170,4 @@ extension ResponseCodable {
         let data = (try? encoder.encode(self)) ?? Data()
         return String(data: data, encoding: .utf8)!
     }
-}
-
-
-public protocol ErrorHandler {
-    func tryHandleError(_ error: SessionError) -> SessionError?
 }
