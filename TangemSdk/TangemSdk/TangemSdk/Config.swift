@@ -32,9 +32,14 @@ public struct Config {
      */
     public var linkedTerminal: Bool? = nil
     
-    
     /// If not nil, will be used to validate Issuer data and issuer extra data. If nil, issuerPublicKey from current card will be used
     public var issuerPublicKey: Data?
+    
+
+    /// Filter that can be used to limit cards that can be interacted with in TangemSdk.
+    public var allowedCardTypes: [CardType] = [.sdk, .release, .unknown]
+
+    public var handleErrors: Bool = true
 }
 
 
