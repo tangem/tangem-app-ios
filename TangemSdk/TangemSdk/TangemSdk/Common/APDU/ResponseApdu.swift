@@ -43,9 +43,13 @@ public struct ResponseApdu {
             return self
         }
         
+        if data.count == 0 { //error response. nothing to decrupt
+            return self
+        }
+        
         let decryptedData = try data.decrypt(with: key)
         guard decryptedData.count >= 4 else {
-            throw SessionError.invalidResponse
+            throw TangemSdkError.invalidResponseApdu
         }
         
         let length = decryptedData[0...1].toInt()
@@ -53,7 +57,7 @@ public struct ResponseApdu {
         let payload = decryptedData[4...]
         
         guard length == payload.count, crc == payload.crc16() else {
-            throw SessionError.invalidResponse
+            throw TangemSdkError.invalidResponseApdu
         }
         
         return ResponseApdu(payload, self.sw1, self.sw2)
