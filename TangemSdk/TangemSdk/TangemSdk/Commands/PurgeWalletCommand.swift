@@ -32,6 +32,30 @@ public final class PurgeWalletCommand: Command {
          print("PurgeWalletCommand deinit")
     }
     
+    func performPreCheck(_ card: Card) -> TangemSdkError? {
+        if let status = card.status, status == .notPersonalized {
+            return .notPersonalized
+        }
+        
+        if card.isActivated {
+            return .notActivated
+        }
+        
+        if let settingsMask = card.settingsMask, settingsMask.contains(.prohibitPurgeWallet) {
+            return .purgeWalletProhibited
+        }
+        
+        return nil
+    }
+    
+    func performAfterCheck(_ card: Card?, _ error: TangemSdkError) -> TangemSdkError? {
+        if error == .invalidParams {
+            return .pin2OrCvcRequired
+        }
+        
+        return nil
+    }
+    
     func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.pin, value: environment.pin1)
@@ -43,7 +67,7 @@ public final class PurgeWalletCommand: Command {
     
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> PurgeWalletResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw SessionError.deserializeApduFailed
+            throw TangemSdkError.deserializeApduFailed
         }
         
         let decoder = TlvDecoder(tlv: tlv)
