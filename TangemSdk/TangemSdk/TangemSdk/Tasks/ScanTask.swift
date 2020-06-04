@@ -32,7 +32,7 @@ public final class ScanTask: CardSessionRunnable {
                         let card = try CardDeserializer.deserialize(with: session.environment, from: responseApdu)
                         completion(.success(card))
                     } catch {
-                        let sessionError = error.toSessionError()
+                        let sessionError = error.toTangemSdkError()
                         completion(.failure(sessionError))
                     }
                 case .failure(let error):
