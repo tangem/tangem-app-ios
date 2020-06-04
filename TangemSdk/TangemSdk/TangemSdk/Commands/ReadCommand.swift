@@ -327,9 +327,18 @@ public struct Card: ResponseCodable {
     public let walletSignature: Data?
 }
 
+public enum CardType {
+    case sdk
+    case release
+    case unknown
+}
+
 public extension Card {
+    private static let firmwareSdkLiteral = "d SDK"
+    private static let firmwareReleaseLiteral = "r"
+    
     var firmwareVersionValue: Double? {
-        if let firmwareVersion = firmwareVersion?.remove("d SDK").remove("r").remove("\0") {
+        if let firmwareVersion = firmwareVersion?.remove(Card.firmwareSdkLiteral).remove(Card.firmwareReleaseLiteral).remove("\0") {
             return Double(firmwareVersion)
         }
         return nil
@@ -337,6 +346,22 @@ public extension Card {
     
     var isLinkedTerminalSupported: Bool {
         return settingsMask?.contains(SettingsMask.skipSecurityDelayIfValidatedByLinkedTerminal) ?? false
+    }
+    
+    var cardType: CardType {
+        guard let firmwareVersion = firmwareVersion else  {
+            return .unknown
+        }
+        
+        if firmwareVersion.hasSuffix(Card.firmwareSdkLiteral) {
+            return .sdk
+        }
+        
+        if firmwareVersion.hasSuffix(Card.firmwareReleaseLiteral) {
+            return .release
+        }
+        
+        return .unknown
     }
 }
 
@@ -367,6 +392,14 @@ public final class ReadCommand: Command {
         }
     }
     
+    func performAfterCheck(_ card: Card?, _ error: TangemSdkError) -> TangemSdkError? {
+        if error == .invalidParams {
+            return .pin1Required
+        }
+        
+        return nil
+    }
+    
     func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         /// `SessionEnvironment` stores the pin1 value. If no pin1 value was set, it will contain
         /// default value of ‘000000’.
@@ -389,7 +422,7 @@ public final class ReadCommand: Command {
 struct CardDeserializer {
     static func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw SessionError.deserializeApduFailed
+            throw TangemSdkError.deserializeApduFailed
         }
         
         let decoder = TlvDecoder(tlv: tlv)
