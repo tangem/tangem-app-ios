@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import CommonCrypto
 
-public typealias CompletionResult<T> = (Result<T, SessionError>) -> Void
+public typealias CompletionResult<T> = (Result<T, TangemSdkError>) -> Void
 
 /// Base protocol for run tasks in a card session
 @available(iOS 13.0, *)
@@ -77,7 +77,7 @@ public class CardSession {
     /// This metod starts a card session, performs preflight `Read` command,  invokes the `run ` method of `CardSessionRunnable` and closes the session.
     /// - Parameters:
     ///   - runnable: The CardSessionRunnable implemetation
-    ///   - completion: Completion handler. `(Swift.Result<CardSessionRunnable.CommandResponse, SessionError>) -> Void`
+    ///   - completion: Completion handler. `(Swift.Result<CardSessionRunnable.CommandResponse, TangemSdkError>) -> Void`
     public func start<T>(with runnable: T, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
         start(needPreflightRead: runnable.needPreflightRead) {[weak self] session, error in
             guard let self = self else { return }
@@ -97,7 +97,7 @@ public class CardSession {
     
     /// Starts a card session and performs preflight `Read` command.
     /// - Parameter onSessionStarted: Delegate with the card session. Can contain error
-    public func start(needPreflightRead: Bool = true, _ onSessionStarted: @escaping (CardSession, SessionError?) -> Void) {
+    public func start(needPreflightRead: Bool = true, _ onSessionStarted: @escaping (CardSession, TangemSdkError?) -> Void) {
         guard TangemSdk.isNFCAvailable else {
             onSessionStarted(self, .unsupportedDevice)
             return
@@ -191,8 +191,10 @@ public class CardSession {
         
         reader.tag
             .compactMap{ $0 }
-            .flatMap{ _ in self.establishEncryptionPublisher() }
-            .flatMap{ self.reader.sendPublisher(apdu: apdu)}
+            .flatMap { _ in self.establishEncryptionPublisher() }
+            .flatMap { apdu.encryptPublisher(encryptionMode: self.environment.encryptionMode, encryptionKey: self.environment.encryptionKey) }
+            .flatMap { self.reader.sendPublisher(apdu: $0) }
+            .flatMap { $0.decryptPublisher(encryptionKey: self.environment.encryptionKey) }
             .sink(receiveCompletion: { readerCompletion in
                 self.sendSubscription = []
                 if case let .failure(error) = readerCompletion {
@@ -208,11 +210,11 @@ public class CardSession {
     
     /// Perform read slix2 tags
     /// - Parameter completion: Completion handler. Invoked by nfc-reader
-    public final func readSlix2Tag(completion: @escaping (Result<ResponseApdu, SessionError>) -> Void)  {
+    public final func readSlix2Tag(completion: @escaping (Result<ResponseApdu, TangemSdkError>) -> Void)  {
         reader.readSlix2Tag(completion: completion)
     }
     
-    private func handleRunnableCompletion<TResponse>(runnableResult: Result<TResponse, SessionError>, completion: @escaping CompletionResult<TResponse>) {
+    private func handleRunnableCompletion<TResponse>(runnableResult: Result<TResponse, TangemSdkError>, completion: @escaping CompletionResult<TResponse>) {
         switch runnableResult {
         case .success(let runnableResponse):
             stop(message: Localization.nfcAlertDefaultDone)
@@ -224,21 +226,33 @@ public class CardSession {
     }
     
     @available(iOS 13.0, *)
-    private func preflightCheck(_ onSessionStarted: @escaping (CardSession, SessionError?) -> Void) {
+    private func preflightCheck(_ onSessionStarted: @escaping (CardSession, TangemSdkError?) -> Void) {
         ReadCommand().run(in: self) { [weak self] readResult in
             guard let self = self else { return }
             
             switch readResult {
             case .success(let readResponse):
                 if let expectedCardId = self.cardId?.uppercased(),
-                    let actualCardId = readResponse.cardId?.uppercased(),
-                    expectedCardId != actualCardId {
-                    self.viewDelegate.wrongCard(message: SessionError.wrongCard.localizedDescription)                    
-                    DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
-                        self.restartPolling()
-                        self.preflightCheck(onSessionStarted)
+                    let actualCardId = readResponse.cardId?.uppercased() {
+                    
+                    var wrongCardError: TangemSdkError? = nil
+                    
+                    if expectedCardId != actualCardId {
+                        wrongCardError = .wrongCardNumber
                     }
-                    return
+                    
+                    if !self.environment.allowedCardTypes.contains(readResponse.cardType) {
+                        wrongCardError = .wrongCardType
+                    }
+                    
+                    if let wrongCardError = wrongCardError {
+                        self.viewDelegate.wrongCard(message: wrongCardError.localizedDescription)
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                            self.restartPolling()
+                            self.preflightCheck(onSessionStarted)
+                        }
+                        return
+                    }
                 }
                 self.viewDelegate.sessionInitialized()
                 onSessionStarted(self, nil)
@@ -249,13 +263,13 @@ public class CardSession {
         }
     }
     
-    private func establishEncryptionPublisher() -> AnyPublisher<Void, SessionError> {
+    private func establishEncryptionPublisher() -> AnyPublisher<Void, TangemSdkError> {
         if self.environment.encryptionMode == .none || self.environment.encryptionKey != nil {
-            return Just(()).setFailureType(to: SessionError.self).eraseToAnyPublisher()
+            return Just(()).setFailureType(to: TangemSdkError.self).eraseToAnyPublisher()
         }
         
         guard let encryptionHelper = EncryptionHelperFactory.make(for: self.environment.encryptionMode) else {
-            return Fail(error: .failedToEstablishEncryption).eraseToAnyPublisher()
+            return Fail(error: .cryptoUtilsError).eraseToAnyPublisher()
         }
         
         let openSessionCommand = OpenSessionCommand(sessionKeyA: encryptionHelper.keyA)
@@ -263,7 +277,7 @@ public class CardSession {
         
         return reader
             .sendPublisher(apdu: openSesssionApdu)
-            .flatMap { responseApdu -> AnyPublisher<Void, SessionError> in
+            .flatMap { responseApdu -> AnyPublisher<Void, TangemSdkError> in
                 let response = try! openSessionCommand.deserialize(with: self.environment, from: responseApdu)
                 
                 var uid: Data
@@ -279,12 +293,12 @@ public class CardSession {
                 
                 guard let protocolKey = self.environment.pin1.pbkdf2sha256(salt: uid, rounds: 50),
                     let secret = encryptionHelper.generateSecret(keyB: response.sessionKeyB) else {
-                        return Fail(error: .failedToEstablishEncryption).eraseToAnyPublisher()
+                        return Fail(error: .cryptoUtilsError).eraseToAnyPublisher()
                 }
                 
                 let sessionKey = (secret + protocolKey).getSha256()
                 self.environment.encryptionKey = sessionKey
-                return Just(()).setFailureType(to: SessionError.self).eraseToAnyPublisher()
+                return Just(()).setFailureType(to: TangemSdkError.self).eraseToAnyPublisher()
         }.eraseToAnyPublisher()
     }
 }

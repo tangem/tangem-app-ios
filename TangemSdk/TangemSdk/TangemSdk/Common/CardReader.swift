@@ -23,13 +23,13 @@ public protocol CardReader: class {
     var isReady: Bool { get }
     var alertMessage: String {get set}
     @available(iOS 13.0, *)
-    var tag: CurrentValueSubject<NFCTagType?,SessionError> {get}
+    var tag: CurrentValueSubject<NFCTagType?,TangemSdkError> {get}
     func startSession(with message: String?)
     func stopSession(with errorMessage: String?)
-    func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu,SessionError>) -> Void)
+    func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu,TangemSdkError>) -> Void)
     @available(iOS 13.0, *)
-    func sendPublisher(apdu: CommandApdu) -> AnyPublisher<ResponseApdu, SessionError>
-    func readSlix2Tag(completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) 
+    func sendPublisher(apdu: CommandApdu) -> AnyPublisher<ResponseApdu, TangemSdkError>
+    func readSlix2Tag(completion: @escaping (Result<ResponseApdu, TangemSdkError>) -> Void) 
     func restartPolling()
 }
 
