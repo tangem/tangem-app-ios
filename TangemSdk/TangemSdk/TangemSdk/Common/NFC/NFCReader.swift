@@ -20,12 +20,12 @@ final class NFCReader: NSObject {
     static let retryCount = 10
     static let timestampTolerance = 2.0
     
-    private(set) var tag: CurrentValueSubject<NFCTagType?, SessionError> = .init(nil)
+    private(set) var tag: CurrentValueSubject<NFCTagType?, TangemSdkError> = .init(nil)
     let enableSessionInvalidateByTimer = true
     
     private let loggingEnabled = true
     private var connectedTag: NFCTag? = nil
-    private var readerSessionError: SessionError? = nil
+    private var readerSessionError: TangemSdkError? = nil
     private var readerSession: NFCTagReaderSession?
     private var currentRetryCount = NFCReader.retryCount
     private var requestTimestamp: Date?
@@ -121,20 +121,10 @@ extension NFCReader: CardReader {
         session.restartPolling()
     }
     
-    
-    /// Send apdu command to connected tag in Combine style
-    /// - Parameter apdu: serialized apdu
-    /// - Returns: ResponseApdu or NFCError otherwise
-    func sendPublisher(apdu: CommandApdu) -> AnyPublisher<ResponseApdu, SessionError> {
-        return Deferred {Future<ResponseApdu, SessionError>() { promise in
-            self.send(apdu: apdu) { promise($0) }
-            }}.eraseToAnyPublisher()
-    }
-    
     /// Send apdu command to connected tag
     /// - Parameter apdu: serialized apdu
     /// - Parameter completion: result with ResponseApdu or NFCError otherwise
-    func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu, SessionError>) -> Void)   {
+    func send(apdu: CommandApdu, completion: @escaping (Result<ResponseApdu, TangemSdkError>) -> Void)   {
         idleTimer.stop()
         
         if let error = readerSessionError {
@@ -143,7 +133,7 @@ extension NFCReader: CardReader {
         }
         
         guard let connectedTag = connectedTag else {
-            completion(.failure(.connectedTagMissing))
+            completion(.failure(.tagLost))
             return
         }
         
@@ -193,14 +183,14 @@ extension NFCReader: CardReader {
         }
     }
     
-    func readSlix2Tag(completion: @escaping (Result<ResponseApdu, SessionError>) -> Void) {
+    func readSlix2Tag(completion: @escaping (Result<ResponseApdu, TangemSdkError>) -> Void) {
         if let error = readerSessionError {
             completion(.failure(error))
             return
         }
         
         guard let connectedTag = connectedTag else {
-            completion(.failure(.connectedTagMissing))
+            completion(.failure(.tagLost))
             return
         }
         
@@ -267,7 +257,7 @@ extension NFCReader: NFCTagReaderSessionDelegate {
         stopTimers()
         let nfcError = error as! NFCReaderError
         print(nfcError.localizedDescription)
-        readerSessionError = SessionError.parse(nfcError)
+        readerSessionError = TangemSdkError.parse(nfcError)
         tag.send(completion: .failure(readerSessionError!))
         tag = .init(nil)
     }
