@@ -20,7 +20,8 @@ public typealias WriteIssuerExtraDataResponse = WriteIssuerDataResponse
 public final class WriteIssuerExtraDataCommand: Command {
     public typealias CommandResponse = WriteIssuerExtraDataResponse
     
-    public static let singleWriteSize = 1524
+    private static let singleWriteSize = 1524
+    private static let maxSize = 32 * 1024
     
     private var mode: IssuerExtraDataMode = .readOrStartWrite
     private var offset: Int = 0
@@ -54,32 +55,40 @@ public final class WriteIssuerExtraDataCommand: Command {
         print("WriteIssuerExtraDataCommand deinit")
     }
     
-    public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerExtraDataResponse>) {
-        guard let settingsMask = session.environment.card?.settingsMask,
-            let cardId = session.environment.card?.cardId else {
-                completion(.failure(.cardError))
-                return
+    func performPreCheck(_ card: Card) -> TangemSdkError? {
+        if let status = card.status, status == .notPersonalized {
+            return .notPersonalized
         }
         
-        if settingsMask.contains(.protectIssuerDataAgainstReplay) && issuerDataCounter == nil {
-            completion(.failure(.missingCounter))
-            return
+        if card.isActivated {
+            return .notActivated
         }
         
         if issuerPublicKey == nil {
-            issuerPublicKey = session.environment.card?.issuerPublicKey
+            issuerPublicKey = card.issuerPublicKey
         }
         
-        guard issuerPublicKey != nil else {
-            completion(.failure(.missingIssuerPublicKey))
-            return
+        if issuerPublicKey == nil  {
+            return .missingIssuerPublicKey
         }
         
-        guard verify(with: cardId) else {
-            completion(.failure(.verificationFailed))
-            return
+        if issuerData.count > WriteIssuerExtraDataCommand.maxSize {
+            return .extendedDataSizeTooLarge
         }
         
+        if let settingsMask = card.settingsMask, settingsMask.contains(.protectIssuerDataAgainstReplay)
+            && issuerDataCounter == nil {
+            return .missingCounter
+        }
+        
+        if let cardId = card.cardId, !verify(with: cardId) {
+            return .verificationFailed
+        }
+        
+        return nil
+    }
+    
+    public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerExtraDataResponse>) {
         self.completion = completion
         self.viewDelegate = session.viewDelegate
         writeData(session)
@@ -170,7 +179,7 @@ public final class WriteIssuerExtraDataCommand: Command {
     
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> WriteIssuerExtraDataResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw SessionError.deserializeApduFailed
+            throw TangemSdkError.deserializeApduFailed
         }
         
         let decoder = TlvDecoder(tlv: tlv)
