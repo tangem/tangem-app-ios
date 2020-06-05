@@ -9,7 +9,7 @@
 import Foundation
 
 public extension Error {
-    func toSessionError() -> SessionError {
-        return SessionError.parse(self)
+    func toTangemSdkError() -> TangemSdkError {
+        return TangemSdkError.parse(self)
     }
 }
