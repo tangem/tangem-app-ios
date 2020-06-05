@@ -33,12 +33,11 @@ final class ScanTaskExtended: CardSessionRunnable {
     }
     
     public func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-            trace?.incrementMetric("success", by: 1)
-            trace?.stop()
             let scanTask = ScanTask()
             scanTask.run(in: session) { result in
                 switch result {
                 case .success(let card):
+                    self.trace?.stop()
                     if card.cardData?.productMask?.contains(.idCard) ?? false {
                         self.readIssuerExtraData(in: session, for: card, completion: completion)
                     } else {
