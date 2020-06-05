@@ -30,6 +30,8 @@ public struct WriteUserDataResponse: ResponseCodable {
 public final class WriteUserDataCommand: Command {
     public typealias CommandResponse = WriteUserDataResponse
     
+    private static let maxSize = 512
+    
     private let userData: Data?
     private let userCounter: Int?
     private let userProtectedData: Data?
@@ -68,6 +70,34 @@ public final class WriteUserDataCommand: Command {
         self.init(userData: nil, userCounter: nil, userProtectedData: userProtectedData, userProtectedCounter: userProtectedCounter)
     }
     
+    func performPreCheck(_ card: Card) -> TangemSdkError? {
+        if let status = card.status, status == .notPersonalized {
+            return .notPersonalized
+        }
+        
+        if card.isActivated {
+            return .notActivated
+        }
+        
+        if let userData = userData, userData.count > WriteUserDataCommand.maxSize {
+            return .dataSizeTooLarge
+        }
+        
+        if let userProtectedData = userProtectedData, userProtectedData.count > WriteUserDataCommand.maxSize {
+            return .dataSizeTooLarge
+        }
+        
+        return nil
+    }
+    
+    func performAfterCheck(_ card: Card?, _ error: TangemSdkError) -> TangemSdkError? {
+        if error == .invalidParams {
+            return .pin2OrCvcRequired
+        }
+        
+        return nil
+    }
+    
     func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
         let tlvBuilder = try createTlvBuilder(legacyMode: environment.legacyMode)
             .append(.cardId, value: environment.card?.cardId)
@@ -99,7 +129,7 @@ public final class WriteUserDataCommand: Command {
     
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> WriteUserDataResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw SessionError.deserializeApduFailed
+            throw TangemSdkError.deserializeApduFailed
         }
         
         let decoder = TlvDecoder(tlv: tlv)

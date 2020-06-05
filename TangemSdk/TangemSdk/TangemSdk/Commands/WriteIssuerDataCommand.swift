@@ -23,6 +23,7 @@ public struct WriteIssuerDataResponse: ResponseCodable {
 @available(iOS 13.0, *)
 public final class WriteIssuerDataCommand: Command {
     public typealias CommandResponse = WriteIssuerDataResponse
+
     /// Data provided by issuer
     public let issuerData: Data
     /**
@@ -47,6 +48,8 @@ public final class WriteIssuerDataCommand: Command {
     
     private var issuerPublicKey: Data?
     
+    private static let maxSize = 512
+    
     public init(issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, issuerPublicKey: Data? = nil) {
         self.issuerData = issuerData
         self.issuerDataSignature = issuerDataSignature
@@ -58,38 +61,46 @@ public final class WriteIssuerDataCommand: Command {
         print("WriteIssuerDataCommand deinit")
     }
     
-    public func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
-        guard let card = session.environment.card else {
-            completion(.failure(.missingPreflightRead))
-            return
+    func performPreCheck(_ card: Card) -> TangemSdkError? {
+        if let status = card.status, status == .notPersonalized {
+            return .notPersonalized
         }
         
-        guard let settingsMask = card.settingsMask,
-            let cardId = card.cardId else {
-                completion(.failure(.cardError))
-                return
-        }
-        
-        if settingsMask.contains(.protectIssuerDataAgainstReplay) && issuerDataCounter == nil {
-            completion(.failure(.missingCounter))
-            return
+        if card.isActivated {
+            return .notActivated
         }
         
         if issuerPublicKey == nil {
-            issuerPublicKey = session.environment.card?.issuerPublicKey
+            issuerPublicKey = card.issuerPublicKey
         }
         
-        guard issuerPublicKey != nil else {
-            completion(.failure(.missingIssuerPublicKey))
-            return
+        if issuerPublicKey == nil  {
+            return .missingIssuerPublicKey
         }
         
-        guard verify(with: cardId) else {
-            completion(.failure(.verificationFailed))
-            return
+        if issuerData.count > WriteIssuerDataCommand.maxSize {
+            return .dataSizeTooLarge
         }
         
-        transieve(in: session, completion: completion)
+        if let settingsMask = card.settingsMask, settingsMask.contains(.protectIssuerDataAgainstReplay)
+            && issuerDataCounter == nil {
+            return .missingCounter
+        }
+        
+        if let cardId = card.cardId, !verify(with: cardId) {
+            return .verificationFailed
+        }
+        
+        return nil
+    }
+        
+    func performAfterCheck(_ card: Card?, _ error: TangemSdkError) -> TangemSdkError? {
+        if let settingsMask = card?.settingsMask, settingsMask.contains(.protectIssuerDataAgainstReplay),
+            error == .invalidParams {
+            return .dataCannotBeWritten
+        }
+        
+        return nil
     }
     
     func serialize(with environment: SessionEnvironment) throws -> CommandApdu {
@@ -108,7 +119,7 @@ public final class WriteIssuerDataCommand: Command {
     
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> WriteIssuerDataResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw SessionError.deserializeApduFailed
+            throw TangemSdkError.deserializeApduFailed
         }
         
         let decoder = TlvDecoder(tlv: tlv)
