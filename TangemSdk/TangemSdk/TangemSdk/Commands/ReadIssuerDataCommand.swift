@@ -56,16 +56,24 @@ public final class ReadIssuerDataCommand: Command {
         print ("ReadIssuerDataCommand deinit")
     }
     
-    public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
+    func performPreCheck(_ card: Card) -> TangemSdkError? {
+        if let status = card.status, status == .notPersonalized {
+            return .notPersonalized
+        }
+        
         if issuerPublicKey == nil {
-            issuerPublicKey = session.environment.card?.issuerPublicKey
+            issuerPublicKey = card.issuerPublicKey
         }
         
-        guard issuerPublicKey != nil else {
-            completion(.failure(.missingIssuerPublicKey))
-            return
+        if issuerPublicKey == nil {
+            return .missingIssuerPublicKey
         }
         
+        return nil
+    }
+
+    
+    public func run(in session: CardSession, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
         transieve(in: session) { result in
             switch result {
             case .success(let response):
@@ -96,7 +104,7 @@ public final class ReadIssuerDataCommand: Command {
     
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> ReadIssuerDataResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw SessionError.deserializeApduFailed
+            throw TangemSdkError.deserializeApduFailed
         }
         
         let decoder = TlvDecoder(tlv: tlv)
