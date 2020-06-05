@@ -14,7 +14,7 @@ public final class TlvEncoder {
             return try Tlv(tag, value: encode(value, for: tag))
         } else {
             print("Encoding error. Value for tag \(tag) is nil")
-            throw SessionError.encodeFailed
+            throw TangemSdkError.encodingFailed
         }
     }
     
@@ -30,7 +30,7 @@ public final class TlvEncoder {
                 return data
             } else {
                 print("Encoding error. Failed to convert string to utf8 Data")
-                throw SessionError.encodeFailed
+                throw TangemSdkError.encodingFailed
             }
         case .byte:
             try typeCheck(value, Int.self)
@@ -53,7 +53,7 @@ public final class TlvEncoder {
                 return data
             } else {
                 print("Encoding error. Failed to convert EllipticCurve to utf8 Data")
-                throw SessionError.encodeFailed
+                throw TangemSdkError.encodingFailed
             }
         case .dateTime:
             try typeCheck(value, Date.self)
@@ -89,7 +89,7 @@ public final class TlvEncoder {
     private func typeCheck<FromType, ToType>(_ value: FromType, _ to: ToType) throws {
         guard type(of: value) is ToType else {
             print("Encoding error. Value is \(FromType.self). Expected: \(ToType.self)")
-            throw SessionError.encodeFailedTypeMismatch
+            throw TangemSdkError.encodingFailedTypeMismatch
         }
     }
 }
