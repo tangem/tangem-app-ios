@@ -47,7 +47,7 @@ final class ConfirmIdTask: CardSessionRunnable {
         let issuerCardViewModel = CardViewModel(issuerCard)
         
         guard productMask.contains(.idIssuer) || idEngine.card.idIssuerKeys.contains(issuerCardViewModel.walletPublicKey) else {
-            completion(.failure(.wrongCard))
+            completion(.failure(.wrongCardNumber))
             return
         }
         
