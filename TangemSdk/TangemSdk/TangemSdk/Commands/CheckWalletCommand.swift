@@ -36,6 +36,18 @@ public final class CheckWalletCommand: Command {
         self.publicKey = publicKey
     }
     
+    func performPreCheck(_ card: Card) -> TangemSdkError? {
+        if let status = card.status, status == .notPersonalized {
+            return .notPersonalized
+        }
+        
+        if card.isActivated {
+            return .notActivated
+        }
+        
+        return nil
+    }
+
     public func run(in session: CardSession, completion: @escaping CompletionResult<CheckWalletResponse>) {
         transieve(in: session) {result in
             switch result {
@@ -73,7 +85,7 @@ public final class CheckWalletCommand: Command {
     
     func deserialize(with environment: SessionEnvironment, from apdu: ResponseApdu) throws -> CheckWalletResponse {
         guard let tlv = apdu.getTlvData(encryptionKey: environment.encryptionKey) else {
-            throw SessionError.deserializeApduFailed
+            throw TangemSdkError.deserializeApduFailed
         }
         
         let decoder = TlvDecoder(tlv: tlv)
