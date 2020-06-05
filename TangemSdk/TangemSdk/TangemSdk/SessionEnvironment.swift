@@ -45,6 +45,11 @@ public struct SessionEnvironment {
     public var cvc: Data? = nil
     
     var legacyMode: Bool = true
+    
+    public var allowedCardTypes: [CardType] = [.sdk, .release, .unknown]
+
+    public var handleErrors: Bool = true
+    
     public init() {}
     
     /// Helper method for setting pin1 in string format. Calculates sha256 hash for you
