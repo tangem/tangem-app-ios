@@ -60,7 +60,7 @@ public final class TangemSdk {
      *
      * - Parameters:
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<Card,SessionError>`
+     *   - completion: Returns `Swift.Result<Card,TangemSdkError>`
      */
     public func scanCard(initialMessage: String? = nil, completion: @escaping CompletionResult<Card>) {
         startSession(with: ScanTask(), cardId: nil, initialMessage: initialMessage, completion: completion)
@@ -79,7 +79,7 @@ public final class TangemSdk {
      *   - hashes: Array of transaction hashes. It can be from one or up to ten hashes of the same length.
      *   - cardId: CID, Unique Tangem card ID number
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns  `Swift.Result<SignResponse,SessionError>`
+     *   - completion: Returns  `Swift.Result<SignResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func sign(hashes: [Data], cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<SignResponse>) {
@@ -94,7 +94,7 @@ public final class TangemSdk {
      * - Parameters:
      *   - cardId: CID, Unique Tangem card ID number.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<ReadIssuerDataResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<ReadIssuerDataResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func readIssuerData(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<ReadIssuerDataResponse>) {
@@ -112,7 +112,7 @@ public final class TangemSdk {
      *   - issuerDataSignature: Issuer’s signature of `issuerData` with Issuer Data Private Key (which is kept on card).
      *   - issuerDataCounter: An optional counter that protect issuer data against replay attack.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<WriteIssuerDataResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<WriteIssuerDataResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func writeIssuerData(cardId: String, issuerData: Data, issuerDataSignature: Data, issuerDataCounter: Int? = nil, initialMessage: String? = nil, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
@@ -130,7 +130,7 @@ public final class TangemSdk {
      * - Parameters:
      *   - cardId:  CID, Unique Tangem card ID number.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<ReadIssuerExtraDataResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<ReadIssuerExtraDataResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func readIssuerExtraData(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<ReadIssuerExtraDataResponse>) {
@@ -156,7 +156,7 @@ public final class TangemSdk {
      *   [issuerData] and [issuerDataCounter] (the latter one only if flags Protect_Issuer_Data_Against_Replay
      *   and Restrict_Overwrite_Issuer_Extra_Data are set in [SettingsMask]).
      *   - issuerDataCounter:  An optional counter that protect issuer data against replay attack.
-     *   - completion: Returns `Swift.Result<WriteIssuerDataResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<WriteIssuerDataResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func writeIssuerExtraData(cardId: String,
@@ -191,7 +191,7 @@ public final class TangemSdk {
      * - Parameters:
      *   - cardId:  CID, Unique Tangem card ID number.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<ReadUserDataResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<ReadUserDataResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func readUserData(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<ReadUserDataResponse>) {
@@ -215,7 +215,7 @@ public final class TangemSdk {
      *   - userData: Data defined by user’s App
      *   - userCounter: Counter initialized by user’s App and increased on every signing of new transaction.  If nil, the current counter value will not be overwritten.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<WriteUserDataResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<WriteUserDataResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func writeUserData(cardId: String, userData: Data, userCounter: Int?,
@@ -241,7 +241,7 @@ public final class TangemSdk {
      *   - userProtectedData: Data defined by user’s App (confirmed by PIN2)
      *   - userProtectedCounter: Counter initialized by user’s App (confirmed by PIN2) and increased on every signing of new transaction.  If nil, the current counter value will not be overwritten.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<WriteUserDataResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<WriteUserDataResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func writeUserProtectedData(cardId: String, userProtectedData: Data, userProtectedCounter: Int?,
@@ -261,7 +261,7 @@ public final class TangemSdk {
      * - Parameters:
      *   - cardId:  CID, Unique Tangem card ID number.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<CreateWalletResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<CreateWalletResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func createWallet(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<CreateWalletResponse>) {
@@ -276,7 +276,7 @@ public final class TangemSdk {
      * - Parameters:
      *   - cardId:  CID, Unique Tangem card ID number.
      *   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-     *   - completion: Returns `Swift.Result<PurgeWalletResponse,SessionError>`
+     *   - completion: Returns `Swift.Result<PurgeWalletResponse,TangemSdkError>`
      */
     @available(iOS 13.0, *)
     public func purgeWallet(cardId: String, initialMessage: String? = nil, completion: @escaping CompletionResult<PurgeWalletResponse>) {
@@ -290,7 +290,7 @@ public final class TangemSdk {
     ///   - runnable: A custom task, adopting `CardSessionRunnable` protocol
     ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
     ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-    ///   - completion: Standart completion handler. Invoked on the main thread. `(Swift.Result<CardSessionRunnable.CommandResponse, SessionError>) -> Void`.
+    ///   - completion: Standart completion handler. Invoked on the main thread. `(Swift.Result<CardSessionRunnable.CommandResponse, TangemSdkError>) -> Void`.
     public func startSession<T>(with runnable: T, cardId: String?, initialMessage: String? = nil, completion: @escaping CompletionResult<T.CommandResponse>) where T : CardSessionRunnable {
         cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage, cardReader: reader, viewDelegate: viewDelegate)
         cardSession!.start(with: runnable, completion: completion)
@@ -300,11 +300,11 @@ public final class TangemSdk {
     /// - Parameters:
     ///   - cardId: CID, Unique Tangem card ID number. If not nil, the SDK will check that you tapped the  card with this cardID and will return the `wrongCard` error' otherwise
     ///   - initialMessage: A custom description that shows at the beginning of the NFC session. If nil, default message will be used
-    ///   - callback: At first, you should check that the `SessionError` is not nil, then you can use the `CardSession` to interact with a card.
+    ///   - callback: At first, you should check that the `TangemSdkError` is not nil, then you can use the `CardSession` to interact with a card.
     ///   You can find the current card in the `environment` property of the `CardSession`
     ///   If you need to interact with UI, you should dispatch to the main thread manually
     @available(iOS 13.0, *)
-    public func startSession(cardId: String?, initialMessage: String? = nil, callback: @escaping (CardSession, SessionError?) -> Void) {
+    public func startSession(cardId: String?, initialMessage: String? = nil, callback: @escaping (CardSession, TangemSdkError?) -> Void) {
         cardSession = CardSession(environment: buildEnvironment(), cardId: cardId, initialMessage: initialMessage, cardReader: reader, viewDelegate: viewDelegate)
         cardSession?.start(callback)
     }
@@ -315,6 +315,8 @@ public final class TangemSdk {
         if config.linkedTerminal ?? !NfcUtils.isPoorNfcQualityDevice {
             environment.terminalKeys = terminalKeysService.getKeys()
         }
+        environment.allowedCardTypes = config.allowedCardTypes
+        environment.handleErrors = config.handleErrors
         return environment
     }
     
