@@ -25,7 +25,7 @@ public final class CryptoUtils {
         if status == errSecSuccess {
             return Data(bytes)
         } else {
-            throw SessionError.failedToGenerateRandomSequence
+            throw TangemSdkError.failedToGenerateRandomSequence
         }
     }
     
