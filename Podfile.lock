@@ -168,9 +168,7 @@ PODS:
   - SwiftLint (0.39.2)
   - SwiftProtobuf (1.8.0)
   - SwiftyJSON (5.0.0)
-  - TangemSdk (2.0.2):
-    - KeychainSwift
-    - secp256k1.swift
+  - TangemSdk (2.0.2)
   - web3swift (2.2.1):
     - BigInt (~> 4.0)
     - CryptoSwift
@@ -269,7 +267,7 @@ CHECKOUT OPTIONS:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
   TangemSdk:
-    :commit: 2375a152f2a1692c97fee6e9262d0e68342f5aa4
+    :commit: 1efa97c7dc9b43f386c677efbfe5054bfd079d64
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
@@ -318,7 +316,7 @@ SPEC CHECKSUMS:
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  TangemSdk: d8c463166007635b1d74e8a99300daba57653e29
+  TangemSdk: df9452c43c53c2db88915e4bd70f20b1d28f794b
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
