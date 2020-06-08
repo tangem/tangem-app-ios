@@ -23,7 +23,7 @@ target 'Tangem' do
     pod 'Firebase/Crashlytics'
     pod 'Firebase/Performance'
     pod 'KeychainSwift'
-    pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :branch => 'master'
+    pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-27'
     #pod 'TangemSdk', :path => '../card-sdk-swift'
 
     #pod 'BlockchainSdk', :path => '/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk'
