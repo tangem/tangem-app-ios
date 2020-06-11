@@ -57,7 +57,7 @@ class LTCEngine: BTCEngine {
         let extendedRipemd160Hash = netSelectionByte + ripemd160Hash
         let sha = extendedRipemd160Hash.sha256().sha256()
         let ripemd160HashWithChecksum = extendedRipemd160Hash + sha[..<4]
-        let base58 = String(base58Encoding: ripemd160HashWithChecksum)
+        let base58 = String(base58Encoding: ripemd160HashWithChecksum, alphabet:Base58String.btcAlphabet)
         
         walletAddress = base58
         card.node = randomNode()
