@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1B792C4A5B67552C41885260 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2311ED50F9EF410AB7F319AC /* Pods_Tangem.framework */; };
 		5D076E5C23153AA90009F208 /* TangemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D076E5B23153AA90009F208 /* TangemTests.swift */; };
+		5D1317ED249296A800A78F4E /* PayID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1317EC249296A800A78F4E /* PayID.swift */; };
+		5D1317EF2492A96E00A78F4E /* XRPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1317EE2492A96E00A78F4E /* XRPAddress.swift */; };
 		5D335DF0242E3A650010FA07 /* TLVUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D335D25242E3A650010FA07 /* TLVUtils.swift */; };
 		5D335DF1242E3A650010FA07 /* TLVExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D335D26242E3A650010FA07 /* TLVExtentions.swift */; };
 		5D335DF2242E3A650010FA07 /* TLV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D335D27242E3A650010FA07 /* TLV.swift */; };
@@ -219,7 +221,7 @@
 		8D946D8E2018DA92006C73D9 /* Reader.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8C2018DA92006C73D9 /* Reader.storyboard */; };
 		8D946D902018DA92006C73D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D8F2018DA92006C73D9 /* Assets.xcassets */; };
 		8D946D932018DA92006C73D9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D946D912018DA92006C73D9 /* LaunchScreen.storyboard */; };
-		B1FEF070153C749010F4F939 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (Required, ); }; };
+		B1FEF070153C749010F4F939 /* (null) in Frameworks */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -240,6 +242,8 @@
 		5D076E5B23153AA90009F208 /* TangemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemTests.swift; sourceTree = "<group>"; };
 		5D076E5D23153AA90009F208 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D09956E232B7F210000DF03 /* Tangem copy2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Tangem copy2-Info.plist"; path = "/Users/alexander.osokin/repos/tangem/tangem-lite/Tangem copy2-Info.plist"; sourceTree = "<absolute>"; };
+		5D1317EC249296A800A78F4E /* PayID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayID.swift; sourceTree = "<group>"; };
+		5D1317EE2492A96E00A78F4E /* XRPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddress.swift; sourceTree = "<group>"; };
 		5D335D25242E3A650010FA07 /* TLVUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TLVUtils.swift; sourceTree = "<group>"; };
 		5D335D26242E3A650010FA07 /* TLVExtentions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TLVExtentions.swift; sourceTree = "<group>"; };
 		5D335D27242E3A650010FA07 /* TLV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TLV.swift; sourceTree = "<group>"; };
@@ -478,7 +482,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1FEF070153C749010F4F939 /* BuildFile in Frameworks */,
+				B1FEF070153C749010F4F939 /* (null) in Frameworks */,
 				1B792C4A5B67552C41885260 /* Pods_Tangem.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -682,6 +686,7 @@
 				5D335DA7242E3A650010FA07 /* EthereumNetworkTxCountOperation.swift */,
 				5D335DA8242E3A650010FA07 /* BinanceNetworkBalanceOperation.swift */,
 				5D335DA9242E3A650010FA07 /* Cardano */,
+				5D1317EC249296A800A78F4E /* PayID.swift */,
 			);
 			path = "Blockchain Operations";
 			sourceTree = "<group>";
@@ -866,6 +871,7 @@
 				5D335DDD242E3A650010FA07 /* XRPAmount.swift */,
 				5D335DDE242E3A650010FA07 /* XRPAccount.swift */,
 				5D335DDF242E3A650010FA07 /* XRPCurrentLedgerInfo.swift */,
+				5D1317EE2492A96E00A78F4E /* XRPAddress.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1437,6 +1443,7 @@
 				5D335E67242E3A650010FA07 /* BaseCardBalanceOperation.swift in Sources */,
 				5D335E57242E3A650010FA07 /* BlockchairTarget.swift in Sources */,
 				5D335E74242E3A650010FA07 /* Array+.swift in Sources */,
+				5D1317EF2492A96E00A78F4E /* XRPAddress.swift in Sources */,
 				5D335E41242E3A650010FA07 /* StellarRequestOperation.swift in Sources */,
 				5D335E84242E3A660010FA07 /* XRPKeypair.swift in Sources */,
 				5D335E71242E3A650010FA07 /* Int+.swift in Sources */,
@@ -1496,6 +1503,7 @@
 				5D335E31242E3A650010FA07 /* CoinProvider.swift in Sources */,
 				5D335E87242E3A660010FA07 /* XRPAccountInfo.swift in Sources */,
 				5D335E69242E3A650010FA07 /* XRPCardBalanceOperation.swift in Sources */,
+				5D1317ED249296A800A78F4E /* PayID.swift in Sources */,
 				8000367F2127671700C151E8 /* UIColorExtensions.swift in Sources */,
 				5D335E53242E3A650010FA07 /* BtcBalanceOperation.swift in Sources */,
 				5D335E0A242E3A650010FA07 /* PBHex.swift in Sources */,
