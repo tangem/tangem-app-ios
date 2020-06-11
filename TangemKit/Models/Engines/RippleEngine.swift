@@ -12,6 +12,7 @@ import Moya
 
 public class RippleEngine: CardEngine {
     let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin()])
+    let payIdProvider = MoyaProvider<PayIdTarget>(plugins: [NetworkLoggerPlugin()])
     unowned public var card: CardViewModel
     
     public var blockchainDisplayName: String {
@@ -91,6 +92,43 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
         .all
     }
     
+    private func resolveAddressAndCheckCreated(_ address: String, completion: @escaping (String?, Bool?) -> Void) {
+        if address.contains(find: "$") { //pay id
+            payIdProvider.request(.address(payId: address)) { moyaResult in
+                switch moyaResult {
+                case .success(let response):
+                    if let payIdResponse = try? response.map(PayIdResponse.self) {
+                        if let resolvedAddress = payIdResponse.addresses?.compactMap({ address -> String? in
+                            if address.paymentNetwork == "XRPL" && address.environment == "MAINNET" {
+                                return address.addressDetails?.address
+                            }
+                            return nil
+                        }).first, self.validate(address: resolvedAddress) {
+                            self.checkTargetAccountCreated(resolvedAddress) { result in
+                                completion(resolvedAddress, result)
+                            }
+                        } else {
+                            print("Unknown address format in PayID response")
+                            completion(nil, nil)
+                        }
+                    } else {
+                        print("Unknown response format on PayID request")
+                        completion(nil, nil)
+                    }
+                    
+                case .failure(let error):
+                    print(error)
+                    completion(nil, nil)
+                }
+            }
+        } else {
+            let addressDecoded = (try? XRPAddress.decodeXAddress(xAddress: address))?.rAddress ?? address
+            checkTargetAccountCreated(addressDecoded) { result in
+                completion(address, result)
+            }
+        }
+    }
+    
     private func checkTargetAccountCreated(_ address: String, completion: @escaping (Bool?) -> Void) {
         provider.request(.accountInfo(account: address)) { result in
             switch result {
@@ -132,10 +170,22 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
         let feeDrops = feeDecimal * Decimal(1000000)
         
         
-        checkTargetAccountCreated(targetAddress) {[weak self] isAccountCreated in
-            guard let self = self, let isAccountCreated = isAccountCreated else {
+        resolveAddressAndCheckCreated(targetAddress) {[weak self] destinationAddress, isAccountCreated in
+            guard let self = self, let isAccountCreated = isAccountCreated, let destinationAddress = destinationAddress else {
                 completion(nil, nil)
                 return
+            }
+            
+            var destination: String
+            var destinationTag: UInt32? = nil
+            
+            //X-address
+            let decodedXAddress = try? XRPAddress.decodeXAddress(xAddress: destinationAddress)
+            if decodedXAddress != nil {
+                destination = decodedXAddress!.rAddress
+                destinationTag = decodedXAddress!.tag
+            } else {
+                destination = destinationAddress
             }
             
             if !isAccountCreated && finalAmountDecimal < reserve {
@@ -144,15 +194,19 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
             }
             
             // dictionary containing partial transaction fields
-            let fields: [String:Any] = [
+            var fields: [String:Any] = [
                 "Account" : account,
                 "TransactionType" : "Payment",
-                "Destination" : targetAddress,
+                "Destination" : destination,
                 "Amount" : "\(amountDrops)",
                 // "Flags" : UInt64(2147483648),
                 "Fee" : "\(feeDrops)",
                 "Sequence" : sequence,
             ]
+            
+            if destinationTag != nil {
+                fields["DestinationTag"] = destinationTag
+            }
             
             // create the transaction from dictionary
             let partialTransaction = XRPTransaction(fields: fields)
@@ -251,7 +305,32 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
     }
     
     public func validate(address: String) -> Bool {
-        return XRPWallet.validate(address: address)
+        if address.isEmpty {
+            return false
+        }
+        
+        if address.contains("$") { // PayID
+            let addressParts = address.split(separator: "$")
+            if addressParts.count != 2 {
+                return false
+            }
+            let addressURL = "https://" + addressParts[1] + "/" + addressParts[0]
+            if let _ = URL(string: addressURL) {
+                return true
+            } else {
+                return false
+            }
+        }
+        
+        if XRPSeedWallet.validate(address: address) {
+            return true
+        }
+        
+        if let _ = try? XRPAddress.decodeXAddress(xAddress: address) {
+            return true
+        }
+        
+        return false
     }
     
     public func getApiDescription() -> String {
