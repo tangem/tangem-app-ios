@@ -95,7 +95,7 @@ class BTCEngine: CardEngine, CoinProvider {
         
         let binaryForBase58 = dataWithHexString(hex: addCheckToRipemd)
         
-        walletAddress = String(base58Encoding: binaryForBase58) 
+        walletAddress = String(base58Encoding: binaryForBase58, alphabet:Base58String.btcAlphabet) 
         
         card.node = randomNode() 
     }
