@@ -30,9 +30,14 @@ public struct XRPAddress {
     }
     
     public init(xAddress: String) throws {
-        let data = Data(base58Decoding: xAddress, alphabet:Base58String.xrpAlphabet)!
+        guard let data = Data(base58Decoding: xAddress, alphabet:Base58String.xrpAlphabet) else {
+            throw XRPAddressError.invalidAddress
+        }
         let check = data.suffix(4).bytes
         let concatenated = data.prefix(31).bytes
+        if concatenated.count < 23 {
+            throw XRPAddressError.invalidAddress
+        }
         let tagBytes = concatenated[23...]
         let flags = concatenated[22]
         let prefix = concatenated[..<2]
