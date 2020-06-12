@@ -92,7 +92,7 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
         .all
     }
     
-    private func resolveAddressAndCheckCreated(_ address: String, completion: @escaping (String?, Bool?) -> Void) {
+    private func resolveAddressAndCheckCreated(_ address: String, completion: @escaping (String?, Bool?, Error?) -> Void) {
         if address.contains(find: "$") { //pay id
             payIdProvider.request(.address(payId: address)) { moyaResult in
                 switch moyaResult {
@@ -105,26 +105,27 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
                             return nil
                         }).first, self.validate(address: resolvedAddress) {
                             self.checkTargetAccountCreated(resolvedAddress) { result in
-                                completion(resolvedAddress, result)
+                                completion(resolvedAddress, result, nil)
                             }
                         } else {
                             print("Unknown address format in PayID response")
-                            completion(nil, nil)
+                            completion(nil, nil, "Unknown address format in PayID response")
                         }
                     } else {
                         print("Unknown response format on PayID request")
-                        completion(nil, nil)
+                        completion(nil, nil, "Unknown response format on PayID request")
                     }
                     
                 case .failure(let error):
-                    print(error)
-                    completion(nil, nil)
+                    let err = "PayID request failed. \(error.localizedDescription)"
+                    print(err)
+                    completion(nil, nil, err)
                 }
             }
         } else {
             let addressDecoded = (try? XRPAddress.decodeXAddress(xAddress: address))?.rAddress ?? address
             checkTargetAccountCreated(addressDecoded) { result in
-                completion(address, result)
+                completion(address, result, nil)
             }
         }
     }
@@ -170,9 +171,9 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
         let feeDrops = feeDecimal * Decimal(1000000)
         
         
-        resolveAddressAndCheckCreated(targetAddress) {[weak self] destinationAddress, isAccountCreated in
+        resolveAddressAndCheckCreated(targetAddress) {[weak self] destinationAddress, isAccountCreated, error in
             guard let self = self, let isAccountCreated = isAccountCreated, let destinationAddress = destinationAddress else {
-                completion(nil, nil)
+                completion(nil, error)
                 return
             }
             
