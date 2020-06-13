@@ -104,7 +104,8 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
                             }
                             return nil
                         }).first, self.validate(address: resolvedAddress) {
-                            self.checkTargetAccountCreated(resolvedAddress) { result in
+                            let resolvedAddressDecoded = (try? XRPAddress.decodeXAddress(xAddress: resolvedAddress))?.rAddress ?? resolvedAddress
+                            self.checkTargetAccountCreated(resolvedAddressDecoded) { result in
                                 completion(resolvedAddress, result, nil)
                             }
                         } else {
