@@ -490,7 +490,8 @@ extension CardDetailsViewController {
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
+        let hasPayId = card.cardEngine is PayIdProvider
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: hasPayId ?  540 : 247)
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
     }
@@ -577,7 +578,11 @@ extension CardDetailsViewController {
     private func showExtraction() {
         let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
         viewController.card = card
-        viewController.onDone = { [unowned self] in
+        viewController.onDone = { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
             guard let card = self.card else {
                 return
             }
