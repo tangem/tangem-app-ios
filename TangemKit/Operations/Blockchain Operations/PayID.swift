@@ -24,8 +24,14 @@ struct PayIdAddressDetails: Codable {
     let address: String?
 }
 
+enum PayIdNetwork: String {
+    case XRPL
+}
+
 enum PayIdTarget: TargetType {
     case address(payId: String)
+    case getPayId(cid: String, cardPublicKey:Data)
+    case createPayId(cid: String, cardPublicKey:Data, payId: String, address: String, network: PayIdNetwork)
     
     var baseURL: URL {
         switch self {
@@ -34,6 +40,8 @@ enum PayIdTarget: TargetType {
             let domain = addressParts[1]
             let baseUrl = "https://\(domain)/"
             return URL(string: baseUrl)!
+        default:
+            return URL(string: "https://payid.tangem.com")!
         }
     }
     
@@ -43,6 +51,8 @@ enum PayIdTarget: TargetType {
             let addressParts = payId.split(separator: "$")
             let user = addressParts[0]
             return String(user)
+        default:
+            return ""
         }
     }
     
@@ -50,6 +60,10 @@ enum PayIdTarget: TargetType {
         switch self {
         case .address:
             return .get
+        case .getPayId:
+            return .get
+        case .createPayId:
+            return .post
         }
     }
     
@@ -61,6 +75,16 @@ enum PayIdTarget: TargetType {
         switch self {
         case .address:
             return .requestPlain
+        case .getPayId(let cid, let cardPublicKey):
+            return .requestParameters(parameters: ["cid" : cid,
+                                                   "key" : cardPublicKey.asHexString()], encoding: URLEncoding.default)
+        case .createPayId(let cid, let cardPublicKey, let payId, let address, let network):
+            return .requestParameters(parameters: ["cid" : cid,
+                                                   "key" : cardPublicKey.asHexString(),
+                                                   "payid" : payId,
+                                                   "address" : address,
+                                                   "network" : network.rawValue
+            ], encoding: URLEncoding.default)
         }
     }
     
@@ -69,11 +93,21 @@ enum PayIdTarget: TargetType {
         case .address:
             return ["Accept" : "application/xrpl-mainnet+json",
                     "PayID-Version" : "1.0"]
+        default:
+            return nil
         }
+        
     }
     
 }
 
+struct GetPayIdResponse: Codable {
+    let payId: String?
+}
+
+struct CreatePayIdResponse: Codable {
+    let success: Bool?
+}
 
 /*class XrpXAddressService {
     private let xrpMainnetPrefix = Data([UInt8(0x05), UInt8(0x44)])
@@ -141,3 +175,9 @@ struct XrpXAddressDecoded {
     let destinationTag: Int?
 }
 */
+
+
+protocol PayIdProvider {
+    func loadPayId(cid: String, key: Data, completion: @escaping (Result<String?, Error>) -> Void)
+    func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void)
+}
