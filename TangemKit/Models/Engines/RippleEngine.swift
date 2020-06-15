@@ -355,3 +355,57 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
         return Array(der[0..<Int(length)])
     }
 }
+
+
+extension RippleEngine: PayIdProvider {
+    func loadPayId(cid: String, key: Data, completion: @escaping (Result<String?, Error>) -> Void) {
+        payIdProvider.request(.getPayId(cid: cid, cardPublicKey: key)) { moyaResult in
+            DispatchQueue.main.async {
+                switch moyaResult {
+                case .success(let response):
+                    do {
+                        _ = try response.filterSuccessfulStatusCodes()
+                        if let getResponse = try? response.map(GetPayIdResponse.self) {
+                            if let payId = getResponse.payId {
+                                completion(.success(payId))
+                            } else {
+                                completion(.failure("Empty PayId response"))
+                            }
+                        } else {
+                            completion(.failure("Unknown PayId response"))
+                        }
+                    } catch {
+                        if response.statusCode == 404 {
+                            completion(.success(nil))
+                            return
+                        } else {
+                            completion(.failure("PayId request failed"))
+                        }
+                    }
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+    
+    func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void) {
+        payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: .XRPL)) { moyaResult in
+            DispatchQueue.main.async {
+                switch moyaResult {
+                case .success(let response):
+                    do {
+                        _ = try response.filterSuccessfulStatusCodes()
+                          completion(.success(true))
+                    } catch {
+                           completion(.failure("PayId request failed"))
+                    }
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+    
+    
+}
