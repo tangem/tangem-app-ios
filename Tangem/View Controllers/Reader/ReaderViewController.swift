@@ -99,7 +99,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         }
     }
     @objc func storeViewDidTap(_ sender: Any) {
-        UIApplication.shared.open(URL(string: "https://tangemcards.com")!, options: [:], completionHandler: nil)
+        UIApplication.shared.open(URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!, options: [:], completionHandler: nil)
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
