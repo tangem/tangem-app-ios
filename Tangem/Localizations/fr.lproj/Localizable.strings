@@ -280,7 +280,7 @@
 "loaded_wallet_load_via_qr" = "Afficher le code QR";
 
 /*  */
-"loaded_wallet_dialog_show_qr" = "LOAD";
+"loaded_wallet_dialog_show_qr" = "Afficher le code QR";
 
 /* LoadedWallet Blockchain Engines */
 "balance_validator_first_line_verified_balance" = "Solde confirmé dans la blockchain";
