@@ -168,7 +168,7 @@ PODS:
   - SwiftLint (0.39.2)
   - SwiftProtobuf (1.8.0)
   - SwiftyJSON (5.0.0)
-  - TangemSdk (2.0.0):
+  - TangemSdk (2.0.2):
     - KeychainSwift
     - secp256k1.swift
   - web3swift (2.2.1):
@@ -313,10 +313,10 @@ SPEC CHECKSUMS:
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  TangemSdk: 141d21b76254ed5e313bdf51c0858bd854ae8fc9
+  TangemSdk: 4bd155490c8e5c52b8739f9f692d36c8b2342bc3
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
 PODFILE CHECKSUM: 770a7c38f47c52fe7c6a747bb497177b637fe4bd
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.2
