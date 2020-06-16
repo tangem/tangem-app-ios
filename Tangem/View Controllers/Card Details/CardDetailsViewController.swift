@@ -106,7 +106,8 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         
         if let payIdProvider = self.payIdProvider,
             let cid = card.cardModel.cardId,
-            let cardPublicKey = card.cardModel.cardPublicKey {
+            let cardPublicKey = card.cardModel.cardPublicKey,
+            (card.cardEngine.walletType == .btc || card.cardEngine.walletType == .eth || card.cardEngine.walletType == .ripple) {
            // self.payIdLoadingIndicator.startAnimating()
             payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
                 guard let self = self else { return }
