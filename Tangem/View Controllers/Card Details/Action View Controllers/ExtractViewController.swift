@@ -25,7 +25,7 @@ class ExtractViewController: ModalActionViewController {
     
     var card: CardViewModel!
     var onDone: (()-> Void)?
-    
+    var resolvedPayIdTarget: String? = nil
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
             titleLabel.text = Localizations.sendPayment.uppercased()
@@ -44,6 +44,7 @@ class ExtractViewController: ModalActionViewController {
         }
     }
     
+    @IBOutlet weak var payIdHintLabel: UILabel!
     @IBOutlet weak var includeFeeContainer: UIView!
     @IBOutlet weak var feeTitleLabel: UILabel! {
         didSet {
@@ -164,7 +165,7 @@ class ExtractViewController: ModalActionViewController {
     @IBAction func pasteTapped(_ sender: Any, forEvent event: UIEvent) {
         if let pasteAddress = getPasteAddress() {
             targetAddressText.text = pasteAddress
-            tryUpdateFeePreset()
+            targetChanged(targetAddressText, forEvent: event)
         } else {
             pasteTargetAdressButton.isEnabled = false
         }
@@ -172,7 +173,33 @@ class ExtractViewController: ModalActionViewController {
     
     @IBAction func targetChanged(_ sender: UITextField, forEvent event: UIEvent) {
         setError(false, for: sender)
-        tryUpdateFeePreset()
+        resolvedPayIdTarget = nil
+        self.payIdHintLabel.text = ""
+        if let target = sender.text,
+            target.contains(find: "$"),
+            let payIdManager = (card.cardEngine as? PayIdProvider)?.payIdManager,
+            payIdManager.validate(target) {
+            payIdManager.resolve(target) { [weak self] resolveResult in
+                guard let self = self else { return }
+                
+                switch resolveResult {
+                case .success(let resolvedAddress):
+                    if self.validate(address: resolvedAddress) {
+                        self.resolvedPayIdTarget = resolvedAddress
+                        self.payIdHintLabel.text = "Destination address: \(resolvedAddress)"
+                        self.tryUpdateFeePreset()
+                    } else {
+                        self.setError(true, for: self.targetAddressText)
+                        self.btnSendSetEnabled(false)
+                    }
+                case .failure:
+                    self.setError(true, for: self.targetAddressText)
+                    self.btnSendSetEnabled(false)
+                }
+            }
+        } else {
+            tryUpdateFeePreset()
+        }
     }
     
     @IBAction func amountChanged(_ sender: UITextField, forEvent event: UIEvent) {
@@ -303,20 +330,19 @@ class ExtractViewController: ModalActionViewController {
         feeLabel.hideActivityIndicator()
         //  print("min fee: \(fee?.min) normal fee: \(fee?.normal) max fee \(fee?.max)")
     }
-    
+
     @discardableResult
     func validateInput(skipFee: Bool = false) -> Bool {
         validatedAmount = ""
         validatedFee = ""
         validatedTarget = ""
         
-        guard let target = targetAddressText.text,
-            validate(address: target) else {
-                setError(true, for: targetAddressText )
-                btnSendSetEnabled(false)
-                return false
+        guard let target = resolvedPayIdTarget ?? targetAddressText.text, validate(address: target) else {
+            setError(true, for: targetAddressText )
+            btnSendSetEnabled(false)
+            return false
         }
-        
+
         guard let amount = amountText.text?.replacingOccurrences(of: ",", with: "."),
             !amount.isEmpty,
             let amountValue = Decimal(string: amount),
@@ -325,7 +351,7 @@ class ExtractViewController: ModalActionViewController {
             amountValue <= total else {
                 setError(true, for: amountText )
                 btnSendSetEnabled(false)
-                return false
+               return false
         }
         
         if !skipFee {
@@ -334,7 +360,7 @@ class ExtractViewController: ModalActionViewController {
                 !fee.isEmpty else {
                     setError(true, for: feeLabel)
                     btnSendSetEnabled(false)
-                    return false
+                     return false
             }
             
             let valueToSend = includeFeeSwitch.isOn ? amountValue : amountValue + feeValue
@@ -358,7 +384,7 @@ class ExtractViewController: ModalActionViewController {
                     if forFee - feeValue <= 0 {
                         setError(true, for: feeLabel)
                         btnSendSetEnabled(false)
-                        return false
+                         return false
                     }
                 }
             }
@@ -372,7 +398,7 @@ class ExtractViewController: ModalActionViewController {
         validatedTarget = target
         btnSendSetEnabled(true)
         updateSendButtonSubtitle()
-        return true
+       return true
     }
     
     func getPasteAddress() -> String? {
@@ -435,12 +461,15 @@ class ExtractViewController: ModalActionViewController {
     
     private func validate(address: String) -> Bool {
         guard !address.isEmpty,
-            address != card.cardEngine.walletAddress,
-            (card.cardEngine as! CoinProvider).validate(address: address)
-            else {
+            address != card.cardEngine.walletAddress  else {
                 return false
         }
         
+        if address.contains(find: "$"), let payIdManager = (card.cardEngine as? PayIdProvider)?.payIdManager {
+            return payIdManager.validate(address)
+        } else {
+            return (card.cardEngine as! CoinProvider).validate(address: address)
+        }
         return true
     }
     
