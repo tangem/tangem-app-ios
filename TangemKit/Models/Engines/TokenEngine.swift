@@ -27,6 +27,8 @@ class TokenEngine: ETHEngine {
             return .ert
         case "WRL":
             return .wrl
+        case "USDC":
+            return .usdc
         default:
             return .eth
         }
