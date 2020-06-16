@@ -46,6 +46,20 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         }
     }
     
+    var payIdProvider: PayIdManager? {
+        return (card?.cardEngine as? PayIdProvider)?.payIdManager
+    }
+    
+    @IBAction func payIdTapped(_ sender: Any) {
+        if let payIdProvider = self.payIdProvider{
+            if payIdProvider.payId == nil {
+                  showCreatePayId()
+            } else {
+                 loadButtonPressed(self)
+            }
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -89,6 +103,37 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         viewModel.setSubstitutionInfoLoading(true)
         viewModel.setWalletInfoLoading(true)
         fetchSubstitutionInfo(card: card)
+        
+        if let payIdProvider = self.payIdProvider,
+            let cid = card.cardModel.cardId,
+            let cardPublicKey = card.cardModel.cardPublicKey {
+           // self.payIdLoadingIndicator.startAnimating()
+            payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .success(let payIdString):
+                    if let _ = payIdString {
+                       // self.payIdLoadingIndicator.stopAnimating()
+                        self.viewModel.payIdButton.alpha = 1.0
+                        self.viewModel.payIdButton.isHidden = false
+                    } else {
+                        self.viewModel.payIdButton.alpha = 0.5
+                         self.viewModel.payIdButton.isHidden = false
+                        return
+                    }
+                case .failure(let error):
+                    self.handleGenericError(error)
+//                    self.payIdLoadingIndicator.stopAnimating()
+//                    self.payIdView.isHidden = true
+                }
+            }
+        }
+        
+    }
+    
+    func loadPayIdInfo() {
+        
     }
     
     func fetchSubstitutionInfo(card: CardViewModel) {
@@ -412,6 +457,32 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             }
         }
     }
+    func updatepayIdState() {
+        if let payIdProvider = self.payIdProvider {
+            if payIdProvider.payId == nil {
+                self.viewModel.payIdButton.alpha = 0.5
+            } else {
+                self.viewModel.payIdButton.alpha = 1.0
+            }
+        }
+    }
+    
+    func showCreatePayId() {
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CreatePayIdViewController") as? CreatePayIdViewController else {
+            return
+        }
+        
+        viewController.cardDetails = self.card
+        viewController.onDone = { [weak self] in
+            self?.updatepayIdState()
+        }
+        viewController.modalPresentationStyle = .formSheet
+//        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+//        self.customPresentationController = presentationController
+//        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 441)
+//        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
+    }
 }
 
 extension CardDetailsViewController: LoadViewControllerDelegate {
@@ -490,8 +561,7 @@ extension CardDetailsViewController {
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
         self.customPresentationController = presentationController
-        let hasPayId = card.cardEngine is PayIdProvider
-        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: hasPayId ?  540 : 247)
+        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 247)
         viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
     }
