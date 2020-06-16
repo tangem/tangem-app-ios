@@ -64,7 +64,7 @@ class CreatePayIdViewController: ModalActionViewController, DefaultErrorAlertsCa
                 switch result {
                 case .success:
                    UIPasteboard.general.string = fullPayIdString
-                    let validationAlert = UIAlertController(title: Localizations.success, message: "PayId created successfully and copied to clipboard", preferredStyle: .alert)
+                    let validationAlert = UIAlertController(title: Localizations.success, message: "PayID created successfully and copied to clipboard", preferredStyle: .alert)
                     validationAlert.addAction(UIAlertAction(title: Localizations.ok, style: .default, handler: { [weak self](_) in
                         self?.onDone?()
                         self?.dismiss(animated: true, completion: nil)
