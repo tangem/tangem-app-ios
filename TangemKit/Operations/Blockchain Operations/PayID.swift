@@ -14,6 +14,11 @@ struct PayIdResponse: Codable {
     let addresses: [PayIdAddress]?
 }
 
+struct PayIdErrorResponse: Codable {
+    let code: Int?
+    let message: String?
+}
+
 struct PayIdAddress: Codable {
     let paymentNetwork: String
     let environment: String
@@ -209,11 +214,11 @@ class PayIdManager {
                                 completion(.success(payId))
                             } else {
                                 self.payId = nil
-                                completion(.failure("Empty PayId response"))
+                                completion(.failure("Empty PayID response"))
                             }
                         } else {
                             self.payId = nil
-                            completion(.failure("Unknown PayId response"))
+                            completion(.failure("Unknown PayID response"))
                         }
                     } catch {
                         if response.statusCode == 404 {
@@ -222,7 +227,11 @@ class PayIdManager {
                             return
                         } else {
                             self.payId = nil
-                            completion(.failure("PayId request failed"))
+                            if let errorResponse = try? response.map(PayIdErrorResponse.self), let msg = errorResponse.message {
+                                completion(.failure(msg))
+                            } else {
+                                completion(.failure("Request failed. Try again later"))
+                            }
                         }
                     }
                 case .failure(let error):
@@ -245,8 +254,13 @@ class PayIdManager {
                         self.payId = payId
                         completion(.success(true))
                     } catch {
+                        if let errorResponse = try? response.map(PayIdErrorResponse.self), let msg = errorResponse.message {
+                            completion(.failure(msg))
+                        } else {
+                            completion(.failure("Request failed. Try again later"))
+                        }
+                        
                         self.payId = nil
-                        completion(.failure("PayId request failed"))
                     }
                 case .failure(let error):
                     self.payId = nil
