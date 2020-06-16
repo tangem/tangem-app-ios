@@ -1239,8 +1239,8 @@ at this time</string>
                             <view contentMode="scaleToFill" placeholderIntrinsicWidth="375" placeholderIntrinsicHeight="40" translatesAutoresizingMaskIntoConstraints="NO" id="EBL-i9-FTd">
                                 <rect key="frame" x="0.0" y="10" width="375" height="40"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CREATE PAYID" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u7L-qe-kHG">
-                                        <rect key="frame" x="138.5" y="4.5" width="98" height="31.5"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Create PayID" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u7L-qe-kHG">
+                                        <rect key="frame" x="142" y="4.5" width="91" height="31.5"/>
                                         <fontDescription key="fontDescription" name="SairaCondensed-Bold" family="Saira Condensed" pointSize="20"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
