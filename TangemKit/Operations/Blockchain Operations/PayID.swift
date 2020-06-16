@@ -26,16 +26,18 @@ struct PayIdAddressDetails: Codable {
 
 enum PayIdNetwork: String {
     case XRPL
+    case BTC
+    case ETH
 }
 
 enum PayIdTarget: TargetType {
-    case address(payId: String)
+    case address(payId: String, network: PayIdNetwork)
     case getPayId(cid: String, cardPublicKey:Data)
     case createPayId(cid: String, cardPublicKey:Data, payId: String, address: String, network: PayIdNetwork)
     
     var baseURL: URL {
         switch self {
-        case .address(let payId):
+        case .address(let payId, _):
             let addressParts = payId.split(separator: "$")
             let domain = addressParts[1]
             let baseUrl = "https://\(domain)/"
@@ -47,7 +49,7 @@ enum PayIdTarget: TargetType {
     
     var path: String {
         switch self {
-        case .address(let payId):
+        case .address(let payId, _):
             let addressParts = payId.split(separator: "$")
             let user = addressParts[0]
             return String(user)
@@ -90,8 +92,8 @@ enum PayIdTarget: TargetType {
     
     public var headers: [String: String]? {
         switch self {
-        case .address:
-            return ["Accept" : "application/xrpl-mainnet+json",
+        case .address(_, let network):
+            return ["Accept" : "application/\(network.rawValue.lowercased())-mainnet+json",
                     "PayID-Version" : "1.0"]
         default:
             return nil
@@ -178,6 +180,119 @@ struct XrpXAddressDecoded {
 
 
 protocol PayIdProvider {
-    func loadPayId(cid: String, key: Data, completion: @escaping (Result<String?, Error>) -> Void)
-    func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void)
+    var payIdManager: PayIdManager { get }
+}
+
+
+class PayIdManager {
+    
+    internal init(network: PayIdNetwork) {
+        self.network = network
+    }
+    
+    let network: PayIdNetwork
+    
+    public private(set) var payId: String?
+    let payIdProvider = MoyaProvider<PayIdTarget>(plugins: [NetworkLoggerPlugin()])
+    
+    func loadPayId(cid: String, key: Data, completion: @escaping (Result<String?, Error>) -> Void) {
+        payIdProvider.request(.getPayId(cid: cid, cardPublicKey: key)) {[weak self] moyaResult in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                switch moyaResult {
+                case .success(let response):
+                    do {
+                        _ = try response.filterSuccessfulStatusCodes()
+                        if let getResponse = try? response.map(GetPayIdResponse.self) {
+                            if let payId = getResponse.payId {
+                                self.payId = payId
+                                completion(.success(payId))
+                            } else {
+                                self.payId = nil
+                                completion(.failure("Empty PayId response"))
+                            }
+                        } else {
+                            self.payId = nil
+                            completion(.failure("Unknown PayId response"))
+                        }
+                    } catch {
+                        if response.statusCode == 404 {
+                            self.payId = nil
+                            completion(.success(nil))
+                            return
+                        } else {
+                            self.payId = nil
+                            completion(.failure("PayId request failed"))
+                        }
+                    }
+                case .failure(let error):
+                    self.payId = nil
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+    
+    func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void) {
+        payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: .XRPL)) {[weak self] moyaResult in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                switch moyaResult {
+                case .success(let response):
+                    do {
+                        _ = try response.filterSuccessfulStatusCodes()
+                        self.payId = payId
+                        completion(.success(true))
+                    } catch {
+                        self.payId = nil
+                        completion(.failure("PayId request failed"))
+                    }
+                case .failure(let error):
+                    self.payId = nil
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+    
+    func validate(_ address: String) -> Bool {
+        let addressParts = address.split(separator: "$")
+        if addressParts.count != 2 {
+            return false
+        }
+        let addressURL = "https://" + addressParts[1] + "/" + addressParts[0]
+        if let _ = URL(string: addressURL) {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    func resolve(_ payId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        payIdProvider.request(.address(payId: payId, network: self.network)) {[weak self] moyaResult in
+            guard let self = self else { return }
+            switch moyaResult {
+            case .success(let response):
+                if let payIdResponse = try? response.map(PayIdResponse.self) {
+                    if let resolvedAddress = payIdResponse.addresses?.compactMap({ address -> String? in
+                        if address.paymentNetwork == self.network.rawValue && address.environment == "MAINNET" {
+                            return address.addressDetails?.address
+                        }
+                        return nil
+                        }).first {
+                        completion(.success(resolvedAddress))
+                    } else {
+                        completion(.failure("Unknown address format in PayID response"))
+                    }
+                } else {
+                    completion(.failure("Unknown response format on PayID request"))
+                }
+                
+            case .failure(let error):
+                let err = "PayID request failed. \(error.localizedDescription)"
+                completion(.failure(err))
+            }
+        }
+    }
 }
