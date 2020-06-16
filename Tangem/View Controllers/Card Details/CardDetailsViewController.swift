@@ -127,7 +127,9 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
                                 return
                             }
                         case .failure(let error):
-                            self.handleGenericError(error)
+                            self.viewModel.payIdButton.isHidden = true
+                            print(error)
+                         //   self.handleGenericError(error)
         //                    self.payIdLoadingIndicator.stopAnimating()
         //                    self.payIdView.isHidden = true
                         }
