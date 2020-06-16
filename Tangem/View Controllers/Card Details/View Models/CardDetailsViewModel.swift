@@ -25,6 +25,7 @@ class CardDetailsViewModel: NSObject {
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var qrCodeImageView: UIImageView!
     @IBOutlet weak var cardImageView: UIImageView!
+    @IBOutlet weak var payIdButton: UIButton!
     
     // MARK: Labels
     
