@@ -10,13 +10,14 @@ import Foundation
 import CryptoSwift
 import Moya
 
-public class RippleEngine: CardEngine {
-    let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin()])
-    let payIdProvider = MoyaProvider<PayIdTarget>(plugins: [NetworkLoggerPlugin()])
-    unowned public var card: CardViewModel
+public class RippleEngine: CardEngine, PayIdProvider {
+    var payIdManager = PayIdManager(network: .XRPL)
     
+    let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin()])
+    unowned public var card: CardViewModel
+
     public var blockchainDisplayName: String {
-        return "Ripple"
+        return "XRP Ledger"
     }
     
     public var walletReserve: String?
@@ -93,41 +94,9 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
     }
     
     private func resolveAddressAndCheckCreated(_ address: String, completion: @escaping (String?, Bool?, Error?) -> Void) {
-        if address.contains(find: "$") { //pay id
-            payIdProvider.request(.address(payId: address)) { moyaResult in
-                switch moyaResult {
-                case .success(let response):
-                    if let payIdResponse = try? response.map(PayIdResponse.self) {
-                        if let resolvedAddress = payIdResponse.addresses?.compactMap({ address -> String? in
-                            if address.paymentNetwork == "XRPL" && address.environment == "MAINNET" {
-                                return address.addressDetails?.address
-                            }
-                            return nil
-                        }).first, self.validate(address: resolvedAddress) {
-                            let resolvedAddressDecoded = (try? XRPAddress.decodeXAddress(xAddress: resolvedAddress))?.rAddress ?? resolvedAddress
-                            self.checkTargetAccountCreated(resolvedAddressDecoded) { result in
-                                completion(resolvedAddress, result, nil)
-                            }
-                        } else {
-                            print("Unknown address format in PayID response")
-                            completion(nil, nil, "Unknown address format in PayID response")
-                        }
-                    } else {
-                        print("Unknown response format on PayID request")
-                        completion(nil, nil, "Unknown response format on PayID request")
-                    }
-                    
-                case .failure(let error):
-                    let err = "PayID request failed. \(error.localizedDescription)"
-                    print(err)
-                    completion(nil, nil, err)
-                }
-            }
-        } else {
-            let addressDecoded = (try? XRPAddress.decodeXAddress(xAddress: address))?.rAddress ?? address
-            checkTargetAccountCreated(addressDecoded) { result in
-                completion(address, result, nil)
-            }
+        let addressDecoded = (try? XRPAddress.decodeXAddress(xAddress: address))?.rAddress ?? address
+        checkTargetAccountCreated(addressDecoded) { result in
+            completion(address, result, nil)
         }
     }
     
@@ -294,9 +263,9 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
                 let normal = normalFeeDecimal/Decimal(1000000)
                 let max = maxFeeDecimal/Decimal(1000000)
                 
-                let fee = ("\(min.rounded(blockchain: .ripple))",
-                    "\(normal.rounded(blockchain: .ripple))",
-                    "\(max.rounded(blockchain: .ripple))")
+                let fee = ("\(min.rounded(blockchain: .xrpl))",
+                    "\(normal.rounded(blockchain: .xrpl))",
+                    "\(max.rounded(blockchain: .xrpl))")
                 completion(fee)
             case .failure(let error):
                 Analytics.log(error: error)
@@ -309,19 +278,6 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
     public func validate(address: String) -> Bool {
         if address.isEmpty {
             return false
-        }
-        
-        if address.contains("$") { // PayID
-            let addressParts = address.split(separator: "$")
-            if addressParts.count != 2 {
-                return false
-            }
-            let addressURL = "https://" + addressParts[1] + "/" + addressParts[0]
-            if let _ = URL(string: addressURL) {
-                return true
-            } else {
-                return false
-            }
         }
         
         if XRPSeedWallet.validate(address: address) {
@@ -354,58 +310,4 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
         
         return Array(der[0..<Int(length)])
     }
-}
-
-
-extension RippleEngine: PayIdProvider {
-    func loadPayId(cid: String, key: Data, completion: @escaping (Result<String?, Error>) -> Void) {
-        payIdProvider.request(.getPayId(cid: cid, cardPublicKey: key)) { moyaResult in
-            DispatchQueue.main.async {
-                switch moyaResult {
-                case .success(let response):
-                    do {
-                        _ = try response.filterSuccessfulStatusCodes()
-                        if let getResponse = try? response.map(GetPayIdResponse.self) {
-                            if let payId = getResponse.payId {
-                                completion(.success(payId))
-                            } else {
-                                completion(.failure("Empty PayId response"))
-                            }
-                        } else {
-                            completion(.failure("Unknown PayId response"))
-                        }
-                    } catch {
-                        if response.statusCode == 404 {
-                            completion(.success(nil))
-                            return
-                        } else {
-                            completion(.failure("PayId request failed"))
-                        }
-                    }
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
-        }
-    }
-    
-    func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void) {
-        payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: .XRPL)) { moyaResult in
-            DispatchQueue.main.async {
-                switch moyaResult {
-                case .success(let response):
-                    do {
-                        _ = try response.filterSuccessfulStatusCodes()
-                          completion(.success(true))
-                    } catch {
-                           completion(.failure("PayId request failed"))
-                    }
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
-        }
-    }
-    
-    
 }
