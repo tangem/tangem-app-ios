@@ -27,6 +27,7 @@ public enum WalletType {
     case stellar
     case slix2
     case ducatus
+    case usdc
 }
 
 public protocol CardEngine: class {
