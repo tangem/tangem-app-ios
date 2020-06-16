@@ -8,7 +8,8 @@
 
 import Foundation
 
-class BTCEngine: CardEngine, CoinProvider {
+class BTCEngine: CardEngine, CoinProvider, PayIdProvider {
+    var payIdManager = PayIdManager(network: .BTC)
     
     var possibleFirstAddressCharacters: [String] {
         return  ["1","2","3","n","m"]
