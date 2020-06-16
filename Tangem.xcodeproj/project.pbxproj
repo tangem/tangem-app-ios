@@ -163,6 +163,7 @@
 		5D335E95242E3A660010FA07 /* SecureStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D335DEE242E3A650010FA07 /* SecureStorageManager.swift */; };
 		5D335E98242E3A900010FA07 /* hashes.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D335E97242E3A900010FA07 /* hashes.plist */; };
 		5D335E9A242E499A0010FA07 /* Cards.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D335E99242E499A0010FA07 /* Cards.xcassets */; };
+		5D45A4AD2498D539003DEB1A /* CreatePayIdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D45A4AC2498D539003DEB1A /* CreatePayIdViewController.swift */; };
 		5D5A9F82240D14EC00F9CF29 /* ScanTaskExtended.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */; };
 		5D5A9F84240E413100F9CF29 /* IdDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F83240E413100F9CF29 /* IdDetailsViewController.swift */; };
 		5D5A9F8A240E98F900F9CF29 /* IssueIdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A9F89240E98F900F9CF29 /* IssueIdViewController.swift */; };
@@ -398,6 +399,7 @@
 		5D335E97242E3A900010FA07 /* hashes.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = hashes.plist; sourceTree = "<group>"; };
 		5D335E99242E499A0010FA07 /* Cards.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Cards.xcassets; sourceTree = "<group>"; };
 		5D3CAD4D2319737E000F0AA9 /* Tangem copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Tangem copy-Info.plist"; path = "/Users/alexander.osokin/repos/tangem/tangem-lite/Tangem copy-Info.plist"; sourceTree = "<absolute>"; };
+		5D45A4AC2498D539003DEB1A /* CreatePayIdViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePayIdViewController.swift; sourceTree = "<group>"; };
 		5D4B31B82335072A00D3B92E /* TangemKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D5A9F81240D14EC00F9CF29 /* ScanTaskExtended.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTaskExtended.swift; sourceTree = "<group>"; };
 		5D5A9F83240E413100F9CF29 /* IdDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdDetailsViewController.swift; sourceTree = "<group>"; };
@@ -970,6 +972,7 @@
 				800036682111060900C151E8 /* ModalActionViewController.swift */,
 				8000368A213C9BFC00C151E8 /* QRCodeViewController.swift */,
 				5DA9422722DE14EF008CABF4 /* ExtractPlaceholderViewController.swift */,
+				5D45A4AC2498D539003DEB1A /* CreatePayIdViewController.swift */,
 			);
 			path = "Action View Controllers";
 			sourceTree = "<group>";
@@ -1428,6 +1431,7 @@
 				5D335E88242E3A660010FA07 /* XRPAmount.swift in Sources */,
 				5D335E13242E3A650010FA07 /* ed25519_utility.swift in Sources */,
 				5D335E75242E3A650010FA07 /* InputStream+.swift in Sources */,
+				5D45A4AD2498D539003DEB1A /* CreatePayIdViewController.swift in Sources */,
 				5D335E60242E3A650010FA07 /* CardanoNetworkBalanceOperation.swift in Sources */,
 				5D335E28242E3A650010FA07 /* CardanoTransaction.swift in Sources */,
 				5D335E54242E3A650010FA07 /* EstimateFeeOperation.swift in Sources */,
