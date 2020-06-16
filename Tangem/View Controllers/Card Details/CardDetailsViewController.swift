@@ -103,38 +103,36 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         viewModel.setSubstitutionInfoLoading(true)
         viewModel.setWalletInfoLoading(true)
         fetchSubstitutionInfo(card: card)
-        
-        if let payIdProvider = self.payIdProvider,
-            let cid = card.cardModel.cardId,
-            let cardPublicKey = card.cardModel.cardPublicKey,
-            (card.cardEngine.walletType == .btc || card.cardEngine.walletType == .eth || card.cardEngine.walletType == .ripple) {
-           // self.payIdLoadingIndicator.startAnimating()
-            payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
-                guard let self = self else { return }
-                
-                switch result {
-                case .success(let payIdString):
-                    if let _ = payIdString {
-                       // self.payIdLoadingIndicator.stopAnimating()
-                        self.viewModel.payIdButton.alpha = 1.0
-                        self.viewModel.payIdButton.isHidden = false
-                    } else {
-                        self.viewModel.payIdButton.alpha = 0.5
-                         self.viewModel.payIdButton.isHidden = false
-                        return
-                    }
-                case .failure(let error):
-                    self.handleGenericError(error)
-//                    self.payIdLoadingIndicator.stopAnimating()
-//                    self.payIdView.isHidden = true
-                }
-            }
-        }
-        
     }
     
     func loadPayIdInfo() {
-        
+         if let payIdProvider = self.payIdProvider,
+            let card = self.card,
+                    let cid = card.cardModel.cardId,
+                    let cardPublicKey = card.cardModel.cardPublicKey,
+                    (card.cardEngine.walletType == .btc || card.cardEngine.walletType == .eth || card.cardEngine.walletType == .ripple) {
+                   // self.payIdLoadingIndicator.startAnimating()
+                    payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
+                        guard let self = self else { return }
+                        
+                        switch result {
+                        case .success(let payIdString):
+                            if let _ = payIdString {
+                               // self.payIdLoadingIndicator.stopAnimating()
+                                self.viewModel.payIdButton.alpha = 1.0
+                                self.viewModel.payIdButton.isHidden = false
+                            } else {
+                                self.viewModel.payIdButton.alpha = 0.5
+                                 self.viewModel.payIdButton.isHidden = false
+                                return
+                            }
+                        case .failure(let error):
+                            self.handleGenericError(error)
+        //                    self.payIdLoadingIndicator.stopAnimating()
+        //                    self.payIdView.isHidden = true
+                        }
+                    }
+                }
     }
     
     func fetchSubstitutionInfo(card: CardViewModel) {
@@ -160,6 +158,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             setupBalanceNoWallet()
             return
         }
+        
         let operation = card.balanceRequestOperation(onSuccess: {[unowned self] (card) in
             self.card = card
             self.viewModel.setWalletInfoLoading(false)
@@ -215,6 +214,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         }
         
         operationQueue.addOperation(operation!)
+        loadPayIdInfo()
     }
     
     func setupUI() {
