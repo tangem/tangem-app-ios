@@ -72,7 +72,7 @@ class LoadViewController: ModalActionViewController, DefaultErrorAlertsCapable {
     }
     
     func updateCopyPayIdForState(copied: Bool) {
-        let title = copied ? "PayId copied" : payIdProvider?.payId ?? ""
+        let title = copied ? "PayID copied" : payIdProvider?.payId ?? ""
         
         UIView.transition(with: btnCopyPayId, duration: 0.1, options: .transitionCrossDissolve, animations: {
             self.btnCopyPayId.setTitle(title, for: .normal)
