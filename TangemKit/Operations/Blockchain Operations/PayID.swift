@@ -243,7 +243,7 @@ class PayIdManager {
     }
     
     func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void) {
-        payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: .XRPL)) {[weak self] moyaResult in
+        payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: self.network)) {[weak self] moyaResult in
             guard let self = self else { return }
             
             DispatchQueue.main.async {
