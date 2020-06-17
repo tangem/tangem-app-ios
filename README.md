@@ -1,4 +1,4 @@
-# Tangem Lite for iPhone
+# Tangem for iPhone
 
 Check the values and details of your Tangem notes — special NFC smart cards that can securely carry digital tokens, acting as a highly protected cold wallets with fixed value inside.
 
