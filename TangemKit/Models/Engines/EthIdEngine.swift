@@ -103,7 +103,9 @@ public class ETHIdEngine: CardEngine {
     
     public func getHashesToSign(idData: IdCardData, completion: @escaping ([Data]?) -> Void){
         let walletAddress = calculateWallet(idData: idData)
-        ethEngine?.getFee(targetAddress: walletAddress, amount: "") {[unowned self] fee in
+        ethEngine?.getFee(targetAddress: walletAddress, amount: "") {[weak self] fee in
+            guard let self = self else { return }
+            
             let normalFee = fee?.normal ?? self.getFixedFee()
             let hashes = self.getTxToSign(targetAddress: walletAddress, fee: normalFee)
             completion(hashes)
