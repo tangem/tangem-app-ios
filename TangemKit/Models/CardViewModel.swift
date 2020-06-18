@@ -21,7 +21,7 @@ public enum Blockchain: String {
     case ethereum
     case rootstock
     case cardano
-    case ripple
+    case xrpl
     case binance
     case unknown
     case stellar
@@ -35,7 +35,7 @@ public enum Blockchain: String {
             return 8
         case .ethereum, .rootstock:
             return 18
-        case .ripple, .cardano:
+        case .xrpl, .cardano:
             return 6
         case .binance:
             return 8
@@ -111,7 +111,7 @@ public class CardViewModel {
         case let blockchainName where blockchainName.containsIgnoringCase(find: "cardano"):
             return .cardano
         case let blockchainName where blockchainName.containsIgnoringCase(find: "XRP"):
-            return .ripple
+            return .xrpl
         case let blockchainName where blockchainName.containsIgnoringCase(find: "eth"):
             return .ethereum
         case let blockchainName where blockchainName.containsIgnoringCase(find: "binance"):
@@ -248,7 +248,7 @@ public class CardViewModel {
             || blockchain == .bitcoinCash
             || blockchain == .litecoin
             || blockchain == .ducatus
-            || blockchain == .ripple else {
+            || blockchain == .xrpl else {
                 return false
         }
         
@@ -594,7 +594,7 @@ public class CardViewModel {
             cardEngine = RootstockEngine(card: self)
         case .cardano:
             cardEngine = CardanoEngine(card: self)
-        case .ripple:
+        case .xrpl:
             cardEngine = RippleEngine(card: self)
         case .ethereum:
             if productMask.contains(.idCard) {
@@ -721,7 +721,7 @@ public extension CardViewModel {
             operation = rskOperation
         case .cardano:
             operation = CardanoCardBalanceOperation(card: self, completion: onResult)
-        case .ripple:
+        case .xrpl:
             operation = XRPCardBalanceOperation(card: self, completion: onResult)
         case .binance:
             operation = BNBCardBalanceOperation(card: self, completion: onResult)
