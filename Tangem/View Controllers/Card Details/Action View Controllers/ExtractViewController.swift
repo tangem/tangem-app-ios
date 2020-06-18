@@ -127,6 +127,7 @@ class ExtractViewController: ModalActionViewController {
     private var pasteLayer = CALayer()
     private var triangleLayer = CAShapeLayer()
     private var feeTimer: Timer?
+    private var targetTimer: Timer?
     private var feeTime = Date(timeIntervalSince1970: TimeInterval(1.0))
     
     private lazy var recognizer: UITapGestureRecognizer = {
@@ -175,31 +176,37 @@ class ExtractViewController: ModalActionViewController {
         setError(false, for: sender)
         resolvedPayIdTarget = nil
         self.payIdHintLabel.text = ""
-        if let target = sender.text,
-            target.contains(find: "$"),
-            let payIdManager = (card.cardEngine as? PayIdProvider)?.payIdManager,
-            payIdManager.validate(target) {
-            payIdManager.resolve(target) { [weak self] resolveResult in
-                guard let self = self else { return }
-                
-                switch resolveResult {
-                case .success(let resolvedAddress):
-                    if self.validate(address: resolvedAddress) {
-                        self.resolvedPayIdTarget = resolvedAddress
-                        self.payIdHintLabel.text = "Destination address: \(resolvedAddress)"
-                        self.tryUpdateFeePreset()
-                    } else {
+        targetTimer?.invalidate()
+        targetTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { [weak self] _ in
+            guard let self = self else {
+                return
+            }
+            if let target = sender.text,
+                target.contains(find: "$"),
+                let payIdManager = (self.card.cardEngine as? PayIdProvider)?.payIdManager,
+                payIdManager.validate(target) {
+                payIdManager.resolve(target) { [weak self] resolveResult in
+                    guard let self = self else { return }
+                    
+                    switch resolveResult {
+                    case .success(let resolvedAddress):
+                        if self.validate(address: resolvedAddress) {
+                            self.resolvedPayIdTarget = resolvedAddress
+                            self.payIdHintLabel.text = "Destination address: \(resolvedAddress)"
+                            self.tryUpdateFeePreset()
+                        } else {
+                            self.setError(true, for: self.targetAddressText)
+                            self.btnSendSetEnabled(false)
+                        }
+                    case .failure:
                         self.setError(true, for: self.targetAddressText)
                         self.btnSendSetEnabled(false)
                     }
-                case .failure:
-                    self.setError(true, for: self.targetAddressText)
-                    self.btnSendSetEnabled(false)
                 }
+            } else {
+                self.tryUpdateFeePreset()
             }
-        } else {
-            tryUpdateFeePreset()
-        }
+        })
     }
     
     @IBAction func amountChanged(_ sender: UITextField, forEvent event: UIEvent) {
@@ -336,13 +343,13 @@ class ExtractViewController: ModalActionViewController {
         validatedAmount = ""
         validatedFee = ""
         validatedTarget = ""
-        
+      
         guard let target = resolvedPayIdTarget ?? targetAddressText.text, validate(address: target) else {
             setError(true, for: targetAddressText )
             btnSendSetEnabled(false)
             return false
         }
-
+        
         guard let amount = amountText.text?.replacingOccurrences(of: ",", with: "."),
             !amount.isEmpty,
             let amountValue = Decimal(string: amount),
@@ -402,11 +409,20 @@ class ExtractViewController: ModalActionViewController {
     }
     
     func getPasteAddress() -> String? {
-        if let pasteString = UIPasteboard.general.string,
-            validate(address: pasteString) {
+        if let pasteString = UIPasteboard.general.string {
+            if pasteString.contains(find: "$" ), let payIdManager = (self.card.cardEngine as? PayIdProvider)?.payIdManager {
+                if !payIdManager.validate(pasteString) {
+                    return nil
+                }
+            } else {
+                if !validate(address: pasteString) {
+                    return nil
+                }
+            }
+         
             return pasteString
         }
-        return  nil
+        return nil
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -465,12 +481,7 @@ class ExtractViewController: ModalActionViewController {
                 return false
         }
         
-        if address.contains(find: "$"), let payIdManager = (card.cardEngine as? PayIdProvider)?.payIdManager {
-            return payIdManager.validate(address)
-        } else {
-            return (card.cardEngine as! CoinProvider).validate(address: address)
-        }
-        return true
+        return (card.cardEngine as! CoinProvider).validate(address: address)
     }
     
     
@@ -570,6 +581,7 @@ class ExtractViewController: ModalActionViewController {
     
     
     func tryUpdateFeePreset() {
+        print("tryUpdateFeePreset")
         btnSendSetEnabled(false)
         feeTimer?.invalidate()
         feeTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false, block: { [weak self] _ in
