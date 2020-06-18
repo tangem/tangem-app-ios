@@ -274,7 +274,9 @@ class ExtractViewController: ModalActionViewController {
     
     private func sign(data: [Data]) {
         Analytics.log(event: .readyToSign)
-        tangemSdk.sign(hashes: data, cardId: card.cardID) {[unowned self] result in
+        tangemSdk.sign(hashes: data, cardId: card.cardID) {[weak self] result in
+             guard let self = self else { return }
+            
             switch result {
             case .success(let signResponse):
                 self.card.remainingSignatures -= 1
