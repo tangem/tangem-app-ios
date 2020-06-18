@@ -54,7 +54,7 @@ class RippleNetworkBalanceOperation: GBAsyncOperation {
                     return
                 }
                 
-                let walletValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount))
+                let walletValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.xrpl.decimalCount))
                 
                 self.completeOperationWith(balance: walletValue.stringValue)
             case .failure(let error):
