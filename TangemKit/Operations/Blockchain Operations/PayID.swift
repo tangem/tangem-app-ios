@@ -185,7 +185,7 @@ struct XrpXAddressDecoded {
 
 
 protocol PayIdProvider {
-    var payIdManager: PayIdManager { get }
+    var payIdManager: PayIdManager? { get }
 }
 
 
