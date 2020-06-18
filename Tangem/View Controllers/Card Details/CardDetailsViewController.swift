@@ -161,7 +161,9 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             return
         }
         
-        let operation = card.balanceRequestOperation(onSuccess: {[unowned self] (card) in
+        let operation = card.balanceRequestOperation(onSuccess: {[weak self] (card) in
+             guard let self = self else { return }
+            
             self.card = card
             self.viewModel.setWalletInfoLoading(false)
             if card.type == .nft {
@@ -574,7 +576,9 @@ extension CardDetailsViewController {
         switch viewModel.actionButtonState {
         case .claimTag:
             let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
+            ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[weak self] action in
+                 guard let self = self else { return }
+                
                 if let pswd = ac.textFields?.first?.text {
                     self.performClaim(password: pswd)
                 }
