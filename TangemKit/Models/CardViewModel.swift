@@ -446,6 +446,9 @@ public class CardViewModel {
         }
     }
     public var qrCodeAddress: String {
+        guard !address.isEmpty else {
+            return ""
+        }
         return cardEngine.qrCodePreffix + address
     }
     
