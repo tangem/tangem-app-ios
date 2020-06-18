@@ -326,7 +326,7 @@ extension XlmEngine: Claimable {
     public func claim(amount: String, fee: String, targetAddress: String, signature: Data, completion: @escaping (Bool, Error?) -> Void) {
         useTimebounds = false
         getHashForSignature(amount: amount, fee: fee, includeFee: false, targetAddress: targetAddress) {[weak self] _ , _ in
-            self.?sendToBlockchain(signFromCard: Array(signature), completion: completion)
+            self?.sendToBlockchain(signFromCard: Array(signature), completion: completion)
         }
     }
 }
