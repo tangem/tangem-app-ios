@@ -53,9 +53,9 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
     @IBAction func payIdTapped(_ sender: Any) {
         if let payIdProvider = self.payIdProvider{
             if payIdProvider.payId == nil {
-                  showCreatePayId()
+                showCreatePayId()
             } else {
-                 loadButtonPressed(self)
+                loadButtonPressed(self)
             }
         }
     }
@@ -105,36 +105,36 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         fetchSubstitutionInfo(card: card)
     }
     
+    
     func loadPayIdInfo() {
-         if let payIdProvider = self.payIdProvider,
+        if let payIdProvider = self.payIdProvider,
             let card = self.card,
-                    let cid = card.cardModel.cardId,
-                    let cardPublicKey = card.cardModel.cardPublicKey,
-                    (card.cardEngine.walletType == .btc || card.cardEngine.walletType == .eth || card.cardEngine.walletType == .ripple) {
-                   // self.payIdLoadingIndicator.startAnimating()
-                    payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
-                        guard let self = self else { return }
-                        
-                        switch result {
-                        case .success(let payIdString):
-                            if let _ = payIdString {
-                               // self.payIdLoadingIndicator.stopAnimating()
-                                self.viewModel.payIdButton.alpha = 1.0
-                                self.viewModel.payIdButton.isHidden = false
-                            } else {
-                                self.viewModel.payIdButton.alpha = 0.5
-                                 self.viewModel.payIdButton.isHidden = false
-                                return
-                            }
-                        case .failure(let error):
-                            self.viewModel.payIdButton.isHidden = true
-                            print(error)
-                         //   self.handleGenericError(error)
-        //                    self.payIdLoadingIndicator.stopAnimating()
-        //                    self.payIdView.isHidden = true
-                        }
+            let cid = card.cardModel.cardId,
+            let cardPublicKey = card.cardModel.cardPublicKey {
+            // self.payIdLoadingIndicator.startAnimating()
+            payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .success(let payIdString):
+                    if let _ = payIdString {
+                        // self.payIdLoadingIndicator.stopAnimating()
+                        self.viewModel.payIdButton.alpha = 1.0
+                        self.viewModel.payIdButton.isHidden = false
+                    } else {
+                        self.viewModel.payIdButton.alpha = 0.5
+                        self.viewModel.payIdButton.isHidden = false
+                        return
                     }
+                case .failure(let error):
+                    self.viewModel.payIdButton.isHidden = true
+                    print(error)
+                    //   self.handleGenericError(error)
+                    //                    self.payIdLoadingIndicator.stopAnimating()
+                    //                    self.payIdView.isHidden = true
                 }
+            }
+        }
     }
     
     func fetchSubstitutionInfo(card: CardViewModel) {
@@ -161,7 +161,9 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             return
         }
         
-        let operation = card.balanceRequestOperation(onSuccess: {[unowned self] (card) in
+        let operation = card.balanceRequestOperation(onSuccess: {[weak self] (card) in
+             guard let self = self else { return }
+            
             self.card = card
             self.viewModel.setWalletInfoLoading(false)
             if card.type == .nft {
@@ -480,10 +482,10 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             self?.updatepayIdState()
         }
         viewController.modalPresentationStyle = .formSheet
-//        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
-//        self.customPresentationController = presentationController
-//        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 441)
-//        viewController.transitioningDelegate = presentationController
+        //        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        //        self.customPresentationController = presentationController
+        //        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 441)
+        //        viewController.transitioningDelegate = presentationController
         self.present(viewController, animated: true, completion: nil)
     }
 }
@@ -574,7 +576,9 @@ extension CardDetailsViewController {
         switch viewModel.actionButtonState {
         case .claimTag:
             let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
+            ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[weak self] action in
+                 guard let self = self else { return }
+                
                 if let pswd = ac.textFields?.first?.text {
                     self.performClaim(password: pswd)
                 }
@@ -613,6 +617,7 @@ extension CardDetailsViewController {
                                 self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
                                 self.viewModel.updateWalletAddress(self.card!.address)
                                 self.updateBalance()
+                                self.setupUI()
                             }
                             ReadCommand().run(in: session) { readResult in
                                 DispatchQueue.main.async {
@@ -781,8 +786,9 @@ extension CardDetailsViewController {
         }
         
         viewController.card = card!
-        viewController.onDone = { [unowned self] in
-            self.setupBalanceNoWallet()
+        viewController.onDone = { [weak self] in
+            self?.setupBalanceNoWallet()
+            self?.viewModel.qrCodeImageView.image = nil
         }
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
