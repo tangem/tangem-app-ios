@@ -11,7 +11,13 @@ import CryptoSwift
 import Moya
 
 public class RippleEngine: CardEngine, PayIdProvider {
-    var payIdManager = PayIdManager(network: .XRPL)
+    lazy var payIdManager: PayIdManager? = {
+        if walletType == .ripple {
+            return PayIdManager(network: .XRPL)
+        }
+        
+        return nil
+    }()
     
     let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin()])
     unowned public var card: CardViewModel
