@@ -10,7 +10,9 @@ import Foundation
 import web3swift
 import BigInt
 
-public class ETHEngine: CardEngine {
+public class ETHEngine: CardEngine, PayIdProvider {
+    var payIdManager = PayIdManager(network: .ETH)
+    
     var chainId: BigUInt {
         return card.isTestBlockchain ? Networks.Rinkeby.chainID : Networks.Mainnet.chainID
     }
