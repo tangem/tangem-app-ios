@@ -108,7 +108,9 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
         let task = ScanTaskExtended()
-        tangemSdk.startSession(with: task, cardId: nil) {[unowned self] result in
+        tangemSdk.startSession(with: task, cardId: nil) {[weak self] result in
+             guard let self = self else { return }
+            
             self.scanButton.hideActivityIndicator()
             self.hintLabel.text = Localizations.readerHintDefault
             switch result {
