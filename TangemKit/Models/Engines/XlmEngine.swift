@@ -238,6 +238,8 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
                     completion(false, "Result code: \(submitTransactionResponse.transactionResult.code)")
                 }
                 break
+                 case .destinationRequiresMemo(let destinationAccountId):
+                   completion(false, "Destination \(destinationAccountId) requires Memo")
             case .failure(let horizonRequestError):
                 let horizonMessage = horizonRequestError.message
                 let json = JSON(parseJSON: horizonMessage)
