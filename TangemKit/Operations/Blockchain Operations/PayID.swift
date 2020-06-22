@@ -27,6 +27,7 @@ struct PayIdAddress: Codable {
 
 struct PayIdAddressDetails: Codable {
     let address: String?
+    let tag: String?
 }
 
 enum PayIdNetwork: String {
@@ -198,6 +199,8 @@ class PayIdManager {
     let network: PayIdNetwork
     
     public private(set) var payId: String?
+    public private(set) var resolvedTag: String?
+    
     let payIdProvider = MoyaProvider<PayIdTarget>(plugins: [NetworkLoggerPlugin()])
     
     func loadPayId(cid: String, key: Data, completion: @escaping (Result<String?, Error>) -> Void) {
@@ -284,18 +287,25 @@ class PayIdManager {
     }
     
     func resolve(_ payId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        self.resolvedTag = nil
         payIdProvider.request(.address(payId: payId, network: self.network)) {[weak self] moyaResult in
             guard let self = self else { return }
             switch moyaResult {
             case .success(let response):
                 if let payIdResponse = try? response.map(PayIdResponse.self) {
-                    if let resolvedAddress = payIdResponse.addresses?.compactMap({ address -> String? in
+                    if let resolvedAddressDetails = payIdResponse.addresses?.compactMap({ address -> (address: String, tag: String?)? in
                         if address.paymentNetwork == self.network.rawValue && address.environment == "MAINNET" {
-                            return address.addressDetails?.address
+                            if let resolvedAddress = address.addressDetails?.address {
+                                return (resolvedAddress, address.addressDetails?.tag)
+                            } else {
+                                return nil
+                            }
                         }
                         return nil
                         }).first {
-                        completion(.success(resolvedAddress))
+                        
+                        self.resolvedTag = resolvedAddressDetails.tag
+                        completion(.success(resolvedAddressDetails.address))
                     } else {
                         completion(.failure("Unknown address format in PayID response"))
                     }
