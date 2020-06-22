@@ -163,6 +163,9 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
                 destinationTag = decodedXAddress!.tag
             } else {
                 destination = destinationAddress
+                if let resolvedTag = self.payIdManager?.resolvedTag, let int32Tag = UInt32(resolvedTag) {
+                    destinationTag = int32Tag
+                }
             }
             
             if !isAccountCreated && finalAmountDecimal < reserve {
