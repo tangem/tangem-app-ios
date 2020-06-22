@@ -9,7 +9,7 @@ target 'Tangem' do
         pod 'GBAsyncOperation'
         pod 'SwiftCBOR'
         pod 'Sodium'
-        pod 'stellar-ios-mac-sdk', '~> 1.7.2'
+        pod 'stellar-ios-mac-sdk'
         pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.6'
            #pod 'BinanceChain', :path => '/Users/alexander.osokin/repos/tangem/SwiftBinanceChain'
         pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.8'
