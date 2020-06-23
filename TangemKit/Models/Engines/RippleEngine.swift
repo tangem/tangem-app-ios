@@ -11,7 +11,13 @@ import CryptoSwift
 import Moya
 
 public class RippleEngine: CardEngine, PayIdProvider {
-    var payIdManager = PayIdManager(network: .XRPL)
+    lazy var payIdManager: PayIdManager? = {
+        if walletType == .ripple {
+            return PayIdManager(network: .XRPL)
+        }
+        
+        return nil
+    }()
     
     let provider = MoyaProvider<XrpTarget>(plugins: [NetworkLoggerPlugin()])
     unowned public var card: CardViewModel
@@ -157,6 +163,9 @@ extension RippleEngine: CoinProvider, CoinProviderAsync {
                 destinationTag = decodedXAddress!.tag
             } else {
                 destination = destinationAddress
+                if let resolvedTag = self.payIdManager?.resolvedTag, let int32Tag = UInt32(resolvedTag) {
+                    destinationTag = int32Tag
+                }
             }
             
             if !isAccountCreated && finalAmountDecimal < reserve {
