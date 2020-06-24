@@ -162,13 +162,15 @@ PODS:
   - secp256k1.swift (0.1.4)
   - Sodium (0.8.0)
   - Starscream (3.1.1)
-  - stellar-ios-mac-sdk (1.7.3)
+  - stellar-ios-mac-sdk (1.8.3)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.0.3)
   - SwiftLint (0.39.2)
   - SwiftProtobuf (1.8.0)
   - SwiftyJSON (5.0.0)
-  - TangemSdk (2.0.2)
+  - TangemSdk (2.0.2):
+    - KeychainSwift
+    - secp256k1.swift
   - web3swift (2.2.1):
     - BigInt (~> 4.0)
     - CryptoSwift
@@ -194,7 +196,7 @@ DEPENDENCIES:
   - Moya
   - QRCode (= 2.0)
   - Sodium
-  - stellar-ios-mac-sdk (~> 1.7.2)
+  - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftLint
   - SwiftyJSON
@@ -310,16 +312,16 @@ SPEC CHECKSUMS:
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 63c0ca312a932e6da481689537d4b35568841bdc
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
-  stellar-ios-mac-sdk: e656dba16cbb108bd5f83b67acd55a2e25e75d24
+  stellar-ios-mac-sdk: 5153954265e3c1a9791181d282606da71fbb7fb9
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftProtobuf: 2cbd9409689b7df170d82a92a33443c8e3e14a70
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  TangemSdk: df9452c43c53c2db88915e4bd70f20b1d28f794b
+  TangemSdk: 4bd155490c8e5c52b8739f9f692d36c8b2342bc3
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 3cc452c4df9fe9217f4992210b7dbfd200343cf0
+PODFILE CHECKSUM: d15f92e24fad5b2615bb9d911726f4971ac9575a
 
-COCOAPODS: 1.9.2
+COCOAPODS: 1.9.3
