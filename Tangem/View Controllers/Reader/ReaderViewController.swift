@@ -100,7 +100,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         }
     }
     @objc func storeViewDidTap(_ sender: Any) {
-        UIApplication.shared.open(URL(string: "https://tangemcards.com")!, options: [:], completionHandler: nil)
+        UIApplication.shared.open(URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!, options: [:], completionHandler: nil)
     }
     
     @IBAction func scanButtonPressed(_ sender: Any) {
@@ -108,34 +108,31 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
-        if #available(iOS 13.0, *) {
-             let task = ScanTaskExtended()
-            tangemSdk.startSession(with: task, cardId: nil) {[unowned self] result in
-                self.scanButton.hideActivityIndicator()
-                self.hintLabel.text = Localizations.readerHintDefault
-                switch result {
-                case .success(let response):
-                    self.card = CardViewModel(response.card)
-                    Analytics.logScan(card: response.card)
-                    self.card?.genuinityState = .genuine
-                    
-                    guard self.card!.isBlockchainKnown else {
-                        self.handleUnknownBlockchainCard()
-                        return
-                    }
-                    
-                    guard !self.card!.productMask.contains(.idCard) else {
-                        self.card!.issuerExtraData = response.issuerExtraData
-                        (self.card!.cardEngine as! ETHIdEngine).setupAddress()
-                        UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
-                        return
-                    }
-                    
-                    guard self.card!.status == .loaded else {
-                        UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-                        return
-                    }
-                    
+        let task = ScanTaskExtended()
+        tangemSdk.startSession(with: task, cardId: nil) {[weak self] result in
+             guard let self = self else { return }
+            
+            self.scanButton.hideActivityIndicator()
+            self.hintLabel.text = Localizations.readerHintDefault
+            switch result {
+            case .success(let response):
+                self.card = CardViewModel(response.card)
+                Analytics.logScan(card: response.card)
+                self.card?.genuinityState = .genuine
+                
+                guard self.card!.isBlockchainKnown else {
+                    self.handleUnknownBlockchainCard()
+                    return
+                }
+                
+                guard !self.card!.productMask.contains(.idCard) else {
+                    self.card!.issuerExtraData = response.issuerExtraData
+                    (self.card!.cardEngine as! ETHIdEngine).setupAddress()
+                    UIApplication.navigationManager().showIdDetailsViewControllerWith(cardDetails: self.card!)
+                    return
+                }
+                
+                guard self.card!.status == .loaded else {
                     UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
                 case .failure(let error):
                     if !error.isUserCancelled {
