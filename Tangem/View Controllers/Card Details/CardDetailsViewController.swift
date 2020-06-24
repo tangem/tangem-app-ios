@@ -47,6 +47,20 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         }
     }
     
+    var payIdProvider: PayIdManager? {
+        return (card?.cardEngine as? PayIdProvider)?.payIdManager
+    }
+    
+    @IBAction func payIdTapped(_ sender: Any) {
+        if let payIdProvider = self.payIdProvider{
+            if payIdProvider.payId == nil {
+                showCreatePayId()
+            } else {
+                loadButtonPressed(self)
+            }
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -92,6 +106,38 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         fetchSubstitutionInfo(card: card)
     }
     
+    
+    func loadPayIdInfo() {
+        if let payIdProvider = self.payIdProvider,
+            let card = self.card,
+            let cid = card.cardModel.cardId,
+            let cardPublicKey = card.cardModel.cardPublicKey {
+            // self.payIdLoadingIndicator.startAnimating()
+            payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .success(let payIdString):
+                    if let _ = payIdString {
+                        // self.payIdLoadingIndicator.stopAnimating()
+                        self.viewModel.payIdButton.alpha = 1.0
+                        self.viewModel.payIdButton.isHidden = false
+                    } else {
+                        self.viewModel.payIdButton.alpha = 0.5
+                        self.viewModel.payIdButton.isHidden = false
+                        return
+                    }
+                case .failure(let error):
+                    self.viewModel.payIdButton.isHidden = true
+                    print(error)
+                    //   self.handleGenericError(error)
+                    //                    self.payIdLoadingIndicator.stopAnimating()
+                    //                    self.payIdView.isHidden = true
+                }
+            }
+        }
+    }
+    
     func fetchSubstitutionInfo(card: CardViewModel) {
         let operation = CardSubstitutionInfoOperation(card: card) { [weak self] (card) in
             guard let self = self else {
@@ -115,7 +161,10 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             setupBalanceNoWallet()
             return
         }
-        let operation = card.balanceRequestOperation(onSuccess: {[unowned self] (card) in
+        
+        let operation = card.balanceRequestOperation(onSuccess: {[weak self] (card) in
+             guard let self = self else { return }
+            
             self.card = card
             self.viewModel.setWalletInfoLoading(false)
             if card.type == .nft {
@@ -170,6 +219,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         }
         
         operationQueue.addOperation(operation!)
+        loadPayIdInfo()
     }
     
     func setupUI() {
@@ -413,6 +463,32 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             }
         }
     }
+    func updatepayIdState() {
+        if let payIdProvider = self.payIdProvider {
+            if payIdProvider.payId == nil {
+                self.viewModel.payIdButton.alpha = 0.5
+            } else {
+                self.viewModel.payIdButton.alpha = 1.0
+            }
+        }
+    }
+    
+    func showCreatePayId() {
+        guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "CreatePayIdViewController") as? CreatePayIdViewController else {
+            return
+        }
+        
+        viewController.cardDetails = self.card
+        viewController.onDone = { [weak self] in
+            self?.updatepayIdState()
+        }
+        viewController.modalPresentationStyle = .formSheet
+        //        let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
+        //        self.customPresentationController = presentationController
+        //        viewController.preferredContentSize = CGSize(width: self.view.bounds.width, height: 441)
+        //        viewController.transitioningDelegate = presentationController
+        self.present(viewController, animated: true, completion: nil)
+    }
 }
 
 extension CardDetailsViewController: LoadViewControllerDelegate {
@@ -501,7 +577,9 @@ extension CardDetailsViewController {
         switch viewModel.actionButtonState {
         case .claimTag:
             let ac = UIAlertController(title: "Password", message: nil, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[unowned self] action in
+            ac.addAction(UIAlertAction(title: "Claim", style: .destructive, handler: {[weak self] action in
+                 guard let self = self else { return }
+                
                 if let pswd = ac.textFields?.first?.text {
                     self.performClaim(password: pswd)
                 }
@@ -540,6 +618,7 @@ extension CardDetailsViewController {
                                 self.card!.setupWallet(status: createWalletResponse.status, walletPublicKey: createWalletResponse.walletPublicKey)
                                 self.viewModel.updateWalletAddress(self.card!.address)
                                 self.updateBalance()
+                                self.setupUI()
                             }
                             ReadCommand().run(in: session) { readResult in
                                 DispatchQueue.main.async {
@@ -578,7 +657,11 @@ extension CardDetailsViewController {
     private func showExtraction() {
         let viewController = storyboard!.instantiateViewController(withIdentifier: "ExtractViewController") as! ExtractViewController
         viewController.card = card
-        viewController.onDone = { [unowned self] in
+        viewController.onDone = { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
             guard let card = self.card else {
                 return
             }
@@ -704,8 +787,9 @@ extension CardDetailsViewController {
         }
         
         viewController.card = card!
-        viewController.onDone = { [unowned self] in
-            self.setupBalanceNoWallet()
+        viewController.onDone = { [weak self] in
+            self?.setupBalanceNoWallet()
+            self?.viewModel.qrCodeImageView.image = nil
         }
         
         let presentationController = CustomPresentationController(presentedViewController: viewController, presenting: self)
