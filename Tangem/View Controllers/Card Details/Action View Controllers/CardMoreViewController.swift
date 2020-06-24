@@ -67,7 +67,9 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
     @IBAction func eraseTapped(_ sender: Any) {
         if #available(iOS 13.0, *) {
             eraseWalletButton.showActivityIndicator()
-            tangemSdk.purgeWallet(cardId: card!.cardID) {[unowned self] result in
+            tangemSdk.purgeWallet(cardId: card!.cardID) {[weak self] result in
+                 guard let self = self else { return }
+                
                 self.eraseWalletButton.hideActivityIndicator()
                 switch result {
                 case .success(let purgeWalletResponse):
