@@ -64,7 +64,7 @@ open class CardanoEngine: CardEngine {
         
         let hexAddress = ([addrItem, CBOR.unsignedInt(checksum)] as CBOR).encode()
         
-        walletAddress = String(base58Encoding: Data(bytes: hexAddress))
+        walletAddress = String(base58Encoding: Data(bytes: hexAddress), alphabet:Base58String.btcAlphabet)
         
         card.node = "explorer2.adalite.io"
     }
