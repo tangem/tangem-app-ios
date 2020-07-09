@@ -50,8 +50,8 @@ class RippleNetworkReserveOperation: GBAsyncOperation {
                     return
                 }
                 
-                let reserveValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount))
-                let rounded = (reserveValue as Decimal).rounded(blockchain: .ripple)
+                let reserveValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.xrpl.decimalCount))
+                let rounded = (reserveValue as Decimal).rounded(blockchain: .xrpl)
                 self.completeOperationWith(balance: "\(rounded)")
             case .failure(let error):
                 self.failOperationWith(error: String(describing: error))
