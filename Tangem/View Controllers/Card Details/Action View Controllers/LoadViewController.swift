@@ -12,17 +12,25 @@ protocol LoadViewControllerDelegate: class {
     func loadViewControllerDidCallShowQRCode(_ controller: LoadViewController)
 }
 
-class LoadViewController: ModalActionViewController {
+class LoadViewController: ModalActionViewController, DefaultErrorAlertsCapable {
     
     var cardDetails: CardViewModel?
     
+    @IBOutlet weak var payIdLoadingIndicator: UIActivityIndicatorView!
+    var payIdProvider: PayIdManager? {
+        return (cardDetails?.cardEngine as? PayIdProvider)?.payIdManager
+    }
+    var isCreating = false
+    @IBOutlet weak var payIdView: UIView!
+
     weak var delegate: LoadViewControllerDelegate?
     
+    @IBOutlet weak var btnCopyPayId: UIButton!
     @IBOutlet weak var copyAddressButton: UIButton! {
-           didSet {
+        didSet {
             copyAddressButton.setTitle(Localizations.copyAddress, for: .normal) 
-           }
-       }
+        }
+    }
     
     @IBOutlet weak var showQRButton: UIButton! {
         didSet {
@@ -63,9 +71,41 @@ class LoadViewController: ModalActionViewController {
         }, completion: nil)
     }
     
+    func updateCopyPayIdForState(copied: Bool) {
+        let title = copied ? "PayID copied" : payIdProvider?.payId ?? ""
+        
+        UIView.transition(with: btnCopyPayId, duration: 0.1, options: .transitionCrossDissolve, animations: {
+            self.btnCopyPayId.setTitle(title, for: .normal)
+        }, completion: nil)
+    }
+    
     @IBAction func showQRButtonPressed(_ sender: Any) {
         delegate?.loadViewControllerDidCallShowQRCode(self)
     }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if let payIdProvider = payIdProvider, let payId = payIdProvider.payId {
+            self.btnCopyPayId.setTitle(payId, for: .normal)
+            self.btnCopyPayId.isHidden = false
+        }
+    }
     
-    
+    @IBAction func copyPayIdTapped(_ sender: Any) {
+        UIPasteboard.general.string = payIdProvider?.payId
+        
+        dispatchWorkItem?.cancel()
+        
+        updateCopyPayIdForState(copied: true)
+        dispatchWorkItem = DispatchWorkItem(block: {
+            self.updateCopyPayIdForState(copied: false)
+        })
+        
+        guard let dispatchWorkItem = dispatchWorkItem else {
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: dispatchWorkItem)
+    }
 }
