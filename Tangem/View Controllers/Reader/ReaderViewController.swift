@@ -108,7 +108,9 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
-        let task = ScanTaskExtended()
+        if #available(iOS 13.0, *) {
+            let task = ScanTaskExtended()
+
         tangemSdk.startSession(with: task, cardId: nil) {[weak self] result in
              guard let self = self else { return }
             
@@ -132,8 +134,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                     return
                 }
                 
-                guard self.card!.status == .loaded else {
-                    UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
+                UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
                 case .failure(let error):
                     if !error.isUserCancelled {
                         task.trace?.stop()
