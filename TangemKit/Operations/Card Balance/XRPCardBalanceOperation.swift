@@ -46,7 +46,7 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
                 
                 (self?.card.cardEngine as? RippleEngine)?.accountInfo = accountResponse
                 
-                let walletValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount)).stringValue
+                let walletValue = NSDecimalNumber(value: balance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.xrpl.decimalCount)).stringValue
                 
                 (self?.card.cardEngine as? RippleEngine)?.confirmedBalance =
                 "\(walletValue)"
@@ -88,8 +88,8 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
                         return
                 }
                 
-                let reserveValue = NSDecimalNumber(value: reserveBase).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount))
-                let rounded = (reserveValue as Decimal).rounded(blockchain: .ripple)
+                let reserveValue = NSDecimalNumber(value: reserveBase).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.xrpl.decimalCount))
+                let rounded = (reserveValue as Decimal).rounded(blockchain: .xrpl)
                 
                 self?.handleReserveLoaded(reserve: "\(rounded)")
             case .failure(let error):
@@ -125,7 +125,7 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
         
         
         let walletValue = NSDecimalNumber(value: balanceValue).subtracting(NSDecimalNumber(value: reserveValue))
-        let rounded = (walletValue as Decimal).rounded(blockchain: .ripple)
+        let rounded = (walletValue as Decimal).rounded(blockchain: .xrpl)
         card.walletValue =  "\(rounded)"
         
         loadUnconfirmed()
@@ -144,7 +144,7 @@ class XRPCardBalanceOperation: BaseCardBalanceOperation {
                         return
                 }
                 
-                let unconfirmedValue = NSDecimalNumber(value: unconfirmedBalance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.ripple.decimalCount)).stringValue
+                let unconfirmedValue = NSDecimalNumber(value: unconfirmedBalance).dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Blockchain.xrpl.decimalCount)).stringValue
                 
                 (self?.card.cardEngine as? RippleEngine)?.unconfirmedBalance =
                 "\(unconfirmedValue)"
