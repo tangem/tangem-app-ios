@@ -272,7 +272,7 @@
 "loaded_wallet_load_via_qr" = "Show QR-code";
 
 /*  */
-"loaded_wallet_dialog_show_qr" = "LOAD";
+"loaded_wallet_dialog_show_qr" = "Show QR-code";
 
 /* CreateNewWallet, Purge, SignTransaction */
 "now_touch_the_banknote_with_id" = "Now touch the banknote with ID";
