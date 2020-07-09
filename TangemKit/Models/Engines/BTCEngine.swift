@@ -8,7 +8,14 @@
 
 import Foundation
 
-class BTCEngine: CardEngine, CoinProvider {
+class BTCEngine: CardEngine, CoinProvider, PayIdProvider {
+    lazy var payIdManager: PayIdManager? = {
+        if walletType == .btc {
+            return PayIdManager(network: .BTC)
+        }
+        
+        return nil
+    }()
     
     var possibleFirstAddressCharacters: [String] {
         return  ["1","2","3","n","m"]
@@ -95,7 +102,7 @@ class BTCEngine: CardEngine, CoinProvider {
         
         let binaryForBase58 = dataWithHexString(hex: addCheckToRipemd)
         
-        walletAddress = String(base58Encoding: binaryForBase58) 
+        walletAddress = String(base58Encoding: binaryForBase58, alphabet:Base58String.btcAlphabet) 
         
         card.node = randomNode() 
     }
