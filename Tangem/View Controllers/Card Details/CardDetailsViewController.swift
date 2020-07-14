@@ -242,7 +242,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
-        if card.cardID.starts(with: "10") {
+        if card.cardID.lowercased().starts(with: "1") {
             viewModel.loadButton.isHidden = true
             viewModel.extractButton.backgroundColor = UIColor(red: 249.0/255.0, green: 175.0/255.0, blue: 37.0/255.0, alpha: 1.0)
             viewModel.extractButton.setTitleColor(.white, for: .normal)
