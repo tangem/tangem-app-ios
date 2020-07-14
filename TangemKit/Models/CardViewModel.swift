@@ -313,6 +313,10 @@ public class CardViewModel {
             return "card_bc00"
         }
         
+        if cardIdWithoutSpaces.lowercased().starts(with: "1") {
+            return "card_tg073"
+        }
+        
         switch cardIdWithoutSpaces {
         case "AA01000000000000"..."AA01000000004999",
              "AE01000000000000"..."AE01000000004999",
@@ -441,8 +445,6 @@ public class CardViewModel {
             return "card_tg062"
         case 0x0052:
             return "card_tg063"
-        case 0x0060:
-            return "card_tg073"
         default:
             return "card-default"
         }
