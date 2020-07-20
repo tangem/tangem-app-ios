@@ -175,6 +175,10 @@ extension ETHEngine: CoinProvider {
             return 300000
         }
         
+        if card.tokenSymbol == "AWG" {
+            return 150000
+        }
+        
         return 60000
     }
     
