@@ -392,7 +392,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             viewModel.actionButton.isEnabled = false
             viewModel.actionButton.isHidden = false
         } else {
-            viewModel.loadButton.isHidden = false
+            viewModel.loadButton.isHidden = card?.cardID.starts(with: "1") ?? false
             viewModel.extractButton.isHidden = false
             viewModel.exploreButton.isEnabled = true
         }
