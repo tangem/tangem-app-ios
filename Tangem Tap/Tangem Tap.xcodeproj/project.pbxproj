@@ -17,6 +17,15 @@
 		5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */; };
 		5D3F77DD24BF56DC00E8695B /* Tangem_TapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77DC24BF56DC00E8695B /* Tangem_TapTests.swift */; };
 		5D3F77E824BF56DC00E8695B /* Tangem_TapUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77E724BF56DC00E8695B /* Tangem_TapUITests.swift */; };
+		5DFCCB6524C371C90014A293 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6424C371C90014A293 /* CardViewModel.swift */; };
+		5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6624C371D90014A293 /* ReadViewModel.swift */; };
+		5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6B24C372140014A293 /* ReadView.swift */; };
+		5DFCCB6F24C3728E0014A293 /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6E24C3728E0014A293 /* DetailsView.swift */; };
+		5DFCCB7124C372980014A293 /* DetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7024C372980014A293 /* DetailsViewModel.swift */; };
+		5DFCCB7424C3819A0014A293 /* ExtractView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7324C3819A0014A293 /* ExtractView.swift */; };
+		5DFCCB7624C381A70014A293 /* ExtractViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7524C381A70014A293 /* ExtractViewModel.swift */; };
+		5DFCCB7824C389740014A293 /* TangemSdkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7724C389740014A293 /* TangemSdkModel.swift */; };
+		5DFCCB7A24C5823C0014A293 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7924C5823C0014A293 /* AppState.swift */; };
 		E7B877C2D1F9ECC207398075 /* Pods_Tangem_Tap_Tangem_TapUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +65,15 @@
 		5D3F77E324BF56DC00E8695B /* Tangem TapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tangem TapUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77E724BF56DC00E8695B /* Tangem_TapUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tangem_TapUITests.swift; sourceTree = "<group>"; };
 		5D3F77E924BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5DFCCB6424C371C90014A293 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
+		5DFCCB6624C371D90014A293 /* ReadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadViewModel.swift; sourceTree = "<group>"; };
+		5DFCCB6B24C372140014A293 /* ReadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadView.swift; sourceTree = "<group>"; };
+		5DFCCB6E24C3728E0014A293 /* DetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
+		5DFCCB7024C372980014A293 /* DetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsViewModel.swift; sourceTree = "<group>"; };
+		5DFCCB7324C3819A0014A293 /* ExtractView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractView.swift; sourceTree = "<group>"; };
+		5DFCCB7524C381A70014A293 /* ExtractViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractViewModel.swift; sourceTree = "<group>"; };
+		5DFCCB7724C389740014A293 /* TangemSdkModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkModel.swift; sourceTree = "<group>"; };
+		5DFCCB7924C5823C0014A293 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		660C0A4ED84D5E9C3C8E3304 /* Pods-Tangem Tap-Tangem TapUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; sourceTree = "<group>"; };
 		8023B4C7AB7F8F722B1B6BAA /* Pods-Tangem TapTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.debug.xcconfig"; sourceTree = "<group>"; };
 		ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_Tap_Tangem_TapUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,6 +144,10 @@
 		5D3F77C424BF56D800E8695B /* Tangem Tap */ = {
 			isa = PBXGroup;
 			children = (
+				5DFCCB7224C3817E0014A293 /* Extract */,
+				5DFCCB6D24C372830014A293 /* Details */,
+				5DFCCB6A24C372020014A293 /* Read */,
+				5DFCCB6324C371AC0014A293 /* Common */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				5D3F77C724BF56D800E8695B /* SceneDelegate.swift */,
 				5D3F77C924BF56D800E8695B /* ContentView.swift */,
@@ -161,6 +183,43 @@
 				5D3F77E924BF56DC00E8695B /* Info.plist */,
 			);
 			path = "Tangem TapUITests";
+			sourceTree = "<group>";
+		};
+		5DFCCB6324C371AC0014A293 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				5DFCCB6424C371C90014A293 /* CardViewModel.swift */,
+				5DFCCB7724C389740014A293 /* TangemSdkModel.swift */,
+				5DFCCB7924C5823C0014A293 /* AppState.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		5DFCCB6A24C372020014A293 /* Read */ = {
+			isa = PBXGroup;
+			children = (
+				5DFCCB6624C371D90014A293 /* ReadViewModel.swift */,
+				5DFCCB6B24C372140014A293 /* ReadView.swift */,
+			);
+			path = Read;
+			sourceTree = "<group>";
+		};
+		5DFCCB6D24C372830014A293 /* Details */ = {
+			isa = PBXGroup;
+			children = (
+				5DFCCB6E24C3728E0014A293 /* DetailsView.swift */,
+				5DFCCB7024C372980014A293 /* DetailsViewModel.swift */,
+			);
+			path = Details;
+			sourceTree = "<group>";
+		};
+		5DFCCB7224C3817E0014A293 /* Extract */ = {
+			isa = PBXGroup;
+			children = (
+				5DFCCB7324C3819A0014A293 /* ExtractView.swift */,
+				5DFCCB7524C381A70014A293 /* ExtractViewModel.swift */,
+			);
+			path = Extract;
 			sourceTree = "<group>";
 		};
 		BBA154748909F0AB4121528D /* Pods */ = {
@@ -415,9 +474,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DFCCB6524C371C90014A293 /* CardViewModel.swift in Sources */,
 				5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */,
+				5DFCCB7424C3819A0014A293 /* ExtractView.swift in Sources */,
+				5DFCCB7A24C5823C0014A293 /* AppState.swift in Sources */,
 				5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */,
+				5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */,
+				5DFCCB7624C381A70014A293 /* ExtractViewModel.swift in Sources */,
+				5DFCCB6F24C3728E0014A293 /* DetailsView.swift in Sources */,
 				5D3F77CA24BF56D800E8695B /* ContentView.swift in Sources */,
+				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
+				5DFCCB7124C372980014A293 /* DetailsViewModel.swift in Sources */,
+				5DFCCB7824C389740014A293 /* TangemSdkModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
