@@ -441,6 +441,8 @@ public class CardViewModel {
             return "card_tg062"
         case 0x0052:
             return "card_tg063"
+        case 0x0060:
+            return "card_tg073"
         default:
             return "card-default"
         }
