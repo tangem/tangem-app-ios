@@ -13,6 +13,7 @@ import TangemSdk
 
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UIScrollViewDelegate {
     
+    @available(iOS 13.0, *)
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
         sdk.config.legacyMode = Utils().needLegacyMode
@@ -665,7 +666,7 @@ extension CardDetailsViewController {
                 return
             }
             
-            Utils().setOldDisclamerShown()
+             Utils().setOldDisclamerShown()
             
             if card.type == .ducatus {
                 self.latestTxDate = Date()
