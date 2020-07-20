@@ -9,7 +9,7 @@
 import Foundation
 import BinanceChain
 
-class BinanceEngine: CardEngine {
+class BinanceEngine: CardEngine, PayIdProvider {
     let txBuilder: BinanceTransactionBuilder
     private var latestTxDate: Date?
     unowned var card: CardViewModel
@@ -18,6 +18,8 @@ class BinanceEngine: CardEngine {
     var blockchainDisplayName: String {
         return card.tokenSymbol == nil ? "Binance" : "Binance asset"
     }
+    
+    var payIdManager: PayIdManager? = PayIdManager(network: .BNB)
     
     var walletType: WalletType {
         return .binance 
