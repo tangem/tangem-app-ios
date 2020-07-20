@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct ConfirmIdResponse: TlvCodable {
+struct ConfirmIdResponse: ResponseCodable {
     let issuerData: Data
     let signature: Data
 }
@@ -47,7 +47,7 @@ final class ConfirmIdTask: CardSessionRunnable {
         let issuerCardViewModel = CardViewModel(issuerCard)
         
         guard productMask.contains(.idIssuer) || idEngine.card.idIssuerKeys.contains(issuerCardViewModel.walletPublicKey) else {
-            completion(.failure(.wrongCard))
+            completion(.failure(.wrongCardNumber))
             return
         }
         
@@ -80,7 +80,7 @@ final class ConfirmIdTask: CardSessionRunnable {
                 }
                 
                 session.viewDelegate.showAlertMessage("Signing")
-                session.restartPolling()
+              //  session.restartPolling()
                 self.sign(in: session, hashes: hashes)
             }
         }) { _,_  in
