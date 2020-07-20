@@ -29,6 +29,10 @@ class TokenEngine: ETHEngine {
             return .wrl
         case "USDC":
             return .usdc
+        case "DGX":
+            return .dgx
+        case "AWG":
+            return .awg
         default:
             return .eth
         }
