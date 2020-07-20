@@ -10,6 +10,12 @@ import Foundation
 import BigInt
 
 class RootstockEngine: TokenEngine {
+    private let _payIdManager = PayIdManager(network: .RSK)
+    override var payIdManager: PayIdManager? {
+        return _payIdManager
+    }
+    
+    
     override var chainId: BigUInt {
         return 30
     }
