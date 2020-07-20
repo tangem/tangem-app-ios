@@ -34,6 +34,13 @@ enum PayIdNetwork: String {
     case XRPL
     case BTC
     case ETH
+    case LTC
+    case XLM
+    case BCH
+    case BNB
+    case RSK
+    case ADA
+    case DUC
 }
 
 enum PayIdTarget: TargetType {
