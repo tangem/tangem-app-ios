@@ -9,6 +9,7 @@
 import UIKit
 import TangemSdk
 
+@available(iOS 13.0, *)
 class IdDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UIScrollViewDelegate {
 
     enum State {
