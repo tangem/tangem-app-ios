@@ -20,6 +20,7 @@ class CardMoreViewController: ModalActionViewController, DefaultErrorAlertsCapab
     
     var onDone: (()-> Void)?
     var card: CardViewModel!
+    @available(iOS 13.0, *)
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
         sdk.config.legacyMode = Utils().needLegacyMode
