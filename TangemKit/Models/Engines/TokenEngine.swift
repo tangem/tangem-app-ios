@@ -9,6 +9,13 @@
 import Foundation
 
 class TokenEngine: ETHEngine {
+    override var payIdManager: PayIdManager? {
+        if walletType == .nft {
+            return nil
+        } else {
+            return super.payIdManager
+        }
+    }
     
     override var walletType: WalletType {
         
@@ -29,6 +36,10 @@ class TokenEngine: ETHEngine {
             return .wrl
         case "USDC":
             return .usdc
+        case "DGX":
+            return .dgx
+        case "AWG":
+            return .awg
         default:
             return .eth
         }
