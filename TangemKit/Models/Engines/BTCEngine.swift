@@ -9,13 +9,10 @@
 import Foundation
 
 class BTCEngine: CardEngine, CoinProvider, PayIdProvider {
-    lazy var payIdManager: PayIdManager? = {
-        if walletType == .btc {
-            return PayIdManager(network: .BTC)
-        }
-        
-        return nil
-    }()
+    private let _payIdManager = PayIdManager(network: .BTC)
+    var payIdManager: PayIdManager? {
+        return _payIdManager
+    }
     
     var possibleFirstAddressCharacters: [String] {
         return  ["1","2","3","n","m"]

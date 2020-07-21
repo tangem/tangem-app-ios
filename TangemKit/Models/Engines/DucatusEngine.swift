@@ -12,6 +12,11 @@ import Moya
 class DucatusEngine: LTCEngine {
    let provider = MoyaProvider<BitcoreTarget>(plugins: [NetworkLoggerPlugin()])
     
+    private let _payIdManager = PayIdManager(network: .DUC)
+    override var payIdManager: PayIdManager? {
+        return _payIdManager
+    }
+    
     override var trait: CoinTrait {
         .all
     }
