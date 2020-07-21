@@ -11,7 +11,7 @@ import SwiftCBOR
 import CryptoSwift
 import Sodium
 
-open class CardanoEngine: CardEngine {
+open class CardanoEngine: CardEngine, PayIdProvider {
     
     static let kPendingTransactionTimeoutSeconds: Int = 60
 
@@ -36,6 +36,8 @@ open class CardanoEngine: CardEngine {
     public var qrCodePreffix: String {
         return ""
     }
+    
+    let payIdManager: PayIdManager? = PayIdManager(network: .ADA)
     
     public var walletAddress: String = ""
     public var exploreLink: String {
