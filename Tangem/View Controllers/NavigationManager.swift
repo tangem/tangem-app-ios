@@ -34,6 +34,7 @@ class NavigationManager {
         navigationController.pushViewController(cardDetailsViewController, animated: true)
     }
     
+    @available(iOS 13.0, *)
     func showIdDetailsViewControllerWith(cardDetails: CardViewModel) {
         let storyBoard = UIStoryboard(name: "Card", bundle: nil)
         guard let cardDetailsViewController = storyBoard.instantiateViewController(withIdentifier: "IdDetailsViewController") as? IdDetailsViewController else {
