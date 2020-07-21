@@ -75,7 +75,6 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         if isAppLaunched {
             scanButtonPressed(self)
         } else {
-            isAppLaunched = true
             handleIOS12()
         }
     }
@@ -116,6 +115,9 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
             
             self.scanButton.hideActivityIndicator()
             self.hintLabel.text = Localizations.readerHintDefault
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+               self.isAppLaunched = true
+            }
             switch result {
             case .success(let response):
                 self.card = CardViewModel(response.card)
