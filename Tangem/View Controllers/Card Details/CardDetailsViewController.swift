@@ -13,6 +13,7 @@ import TangemSdk
 
 class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UIScrollViewDelegate {
     
+    @available(iOS 13.0, *)
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
         sdk.config.legacyMode = Utils().needLegacyMode
@@ -110,6 +111,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         if let payIdProvider = self.payIdProvider,
             let card = self.card,
             let cid = card.cardModel.cardId,
+            !cid.lowercased().starts(with: "1"),
             let cardPublicKey = card.cardModel.cardPublicKey {
             // self.payIdLoadingIndicator.startAnimating()
             payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
@@ -242,7 +244,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         qrCodeResult?.size = viewModel.qrCodeImageView.frame.size
         viewModel.qrCodeImageView.image = qrCodeResult?.image
         
-        if card.cardID.starts(with: "10") {
+        if card.cardID.lowercased().starts(with: "1") {
             viewModel.loadButton.isHidden = true
             viewModel.extractButton.backgroundColor = UIColor(red: 249.0/255.0, green: 175.0/255.0, blue: 37.0/255.0, alpha: 1.0)
             viewModel.extractButton.setTitleColor(.white, for: .normal)
@@ -391,7 +393,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
             viewModel.actionButton.isEnabled = false
             viewModel.actionButton.isHidden = false
         } else {
-            viewModel.loadButton.isHidden = false
+            viewModel.loadButton.isHidden = card?.cardID.starts(with: "1") ?? false
             viewModel.extractButton.isHidden = false
             viewModel.exploreButton.isEnabled = true
         }
@@ -665,7 +667,7 @@ extension CardDetailsViewController {
                 return
             }
             
-            Utils().setOldDisclamerShown()
+             Utils().setOldDisclamerShown()
             
             if card.type == .ducatus {
                 self.latestTxDate = Date()
