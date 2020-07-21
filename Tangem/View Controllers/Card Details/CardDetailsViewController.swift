@@ -111,6 +111,7 @@ class CardDetailsViewController: UIViewController, DefaultErrorAlertsCapable, UI
         if let payIdProvider = self.payIdProvider,
             let card = self.card,
             let cid = card.cardModel.cardId,
+            !cid.lowercased().starts(with: "1"),
             let cardPublicKey = card.cardModel.cardPublicKey {
             // self.payIdLoadingIndicator.startAnimating()
             payIdProvider.loadPayId(cid: cid, key: cardPublicKey) {[weak self] result in
