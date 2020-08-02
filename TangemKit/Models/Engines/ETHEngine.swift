@@ -11,19 +11,11 @@ import web3swift
 import BigInt
 
 public class ETHEngine: CardEngine, PayIdProvider {
-    lazy var payIdManager: PayIdManager? = {
-        if walletType == .eth ||
-            walletType == .seed ||
-            walletType == .qlear ||
-            walletType == .cle ||
-            walletType == .ert ||
-            walletType == .wrl ||
-            walletType == .usdc {
-            return PayIdManager(network: .ETH)
-        }
-        
-        return nil
-    }()
+    private let _payIdManager = PayIdManager(network: .ETH)
+    var payIdManager: PayIdManager? {
+        return _payIdManager
+    }
+    
     
     var chainId: BigUInt {
         return card.isTestBlockchain ? Networks.Rinkeby.chainID : Networks.Mainnet.chainID
@@ -173,6 +165,10 @@ extension ETHEngine: CoinProvider {
         
         if card.tokenSymbol == "DGX" {
             return 300000
+        }
+        
+        if card.tokenSymbol == "AWG" {
+            return 150000
         }
         
         return 60000
