@@ -11,8 +11,10 @@ import HDWalletKit
 import Moya
 import SwiftyJSON
 
-class BCHEngine: CardEngine {
+class BCHEngine: CardEngine, PayIdProvider {
     unowned var card: CardViewModel
+    
+    var payIdManager: PayIdManager? = PayIdManager(network: .BCH)
     
     var blockchainDisplayName: String { "Bitcoin Cash" }
     
