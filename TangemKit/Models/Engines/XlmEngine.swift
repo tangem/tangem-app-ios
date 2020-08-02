@@ -10,9 +10,18 @@ import Foundation
 import stellarsdk
 import SwiftyJSON
 
-public class XlmEngine: CardEngine {
+public class XlmEngine: CardEngine, PayIdProvider {
     unowned public var card: CardViewModel
-    
+
+    private let _payIdManager = PayIdManager(network: .XLM)
+    var payIdManager: PayIdManager? {
+        if walletType == .slix2 {
+            return nil
+        } else {
+            return _payIdManager
+        }
+    }
+
     public lazy var stellarSdk: StellarSDK = {
         return StellarSDK(withHorizonUrl: "https://\(card.node)")
     }()
