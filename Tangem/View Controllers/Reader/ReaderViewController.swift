@@ -13,6 +13,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
     var customPresentationController: CustomPresentationController?
     var isAppLaunched = false
     
+    @available(iOS 13.0, *)
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
         sdk.config.legacyMode = Utils().needLegacyMode
@@ -74,7 +75,6 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         if isAppLaunched {
             scanButtonPressed(self)
         } else {
-            isAppLaunched = true
             handleIOS12()
         }
     }
@@ -107,12 +107,17 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         card = nil
         hintLabel.text = Localizations.readerHintScan
         scanButton.showActivityIndicator()
-        let task = ScanTaskExtended()
+        if #available(iOS 13.0, *) {
+            let task = ScanTaskExtended()
+
         tangemSdk.startSession(with: task, cardId: nil) {[weak self] result in
              guard let self = self else { return }
             
             self.scanButton.hideActivityIndicator()
             self.hintLabel.text = Localizations.readerHintDefault
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+               self.isAppLaunched = true
+            }
             switch result {
             case .success(let response):
                 self.card = CardViewModel(response.card)
@@ -131,31 +136,23 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                     return
                 }
                 
-                guard self.card!.status == .loaded else {
-                    UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-                    return
-                }
-                
                 UIApplication.navigationManager().showCardDetailsViewControllerWith(cardDetails: self.card!)
-            case .failure(let error):
-                if !error.isUserCancelled {
-                    if #available(iOS 13.0, *) {
-                        task.trace?.incrementMetric("failure", by: 1)
+                case .failure(let error):
+                    if !error.isUserCancelled {
+                        task.trace?.stop()
+                        Analytics.log(error: error)
+                        if error == .verificationFailed {
+                            self.handleNonGenuineTangemCard() {}
+                        } else {
+                            self.handleGenericError(error)
+                        }
                     } else {
-                        task.trace?.incrementMetric("failure_legacy", by: 1)
+                        task.trace?.stop()
                     }
-                    task.trace?.stop()
-                    Analytics.log(error: error)
-                    if error == .verificationFailed {
-                        self.handleNonGenuineTangemCard() {}
-                    } else {
-                        self.handleGenericError(error)
-                    }
-                } else {
-                    task.trace?.incrementMetric("userCancelled", by: 1)
-                    task.trace?.stop()
                 }
             }
+        } else {
+            // Fallback on earlier versions
         }
     }
     
