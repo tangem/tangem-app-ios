@@ -73,6 +73,7 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         super.viewDidAppear(animated)
         
         if isAppLaunched {
+            self.isAppLaunched = false
             scanButtonPressed(self)
         } else {
             handleIOS12()
@@ -115,14 +116,15 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
             
             self.scanButton.hideActivityIndicator()
             self.hintLabel.text = Localizations.readerHintDefault
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-               self.isAppLaunched = true
-            }
             switch result {
             case .success(let response):
                 self.card = CardViewModel(response.card)
                 Analytics.logScan(card: response.card)
                 self.card?.genuinityState = .genuine
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                   self.isAppLaunched = true
+                }
                 
                 guard self.card!.isBlockchainKnown else {
                     self.handleUnknownBlockchainCard()
