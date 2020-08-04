@@ -1,0 +1,15 @@
+/* 
+  Localizable.strings
+  Tangem Tap
+
+  Created by Alexander Osokin on 04.08.2020.
+  Copyright © 2020 Tangem AG. All rights reserved.
+*/
+
+"read_welcome_title" = "Welcome to Tangem.";
+
+"read_welcome_subtitle" = "Do you have one of \nour cards?";
+
+"read_button_yes" = "Yes!";
+
+"read_button_shop" = "No. Go to shop";
