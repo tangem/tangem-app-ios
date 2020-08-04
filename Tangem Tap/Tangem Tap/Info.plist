@@ -49,6 +49,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>SairaSemiCondensed-Bold.ttf</string>
+		<string>SairaSemiCondensed-Light.ttf</string>
+		<string>SairaSemiCondensed-Medium.ttf</string>
+		<string>SairaSemiCondensed-Regular.ttf</string>
+		<string>SairaSemiCondensed-SemiBold.ttf</string>
+	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
