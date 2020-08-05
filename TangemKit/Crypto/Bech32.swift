@@ -105,9 +105,7 @@ public class Bech32Internal {
         guard let strBytes = str.data(using: .utf8) else {
             throw DecodingError.nonUTF8String
         }
-        guard strBytes.count <= 90 else {
-            throw DecodingError.stringLengthExceeded
-        }
+        
         var lower: Bool = false
         var upper: Bool = false
         for c in strBytes {
@@ -153,6 +151,60 @@ public class Bech32Internal {
         }
         return (hrp, Data(values[..<(vSize-6)]))
     }
+    
+     /// Decode Bech32 string
+        public func decodeLong(_ str: String) throws -> (hrp: String, checksum: Data) {
+            guard let strBytes = str.data(using: .utf8) else {
+                throw DecodingError.nonUTF8String
+            }
+    //        guard strBytes.count <= 90 else {
+    //            throw DecodingError.stringLengthExceeded
+    //        }
+            var lower: Bool = false
+            var upper: Bool = false
+            for c in strBytes {
+                // printable range
+                if c < 33 || c > 126 {
+                    throw DecodingError.nonPrintableCharacter
+                }
+                // 'a' to 'z'
+                if c >= 97 && c <= 122 {
+                    lower = true
+                }
+                // 'A' to 'Z'
+                if c >= 65 && c <= 90 {
+                    upper = true
+                }
+            }
+            if lower && upper {
+                throw DecodingError.invalidCase
+            }
+            guard let pos = str.range(of: checksumMarker, options: .backwards)?.lowerBound else {
+                throw DecodingError.noChecksumMarker
+            }
+            let intPos: Int = str.distance(from: str.startIndex, to: pos)
+            guard intPos >= 1 else {
+                throw DecodingError.incorrectHrpSize
+            }
+            guard intPos + 7 <= str.count else {
+                throw DecodingError.incorrectChecksumSize
+            }
+            let vSize: Int = str.count - 1 - intPos
+            var values: Data = Data(repeating: 0x00, count: vSize)
+            for i in 0..<vSize {
+                let c = strBytes[i + intPos + 1]
+                let decInt = decCharset[Int(c)]
+                if decInt == -1 {
+                    throw DecodingError.invalidCharacter
+                }
+                values[i] = UInt8(decInt)
+            }
+            let hrp = String(str[..<pos]).lowercased()
+            guard verifyChecksum(hrp: hrp, checksum: values) else {
+                throw DecodingError.checksumMismatch
+            }
+            return (hrp, Data(values[..<(vSize-6)]))
+        }
     
     func convertBits(data: [UInt8], fromBits: Int, toBits: Int, pad: Bool) throws -> [UInt8] {
         var acc: Int = 0
