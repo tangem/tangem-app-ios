@@ -260,7 +260,11 @@ class ExtractViewController: ModalActionViewController {
         }
         else {
             guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
-                self.handleTXBuildError()
+                if let errorText = (card.cardEngine as? DetailedError)?.errorText {
+                     self.handleGenericError(errorText)
+                } else {
+                     self.handleTXBuildError()
+                }
                 self.removeLoadingView()
                 self.updateSendButtonSubtitle()
                 self.btnSend.hideActivityIndicator()
