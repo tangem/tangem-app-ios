@@ -9,14 +9,34 @@
 /* Begin PBXBuildFile section */
 		31B33C8CA6A7BDF8E74D9091 /* Pods_Tangem_TapTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30730268D19E81F373712C02 /* Pods_Tangem_TapTests.framework */; };
 		58C9C611B1BC9C606B5F70B5 /* Pods_Tangem_Tap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13E2B49EFB622F929FD5C46A /* Pods_Tangem_Tap.framework */; };
+		5D312C9524D87FF800B4DDEB /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */; };
+		5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
 		5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C524BF56D800E8695B /* AppDelegate.swift */; };
 		5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C724BF56D800E8695B /* SceneDelegate.swift */; };
-		5D3F77CA24BF56D800E8695B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C924BF56D800E8695B /* ContentView.swift */; };
 		5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CB24BF56DC00E8695B /* Assets.xcassets */; };
 		5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CE24BF56DC00E8695B /* Preview Assets.xcassets */; };
 		5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */; };
 		5D3F77DD24BF56DC00E8695B /* Tangem_TapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77DC24BF56DC00E8695B /* Tangem_TapTests.swift */; };
 		5D3F77E824BF56DC00E8695B /* Tangem_TapUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77E724BF56DC00E8695B /* Tangem_TapUITests.swift */; };
+		5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
+		5D9141E024D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
+		5D9141E124D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
+		5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */; };
+		5D9141E324D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */; };
+		5D9141E424D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */; };
+		5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
+		5D9141E624D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
+		5D9141E724D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
+		5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */; };
+		5D9141E924D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */; };
+		5D9141EA24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */; };
+		5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
+		5D9141EC24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
+		5D9141ED24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
+		5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0724D850EA00E78F1C /* CircleView.swift */; };
+		5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0A24D853B600E78F1C /* Color+.swift */; };
+		5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
+		5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */; };
 		5DFCCB6524C371C90014A293 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6424C371C90014A293 /* CardViewModel.swift */; };
 		5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6624C371D90014A293 /* ReadViewModel.swift */; };
 		5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6B24C372140014A293 /* ReadView.swift */; };
@@ -51,10 +71,11 @@
 		2459667052667F113C3CBF58 /* Pods-Tangem TapTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.release.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.release.xcconfig"; sourceTree = "<group>"; };
 		30730268D19E81F373712C02 /* Pods_Tangem_TapTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TapTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		453C6E5BE6FDD4AA1524167D /* Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
+		5D383E4024D95BA600C9BFF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D3F77C224BF56D800E8695B /* Tangem Tap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tangem Tap.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77C524BF56D800E8695B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5D3F77C724BF56D800E8695B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		5D3F77C924BF56D800E8695B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5D3F77CB24BF56DC00E8695B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5D3F77CE24BF56DC00E8695B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		5D3F77D124BF56DC00E8695B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -65,6 +86,15 @@
 		5D3F77E324BF56DC00E8695B /* Tangem TapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tangem TapUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77E724BF56DC00E8695B /* Tangem_TapUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tangem_TapUITests.swift; sourceTree = "<group>"; };
 		5D3F77E924BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Medium.ttf"; sourceTree = "<group>"; };
+		5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-SemiBold.ttf"; sourceTree = "<group>"; };
+		5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Bold.ttf"; sourceTree = "<group>"; };
+		5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Regular.ttf"; sourceTree = "<group>"; };
+		5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Light.ttf"; sourceTree = "<group>"; };
+		5DBBAB0724D850EA00E78F1C /* CircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
+		5DBBAB0A24D853B600E78F1C /* Color+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+.swift"; sourceTree = "<group>"; };
+		5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
+		5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardRectView.swift; sourceTree = "<group>"; };
 		5DFCCB6424C371C90014A293 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		5DFCCB6624C371D90014A293 /* ReadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadViewModel.swift; sourceTree = "<group>"; };
 		5DFCCB6B24C372140014A293 /* ReadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadView.swift; sourceTree = "<group>"; };
@@ -119,6 +149,23 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		5D383E3C24D95B6B00C9BFF6 /* Localizations */ = {
+			isa = PBXGroup;
+			children = (
+				5D383E4124D95BA600C9BFF6 /* Localizable.strings */,
+			);
+			path = Localizations;
+			sourceTree = "<group>";
+		};
+		5D383E4224D9602700C9BFF6 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				5D3F77CB24BF56DC00E8695B /* Assets.xcassets */,
+				5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
 		5D3F77B924BF56D800E8695B = {
 			isa = PBXGroup;
 			children = (
@@ -148,10 +195,9 @@
 				5DFCCB6D24C372830014A293 /* Details */,
 				5DFCCB6A24C372020014A293 /* Read */,
 				5DFCCB6324C371AC0014A293 /* Common */,
+				5D383E4224D9602700C9BFF6 /* Assets */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				5D3F77C724BF56D800E8695B /* SceneDelegate.swift */,
-				5D3F77C924BF56D800E8695B /* ContentView.swift */,
-				5D3F77CB24BF56DC00E8695B /* Assets.xcassets */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
 				5D3F77D324BF56DC00E8695B /* Info.plist */,
 				5D3F77CD24BF56DC00E8695B /* Preview Content */,
@@ -185,9 +231,32 @@
 			path = "Tangem TapUITests";
 			sourceTree = "<group>";
 		};
+		5D9141C524D8A42600EB52C0 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */,
+				5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */,
+				5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */,
+				5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */,
+				5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		5DBBAB0924D853A000E78F1C /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				5DBBAB0A24D853B600E78F1C /* Color+.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		5DFCCB6324C371AC0014A293 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				5D383E3C24D95B6B00C9BFF6 /* Localizations */,
+				5D9141C524D8A42600EB52C0 /* Fonts */,
+				5DBBAB0924D853A000E78F1C /* Extensions */,
 				5DFCCB6424C371C90014A293 /* CardViewModel.swift */,
 				5DFCCB7724C389740014A293 /* TangemSdkModel.swift */,
 				5DFCCB7924C5823C0014A293 /* AppState.swift */,
@@ -200,6 +269,9 @@
 			children = (
 				5DFCCB6624C371D90014A293 /* ReadViewModel.swift */,
 				5DFCCB6B24C372140014A293 /* ReadView.swift */,
+				5DBBAB0724D850EA00E78F1C /* CircleView.swift */,
+				5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */,
+				5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */,
 			);
 			path = Read;
 			sourceTree = "<group>";
@@ -345,8 +417,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
+				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
+				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
+				5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
+				5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
+				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
+				5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */,
+				5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +433,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D9141E024D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
+				5D9141EC24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
+				5D9141E324D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
+				5D9141E624D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
+				5D9141E924D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +445,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D9141E124D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
+				5D9141ED24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
+				5D9141E424D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
+				5D9141E724D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
+				5D9141EA24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,13 +565,16 @@
 			files = (
 				5DFCCB6524C371C90014A293 /* CardViewModel.swift in Sources */,
 				5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */,
+				5D312C9524D87FF800B4DDEB /* ButtonStyles.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* ExtractView.swift in Sources */,
 				5DFCCB7A24C5823C0014A293 /* AppState.swift in Sources */,
 				5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */,
 				5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */,
 				5DFCCB7624C381A70014A293 /* ExtractViewModel.swift in Sources */,
+				5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */,
 				5DFCCB6F24C3728E0014A293 /* DetailsView.swift in Sources */,
-				5D3F77CA24BF56D800E8695B /* ContentView.swift in Sources */,
+				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
+				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
 				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
 				5DFCCB7124C372980014A293 /* DetailsViewModel.swift in Sources */,
 				5DFCCB7824C389740014A293 /* TangemSdkModel.swift in Sources */,
@@ -521,6 +613,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		5D383E4124D95BA600C9BFF6 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5D383E4024D95BA600C9BFF6 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
