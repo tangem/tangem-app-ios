@@ -10,16 +10,19 @@ import Foundation
 import SwiftUI
 
 struct CardRectView: View {
+    var withShadow = true
     var body: some View {
         ZStack {
-            Rectangle()
-                .fill(Color.tangemTapBlue.opacity(0.1))
-                .frame(width: nil, height: 244.0, alignment: .center)
-                .cornerRadius(22.0)
-                .offset(x: -12.0, y: 8.0)
+            if withShadow {
+                Rectangle()
+                    .fill(Color.tangemTapBlue.opacity(0.1))
+                    .aspectRatio(1.86, contentMode: .fit)
+                    .cornerRadius(22.0)
+                    .offset(x: -12.0, y: 8.0)
+            }
             Rectangle()
                 .fill(Color.tangemTapBlue)
-                .frame(width: nil, height: 244.0, alignment: .center)
+                .aspectRatio(1.86, contentMode: .fit)
                 .cornerRadius(22.0)
             VStack(alignment: .trailing, spacing: 16.0) {
             Image("tangemLogo")
@@ -31,7 +34,7 @@ struct CardRectView: View {
                 .lineLimit(1)
             }
             .offset(x: 30.0, y: 50.0)
-        }.offset(x: -UIScreen.main.bounds.width/5.0)
+        }
     }
 }
 
