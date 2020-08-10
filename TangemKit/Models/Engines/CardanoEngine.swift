@@ -11,10 +11,12 @@ import SwiftCBOR
 import CryptoSwift
 import Sodium
 
-open class CardanoEngine: CardEngine, PayIdProvider {
+open class CardanoEngine: CardEngine, PayIdProvider, DetailedError {
+    var errorText: String? = nil
     
     static let kPendingTransactionTimeoutSeconds: Int = 60
-
+    static let BECH32_HRP = "addr1"
+    
     public unowned var card: CardViewModel
     
     var unspentOutputs: [CardanoUnspentOutput]?
@@ -80,6 +82,14 @@ open class CardanoEngine: CardEngine, PayIdProvider {
             return false;
         }
         
+        if address.starts(with: CardanoEngine.BECH32_HRP) {
+            if let _ = try? Bech32Internal().decodeLong(address) {
+                return true
+            } else {
+                return false
+            }
+        }
+        
         guard let decoded58 = address.base58DecodedData?.bytes,
             decoded58.count > 0 else {
             return false
@@ -109,6 +119,7 @@ open class CardanoEngine: CardEngine, PayIdProvider {
     }
     
     public func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String) -> [Data]? {
+        errorText = nil
         guard let unspentOutputs = unspentOutputs else {
             assertionFailure()
             return nil
@@ -120,8 +131,9 @@ open class CardanoEngine: CardEngine, PayIdProvider {
         let walletValue = NSDecimalNumber(string: card.walletValue).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
         let transaction = builTxForSign(unspentOutputs: unspentOutputs, targetAddress: targetAddress, amount: amount, walletBalance: walletValue, feeValue: fee, isIncludeFee: includeFee)
         
+        errorText = transaction.errorText
+        
         guard let transactionHash = transaction.dataToSign else {
-            assertionFailure()
             return nil
         }
         
@@ -141,29 +153,20 @@ open class CardanoEngine: CardEngine, PayIdProvider {
     }
     
     func buildTxForSend(signFromCard: [UInt8]) -> [UInt8]? {
-        let hexPublicKeyExtended = card.walletPublicKeyBytesArray + Array(repeating: 0, count: 32)
-        let witnessBodyCBOR = [CBOR.byteString(hexPublicKeyExtended), CBOR.byteString(signFromCard)] as CBOR
-
-        let witnessBodyItem = CBOR.tagged(.encodedCBORDataItem, CBOR.byteString(witnessBodyCBOR.encode()))
-
-        guard let unspentOutputs = unspentOutputs, let transactionBody = transaction?.transactionBody else {
+        guard let transactionBodyItem = transaction?.transactionBodyItem else {
             assertionFailure()
             return nil
         }
-
-        var unspentOutputsCBOR = [CBOR]()
-        for _ in unspentOutputs {
-            let array = [0, witnessBodyItem] as CBOR
-            unspentOutputsCBOR.append(array)
-        }
-
-        let witness = CBOR.array(unspentOutputsCBOR).encode()
-
-        var txForSend = [UInt8]()
-        txForSend.append(0x82)
-        txForSend.append(contentsOf: transactionBody)
-        txForSend.append(contentsOf: witness)
-
+        
+        let witnessDataItem = CBOR.array([CBOR.array([CBOR.byteString(card.walletPublicKeyBytesArray),
+                                                      CBOR.byteString(signFromCard),
+                                                      CBOR.byteString(Data(hex: "0000000000000000000000000000000000000000000000000000000000000000").bytes),
+                                                      CBOR.byteString(Data(hex: "A0").bytes)
+        ])])
+        
+        let witnessMap = CBOR.map([CBOR.unsignedInt(2) : witnessDataItem])
+        let tx = CBOR.array([transactionBodyItem, witnessMap, nil])
+        let txForSend = tx.encode()
         return txForSend
     }
     
@@ -214,30 +217,15 @@ open class CardanoEngine: CardEngine, PayIdProvider {
         }
         
         let tokenDecimal = card.tokenDecimal ?? Int(Blockchain.cardano.decimalCount)
-        let dummyFee = NSDecimalNumber(0.000001).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
-        let amount = NSDecimalNumber(string: amount).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
-        let walletValue = NSDecimalNumber(string: card.walletValue).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil).stringValue
-        let dummyTransaction = CardanoTransaction(unspentOutputs: unspentOutputs,
-                                                  cardWalletAddress: walletAddress,
-                                                  targetAddress: targetAddress,
-                                                  amount: amount,
-                                                  walletBalance: walletValue,
-                                                  feeValue: dummyFee,
-                                                  isIncludeFee: true)
-        self.transaction = dummyTransaction
-        let dummySign:[UInt8] = Array(repeating: 0, count: 64)
-
+        let amount = NSDecimalNumber(string: amount).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil)
+        let walletValue = NSDecimalNumber(string: card.walletValue).multiplying(byPowerOf10: Int16(tokenDecimal), withBehavior: nil)
+        let outputsNumber = amount == walletValue ? 1 : 2
+        let transactionSize = unspentOutputs.count * 40 + outputsNumber * 65 + 160
+    
         let a = Decimal(0.155381)
         let b = Decimal(0.000043946)
         
-        guard let transactionSize = buildTxForSend(signFromCard: dummySign)?.count else {
-            assertionFailure()
-            self.transaction = nil
-            completion((min: "", normal: "", max: ""))
-            return
-        }
         let feeValue = a + b * Decimal(transactionSize)
-        self.transaction = nil
         let feeRounded = feeValue.rounded(blockchain: .cardano)
         let fee = "\(feeRounded)"
         
