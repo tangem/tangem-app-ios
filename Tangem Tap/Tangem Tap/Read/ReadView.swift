@@ -12,48 +12,99 @@ import SwiftUI
 struct ReadView: View {
     @EnvironmentObject var tangemSdkModel: TangemSdkModel
     
-    let model = ReadViewModel()
+    @ObservedObject var model = ReadViewModel()
+    
+    var cardScale: CGFloat {
+        switch model.state {
+        case .read: return 0.4
+        case .ready: return 0.25
+        case .welcome: return 1.0
+        }
+    }
+    
+    var cardOffsetX: CGFloat {
+        switch model.state {
+        case .read: return 0
+        case .ready: return -UIScreen.main.bounds.width*1.8
+        case .welcome: return -UIScreen.main.bounds.width/4.0
+        }
+    }
+    
+    var cardOffsetY: CGFloat {
+        switch model.state {
+        case .read: return -240.0
+        case .ready: return -300.0
+        case .welcome: return 0.0
+        }
+    }
     
     var body: some View {
         ZStack {
             Color.tangemBg
                 .edgesIgnoringSafeArea(.all)
             VStack(alignment: .center) {
+                
                 ZStack {
-                    CircleView()
-                    VStack {
-                        CardRectView().offset(x: 0.0, y: 10.0)
-                        Spacer()
+                    CircleView().offset(x: UIScreen.main.bounds.width/8.0, y: -UIScreen.main.bounds.height/8.0)
+                    CardRectView(withShadow: model.state != .read)
+                        .animation(.easeInOut)
+                        .offset(x: cardOffsetX, y: cardOffsetY)
+                        .scaleEffect(cardScale)
+                    if model.state != .welcome {
+                        Image("iphone")
+                            .transition(.offset(x: 400.0, y: 0.0))
                     }
                 }
                 Spacer()
-                VStack(alignment: .leading) {
-                    Text("read_welcome_title")
-                        .font(Font.custom("SairaSemiCondensed-Medium", size: 29.0))
-                    Text("read_welcome_subtitle")
+                VStack(alignment: .leading, spacing: 8.0) {
+                    if model.state == .welcome {
+                        Text("read_welcome_title")
+                            .font(Font.custom("SairaSemiCondensed-Medium", size: 29.0))
+                    }
+                    Text(model.state == .welcome  ? "read_welcome_subtitle" : "read_ready_title" )
                         .font(Font.custom("SairaSemiCondensed-Light", size: 29.0))
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 8.0) {
                         Button(action: {
-                            
-                        }) { Text("read_button_yes")
+                            withAnimation {
+                                self.model.nextState()
+                            }
+                            if self.model.state == .read {
+                                self.tangemSdkModel.scan()
+                            }
+                        }) {
+                            if model.state == .welcome {
+                                Text("read_button_yes")
+                            } else {
+                                HStack(alignment: .center) {
+                                    Text("read_button_tapin")
+                                    Spacer()
+                                    Image("arrow.right")
+                                }
+                                .padding(.horizontal)
+                            }
                         }
-                        .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .green))
-                        
-                        Button(action: {
-                            self.model.openShop()
-                        }) { HStack(alignment: .center, spacing: 16.0) {
-                            Text("read_button_shop")
-                            Spacer()
-                            Image("shopBag")
+                        .buttonStyle(TangemButtonStyle(size: model.state != ReadViewModel.State.welcome ? .big : .small, colorStyle: .green))
+                        if model.state == ReadViewModel.State.welcome {
+                            Button(action: {
+                                self.model.openShop()
+                            }) { HStack(alignment: .center, spacing: 16.0) {
+                                Text("read_button_shop")
+                                Spacer()
+                                Image("shopBag")
+                            }
+                            .padding(.horizontal)
+                            }
+                            .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black))
+                            .animation(.easeIn)
+                            .transition(.offset(x: 400.0, y: 0.0))
                         }
-                        .padding(.horizontal)
-                        }
-                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black))
+                        Spacer()
                     }
+                    .padding(.top, 16.0)
                 }
             }
-            .padding(.bottom, 16.0)
+            .padding([.leading, .bottom, .trailing], 16.0)
         }
     }
 }
