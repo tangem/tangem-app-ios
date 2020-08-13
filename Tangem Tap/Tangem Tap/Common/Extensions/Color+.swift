@@ -22,4 +22,8 @@ extension Color {
     @nonobjc static var tangemBg: Color {
         return Color("tangem_bg")
     }
+    
+    @nonobjc static var tangemTapYellow: Color {
+         return Color("tangem_tap_yellow")
+    }
 }
