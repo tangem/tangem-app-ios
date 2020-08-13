@@ -17,3 +17,18 @@
 "read_ready_title" = "Get ready to tap your \ncard to the back of the \nphone.";
 
 "read_button_tapin" = "Tap in";
+
+
+"details_button_scan" = "Scan";
+
+"details_button_send" = "Send";
+
+"details_button_createwallet" = "Create wallet";
+
+
+"balanceView_blockchain_verified" = "Verified Balance";
+
+"balanceView_blockchain_unreachable" = "Blockchain is unreachable";
+
+
+
