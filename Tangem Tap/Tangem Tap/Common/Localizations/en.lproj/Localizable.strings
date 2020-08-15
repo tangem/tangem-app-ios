@@ -26,9 +26,23 @@
 "details_button_createwallet" = "Create wallet";
 
 
+"balanceView_token_title" = "Token";
+
 "balanceView_blockchain_verified" = "Verified Balance";
 
 "balanceView_blockchain_unreachable" = "Blockchain is unreachable";
 
+"error_title_no_account" = "Account is not created";
+
+"error_title_empty_card" = "Empty card";
+
+"error_subtitle_empty_card" = "Create wallet to start using Tangem card";
 
 
+"pendingTxView_sending_format" = "Sending %@ to %@";
+
+"pendingTxView_receiving_format" = "Receiving %@ from %@";
+
+"addressDetails_button_explore" = "Explore address";
+
+"addressDetails_button_createPayid" = "Create PayID";
