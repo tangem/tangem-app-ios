@@ -38,9 +38,13 @@
 		5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0A24D853B600E78F1C /* Color+.swift */; };
 		5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
 		5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */; };
+		5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */; };
+		5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */; };
+		5DF612A424E6E3E2001BF301 /* AddressDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */; };
 		5DFB499624E44BC90037E76F /* Cards.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DFB499524E44BC90037E76F /* Cards.xcassets */; };
 		5DFB499824E54A340037E76F /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499724E54A340037E76F /* BalanceView.swift */; };
 		5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499924E554140037E76F /* Card+Preview.swift */; };
+		5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* ErrorView.swift */; };
 		5DFCCB6524C371C90014A293 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6424C371C90014A293 /* CardViewModel.swift */; };
 		5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6624C371D90014A293 /* ReadViewModel.swift */; };
 		5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6B24C372140014A293 /* ReadView.swift */; };
@@ -100,9 +104,13 @@
 		5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardRectView.swift; sourceTree = "<group>"; };
 		5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Tangem Tap.entitlements"; sourceTree = "<group>"; };
+		5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTxView.swift; sourceTree = "<group>"; };
+		5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressFormatter.swift; sourceTree = "<group>"; };
+		5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressDetailsView.swift; sourceTree = "<group>"; };
 		5DFB499524E44BC90037E76F /* Cards.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Cards.xcassets; sourceTree = "<group>"; };
 		5DFB499724E54A340037E76F /* BalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceView.swift; sourceTree = "<group>"; };
 		5DFB499924E554140037E76F /* Card+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+Preview.swift"; sourceTree = "<group>"; };
+		5DFB499B24E6BAF10037E76F /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		5DFCCB6424C371C90014A293 /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		5DFCCB6624C371D90014A293 /* ReadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadViewModel.swift; sourceTree = "<group>"; };
 		5DFCCB6B24C372140014A293 /* ReadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadView.swift; sourceTree = "<group>"; };
@@ -280,6 +288,7 @@
 				5DFCCB6424C371C90014A293 /* CardViewModel.swift */,
 				5DFCCB7724C389740014A293 /* TangemSdkModel.swift */,
 				5DFCCB7924C5823C0014A293 /* AppState.swift */,
+				5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -302,6 +311,9 @@
 				5DFCCB6E24C3728E0014A293 /* DetailsView.swift */,
 				5DFCCB7024C372980014A293 /* DetailsViewModel.swift */,
 				5DFB499724E54A340037E76F /* BalanceView.swift */,
+				5DFB499B24E6BAF10037E76F /* ErrorView.swift */,
+				5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */,
+				5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */,
 			);
 			path = Details;
 			sourceTree = "<group>";
@@ -592,8 +604,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				5DFCCB6524C371C90014A293 /* CardViewModel.swift in Sources */,
+				5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */,
 				5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */,
 				5D312C9524D87FF800B4DDEB /* ButtonStyles.swift in Sources */,
+				5DF612A424E6E3E2001BF301 /* AddressDetailsView.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* ExtractView.swift in Sources */,
 				5DFCCB7A24C5823C0014A293 /* AppState.swift in Sources */,
 				5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */,
@@ -604,10 +618,12 @@
 				5DFCCB6F24C3728E0014A293 /* DetailsView.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
+				5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */,
 				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
 				5DFCCB7124C372980014A293 /* DetailsViewModel.swift in Sources */,
 				5DFCCB7824C389740014A293 /* TangemSdkModel.swift in Sources */,
+				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
