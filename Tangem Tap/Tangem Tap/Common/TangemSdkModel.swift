@@ -34,11 +34,17 @@ class WalletModel: ObservableObject {
     let card: Card
     
     @Published var hasWallet: Bool = false
+    @Published var isToken: Bool = false
     @Published var hasAccount: Bool = false
     @Published var dataLoaded: Bool = false
-    @Published var blockchainName: String = ""
+    @Published var name: String = ""
     @Published var usdBalance: String = ""
-    @Published var balance: String = "—"
+    @Published var balance: String = "34 BTC"
+    @Published var noAccountMessage: String = ""
+    @Published var secondaryBalance: String = "564 BTC"
+    @Published var secondaryName: String = "Ethereum"
+    @Published var address: String = ""
+    @Published var payId: PayIdStatus = .notSupported
     
     internal init(card: Card) {
         self.card = card
@@ -48,7 +54,12 @@ class WalletModel: ObservableObject {
     func setupModel() {
         hasWallet = true
         hasAccount = true
-        dataLoaded = false
-        blockchainName = "Bitcoin"
+        dataLoaded = true
+        name = "Bitcoin"
+        usdBalance = "$3.25"
+        isToken = false
+        address = "0x132756128764bgnjk4hjvbkv3k,gj123h41k2j3g4123h4124nblk"
+        payId = .notCreated
+        //noAccountMessage = "Load 10+ XLM to create account"
     }
 }
