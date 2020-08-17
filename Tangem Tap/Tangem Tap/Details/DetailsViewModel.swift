@@ -8,6 +8,8 @@
 
 import Foundation
 
-class DetailsViewModel: ObservableObject {
-    
+struct DetailsViewModel {
+    var showQr = false
+    var showExplorer = false
+    var showCreatePayid = false
 }
