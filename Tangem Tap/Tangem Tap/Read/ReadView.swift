@@ -42,8 +42,7 @@ struct ReadView: View {
         ZStack {
             Color.tangemBg
                 .edgesIgnoringSafeArea(.all)
-            VStack(alignment: .center) {
-                
+            VStack(alignment: .center) {                
                 ZStack {
                     CircleView().offset(x: UIScreen.main.bounds.width/8.0, y: -UIScreen.main.bounds.height/8.0)
                     CardRectView(withShadow: model.state != .read)
