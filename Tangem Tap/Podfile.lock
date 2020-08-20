@@ -80,7 +80,7 @@ PODS:
 DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.6`)
-  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`)"
+  - BlockchainSdk (from `../../blockchain-sdk-swift`)
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
   - TangemSdk (from `../../card-sdk-swift`)
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.3`)
@@ -110,7 +110,7 @@ EXTERNAL SOURCES:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
     :tag: 0.0.6
   BlockchainSdk:
-    :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
+    :path: "../../blockchain-sdk-swift"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
@@ -124,9 +124,6 @@ CHECKOUT OPTIONS:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
     :tag: 0.0.6
-  BlockchainSdk:
-    :commit: 7142a8e32dbc4f85934870e03f820e61406b7dc7
-    :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
@@ -139,7 +136,7 @@ SPEC CHECKSUMS:
   AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
   BinanceChain: 3f6724155e3d65f6f9ca86b20343cf316f9eabf6
-  BlockchainSdk: 45989b2cb35c1fa059de28084985d917050e1173
+  BlockchainSdk: 4a4ba599dcf05764fdecc57a990a5853304a67ab
   CryptoSwift: f12f037f6d0fcd6d48c96db0071b653de64e6c4d
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   Moya: 5b45dacb75adb009f97fde91c204c1e565d31916
@@ -158,6 +155,6 @@ SPEC CHECKSUMS:
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 7a444b136746948ec95e6528f98f1797cda31d90
+PODFILE CHECKSUM: 2b9f2153ac73c786a21392a965207230dedf47b9
 
 COCOAPODS: 1.9.3
