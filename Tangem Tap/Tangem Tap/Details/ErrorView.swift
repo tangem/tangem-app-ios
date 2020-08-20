@@ -52,7 +52,7 @@ struct ErrorView: View {
 struct ErrorView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            Color.tangemBg
+            Color.tangemTapBgGray
             ErrorView(title: "Empty card", subtitle: "Create wallet to start using Tangem card")
         }
     }
