@@ -46,3 +46,9 @@ extension Color {
            return Color("tangem_tap_bgGray")
       }
 }
+
+extension UIColor {
+    @nonobjc static var tangemTapBgGray: UIColor {
+        return UIColor(named: "tangem_tap_bgGray")!
+    }
+}
