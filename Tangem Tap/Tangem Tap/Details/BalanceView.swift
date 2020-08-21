@@ -70,7 +70,7 @@ struct BalanceView: View {
                         .foregroundColor(Color.tangemTapDarkGrey)
                 }
                 HStack {
-                    if balanceViewModel.loadingError != nil {
+                    if !balanceViewModel.dataLoaded && balanceViewModel.loadingError != nil {
                         Text(balanceViewModel.loadingError!)
                             .font(Font.system(size: 11.0))
                             .foregroundColor(balanceViewModel.dataLoaded ? Color.tangemTapGreen :
@@ -135,8 +135,19 @@ struct BalanceView_Previews: PreviewProvider {
                                                                loadingError: "Something went wrong",
                                                                name: "Bitcoin token",
                                                                usdBalance: "-",
-                                                               balance: "-",
-                                                               secondaryBalance: "-",
+                                                               balance: "10 BTCA",
+                                                               secondaryBalance: "19 BTC",
+                                                               secondaryName: "Bitcoin"))
+            }
+            ZStack {
+                Color.tangemTapBgGray
+                BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
+                                                               dataLoaded: true,
+                                                               loadingError: "Something went wrong",
+                                                               name: "Bitcoin token",
+                                                               usdBalance: "-",
+                                                               balance: "10 BTCA",
+                                                               secondaryBalance: "19 BTC",
                                                                secondaryName: "Bitcoin"))
             }
         }
