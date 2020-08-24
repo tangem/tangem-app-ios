@@ -39,10 +39,8 @@ struct ReadView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color.tangemBg
-                .edgesIgnoringSafeArea(.all)
-            VStack(alignment: .center) {                
+        NavigationView {
+            VStack(alignment: .center) {
                 ZStack {
                     CircleView().offset(x: UIScreen.main.bounds.width/8.0, y: -UIScreen.main.bounds.height/8.0)
                     CardRectView(withShadow: model.state != .read)
@@ -102,27 +100,44 @@ struct ReadView: View {
                     }
                     .padding(.top, 16.0)
                 }
+                
+                NavigationLink(destination: DetailsView()
+                    .environmentObject(tangemSdkModel),
+                               isActive: $tangemSdkModel.openDetails) {
+                                EmptyView()
+                }
+                
             }
             .padding([.leading, .bottom, .trailing], 16.0)
+            .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
+            .background(NavigationConfigurator() { nc in
+                nc.navigationBar.barTintColor = UIColor.tangemTapBgGray
+                nc.navigationBar.shadowImage = UIImage()
+            })
         }
+        
     }
 }
 
 struct ReadView_Previews: PreviewProvider {
+    static var model = TangemSdkModel()
     static var previews: some View {
         Group {
             ReadView()
+                .environmentObject(model)
                 .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
                 .previewDisplayName("iPhone 7")
-            
             ReadView()
+                .environmentObject(model)
                 .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
                 .previewDisplayName("iPhone 11 Pro Max")
             
             ReadView()
+                .environmentObject(model)
                 .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
                 .previewDisplayName("iPhone 11 Pro Max Dark")
                 .environment(\.colorScheme, .dark)
+            
         }
     }
 }
