@@ -10,6 +10,5 @@ import Foundation
 
 struct DetailsViewModel {
     var showQr = false
-    var showExplorer = false
     var showCreatePayid = false
 }
