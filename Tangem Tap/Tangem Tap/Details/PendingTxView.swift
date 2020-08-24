@@ -57,7 +57,7 @@ struct PendingTxView: View {
 struct PendingTxView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            Color.tangemBg
+            Color.tangemTapBgGray
             PendingTxView(txState: .incoming, amount: "0.2 BTC", address: "0x12347218734560238o4756023478523452345")
         }
     }
