@@ -19,6 +19,7 @@ enum PayIdStatus {
 struct AddressDetailView: View {
     var address: String
     var payId: PayIdStatus
+    var exploreURL: URL
     @Binding var detailsViewModel: DetailsViewModel
     
     var showPayIdBlock: Bool {
@@ -58,7 +59,7 @@ struct AddressDetailView: View {
                         .lineLimit(1)
                         .foregroundColor(Color.tangemTapDarkGrey)
                     Button(action: {
-                        self.detailsViewModel.showQr = true
+                        UIApplication.shared.open(self.exploreURL, options: [:], completionHandler: nil)
                     }) {
                         HStack {
                             Text("addressDetails_button_explore")
@@ -74,7 +75,7 @@ struct AddressDetailView: View {
                 }
                 Spacer()
                 Button(action: {
-                    
+                    UIPasteboard.general.string = self.address
                 }) {
                     ZStack {
                         Circle()
@@ -86,7 +87,7 @@ struct AddressDetailView: View {
                     }
                 }
                 Button(action: {
-                    
+                    self.detailsViewModel.showQr = true
                 }) {
                     ZStack {
                         Circle()
@@ -154,10 +155,11 @@ struct AddressDetailView_Previews: PreviewProvider {
     
     static var previews: some View {
         ZStack {
-            Color.tangemBg
+            Color.tangemTapBgGray
             AddressDetailView(
                 address: "0x12341234nkb231kj4lj12h3g4khj12v4k123",
                 payId: .created(payId: "jana$payid.tangem.com"),
+                exploreURL: URL(string: "https://www.apple.com")!,
                 detailsViewModel: $model)
         }
     }
