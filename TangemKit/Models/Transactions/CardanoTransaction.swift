@@ -96,7 +96,7 @@ open class CardanoTransaction {
         var changeAddressBytes: [UInt8]
         if isShelleyFork {
             let bech32 = Bech32Internal()
-            let changeAddressDecoded = try! bech32.decode(cardWalletAddress).checksum
+            let changeAddressDecoded = try! bech32.decodeLong(cardWalletAddress).checksum
             changeAddressBytes = try! bech32.convertBits(data: Array(changeAddressDecoded), fromBits: 5, toBits: 8, pad: false)
         } else {
             changeAddressBytes = Array(cardWalletAddress.base58DecodedData!)
