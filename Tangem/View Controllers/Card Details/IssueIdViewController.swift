@@ -188,7 +188,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
         confirmButton.showActivityIndicator()
         let issueTask = ConfirmIdTask(fullname: "\(firstName) \(lastName)", birthDay: birthDay, gender: gender, photo: jpgImage)
         issueTask.card = card
-        tangemSdk.startSession(with: issueTask, cardId: nil, initialMessage: "Hold your iPhone near the Issuer card") { result in
+        tangemSdk.startSession(with: issueTask, cardId: nil, initialMessage: Message(header: "Hold your iPhone near the Issuer card", body: nil) ) { result in
             switch result {
             case .success(let response):
                 self.confirmIdResponse = response
@@ -223,7 +223,7 @@ class IssueIdViewController: UIViewController, DefaultErrorAlertsCapable {
                                                  finalizingSignature: finalizingSignature,
                                                  issuerDataCounter: issuerDataCounter)
         
-        tangemSdk.startSession(with: writeCommand, cardId: card.cardID, initialMessage: "Hold your iPhone near the ID card") { result in
+        tangemSdk.startSession(with: writeCommand, cardId: card.cardID, initialMessage: Message(header: "Hold your iPhone near the ID card", body: nil)) { result in
             switch result {
             case .success:
                 if let idEngine = self.card.cardEngine as? ETHIdEngine {
