@@ -21,6 +21,7 @@ public enum Blockchain: String {
     case ethereum
     case rootstock
     case cardano
+    case cardanoShelley
     case xrpl
     case binance
     case unknown
@@ -35,7 +36,7 @@ public enum Blockchain: String {
             return 8
         case .ethereum, .rootstock:
             return 18
-        case .xrpl, .cardano:
+        case .xrpl, .cardano, .cardanoShelley:
             return 6
         case .binance:
             return 8
@@ -51,7 +52,7 @@ public enum Blockchain: String {
         switch self {
         case .bitcoin, .ethereum, .rootstock, .binance, .bitcoinCash, .litecoin:
             return .down
-        case .cardano:
+        case .cardano, .cardanoShelley:
             return .up
         case .ducatus:
             return .plain
@@ -108,6 +109,8 @@ public class CardViewModel {
             return .bitcoin
         case let blockchainName where blockchainName.containsIgnoringCase(find: "rsk"):
             return .rootstock
+         case let blockchainName where blockchainName.containsIgnoringCase(find: "cardano-s"):
+            return .cardanoShelley
         case let blockchainName where blockchainName.containsIgnoringCase(find: "cardano"):
             return .cardano
         case let blockchainName where blockchainName.containsIgnoringCase(find: "XRP"):
@@ -242,6 +245,7 @@ public class CardViewModel {
         guard blockchain == .bitcoin
             || blockchain == .ethereum
             || blockchain == .cardano
+            || blockchain == .cardanoShelley
             || blockchain == .stellar
             || blockchain == .rootstock
             || blockchain == .binance
@@ -597,7 +601,7 @@ public class CardViewModel {
             cardEngine = BTCEngine(card: self)
         case .rootstock:
             cardEngine = RootstockEngine(card: self)
-        case .cardano:
+        case .cardano, .cardanoShelley:
             cardEngine = CardanoEngine(card: self)
         case .xrpl:
             cardEngine = RippleEngine(card: self)
@@ -724,7 +728,7 @@ public extension CardViewModel {
             let rskOperation = RSKCardBalanceOperation(card: self, completion: onResult)
             rskOperation.hasToken = tokenContractAddress != nil
             operation = rskOperation
-        case .cardano:
+        case .cardano, .cardanoShelley:
             operation = CardanoCardBalanceOperation(card: self, completion: onResult)
         case .xrpl:
             operation = XRPCardBalanceOperation(card: self, completion: onResult)
