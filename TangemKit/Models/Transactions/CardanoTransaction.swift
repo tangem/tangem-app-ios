@@ -11,6 +11,7 @@ import SwiftCBOR
 import Sodium
 
 open class CardanoTransaction {
+    let isShelleyFork: Bool
     
     let unspentOutputs: [CardanoUnspentOutput]
     let cardWalletAddress: String
@@ -31,7 +32,7 @@ open class CardanoTransaction {
     
     public var errorText: String? = nil
     
-    public init(unspentOutputs: [CardanoUnspentOutput], cardWalletAddress: String, targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool) {
+    public init(unspentOutputs: [CardanoUnspentOutput], cardWalletAddress: String, targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool, isShelleyFork: Bool) {
         self.cardWalletAddress = cardWalletAddress
         self.targetAddress = targetAddress
         self.unspentOutputs = unspentOutputs
@@ -39,7 +40,7 @@ open class CardanoTransaction {
         self.walletBalance = walletBalance
         self.feeValue = feeValue
         self.isIncludeFee = isIncludeFee
-        
+        self.isShelleyFork = isShelleyFork
         buildTransaction()
     }
     
@@ -92,10 +93,17 @@ open class CardanoTransaction {
         var outputsArray = [CBOR]()
         outputsArray.append(CBOR.array([CBOR.byteString(targetAddressBytes), CBOR.unsignedInt(amountLong)]))
             
-        let currentWalletAddressBytes: [UInt8] = Array(cardWalletAddress.base58DecodedData!)
+        var changeAddressBytes: [UInt8]
+        if isShelleyFork {
+            let bech32 = Bech32Internal()
+            let changeAddressDecoded = try! bech32.decodeLong(cardWalletAddress).checksum
+            changeAddressBytes = try! bech32.convertBits(data: Array(changeAddressDecoded), fromBits: 5, toBits: 8, pad: false)
+        } else {
+            changeAddressBytes = Array(cardWalletAddress.base58DecodedData!)
+        }
 
         if (changeLong > 0) {
-            outputsArray.append(CBOR.array([CBOR.byteString(currentWalletAddressBytes), CBOR.unsignedInt(changeLong)]))
+            outputsArray.append(CBOR.array([CBOR.byteString(changeAddressBytes), CBOR.unsignedInt(changeLong)]))
         }
         
         transactionMap[CBOR.unsignedInt(0)] = CBOR.array(inputsArray)
