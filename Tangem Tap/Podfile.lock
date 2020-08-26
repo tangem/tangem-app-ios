@@ -82,6 +82,7 @@ DEPENDENCIES:
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.6`)
   - BlockchainSdk (from `../../blockchain-sdk-swift`)
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
+  - Moya
   - TangemSdk (from `../../card-sdk-swift`)
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.3`)
 
@@ -155,6 +156,6 @@ SPEC CHECKSUMS:
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 2b9f2153ac73c786a21392a965207230dedf47b9
+PODFILE CHECKSUM: de6d76f266cffc9de03686892216e9283c641e87
 
 COCOAPODS: 1.9.3
