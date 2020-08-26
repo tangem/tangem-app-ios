@@ -9,39 +9,48 @@
 import Foundation
 import SwiftUI
 import TangemSdk
+import Combine
 
 struct DetailsView: View {
-    @EnvironmentObject var tangemSdkModel: TangemSdkModel
-    @State var model = DetailsViewModel()
+    @ObservedObject var viewModel: DetailsViewModel
+    @ObservedObject var cardViewModel: CardViewModel
     
-    var isLoading: Bool {
-        if case .loading = tangemSdkModel.walletViewModel.state  {
-            return true
-        }
-        return false
+    private var bag = Set<AnyCancellable>()
+    
+    init(card: Card, sdkService: Binding<TangemSdkService>) {
+        cardViewModel = CardViewModel(card: card)
+        viewModel = DetailsViewModel(sdkService: sdkService)
+        viewModel.bind(cardViewModel: cardViewModel)
     }
     
     var body: some View {
         VStack {
             GeometryReader { geometry in
-                ScrollView {
+                RefreshableScrollView(width: geometry.size.width, height: geometry.size.height, refreshing: self.$viewModel.isRefreshing) {
+                    VStack(spacing: 48.0) {
                     Image("card_ff32")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: geometry.size.width, height: nil, alignment: .center)
-                        .padding(.bottom, 48.0)
                     VStack {
-                        if self.isLoading {
-                            ActivityIndicatorView(isAnimating: self.isLoading, style: .large)
+                        if self.cardViewModel.isWalletLoading {
+                            ActivityIndicatorView(isAnimating: true, style: .large)
                                 .padding(.bottom, 16.0)
                         } else {
-                            BalanceView(balanceViewModel: self.tangemSdkModel.walletViewModel.balanceViewModel)
+                            if self.cardViewModel.wallet != nil {
+                                BalanceView(balanceViewModel: self.cardViewModel.balanceViewModel)
+                            }
                         }
-                        AddressDetailView(
-                            address: self.tangemSdkModel.walletViewModel.address,
-                            payId: self.tangemSdkModel.walletViewModel.payId,
-                            exploreURL: self.tangemSdkModel.walletViewModel.wallet.exploreUrl,
-                            detailsViewModel: self.$model)
+                        if self.cardViewModel.wallet != nil  {
+                            AddressDetailView(
+                                address: self.cardViewModel.wallet!.address,
+                                payId: self.cardViewModel.payId,
+                                exploreURL: self.cardViewModel.wallet!.exploreUrl,
+                                showQr: self.$viewModel.showQr,
+                                showPayId: self.$viewModel.showCreatePayid)
+                        }
+                    }
+                        Spacer()
                     }
                 }
             }
@@ -82,22 +91,17 @@ struct DetailsView: View {
             .offset(x: 10.0, y: 0.0)
         }).padding(0.0)
         )
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+            .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
     }
 }
 
 
 struct DetailsView_Previews: PreviewProvider {
-    static var model: TangemSdkModel = {
-        var model = TangemSdkModel()
-        model.setupCard(Card.testCard)
-        return model
-    }()
+    @State static var sdkService = TangemSdkService()
     
     static var previews: some View {
         NavigationView {
-            DetailsView()
-                .environmentObject(model)
+            DetailsView(card: Card.testCard, sdkService: $sdkService)
         }
     }
 }
