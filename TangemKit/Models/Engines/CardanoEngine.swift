@@ -61,8 +61,7 @@ open class CardanoEngine: CardEngine, PayIdProvider, DetailedError {
             let publicKeyHash = Sodium().genericHash.hash(message: card.walletPublicKeyBytesArray, outputLength: 28)!
             let addressBytes = CardanoEngine.ADDRESS_HEADER_BYTE + publicKeyHash
             let bech32 = Bech32Internal()
-            let convertedAddressBytes = try! bech32.convertBits(data: Array(addressBytes), fromBits: 8, toBits: 5, pad: true)
-            walletAddress = bech32.encode("addr", values: Data(convertedAddressBytes))
+            walletAddress = bech32.encode("addr", values: Data(addressBytes))
         } else {
             let hexPublicKeyExtended = card.walletPublicKeyBytesArray + Array(repeating: 0, count: 32)
             
