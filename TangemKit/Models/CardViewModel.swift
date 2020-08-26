@@ -485,7 +485,7 @@ public class CardViewModel {
         health = card.health ?? 0
         productMask = card.cardData?.productMask ?? ProductMask.note
         cardIdSignedByManufacturer = card.cardData?.manufacturerSignature?.bytes ?? []
-        supportedSignMethods = card.signingMethod
+        supportedSignMethods = card.signingMethods
         curve = card.curve
         settingsMask = card.settingsMask
         isLinked = card.terminalIsLinked
