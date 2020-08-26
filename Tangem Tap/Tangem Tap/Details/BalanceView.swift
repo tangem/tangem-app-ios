@@ -11,7 +11,11 @@ import SwiftUI
 import TangemSdk
 
 struct BalanceView: View {
-    var balanceViewModel: BalanceViewModel
+    var balanceViewModel: BalanceViewModel {
+        didSet {
+            print(balanceViewModel)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 8.0) {
@@ -152,15 +156,4 @@ struct BalanceView_Previews: PreviewProvider {
             }
         }
     }
-}
-
-struct BalanceViewModel {
-    let isToken: Bool
-    let dataLoaded: Bool
-    let loadingError: String?
-    let name: String
-    let usdBalance: String
-    let balance: String
-    let secondaryBalance: String
-    let secondaryName: String
 }

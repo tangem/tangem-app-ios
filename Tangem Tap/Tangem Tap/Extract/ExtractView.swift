@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct ExtractView: View {
-    @EnvironmentObject var tangemSdkModel: TangemSdkModel
+    @EnvironmentObject var tangemSdkModel: TangemSdkService
     
     let model = ExtractViewModel()
     
