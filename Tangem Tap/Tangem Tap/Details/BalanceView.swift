@@ -11,11 +11,7 @@ import SwiftUI
 import TangemSdk
 
 struct BalanceView: View {
-    var balanceViewModel: BalanceViewModel {
-        didSet {
-            print(balanceViewModel)
-        }
-    }
+    var balanceViewModel: BalanceViewModel
     
     var body: some View {
         VStack(spacing: 8.0) {
