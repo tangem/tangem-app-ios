@@ -14,7 +14,6 @@ import Combine
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
     @ObservedObject var cardViewModel: CardViewModel
-    
     private var bag = Set<AnyCancellable>()
     
     init(card: Card, sdkService: Binding<TangemSdkService>) {
@@ -26,21 +25,21 @@ struct DetailsView: View {
     var body: some View {
         VStack {
             GeometryReader { geometry in
-                RefreshableScrollView(width: geometry.size.width, height: geometry.size.height, refreshing: self.$viewModel.isRefreshing) {
+                RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 48.0) {
                     Image("card_ff32")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: geometry.size.width, height: nil, alignment: .center)
                     VStack {
-                        if self.cardViewModel.isWalletLoading {
-                            ActivityIndicatorView(isAnimating: true, style: .large)
-                                .padding(.bottom, 16.0)
-                        } else {
+//                        if self.cardViewModel.isWalletLoading {
+//                            ActivityIndicatorView(isAnimating: true, style: .large)
+//                                .padding(.bottom, 16.0)
+//                        } else {
                             if self.cardViewModel.wallet != nil {
                                 BalanceView(balanceViewModel: self.cardViewModel.balanceViewModel)
                             }
-                        }
+                      //  }
                         if self.cardViewModel.wallet != nil  {
                             AddressDetailView(
                                 address: self.cardViewModel.wallet!.address,
