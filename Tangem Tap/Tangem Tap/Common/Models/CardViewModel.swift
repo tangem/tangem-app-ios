@@ -28,12 +28,13 @@ class CardViewModel: ObservableObject {
         self.card = card
         if let walletManager = WalletManagerFactory().makeWalletManager(from: card) {
             self.walletManager = walletManager
-            self.balanceViewModel = self.makeBalanceViewModel()
             self.wallet = walletManager.wallet
+            self.balanceViewModel = self.makeBalanceViewModel(from: walletManager.wallet)
             bag = walletManager.$wallet
                 .sink(receiveValue: {[unowned self] wallet in
-                    self.wallet = walletManager.wallet
-                    self.balanceViewModel = self.makeBalanceViewModel()
+                    self.wallet = wallet
+                    self.balanceViewModel = self.makeBalanceViewModel(from: wallet)
+                    self.isWalletLoading = false
                 })
             self.updateWallet()
         }
@@ -43,18 +44,14 @@ class CardViewModel: ObservableObject {
         loadingError = nil
         isWalletLoading = true
         walletManager?.update { [weak self] result in
-            self?.isWalletLoading = false
             if case let .failure(error) = result {
                 self?.loadingError = error.detailedError
+                self?.isWalletLoading = false
             }
         }
     }
     
-    private func makeBalanceViewModel() -> BalanceViewModel? {
-        guard let wallet = walletManager?.wallet else {
-            return nil
-        }
-        
+    private func makeBalanceViewModel(from wallet: Wallet) -> BalanceViewModel? {
         let name = wallet.token != nil ? wallet.token!.displayName :  wallet.blockchain.displayName
         let secondaryName = wallet.token != nil ?  wallet.blockchain.displayName : ""
         
