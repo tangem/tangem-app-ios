@@ -20,7 +20,8 @@ struct AddressDetailView: View {
     var address: String
     var payId: PayIdStatus
     var exploreURL: URL
-    @Binding var detailsViewModel: DetailsViewModel
+    @Binding var showQr: Bool
+    @Binding var showPayId: Bool
     
     var showPayIdBlock: Bool {
         switch payId {
@@ -87,7 +88,7 @@ struct AddressDetailView: View {
                     }
                 }
                 Button(action: {
-                    self.detailsViewModel.showQr = true
+                    self.showQr = true
                 }) {
                     ZStack {
                         Circle()
@@ -116,7 +117,7 @@ struct AddressDetailView: View {
                     
                     if !isPayIdCreated {
                         Button(action: {
-                            self.detailsViewModel.showCreatePayid = true
+                            self.showPayId = true
                         }) {
                             HStack {
                                 Text("addressDetails_button_createPayid")
@@ -151,7 +152,8 @@ struct AddressDetailView: View {
 }
 
 struct AddressDetailView_Previews: PreviewProvider {
-    @State static var model = DetailsViewModel()
+    @State static var showQr: Bool = false
+    @State static var showCreatePayid: Bool = false
     
     static var previews: some View {
         ZStack {
@@ -160,7 +162,8 @@ struct AddressDetailView_Previews: PreviewProvider {
                 address: "0x12341234nkb231kj4lj12h3g4khj12v4k123",
                 payId: .created(payId: "jana$payid.tangem.com"),
                 exploreURL: URL(string: "https://www.apple.com")!,
-                detailsViewModel: $model)
+                showQr: $showQr,
+                showPayId: $showCreatePayid)
         }
     }
 }
