@@ -25,9 +25,9 @@ class DetailsViewModel: ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     
-    init(cardViewModel: CardViewModel, sdkService: Binding<TangemSdkService>) {
+    init(cid: String, sdkService: Binding<TangemSdkService>) {
         self._sdkService = sdkService
-        self.cardViewModel = cardViewModel
+        self.cardViewModel = sdkService.wrappedValue.cards[cid]!
         bind()
     }
     
@@ -45,12 +45,16 @@ class DetailsViewModel: ObservableObject {
             .removeDuplicates()
             .filter { !$0 }
             .sink (receiveValue: {[unowned self] isWalletLoading in
-                self.isRefreshing = isWalletLoading
+                DispatchQueue.main.async {
+                      self.isRefreshing = isWalletLoading
+                }
             })
             .store(in: &bag)
         
         cardViewModel.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            DispatchQueue.main.async {
+                self?.objectWillChange.send()
+            }
         }
         .store(in: &bag)
     }
@@ -59,8 +63,8 @@ class DetailsViewModel: ObservableObject {
     func scan() {
         sdkService.scan { [weak self] scanResult in
             switch scanResult {
-            case .success(let card):
-                self?.cardViewModel = CardViewModel(card: card)
+            case .success(let cardViewModel):
+                self?.cardViewModel = cardViewModel
             case .failure(let error):
                 //[REDACTED_TODO_COMMENT]
                 break
