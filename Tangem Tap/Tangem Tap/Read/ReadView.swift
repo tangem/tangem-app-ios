@@ -100,8 +100,8 @@ struct ReadView: View {
                 }
                 if viewModel.scannedCard != nil {
                     NavigationLink(destination:
-                        DetailsView(card: viewModel.scannedCard!,
-                                    sdkService: viewModel.$sdkService),
+                        DetailsView(viewModel: DetailsViewModel(cardViewModel: CardViewModel(card: viewModel.scannedCard!),
+                        sdkService: viewModel.$sdkService)),
                                    isActive: $viewModel.openDetails) {
                                     EmptyView()
                     }
