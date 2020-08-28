@@ -13,14 +13,6 @@ import Combine
 
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
-    @ObservedObject var cardViewModel: CardViewModel
-    private var bag = Set<AnyCancellable>()
-    
-    init(card: Card, sdkService: Binding<TangemSdkService>) {
-        cardViewModel = CardViewModel(card: card)
-        viewModel = DetailsViewModel(sdkService: sdkService)
-        viewModel.bind(cardViewModel: cardViewModel)
-    }
     
     var body: some View {
         VStack {
@@ -36,15 +28,15 @@ struct DetailsView: View {
 //                            ActivityIndicatorView(isAnimating: true, style: .large)
 //                                .padding(.bottom, 16.0)
 //                        } else {
-                            if self.cardViewModel.wallet != nil {
-                                BalanceView(balanceViewModel: self.cardViewModel.balanceViewModel)
+                        if self.viewModel.cardViewModel.wallet != nil {
+                                BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
                             }
                       //  }
-                        if self.cardViewModel.wallet != nil  {
+                        if self.viewModel.cardViewModel.wallet != nil  {
                             AddressDetailView(
-                                address: self.cardViewModel.wallet!.address,
-                                payId: self.cardViewModel.payId,
-                                exploreURL: self.cardViewModel.wallet!.exploreUrl,
+                                address: self.viewModel.cardViewModel.wallet!.address,
+                                payId: self.viewModel.cardViewModel.payId,
+                                exploreURL: self.viewModel.cardViewModel.wallet!.exploreUrl,
                                 showQr: self.$viewModel.showQr,
                                 showPayId: self.$viewModel.showCreatePayid)
                         }
@@ -55,6 +47,7 @@ struct DetailsView: View {
             }
             HStack(alignment: .center, spacing: 8.0) {
                 Button(action: {
+                    self.viewModel.scan()
                 }) {
                     HStack(alignment: .center) {
                         Text("details_button_scan")
@@ -100,7 +93,7 @@ struct DetailsView_Previews: PreviewProvider {
     
     static var previews: some View {
         NavigationView {
-            DetailsView(card: Card.testCard, sdkService: $sdkService)
+            DetailsView(viewModel: DetailsViewModel(cardViewModel: CardViewModel(card: Card.testCard), sdkService: $sdkService))
         }
     }
 }
