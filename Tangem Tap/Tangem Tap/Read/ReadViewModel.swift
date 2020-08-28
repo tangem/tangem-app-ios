@@ -44,8 +44,8 @@ class ReadViewModel: ObservableObject {
     func scan() {
         sdkService.scan { [weak self] scanResult in
             switch scanResult {
-            case .success(let cardViewModel):
-                self?.scannedCard = cardViewModel
+            case .success(let card):
+                self?.scannedCard = card
                 self?.openDetails = true
             case .failure(let error):
                 //[REDACTED_TODO_COMMENT]
