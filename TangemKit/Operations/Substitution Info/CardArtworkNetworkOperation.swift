@@ -33,7 +33,6 @@ class CardArtworkNetworkOperation: GBAsyncOperation {
         }
         
         let urlRequest = URLRequest(url: components.url!)
-        
         let task = TangemAPIClient.dataDask(request: urlRequest) { [weak self] (result) in
             guard let self = self else {
                 return
