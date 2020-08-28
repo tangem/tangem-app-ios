@@ -11,12 +11,10 @@ import SwiftUI
 struct RefreshableScrollView<Content: View>: UIViewRepresentable {
     @Binding var refreshing: Bool
     let content: () -> Content
-    let host: UIHostingController<Content>
     
     internal init(refreshing: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
         self._refreshing = refreshing
-        self.host = UIHostingController(rootView: content())
     }
     
     func makeUIView(context: Context) -> UIScrollView {
@@ -24,26 +22,34 @@ struct RefreshableScrollView<Content: View>: UIViewRepresentable {
         scrollView.backgroundColor = .clear
         scrollView.refreshControl = UIRefreshControl()
         scrollView.delegate = context.coordinator
-        scrollView.addSubview(host.view)
+        updateSubview(for: scrollView)
+        return scrollView
+    }
+    
+    func updateSubview(for view: UIScrollView) {
+        if let subview = view.subviews.first, !(subview is UIRefreshControl) {
+            subview.removeFromSuperview()
+        }
+        
+        let host = UIHostingController(rootView: content())
+        view.addSubview(host.view)
         host.view.translatesAutoresizingMaskIntoConstraints = false
         host.view.backgroundColor = .clear
         let constraints = [
-            host.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            host.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            host.view.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
-            host.view.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            host.view.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            host.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            host.view.topAnchor.constraint(equalTo: view.contentLayoutGuide.topAnchor),
+            host.view.bottomAnchor.constraint(equalTo: view.contentLayoutGuide.bottomAnchor),
+            host.view.widthAnchor.constraint(equalTo: view.widthAnchor)
         ]
-        scrollView.addConstraints(constraints)
-        return scrollView
+        view.addConstraints(constraints)
     }
     
     func updateUIView(_ uiView: UIScrollView, context: Self.Context) {
         if !refreshing {
             uiView.refreshControl?.endRefreshing()
         }
-        
-        context.coordinator.parent.host.rootView = content()
+         updateSubview(for: uiView)
     }
     
     func makeCoordinator() -> Coordinator {
