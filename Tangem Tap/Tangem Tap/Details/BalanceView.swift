@@ -153,14 +153,3 @@ struct BalanceView_Previews: PreviewProvider {
         }
     }
 }
-
-struct BalanceViewModel {
-    let isToken: Bool
-    let dataLoaded: Bool
-    let loadingError: String?
-    let name: String
-    let usdBalance: String
-    let balance: String
-    let secondaryBalance: String
-    let secondaryName: String
-}
