@@ -20,7 +20,6 @@ class ReadViewModel: ObservableObject {
     @Binding var sdkService: TangemSdkService
     @Published var openDetails: Bool = false
     @Published var state: State = .welcome
-    @Published var scannedCard: Card? = nil
     
     init(sdkService: Binding<TangemSdkService>) {
         self._sdkService = sdkService
@@ -44,8 +43,7 @@ class ReadViewModel: ObservableObject {
     func scan() {
         sdkService.scan { [weak self] scanResult in
             switch scanResult {
-            case .success(let card):
-                self?.scannedCard = card
+            case .success:
                 self?.openDetails = true
             case .failure(let error):
                 //[REDACTED_TODO_COMMENT]
