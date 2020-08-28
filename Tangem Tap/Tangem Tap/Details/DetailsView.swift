@@ -19,10 +19,12 @@ struct DetailsView: View {
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 48.0) {
-                    Image("card_ff32")
+                        if self.viewModel.cardViewModel.image != nil {
+                            Image(uiImage: self.viewModel.cardViewModel.image!)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: geometry.size.width, height: nil, alignment: .center)
+                            .frame(width: geometry.size.width, height: nil, alignment: .center)
+                        }
                     VStack {
 //                        if self.cardViewModel.isWalletLoading {
 //                            ActivityIndicatorView(isAnimating: true, style: .large)
@@ -89,11 +91,15 @@ struct DetailsView: View {
 
 
 struct DetailsView_Previews: PreviewProvider {
-    @State static var sdkService = TangemSdkService()
+    @State static var sdkService: TangemSdkService = {
+       let service = TangemSdkService()
+        service.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
+        return service
+    }()
     
     static var previews: some View {
         NavigationView {
-            DetailsView(viewModel: DetailsViewModel(cardViewModel: CardViewModel(card: Card.testCard), sdkService: $sdkService))
+            DetailsView(viewModel: DetailsViewModel(cid: Card.testCard.cardId!, sdkService: $sdkService))
         }
     }
 }
