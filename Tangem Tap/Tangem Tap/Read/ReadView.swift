@@ -10,12 +10,10 @@ import Foundation
 import SwiftUI
 
 struct ReadView: View {
-    @EnvironmentObject var tangemSdkModel: TangemSdkModel
-    
-    @ObservedObject var model = ReadViewModel()
+    @ObservedObject var viewModel: ReadViewModel
     
     var cardScale: CGFloat {
-        switch model.state {
+        switch viewModel.state {
         case .read: return 0.4
         case .ready: return 0.25
         case .welcome: return 1.0
@@ -23,7 +21,7 @@ struct ReadView: View {
     }
     
     var cardOffsetX: CGFloat {
-        switch model.state {
+        switch viewModel.state {
         case .read: return 0
         case .ready: return -UIScreen.main.bounds.width*1.8
         case .welcome: return -UIScreen.main.bounds.width/4.0
@@ -31,7 +29,7 @@ struct ReadView: View {
     }
     
     var cardOffsetY: CGFloat {
-        switch model.state {
+        switch viewModel.state {
         case .read: return -240.0
         case .ready: return -300.0
         case .welcome: return 0.0
@@ -43,34 +41,34 @@ struct ReadView: View {
             VStack(alignment: .center) {
                 ZStack {
                     CircleView().offset(x: UIScreen.main.bounds.width/8.0, y: -UIScreen.main.bounds.height/8.0)
-                    CardRectView(withShadow: model.state != .read)
+                    CardRectView(withShadow: viewModel.state != .read)
                         .animation(.easeInOut)
                         .offset(x: cardOffsetX, y: cardOffsetY)
                         .scaleEffect(cardScale)
-                    if model.state != .welcome {
+                    if viewModel.state != .welcome {
                         Image("iphone")
                             .transition(.offset(x: 400.0, y: 0.0))
                     }
                 }
                 Spacer()
                 VStack(alignment: .leading, spacing: 8.0) {
-                    if model.state == .welcome {
+                    if viewModel.state == .welcome {
                         Text("read_welcome_title")
                             .font(Font.custom("SairaSemiCondensed-Medium", size: 29.0))
                     }
-                    Text(model.state == .welcome  ? "read_welcome_subtitle" : "read_ready_title" )
+                    Text(viewModel.state == .welcome  ? "read_welcome_subtitle" : "read_ready_title" )
                         .font(Font.custom("SairaSemiCondensed-Light", size: 29.0))
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 8.0) {
                         Button(action: {
                             withAnimation {
-                                self.model.nextState()
+                                self.viewModel.nextState()
                             }
-                            if self.model.state == .read {
-                                self.tangemSdkModel.scan()
+                            if self.viewModel.state == .read {
+                                self.viewModel.scan()
                             }
                         }) {
-                            if model.state == .welcome {
+                            if viewModel.state == .welcome {
                                 Text("read_button_yes")
                             } else {
                                 HStack(alignment: .center) {
@@ -81,10 +79,10 @@ struct ReadView: View {
                                 .padding(.horizontal)
                             }
                         }
-                        .buttonStyle(TangemButtonStyle(size: model.state != ReadViewModel.State.welcome ? .big : .small, colorStyle: .green))
-                        if model.state == ReadViewModel.State.welcome {
+                        .buttonStyle(TangemButtonStyle(size: viewModel.state != ReadViewModel.State.welcome ? .big : .small, colorStyle: .green))
+                        if viewModel.state == ReadViewModel.State.welcome {
                             Button(action: {
-                                self.model.openShop()
+                                self.viewModel.openShop()
                             }) { HStack(alignment: .center, spacing: 16.0) {
                                 Text("read_button_shop")
                                 Spacer()
@@ -100,13 +98,14 @@ struct ReadView: View {
                     }
                     .padding(.top, 16.0)
                 }
-                
-                NavigationLink(destination: DetailsView()
-                    .environmentObject(tangemSdkModel),
-                               isActive: $tangemSdkModel.openDetails) {
-                                EmptyView()
+                if viewModel.scannedCard != nil {
+                    NavigationLink(destination:
+                        DetailsView(card: viewModel.scannedCard!,
+                                    sdkService: viewModel.$sdkService),
+                                   isActive: $viewModel.openDetails) {
+                                    EmptyView()
+                    }
                 }
-                
             }
             .padding([.leading, .bottom, .trailing], 16.0)
             .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
@@ -114,26 +113,23 @@ struct ReadView: View {
                 nc.navigationBar.barTintColor = UIColor.tangemTapBgGray
                 nc.navigationBar.shadowImage = UIImage()
             })
+            
+            
         }
-        
     }
 }
-
 struct ReadView_Previews: PreviewProvider {
-    static var model = TangemSdkModel()
+    @State static var sdkService = TangemSdkService()
     static var previews: some View {
         Group {
-            ReadView()
-                .environmentObject(model)
+            ReadView(viewModel: ReadViewModel(sdkService: $sdkService))
                 .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
                 .previewDisplayName("iPhone 7")
-            ReadView()
-                .environmentObject(model)
+            ReadView(viewModel: ReadViewModel(sdkService: $sdkService))
                 .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
                 .previewDisplayName("iPhone 11 Pro Max")
             
-            ReadView()
-                .environmentObject(model)
+            ReadView(viewModel: ReadViewModel(sdkService: $sdkService))
                 .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
                 .previewDisplayName("iPhone 11 Pro Max Dark")
                 .environment(\.colorScheme, .dark)
