@@ -1,4 +1,4 @@
-platform :ios, '11.0'
+platform :ios, '13.0'
 use_frameworks!
 inhibit_all_warnings!
 target 'Tangem' do
@@ -23,7 +23,7 @@ target 'Tangem' do
     pod 'Firebase/Crashlytics'
     pod 'Firebase/Performance'
     pod 'KeychainSwift'
-    pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-39'
+    pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-46'
     #pod 'TangemSdk', :path => '../card-sdk-swift'
 
     #pod 'BlockchainSdk', :path => '/Users/alexander.osokin/repos/tangem/tangem-ios/BlockchainSdk'
