@@ -198,7 +198,7 @@ DEPENDENCIES:
   - SwiftCBOR
   - SwiftLint
   - SwiftyJSON
-  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-39`)"
+  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-46`)"
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.3`)
 
 SPEC REPOS:
@@ -254,7 +254,7 @@ EXTERNAL SOURCES:
     :tag: 0.3.8
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-39
+    :tag: build-46
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.3
@@ -268,7 +268,7 @@ CHECKOUT OPTIONS:
     :tag: 0.3.8
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-39
+    :tag: build-46
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.3
@@ -320,6 +320,6 @@ SPEC CHECKSUMS:
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 123336bb0055422d2a385af97dc39d5cab187d0b
+PODFILE CHECKSUM: 9a1e75866dafd6dc82667cf6e7fcf4c0349f1260
 
 COCOAPODS: 1.9.3
