@@ -10,24 +10,27 @@ import Foundation
 import TangemSdk
 
 class TangemSdkService: ObservableObject {
-    private lazy var tangemSdk: TangemSdk = {
+    var cards = [String: CardViewModel]()
+    
+    lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
         return sdk
     }()
     
-    func scan(_ completion: @escaping  (Result<Card, Error>) -> Void) {
-        tangemSdk.scanCard { result in
+    func scan(_ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        tangemSdk.startSession(with: TapScanTask()) { result in
             switch result {
             case .failure(let error):
-                completion(.failure(error))
-            case .success(let card):
-                if let status = card.status, status == .loaded {
-                      completion(.success(card))
-                } else {
-                    //[REDACTED_TODO_COMMENT]
-                   // completion(.failure(error))
+                completion(.failure(error))  //[REDACTED_TODO_COMMENT]
+            case .success(let response):
+                guard let cid = response.card.cardId else {
+                    completion(.failure(TangemSdkError.unknownError))
+                    return
                 }
-              
+                
+                let vm = CardViewModel(card: response.card, verifyCardResponse: response.verifyResponse)
+                self.cards[cid] = vm
+                completion(.success(vm))
             }
         }
     }

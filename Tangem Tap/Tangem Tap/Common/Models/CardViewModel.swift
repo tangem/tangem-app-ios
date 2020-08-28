@@ -11,8 +11,9 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
-class CardViewModel: ObservableObject {
+class CardViewModel: Identifiable, ObservableObject {
     let card: Card
+    let service = NetworkService()
     
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
@@ -20,12 +21,15 @@ class CardViewModel: ObservableObject {
     @Published var balanceViewModel: BalanceViewModel!
     
     @Published var wallet: Wallet? = nil
+    @Published var image: UIImage? = nil
     
     private var walletManager: WalletManager?
+    private let verifyCardResponse: VerifyCardResponse?
     private var bag: AnyCancellable? = nil
     
-    init(card: Card) {
+    init(card: Card, verifyCardResponse: VerifyCardResponse? = nil) {
         self.card = card
+        self.verifyCardResponse = verifyCardResponse
         if let walletManager = WalletManagerFactory().makeWalletManager(from: card) {
             self.walletManager = walletManager
             self.wallet = walletManager.wallet
@@ -37,6 +41,7 @@ class CardViewModel: ObservableObject {
                     self.isWalletLoading = false
                 })
             self.updateWallet()
+            self.loadImage()
         }
     }
     
@@ -47,6 +52,31 @@ class CardViewModel: ObservableObject {
             if case let .failure(error) = result {
                 self?.loadingError = error.detailedError
                 self?.isWalletLoading = false
+            }
+        }
+    }
+    
+    func loadImage() {
+        guard image == nil else {
+            return
+        }
+        
+        guard let artworkId = verifyCardResponse?.artworkInfo?.id,
+            let cid = card.cardId,
+            let cardPublicKey = card.cardPublicKey else {
+                self.image = UIImage(named: "card-default")
+                return
+        }
+        
+        service.request(TangemEndpoint.artwork(cid: cid, cardPublicKey: cardPublicKey, artworkId: artworkId)) {[weak self] result in
+            switch result {
+            case .success(let data):
+                if let img = UIImage(data: data) {
+                    self?.image = img
+                }
+            case .failure(let error):
+                //[REDACTED_TODO_COMMENT]
+                break
             }
         }
     }
@@ -63,7 +93,6 @@ class CardViewModel: ObservableObject {
                                 balance: wallet.amounts[.coin]?.description ?? "-",
                                 secondaryBalance: "",
                                 secondaryName: secondaryName)
-        print(model)
         return model
     }
 }
