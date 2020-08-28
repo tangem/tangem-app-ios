@@ -13,6 +13,8 @@ import Sodium
 
 open class CardanoEngine: CardEngine, PayIdProvider, DetailedError {
     var errorText: String? = nil
+    let isShelleyFork: Bool
+    private static let ADDRESS_HEADER_BYTE = Data([UInt8(97)])
     
     static let kPendingTransactionTimeoutSeconds: Int = 60
     static let BECH32_HRP = "addr1"
@@ -48,30 +50,39 @@ open class CardanoEngine: CardEngine, PayIdProvider, DetailedError {
     
     public required init(card: CardViewModel) {
         self.card = card
+        self.isShelleyFork = card.blockchain == .cardanoShelley
         if card.isWallet {
             setupAddress()
         }
     }
     
     open func setupAddress() {
-        let hexPublicKeyExtended = card.walletPublicKeyBytesArray + Array(repeating: 0, count: 32) 
-        
-        let forSha3 = ([0, [0, CBOR.byteString(hexPublicKeyExtended)], [:]] as CBOR).encode()
-        
-        let sha = forSha3.sha3(.sha256)
-        let pkHash = Sodium().genericHash.hash(message: sha, outputLength: 28)!
-        
-        let addr = ([CBOR.byteString(pkHash), [:], 0] as CBOR).encode()
-        let checksum = UInt64(addr.crc32())
-        
-        let addrItem = CBOR.tagged(CBOR.Tag(rawValue: 24), CBOR.byteString(addr)) 
-        
-        let hexAddress = ([addrItem, CBOR.unsignedInt(checksum)] as CBOR).encode()
-        
-        walletAddress = String(base58Encoding: Data(bytes: hexAddress), alphabet:Base58String.btcAlphabet)
-        
+        if isShelleyFork {
+            let publicKeyHash = Sodium().genericHash.hash(message: card.walletPublicKeyBytesArray, outputLength: 28)!
+            let addressBytes = CardanoEngine.ADDRESS_HEADER_BYTE + publicKeyHash
+            let bech32 = Bech32Internal()
+            walletAddress = bech32.encode("addr", values: Data(addressBytes))
+        } else {
+            let hexPublicKeyExtended = card.walletPublicKeyBytesArray + Array(repeating: 0, count: 32)
+            
+            let forSha3 = ([0, [0, CBOR.byteString(hexPublicKeyExtended)], [:]] as CBOR).encode()
+            
+            let sha = forSha3.sha3(.sha256)
+            let pkHash = Sodium().genericHash.hash(message: sha, outputLength: 28)!
+            
+            let addr = ([CBOR.byteString(pkHash), [:], 0] as CBOR).encode()
+            let checksum = UInt64(addr.crc32())
+            
+            let addrItem = CBOR.tagged(CBOR.Tag(rawValue: 24), CBOR.byteString(addr))
+            
+            let hexAddress = ([addrItem, CBOR.unsignedInt(checksum)] as CBOR).encode()
+            
+            walletAddress = String(base58Encoding: Data(bytes: hexAddress), alphabet:Base58String.btcAlphabet)
+        }
         card.node = "explorer2.adalite.io"
     }
+    
+    
     
     public var coinTraitCollection: CoinTrait {
         return [.allowsFeeInclude]
@@ -149,7 +160,8 @@ open class CardanoEngine: CardEngine, PayIdProvider, DetailedError {
                                   amount: amount,
                                   walletBalance: walletBalance,
                                   feeValue: feeValue,
-                                  isIncludeFee: isIncludeFee)
+                                  isIncludeFee: isIncludeFee,
+                                  isShelleyFork: isShelleyFork)
     }
     
     func buildTxForSend(signFromCard: [UInt8]) -> [UInt8]? {
@@ -158,13 +170,16 @@ open class CardanoEngine: CardEngine, PayIdProvider, DetailedError {
             return nil
         }
         
-        let witnessDataItem = CBOR.array([CBOR.array([CBOR.byteString(card.walletPublicKeyBytesArray),
+        let witnessDataItem = isShelleyFork ?
+            CBOR.array([CBOR.array([CBOR.byteString(card.walletPublicKeyBytesArray),
+                                                          CBOR.byteString(signFromCard)])])
+        : CBOR.array([CBOR.array([CBOR.byteString(card.walletPublicKeyBytesArray),
                                                       CBOR.byteString(signFromCard),
                                                       CBOR.byteString(Data(hex: "0000000000000000000000000000000000000000000000000000000000000000").bytes),
                                                       CBOR.byteString(Data(hex: "A0").bytes)
         ])])
         
-        let witnessMap = CBOR.map([CBOR.unsignedInt(2) : witnessDataItem])
+        let witnessMap = CBOR.map([CBOR.unsignedInt(isShelleyFork ? 0 : 2) : witnessDataItem])
         let tx = CBOR.array([transactionBodyItem, witnessMap, nil])
         let txForSend = tx.encode()
         return txForSend
