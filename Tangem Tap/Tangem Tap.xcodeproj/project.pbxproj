@@ -41,6 +41,7 @@
 		5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
 		5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */; };
 		5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
+		5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* TapScanTask.swift */; };
 		5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */; };
 		5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */; };
 		5DF612A424E6E3E2001BF301 /* AddressDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */; };
@@ -111,6 +112,7 @@
 		5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardRectView.swift; sourceTree = "<group>"; };
 		5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Tangem Tap.entitlements"; sourceTree = "<group>"; };
 		5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorView.swift; sourceTree = "<group>"; };
+		5DF2522624F914E30015B429 /* TapScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapScanTask.swift; sourceTree = "<group>"; };
 		5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTxView.swift; sourceTree = "<group>"; };
 		5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressFormatter.swift; sourceTree = "<group>"; };
 		5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressDetailsView.swift; sourceTree = "<group>"; };
@@ -306,9 +308,18 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		5DF2522524F914C90015B429 /* TangemSdk */ = {
+			isa = PBXGroup;
+			children = (
+				5DF2522624F914E30015B429 /* TapScanTask.swift */,
+			);
+			path = TangemSdk;
+			sourceTree = "<group>";
+		};
 		5DFCCB6324C371AC0014A293 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				5DF2522524F914C90015B429 /* TangemSdk */,
 				5D958E1724F51422006BD932 /* Models */,
 				5D958E1224F513C1006BD932 /* UI */,
 				5D383E3C24D95B6B00C9BFF6 /* Localizations */,
@@ -640,6 +651,7 @@
 				5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
 				5DFCCB7624C381A70014A293 /* ExtractViewModel.swift in Sources */,
+				5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */,
 				5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */,
 				5DFCCB6F24C3728E0014A293 /* DetailsView.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
