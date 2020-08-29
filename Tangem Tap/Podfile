@@ -16,6 +16,7 @@ target 'Tangem Tap' do
   pod 'BlockchainSdk', :path => '../../blockchain-sdk-swift'
   pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.3'
   pod 'Moya'
+  pod 'EFQRCode'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
