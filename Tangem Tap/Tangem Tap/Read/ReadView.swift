@@ -54,10 +54,12 @@ struct ReadView: View {
                 VStack(alignment: .leading, spacing: 8.0) {
                     if viewModel.state == .welcome {
                         Text("read_welcome_title")
-                            .font(Font.custom("SairaSemiCondensed-Medium", size: 29.0))
+                            .font(Font.system(size: 29.0, weight: .light, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark6)
                     }
                     Text(viewModel.state == .welcome  ? "read_welcome_subtitle" : "read_ready_title" )
-                        .font(Font.custom("SairaSemiCondensed-Light", size: 29.0))
+                        .font(Font.system(size: 29.0, weight: .light, design: .default))
+                        .foregroundColor(Color.tangemTapGrayDark6)
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 8.0) {
                         Button(action: {
@@ -101,14 +103,14 @@ struct ReadView: View {
                 if viewModel.openDetails {
                     NavigationLink(destination:
                         DetailsView(viewModel: DetailsViewModel(cid: viewModel.sdkService.cards.first!.key,
-                        sdkService: viewModel.$sdkService)),
+                                                                sdkService: viewModel.$sdkService)),
                                    isActive: $viewModel.openDetails) {
                                     EmptyView()
                     }
                 }
             }
             .padding([.leading, .bottom, .trailing], 16.0)
-            .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
+            .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
             .background(NavigationConfigurator() { nc in
                 nc.navigationBar.barTintColor = UIColor.tangemTapBgGray
                 nc.navigationBar.shadowImage = UIImage()
