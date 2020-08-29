@@ -20,6 +20,7 @@
 		5D3F77DD24BF56DC00E8695B /* Tangem_TapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77DC24BF56DC00E8695B /* Tangem_TapTests.swift */; };
 		5D3F77E824BF56DC00E8695B /* Tangem_TapUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77E724BF56DC00E8695B /* Tangem_TapUITests.swift */; };
 		5D9004E424FA79F700E90939 /* onWillDisappear.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E324FA79F700E90939 /* onWillDisappear.swift */; };
+		5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */; };
 		5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
 		5D9141E024D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
 		5D9141E124D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
@@ -41,6 +42,12 @@
 		5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0A24D853B600E78F1C /* Color+.swift */; };
 		5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
 		5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */; };
+		5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */; };
+		5DD4CB4F24FAAB1A008F23CC /* UIResponder+Current.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4C24FAAB1A008F23CC /* UIResponder+Current.swift */; };
+		5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */; };
+		5DD4CB5224FAE4B9008F23CC /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5124FAE4B9008F23CC /* CustomTextField.swift */; };
+		5DD4CB5424FAEE8B008F23CC /* CardIdFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5324FAEE8B008F23CC /* CardIdFormatter.swift */; };
+		5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */; };
 		5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
 		5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* TapScanTask.swift */; };
 		5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522824F93C2A0015B429 /* QRCodeView.swift */; };
@@ -104,6 +111,7 @@
 		5D3F77E724BF56DC00E8695B /* Tangem_TapUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tangem_TapUITests.swift; sourceTree = "<group>"; };
 		5D3F77E924BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D9004E324FA79F700E90939 /* onWillDisappear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = onWillDisappear.swift; sourceTree = "<group>"; };
+		5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePayIdView.swift; sourceTree = "<group>"; };
 		5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Medium.ttf"; sourceTree = "<group>"; };
 		5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-SemiBold.ttf"; sourceTree = "<group>"; };
 		5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Bold.ttf"; sourceTree = "<group>"; };
@@ -116,6 +124,12 @@
 		5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardRectView.swift; sourceTree = "<group>"; };
 		5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Tangem Tap.entitlements"; sourceTree = "<group>"; };
+		5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardAdaptive.swift; sourceTree = "<group>"; };
+		5DD4CB4C24FAAB1A008F23CC /* UIResponder+Current.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIResponder+Current.swift"; sourceTree = "<group>"; };
+		5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardHeightPublisher.swift; sourceTree = "<group>"; };
+		5DD4CB5124FAE4B9008F23CC /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
+		5DD4CB5324FAEE8B008F23CC /* CardIdFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardIdFormatter.swift; sourceTree = "<group>"; };
+		5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerticalAlignment+.swift"; sourceTree = "<group>"; };
 		5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorView.swift; sourceTree = "<group>"; };
 		5DF2522624F914E30015B429 /* TapScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapScanTask.swift; sourceTree = "<group>"; };
 		5DF2522824F93C2A0015B429 /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
@@ -226,7 +240,6 @@
 			isa = PBXGroup;
 			children = (
 				5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */,
-				5DBFEA4C24DBF7260080D3DC /* Onboarding */,
 				5DFCCB7224C3817E0014A293 /* Extract */,
 				5DFCCB6D24C372830014A293 /* Details */,
 				5DFCCB6A24C372020014A293 /* Read */,
@@ -282,10 +295,13 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				5DD4CB4324FAAAE0008F23CC /* KeyboardAvoidance */,
+				5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */,
 				5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */,
 				5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */,
 				5D958E1524F51402006BD932 /* NavigationConfigurator.swift */,
 				5D9004E324FA79F700E90939 /* onWillDisappear.swift */,
+				5DD4CB5124FAE4B9008F23CC /* CustomTextField.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -303,6 +319,7 @@
 		5DBBAB0924D853A000E78F1C /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */,
 				5DBBAB0A24D853B600E78F1C /* Color+.swift */,
 				5DFB499924E554140037E76F /* Card+Preview.swift */,
 				5DFE855624EF051400194106 /* Error+.swift */,
@@ -312,11 +329,14 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		5DBFEA4C24DBF7260080D3DC /* Onboarding */ = {
+		5DD4CB4324FAAAE0008F23CC /* KeyboardAvoidance */ = {
 			isa = PBXGroup;
 			children = (
+				5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */,
+				5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */,
+				5DD4CB4C24FAAB1A008F23CC /* UIResponder+Current.swift */,
 			);
-			path = Onboarding;
+			path = KeyboardAvoidance;
 			sourceTree = "<group>";
 		};
 		5DF2522524F914C90015B429 /* TangemSdk */ = {
@@ -337,6 +357,7 @@
 				5D9141C524D8A42600EB52C0 /* Fonts */,
 				5DBBAB0924D853A000E78F1C /* Extensions */,
 				5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */,
+				5DD4CB5324FAEE8B008F23CC /* CardIdFormatter.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -348,7 +369,6 @@
 				5DFCCB6B24C372140014A293 /* ReadView.swift */,
 				5DBBAB0724D850EA00E78F1C /* CircleView.swift */,
 				5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */,
-				5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */,
 			);
 			path = Read;
 			sourceTree = "<group>";
@@ -362,6 +382,7 @@
 				5DFB499B24E6BAF10037E76F /* ErrorView.swift */,
 				5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */,
 				5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */,
+				5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */,
 				5DF2522824F93C2A0015B429 /* QRCodeView.swift */,
 			);
 			path = Details;
@@ -650,16 +671,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DD4CB4F24FAAB1A008F23CC /* UIResponder+Current.swift in Sources */,
 				5D0B4F9324F54F23007A0CD1 /* TangemSdkService.swift in Sources */,
+				5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
+				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */,
+				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
 				5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
 				5D312C9524D87FF800B4DDEB /* ButtonStyles.swift in Sources */,
 				5DF612A424E6E3E2001BF301 /* AddressDetailsView.swift in Sources */,
+				5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* ExtractView.swift in Sources */,
 				5DFCCB7A24C5823C0014A293 /* AppState.swift in Sources */,
 				5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */,
+				5DD4CB5224FAE4B9008F23CC /* CustomTextField.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
 				5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
@@ -667,6 +694,7 @@
 				5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */,
 				5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */,
 				5DFCCB6F24C3728E0014A293 /* DetailsView.swift in Sources */,
+				5DD4CB5424FAEE8B008F23CC /* CardIdFormatter.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
