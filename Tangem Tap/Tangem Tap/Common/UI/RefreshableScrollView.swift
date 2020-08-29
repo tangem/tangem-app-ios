@@ -27,9 +27,10 @@ struct RefreshableScrollView<Content: View>: UIViewRepresentable {
     }
     
     func updateSubview(for view: UIScrollView) {
-        if let subview = view.subviews.first, !(subview is UIRefreshControl) {
-            subview.removeFromSuperview()
-        }
+        _ = view.subviews
+            .filter { !($0 is UIRefreshControl) }
+            .map { $0.removeFromSuperview() }
+    
         
         let host = UIHostingController(rootView: content())
         view.addSubview(host.view)
