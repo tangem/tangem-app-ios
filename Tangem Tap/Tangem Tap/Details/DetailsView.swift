@@ -56,7 +56,7 @@ struct DetailsView: View {
                         HStack(alignment: .center) {
                             Text("details_button_scan")
                             Spacer()
-                            Image("arrow.right")
+                            Image("scan")
                         }
                         .padding(.horizontal)
                     }
@@ -66,7 +66,7 @@ struct DetailsView: View {
                     }) { HStack(alignment: .center, spacing: 16.0) {
                         Text("details_button_send")
                         Spacer()
-                        Image("shopBag")
+                        Image("arrow.right")
                     }
                     .padding(.horizontal)
                     }
@@ -87,13 +87,16 @@ struct DetailsView: View {
                 // }
                 // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
             }
+        .sheet(isPresented: $viewModel.showCreatePayid, content: {
+            CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "", payIdText: "")
+        })
             .padding(.bottom, 16.0)
             .navigationBarBackButtonHidden(true)
             .navigationBarTitle("details_title", displayMode: .inline)
             .navigationBarItems(trailing: Button(action: {
                 
             }, label: { Image("verticalDots")
-                .foregroundColor(Color.tangemTapBlack)
+                .foregroundColor(Color.tangemTapGrayDark6)
                 .frame(width: 44.0, height: 44.0, alignment: .center)
                 .offset(x: 10.0, y: 0.0)
             }).padding(0.0)
