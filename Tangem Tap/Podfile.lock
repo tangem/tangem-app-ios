@@ -34,6 +34,9 @@ PODS:
     - TangemSdk
     - web3swift
   - CryptoSwift (1.3.1)
+  - EFQRCode (5.1.6):
+    - EFQRCode/Core (= 5.1.6)
+  - EFQRCode/Core (5.1.6)
   - HDWalletKit (0.3.5):
     - CryptoSwift
     - secp256k1.swift
@@ -81,6 +84,7 @@ DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.6`)
   - BlockchainSdk (from `../../blockchain-sdk-swift`)
+  - EFQRCode
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
   - Moya
   - TangemSdk (from `../../card-sdk-swift`)
@@ -92,6 +96,7 @@ SPEC REPOS:
     - AnyCodable-FlightSchool
     - BigInt
     - CryptoSwift
+    - EFQRCode
     - Moya
     - ObjcExceptionBridging
     - PromiseKit
@@ -139,6 +144,7 @@ SPEC CHECKSUMS:
   BinanceChain: 3f6724155e3d65f6f9ca86b20343cf316f9eabf6
   BlockchainSdk: 4a4ba599dcf05764fdecc57a990a5853304a67ab
   CryptoSwift: f12f037f6d0fcd6d48c96db0071b653de64e6c4d
+  EFQRCode: a7ea2e517912f5bf6ba258b631327a83cd8084a5
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   Moya: 5b45dacb75adb009f97fde91c204c1e565d31916
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
@@ -156,6 +162,6 @@ SPEC CHECKSUMS:
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: de6d76f266cffc9de03686892216e9283c641e87
+PODFILE CHECKSUM: 90a6c05b9059e21ade1705cd22e6cb6ac3ea8aa3
 
 COCOAPODS: 1.9.3
