@@ -47,3 +47,5 @@
 "addressDetails_button_explore" = "Explore address";
 
 "addressDetails_button_createPayid" = "Create PayID";
+
+"qr_title_wallet" = "Wallet";
