@@ -54,23 +54,23 @@ struct AddressDetailView: View {
             HStack(alignment: .center) {
                 VStack(alignment: .leading) {
                     Text(AddressFormatter(address: address).truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
-                        .font(Font.system(size: 11.0))
-                        .fontWeight(.bold)
+                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                        .minimumScaleFactor(0.5)
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
-                        .foregroundColor(Color.tangemTapDarkGrey)
+                        .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
                         UIApplication.shared.open(self.exploreURL, options: [:], completionHandler: nil)
                     }) {
                         HStack {
                             Text("addressDetails_button_explore")
-                                .font(Font.system(size: 11.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemTapBlack)
+                                .font(Font.system(size: 14.0, weight: .bold, design: .default))
+                                .foregroundColor(Color.tangemTapGrayDark6)
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(1)
                             Image ("chevron.right")
-                                .font(Font.system(size: 11.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemTapBlack)
+                                .font(Font.system(size: 14.0, weight: .bold, design: .default))
+                                .foregroundColor(Color.tangemTapGrayDark6)
                         }
                     }
                 }
@@ -83,8 +83,8 @@ struct AddressDetailView: View {
                             .frame(width: 46.0, height: 46.0, alignment: .center)
                             .foregroundColor(Color.tangemTapBgGray)
                         Image ("square.on.square")
-                            .font(Font.system(size: 18.0, weight: .light, design: .default))
-                            .foregroundColor(Color.tangemTapBlack)
+                            .font(Font.system(size: 17.0, weight: .light, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark6)
                     }
                 }
                 Button(action: {
@@ -95,8 +95,8 @@ struct AddressDetailView: View {
                             .frame(width: 46.0, height: 46.0, alignment: .center)
                             .foregroundColor(Color.tangemTapBgGray)
                         Image ("qrcode")
-                            .font(Font.system(size: 18.0, weight: .light, design: .default))
-                            .foregroundColor(Color.tangemTapBlack)
+                            .font(Font.system(size: 17.0, weight: .light, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark6)
                     }
                 }
             }
@@ -104,7 +104,7 @@ struct AddressDetailView: View {
             .padding(.vertical, 16.0)
             
             if showPayIdBlock {
-                Color.tangemTapLightGray
+                Color.tangemTapGrayLight5
                     .frame(width: nil, height: 1.0, alignment: .center)
                     .padding(.horizontal, 24.0)
                     .padding(.top, 8.0)
@@ -121,23 +121,22 @@ struct AddressDetailView: View {
                         }) {
                             HStack {
                                 Text("addressDetails_button_createPayid")
-                                    .font(Font.system(size: 11.0, weight: .bold, design: .default))
+                                    .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(1)
-                                    .foregroundColor(Color.tangemTapBlack)
+                                    .foregroundColor(Color.tangemTapGrayDark6)
                                 Image ("chevron.right")
-                                    .font(Font.system(size: 11.0, weight: .bold, design: .default))
-                                    .foregroundColor(Color.tangemTapBlack)
+                                    .font(Font.system(size: 14.0, weight: .bold, design: .default))
+                                    .foregroundColor(Color.tangemTapGrayDark6)
                                 
                             }
                         }
                     } else {
                         Text(payIdText)
-                            .font(Font.system(size: 11.0))
-                            .fontWeight(.medium)
+                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .multilineTextAlignment(.trailing)
                             .lineLimit(1)
-                            .foregroundColor(Color.tangemTapDarkGrey)
+                            .foregroundColor(Color.tangemTapGrayDark)
                     }
                 }
                 .padding(.horizontal, 24.0)
