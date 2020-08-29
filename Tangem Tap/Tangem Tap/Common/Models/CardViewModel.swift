@@ -17,7 +17,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
-    @Published var payId: PayIdStatus = .notSupported
+    @Published var payId: PayIdStatus = .notCreated
     @Published var balanceViewModel: BalanceViewModel!
     
     @Published var wallet: Wallet? = nil
