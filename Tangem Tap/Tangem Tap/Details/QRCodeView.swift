@@ -48,7 +48,7 @@ struct QRCodeView: View {
                 self.userBrightness = UIScreen.main.brightness
                 UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: 1.0)
         }
-        .onDisappear {
+        .onWillDisappear {
             UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: self.userBrightness)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
