@@ -44,8 +44,6 @@ class CardViewModel: Identifiable, ObservableObject {
 //             return false
 //        }
         
-        return true
-        
         if let wallet = self.wallet {
             if !wallet.isEmptyAmount || wallet.hasPendingTx {
                 return false
@@ -60,7 +58,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     return false
                 }
             } else {
-               return false
+               return false // [REDACTED_TODO_COMMENT]
             }
         }
     }
