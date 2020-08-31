@@ -88,7 +88,8 @@ struct DetailsView: View {
                 // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
             }
         .sheet(isPresented: $viewModel.showCreatePayid, content: {
-            CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "", payIdText: "")
+            CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "",
+                            cardViewModel: self.$viewModel.cardViewModel)
         })
             .padding(.bottom, 16.0)
             .navigationBarBackButtonHidden(true)
