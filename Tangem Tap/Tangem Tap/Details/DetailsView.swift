@@ -32,6 +32,8 @@ struct DetailsView: View {
                             } else {
                                 if self.viewModel.cardViewModel.wallet != nil {
                                     BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
+                                } else {
+                                    ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
                                 }
                                  }
                                 if self.viewModel.cardViewModel.wallet != nil  {
@@ -62,9 +64,11 @@ struct DetailsView: View {
                     }
                     .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
                     Button(action: {
-                        
+                        if self.viewModel.cardViewModel.wallet == nil {
+                            self.viewModel.createWallet()
+                        }
                     }) { HStack(alignment: .center, spacing: 16.0) {
-                        Text("details_button_send")
+                        Text(self.viewModel.cardViewModel.wallet == nil ? "details_button_create_wallet" : "details_button_send")
                         Spacer()
                         Image("arrow.right")
                     }
@@ -95,28 +99,40 @@ struct DetailsView: View {
             .navigationBarBackButtonHidden(true)
             .navigationBarTitle("details_title", displayMode: .inline)
             .navigationBarItems(trailing: Button(action: {
+                self.viewModel.showSettings = true
                 
             }, label: { Image("verticalDots")
                 .foregroundColor(Color.tangemTapGrayDark6)
                 .frame(width: 44.0, height: 44.0, alignment: .center)
                 .offset(x: 10.0, y: 0.0)
-            }).padding(0.0)
+            })
+                .padding(0.0)
+                .sheet(isPresented: $viewModel.showSettings) {
+                    SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService))
+                }
             )
                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         }
     }
     
     
-    struct DetailsView_Previews: PreviewProvider {
-        @State static var sdkService: TangemSdkService = {
-            let service = TangemSdkService()
-            service.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
-            return service
-        }()
-        
-        static var previews: some View {
+struct DetailsView_Previews: PreviewProvider {
+    @State static var sdkService: TangemSdkService = {
+        let service = TangemSdkService()
+        service.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
+        service.cards[Card.testCardNoWallet.cardId!] = CardViewModel(card: Card.testCardNoWallet)
+        return service
+    }()
+    
+    static var previews: some View {
+        Group {
             NavigationView {
                 DetailsView(viewModel: DetailsViewModel(cid: Card.testCard.cardId!, sdkService: $sdkService))
             }
+            
+            NavigationView {
+                DetailsView(viewModel: DetailsViewModel(cid: Card.testCardNoWallet.cardId!, sdkService: $sdkService))
+            }
         }
+    }
 }
