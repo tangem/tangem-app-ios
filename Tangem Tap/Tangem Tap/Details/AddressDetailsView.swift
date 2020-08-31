@@ -136,7 +136,12 @@ struct AddressDetailView: View {
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .multilineTextAlignment(.trailing)
                             .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                             .foregroundColor(Color.tangemTapGrayDark)
+                            .onTapGesture {
+                                UIPasteboard.general.string = self.payIdText
+                                //[REDACTED_TODO_COMMENT]
+                        }
                     }
                 }
                 .padding(.horizontal, 24.0)
