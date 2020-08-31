@@ -8,12 +8,16 @@
 
 import Foundation
 import SwiftUI
+import TangemSdk
 
 struct CreatePayIdView: View {
     var cardId: String
-    @State var payIdText: String
+    @State var payIdText: String = ""
+    @State var isLoading: Bool = false
+    @State var successAlert: Bool = false
     @State private var isFirstResponder : Bool? = false
-    
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var cardViewModel: CardViewModel
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 6.0) {
@@ -57,37 +61,66 @@ struct CreatePayIdView: View {
                 }
                 Spacer()
             }
-           HStack {
-                              Text("create_payid_info")
-                                  .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                  .foregroundColor(Color.tangemTapGrayDark)
-                                  .multilineTextAlignment(.leading)
-                                  .lineLimit(2)
-                                  .padding(.trailing)
-                              Spacer(minLength: 100.0)
-                          }
-                          .padding(.bottom, 32.0)
-                          .fixedSize(horizontal: false, vertical: true)
-                          Button(action: {
-                              
-                          }) { HStack(alignment: .center, spacing: 16.0) {
-                              Text("create_payid_button_title")
-                              Spacer()
-                              Image("arrow.right")
-                          }
-                          .padding(.horizontal)
-                          }
-                          .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black))
-                          .padding(.bottom)
+            HStack {
+                Text("create_payid_info")
+                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                    .foregroundColor(Color.tangemTapGrayDark)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+                    .padding(.trailing)
+                Spacer(minLength: 100.0)
+            }
+            .padding(.bottom, 32.0)
+            .fixedSize(horizontal: false, vertical: true)
+            Button(action: {
+                if self.isLoading {
+                    return
+                }
+                
+                self.isLoading = true
+                self.cardViewModel.createPayID(self.payIdText) { result in
+                    self.isLoading = false
+                    switch result {
+                    case .success:
+                        self.successAlert = true
+                    case .failure(let error):
+                        //[REDACTED_TODO_COMMENT]
+                        break
+                    }
+                }
+                
+                }
+            ) {
+                if self.isLoading {
+                    ActivityIndicatorView(isAnimating: true, style: .medium)
+                } else {
+                    HStack(alignment: .center, spacing: 16.0) {
+                        Text("create_payid_button_title")
+                        Spacer()
+                        Image("arrow.right")
+                    }
+                        .padding(.horizontal)
+                    }
+            }
+            .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: payIdText.isEmpty))
+            .padding(.bottom)
+            .disabled(payIdText.isEmpty)
+            .alert(isPresented: $successAlert) { () -> Alert in
+                Alert(title: Text("common_success"), message: Text("create_payid_success_message"), dismissButton: Alert.Button.default(Text("common_ok"), action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }))
+            }
+        
         }
         .padding(.horizontal)
-    .keyboardAdaptive()
+        .keyboardAdaptive()
     }
 }
 
 
 struct CreatePayIdView_Previews: PreviewProvider {
+    @State static var cardViewModel = CardViewModel(card: Card.testCard)
     static var previews: some View {
-        CreatePayIdView(cardId: "CB23 4344 5455 6544", payIdText: "")
+        CreatePayIdView(cardId: "CB23 4344 5455 6544", cardViewModel: $cardViewModel)
     }
 }
