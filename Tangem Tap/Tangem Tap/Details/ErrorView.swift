@@ -15,28 +15,27 @@ struct ErrorView: View {
     var subtitle: String
     
     var body: some View {
-        HStack(alignment: .titleAndExclamation, spacing: 18.0) {
+        HStack(alignment: .textAndImage, spacing: 18.0) {
             Spacer()
                 .frame(width: 8.0, height: nil, alignment: .center)
                 Image("exclamationmark.circle")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundColor(Color.tangemTapYellow)
+                    .foregroundColor(Color.tangemTapWarning)
                     .frame(width: 26.5, height: 26.5)
-                    .alignmentGuide(.titleAndExclamation) { d in d[.bottom] / 2 }
+                    .alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
 
             VStack(alignment: .leading, spacing: 6.0) {
                 Text(title)
-                    .font(Font.system(size: 20.0))
-                    .fontWeight(.bold)
+                    .font(Font.system(size: 20.0, weight: .bold, design: .default))
                     .multilineTextAlignment(.leading)
                     .lineLimit(1)
-                    .alignmentGuide(.titleAndExclamation) { d in d[.bottom] / 2 }
-                    .foregroundColor(Color.tangemTapTitle)
+                    .alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
+                    .foregroundColor(Color.tangemTapGrayDark6)
                 Text(subtitle)
-                    .font(Font.system(size: 11.0))
+                    .font(Font.system(size: 13.0))
                     .fontWeight(.medium)
-                    .foregroundColor(Color.tangemTapDarkGrey)
+                    .foregroundColor(Color.tangemTapGrayDark)
                     .multilineTextAlignment(.leading)
                     .lineLimit(1)
             }
@@ -56,14 +55,4 @@ struct ErrorView_Previews: PreviewProvider {
             ErrorView(title: "Empty card", subtitle: "Create wallet to start using Tangem card")
         }
     }
-}
-
-extension VerticalAlignment {
-    private enum TitltAndExclamation: AlignmentID {
-        static func defaultValue(in context: ViewDimensions) -> CGFloat {
-            return context[.bottom]
-        }
-    }
-    
-    static let titleAndExclamation = VerticalAlignment(TitltAndExclamation.self)
 }
