@@ -26,12 +26,12 @@ struct TangemButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration
             .label
-            .font(Font.custom("SairaSemiCondensed-Bold", size: 14.0))
+            .font(Font.custom("SairaSemiCondensed-Bold", size: 15.0))
             .foregroundColor(Color.white)
             .frame(width: size.rawValue, height: 56.0, alignment: .center)
             .background(configuration.isPressed ?
-                (colorStyle == .green ? Color.tangemTapGreen : Color.tangemTapBlack) :
-                (colorStyle == .green ? Color.tangemTapGreen : Color.tangemTapBlack))
+                (colorStyle == .green ? Color.tangemTapGreen : Color.tangemTapGrayDark6) :
+                (colorStyle == .green ? Color.tangemTapGreen : Color.tangemTapGrayDark6))
             .cornerRadius(8)
             .fixedSize()
     }
