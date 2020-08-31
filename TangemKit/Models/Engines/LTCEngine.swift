@@ -9,6 +9,11 @@
 import Foundation
 
 class LTCEngine: BTCEngine {
+    private let _payIdManager = PayIdManager(network: .LTC)
+    override var payIdManager: PayIdManager? {
+        return _payIdManager
+    }
+    
     override var relayFee: Decimal {
         Decimal(0.00001)
     }
