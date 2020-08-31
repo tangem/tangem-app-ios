@@ -22,6 +22,7 @@ enum ButtonColorStyle {
 struct TangemButtonStyle: ButtonStyle {
     var size: ButtonSize = .small
     var colorStyle: ButtonColorStyle = .green
+    var isDisabled: Bool = false
     
     func makeBody(configuration: Configuration) -> some View {
         configuration
@@ -29,10 +30,12 @@ struct TangemButtonStyle: ButtonStyle {
             .font(Font.custom("SairaSemiCondensed-Bold", size: 15.0))
             .foregroundColor(Color.white)
             .frame(width: size.rawValue, height: 56.0, alignment: .center)
-            .background(configuration.isPressed ?
-                (colorStyle == .green ? Color.tangemTapGreen : Color.tangemTapGrayDark6) :
+            .background(
+                configuration.isPressed ?
+                (colorStyle == .green ? Color.tangemTapGreen1 : Color.tangemTapGrayDark4) :
                 (colorStyle == .green ? Color.tangemTapGreen : Color.tangemTapGrayDark6))
             .cornerRadius(8)
+            .overlay( !isDisabled ? Color.clear : Color.white.opacity(0.4))
             .fixedSize()
     }
 }
@@ -49,10 +52,10 @@ struct ButtonStyles_Previews: PreviewProvider {
                 .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
             
             Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: true))
             
             Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black))
+                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: true))
         }
     }
 }
