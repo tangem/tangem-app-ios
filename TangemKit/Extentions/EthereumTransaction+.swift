@@ -23,7 +23,7 @@ extension EthereumTransaction {
     init?(amount: BigUInt, fee: BigUInt, targetAddress: String, nonce: BigUInt, gasLimit: BigUInt = 21000, data: Data, v: BigUInt = 0, r: BigUInt = 0, s: BigUInt = 0) {
         let gasPrice = fee / gasLimit
         
-        guard let ethAddress = EthereumAddress(targetAddress) else {
+        guard let ethAddress = EthereumAddress(targetAddress, type: .normal, ignoreChecksum: true) else {
             return nil
         }
         
