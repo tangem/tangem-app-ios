@@ -20,9 +20,6 @@ final class ScanTaskExtended: CardSessionRunnable {
     public typealias CommandResponse = ScanTaskExtendedResponse
     
     var trace: Trace?
-    var needPreflightRead: Bool {
-        return false
-    }
     
     init() {
         trace = Performance.startTrace(name: "CardTapUserTimer")
