@@ -16,6 +16,7 @@ class DetailsViewModel: ObservableObject {
     
     @Published var isRefreshing = false
     @Published var showQr = false
+    @Published var showSettings = false
     @Published var showCreatePayid = false
     @Published var cardViewModel: CardViewModel {
         didSet {
@@ -37,7 +38,7 @@ class DetailsViewModel: ObservableObject {
             .removeDuplicates()
             .filter { $0 }
             .sink(receiveValue: { [unowned self] _ in
-                self.cardViewModel.updateWallet()
+                self.cardViewModel.update()
             })
             .store(in: &bag)
         
@@ -63,6 +64,18 @@ class DetailsViewModel: ObservableObject {
     func scan() {
         sdkService.scan { [weak self] scanResult in
             switch scanResult {
+            case .success(let cardViewModel):
+                self?.cardViewModel = cardViewModel
+            case .failure(let error):
+                //[REDACTED_TODO_COMMENT]
+                break
+            }
+        }
+    }
+    
+    func createWallet() {
+        sdkService.createWallet(cardId: cardViewModel.card.cardId) { [weak self] result in
+            switch result {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
             case .failure(let error):
