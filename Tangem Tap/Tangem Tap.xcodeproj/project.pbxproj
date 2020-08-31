@@ -13,6 +13,11 @@
 		5D312C9524D87FF800B4DDEB /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */; };
 		5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
 		5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8A24FD154C00C2C92C /* PayIDService.swift */; };
+		5D384B8D24FD444000C2C92C /* CreateWalletReadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8C24FD444000C2C92C /* CreateWalletReadTask.swift */; };
+		5D384B8F24FD445100C2C92C /* PurgeWalletReadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8E24FD445100C2C92C /* PurgeWalletReadTask.swift */; };
+		5D384B9124FD4E1800C2C92C /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
+		5D384B9424FD51C000C2C92C /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9324FD51C000C2C92C /* SettingsViewModel.swift */; };
+		5D384B9624FD51CB00C2C92C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9524FD51CB00C2C92C /* SettingsView.swift */; };
 		5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C524BF56D800E8695B /* AppDelegate.swift */; };
 		5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C724BF56D800E8695B /* SceneDelegate.swift */; };
 		5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CB24BF56DC00E8695B /* Assets.xcassets */; };
@@ -99,6 +104,11 @@
 		5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
 		5D383E4024D95BA600C9BFF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D384B8A24FD154C00C2C92C /* PayIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayIDService.swift; sourceTree = "<group>"; };
+		5D384B8C24FD444000C2C92C /* CreateWalletReadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletReadTask.swift; sourceTree = "<group>"; };
+		5D384B8E24FD445100C2C92C /* PurgeWalletReadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurgeWalletReadTask.swift; sourceTree = "<group>"; };
+		5D384B9024FD4E1800C2C92C /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
+		5D384B9324FD51C000C2C92C /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		5D384B9524FD51CB00C2C92C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		5D3F77C224BF56D800E8695B /* Tangem Tap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tangem Tap.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77C524BF56D800E8695B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5D3F77C724BF56D800E8695B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -224,6 +234,15 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		5D384B9224FD51B200C2C92C /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				5D384B9324FD51C000C2C92C /* SettingsViewModel.swift */,
+				5D384B9524FD51CB00C2C92C /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 		5D3F77B924BF56D800E8695B = {
 			isa = PBXGroup;
 			children = (
@@ -249,8 +268,9 @@
 		5D3F77C424BF56D800E8695B /* Tangem Tap */ = {
 			isa = PBXGroup;
 			children = (
+				5D384B9224FD51B200C2C92C /* Settings */,
 				5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */,
-				5DFCCB7224C3817E0014A293 /* Extract */,
+				5DFCCB7224C3817E0014A293 /* Send */,
 				5DFCCB6D24C372830014A293 /* Details */,
 				5DFCCB6A24C372020014A293 /* Read */,
 				5DFCCB6324C371AC0014A293 /* Common */,
@@ -335,6 +355,7 @@
 				5DFE855624EF051400194106 /* Error+.swift */,
 				5DF2522A24F9439D0015B429 /* UIImage+.swift */,
 				5DF2522C24F95E390015B429 /* UIScreen+.swift */,
+				5D384B9024FD4E1800C2C92C /* String+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -353,6 +374,8 @@
 			isa = PBXGroup;
 			children = (
 				5DF2522624F914E30015B429 /* TapScanTask.swift */,
+				5D384B8C24FD444000C2C92C /* CreateWalletReadTask.swift */,
+				5D384B8E24FD445100C2C92C /* PurgeWalletReadTask.swift */,
 			);
 			path = TangemSdk;
 			sourceTree = "<group>";
@@ -399,13 +422,13 @@
 			path = Details;
 			sourceTree = "<group>";
 		};
-		5DFCCB7224C3817E0014A293 /* Extract */ = {
+		5DFCCB7224C3817E0014A293 /* Send */ = {
 			isa = PBXGroup;
 			children = (
 				5DFCCB7324C3819A0014A293 /* ExtractView.swift */,
 				5DFCCB7524C381A70014A293 /* ExtractViewModel.swift */,
 			);
-			path = Extract;
+			path = Send;
 			sourceTree = "<group>";
 		};
 		BBA154748909F0AB4121528D /* Pods */ = {
@@ -686,16 +709,20 @@
 				5D0B4F9324F54F23007A0CD1 /* TangemSdkService.swift in Sources */,
 				5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
+				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
+				5D384B8D24FD444000C2C92C /* CreateWalletReadTask.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
 				5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
 				5D312C9524D87FF800B4DDEB /* ButtonStyles.swift in Sources */,
+				5D384B9624FD51CB00C2C92C /* SettingsView.swift in Sources */,
 				5DF612A424E6E3E2001BF301 /* AddressDetailsView.swift in Sources */,
 				5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* ExtractView.swift in Sources */,
 				5DFCCB7A24C5823C0014A293 /* AppState.swift in Sources */,
+				5D384B8F24FD445100C2C92C /* PurgeWalletReadTask.swift in Sources */,
 				5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */,
 				5DD4CB5224FAE4B9008F23CC /* CustomTextField.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
@@ -720,6 +747,7 @@
 				5DFCCB7124C372980014A293 /* DetailsViewModel.swift in Sources */,
 				5DFCCB7824C389740014A293 /* CardViewModel.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
+				5D384B9424FD51C000C2C92C /* SettingsViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
