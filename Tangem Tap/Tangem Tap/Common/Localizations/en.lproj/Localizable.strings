@@ -61,3 +61,9 @@
 "create_payid_button_title" = "Create";
 
 "create_payid_info" = "Your PayID is information unique to you, like your phone number, email or ABN.";
+
+"common_success" = "Success";
+
+"common_ok" = "Ok";
+
+"create_payid_success_message" = "PayID created successfully and copied to clipboard";
