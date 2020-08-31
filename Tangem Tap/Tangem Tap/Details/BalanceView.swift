@@ -19,27 +19,24 @@ struct BalanceView: View {
                 if balanceViewModel.isToken {
                     HStack {
                         Text("balanceView_token_title")
-                            .font(Font.system(size: 11.0))
-                            .fontWeight(.medium)
+                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .multilineTextAlignment(.leading)
                             .lineLimit(1)
-                            .foregroundColor(Color.tangemTapDarkGrey)
+                            .foregroundColor(Color.tangemTapGrayDark)
                         Spacer()
                     }
                     .padding(.horizontal, 24.0)
                 }
                 HStack(alignment: .firstTextBaseline) {
                     Text(balanceViewModel.name)
-                        .font(Font.system(size: 20.0))
-                        .fontWeight(.bold)
+                         .font(Font.system(size: 20.0, weight: .bold, design: .default))
                         .multilineTextAlignment(.leading)
-                        .foregroundColor(Color.tangemTapTitle)
+                        .foregroundColor(Color.tangemTapGrayDark6)
                         .lineLimit(1)
                     Spacer()
                     Text(balanceViewModel.balance)
-                        .font(Font.system(size: 20.0))
-                        .fontWeight(.bold)
-                        .foregroundColor(Color.tangemTapTitle)
+                         .font(Font.system(size: 20.0, weight: .bold, design: .default))
+                        .foregroundColor(Color.tangemTapGrayDark6)
                         .multilineTextAlignment(.trailing)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
@@ -53,28 +50,28 @@ struct BalanceView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .foregroundColor(balanceViewModel.dataLoaded ? Color.tangemTapGreen :
-                            Color.tangemTapYellow)
+                            Color.tangemTapWarning)
                         .frame(width: 10.0, height: 10.0)
+                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
                     Text(balanceViewModel.dataLoaded ? "balanceView_blockchain_verified" : "balanceView_blockchain_unreachable")
-                        .font(Font.system(size: 11.0))
+                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .foregroundColor(balanceViewModel.dataLoaded ? Color.tangemTapGreen :
-                            Color.tangemTapYellow)
+                            Color.tangemTapWarning)
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
                     Spacer()
                     Text(balanceViewModel.usdBalance)
-                        .font(Font.system(size: 11.0))
-                        .fontWeight(.medium)
+                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .multilineTextAlignment(.trailing)
                         .lineLimit(1)
-                        .foregroundColor(Color.tangemTapDarkGrey)
+                        .foregroundColor(Color.tangemTapGrayDark)
                 }
                 HStack {
                     if !balanceViewModel.dataLoaded && balanceViewModel.loadingError != nil {
                         Text(balanceViewModel.loadingError!)
-                            .font(Font.system(size: 11.0))
+                           .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(balanceViewModel.dataLoaded ? Color.tangemTapGreen :
-                                Color.tangemTapYellow)
+                                Color.tangemTapWarning)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                             .padding(.leading, 15.0)
@@ -86,20 +83,18 @@ struct BalanceView: View {
             .padding(.horizontal, 24.0)
             if balanceViewModel.isToken {
                 VStack(spacing: 12.0) {
-                    Color.tangemTapLightGray
+                    Color.tangemTapGrayLight5
                         .frame(width: nil, height: 1.0, alignment: .center)
                     HStack {
                         Text(balanceViewModel.secondaryName)
-                            .font(Font.system(size: 13.0))
-                            .fontWeight(.medium)
+                           .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .multilineTextAlignment(.leading)
-                            .foregroundColor(Color.tangemTapTitle)
+                            .foregroundColor(Color.tangemTapGrayDark6)
                             .lineLimit(1)
                         Spacer()
                         Text(balanceViewModel.secondaryBalance)
-                            .font(Font.system(size: 11.0))
-                            .fontWeight(.bold)
-                            .foregroundColor(Color.tangemTapTitle)
+                           .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark6)
                             .multilineTextAlignment(.trailing)
                             .lineLimit(1)
                     }
