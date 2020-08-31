@@ -23,7 +23,7 @@ struct QRCodeView: View {
                 HStack {
                     Text(self.title)
                         .font(Font.system(size: 30.0, weight: .bold, design: .default) )
-                        .foregroundColor(Color.tangemTapBlack)
+                        .foregroundColor(Color.tangemTapGrayDark6)
                     Spacer()
                 }
                 Image(uiImage: self.getQrCodeImage(width: 300.0, height: 300.0))
@@ -32,7 +32,7 @@ struct QRCodeView: View {
                     .padding(.all, 20.0)
                 Text(self.address)
                     .font(Font.system(size: 13.0, weight: .regular, design: .default) )
-                    .foregroundColor(Color.tangemTapDarkGrey)
+                    .foregroundColor(Color.tangemTapGrayDark)
                     .multilineTextAlignment(.center)
             }
             .padding(.all, 20.0)
@@ -41,7 +41,7 @@ struct QRCodeView: View {
             //.cornerRadius(20.0)
             .overlay(
                 RoundedRectangle(cornerRadius: 20.0)
-                    .stroke(Color.tangemTapDarkGrey, lineWidth: 1)
+                    .stroke(Color.tangemTapGrayDark, lineWidth: 1)
         )
             .padding(.horizontal, 12.0)
             .onAppear {
