@@ -12,6 +12,7 @@
 		5D0B4F9324F54F23007A0CD1 /* TangemSdkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0B4F9224F54F23007A0CD1 /* TangemSdkService.swift */; };
 		5D312C9524D87FF800B4DDEB /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */; };
 		5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
+		5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8A24FD154C00C2C92C /* PayIDService.swift */; };
 		5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C524BF56D800E8695B /* AppDelegate.swift */; };
 		5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C724BF56D800E8695B /* SceneDelegate.swift */; };
 		5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CB24BF56DC00E8695B /* Assets.xcassets */; };
@@ -97,6 +98,7 @@
 		5D0B4F9224F54F23007A0CD1 /* TangemSdkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkService.swift; sourceTree = "<group>"; };
 		5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
 		5D383E4024D95BA600C9BFF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5D384B8A24FD154C00C2C92C /* PayIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayIDService.swift; sourceTree = "<group>"; };
 		5D3F77C224BF56D800E8695B /* Tangem Tap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tangem Tap.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77C524BF56D800E8695B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5D3F77C724BF56D800E8695B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -212,6 +214,14 @@
 				5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */,
 			);
 			path = Assets;
+			sourceTree = "<group>";
+		};
+		5D384B8924FD152E00C2C92C /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				5D384B8A24FD154C00C2C92C /* PayIDService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		5D3F77B924BF56D800E8695B = {
@@ -350,6 +360,7 @@
 		5DFCCB6324C371AC0014A293 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				5D384B8924FD152E00C2C92C /* Services */,
 				5DF2522524F914C90015B429 /* TangemSdk */,
 				5D958E1724F51422006BD932 /* Models */,
 				5D958E1224F513C1006BD932 /* UI */,
@@ -694,6 +705,7 @@
 				5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */,
 				5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */,
 				5DFCCB6F24C3728E0014A293 /* DetailsView.swift in Sources */,
+				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
 				5DD4CB5424FAEE8B008F23CC /* CardIdFormatter.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
