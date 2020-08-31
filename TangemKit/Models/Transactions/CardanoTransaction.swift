@@ -11,6 +11,7 @@ import SwiftCBOR
 import Sodium
 
 open class CardanoTransaction {
+    let isShelleyFork: Bool
     
     let unspentOutputs: [CardanoUnspentOutput]
     let cardWalletAddress: String
@@ -25,11 +26,13 @@ open class CardanoTransaction {
     
     let kProtocolMagic: UInt64 = 764824073
     
-    public var transactionBody: [UInt8]?
+    public var transactionBodyItem: CBOR?
     public var transactionHash: [UInt8]?
     public var dataToSign: [UInt8]?
     
-    public init(unspentOutputs: [CardanoUnspentOutput], cardWalletAddress: String, targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool) {
+    public var errorText: String? = nil
+    
+    public init(unspentOutputs: [CardanoUnspentOutput], cardWalletAddress: String, targetAddress: String, amount: String, walletBalance: String, feeValue: String, isIncludeFee: Bool, isShelleyFork: Bool) {
         self.cardWalletAddress = cardWalletAddress
         self.targetAddress = targetAddress
         self.unspentOutputs = unspentOutputs
@@ -37,7 +40,7 @@ open class CardanoTransaction {
         self.walletBalance = walletBalance
         self.feeValue = feeValue
         self.isIncludeFee = isIncludeFee
-        
+        self.isShelleyFork = isShelleyFork
         buildTransaction()
     }
     
@@ -57,52 +60,66 @@ open class CardanoTransaction {
         
         let amountLong = (amount as NSDecimalNumber).uint64Value
         let changeLong = (change as NSDecimalNumber).uint64Value
+        let feesLong = (fees as NSDecimalNumber).uint64Value
         
-        var unspentOutputsCBOR = [CBOR]()
-        for output in unspentOutputs {
-            let outputCBOR = [CBOR.byteString(Array(output.id.hexData()!)), CBOR.unsignedInt(UInt64(output.index))] as CBOR
-            let array = [0, CBOR.tagged(.encodedCBORDataItem, CBOR.byteString(outputCBOR.encode()))] as CBOR
-            unspentOutputsCBOR.append(array)
-        }
-        
-        let targetAddressBytes: [UInt8] = Array(targetAddress.base58DecodedData!)
-        guard let targetAddressItemCBOR = try? CBORDecoder(input: targetAddressBytes).decodeItem() else {
-            assertionFailure()
+        if (amountLong < 1000000 || (changeLong < 1000000 && changeLong != 0)) {
+            errorText = "Sent amount and change cannot be less than 1 ADA"
             return
         }
         
-        var transactionOutputsCBOR = [CBOR]()
-        transactionOutputsCBOR.append(CBOR.array([targetAddressItemCBOR, CBOR.unsignedInt(amountLong)]))
-        
-        let currentWalletAddressBytes: [UInt8] = Array(cardWalletAddress.base58DecodedData!)
-        guard let currentWalletAddressCBOR = try? CBORDecoder(input: currentWalletAddressBytes).decodeItem() else {
-            assertionFailure()
-            return
+        var targetAddressBytes = [UInt8]()
+        if targetAddress.starts(with: CardanoEngine.BECH32_HRP) {
+            let bech32 = Bech32Internal()
+            if let decoded = try? bech32.decodeLong(targetAddress),
+                let converted = try? bech32.convertBits(data: Array(decoded.checksum), fromBits: 5, toBits: 8, pad: false) {
+                targetAddressBytes = converted
+            } else {
+                assertionFailure()
+                return
+            }
+        } else {
+            targetAddressBytes = Array(targetAddress.base58DecodedData!)
         }
+        
+        var transactionMap = CBOR.map([:])
+        var inputsArray = [CBOR]()
+        for unspentOutput in unspentOutputs {
+            let array = CBOR.array(
+                [CBOR.byteString(Array(unspentOutput.id.hexData()!)),
+                 CBOR.unsignedInt(UInt64(unspentOutput.index))])
+            inputsArray.append(array)
+        }
+        
+        var outputsArray = [CBOR]()
+        outputsArray.append(CBOR.array([CBOR.byteString(targetAddressBytes), CBOR.unsignedInt(amountLong)]))
+            
+        var changeAddressBytes: [UInt8]
+        if isShelleyFork {
+            let bech32 = Bech32Internal()
+            let changeAddressDecoded = try! bech32.decodeLong(cardWalletAddress).checksum
+            changeAddressBytes = try! bech32.convertBits(data: Array(changeAddressDecoded), fromBits: 5, toBits: 8, pad: false)
+        } else {
+            changeAddressBytes = Array(cardWalletAddress.base58DecodedData!)
+        }
+
         if (changeLong > 0) {
-            transactionOutputsCBOR.append(CBOR.array([currentWalletAddressCBOR, CBOR.unsignedInt(changeLong)]))
+            outputsArray.append(CBOR.array([CBOR.byteString(changeAddressBytes), CBOR.unsignedInt(changeLong)]))
         }
-        let transactionInputsArray = CBOR.indefiniteLenghtArrayWith(unspentOutputsCBOR)
-        let transactionOutputsArray = CBOR.indefiniteLenghtArrayWith(transactionOutputsCBOR)
         
-        let transactionBody = CBOR.combineEncodedArrays([transactionInputsArray, transactionOutputsArray, CBOR.map([:]).encode()])
+        transactionMap[CBOR.unsignedInt(0)] = CBOR.array(inputsArray)
+        transactionMap[CBOR.unsignedInt(1)] = CBOR.array(outputsArray)
+        transactionMap[2] = CBOR.unsignedInt(feesLong)
+        transactionMap[3] = CBOR.unsignedInt(90000000)
         
+        let transactionBody = transactionMap.encode()
         guard let transactionHash = Sodium().genericHash.hash(message: transactionBody, outputLength: 32) else {
             assertionFailure()
             return
         }
-        
-        let magic = CBOR.unsignedInt(kProtocolMagic).encode()
-        
-        var dataToSign = [UInt8]()
-        dataToSign.append(0x01)
-        dataToSign.append(contentsOf: magic)
-        dataToSign.append(contentsOf: [0x58, 0x20])
-        dataToSign.append(contentsOf: transactionHash)
-        
-        self.transactionBody = transactionBody
+
+        self.transactionBodyItem = transactionMap
         self.transactionHash = transactionHash
-        self.dataToSign = dataToSign
+        self.dataToSign = transactionHash
     }
     
 }
