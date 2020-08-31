@@ -49,3 +49,15 @@
 "addressDetails_button_createPayid" = "Create PayID";
 
 "qr_title_wallet" = "Wallet";
+
+"create_payid_title" = "Create PayID";
+
+"create_payid_card_format" = "Card: %@";
+
+"create_payid_placeholder" = "PayID name";
+
+"create_payid_domain" = "$payid.tangem.com";
+
+"create_payid_button_title" = "Create";
+
+"create_payid_info" = "Your PayID is information unique to you, like your phone number, email or ABN.";
