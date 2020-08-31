@@ -18,6 +18,10 @@ public protocol CoinProvider {
     func getApiDescription() -> String
 }
 
+protocol DetailedError {
+    var errorText: String? { get }
+}
+
 public protocol CoinProviderAsync {
     func getHashForSignature(amount: String, fee: String, includeFee: Bool, targetAddress: String, completion: @escaping ([Data]?, Error?) -> Void)
 }
