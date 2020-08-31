@@ -129,7 +129,7 @@ class ExtractViewController: ModalActionViewController {
     private var feeTimer: Timer?
     private var targetTimer: Timer?
     private var feeTime = Date(timeIntervalSince1970: TimeInterval(1.0))
-    
+    private var loadingView: UIView? = nil
     private lazy var recognizer: UITapGestureRecognizer = {
         let recognizer = UITapGestureRecognizer()
         recognizer.numberOfTouchesRequired = 1
@@ -260,7 +260,11 @@ class ExtractViewController: ModalActionViewController {
         }
         else {
             guard let dataToSign = coinProvider.getHashForSignature(amount: self.validatedAmount!, fee: self.validatedFee!, includeFee: self.includeFeeSwitch.isOn, targetAddress: self.validatedTarget!) else {
-                self.handleTXBuildError()
+                if let errorText = (card.cardEngine as? DetailedError)?.errorText {
+                     self.handleGenericError(errorText)
+                } else {
+                     self.handleTXBuildError()
+                }
                 self.removeLoadingView()
                 self.updateSendButtonSubtitle()
                 self.btnSend.hideActivityIndicator()
@@ -300,19 +304,17 @@ class ExtractViewController: ModalActionViewController {
             view.backgroundColor = UIColor.init(white: 0.0, alpha: 0.6)
             let indicator = UIActivityIndicatorView(style: .white)
             view.addSubview(indicator)
-            view.tag = 0781
             indicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
             indicator.startAnimating()
             window.addSubview(view)
             window.bringSubviewToFront(view)
+            loadingView = view
         }
     }
     
     func removeLoadingView() {
-        if let window = self.view.window,
-            let view = window.viewWithTag(0781) {
-            view.removeFromSuperview()
-        }
+        loadingView?.removeFromSuperview()
+        loadingView = nil
     }
     
     func updateFee() {
