@@ -14,6 +14,7 @@ import Combine
 class CardViewModel: Identifiable, ObservableObject {
     let card: Card
     let service = NetworkService()
+    var payIDService: PayIDService? = nil
     
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
@@ -33,6 +34,7 @@ class CardViewModel: Identifiable, ObservableObject {
         if let walletManager = WalletManagerFactory().makeWalletManager(from: card) {
             self.walletManager = walletManager
             self.wallet = walletManager.wallet
+            self.payIDService = PayIDService.make(from: walletManager.wallet.blockchain)
             self.balanceViewModel = self.makeBalanceViewModel(from: walletManager.wallet)
             bag = walletManager.$wallet
                 .sink(receiveValue: {[unowned self] wallet in
@@ -42,7 +44,55 @@ class CardViewModel: Identifiable, ObservableObject {
                 })
             self.updateWallet()
             self.loadImage()
+            self.loadPayIDInfo()
         }
+    }
+    
+    func loadPayIDInfo () {
+        guard let cid = card.cardId, let key = card.cardPublicKey else {
+            payId = .notSupported
+            return
+        }
+        
+        payIDService?.loadPayId(cid: cid, key: key, completion: { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let payIdString):
+                if let payIdString = payIdString {
+                    self.payId = .created(payId: payIdString)
+                } else {
+                    self.payId = .notCreated
+                }
+            case .failure(let error):
+                //[REDACTED_TODO_COMMENT]
+                self.payId = .notSupported
+            }
+        })
+    }
+    
+    func createPayID(_ payIDString: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard !payIDString.isEmpty,
+            let cid = card.cardId,
+            let address = wallet?.address,
+            let cardPublicKey = card.cardPublicKey,
+            let payIdService = self.payIDService else {
+                completion(.failure(PayIdError.unknown))
+                return
+        }
+        
+        let fullPayIdString = payIDString + "$payid.tangem.com"
+        payIdService.createPayId(cid: cid, key: cardPublicKey, payId: fullPayIdString, address: address) { [weak self] result in
+            switch result {
+            case .success:
+                UIPasteboard.general.string = fullPayIdString
+                self?.payId = .created(payId: fullPayIdString)
+                completion(.success(()))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+        
     }
     
     public func updateWallet() {
