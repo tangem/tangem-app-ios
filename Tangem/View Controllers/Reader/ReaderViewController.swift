@@ -73,9 +73,9 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
         super.viewDidAppear(animated)
         
         if isAppLaunched {
+            self.isAppLaunched = false
             scanButtonPressed(self)
         } else {
-            isAppLaunched = true
             handleIOS12()
         }
     }
@@ -121,6 +121,10 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                 self.card = CardViewModel(response.card)
                 Analytics.logScan(card: response.card)
                 self.card?.genuinityState = .genuine
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                   self.isAppLaunched = true
+                }
                 
                 guard self.card!.isBlockchainKnown else {
                     self.handleUnknownBlockchainCard()
