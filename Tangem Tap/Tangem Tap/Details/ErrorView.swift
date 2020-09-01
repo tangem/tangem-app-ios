@@ -37,7 +37,6 @@ struct ErrorView: View {
                     .fontWeight(.medium)
                     .foregroundColor(Color.tangemTapGrayDark)
                     .multilineTextAlignment(.leading)
-                    .lineLimit(1)
             }
             .padding(.vertical, 16.0)
             Spacer()
