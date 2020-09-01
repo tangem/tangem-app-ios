@@ -25,7 +25,44 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var image: UIImage? = nil
     
     private var walletManager: WalletManager?
-    private let verifyCardResponse: VerifyCardResponse?
+    public let verifyCardResponse: VerifyCardResponse?
+
+    var canPurgeWallet: Bool  {
+        if let status = card.status, status == .empty {
+            return false
+        }
+        
+        if (card.settingsMask?.contains(.prohibitPurgeWallet) ?? false) {
+            return false
+        }
+        //[REDACTED_TODO_COMMENT]
+//        if card.cardData?.productMask?.contains(.idCard) ?? true {
+//             return false
+//        }
+//
+//        if card.cardData?.productMask?.contains(.idIssuer) ?? true {
+//             return false
+//        }
+        
+        if let wallet = self.wallet {
+            if !wallet.isEmptyAmount || wallet.hasPendingTx {
+                return false
+            }
+            
+            return true
+        } else {
+            if let loadingError = self.loadingError {
+                if case .noAccount(_) = (loadingError as? WalletError) {
+                    return true
+                } else {
+                    return false
+                }
+            } else {
+               return false // [REDACTED_TODO_COMMENT]
+            }
+        }
+    }
+    
     private var bag: AnyCancellable? = nil
     
     init(card: Card, verifyCardResponse: VerifyCardResponse? = nil) {
@@ -42,10 +79,8 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.balanceViewModel = self.makeBalanceViewModel(from: wallet)
                     self.isWalletLoading = false
                 })
-            self.updateWallet()
-            self.loadImage()
-            self.loadPayIDInfo()
         }
+        self.update()
     }
     
     func loadPayIDInfo () {
@@ -95,13 +130,17 @@ class CardViewModel: Identifiable, ObservableObject {
         
     }
     
-    public func updateWallet() {
+    public func update() {
         loadingError = nil
-        isWalletLoading = true
-        walletManager?.update { [weak self] result in
-            if case let .failure(error) = result {
-                self?.loadingError = error.detailedError
-                self?.isWalletLoading = false
+        loadPayIDInfo()
+        loadImage()
+        if let walletManager = self.walletManager {
+            isWalletLoading = true
+            walletManager.update { [weak self] result in
+                if case let .failure(error) = result {
+                    self?.loadingError = error.detailedError
+                    self?.isWalletLoading = false
+                }
             }
         }
     }
@@ -141,7 +180,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                 name: name,
                                 usdBalance: "-",
                                 balance: wallet.amounts[.coin]?.description ?? "-",
-                                secondaryBalance: "",
+                                secondaryBalance: "-",
                                 secondaryName: secondaryName)
         return model
     }
