@@ -34,4 +34,48 @@ class TangemSdkService: ObservableObject {
             }
         }
     }
+    
+    func createWallet(cardId: String?, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        let createWalletTask = CreateWalletReadTask()
+        tangemSdk.startSession(with: createWalletTask, cardId: cardId) { result in
+            switch result {
+            case .success(let response):
+                guard let _ = response.card.cardId else {
+                    completion(.failure(TangemSdkError.unknownError))
+                    return
+                }
+                let vm =  self.updateViewModel(with: response.card)
+                completion(.success(vm))
+            case .failure(let error):
+                completion(.failure(error))
+                break
+            }
+        }
+    }
+    
+    func purgeWallet(cardId: String?, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        let purgeWalletTask = PurgeWalletReadTask()
+        tangemSdk.startSession(with: purgeWalletTask, cardId: cardId) { result in
+            switch result {
+            case .success(let response):
+                guard let _ = response.card.cardId else {
+                    completion(.failure(TangemSdkError.unknownError))
+                    return
+                }
+                let vm =  self.updateViewModel(with: response.card)
+                completion(.success(vm))
+            case .failure(let error):
+                completion(.failure(error))
+                break
+            }
+        }
+    }
+    
+    private func updateViewModel(with card: Card) -> CardViewModel {
+        let cid = card.cardId!
+        let oldVerifyResponse = self.cards[cid]?.verifyCardResponse
+        let vm = CardViewModel(card: card, verifyCardResponse: oldVerifyResponse)
+        self.cards[cid] = vm
+        return vm
+    }
 }
