@@ -32,7 +32,7 @@ final class TapScanTask: CardSessionRunnable {
         scanTask.run(in: session) { result in
             switch result {
             case .success(let card):
-                if let status = card.status, status == .loaded {
+                if let status = card.status, status == .loaded || status == .empty {
                     self.verifyCard(card, session: session, completion: completion)
                 } else {
                     completion(.failure(ScanError.wrongState.toTangemSdkError()))
