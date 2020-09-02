@@ -14,6 +14,25 @@ import Combine
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
     
+    
+    var sendChoiceButtons: [ActionSheet.Button] {
+        let symbols = viewModel
+            .cardViewModel
+            .wallet!
+            .amounts
+            .filter { $0.key != .reserve }
+            .values
+            .map { $0.currencySymbol }
+        
+      let buttons = symbols.map { symbol in
+            return ActionSheet.Button.default(Text(symbol)) {
+                //extract symbol, pass to sendView
+                self.viewModel.showSend = true
+            }
+        }
+        return buttons
+    }
+    
     var body: some View {
         VStack {
             GeometryReader { geometry in
@@ -69,7 +88,11 @@ struct DetailsView: View {
                     if self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  {
                         self.viewModel.createWallet()
                     } else {
-                        self.viewModel.showSend = true
+                        if self.viewModel.cardViewModel.wallet!.amounts.count > 1 {
+                            self.viewModel.showSendChoise = true
+                        } else {
+                            self.viewModel.showSend = true
+                        }
                     }
                 }) { HStack(alignment: .center, spacing: 16.0) {
                     Text(self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  ? "details_button_create_wallet" : "details_button_send")
@@ -85,6 +108,12 @@ struct DetailsView: View {
                 .sheet(isPresented: $viewModel.showSend) {
                     ExtractView(model: ExtractViewModel(cardViewModel: self.$viewModel.cardViewModel,
                                                         sdkSerice: self.$viewModel.sdkService))
+                }
+                .actionSheet(isPresented: self.$viewModel.showSendChoise) {
+                    ActionSheet(title: Text("details_choice_wallet_option_title"),
+                                message: nil,
+                                buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+
                 }
                 
             }
