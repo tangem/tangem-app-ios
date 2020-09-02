@@ -18,6 +18,7 @@ class DetailsViewModel: ObservableObject {
     @Published var showQr = false
     @Published var showSettings = false
     @Published var showCreatePayid = false
+    @Published var showSend = false
     @Published var cardViewModel: CardViewModel {
         didSet {
             bind()
@@ -45,17 +46,16 @@ class DetailsViewModel: ObservableObject {
         cardViewModel.$isWalletLoading
             .removeDuplicates()
             .filter { !$0 }
+            .receive(on: RunLoop.main)
             .sink (receiveValue: {[unowned self] isWalletLoading in
-                DispatchQueue.main.async {
-                      self.isRefreshing = isWalletLoading
-                }
+                self.isRefreshing = isWalletLoading
             })
             .store(in: &bag)
         
-        cardViewModel.objectWillChange.sink { [weak self] in
-            DispatchQueue.main.async {
+        cardViewModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
                 self?.objectWillChange.send()
-            }
         }
         .store(in: &bag)
     }
