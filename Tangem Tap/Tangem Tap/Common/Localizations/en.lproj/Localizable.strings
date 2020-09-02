@@ -27,6 +27,8 @@
 
 "details_title" = "Tangem Tap";
 
+"details_choice_wallet_option_title" = "Choice wallet option";
+
 "balanceView_token_title" = "Token";
 
 "balanceView_blockchain_verified" = "Verified Balance";
