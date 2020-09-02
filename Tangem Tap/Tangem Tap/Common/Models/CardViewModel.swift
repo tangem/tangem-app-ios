@@ -24,7 +24,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var noAccountMessage: String?
     @Published var payId: PayIdStatus = .notCreated
     @Published var balanceViewModel: BalanceViewModel!
-    
+    @Published var canExtract: Bool = true
     @Published var wallet: Wallet? = nil
     @Published var image: UIImage? = nil
     
