@@ -15,10 +15,9 @@ class DetailsViewModel: ObservableObject {
     @Binding var sdkService: TangemSdkService
     
     @Published var isRefreshing = false
-    @Published var showQr = false
     @Published var showSettings = false
-    @Published var showCreatePayid = false
     @Published var showSend = false
+    @Published var showSendChoise = false
     @Published var cardViewModel: CardViewModel {
         didSet {
             bind()
