@@ -40,6 +40,11 @@
 "error_subtitle_empty_card" = "Create wallet to start using Tangem card";
 
 
+"error_title_unsupported_blockchain" = "This card is not supported";
+
+"error_subtitle_unsupported_blockchain" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
+
+
 "pendingTxView_sending_format" = "Sending %@ to %@";
 
 "pendingTxView_receiving_format" = "Receiving %@ from %@";
