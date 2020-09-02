@@ -17,7 +17,8 @@ struct CreatePayIdView: View {
     @State var successAlert: Bool = false
     @State private var isFirstResponder : Bool? = false
     @Environment(\.presentationMode) var presentationMode
-    @Binding var cardViewModel: CardViewModel
+    @EnvironmentObject var cardViewModel: CardViewModel
+    
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 6.0) {
@@ -121,6 +122,7 @@ struct CreatePayIdView: View {
 struct CreatePayIdView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel(card: Card.testCard)
     static var previews: some View {
-        CreatePayIdView(cardId: "CB23 4344 5455 6544", cardViewModel: $cardViewModel)
+        CreatePayIdView(cardId: "CB23 4344 5455 6544")
+        .environmentObject(cardViewModel)
     }
 }
