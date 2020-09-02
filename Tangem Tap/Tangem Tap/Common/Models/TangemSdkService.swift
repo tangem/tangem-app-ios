@@ -10,6 +10,8 @@ import Foundation
 import TangemSdk
 
 class TangemSdkService: ObservableObject {
+    var ratesService: CoinMarketCapService!
+    
     var cards = [String: CardViewModel]()
     
     lazy var tangemSdk: TangemSdk = {
@@ -18,7 +20,7 @@ class TangemSdkService: ObservableObject {
     }()
     
     func scan(_ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        tangemSdk.startSession(with: TapScanTask()) { result in
+        tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
             case .failure(let error):
                 completion(.failure(error))  //[REDACTED_TODO_COMMENT]
@@ -28,7 +30,7 @@ class TangemSdkService: ObservableObject {
                     return
                 }
                 
-                let vm = CardViewModel(card: response.card, verifyCardResponse: response.verifyResponse)
+                let vm = self.makeCardViewModel(card: response.card, verifyCardResponse: response.verifyResponse)
                 self.cards[cid] = vm
                 completion(.success(vm))
             }
@@ -73,9 +75,16 @@ class TangemSdkService: ObservableObject {
     
     private func updateViewModel(with card: Card) -> CardViewModel {
         let cid = card.cardId!
-        let oldVerifyResponse = self.cards[cid]?.verifyCardResponse
-        let vm = CardViewModel(card: card, verifyCardResponse: oldVerifyResponse)
+        let oldVerifyResponse = self.cards[cid]!.verifyCardResponse!
+        let vm = makeCardViewModel(card: card, verifyCardResponse: oldVerifyResponse)
         self.cards[cid] = vm
+        return vm
+    }
+    
+    private func makeCardViewModel(card: Card, verifyCardResponse: VerifyCardResponse) -> CardViewModel {
+        let vm = CardViewModel(card: card, verifyCardResponse: verifyCardResponse)
+        vm.ratesService = self.ratesService
+        vm.update()
         return vm
     }
 }
