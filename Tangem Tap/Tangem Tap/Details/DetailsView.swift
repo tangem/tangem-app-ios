@@ -35,12 +35,7 @@ struct DetailsView: View {
                                 } else {
                                     if self.viewModel.cardViewModel.wallet != nil {
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
-                                        AddressDetailView(
-                                            address: self.viewModel.cardViewModel.wallet!.address,
-                                            payId: self.viewModel.cardViewModel.payId,
-                                            exploreURL: self.viewModel.cardViewModel.wallet!.exploreUrl,
-                                            showQr: self.$viewModel.showQr,
-                                            showPayId: self.$viewModel.showCreatePayid)
+                                        AddressDetailView().environmentObject(self.viewModel.cardViewModel)
                                     } else {
                                         if self.viewModel.cardViewModel.walletManager == nil  {
                                              ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
@@ -71,37 +66,29 @@ struct DetailsView: View {
                 }
                 .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
                 Button(action: {
-                    if self.viewModel.cardViewModel.wallet == nil {
+                    if self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  {
                         self.viewModel.createWallet()
+                    } else {
+                        self.viewModel.showSend = true
                     }
                 }) { HStack(alignment: .center, spacing: 16.0) {
-                    Text(self.viewModel.cardViewModel.wallet == nil ? "details_button_create_wallet" : "details_button_send")
+                    Text(self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  ? "details_button_create_wallet" : "details_button_send")
                     Spacer()
                     Image("arrow.right")
                 }
                 .padding(.horizontal)
                 }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  ? false : !self.viewModel.cardViewModel.canExtract))
                 .animation(.easeIn)
+                .disabled(self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  ? false : !self.viewModel.cardViewModel.canExtract)
                 .transition(.offset(x: 400.0, y: 0.0))
+                .sheet(isPresented: $viewModel.showSend) {
+                    ExtractView(model: ExtractViewModel(cardViewModel: self.$viewModel.cardViewModel,
+                                                        sdkSerice: self.$viewModel.sdkService))
+                }
                 
             }
         }
-        .sheet(isPresented: $viewModel.showQr) {
-            // VStack {
-            //    Spacer()
-            QRCodeView(title: "\(self.viewModel.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
-                address: self.viewModel.cardViewModel.wallet!.address,
-                shareString: self.viewModel.cardViewModel.wallet!.shareString)
-                .transition(AnyTransition.move(edge: .bottom))
-            //   Spacer()
-            // }
-            // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
-        }
-        .sheet(isPresented: $viewModel.showCreatePayid, content: {
-            CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "",
-                            cardViewModel: self.$viewModel.cardViewModel)
-        })
             .padding(.bottom, 16.0)
             .navigationBarBackButtonHidden(true)
             .navigationBarTitle("details_title", displayMode: .inline)
