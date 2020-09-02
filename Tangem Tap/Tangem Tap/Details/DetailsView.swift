@@ -30,67 +30,74 @@ struct DetailsView: View {
                                 ActivityIndicatorView(isAnimating: true, style: .medium)
                                     .padding(.bottom, 16.0)
                             } else {
-                                if self.viewModel.cardViewModel.wallet != nil {
-                                    BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
+                                if self.viewModel.cardViewModel.noAccountMessage != nil {
+                                    ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
                                 } else {
-                                    ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
+                                    if self.viewModel.cardViewModel.wallet != nil {
+                                        BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
+                                        AddressDetailView(
+                                            address: self.viewModel.cardViewModel.wallet!.address,
+                                            payId: self.viewModel.cardViewModel.payId,
+                                            exploreURL: self.viewModel.cardViewModel.wallet!.exploreUrl,
+                                            showQr: self.$viewModel.showQr,
+                                            showPayId: self.$viewModel.showCreatePayid)
+                                    } else {
+                                        if self.viewModel.cardViewModel.walletManager == nil  {
+                                             ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
+                                        } else {
+                                            ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
+                                        }
+                                    }
                                 }
-                                 }
-                                if self.viewModel.cardViewModel.wallet != nil  {
-                                    AddressDetailView(
-                                        address: self.viewModel.cardViewModel.wallet!.address,
-                                        payId: self.viewModel.cardViewModel.payId,
-                                        exploreURL: self.viewModel.cardViewModel.wallet!.exploreUrl,
-                                        showQr: self.$viewModel.showQr,
-                                        showPayId: self.$viewModel.showCreatePayid)
-                                }
+                                
                             }
-                            Spacer()
                         }
+                        Spacer()
                     }
                 }
-                HStack(alignment: .center, spacing: 8.0) {
-                    Button(action: {
-                        withAnimation {
-                            self.viewModel.scan()
-                        }
-                    }) {
-                        HStack(alignment: .center) {
-                            Text("details_button_scan")
-                            Spacer()
-                            Image("scan")
-                        }
-                        .padding(.horizontal)
+            }
+            HStack(alignment: .center, spacing: 8.0) {
+                Button(action: {
+                    withAnimation {
+                        self.viewModel.scan()
                     }
-                    .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
-                    Button(action: {
-                        if self.viewModel.cardViewModel.wallet == nil {
-                            self.viewModel.createWallet()
-                        }
-                    }) { HStack(alignment: .center, spacing: 16.0) {
-                        Text(self.viewModel.cardViewModel.wallet == nil ? "details_button_create_wallet" : "details_button_send")
+                }) {
+                    HStack(alignment: .center) {
+                        Text("details_button_scan")
                         Spacer()
-                        Image("arrow.right")
+                        Image("scan")
                     }
                     .padding(.horizontal)
-                    }
-                    .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
-                    .animation(.easeIn)
-                    .transition(.offset(x: 400.0, y: 0.0))
-                    
                 }
+                .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                Button(action: {
+                    if self.viewModel.cardViewModel.wallet == nil {
+                        self.viewModel.createWallet()
+                    }
+                }) { HStack(alignment: .center, spacing: 16.0) {
+                    Text(self.viewModel.cardViewModel.wallet == nil ? "details_button_create_wallet" : "details_button_send")
+                    Spacer()
+                    Image("arrow.right")
+                }
+                .padding(.horizontal)
+                }
+                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                .animation(.easeIn)
+                .transition(.offset(x: 400.0, y: 0.0))
+                
             }
-            .sheet(isPresented: $viewModel.showQr) {
-                // VStack {
-                //    Spacer()
-                QRCodeView(title: "\(self.viewModel.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
-                    address: self.viewModel.cardViewModel.wallet!.address,
-                    shareString: self.viewModel.cardViewModel.wallet!.shareString)
-                    .transition(AnyTransition.move(edge: .bottom))
-                //   Spacer()
-                // }
-                // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
-            }
+        }
+        .sheet(isPresented: $viewModel.showQr) {
+            // VStack {
+            //    Spacer()
+            QRCodeView(title: "\(self.viewModel.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
+                address: self.viewModel.cardViewModel.wallet!.address,
+                shareString: self.viewModel.cardViewModel.wallet!.shareString)
+                .transition(AnyTransition.move(edge: .bottom))
+            //   Spacer()
+            // }
+            // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
+        }
         .sheet(isPresented: $viewModel.showCreatePayid, content: {
             CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "",
                             cardViewModel: self.$viewModel.cardViewModel)
@@ -110,12 +117,12 @@ struct DetailsView: View {
                 .sheet(isPresented: $viewModel.showSettings) {
                     SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService))
                 }
-            )
-                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
-        }
+        )
+            .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
     }
-    
-    
+}
+
+
 struct DetailsView_Previews: PreviewProvider {
     @State static var sdkService: TangemSdkService = {
         let service = TangemSdkService()
