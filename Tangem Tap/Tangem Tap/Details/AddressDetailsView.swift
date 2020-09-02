@@ -17,14 +17,12 @@ enum PayIdStatus {
 }
 
 struct AddressDetailView: View {
-    var address: String
-    var payId: PayIdStatus
-    var exploreURL: URL
-    @Binding var showQr: Bool
-    @Binding var showPayId: Bool
+    @State private(set) var showQr: Bool = false
+    @State private(set) var showCreatePayid: Bool = false
+    @EnvironmentObject var cardViewModel: CardViewModel
     
     var showPayIdBlock: Bool {
-        switch payId {
+        switch cardViewModel.payId {
         case .notSupported:
             return false
         default:
@@ -33,7 +31,7 @@ struct AddressDetailView: View {
     }
     
     var isPayIdCreated: Bool {
-        switch payId {
+        switch cardViewModel.payId {
         case .created:
             return true
         default:
@@ -42,7 +40,7 @@ struct AddressDetailView: View {
     }
     
     var payIdText: String {
-        if case let .created(text) = payId {
+        if case let .created(text) = cardViewModel.payId {
             return text
         } else {
             return ""
@@ -53,14 +51,16 @@ struct AddressDetailView: View {
         VStack(spacing: 0.0) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading) {
-                    Text(AddressFormatter(address: address).truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
+                    Text(AddressFormatter(address: cardViewModel.wallet?.address ?? "").truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .minimumScaleFactor(0.5)
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
                         .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
-                        UIApplication.shared.open(self.exploreURL, options: [:], completionHandler: nil)
+                        if let url = self.cardViewModel.wallet?.exploreUrl {
+                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                        }
                     }) {
                         HStack {
                             Text("addressDetails_button_explore")
@@ -76,7 +76,9 @@ struct AddressDetailView: View {
                 }
                 Spacer()
                 Button(action: {
-                    UIPasteboard.general.string = self.address
+                    if let address = self.cardViewModel.wallet?.address {
+                        UIPasteboard.general.string = address
+                    }
                 }) {
                     ZStack {
                         Circle()
@@ -102,7 +104,17 @@ struct AddressDetailView: View {
             }
             .padding(.horizontal, 24.0)
             .padding(.vertical, 16.0)
-            
+            .sheet(isPresented: $showQr) {
+                // VStack {
+                //    Spacer()
+                QRCodeView(title: "\(self.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
+                    address: self.cardViewModel.wallet!.address,
+                    shareString: self.cardViewModel.wallet!.shareString)
+                    .transition(AnyTransition.move(edge: .bottom))
+                //   Spacer()
+                // }
+                // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
+            }
             if showPayIdBlock {
                 Color.tangemTapGrayLight5
                     .frame(width: nil, height: 1.0, alignment: .center)
@@ -117,7 +129,7 @@ struct AddressDetailView: View {
                     
                     if !isPayIdCreated {
                         Button(action: {
-                            self.showPayId = true
+                            self.showCreatePayid = true
                         }) {
                             HStack {
                                 Text("addressDetails_button_createPayid")
@@ -131,6 +143,10 @@ struct AddressDetailView: View {
                                 
                             }
                         }
+                        .sheet(isPresented: $showCreatePayid, content: {
+                            CreatePayIdView(cardId: self.cardViewModel.card.cardId ?? "")
+                                .environmentObject(self.cardViewModel)
+                        })
                     } else {
                         Text(payIdText)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
@@ -156,18 +172,13 @@ struct AddressDetailView: View {
 }
 
 struct AddressDetailView_Previews: PreviewProvider {
-    @State static var showQr: Bool = false
-    @State static var showCreatePayid: Bool = false
+    @State static var cardViewModel = CardViewModel(card: Card.testCard)
     
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
-            AddressDetailView(
-                address: "0x12341234nkb231kj4lj12h3g4khj12v4k123",
-                payId: .created(payId: "jana$payid.tangem.com"),
-                exploreURL: URL(string: "https://www.apple.com")!,
-                showQr: $showQr,
-                showPayId: $showCreatePayid)
+            AddressDetailView()
+            .environmentObject(cardViewModel)
         }
     }
 }
