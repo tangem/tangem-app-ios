@@ -18,13 +18,14 @@ class CardViewModel: Identifiable, ObservableObject {
     
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
+    @Published var noAccountMessage: String?
     @Published var payId: PayIdStatus = .notCreated
     @Published var balanceViewModel: BalanceViewModel!
     
     @Published var wallet: Wallet? = nil
     @Published var image: UIImage? = nil
     
-    private var walletManager: WalletManager?
+    var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
 
     var canPurgeWallet: Bool  {
@@ -139,8 +140,11 @@ class CardViewModel: Identifiable, ObservableObject {
             walletManager.update { [weak self] result in
                 if case let .failure(error) = result {
                     self?.loadingError = error.detailedError
-                    self?.isWalletLoading = false
+                    if case let .noAccount(noAccountMessage) = (error as? WalletError) {
+                        self?.noAccountMessage = noAccountMessage
+                    }                    
                 }
+                 self?.isWalletLoading = false
             }
         }
     }
