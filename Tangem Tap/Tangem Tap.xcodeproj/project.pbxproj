@@ -280,7 +280,6 @@
 			isa = PBXGroup;
 			children = (
 				5D384B9224FD51B200C2C92C /* Settings */,
-				5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */,
 				5DFCCB7224C3817E0014A293 /* Send */,
 				5DFCCB6D24C372830014A293 /* Details */,
 				5DFCCB6A24C372020014A293 /* Read */,
@@ -288,6 +287,7 @@
 				5D383E4224D9602700C9BFF6 /* Assets */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				5D3F77C724BF56D800E8695B /* SceneDelegate.swift */,
+				5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
 				5D3F77D324BF56DC00E8695B /* Info.plist */,
 				5D3F77CD24BF56DC00E8695B /* Preview Content */,
