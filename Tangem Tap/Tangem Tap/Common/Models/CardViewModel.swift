@@ -15,6 +15,9 @@ class CardViewModel: Identifiable, ObservableObject {
     let card: Card
     let service = NetworkService()
     var payIDService: PayIDService? = nil
+    var ratesService: CoinMarketCapService?
+    var rates: [String: [String: Decimal]] = [:]
+    var selectedFiat: CoinMarketCapService.FiatCurrencies = .usd
     
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
@@ -64,24 +67,24 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    private var bag: AnyCancellable? = nil
+    private var bag =  Set<AnyCancellable>()
     
     init(card: Card, verifyCardResponse: VerifyCardResponse? = nil) {
         self.card = card
         self.verifyCardResponse = verifyCardResponse
         if let walletManager = WalletManagerFactory().makeWalletManager(from: card) {
             self.walletManager = walletManager
-            self.wallet = walletManager.wallet
             self.payIDService = PayIDService.make(from: walletManager.wallet.blockchain)
             self.balanceViewModel = self.makeBalanceViewModel(from: walletManager.wallet)
-            bag = walletManager.$wallet
+            walletManager.$wallet
                 .sink(receiveValue: {[unowned self] wallet in
+                    print("wallet received")
                     self.wallet = wallet
                     self.balanceViewModel = self.makeBalanceViewModel(from: wallet)
                     self.isWalletLoading = false
                 })
+            .store(in: &bag)
         }
-        self.update()
     }
     
     func loadPayIDInfo () {
@@ -143,9 +146,36 @@ class CardViewModel: Identifiable, ObservableObject {
                     if case let .noAccount(noAccountMessage) = (error as? WalletError) {
                         self?.noAccountMessage = noAccountMessage
                     }                    
+                } else {
+                    self?.loadRates()
                 }
                  self?.isWalletLoading = false
             }
+        }
+    }
+    
+    func loadRates() {
+        rates = [:]
+        if let currenciesToExchange = wallet?.amounts.values
+            .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
+            .reduce(into: [String: Decimal](), { $0[$1.0] = $1.1 }) {
+            ratesService?
+                .loadRates(for: currenciesToExchange, convertTo: CoinMarketCapService.FiatCurrencies.allCases)
+                .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    case .finished:
+                        break
+                    }
+                }) {[unowned self] rates in
+                        self.rates = rates
+                    if let wallet = self.wallet {
+                        self.balanceViewModel = self.makeBalanceViewModel(from: wallet)
+                    }
+                }
+            .store(in: &bag)
+            
         }
     }
     
@@ -174,19 +204,37 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
+    private func getFiatFormatted(for amount: Amount?) -> String? {
+        if let amount = amount,
+            let quotes = rates[amount.currencySymbol],
+            let rate = quotes[selectedFiat.rawValue] {
+            return (amount.value * rate).currencyFormatted(code: selectedFiat.rawValue)
+        }
+        return nil
+    }
+    
     private func makeBalanceViewModel(from wallet: Wallet) -> BalanceViewModel? {
-        let name = wallet.token != nil ? wallet.token!.displayName :  wallet.blockchain.displayName
-        let secondaryName = wallet.token != nil ?  wallet.blockchain.displayName : ""
-        
-        let model = BalanceViewModel(isToken: wallet.token != nil,
-                                dataLoaded: !wallet.amounts.isEmpty,
-                                loadingError: self.loadingError?.localizedDescription,
-                                name: name,
-                                usdBalance: "-",
-                                balance: wallet.amounts[.coin]?.description ?? "-",
-                                secondaryBalance: "-",
-                                secondaryName: secondaryName)
-        return model
+        if let token = wallet.token {
+            return BalanceViewModel(isToken: true,
+                                    dataLoaded: !wallet.amounts.isEmpty,
+                                    loadingError: self.loadingError?.localizedDescription,
+                                    name: token.displayName,
+                                    fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? "-",
+                                    balance: wallet.amounts[.token]?.description ?? "-",
+                                    secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
+                                    secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "-",
+                                    secondaryName: wallet.blockchain.displayName )
+        } else {
+            return BalanceViewModel(isToken: false,
+                                    dataLoaded: !wallet.amounts.isEmpty,
+                                    loadingError: self.loadingError?.localizedDescription,
+                                    name:  wallet.blockchain.displayName,
+                                    fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "-",
+                                    balance: wallet.amounts[.coin]?.description ?? "-",
+                                    secondaryBalance: "-",
+                                    secondaryFiatBalance: "-",
+                                    secondaryName: "-")
+        }
     }
 }
 
@@ -248,8 +296,9 @@ struct BalanceViewModel {
     let dataLoaded: Bool
     let loadingError: String?
     let name: String
-    let usdBalance: String
+    let fiatBalance: String
     let balance: String
     let secondaryBalance: String
+    let secondaryFiatBalance: String
     let secondaryName: String
 }
