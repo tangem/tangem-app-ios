@@ -78,3 +78,11 @@
 "send_destination_placeholder" = "Address or PayID";
 
 "send_title" = "Send";
+
+"send_network_fee_title" = "Network fee";
+
+"send_amount_label" = "Amount";
+
+"send_fee_label" = "Fee";
+
+"send_total_label" = "Total";
