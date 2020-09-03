@@ -9,8 +9,19 @@
 import Foundation
 import SwiftUI
 import Combine
+import EFQRCode
+
+struct TextHint {
+    let isError: Bool
+    let message: String
+}
 
 class ExtractViewModel: ObservableObject {
+    @Published var showQR = false
+    @Published var validatedClipboard: String? = nil
+    @Published var destination: String = ""
+    @Published var amount: String = "0"
+    @Published var destinationHint: TextHint? = nil
     @Binding var sdkService: TangemSdkService
     @Binding var cardViewModel: CardViewModel {
         didSet {
@@ -19,6 +30,11 @@ class ExtractViewModel: ObservableObject {
     }
     
     @Published var isSendEnabled: Bool = false
+    
+    
+    //MARK: ValidatedInput
+    private var validatedDestination: String? = nil
+    
     
     private var bag = Set<AnyCancellable>()
     
@@ -37,5 +53,31 @@ class ExtractViewModel: ObservableObject {
                 self?.objectWillChange.send()
         }
         .store(in: &bag)
+        
+        $destination
+            .throttle(for: 0.3, scheduler: RunLoop.main, latest: true)
+        .sink{ [weak self] newText in
+            print(newText)
+            self?.validatedDestination = nil
+            self?.destinationHint = nil
+            guard !newText.isEmpty else {
+                return
+            }
+              //[REDACTED_TODO_COMMENT]
+            self?.destinationHint = TextHint(isError: true, message: "Invalid")
+        }
+        .store(in: &bag)
+    }
+    
+    func validateClipboard() {
+        
+    }
+    
+    func stripBlockchainPrefix(_ string: String) -> String {
+        if let qrPrefix = cardViewModel.wallet?.blockchain.qrPrefix {
+            return string.remove(qrPrefix)
+        } else {
+            return string
+        }
     }
 }
