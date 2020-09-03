@@ -101,20 +101,20 @@ struct AddressDetailView: View {
                             .foregroundColor(Color.tangemTapGrayDark6)
                     }
                 }
+                .sheet(isPresented: $showQr) {
+                    // VStack {
+                    //    Spacer()
+                    QRCodeView(title: "\(self.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
+                        address: self.cardViewModel.wallet!.address,
+                        shareString: self.cardViewModel.wallet!.shareString)
+                        .transition(AnyTransition.move(edge: .bottom))
+                    //   Spacer()
+                    // }
+                    // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
+                }
             }
             .padding(.horizontal, 24.0)
             .padding(.vertical, 16.0)
-            .sheet(isPresented: $showQr) {
-                // VStack {
-                //    Spacer()
-                QRCodeView(title: "\(self.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
-                    address: self.cardViewModel.wallet!.address,
-                    shareString: self.cardViewModel.wallet!.shareString)
-                    .transition(AnyTransition.move(edge: .bottom))
-                //   Spacer()
-                // }
-                // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
-            }
             if showPayIdBlock {
                 Color.tangemTapGrayLight5
                     .frame(width: nil, height: 1.0, alignment: .center)
