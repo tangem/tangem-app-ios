@@ -16,12 +16,32 @@ struct TextHint {
     let message: String
 }
 
+//enum CurrencyUnit {
+//    case crypto(symbol: String)
+//    case fiat(symbol: String)
+//}
+
 class ExtractViewModel: ObservableObject {
     @Published var showQR = false
     @Published var validatedClipboard: String? = nil
+    
     @Published var destination: String = ""
-    @Published var amount: String = "0"
     @Published var destinationHint: TextHint? = nil
+    
+    @Published var amount: String = "0"
+    @Published var amountHint: TextHint? = nil
+
+    @Published var walletTotalBalance: String = ""
+    @Published var isNetworkFeeBlockOpen: Bool = true
+    
+    @Published var isFeeIncluded: Bool = true
+    @Published var selectedFeeLevel: Int = 1
+    
+    @Published var sendAmount: String = ""
+    @Published var sendFee: String = ""
+    @Published var sendTotal: String = ""
+    @Published var sendTotalSubtitle: String = ""
+    
     @Binding var sdkService: TangemSdkService
     @Binding var cardViewModel: CardViewModel {
         didSet {
