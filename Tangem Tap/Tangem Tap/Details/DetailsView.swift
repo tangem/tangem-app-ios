@@ -56,7 +56,7 @@ struct DetailsView: View {
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
                                         AddressDetailView().environmentObject(self.viewModel.cardViewModel)
                                     } else {
-                                        if self.viewModel.cardViewModel.walletManager == nil  {
+                                        if !self.viewModel.cardViewModel.isCardSupported  {
                                              ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
                                         } else {
                                             ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
@@ -85,7 +85,7 @@ struct DetailsView: View {
                 }
                 .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
                 Button(action: {
-                    if self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  {
+                    if self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.isCardSupported  {
                         self.viewModel.createWallet()
                     } else {
                         if self.viewModel.cardViewModel.wallet!.amounts.count > 1 {
@@ -95,18 +95,18 @@ struct DetailsView: View {
                         }
                     }
                 }) { HStack(alignment: .center, spacing: 16.0) {
-                    Text(self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  ? "details_button_create_wallet" : "details_button_send")
+                    Text(self.viewModel.cardViewModel.wallet == nil &&  self.viewModel.cardViewModel.isCardSupported ? "details_button_create_wallet" : "details_button_send")
                     Spacer()
                     Image("arrow.right")
                 }
                 .padding(.horizontal)
                 }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  ? false : !self.viewModel.cardViewModel.canExtract))
+                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.cardViewModel.canExtract))
                 .animation(.easeIn)
-                .disabled(self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.walletManager != nil  ? false : !self.viewModel.cardViewModel.canExtract)
+                .disabled(self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.cardViewModel.canExtract)
                 .transition(.offset(x: 400.0, y: 0.0))
                 .sheet(isPresented: $viewModel.showSend) {
-                    ExtractView(model: ExtractViewModel(cardViewModel: self.$viewModel.cardViewModel,
+                    ExtractView(viewModel: ExtractViewModel(cardViewModel: self.$viewModel.cardViewModel,
                                                         sdkSerice: self.$viewModel.sdkService))
                 }
                 .actionSheet(isPresented: self.$viewModel.showSendChoise) {
