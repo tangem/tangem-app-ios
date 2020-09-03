@@ -60,7 +60,7 @@ struct BalanceView: View {
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
                     Spacer()
-                    Text(balanceViewModel.usdBalance)
+                    Text(balanceViewModel.fiatBalance)
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .multilineTextAlignment(.trailing)
                         .lineLimit(1)
@@ -82,10 +82,11 @@ struct BalanceView: View {
             .padding(.bottom, 16.0)
             .padding(.horizontal, 24.0)
             if balanceViewModel.isToken {
-                VStack(spacing: 12.0) {
+                VStack {
                     Color.tangemTapGrayLight5
                         .frame(width: nil, height: 1.0, alignment: .center)
-                    HStack {
+                        .padding(.bottom, 4.0)
+                    HStack(alignment: .firstTextBaseline) {
                         Text(balanceViewModel.secondaryName)
                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .multilineTextAlignment(.leading)
@@ -97,6 +98,15 @@ struct BalanceView: View {
                             .foregroundColor(Color.tangemTapGrayDark6)
                             .multilineTextAlignment(.trailing)
                             .lineLimit(1)
+                        
+                    }
+                    HStack {
+                        Spacer()
+                        Text(balanceViewModel.secondaryFiatBalance)
+                                                                         .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                                                                         .multilineTextAlignment(.trailing)
+                                                                         .lineLimit(1)
+                                                                         .foregroundColor(Color.tangemTapGrayDark)
                     }
                 }
                 .padding(.horizontal, 24.0)
@@ -118,9 +128,9 @@ struct BalanceView_Previews: PreviewProvider {
                                                                dataLoaded: true,
                                                                loadingError: nil,
                                                                name: "Bitcoin",
-                                                               usdBalance: "$3.45",
+                                                               fiatBalance: "$3.45",
                                                                balance: "0.00000348573986753845001 BTC",
-                                                               secondaryBalance: "",
+                                                               secondaryBalance: "", secondaryFiatBalance: "",
                                                                secondaryName: ""))
             }
             ZStack {
@@ -129,9 +139,10 @@ struct BalanceView_Previews: PreviewProvider {
                                                                dataLoaded: false,
                                                                loadingError: "Something went wrong",
                                                                name: "Bitcoin token",
-                                                               usdBalance: "-",
+                                                               fiatBalance: "-",
                                                                balance: "10 BTCA",
                                                                secondaryBalance: "19 BTC",
+                                                               secondaryFiatBalance: "-",
                                                                secondaryName: "Bitcoin"))
             }
             ZStack {
@@ -140,9 +151,10 @@ struct BalanceView_Previews: PreviewProvider {
                                                                dataLoaded: true,
                                                                loadingError: "Something went wrong",
                                                                name: "Bitcoin token",
-                                                               usdBalance: "-",
+                                                               fiatBalance: "5 USD",
                                                                balance: "10 BTCA",
                                                                secondaryBalance: "19 BTC",
+                                                                secondaryFiatBalance: "10 USD",
                                                                secondaryName: "Bitcoin"))
             }
         }
