@@ -74,3 +74,7 @@
 "common_ok" = "Ok";
 
 "create_payid_success_message" = "PayID created successfully and copied to clipboard";
+
+"send_destination_placeholder" = "Address or PayID";
+
+"send_title" = "Send";
