@@ -30,6 +30,7 @@
 		5D5E058E24FEA2DB00F04DE1 /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D5E058D24FEA2DB00F04DE1 /* Config.plist */; };
 		5D5E059024FEA3F200F04DE1 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E058F24FEA3F200F04DE1 /* Config.swift */; };
 		5D5E059224FEA4B800F04DE1 /* CoinMarketCapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */; };
+		5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */; };
 		5D9004E424FA79F700E90939 /* onWillDisappear.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E324FA79F700E90939 /* onWillDisappear.swift */; };
 		5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */; };
 		5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
@@ -133,6 +134,7 @@
 		5D5E058D24FEA2DB00F04DE1 /* Config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Config.plist; sourceTree = "<group>"; };
 		5D5E058F24FEA3F200F04DE1 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinMarketCapService.swift; sourceTree = "<group>"; };
+		5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapSwitchTogglColoredToggleStyleeStyle.swift; sourceTree = "<group>"; };
 		5D9004E324FA79F700E90939 /* onWillDisappear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = onWillDisappear.swift; sourceTree = "<group>"; };
 		5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePayIdView.swift; sourceTree = "<group>"; };
 		5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Medium.ttf"; sourceTree = "<group>"; };
@@ -346,6 +348,7 @@
 				5D958E1524F51402006BD932 /* NavigationConfigurator.swift */,
 				5D9004E324FA79F700E90939 /* onWillDisappear.swift */,
 				5DD4CB5124FAE4B9008F23CC /* CustomTextField.swift */,
+				5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -745,6 +748,7 @@
 				5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */,
 				5D384B8F24FD445100C2C92C /* PurgeWalletReadTask.swift in Sources */,
 				5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */,
+				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				5DD4CB5224FAE4B9008F23CC /* CustomTextField.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
 				5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */,
