@@ -101,7 +101,7 @@ class BTCEngine: CardEngine, CoinProvider, PayIdProvider {
         
         walletAddress = String(base58Encoding: binaryForBase58, alphabet:Base58String.btcAlphabet) 
         
-        card.node = randomNode() 
+        card.node = currentBackend.nodeDescription
     }
     
     var targetAddress: String?
@@ -110,6 +110,7 @@ class BTCEngine: CardEngine, CoinProvider, PayIdProvider {
     
     func switchBackend() {
         currentBackend = .blockcypher
+        card.node = currentBackend.nodeDescription
     }
     
     func getApiDescription() -> String {
