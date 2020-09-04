@@ -143,11 +143,11 @@ class ReaderViewController: UIViewController, DefaultErrorAlertsCapable {
                     if !error.isUserCancelled {
                         task.trace?.stop()
                         Analytics.log(error: error)
-                        if case .verificationFailed = error {
-                            self.handleNonGenuineTangemCard() {}
-                        } else {
+//                        if case .verificationFailed = error {
+//                            self.handleNonGenuineTangemCard() {}
+//                        } else {
                             self.handleGenericError(error)
-                        }
+                        //}
                     } else {
                         task.trace?.stop()
                     }
