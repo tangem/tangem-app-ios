@@ -11,4 +11,13 @@ import Foundation
 enum BtcBackend {
     case blockcypher
     case blockchainInfo
+    
+    var nodeDescription: String {
+        switch self {
+        case .blockcypher:
+            return "api.blockcypher.com"
+        case .blockchainInfo:
+            return "blockchain.info"
+        }
+    }
 }
