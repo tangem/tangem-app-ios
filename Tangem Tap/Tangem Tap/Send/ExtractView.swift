@@ -38,6 +38,7 @@ struct ExtractView: View {
                                     
                                 }
                                 .truncationMode(.middle)
+                                .disableAutocorrection(true)
                                 .font(Font.system(size: 16.0, weight: .regular, design: .default))
                                 //.alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
                             }
@@ -92,16 +93,20 @@ struct ExtractView: View {
                     }
                     Group {
                         HStack {
-                            TextField("",
-                                      text: self.$viewModel.amount,
-                                      onEditingChanged: { hz in
-                                        
-                            }) {
-                                
+                            GeometryReader { geo in
+                                CustomTextField(width: geo.size.width,
+                                                height: 38.0,
+                                                text: self.$viewModel.amount,
+                                                isResponder:  Binding.constant(nil),
+                                                actionButtonTapped: self.$viewModel.maxAmountTapped,
+                                                handleKeyboard: true,
+                                                actionButton: "send_max_amount_label".localized,
+                                                textColor: UIColor.tangemTapGrayDark6,
+                                                font: UIFont.systemFont(ofSize: 38.0, weight: .light),
+                                                placeholder: "")
+                                    .font(Font.system(size: 38.0, weight: .light, design: .default))
                             }
-                            .font(Font.system(size: 38.0, weight: .light, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark6)
-                            Spacer()
+                            .frame(width: nil, height: 38.0, alignment: .center)
                             Button(action: {
                                 
                             }) { HStack(alignment: .center, spacing: 8.0) {
