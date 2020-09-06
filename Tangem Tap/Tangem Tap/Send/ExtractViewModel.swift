@@ -51,6 +51,7 @@ class ExtractViewModel: ObservableObject {
     
     @Published var isSendEnabled: Bool = false
     
+    @Published var maxAmountTapped: Bool = false
     
     //MARK: ValidatedInput
     private var validatedDestination: String? = nil
@@ -85,6 +86,12 @@ class ExtractViewModel: ObservableObject {
             }
               //[REDACTED_TODO_COMMENT]
             self?.destinationHint = TextHint(isError: true, message: "Invalid")
+        }
+        .store(in: &bag)
+        
+        $maxAmountTapped
+            .sink { [weak self] _ in
+                print("tapped")
         }
         .store(in: &bag)
     }
