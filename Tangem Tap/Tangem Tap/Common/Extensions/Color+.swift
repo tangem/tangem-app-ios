@@ -108,6 +108,10 @@ extension UIColor {
         return UIColor(named: "tangem_tap_gray_dark4")!
        }
     
+    @nonobjc static var tangemTapGrayDark6: UIColor {
+        return UIColor(named: "tangem_tap_gray_dark6")!
+       }
+    
     @nonobjc static var tangemTapBlue: UIColor {
         return UIColor(named: "tangem_tap_blue")!
     }
