@@ -34,10 +34,12 @@ struct CreatePayIdView: View {
                 Spacer()
                 HStack(alignment: .firstBaselineCustom, spacing: 0.0){
                     VStack(alignment: .leading) {
-                        CustomTextField(text: $payIdText, //First responder custom shit
+                        CustomTextField(
+                            width: 180,
+                            height: 20,
+                            text: $payIdText, //First responder custom shit
                             isResponder:  $isFirstResponder,
-                            isSecured: false,
-                            keyboard: .default,
+                            actionButtonTapped: Binding.constant(true),
                             placeholder: NSLocalizedString("create_payid_placeholder", comment: ""))
                             .frame(width: 180, height: 20.0, alignment: .center )
                             //                        TextField("create_payid_placeholder", text: $payIdText)
