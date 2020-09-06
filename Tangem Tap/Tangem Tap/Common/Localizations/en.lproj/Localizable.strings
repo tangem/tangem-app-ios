@@ -86,3 +86,5 @@
 "send_fee_label" = "Fee";
 
 "send_total_label" = "Total";
+
+"send_max_amount_label" = "Maximum amount";
