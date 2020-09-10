@@ -27,6 +27,8 @@
 
 "details_title" = "Tangem Tap";
 
+"details_choice_wallet_option_title" = "Choice wallet option";
+
 "balanceView_token_title" = "Token";
 
 "balanceView_blockchain_verified" = "Verified Balance";
@@ -72,3 +74,17 @@
 "common_ok" = "Ok";
 
 "create_payid_success_message" = "PayID created successfully and copied to clipboard";
+
+"send_destination_placeholder" = "Address or PayID";
+
+"send_title" = "Send";
+
+"send_network_fee_title" = "Network fee";
+
+"send_amount_label" = "Amount";
+
+"send_fee_label" = "Fee";
+
+"send_total_label" = "Total";
+
+"send_max_amount_label" = "Maximum amount";
