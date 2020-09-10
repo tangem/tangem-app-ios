@@ -14,6 +14,25 @@ import Combine
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
     
+    
+    var sendChoiceButtons: [ActionSheet.Button] {
+        let symbols = viewModel
+            .cardViewModel
+            .wallet!
+            .amounts
+            .filter { $0.key != .reserve }
+            .values
+            .map { $0.currencySymbol }
+        
+      let buttons = symbols.map { symbol in
+            return ActionSheet.Button.default(Text(symbol)) {
+                //extract symbol, pass to sendView
+                self.viewModel.showSend = true
+            }
+        }
+        return buttons
+    }
+    
     var body: some View {
         VStack {
             GeometryReader { geometry in
@@ -35,14 +54,9 @@ struct DetailsView: View {
                                 } else {
                                     if self.viewModel.cardViewModel.wallet != nil {
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
-                                        AddressDetailView(
-                                            address: self.viewModel.cardViewModel.wallet!.address,
-                                            payId: self.viewModel.cardViewModel.payId,
-                                            exploreURL: self.viewModel.cardViewModel.wallet!.exploreUrl,
-                                            showQr: self.$viewModel.showQr,
-                                            showPayId: self.$viewModel.showCreatePayid)
+                                        AddressDetailView().environmentObject(self.viewModel.cardViewModel)
                                     } else {
-                                        if self.viewModel.cardViewModel.walletManager == nil  {
+                                        if !self.viewModel.cardViewModel.isCardSupported  {
                                              ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
                                         } else {
                                             ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
@@ -71,37 +85,39 @@ struct DetailsView: View {
                 }
                 .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
                 Button(action: {
-                    if self.viewModel.cardViewModel.wallet == nil {
+                    if self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.isCardSupported  {
                         self.viewModel.createWallet()
+                    } else {
+                        if self.viewModel.cardViewModel.wallet!.amounts.count > 1 {
+                            self.viewModel.showSendChoise = true
+                        } else {
+                            self.viewModel.showSend = true
+                        }
                     }
                 }) { HStack(alignment: .center, spacing: 16.0) {
-                    Text(self.viewModel.cardViewModel.wallet == nil ? "details_button_create_wallet" : "details_button_send")
+                    Text(self.viewModel.cardViewModel.wallet == nil &&  self.viewModel.cardViewModel.isCardSupported ? "details_button_create_wallet" : "details_button_send")
                     Spacer()
                     Image("arrow.right")
                 }
                 .padding(.horizontal)
                 }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.cardViewModel.canExtract))
                 .animation(.easeIn)
+                .disabled(self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.cardViewModel.canExtract)
                 .transition(.offset(x: 400.0, y: 0.0))
+                .sheet(isPresented: $viewModel.showSend) {
+                    ExtractView(viewModel: ExtractViewModel(cardViewModel: self.$viewModel.cardViewModel,
+                                                        sdkSerice: self.$viewModel.sdkService))
+                }
+                .actionSheet(isPresented: self.$viewModel.showSendChoise) {
+                    ActionSheet(title: Text("details_choice_wallet_option_title"),
+                                message: nil,
+                                buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+
+                }
                 
             }
         }
-        .sheet(isPresented: $viewModel.showQr) {
-            // VStack {
-            //    Spacer()
-            QRCodeView(title: "\(self.viewModel.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
-                address: self.viewModel.cardViewModel.wallet!.address,
-                shareString: self.viewModel.cardViewModel.wallet!.shareString)
-                .transition(AnyTransition.move(edge: .bottom))
-            //   Spacer()
-            // }
-            // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
-        }
-        .sheet(isPresented: $viewModel.showCreatePayid, content: {
-            CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "",
-                            cardViewModel: self.$viewModel.cardViewModel)
-        })
             .padding(.bottom, 16.0)
             .navigationBarBackButtonHidden(true)
             .navigationBarTitle("details_title", displayMode: .inline)
