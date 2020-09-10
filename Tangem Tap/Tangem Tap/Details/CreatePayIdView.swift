@@ -17,7 +17,8 @@ struct CreatePayIdView: View {
     @State var successAlert: Bool = false
     @State private var isFirstResponder : Bool? = false
     @Environment(\.presentationMode) var presentationMode
-    @Binding var cardViewModel: CardViewModel
+    @EnvironmentObject var cardViewModel: CardViewModel
+    
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 6.0) {
@@ -33,10 +34,12 @@ struct CreatePayIdView: View {
                 Spacer()
                 HStack(alignment: .firstBaselineCustom, spacing: 0.0){
                     VStack(alignment: .leading) {
-                        CustomTextField(text: $payIdText, //First responder custom shit
+                        CustomTextField(
+                            width: 180,
+                            height: 20,
+                            text: $payIdText, //First responder custom shit
                             isResponder:  $isFirstResponder,
-                            isSecured: false,
-                            keyboard: .default,
+                            actionButtonTapped: Binding.constant(true),
                             placeholder: NSLocalizedString("create_payid_placeholder", comment: ""))
                             .frame(width: 180, height: 20.0, alignment: .center )
                             //                        TextField("create_payid_placeholder", text: $payIdText)
@@ -121,6 +124,7 @@ struct CreatePayIdView: View {
 struct CreatePayIdView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel(card: Card.testCard)
     static var previews: some View {
-        CreatePayIdView(cardId: "CB23 4344 5455 6544", cardViewModel: $cardViewModel)
+        CreatePayIdView(cardId: "CB23 4344 5455 6544")
+        .environmentObject(cardViewModel)
     }
 }
