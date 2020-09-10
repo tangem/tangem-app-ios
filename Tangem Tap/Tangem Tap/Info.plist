@@ -73,6 +73,8 @@
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>To Scan QR Code</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>To Scan Smart Card</string>
 </dict>
