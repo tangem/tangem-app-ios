@@ -22,9 +22,10 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
     @Published var noAccountMessage: String?
+    @Published var isCardSupported: Bool = true
     @Published var payId: PayIdStatus = .notCreated
     @Published var balanceViewModel: BalanceViewModel!
-    
+    @Published var canExtract: Bool = true
     @Published var wallet: Wallet? = nil
     @Published var image: UIImage? = nil
     
@@ -84,6 +85,8 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.isWalletLoading = false
                 })
             .store(in: &bag)
+        } else {
+            isCardSupported = WalletManagerFactory().isBlockchainSupported(card) 
         }
     }
     
