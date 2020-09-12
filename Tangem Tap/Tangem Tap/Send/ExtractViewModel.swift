@@ -116,7 +116,7 @@ class ExtractViewModel: ObservableObject {
         .store(in: &bag)
         
         $destination //destination validation
-            .throttle(for: 0.3, scheduler: RunLoop.main, latest: true)
+            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] newText in
                 print(newText)
                 self.validateDestination(newText)
@@ -124,6 +124,7 @@ class ExtractViewModel: ObservableObject {
         .store(in: &bag)
         
         $maxAmountTapped //handle max amount tap
+            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .dropFirst()
             .sink { [unowned self] _ in
                 self.amountToSend = self.cardViewModel.wallet!.amounts[self.amountToSend.type]!
@@ -132,7 +133,7 @@ class ExtractViewModel: ObservableObject {
         .store(in: &bag)
         
         $amountText //handle amount input
-            .throttle(for: 0.3, scheduler: RunLoop.main, latest: true)
+            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] newAmount in
                 guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")) else {
                     self.amountToSend.value = 0
@@ -193,7 +194,7 @@ class ExtractViewModel: ObservableObject {
                                    tx.fee.description)
                     } else {
                         self.sendAmount = tx.amount.description
-                        self.sendTotal = totalAmount.description
+                        self.sendTotal =  tx.amount.type == tx.fee.type ? totalAmount.description : "-"
                         self.sendTotalSubtitle = totalFiatAmount == nil ? "" : "~\(totalFiatAmount!)"
                     }
                     
@@ -208,16 +209,15 @@ class ExtractViewModel: ObservableObject {
         
         $amountValidated //update fee
             .filter { $0 }
-            .map {[unowned self] _ in  self.amountToSend}
             .combineLatest($validatedDestination.compactMap { $0 })
-            .throttle(for: 0.3, scheduler: RunLoop.main, latest: true)
+            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .flatMap {[unowned self] in
-                self.txSender.getFee(amount: $0, destination: $1)
+                self.txSender.getFee(amount: self.amountToSend, destination: $1)
                     .catch{ error -> Just<[Amount]> in
                         print(error)
                         return Just([Amount]())
                 }
-                .subscribe(on: DispatchQueue.global())}
+                }
         .receive(on: RunLoop.main)
         .sink(receiveCompletion: { [unowned self] completion in
             self.fees = []
@@ -229,7 +229,7 @@ class ExtractViewModel: ObservableObject {
         
         $fees //handle fee selection
             .combineLatest($selectedFeeLevel)
-            .throttle(for: 0.3, scheduler: RunLoop.main, latest: true)
+            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] fees, level in
                 if fees.isEmpty {
                     self.selectedFee = nil
@@ -241,16 +241,17 @@ class ExtractViewModel: ObservableObject {
         
         
         $amountValidated
-            .filter { $0 }
-            .map {[unowned self] _ in self.amountToSend}
-            .combineLatest($validatedDestination.compactMap { $0 },
-                           $selectedFee.compactMap{ $0 },
+            .combineLatest($validatedDestination,
+                           $selectedFee,
                            $isFeeIncluded)
-            .throttle(for: 0.3, scheduler: RunLoop.main, latest: true)
-            .map {[unowned self] amount, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
-                let result = self.cardViewModel.walletManager!.createTransaction(amount: isFeeIncluded ? amount - fee : amount,
-                                                                                 fee: fee,
-                                                                                 destinationAddress: destination)
+            .map {[unowned self] amountValidated, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
+                if !amountValidated || destination == nil || fee == nil {
+                     return nil
+                }
+                
+                let result = self.cardViewModel.walletManager!.createTransaction(amount: isFeeIncluded ? self.amountToSend - fee! : self.amountToSend,
+                                                                                 fee: fee!,
+                                                                                 destinationAddress: destination!)
                 switch result {
                 case .success(let tx):
                     return tx
@@ -368,4 +369,5 @@ class ExtractViewModel: ObservableObject {
 
 //ссообщение при попытке отправит транзакцию
 //подкраска ошибок и ккак вообще показать
-//детальный видЖ входящие транзакции
+//детальный вид входящие транзакции
+//send disabled
