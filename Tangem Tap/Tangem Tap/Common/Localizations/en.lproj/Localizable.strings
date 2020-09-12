@@ -88,3 +88,19 @@
 "send_total_label" = "Total";
 
 "send_max_amount_label" = "Maximum amount";
+
+"send_validation_invalid_address" = "Invalid address";
+
+"send_validation_invalid_amount" = "Invalid amount";
+
+"send_fee_picker_low" = "Low";
+
+"send_fee_picker_normal" = "Normal";
+
+"send_fee_picker_priority" = "Priority";
+
+"send_total_subtitle_format" = "%@ will be sent";
+
+"send_total_subtitle_asset_format" = "%@ and $@ will be sent";
+
+"send_balance_subtitle_format" = "Balance: %@";
