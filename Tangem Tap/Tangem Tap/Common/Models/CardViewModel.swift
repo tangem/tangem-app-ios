@@ -207,14 +207,39 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    private func getFiatFormatted(for amount: Amount?) -> String? {
-        if let amount = amount,
-            let quotes = rates[amount.currencySymbol],
-            let rate = quotes[selectedFiat.rawValue] {
-            return (amount.value * rate).currencyFormatted(code: selectedFiat.rawValue)
+    func getFiatFormatted(for amount: Amount?) -> String? {
+        return getFiat(for: amount)?.currencyFormatted(code: selectedFiat.rawValue)
+    }
+    
+    func getFiat(for amount: Amount?) -> Decimal? {
+        if let amount = amount {
+            return getFiat(for: amount.value, currencySymbol: amount.currencySymbol)
         }
         return nil
     }
+    
+    func getCrypto(for amount: Amount?) -> Decimal? {
+        if let amount = amount {
+            return getCrypto(for: amount.value, currencySymbol: amount.currencySymbol)
+        }
+        return nil
+    }
+    
+    func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
+        if let quotes = rates[currencySymbol],
+            let rate = quotes[selectedFiat.rawValue] {
+            return value * rate
+        }
+        return nil
+    }
+    
+    func getCrypto(for value: Decimal, currencySymbol: String) -> Decimal? {
+           if let quotes = rates[currencySymbol],
+               let rate = quotes[selectedFiat.rawValue] {
+               return value / rate
+           }
+           return nil
+       }
     
     private func makeBalanceViewModel(from wallet: Wallet) -> BalanceViewModel? {
         if let token = wallet.token {
