@@ -24,6 +24,8 @@ class DetailsViewModel: ObservableObject {
         }
     }
     
+    var amountToSend: Amount? = nil
+    
     private var bag = Set<AnyCancellable>()
     
     init(cid: String, sdkService: Binding<TangemSdkService>) {
@@ -81,6 +83,15 @@ class DetailsViewModel: ObservableObject {
                 //[REDACTED_TODO_COMMENT]
                 break
             }
+        }
+    }
+    
+    func sendTapped() {
+        if cardViewModel.wallet!.amounts.count > 1 {
+            showSendChoise = true
+        } else {
+            amountToSend = Amount(with: cardViewModel.wallet!.amounts.first!.value, value: 0)
+            showSend = true
         }
     }
 }
