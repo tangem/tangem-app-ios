@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import Combine
+import BlockchainSdk
 
 enum CoinMarketCapTarget: TargetType {
     case rate(amount: Decimal, symbol: String, convert: [String], apiKey: String)
