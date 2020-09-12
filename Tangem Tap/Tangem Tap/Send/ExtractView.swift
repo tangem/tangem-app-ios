@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemSdk
+import BlockchainSdk
 
 struct ExtractView: View {
     @ObservedObject var viewModel: ExtractViewModel
@@ -44,9 +45,7 @@ struct ExtractView: View {
                             }
                             Spacer()
                             Button(action: {
-                                //                            if let address = self.cardViewModel.wallet?.address {
-                                //                                UIPasteboard.general.string = address
-                                //                            }
+                                self.viewModel.pasteClipboardTapped()
                             }) {
                                 ZStack {
                                     Circle()
@@ -93,24 +92,19 @@ struct ExtractView: View {
                     }
                     Group {
                         HStack {
-                            GeometryReader { geo in
-                                CustomTextField(width: geo.size.width,
-                                                height: 38.0,
-                                                text: self.$viewModel.amount,
-                                                isResponder:  Binding.constant(nil),
-                                                actionButtonTapped: self.$viewModel.maxAmountTapped,
-                                                handleKeyboard: true,
-                                                actionButton: "send_max_amount_label".localized,
-                                                textColor: UIColor.tangemTapGrayDark6,
-                                                font: UIFont.systemFont(ofSize: 38.0, weight: .light),
-                                                placeholder: "")
-                                    .font(Font.system(size: 38.0, weight: .light, design: .default))
-                            }
-                            .frame(width: nil, height: 38.0, alignment: .center)
+                            CustomTextField(text: self.$viewModel.amountText,
+                                            isResponder:  Binding.constant(nil),
+                                            actionButtonTapped: self.$viewModel.maxAmountTapped,
+                                            handleKeyboard: true,
+                                            actionButton: "send_max_amount_label".localized,
+                                            keyboard: UIKeyboardType.decimalPad,
+                                            textColor: UIColor.tangemTapGrayDark6,
+                                            font: UIFont.systemFont(ofSize: 38.0, weight: .light),
+                                            placeholder: "")
                             Button(action: {
-                                
+                                self.viewModel.isFiatCalculation.toggle()
                             }) { HStack(alignment: .center, spacing: 8.0) {
-                                Text("USD") //[REDACTED_TODO_COMMENT]
+                                Text(self.viewModel.currencyUnit)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(Color.tangemTapBlue)
                                 Image("arrow.up.arrow.down")
@@ -129,43 +123,49 @@ struct ExtractView: View {
                                 .foregroundColor((self.viewModel.amountHint?.isError ?? false ) ?
                                     Color.red : Color.tangemTapGrayDark)
                             Spacer()
-                            Text(self.viewModel.walletTotalBalance)
+                            Text(self.viewModel.walletTotalBalanceFormatted)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemTapGrayDark)
                         }
                     }
-                    Group {
-                        HStack {
-                            Text("send_network_fee_title")
-                                .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark6)
-                            Spacer()
-                            Button(action: {
-                                withAnimation {
-                                    self.viewModel.isNetworkFeeBlockOpen.toggle()
-                                }
-                            }) {
-                                Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.compact.up" : "chevron.compact.down")
+                    if self.viewModel.shouldShowNetworkBlock {
+                        Group {
+                            HStack {
+                                Text("send_network_fee_title")
                                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemTapGrayDark6)
-                            }
-                        }.padding(.vertical)
-                        if self.viewModel.isNetworkFeeBlockOpen {
-                            VStack(spacing: 16.0) {
-                                Picker("Numbers", selection: self.$viewModel.selectedFeeLevel) {
-                                    ForEach(0 ..< 3) { index in
-                                        Text("fee").tag(index)
+                                Spacer()
+                                Button(action: {
+                                    withAnimation {
+                                        self.viewModel.isNetworkFeeBlockOpen.toggle()
+                                    }
+                                }) {
+                                    Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.compact.up" : "chevron.compact.down")
+                                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                                        .foregroundColor(Color.tangemTapGrayDark6)
+                                }
+                            }.padding(.vertical)
+                            if self.viewModel.isNetworkFeeBlockOpen {
+                                VStack(spacing: 16.0) {
+                                    if self.viewModel.shoudShowFeeSelector {
+                                        Picker("", selection: self.$viewModel.selectedFeeLevel) {
+                                            Text("send_fee_picker_low").tag(0)
+                                            Text("send_fee_picker_normal").tag(1)
+                                            Text("send_fee_picker_priority").tag(2)
+                                        }
+                                        .pickerStyle(SegmentedPickerStyle())
+                                    }
+                                    if self.viewModel.shoudShowFeeIncludeSelector {
+                                        Toggle(isOn: self.$viewModel.isFeeIncluded) {
+                                            Text("asdfafsdfasfdasfad asdfadfa asf asdf  asdf")
+                                                .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                                                .foregroundColor(Color.tangemTapGrayLight4)
+                                        }
                                     }
                                 }
-                                .pickerStyle(SegmentedPickerStyle())
-                                Toggle(isOn: self.$viewModel.isFeeIncluded) {
-                                    Text("asdfafsdfasfdasfad asdfadfa asf asdf  asdf")
-                                        .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                        .foregroundColor(Color.tangemTapGrayLight4)
-                                }
+                                .padding(.top, 8.0)
+                                .transition(.opacity)
                             }
-                            .padding(.top, 8.0)
-                            .transition(.opacity)
                         }
                     }
                     Spacer()
@@ -211,7 +211,7 @@ struct ExtractView: View {
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
                         Button(action: {
-                            
+                            self.viewModel.send()
                         }) { HStack(alignment: .center, spacing: 16.0) {
                             Text("details_button_send")
                             Spacer()
@@ -223,6 +223,7 @@ struct ExtractView: View {
                                                        isDisabled: !self.viewModel.isSendEnabled))
                             .disabled(!self.viewModel.isSendEnabled)
                     }
+                    .padding(.top, 16.0)
                 }
                 .padding()
                 .frame(minWidth: geometry.size.width,
@@ -232,7 +233,7 @@ struct ExtractView: View {
             }
         }
         .onAppear() {
-            self.viewModel.validateClipboard()
+            self.viewModel.onAppear()
         }
     }
 }
@@ -247,6 +248,11 @@ struct ExtractView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel(card: Card.testCard)
     
     static var previews: some View {
-        ExtractView(viewModel: ExtractViewModel(cardViewModel: $cardViewModel, sdkSerice: $sdkService))
+        ExtractView(viewModel: ExtractViewModel(amountToSend: Amount(with: cardViewModel.wallet!.blockchain,
+                                                                     address: "adsfafa",
+                                                                     type: .coin,
+                                                                     value: 0.0),
+                                                cardViewModel: $cardViewModel,
+                                                sdkSerice: $sdkService))
     }
 }
