@@ -101,6 +101,6 @@
 
 "send_total_subtitle_format" = "%@ will be sent";
 
-"send_total_subtitle_asset_format" = "%@ and $@ will be sent";
+"send_total_subtitle_asset_format" = "%@ and %@ will be sent";
 
 "send_balance_subtitle_format" = "Balance: %@";
