@@ -13,6 +13,7 @@ import BlockchainSdk
 
 struct ExtractView: View {
     @ObservedObject var viewModel: ExtractViewModel
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         GeometryReader { geometry in
@@ -157,7 +158,7 @@ struct ExtractView: View {
                                     }
                                     if self.viewModel.shoudShowFeeIncludeSelector {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
-                                            Text("asdfafsdfasfdasfad asdfadfa asf asdf  asdf")
+                                            Text("send_fee_include_description")
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                                 .foregroundColor(Color.tangemTapGrayLight4)
                                         }
@@ -222,6 +223,23 @@ struct ExtractView: View {
                                                        colorStyle: .green,
                                                        isDisabled: !self.viewModel.isSendEnabled))
                             .disabled(!self.viewModel.isSendEnabled)
+                            .alert(isPresented: self.$viewModel.showSendAlert) { () -> Alert in
+                                if self.viewModel.sendError == nil {
+                                    return Alert(title: Text("common_success"),
+                                                 message: Text("send_transaction_success"),
+                                                 dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                                     action: {
+                                                                                        self.presentationMode.wrappedValue.dismiss()
+                                                 })) } else {
+                                    return Alert(title: Text("common_error"),
+                                                 message: Text(self.viewModel.sendError!.localizedDescription),
+                                                 dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                                     action: {
+                                                                                       
+                                                 }))
+                                }
+                                
+                        }
                     }
                     .padding(.top, 16.0)
                 }
