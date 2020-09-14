@@ -52,9 +52,6 @@ struct CustomTextField: UIViewRepresentable {
         
     }
     
-    let width: CGFloat
-    let height: CGFloat
-    
     @Binding var text: String
     @Binding var isResponder : Bool?
     @Binding var actionButtonTapped: Bool
@@ -67,10 +64,9 @@ struct CustomTextField: UIViewRepresentable {
     var font: UIFont = UIFont.systemFont(ofSize: 16.0)
     let placeholder: String
     let toolbarItems: [UIBarButtonItem]? = nil
-    
-    func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UIView {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: width, height: height))
-        let textField = UITextField(frame: CGRect(x: 0, y: 0, width: width, height: height))
+
+    func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UITextField {
+        let textField = UITextField(frame: .zero)
         textField.isSecureTextEntry = isSecured
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
@@ -79,7 +75,9 @@ struct CustomTextField: UIViewRepresentable {
         textField.textColor = textColor
         textField.delegate = context.coordinator
         textField.placeholder = placeholder
-        
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        textField.setContentHuggingPriority(.required, for: .vertical)
         var toolbarItems =  [UIBarButtonItem]()
         if handleKeyboard {
         toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
@@ -102,26 +100,26 @@ struct CustomTextField: UIViewRepresentable {
                                 at: 0)
         }
         if !toolbarItems.isEmpty {
-             let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
+            let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
             toolbar.items = toolbarItems
             toolbar.backgroundColor = UIColor.tangemTapBgGray
             toolbar.tintColor = UIColor.black
             textField.inputAccessoryView = toolbar
         }
-        view.addSubview(textField)
-        return view
+        
+        return textField
     }
     
     func makeCoordinator() -> CustomTextField.Coordinator {
         return Coordinator(text: $text, placeholder: placeholder, isResponder: $isResponder, actionButtonTapped: $actionButtonTapped)
     }
     
-    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<CustomTextField>) {
-        let textView = uiView.subviews.first! as! UITextField
-        textView.text = text
+    func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
+        uiView.text = text
+        
         if isResponder ?? false {
             DispatchQueue.main.async {
-                textView.becomeFirstResponder()
+                uiView.becomeFirstResponder()
             }
         }
     }
