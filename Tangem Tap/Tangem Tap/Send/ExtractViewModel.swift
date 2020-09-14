@@ -61,10 +61,8 @@ class ExtractViewModel: ObservableObject {
     @Published var isSendEnabled: Bool = false
     @Published var selectedFee: Amount? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
-    
-    @Published var showSendAlert: Bool = false
+    @Published var showErrorAlert: Bool = false
     var sendError: Error? = nil
-    
     @Binding var sdkService: TangemSdkService
     @Binding var cardViewModel: CardViewModel {
         didSet {
@@ -138,7 +136,6 @@ class ExtractViewModel: ObservableObject {
         $destination //destination validation
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] newText in
-                print(newText)
                 self.validateDestination(newText)
         }
         .store(in: &bag)
@@ -361,24 +358,29 @@ class ExtractViewModel: ObservableObject {
         }
     }
     
-    func send() {
-        sendError = nil
+    func send(_ callback: @escaping () -> Void) {
+        self.sendError = nil
         guard let tx = self.transaction else {
             return
         }
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        //[REDACTED_TODO_COMMENT]
         txSender.send(tx, signer: sdkService.tangemSdk)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
+               
                 if case let .failure(error) = completion {
                     self.sendError = error
-                    self.showSendAlert = true
+                    self.showErrorAlert = true
+                } else {
+                     callback()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        self.cardViewModel.showSendAlert = true
+                    }
                 }
+              
                 }, receiveValue: {[unowned self]  _ in
-                    self.showSendAlert = true
             })
             .store(in: &bag)
     }
