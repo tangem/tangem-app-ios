@@ -24,6 +24,60 @@ class DetailsViewModel: ObservableObject {
         }
     }
     
+    var amountToSend: Amount? = nil
+    
+    public var canExtract: Bool {
+        guard let wallet = cardViewModel.wallet else {
+            return false
+        }
+        
+        if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 {
+            return false // [REDACTED_TODO_COMMENT]
+        }
+       
+        if let fw = cardViewModel.card.firmwareVersionValue, fw < 2.29 {
+            if let batchIdString = cardViewModel.card.cardData?.batchId,
+                let batchId = Int(batchIdString, radix: 16) {
+                if batchId != 38 { //old cardano cards
+                    return false
+                }
+            } else  {
+                return false
+            }
+        }
+        
+        if wallet.amounts.isEmpty { //not loaded from blockchain
+            return false
+        }
+        
+        if wallet.amounts.values.first(where: { $0.value > 0 }) == nil { //empty wallet
+            return false
+        }
+        
+        let coinAmount = wallet.amounts[.coin]?.value ?? 0
+        if coinAmount <= 0 { //not enough fee
+            return false
+        }
+        
+        return true
+    }
+    
+    var incomingTransactions: [BlockchainSdk.Transaction] {
+        guard let wallet = cardViewModel.wallet else {
+            return []
+        }
+        
+        return wallet.transactions.filter { $0.destinationAddress == wallet.address && $0.status == .unconfirmed}
+    }
+    
+    var outgoingTransactions: [BlockchainSdk.Transaction] {
+        guard let wallet = cardViewModel.wallet else {
+            return []
+        }
+        
+        return wallet.transactions.filter { $0.sourceAddress == wallet.address && $0.status == .unconfirmed }
+    }
+    
     private var bag = Set<AnyCancellable>()
     
     init(cid: String, sdkService: Binding<TangemSdkService>) {
@@ -81,6 +135,15 @@ class DetailsViewModel: ObservableObject {
                 //[REDACTED_TODO_COMMENT]
                 break
             }
+        }
+    }
+    
+    func sendTapped() {
+        if cardViewModel.wallet!.amounts.count > 1 {
+            showSendChoise = true
+        } else {
+            amountToSend = Amount(with: cardViewModel.wallet!.amounts.first!.value, value: 0)
+            showSend = true
         }
     }
 }
