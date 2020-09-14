@@ -46,16 +46,16 @@ struct BalanceView: View {
             .padding(.top, 16.0)
             VStack(spacing: 0) {
                 HStack(alignment: .center, spacing: 5.0) {
-                    Image(balanceViewModel.dataLoaded ? "checkmark.circle" : "exclamationmark.circle" )
+                    Image(balanceViewModel.loadingError == nil  ? "checkmark.circle" : "exclamationmark.circle" )
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .foregroundColor(balanceViewModel.dataLoaded ? Color.tangemTapGreen :
+                        .foregroundColor(balanceViewModel.loadingError == nil  ? Color.tangemTapGreen :
                             Color.tangemTapWarning)
                         .frame(width: 10.0, height: 10.0)
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                    Text(balanceViewModel.dataLoaded ? "balanceView_blockchain_verified" : "balanceView_blockchain_unreachable")
+                    Text(balanceViewModel.loadingError == nil ? "balanceView_blockchain_verified" : "balanceView_blockchain_unreachable")
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                        .foregroundColor(balanceViewModel.dataLoaded ? Color.tangemTapGreen :
+                        .foregroundColor(balanceViewModel.loadingError == nil ? Color.tangemTapGreen :
                             Color.tangemTapWarning)
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
@@ -67,10 +67,10 @@ struct BalanceView: View {
                         .foregroundColor(Color.tangemTapGrayDark)
                 }
                 HStack {
-                    if !balanceViewModel.dataLoaded && balanceViewModel.loadingError != nil {
+                    if balanceViewModel.loadingError != nil {
                         Text(balanceViewModel.loadingError!)
                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                            .foregroundColor(balanceViewModel.dataLoaded ? Color.tangemTapGreen :
+                            .foregroundColor(balanceViewModel.loadingError == nil ? Color.tangemTapGreen :
                                 Color.tangemTapWarning)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
@@ -125,7 +125,7 @@ struct BalanceView_Previews: PreviewProvider {
             ZStack {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
-                                                               dataLoaded: true,
+                                                              // dataLoaded: true,
                                                                loadingError: nil,
                                                                name: "Bitcoin",
                                                                fiatBalance: "$3.45",
@@ -136,7 +136,7 @@ struct BalanceView_Previews: PreviewProvider {
             ZStack {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
-                                                               dataLoaded: false,
+                                                              // dataLoaded: false,
                                                                loadingError: "Something went wrong",
                                                                name: "Bitcoin token",
                                                                fiatBalance: "-",
@@ -148,7 +148,7 @@ struct BalanceView_Previews: PreviewProvider {
             ZStack {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
-                                                               dataLoaded: true,
+                                                              // dataLoaded: true,
                                                                loadingError: "Something went wrong",
                                                                name: "Bitcoin token",
                                                                fiatBalance: "5 USD",

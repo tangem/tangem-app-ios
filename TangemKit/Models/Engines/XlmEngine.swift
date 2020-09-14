@@ -202,7 +202,7 @@ extension XlmEngine: CoinProvider, CoinProviderAsync {
         
         let tx = TransactionXDR(sourceAccount: sourceKeyPair.publicKey,
                                 seqNum: seqNumber + 1,
-                                timeBounds: useTimebounds ? TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime)) : nil,
+                                timeBounds:  useTimebounds ? TimeBoundsXDR(minTime: UInt64(minTime), maxTime: UInt64(maxTime)) : nil,
                                 memo: Memo.text("").toXDR(),
                                 operations: [xdrOperation])
         
