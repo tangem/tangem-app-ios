@@ -10,8 +10,27 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
+    
+    var loadingView: UIView? = nil
+    
+    func addLoadingView() {
+        if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+            let view = UIView(frame: window.bounds)
+            view.backgroundColor = UIColor.init(white: 0.0, alpha: 0.6)
+            let indicator = UIActivityIndicatorView(style: .medium)
+            view.addSubview(indicator)
+            indicator.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+            indicator.startAnimating()
+            window.addSubview(view)
+            window.bringSubviewToFront(view)
+            loadingView = view
+        }
+    }
+    
+    func removeLoadingView() {
+        loadingView?.removeFromSuperview()
+        loadingView = nil
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
