@@ -9,11 +9,11 @@
 import Foundation
 import SwiftUI
 import TangemSdk
+import BlockchainSdk
 import Combine
 
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
-    
     
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
@@ -22,15 +22,26 @@ struct DetailsView: View {
             .amounts
             .filter { $0.key != .reserve }
             .values
-            .map { $0.currencySymbol }
+            .map { $0.self }
         
-      let buttons = symbols.map { symbol in
-            return ActionSheet.Button.default(Text(symbol)) {
-                //extract symbol, pass to sendView
+      let buttons = symbols.map { amount in
+        return ActionSheet.Button.default(Text(amount.currencySymbol)) {
+                self.viewModel.amountToSend = Amount(with: amount, value: 0)
                 self.viewModel.showSend = true
             }
         }
         return buttons
+    }
+    
+    var pendingTransactionView: PendingTxView? {
+        if let incTx = self.viewModel.incomingTransactions.first {
+            return PendingTxView(txState: .incoming, amount: incTx.amount.description, address: incTx.sourceAddress)
+        }
+        
+        if let outgTx = self.viewModel.outgoingTransactions.first {
+            return PendingTxView(txState: .outgoing, amount: outgTx.amount.description, address: outgTx.destinationAddress)
+        }
+        return nil
     }
     
     var body: some View {
@@ -53,6 +64,7 @@ struct DetailsView: View {
                                     ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
                                 } else {
                                     if self.viewModel.cardViewModel.wallet != nil {
+                                        self.pendingTransactionView
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
                                         AddressDetailView().environmentObject(self.viewModel.cardViewModel)
                                     } else {
@@ -88,11 +100,7 @@ struct DetailsView: View {
                     if self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.isCardSupported  {
                         self.viewModel.createWallet()
                     } else {
-                        if self.viewModel.cardViewModel.wallet!.amounts.count > 1 {
-                            self.viewModel.showSendChoise = true
-                        } else {
-                            self.viewModel.showSend = true
-                        }
+                        self.viewModel.sendTapped()
                     }
                 }) { HStack(alignment: .center, spacing: 16.0) {
                     Text(self.viewModel.cardViewModel.wallet == nil &&  self.viewModel.cardViewModel.isCardSupported ? "details_button_create_wallet" : "details_button_send")
@@ -101,12 +109,13 @@ struct DetailsView: View {
                 }
                 .padding(.horizontal)
                 }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.cardViewModel.canExtract))
+                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.canExtract))
                 .animation(.easeIn)
-                .disabled(self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.cardViewModel.canExtract)
+                .disabled(self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.canExtract)
                 .transition(.offset(x: 400.0, y: 0.0))
                 .sheet(isPresented: $viewModel.showSend) {
-                    ExtractView(viewModel: ExtractViewModel(cardViewModel: self.$viewModel.cardViewModel,
+                    ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
+                                                            cardViewModel: self.$viewModel.cardViewModel,
                                                         sdkSerice: self.$viewModel.sdkService))
                 }
                 .actionSheet(isPresented: self.$viewModel.showSendChoise) {
