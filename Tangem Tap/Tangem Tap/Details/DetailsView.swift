@@ -65,6 +65,7 @@ struct DetailsView: View {
                                 } else {
                                     if self.viewModel.cardViewModel.walletManager != nil {
                                         self.pendingTransactionView
+                                            .padding(.bottom, 8.0)
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
                                         AddressDetailView().environmentObject(self.viewModel.cardViewModel)
                                     } else {
