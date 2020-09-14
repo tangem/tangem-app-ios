@@ -29,16 +29,26 @@ struct PendingTxView: View {
         }
     }
     
+    var text: String {
+        if address == "unknown" {
+            return  "pendingTxView_unknown".localized
+        } else {
+            return String(format: NSLocalizedString(titleFormatKey, comment: ""), amount, AddressFormatter(address: address).truncated())
+        }
+    }
+    
     var body: some View {
         HStack {
             HStack(spacing: 8.0) {
+                if address != "unknown" {
                 Image(self.txState == .incoming ?  "arrow.down" :
                     "arrow.right")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .foregroundColor(Color.tangemTapGrayDark6)
                     .frame(width: 12.0, height: 12.0)
-                Text(String(format: NSLocalizedString(titleFormatKey, comment: ""), amount, AddressFormatter(address: address).truncated()))
+                }
+                Text(text)
                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark6)
                     .lineLimit(1)
@@ -57,7 +67,7 @@ struct PendingTxView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
-            PendingTxView(txState: .incoming, amount: "0.2 BTC", address: "0x12347218734560238o4756023478523452345")
+            PendingTxView(txState: .incoming, amount: "0.2 BTC", address: "unknown")
         }
     }
 }
