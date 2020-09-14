@@ -55,12 +55,15 @@ class ExtractViewModel: ObservableObject {
     @Published var destinationHint: TextHint? = nil
     @Published var amountHint: TextHint? = nil
     @Published var sendAmount: String = ""
-    @Published var sendFee: String = ""
     @Published var sendTotal: String = ""
+    @Published var sendFee: String = ""
     @Published var sendTotalSubtitle: String = ""
     @Published var isSendEnabled: Bool = false
     @Published var selectedFee: Amount? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
+    
+    @Published var showSendAlert: Bool = false
+    var sendError: Error? = nil
     
     @Binding var sdkService: TangemSdkService
     @Binding var cardViewModel: CardViewModel {
@@ -81,8 +84,7 @@ class ExtractViewModel: ObservableObject {
     
     var walletTotalBalanceFormatted: String {
         let amount = cardViewModel.wallet?.amounts[self.amountToSend.type]
-        let value = isFiatCalculation ? self.cardViewModel.getFiatFormatted(for: amount) ?? ""
-            : amount?.description ?? ""
+        let value = getDescription(for: amount)
         return String(format: "send_balance_subtitle_format".localized, value)
     }
     
@@ -102,7 +104,25 @@ class ExtractViewModel: ObservableObject {
         self._sdkService = sdkSerice
         self._cardViewModel = cardViewModel
         self.amountToSend = amountToSend
+        let feeDummyAmount = Amount(with: self.cardViewModel.wallet!.blockchain,
+                                    address: self.cardViewModel.wallet!.address,
+                                    type: .coin,
+                                    value: 0)
+        self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount)
+        fillTotalBlockWithDefaults()
         bind()
+    }
+    
+    private func getDescription(for amount: Amount?) -> String {
+        return isFiatCalculation ? self.cardViewModel.getFiatFormatted(for: amount) ?? ""
+            : amount?.description ?? ""
+    }
+    
+    private func fillTotalBlockWithDefaults() {
+        let sendDummyAmount = Amount(with: self.amountToSend, value: 0)
+        self.sendAmount = getDescription(for: sendDummyAmount)
+        self.sendTotal = amountToSend.type == .coin ? getDescription(for: sendDummyAmount) : "-"
+        self.sendTotalSubtitle = ""
     }
     
     func bind() {
@@ -164,9 +184,8 @@ class ExtractViewModel: ObservableObject {
         
         $selectedFee //update fee label
             .sink{ [unowned self] newAmount in
-                self.sendFee = self.isFiatCalculation ?
-                    self.cardViewModel.getFiatFormatted(for: newAmount) ?? ""
-                    : newAmount?.description ?? ""
+                let feeDummyAmount = Amount(with: self.cardViewModel.wallet!.blockchain, address: self.cardViewModel.wallet!.address, type: .coin, value: 0)
+                self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount)
         }
         .store(in: &bag)
         
@@ -195,13 +214,13 @@ class ExtractViewModel: ObservableObject {
                     } else {
                         self.sendAmount = tx.amount.description
                         self.sendTotal =  tx.amount.type == tx.fee.type ? totalAmount.description : "-"
-                        self.sendTotalSubtitle = totalFiatAmount == nil ? "" : "~\(totalFiatAmount!)"
+                        self.sendTotalSubtitle = totalFiatAmount == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
+                                                                                        totalFiatAmount!,
+                                                                                        self.cardViewModel.getFiatFormatted(for: tx.fee)!)
                     }
                     
                 } else {
-                    self.sendAmount = ""
-                    self.sendTotal = ""
-                    self.sendTotalSubtitle = ""
+                    self.fillTotalBlockWithDefaults()
                     self.isSendEnabled = false
                 }
         }
@@ -217,7 +236,7 @@ class ExtractViewModel: ObservableObject {
                         print(error)
                         return Just([Amount]())
                 }
-                }
+        }
         .receive(on: RunLoop.main)
         .sink(receiveCompletion: { [unowned self] completion in
             self.fees = []
@@ -245,8 +264,9 @@ class ExtractViewModel: ObservableObject {
                            $selectedFee,
                            $isFeeIncluded)
             .map {[unowned self] amountValidated, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
+                self.amountHint = nil
                 if !amountValidated || destination == nil || fee == nil {
-                     return nil
+                    return nil
                 }
                 
                 let result = self.cardViewModel.walletManager!.createTransaction(amount: isFeeIncluded ? self.amountToSend - fee! : self.amountToSend,
@@ -256,7 +276,7 @@ class ExtractViewModel: ObservableObject {
                 case .success(let tx):
                     return tx
                 case .failure(let error):
-                    //[REDACTED_TODO_COMMENT]
+                    self.amountHint = TextHint(isError: true, message: "send_validation_invalid_amount".localized)
                     return nil
                 }
         }.sink{[unowned self] tx in
@@ -342,6 +362,7 @@ class ExtractViewModel: ObservableObject {
     }
     
     func send() {
+        sendError = nil
         guard let tx = self.transaction else {
             return
         }
@@ -353,21 +374,12 @@ class ExtractViewModel: ObservableObject {
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
                 if case let .failure(error) = completion {
-                    //[REDACTED_TODO_COMMENT]
-                    //dismiss
-                    
+                    self.sendError = error
+                    self.showSendAlert = true
                 }
-                }, receiveValue: {_ in
-                    //[REDACTED_TODO_COMMENT]
-                    //dismiss
-                    //show tx inc/outg
+                }, receiveValue: {[unowned self]  _ in
+                    self.showSendAlert = true
             })
             .store(in: &bag)
     }
 }
-
-
-//ссообщение при попытке отправит транзакцию
-//подкраска ошибок и ккак вообще показать
-//детальный вид входящие транзакции
-//send disabled
