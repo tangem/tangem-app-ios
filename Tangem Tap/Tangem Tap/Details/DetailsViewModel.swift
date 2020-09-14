@@ -30,19 +30,10 @@ class DetailsViewModel: ObservableObject {
         guard let wallet = cardViewModel.wallet else {
             return false
         }
-        
-        if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 {
-            return false // [REDACTED_TODO_COMMENT]
-        }
        
         if let fw = cardViewModel.card.firmwareVersionValue, fw < 2.29 {
-            if let batchIdString = cardViewModel.card.cardData?.batchId,
-                let batchId = Int(batchIdString, radix: 16) {
-                if batchId != 38 { //old cardano cards
-                    return false
-                }
-            } else  {
-                return false
+            if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 {
+                return false // [REDACTED_TODO_COMMENT]
             }
         }
         
@@ -139,10 +130,10 @@ class DetailsViewModel: ObservableObject {
     }
     
     func sendTapped() {
-        if cardViewModel.wallet!.amounts.count > 1 {
+        if cardViewModel.wallet!.amounts[.token] != nil {
             showSendChoise = true
         } else {
-            amountToSend = Amount(with: cardViewModel.wallet!.amounts.first!.value, value: 0)
+            amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
             showSend = true
         }
     }
