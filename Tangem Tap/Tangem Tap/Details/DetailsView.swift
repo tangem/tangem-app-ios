@@ -24,8 +24,8 @@ struct DetailsView: View {
             .values
             .map { $0.self }
         
-      let buttons = symbols.map { amount in
-        return ActionSheet.Button.default(Text(amount.currencySymbol)) {
+        let buttons = symbols.map { amount in
+            return ActionSheet.Button.default(Text(amount.currencySymbol)) {
                 self.viewModel.amountToSend = Amount(with: amount, value: 0)
                 self.viewModel.showSend = true
             }
@@ -63,13 +63,13 @@ struct DetailsView: View {
                                 if self.viewModel.cardViewModel.noAccountMessage != nil {
                                     ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
                                 } else {
-                                    if self.viewModel.cardViewModel.wallet != nil {
+                                    if self.viewModel.cardViewModel.walletManager != nil {
                                         self.pendingTransactionView
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
                                         AddressDetailView().environmentObject(self.viewModel.cardViewModel)
                                     } else {
                                         if !self.viewModel.cardViewModel.isCardSupported  {
-                                             ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
+                                            ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
                                         } else {
                                             ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
                                         }
@@ -116,34 +116,41 @@ struct DetailsView: View {
                 .sheet(isPresented: $viewModel.showSend) {
                     ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
                                                             cardViewModel: self.$viewModel.cardViewModel,
-                                                        sdkSerice: self.$viewModel.sdkService))
+                                                            sdkSerice: self.$viewModel.sdkService))
                 }
                 .actionSheet(isPresented: self.$viewModel.showSendChoise) {
                     ActionSheet(title: Text("details_choice_wallet_option_title"),
                                 message: nil,
                                 buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
-
+                    
                 }
                 
             }
         }
-            .padding(.bottom, 16.0)
-            .navigationBarBackButtonHidden(true)
-            .navigationBarTitle("details_title", displayMode: .inline)
-            .navigationBarItems(trailing: Button(action: {
-                self.viewModel.showSettings = true
-                
-            }, label: { Image("verticalDots")
-                .foregroundColor(Color.tangemTapGrayDark6)
-                .frame(width: 44.0, height: 44.0, alignment: .center)
-                .offset(x: 10.0, y: 0.0)
-            })
-                .padding(0.0)
-                .sheet(isPresented: $viewModel.showSettings) {
-                    SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService))
-                }
+        .padding(.bottom, 16.0)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitle("details_title", displayMode: .inline)
+        .navigationBarItems(trailing: Button(action: {
+            self.viewModel.showSettings = true
+            
+        }, label: { Image("verticalDots")
+            .foregroundColor(Color.tangemTapGrayDark6)
+            .frame(width: 44.0, height: 44.0, alignment: .center)
+            .offset(x: 10.0, y: 0.0)
+        })
+            .padding(0.0)
+            .sheet(isPresented: $viewModel.showSettings) {
+                SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService))
+            }
         )
             .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+            .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
+                    return Alert(title: Text("common_success"),
+                                 message: Text("send_transaction_success"),
+                                 dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                     action: {}))
+                
+        }
     }
 }
 
