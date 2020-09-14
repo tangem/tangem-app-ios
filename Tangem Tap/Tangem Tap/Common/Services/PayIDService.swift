@@ -136,10 +136,6 @@ class PayIDService {
     }
     
     let network: PayIdNetwork
-    
-    public private(set) var payId: String?
-    public private(set) var resolvedTag: String?
-    
     let payIdProvider = MoyaProvider<PayIdTarget>(plugins: [NetworkLoggerPlugin()])
     
     
@@ -189,23 +185,19 @@ class PayIDService {
                         _ = try response.filterSuccessfulStatusCodes()
                         if let getResponse = try? response.map(GetPayIdResponse.self) {
                             if let payId = getResponse.payId {
-                                self.payId = payId
                                 completion(.success(payId))
                             } else {
-                                self.payId = nil
                                 completion(.failure("Empty PayID response"))
                             }
                         } else {
-                            self.payId = nil
                             completion(.failure("Unknown PayID response"))
                         }
                     } catch {
                         if response.statusCode == 404 {
-                            self.payId = nil
+                       
                             completion(.success(nil))
                             return
                         } else {
-                            self.payId = nil
                             if let errorResponse = try? response.map(PayIdErrorResponse.self), let msg = errorResponse.message {
                                 completion(.failure(msg))
                             } else {
@@ -214,7 +206,6 @@ class PayIDService {
                         }
                     }
                 case .failure(let error):
-                    self.payId = nil
                     completion(.failure(error))
                 }
             }
@@ -230,7 +221,6 @@ class PayIDService {
                 case .success(let response):
                     do {
                         _ = try response.filterSuccessfulStatusCodes()
-                        self.payId = payId
                         completion(.success(true))
                     } catch {
                         if let errorResponse = try? response.map(PayIdErrorResponse.self), let msg = errorResponse.message {
@@ -238,11 +228,8 @@ class PayIDService {
                         } else {
                             completion(.failure("Request failed. Try again later"))
                         }
-                        
-                        self.payId = nil
                     }
                 case .failure(let error):
-                    self.payId = nil
                     completion(.failure(error))
                 }
             }
@@ -250,6 +237,12 @@ class PayIDService {
     }
     
     func validate(_ address: String) -> Bool {
+        let regex = NSRegularExpression("^[a-z0-9!#@%&*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#@%&*+/=?^_`{|}~-]+)*\\$(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z-]*[a-z0-9])?|(?:[0-9]{1,3}\\.){3}[0-9]{1,3})$")
+        
+        guard regex.matches(address) else {
+            return false
+        }
+        
         let addressParts = address.split(separator: "$")
         if addressParts.count != 2 {
             return false
@@ -262,26 +255,23 @@ class PayIDService {
         }
     }
     
-    func resolve(_ payId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        self.resolvedTag = nil
+    func resolve(_ payId: String, completion: @escaping (Result<PayIdAddressDetails, Error>) -> Void) {
         payIdProvider.request(.address(payId: payId, network: self.network)) {[weak self] moyaResult in
             guard let self = self else { return }
             switch moyaResult {
             case .success(let response):
                 if let payIdResponse = try? response.map(PayIdResponse.self) {
-                    if let resolvedAddressDetails = payIdResponse.addresses?.compactMap({ address -> (address: String, tag: String?)? in
+                    if let resolvedAddressDetails = payIdResponse.addresses?.compactMap({ address -> PayIdAddressDetails? in
                         if address.paymentNetwork == self.network.rawValue && address.environment == "MAINNET" {
-                            if let resolvedAddress = address.addressDetails?.address {
-                                return (resolvedAddress, address.addressDetails?.tag)
+                            if address.addressDetails?.address != nil {
+                                return address.addressDetails
                             } else {
                                 return nil
                             }
                         }
                         return nil
                     }).first {
-                        
-                        self.resolvedTag = resolvedAddressDetails.tag
-                        completion(.success(resolvedAddressDetails.address))
+                        completion(.success(resolvedAddressDetails))
                     } else {
                         completion(.failure("Unknown address format in PayID response"))
                     }
