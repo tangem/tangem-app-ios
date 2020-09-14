@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		31B33C8CA6A7BDF8E74D9091 /* Pods_Tangem_TapTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30730268D19E81F373712C02 /* Pods_Tangem_TapTests.framework */; };
 		58C9C611B1BC9C606B5F70B5 /* Pods_Tangem_Tap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13E2B49EFB622F929FD5C46A /* Pods_Tangem_Tap.framework */; };
+		5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */; };
 		5D0B4F9324F54F23007A0CD1 /* TangemSdkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0B4F9224F54F23007A0CD1 /* TangemSdkService.swift */; };
 		5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */; };
 		5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
@@ -107,6 +108,7 @@
 		2459667052667F113C3CBF58 /* Pods-Tangem TapTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.release.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.release.xcconfig"; sourceTree = "<group>"; };
 		30730268D19E81F373712C02 /* Pods_Tangem_TapTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TapTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		453C6E5BE6FDD4AA1524167D /* Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegualrExpression+.swift"; sourceTree = "<group>"; };
 		5D0B4F9224F54F23007A0CD1 /* TangemSdkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkService.swift; sourceTree = "<group>"; };
 		5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkLoggerConfiguration+.swift"; sourceTree = "<group>"; };
 		5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
@@ -343,7 +345,6 @@
 			children = (
 				5DD4CB4324FAAAE0008F23CC /* KeyboardAvoidance */,
 				5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */,
-				5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */,
 				5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */,
 				5D958E1524F51402006BD932 /* NavigationConfigurator.swift */,
 				5D9004E324FA79F700E90939 /* onWillDisappear.swift */,
@@ -375,6 +376,7 @@
 				5D384B9024FD4E1800C2C92C /* String+.swift */,
 				5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */,
 				5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */,
+				5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -407,6 +409,7 @@
 				5D958E1724F51422006BD932 /* Models */,
 				5D958E1224F513C1006BD932 /* UI */,
 				5D383E3C24D95B6B00C9BFF6 /* Localizations */,
+				5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */,
 				5D9141C524D8A42600EB52C0 /* Fonts */,
 				5DBBAB0924D853A000E78F1C /* Extensions */,
 				5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */,
@@ -734,6 +737,7 @@
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5D384B8D24FD444000C2C92C /* CreateWalletReadTask.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
+				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
 				5D5E059224FEA4B800F04DE1 /* CoinMarketCapService.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
