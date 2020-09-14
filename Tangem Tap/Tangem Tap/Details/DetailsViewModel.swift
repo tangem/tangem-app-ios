@@ -30,6 +30,10 @@ class DetailsViewModel: ObservableObject {
         guard let wallet = cardViewModel.wallet else {
             return false
         }
+        
+        if wallet.hasPendingTx {
+            return false
+        }
        
         if let fw = cardViewModel.card.firmwareVersionValue, fw < 2.29 {
             if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 {
