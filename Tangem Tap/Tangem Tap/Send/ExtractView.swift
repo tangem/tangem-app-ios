@@ -212,7 +212,9 @@ struct ExtractView: View {
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
                         Button(action: {
-                            self.viewModel.send()
+                            self.viewModel.send() {
+                                self.presentationMode.wrappedValue.dismiss()
+                            }
                         }) { HStack(alignment: .center, spacing: 16.0) {
                             Text("details_button_send")
                             Spacer()
@@ -223,21 +225,11 @@ struct ExtractView: View {
                                                        colorStyle: .green,
                                                        isDisabled: !self.viewModel.isSendEnabled))
                             .disabled(!self.viewModel.isSendEnabled)
-                            .alert(isPresented: self.$viewModel.showSendAlert) { () -> Alert in
-                                if self.viewModel.sendError == nil {
-                                    return Alert(title: Text("common_success"),
-                                                 message: Text("send_transaction_success"),
-                                                 dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                                     action: {
-                                                                                        self.presentationMode.wrappedValue.dismiss()
-                                                 })) } else {
-                                    return Alert(title: Text("common_error"),
-                                                 message: Text(self.viewModel.sendError!.localizedDescription),
-                                                 dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                                     action: {
-                                                                                       
-                                                 }))
-                                }
+                            .alert(isPresented: self.$viewModel.showErrorAlert) { () -> Alert in
+                                return Alert(title: Text("common_error"),
+                                             message: Text(self.viewModel.sendError!.localizedDescription),
+                                             dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                                 action: { }))
                                 
                         }
                     }
