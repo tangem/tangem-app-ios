@@ -46,6 +46,7 @@
 
 "error_subtitle_unsupported_blockchain" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
 
+"pendingTxView_unknown" = "Transaction in progress...";
 
 "pendingTxView_sending_format" = "Sending %@ to %@";
 
