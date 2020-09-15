@@ -261,7 +261,7 @@ class ExtractViewModel: ObservableObject {
                            $selectedFee,
                            $isFeeIncluded)
             .map {[unowned self] amountValidated, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
-                self.amountHint = nil
+              
                 if !amountValidated || destination == nil || fee == nil {
                     return nil
                 }
@@ -271,6 +271,7 @@ class ExtractViewModel: ObservableObject {
                                                                                  destinationAddress: destination!)
                 switch result {
                 case .success(let tx):
+                    self.amountHint = nil
                     return tx
                 case .failure(let error):
                     self.amountHint = TextHint(isError: true, message: "send_validation_invalid_amount".localized)
