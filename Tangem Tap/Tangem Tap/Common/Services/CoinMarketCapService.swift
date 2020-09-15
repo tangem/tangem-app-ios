@@ -93,6 +93,7 @@ class CoinMarketCapService {
             .flatMap { [unowned self] item in
                 return self.provider
                     .requestPublisher(.rate(amount: item.value, symbol: item.key, convert: convertTo.map { $0.rawValue }, apiKey: self.apiKey))
+                    .filterSuccessfulStatusAndRedirectCodes()
                     .map(RateInfoResponse.self)
                     .map { (item.key, $0.data.quote.mapValues {  $0.price }) }
         }
