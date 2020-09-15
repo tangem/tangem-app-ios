@@ -20,7 +20,7 @@ struct DetailsView: View {
             .cardViewModel
             .wallet!
             .amounts
-            .filter { $0.key != .reserve }
+            .filter { $0.key != .reserve && $0.value.value > 0 }
             .values
             .map { $0.self }
         
