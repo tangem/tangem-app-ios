@@ -372,7 +372,7 @@ class ExtractViewModel: ObservableObject {
                 appDelegate.removeLoadingView()
                
                 if case let .failure(error) = completion {
-                    self.sendError = error
+                    self.sendError = error.detailedError
                     self.showErrorAlert = true
                 } else {
                      callback()
