@@ -146,16 +146,21 @@ class CardViewModel: Identifiable, ObservableObject {
         if let walletManager = self.walletManager {
             isWalletLoading = true
             walletManager.update { [weak self] result in
+                guard let self = self else {return}
+                
                 DispatchQueue.main.async {
                     if case let .failure(error) = result {
-                        self?.loadingError = error.detailedError
+                        self.loadingError = error.detailedError
                         if case let .noAccount(noAccountMessage) = (error as? WalletError) {
-                            self?.noAccountMessage = noAccountMessage
+                            self.noAccountMessage = noAccountMessage
+                        }
+                        if let wallet = self.wallet  {
+                            self.balanceViewModel = self.makeBalanceViewModel(from: wallet)
                         }
                     } else {
-                        self?.loadRates()
+                        self.loadRates()
                     }
-                    self?.isWalletLoading = false
+                    self.isWalletLoading = false
                 }
             }
         }
