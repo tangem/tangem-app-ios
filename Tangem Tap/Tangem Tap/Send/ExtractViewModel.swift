@@ -199,10 +199,17 @@ class ExtractViewModel: ObservableObject {
                 if let tx = tx {
                     self.isSendEnabled = true
                     let totalAmount = tx.amount + tx.fee
-                    let totalFiatAmount = self.cardViewModel.getFiatFormatted(for: totalAmount)
+                    var totalFiatAmount: Decimal? = nil
+                    
+                    if let famount = self.cardViewModel.getFiat(for: tx.amount), let ffee = self.cardViewModel.getFiat(for: tx.fee) {
+                        totalFiatAmount = famount + ffee
+                    }
+                    
+                    let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.cardViewModel.selectedFiat.rawValue)
+                    
                     if self.isFiatCalculation {
                         self.sendAmount = self.cardViewModel.getFiatFormatted(for: tx.amount) ?? ""
-                        self.sendTotal = totalFiatAmount ?? ""
+                        self.sendTotal = totalFiatAmountFormatted ?? "-"
                         self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
                             String(format: "send_total_subtitle_format".localized, totalAmount.description) :
                             String(format: "send_total_subtitle_asset_format".localized,
@@ -211,8 +218,8 @@ class ExtractViewModel: ObservableObject {
                     } else {
                         self.sendAmount = tx.amount.description
                         self.sendTotal =  tx.amount.type == tx.fee.type ? totalAmount.description : "-"
-                        self.sendTotalSubtitle = totalFiatAmount == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
-                                                                                        totalFiatAmount!,
+                        self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
+                                                                                        totalFiatAmountFormatted!,
                                                                                         self.cardViewModel.getFiatFormatted(for: tx.fee)!)
                     }
                     
