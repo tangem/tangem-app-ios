@@ -368,9 +368,14 @@ class ExtractViewModel: ObservableObject {
     
     func send(_ callback: @escaping () -> Void) {
         self.sendError = nil
-        guard let tx = self.transaction else {
+        guard var tx = self.transaction else {
             return
         }
+        
+        if let payIdTag = self.validatedTag {
+            tx.infos[Transaction.InfoKey.destinationTag] = payIdTag
+        }
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         txSender.send(tx, signer: sdkService.tangemSdk)
