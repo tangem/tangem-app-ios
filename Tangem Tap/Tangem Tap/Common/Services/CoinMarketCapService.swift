@@ -13,10 +13,18 @@ import BlockchainSdk
 
 enum CoinMarketCapTarget: TargetType {
     case rate(amount: Decimal, symbol: String, convert: [String], apiKey: String)
+    case fiatMap(apiKey: String)
     
     var baseURL: URL {URL(string: "https://pro-api.coinmarketcap.com/")!}
     
-    var path: String { "v1/tools/price-conversion" }
+    var path: String {
+        switch self {
+        case .rate:
+            return "v1/tools/price-conversion"
+        case .fiatMap:
+            return "v1/fiat/map"
+        }
+    }
     
     var method: Moya.Method { .get }
     
@@ -29,6 +37,8 @@ enum CoinMarketCapTarget: TargetType {
                                                    "symbol" : symbol,
                                                    "convert" : convert.joined(separator: ",")],
                                       encoding: URLEncoding.default)
+        case .fiatMap:
+           return .requestPlain
         }
     }
     
@@ -36,10 +46,23 @@ enum CoinMarketCapTarget: TargetType {
         switch self {
         case .rate(_, _, _, let apiKey):
             return ["X-CMC_PRO_API_KEY": apiKey]
+        case .fiatMap(let apiKey):
+            return ["X-CMC_PRO_API_KEY": apiKey]
         }
     }
 }
 
+struct FiatResponse: Codable {
+    let status: Status
+    let data: [FiatCurrency]
+}
+
+struct FiatCurrency: Codable {
+    let id: Int
+    let name: String
+    let sign: String
+    let symbol: String
+}
 
 struct RateInfoResponse: Codable {
     let status: Status
@@ -73,7 +96,6 @@ struct Status: Codable {
     }
 }
 
-
 class CoinMarketCapService {
     enum FiatCurrencies: String, CaseIterable {
         case usd = "USD"
@@ -84,6 +106,15 @@ class CoinMarketCapService {
     
     internal init(apiKey: String) {
         self.apiKey = apiKey
+    }
+    
+    func loadFiatMap() -> AnyPublisher<[FiatCurrency], MoyaError> {
+        provider
+            .requestPublisher(.fiatMap(apiKey: self.apiKey))
+            .filterSuccessfulStatusCodes()
+            .map(FiatResponse.self)
+            .map { $0.data }
+            .eraseToAnyPublisher()
     }
     
     func loadRates(for currencies: [String: Decimal], convertTo: [FiatCurrencies] = [FiatCurrencies.usd]) -> AnyPublisher<[String: [String: Decimal]], MoyaError> {
