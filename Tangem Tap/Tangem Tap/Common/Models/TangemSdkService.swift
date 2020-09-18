@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-class TangemSdkService: ObservableObject {
+class TangemSdkService {
     var ratesService: CoinMarketCapService!
     
     var cards = [String: CardViewModel]()
