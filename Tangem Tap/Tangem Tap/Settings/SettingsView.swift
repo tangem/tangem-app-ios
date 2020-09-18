@@ -68,7 +68,7 @@ struct SettingsView: View {
                 NavigationLink(destination:CurrencySelectView()
                                 .environmentObject(self.viewModel.cardViewModel)) {
                     DetailsRowView(title: "settings_row_title_currency".localized,
-                                   subtitle: "USD")
+                                   subtitle: viewModel.cardViewModel.selectedCurrency)
                     
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
             }
@@ -108,7 +108,7 @@ struct SettingsView: View {
             
         }
         .listStyle(PlainListStyle())
-        .listRowBackground(Color.tangemTapBgGray)
+        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("settings_title", displayMode: .inline)
     }
 }
