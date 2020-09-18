@@ -115,3 +115,30 @@
 "send_balance_subtitle_format" = "Balance: %@";
 
 "send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
+
+
+"settings_title" = "Details";
+
+"settings_row_title_cid" = "Card ID";
+"settings_row_title_issuer" = "Issuer";
+"settings_row_title_signed" = "Signed";
+
+"settings_row_subtitle_signed_hashes_format" = "%@ hashes";
+
+"settings_row_title_currency" = "App currency";
+
+"settings_section_title_settings" = "Settings";
+
+"settings_section_title_card" = "Card";
+
+"settings_row_title_validate" = "Validate card";
+
+"settings_row_title_manage_security" = "Manage Security";
+
+"settings_row_title_erase_wallet" = "Erase wallet";
+
+"common_button_title_save_changes" = "Save changes";
+
+"common_warning" = "Warning";
+
+"warning_erase_wallet" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
