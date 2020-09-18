@@ -57,7 +57,7 @@ struct FiatResponse: Codable {
     let data: [FiatCurrency]
 }
 
-struct FiatCurrency: Codable {
+struct FiatCurrency: Codable, Identifiable {
     let id: Int
     let name: String
     let sign: String
@@ -97,9 +97,8 @@ struct Status: Codable {
 }
 
 class CoinMarketCapService {
-    enum FiatCurrencies: String, CaseIterable {
-        case usd = "USD"
-    }
+    @Storage("tangem_tap_selected_currency_code", defaultValue: "USD")
+    var selectedCurrencyCode: String
     
     let apiKey: String
     let provider = MoyaProvider<CoinMarketCapTarget>(plugins: [NetworkLoggerPlugin(configuration: NetworkLoggerPlugin.Configuration.verboseConfiguration)])
@@ -113,17 +112,17 @@ class CoinMarketCapService {
             .requestPublisher(.fiatMap(apiKey: self.apiKey))
             .filterSuccessfulStatusCodes()
             .map(FiatResponse.self)
-            .map { $0.data }
+            .map { $0.data.sorted(by: { $0.name < $1.name } ) }
             .eraseToAnyPublisher()
     }
     
-    func loadRates(for currencies: [String: Decimal], convertTo: [FiatCurrencies] = [FiatCurrencies.usd]) -> AnyPublisher<[String: [String: Decimal]], MoyaError> {
+    func loadRates(for currencies: [String: Decimal]) -> AnyPublisher<[String: [String: Decimal]], MoyaError> {
         currencies
             .publisher
             .setFailureType(to: MoyaError.self)
             .flatMap { [unowned self] item in
                 return self.provider
-                    .requestPublisher(.rate(amount: item.value, symbol: item.key, convert: convertTo.map { $0.rawValue }, apiKey: self.apiKey))
+                    .requestPublisher(.rate(amount: item.value, symbol: item.key, convert: [selectedCurrencyCode], apiKey: self.apiKey))
                     .filterSuccessfulStatusAndRedirectCodes()
                     .map(RateInfoResponse.self)
                     .map { (item.key, $0.data.quote.mapValues {  $0.price }) }
