@@ -130,7 +130,7 @@ struct DetailsView: View {
         }
         .padding(.bottom, 16.0)
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle("details_title", displayMode: .inline)
+        .navigationBarTitle(viewModel.showSettings ? "" : "details_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
             self.viewModel.showSettings = true
             
@@ -139,25 +139,30 @@ struct DetailsView: View {
             .frame(width: 44.0, height: 44.0, alignment: .center)
             .offset(x: 10.0, y: 0.0)
         })
-            .padding(0.0)
-            .sheet(isPresented: $viewModel.showSettings) {
-                SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService))
-            }
+        .padding(0.0)
         )
-            .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
-            .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
-                    return Alert(title: Text("common_success"),
-                                 message: Text("send_transaction_success"),
-                                 dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                     action: {}))
-                
+        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+        .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
+            return Alert(title: Text("common_success"),
+                         message: Text("send_transaction_success"),
+                         dismissButton: Alert.Button.default(Text("common_ok"),
+                                                             action: {}))
+            
+        }
+        if viewModel.showSettings {
+            NavigationLink(
+                destination: SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService)),
+                isActive: $viewModel.showSettings,
+                label: {
+                    EmptyView()
+                })
         }
     }
 }
 
 
 struct DetailsView_Previews: PreviewProvider {
-    @State static var sdkService: TangemSdkService = {
+    static var sdkService: TangemSdkService = {
         let service = TangemSdkService()
         service.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
         service.cards[Card.testCardNoWallet.cardId!] = CardViewModel(card: Card.testCardNoWallet)
@@ -167,11 +172,11 @@ struct DetailsView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             NavigationView {
-                DetailsView(viewModel: DetailsViewModel(cid: Card.testCard.cardId!, sdkService: $sdkService))
+                DetailsView(viewModel: DetailsViewModel(cid: Card.testCard.cardId!, sdkService: sdkService))
             }
             
             NavigationView {
-                DetailsView(viewModel: DetailsViewModel(cid: Card.testCardNoWallet.cardId!, sdkService: $sdkService))
+                DetailsView(viewModel: DetailsViewModel(cid: Card.testCardNoWallet.cardId!, sdkService: sdkService))
             }
         }
     }
