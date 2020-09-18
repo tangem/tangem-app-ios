@@ -71,7 +71,7 @@ class ExtractViewModel: ObservableObject {
     }
     
     var currencyUnit: String {
-        return isFiatCalculation ? self.cardViewModel.selectedFiat.rawValue : self.amountToSend.currencySymbol
+        return isFiatCalculation ? self.cardViewModel.selectedCurrency: self.amountToSend.currencySymbol
     }
     
     var walletTotalBalanceDecimals: String {
@@ -205,7 +205,7 @@ class ExtractViewModel: ObservableObject {
                         totalFiatAmount = famount + ffee
                     }
                     
-                    let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.cardViewModel.selectedFiat.rawValue)
+                    let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.cardViewModel.selectedCurrency)
                     
                     if self.isFiatCalculation {
                         self.sendAmount = self.cardViewModel.getFiatFormatted(for: tx.amount) ?? ""
