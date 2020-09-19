@@ -12,7 +12,7 @@ import SwiftUI
 import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
-    @Binding var sdkService: TangemSdkService
+    var sdkService: TangemSdkService
     
     @Published var isRefreshing = false
     @Published var showSettings = false
@@ -75,9 +75,9 @@ class DetailsViewModel: ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     
-    init(cid: String, sdkService: Binding<TangemSdkService>) {
-        self._sdkService = sdkService
-        self.cardViewModel = sdkService.wrappedValue.cards[cid]!
+    init(cid: String, sdkService: TangemSdkService) {
+        self.sdkService = sdkService
+        self.cardViewModel = sdkService.cards[cid]!
         bind()
     }
     
