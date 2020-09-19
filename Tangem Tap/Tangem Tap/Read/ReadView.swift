@@ -103,7 +103,7 @@ struct ReadView: View {
                 if viewModel.openDetails {
                     NavigationLink(destination:
                         DetailsView(viewModel: DetailsViewModel(cid: viewModel.sdkService.cards.first!.key,
-                                                                sdkService: viewModel.$sdkService)),
+                                                                sdkService: viewModel.sdkService)),
                                    isActive: $viewModel.openDetails) {
                                     EmptyView()
                     }
@@ -113,6 +113,7 @@ struct ReadView: View {
             .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
             .background(NavigationConfigurator() { nc in
                 nc.navigationBar.barTintColor = UIColor.tangemTapBgGray
+                nc.navigationBar.tintColor = UIColor.tangemTapGrayDark6
                 nc.navigationBar.shadowImage = UIImage()
             })
             
@@ -121,17 +122,17 @@ struct ReadView: View {
     }
 }
 struct ReadView_Previews: PreviewProvider {
-    @State static var sdkService = TangemSdkService()
+    static var sdkService = TangemSdkService()
     static var previews: some View {
         Group {
-            ReadView(viewModel: ReadViewModel(sdkService: $sdkService))
+            ReadView(viewModel: ReadViewModel(sdkService: sdkService))
                 .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
                 .previewDisplayName("iPhone 7")
-            ReadView(viewModel: ReadViewModel(sdkService: $sdkService))
+            ReadView(viewModel: ReadViewModel(sdkService: sdkService))
                 .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
                 .previewDisplayName("iPhone 11 Pro Max")
             
-            ReadView(viewModel: ReadViewModel(sdkService: $sdkService))
+            ReadView(viewModel: ReadViewModel(sdkService: sdkService))
                 .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
                 .previewDisplayName("iPhone 11 Pro Max Dark")
                 .environment(\.colorScheme, .dark)
