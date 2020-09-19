@@ -17,12 +17,12 @@ class ReadViewModel: ObservableObject {
         case read
     }
     
-    @Binding var sdkService: TangemSdkService
+    var sdkService: TangemSdkService
     @Published var openDetails: Bool = false
     @Published var state: State = .welcome
     
-    init(sdkService: Binding<TangemSdkService>) {
-        self._sdkService = sdkService
+    init(sdkService: TangemSdkService) {
+        self.sdkService = sdkService
     }
     
     func openShop() {
