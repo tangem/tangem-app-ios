@@ -15,9 +15,19 @@ class CardViewModel: Identifiable, ObservableObject {
     let card: Card
     let service = NetworkService()
     var payIDService: PayIDService? = nil
-    var ratesService: CoinMarketCapService?
+    var ratesService: CoinMarketCapService! {
+        didSet {
+            selectedCurrency = ratesService.selectedCurrencyCode
+            $selectedCurrency
+                .dropFirst()
+                .sink(receiveValue: { [unowned self] value in
+                    self.ratesService.selectedCurrencyCode = value
+                    self.loadRates()
+                })
+                .store(in: &bag)
+        }
+    }
     var rates: [String: [String: Decimal]] = [:]
-    var selectedFiat: CoinMarketCapService.FiatCurrencies = .usd
     
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
@@ -27,7 +37,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var balanceViewModel: BalanceViewModel!
     @Published var wallet: Wallet? = nil
     @Published var image: UIImage? = nil
-    
+    @Published var selectedCurrency: String = ""
     @Published var showSendAlert: Bool = false
     
     var walletManager: WalletManager?
@@ -172,7 +182,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
             .reduce(into: [String: Decimal](), { $0[$1.0] = $1.1 }) {
             ratesService?
-                .loadRates(for: currenciesToExchange, convertTo: CoinMarketCapService.FiatCurrencies.allCases)
+                .loadRates(for: currenciesToExchange)
                 .receive(on: RunLoop.main)
                 .sink(receiveCompletion: { completion in
                     switch completion {
@@ -218,7 +228,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func getFiatFormatted(for amount: Amount?) -> String? {
-        return getFiat(for: amount)?.currencyFormatted(code: selectedFiat.rawValue)
+        return getFiat(for: amount)?.currencyFormatted(code: selectedCurrency)
     }
     
     func getFiat(for amount: Amount?) -> Decimal? {
@@ -237,7 +247,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
-            let rate = quotes[selectedFiat.rawValue] {
+            let rate = quotes[selectedCurrency] {
             return value * rate
         }
         return nil
@@ -245,7 +255,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func getCrypto(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
-            let rate = quotes[selectedFiat.rawValue] {
+            let rate = quotes[selectedCurrency] {
             return value / rate
         }
         return nil
