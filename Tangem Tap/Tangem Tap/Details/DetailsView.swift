@@ -70,7 +70,8 @@ struct DetailsView: View {
                                     } else {
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
                                     }
-                                    AddressDetailView().environmentObject(self.viewModel.cardViewModel)
+                                    AddressDetailView(showCreatePayID: self.$viewModel.showCreatePayID)
+                                        .environmentObject(self.viewModel.cardViewModel)
                                 } else {
                                     if !self.viewModel.cardViewModel.isCardSupported  {
                                         ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
@@ -127,6 +128,14 @@ struct DetailsView: View {
                     }
                 }
             }
+            if viewModel.showSettings {
+                NavigationLink(
+                    destination: SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService)),
+                    isActive: $viewModel.showSettings,
+                    label: {
+                        EmptyView()
+                    })
+            }
         }
         .padding(.bottom, 16.0)
         .navigationBarBackButtonHidden(true)
@@ -149,14 +158,10 @@ struct DetailsView: View {
                                                              action: {}))
             
         }
-        if viewModel.showSettings {
-            NavigationLink(
-                destination: SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService)),
-                isActive: $viewModel.showSettings,
-                label: {
-                    EmptyView()
-                })
-        }
+        .sheet(isPresented: self.$viewModel.showCreatePayID, content: {
+                CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
+                    .environmentObject(self.viewModel.cardViewModel)
+        })
     }
 }
 
