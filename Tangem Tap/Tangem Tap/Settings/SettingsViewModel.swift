@@ -75,21 +75,21 @@ class SettingsViewModel: ObservableObject {
         //        }
         
         if let wallet = cardViewModel.wallet {
-            if !wallet.isEmptyAmount || wallet.hasPendingTx {
-                return false
-            }
-            
-            return true
-        } else {
             if let loadingError = cardViewModel.loadingError {
                 if case .noAccount(_) = (loadingError as? WalletError) {
                     return true
                 } else {
                     return false
                 }
-            } else {
-                return false // [REDACTED_TODO_COMMENT]
             }
+            
+            if !wallet.isEmptyAmount || wallet.hasPendingTx {
+                return false
+            }
+            
+            return true
+        } else {
+            return false
         }
     }
 }
