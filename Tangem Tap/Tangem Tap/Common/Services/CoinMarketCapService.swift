@@ -122,7 +122,7 @@ class CoinMarketCapService {
             .setFailureType(to: MoyaError.self)
             .flatMap { [unowned self] item in
                 return self.provider
-                    .requestPublisher(.rate(amount: item.value, symbol: item.key, convert: [selectedCurrencyCode], apiKey: self.apiKey))
+                    .requestPublisher(.rate(amount: item.value, symbol: item.key, convert: [self.selectedCurrencyCode], apiKey: self.apiKey))
                     .filterSuccessfulStatusAndRedirectCodes()
                     .map(RateInfoResponse.self)
                     .map { (item.key, $0.data.quote.mapValues {  $0.price }) }
