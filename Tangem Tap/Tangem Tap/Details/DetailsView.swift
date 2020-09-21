@@ -12,6 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
+
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
     
@@ -60,7 +61,7 @@ struct DetailsView: View {
                                 ActivityIndicatorView(isAnimating: true, style: .medium)
                                     .padding(.bottom, 16.0)
                             } else {
-                                if self.viewModel.cardViewModel.walletManager != nil {
+                                if self.viewModel.cardViewModel.wallet != nil {
                                     self.pendingTransactionView
                                         .padding(.bottom, 8.0)
                                     
@@ -125,7 +126,6 @@ struct DetailsView: View {
                         
                     }
                 }
-                
             }
         }
         .padding(.bottom, 16.0)
