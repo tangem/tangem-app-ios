@@ -13,7 +13,6 @@ import UIKit
 
 struct QRCodeView: View {
     let title: String
-    let address: String
     let shareString: String
     @State var userBrightness: CGFloat = 0.5
     
@@ -21,7 +20,7 @@ struct QRCodeView: View {
         VStack {
             VStack(alignment: .center, spacing: 8.0) {
                 HStack {
-                    Text(self.title)
+                    Text(title)
                         .font(Font.system(size: 30.0, weight: .bold, design: .default) )
                         .foregroundColor(Color.tangemTapGrayDark6)
                     Spacer()
@@ -30,7 +29,7 @@ struct QRCodeView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .padding(.all, 20.0)
-                Text(self.address)
+                Text(shareString)
                     .font(Font.system(size: 13.0, weight: .regular, design: .default) )
                     .foregroundColor(Color.tangemTapGrayDark)
                     .multilineTextAlignment(.center)
