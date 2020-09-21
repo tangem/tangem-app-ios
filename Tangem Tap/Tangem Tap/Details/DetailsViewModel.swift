@@ -86,18 +86,15 @@ class DetailsViewModel: ObservableObject {
         $isRefreshing
             .removeDuplicates()
             .filter { $0 }
-            .sink(receiveValue: { [unowned self] _ in
+            .sink{ [unowned self] _ in
                 self.cardViewModel.update()
-            })
+            }
             .store(in: &bag)
         
         cardViewModel.$isWalletLoading
-            .removeDuplicates()
             .filter { !$0 }
             .receive(on: RunLoop.main)
-            .sink (receiveValue: {[unowned self] isWalletLoading in
-                self.isRefreshing = isWalletLoading
-            })
+            .assign(to: \.isRefreshing, on: self)
             .store(in: &bag)
         
         cardViewModel.objectWillChange
