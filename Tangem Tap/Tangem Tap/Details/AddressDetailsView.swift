@@ -105,7 +105,6 @@ struct AddressDetailView: View {
                     // VStack {
                     //    Spacer()
                     QRCodeView(title: "\(self.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
-                        address: self.cardViewModel.wallet!.address,
                         shareString: self.cardViewModel.wallet!.shareString)
                         .transition(AnyTransition.move(edge: .bottom))
                     //   Spacer()
