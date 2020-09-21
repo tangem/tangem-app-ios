@@ -101,7 +101,8 @@ struct ExtractView: View {
                                             keyboard: UIKeyboardType.decimalPad,
                                             textColor: UIColor.tangemTapGrayDark6,
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
-                                            placeholder: "")
+                                            placeholder: "",
+                                            decimalCount: self.viewModel.cardViewModel.wallet?.blockchain.decimalCount)
                             Button(action: {
                                 self.viewModel.isFiatCalculation.toggle()
                             }) { HStack(alignment: .center, spacing: 8.0) {
