@@ -58,7 +58,6 @@ class CardViewModel: Identifiable, ObservableObject {
                     print("wallet received")
                     self.wallet = wallet
                     self.balanceViewModel = self.makeBalanceViewModel(from: wallet)
-                    self.isWalletLoading = false
                 })
                 .store(in: &bag)
         } else {
@@ -230,6 +229,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func makeBalanceViewModel(from wallet: Wallet) -> BalanceViewModel? {
+        guard self.loadingError != nil || !wallet.amounts.isEmpty else { //not yet loaded
+            return nil
+        }
+        
         if let token = wallet.token {
             return BalanceViewModel(isToken: true,
                                     //dataLoaded: !wallet.amounts.isEmpty,
