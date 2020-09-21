@@ -85,19 +85,12 @@ struct SettingsView: View {
                 NavigationLink(destination: CardOperationView(title: "settings_row_title_erase_wallet".localized,
                                                               alert: "warning_erase_wallet".localized,
                                                               actionButtonPressed: { completion in
-                                                                self.viewModel.sdkService.purgeWallet(cardId: nil) { result in
-                                                                    switch result {
-                                                                    case .success:
-                                                                        completion(.success(()))
-                                                                    case .failure(let error):
-                                                                        completion(.failure(error))
-                                                                    }
-                                                                }
+                                                                self.viewModel.purgeWallet(completion: completion)
                                                               })
                 ) {
                     DetailsRowView(title: "settings_row_title_erase_wallet".localized, subtitle: "")
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.cardViewModel.canPurgeWallet)
+                .disabled(!viewModel.canPurgeWallet)
                 
             }
             
