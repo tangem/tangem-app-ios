@@ -182,14 +182,16 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         service.request(TangemEndpoint.artwork(cid: cid, cardPublicKey: cardPublicKey, artworkId: artworkId)) {[weak self] result in
-            switch result {
-            case .success(let data):
-                if let img = UIImage(data: data) {
-                    self?.image = img
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let data):
+                    if let img = UIImage(data: data) {
+                        self?.image = img
+                    }
+                case .failure(let error):
+                    //[REDACTED_TODO_COMMENT]
+                    break
                 }
-            case .failure(let error):
-                //[REDACTED_TODO_COMMENT]
-                break
             }
         }
     }
