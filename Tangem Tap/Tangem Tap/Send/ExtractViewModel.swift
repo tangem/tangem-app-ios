@@ -398,10 +398,8 @@ class ExtractViewModel: ObservableObject {
                     self.sendError = error.detailedError
                     self.showErrorAlert = true
                 } else {
-                     callback()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        self.cardViewModel.showSendAlert = true
-                    }
+                    callback()
+                    self.cardViewModel.showSendWithDelay()
                 }
               
                 }, receiveValue: {[unowned self]  _ in
