@@ -157,7 +157,7 @@ class ExtractViewModel: ObservableObject {
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] newAmount in
                 guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")),
-                      let wallet = cardViewModel.wallet else {
+                    let wallet = self.cardViewModel.wallet else {
                     self.amountToSend.value = 0
                     return
                 }
