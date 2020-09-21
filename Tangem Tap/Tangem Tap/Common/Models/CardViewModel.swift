@@ -151,10 +151,10 @@ class CardViewModel: Identifiable, ObservableObject {
     
     public func update() {
         loadingError = nil
-        loadPayIDInfo()
         loadImage()
         if let walletManager = self.walletManager {
             isWalletLoading = true
+            loadPayIDInfo()
             walletManager.update { [weak self] result in
                 guard let self = self else {return}
                 
@@ -172,6 +172,10 @@ class CardViewModel: Identifiable, ObservableObject {
                     }
                     self.isWalletLoading = false
                 }
+            }
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.isWalletLoading = false
             }
         }
     }
