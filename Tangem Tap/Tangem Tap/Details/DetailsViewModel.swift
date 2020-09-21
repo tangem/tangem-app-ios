@@ -26,6 +26,7 @@ class DetailsViewModel: ObservableObject {
     @Published var showSettings = false
     @Published var showSend = false
     @Published var showSendChoise = false
+    @Published var showCreatePayID = false
     
     //Mark: Output
     public var isActionButtonDisabled: Bool {
