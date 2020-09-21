@@ -43,42 +43,6 @@ class CardViewModel: Identifiable, ObservableObject {
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
     
-    var canPurgeWallet: Bool  {
-        if let status = card.status, status == .empty {
-            return false
-        }
-        
-        if (card.settingsMask?.contains(.prohibitPurgeWallet) ?? false) {
-            return false
-        }
-        //[REDACTED_TODO_COMMENT]
-        //        if card.cardData?.productMask?.contains(.idCard) ?? true {
-        //             return false
-        //        }
-        //
-        //        if card.cardData?.productMask?.contains(.idIssuer) ?? true {
-        //             return false
-        //        }
-        
-        if let wallet = self.wallet {
-            if !wallet.isEmptyAmount || wallet.hasPendingTx {
-                return false
-            }
-            
-            return true
-        } else {
-            if let loadingError = self.loadingError {
-                if case .noAccount(_) = (loadingError as? WalletError) {
-                    return true
-                } else {
-                    return false
-                }
-            } else {
-                return false // [REDACTED_TODO_COMMENT]
-            }
-        }
-    }
-    
     private var bag =  Set<AnyCancellable>()
     
     init(card: Card, verifyCardResponse: VerifyCardResponse? = nil) {
