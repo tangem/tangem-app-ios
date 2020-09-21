@@ -75,8 +75,12 @@ class ExtractViewModel: ObservableObject {
     }
     
     var walletTotalBalanceDecimals: String {
-        let amount = cardViewModel.wallet?.amounts[self.amountToSend.type]
-        return isFiatCalculation ? self.cardViewModel.getFiat(for: amount)?.description ?? ""
+        guard let wallet = cardViewModel.wallet else {
+            return ""
+        }
+        
+        let amount = wallet.amounts[self.amountToSend.type]
+        return isFiatCalculation ? self.cardViewModel.getFiat(for: amount)?.rounded(blockchain: wallet.blockchain).description ?? ""
             : amount?.value.description ?? ""
     }
     
@@ -152,12 +156,14 @@ class ExtractViewModel: ObservableObject {
         $amountText //handle amount input
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] newAmount in
-                guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")) else {
+                guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")),
+                      let wallet = cardViewModel.wallet else {
                     self.amountToSend.value = 0
                     return
                 }
                 
-                self.amountToSend.value = self.isFiatCalculation ? self.cardViewModel.getCrypto(for: decimals, currencySymbol: self.amountToSend.currencySymbol) ?? 0 : decimals
+                self.amountToSend.value = self.isFiatCalculation ? self.cardViewModel.getCrypto(for: decimals,
+                                                                                                currencySymbol:  self.amountToSend.currencySymbol)?.rounded(blockchain: wallet.blockchain) ?? 0 : decimals
         }
         .store(in: &bag)
         
@@ -189,7 +195,12 @@ class ExtractViewModel: ObservableObject {
         
         $isFiatCalculation //handle conversion
             .sink { [unowned self] value in
-                self.amountText = value ? self.cardViewModel.getFiat(for: self.amountToSend)?.description ?? ""
+                guard let wallet = self.cardViewModel.wallet else {
+                    return
+                }
+                
+                self.amountText = value ? self.cardViewModel.getFiat(for: self.amountToSend)?
+                    .rounded(blockchain: wallet.blockchain).description ?? ""
                     : self.amountToSend.value.description
         }
         .store(in: &bag)
