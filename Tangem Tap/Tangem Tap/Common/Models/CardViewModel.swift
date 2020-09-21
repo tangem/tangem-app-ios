@@ -284,6 +284,12 @@ class CardViewModel: Identifiable, ObservableObject {
                                     secondaryName: "-")
         }
     }
+    
+    func showSendWithDelay() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.showSendAlert = true
+        }
+    }
 }
 
 enum WalletState {
