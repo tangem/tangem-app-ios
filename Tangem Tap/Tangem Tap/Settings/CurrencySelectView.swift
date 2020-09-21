@@ -31,7 +31,7 @@ struct CurrencySelectView: View {
                             .font(.system(size: 16, weight: .regular, design: .default))
                             .foregroundColor(.tangemTapGrayDark6)
                         Spacer()
-                        if cardViewModel.selectedCurrency == currency.symbol {
+                        if self.cardViewModel.selectedCurrency == currency.symbol {
                             Image("checkmark.circle")
                                 .font(.system(size: 18, weight: .regular, design: .default))
                                 .foregroundColor(Color.tangemTapGreen)
@@ -62,7 +62,7 @@ struct CurrencySelectView: View {
                 }, receiveValue: { currencies in
                     self.currencies = currencies
                 })
-                .store(in: &bag)
+                .store(in: &self.bag)
         }
         .alert(isPresented: $showError) { () -> Alert in
             return Alert(title: Text("common_error"),
