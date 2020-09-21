@@ -60,22 +60,24 @@ struct DetailsView: View {
                                 ActivityIndicatorView(isAnimating: true, style: .medium)
                                     .padding(.bottom, 16.0)
                             } else {
-                                if self.viewModel.cardViewModel.noAccountMessage != nil {
-                                    ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
-                                } else {
-                                    if self.viewModel.cardViewModel.walletManager != nil {
-                                        self.pendingTransactionView
-                                            .padding(.bottom, 8.0)
-                                        BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
-                                        AddressDetailView().environmentObject(self.viewModel.cardViewModel)
+                                if self.viewModel.cardViewModel.walletManager != nil {
+                                    self.pendingTransactionView
+                                        .padding(.bottom, 8.0)
+                                    
+                                    if self.viewModel.cardViewModel.noAccountMessage != nil {
+                                        ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
                                     } else {
-                                        if !self.viewModel.cardViewModel.isCardSupported  {
-                                            ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
-                                        } else {
-                                            ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
-                                        }
+                                        BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
+                                    }
+                                    AddressDetailView().environmentObject(self.viewModel.cardViewModel)
+                                } else {
+                                    if !self.viewModel.cardViewModel.isCardSupported  {
+                                        ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
+                                    } else {
+                                        ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
                                     }
                                 }
+                                
                                 
                             }
                         }
