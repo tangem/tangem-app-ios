@@ -76,7 +76,6 @@ struct QRCodeView_Previews: PreviewProvider {
         VStack {
             Spacer()
             QRCodeView(title: "Bitcoin Wallet",
-                       address: "121u30812748127450821705871230nc10857875815nc1808n71ncqwejfhjkh245h2kj4h5j23bj34i7y247y524y3",
                        shareString: "asdjfhaskjfwjb5khjv3kv3lb535345435cdgdcgdgjshdgjkewk345t3")
             Spacer()
         }
