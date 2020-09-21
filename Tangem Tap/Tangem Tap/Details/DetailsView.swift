@@ -111,7 +111,6 @@ struct DetailsView: View {
                 .padding(.horizontal)
                 }
                 .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.canExtract))
-                .animation(.easeIn)
                 .disabled(self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.canExtract)
                 .transition(.offset(x: 400.0, y: 0.0))
                 .sheet(isPresented: $viewModel.showSend) {
