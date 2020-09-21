@@ -13,20 +13,30 @@ import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
     var sdkService: TangemSdkService
-    
-    @Published var isRefreshing = false
-    @Published var showSettings = false
-    @Published var showSend = false
-    @Published var showSendChoise = false
+    var amountToSend: Amount? = nil
+
     @Published var cardViewModel: CardViewModel {
         didSet {
             bind()
         }
     }
     
-    var amountToSend: Amount? = nil
+    //Mark: Input
+    @Published var isRefreshing = false
+    @Published var showSettings = false
+    @Published var showSend = false
+    @Published var showSendChoise = false
     
-    public var canExtract: Bool {
+    //Mark: Output
+    public var isActionButtonDisabled: Bool {
+        return !canCreateWallet && !canSend
+    }
+    
+    public var canCreateWallet: Bool {
+        return cardViewModel.wallet == nil && cardViewModel.isCardSupported
+    }
+    
+    public var canSend: Bool {
         guard let wallet = cardViewModel.wallet else {
             return false
         }
@@ -136,6 +146,15 @@ class DetailsViewModel: ObservableObject {
         } else {
             amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
             showSend = true
+        }
+    }
+    
+    
+    func actionButtonTapped() {
+        if canCreateWallet {
+            createWallet()
+        } else if canSend {
+            sendTapped()
         }
     }
 }
