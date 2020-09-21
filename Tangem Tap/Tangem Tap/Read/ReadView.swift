@@ -93,7 +93,6 @@ struct ReadView: View {
                             .padding(.horizontal)
                             }
                             .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black))
-                            .animation(.easeIn)
                             .transition(.offset(x: 400.0, y: 0.0))
                         }
                         Spacer()
