@@ -97,32 +97,31 @@ struct DetailsView: View {
                     .padding(.horizontal)
                 }
                 .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
-                Button(action: {
-                    if self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.isCardSupported  {
-                        self.viewModel.createWallet()
-                    } else {
-                        self.viewModel.sendTapped()
+                
+                if self.viewModel.cardViewModel.isCardSupported {
+                    Button(action: {
+                        self.viewModel.actionButtonTapped()
+                    }) { HStack(alignment: .center, spacing: 16.0) {
+                        Text(self.viewModel.canCreateWallet ? "details_button_create_wallet" :  "details_button_send" )
+                        Spacer()
+                        Image("arrow.right")
                     }
-                }) { HStack(alignment: .center, spacing: 16.0) {
-                    Text(self.viewModel.cardViewModel.wallet == nil &&  self.viewModel.cardViewModel.isCardSupported ? "details_button_create_wallet" : "details_button_send")
-                    Spacer()
-                    Image("arrow.right")
-                }
-                .padding(.horizontal)
-                }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.canExtract))
-                .disabled(self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.canExtract)
-                .transition(.offset(x: 400.0, y: 0.0))
-                .sheet(isPresented: $viewModel.showSend) {
-                    ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
-                                                            cardViewModel: self.$viewModel.cardViewModel,
-                                                            sdkSerice: self.$viewModel.sdkService))
-                }
-                .actionSheet(isPresented: self.$viewModel.showSendChoise) {
-                    ActionSheet(title: Text("details_choice_wallet_option_title"),
-                                message: nil,
-                                buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
-                    
+                    .padding(.horizontal)
+                    }
+                    .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.isActionButtonDisabled))
+                    .disabled(self.viewModel.isActionButtonDisabled)
+                    .transition(.offset(x: 400.0, y: 0.0))
+                    .sheet(isPresented: $viewModel.showSend) {
+                        ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
+                                                                cardViewModel: self.$viewModel.cardViewModel,
+                                                                sdkSerice: self.$viewModel.sdkService))
+                    }
+                    .actionSheet(isPresented: self.$viewModel.showSendChoise) {
+                        ActionSheet(title: Text("details_choice_wallet_option_title"),
+                                    message: nil,
+                                    buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+                        
+                    }
                 }
                 
             }
