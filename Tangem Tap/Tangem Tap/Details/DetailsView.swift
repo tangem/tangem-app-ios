@@ -49,7 +49,7 @@ struct DetailsView: View {
         VStack {
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
-                    VStack(spacing: 48.0) {
+                    VStack(spacing: 24.0) {
                         if self.viewModel.cardViewModel.image != nil {
                             Image(uiImage: self.viewModel.cardViewModel.image!)
                                 .resizable()
