@@ -41,6 +41,10 @@ struct CardOperationView: View {
                         case .success:
                             self.presentationMode.wrappedValue.dismiss()
                         case .failure(let error):
+                            if case .userCancelled = error.toTangemSdkError() {
+                                return
+                            }
+                            
                             self.error = error
                             self.showErrorAlert = true
                         }
