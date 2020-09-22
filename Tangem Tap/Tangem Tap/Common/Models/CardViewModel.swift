@@ -200,6 +200,10 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
+    func hasRates(for amount: Amount) -> Bool {
+        return rates[amount.currencySymbol] != nil
+    }
+    
     func getFiatFormatted(for amount: Amount?) -> String? {
         return getFiat(for: amount)?.currencyFormatted(code: selectedCurrency)
     }
