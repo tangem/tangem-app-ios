@@ -411,7 +411,7 @@ class ExtractViewModel: ObservableObject {
                     self.showErrorAlert = true
                 } else {
                     callback()
-                    self.cardViewModel.showSendWithDelay()
+                    self.cardViewModel.onTransactionSend()
                 }
               
                 }, receiveValue: {[unowned self]  _ in
