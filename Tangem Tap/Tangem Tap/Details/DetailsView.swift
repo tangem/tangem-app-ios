@@ -156,6 +156,11 @@ struct DetailsView: View {
         .padding(0.0)
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+                .delay(for: 0.3, scheduler: DispatchQueue.global())
+                .receive(on: DispatchQueue.main)) { _ in
+                self.viewModel.cardViewModel.update(silent: true)
+            }
         .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
             return Alert(title: Text("common_success"),
                          message: Text("send_transaction_success"),
