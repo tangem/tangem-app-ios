@@ -18,14 +18,16 @@ struct CustomTextField: UIViewRepresentable {
         @Binding var actionButtonTapped: Bool
         let placeholder: String
         let decimalCount: Int?
+        let defaultStringToClear: String?
         
-        init(text: Binding<String>, placeholder: String, decimalCount: Int?,
+        init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
              isResponder : Binding<Bool?>, actionButtonTapped: Binding<Bool>) {
             _text = text
             _isResponder = isResponder
             _actionButtonTapped = actionButtonTapped
             self.placeholder = placeholder
             self.decimalCount = decimalCount
+            self.defaultStringToClear = defaultStringToClear
         }
         
         func textFieldDidChangeSelection(_ textField: UITextField) {
@@ -35,6 +37,12 @@ struct CustomTextField: UIViewRepresentable {
         func textFieldDidBeginEditing(_ textField: UITextField) {
             DispatchQueue.main.async {
                 self.isResponder = true
+            }
+            
+            if let toClear = defaultStringToClear {
+                if textField.text == toClear {
+                    textField.text = ""
+                }
             }
         }
         
@@ -94,6 +102,8 @@ struct CustomTextField: UIViewRepresentable {
     @Binding var actionButtonTapped: Bool
     
     var isSecured : Bool = false
+    var clearsOnBeginEditing: Bool = false
+    var defaultStringToClear: String? = ""
     var handleKeyboard : Bool = false
     var actionButton : String? =  nil
     var keyboard : UIKeyboardType = .default
@@ -106,6 +116,7 @@ struct CustomTextField: UIViewRepresentable {
     func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UITextField {
         let textField = UITextField(frame: .zero)
         textField.isSecureTextEntry = isSecured
+        textField.clearsOnBeginEditing = clearsOnBeginEditing
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         textField.keyboardType = keyboard
@@ -150,7 +161,9 @@ struct CustomTextField: UIViewRepresentable {
     
     func makeCoordinator() -> CustomTextField.Coordinator {
         return Coordinator(text: $text, placeholder: placeholder,
-                           decimalCount: decimalCount, isResponder: $isResponder,
+                           decimalCount: decimalCount,
+                           defaultStringToClear: defaultStringToClear,
+                           isResponder: $isResponder,
                            actionButtonTapped: $actionButtonTapped)
     }
     
@@ -165,3 +178,4 @@ struct CustomTextField: UIViewRepresentable {
     }
     
 }
+
