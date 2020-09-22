@@ -32,7 +32,7 @@ class ExtractViewModel: ObservableObject {
     @Published var destination: String = ""
     @Published var amountText: String = "0"
     @Published var isFiatCalculation: Bool = false
-    @Published var isFeeIncluded: Bool = true
+    @Published var isFeeIncluded: Bool = false
     @Published var selectedFeeLevel: Int = 1
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
