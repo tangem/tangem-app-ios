@@ -26,6 +26,7 @@ struct TextHint {
 class ExtractViewModel: ObservableObject {
     //MARK: Navigation
     @Published var showQR = false
+    @Published var showCameraDeniedAlert = false
     
     //MARK: Input
     @Published var validatedClipboard: String? = nil
@@ -416,5 +417,13 @@ class ExtractViewModel: ObservableObject {
                 }, receiveValue: {[unowned self]  _ in
             })
             .store(in: &bag)
+    }
+    
+    func openSystemSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
     }
 }
