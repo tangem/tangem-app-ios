@@ -86,7 +86,12 @@ struct DetailsView: View {
                         Spacer()
                     }
                 }
+                
             }
+            .sheet(isPresented: self.$viewModel.showCreatePayID, content: {
+                          CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
+                              .environmentObject(self.viewModel.cardViewModel)
+                  })
             HStack(alignment: .center, spacing: 8.0) {
                 Button(action: {
                     withAnimation {
@@ -158,10 +163,7 @@ struct DetailsView: View {
                                                              action: {}))
             
         }
-        .sheet(isPresented: self.$viewModel.showCreatePayID, content: {
-                CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
-                    .environmentObject(self.viewModel.cardViewModel)
-        })
+      
     }
 }
 
