@@ -116,6 +116,23 @@ extension UIQRScannerView {
         clipsToBounds = true
         captureSession = AVCaptureSession()
         feedbackGenerator = UINotificationFeedbackGenerator()
+        
+        if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
+            initVideo()
+        } else {
+            AVCaptureDevice.requestAccess(for: .video, completionHandler: {[weak self] (granted: Bool) in
+                DispatchQueue.main.async{
+                    if granted {
+                        self?.initVideo()
+                    } else {
+                        self?.scanningDidFail()
+                    }
+                }
+            })
+        }
+    }
+    
+    private func initVideo() {
         guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return }
         let videoInput: AVCaptureDeviceInput
         do {
@@ -149,6 +166,7 @@ extension UIQRScannerView {
         
         captureSession?.startRunning()
     }
+    
     func scanningDidFail() {
         feedbackGenerator?.notificationOccurred(.error)
         delegate?.qrScanningDidFail()
@@ -173,7 +191,7 @@ extension UIQRScannerView: AVCaptureMetadataOutputObjectsDelegate {
         if let metadataObject = metadataObjects.first {
             guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
             guard let stringValue = readableObject.stringValue else { return }
-           // AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            // AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             found(code: stringValue)
         }
     }

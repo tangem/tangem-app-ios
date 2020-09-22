@@ -146,4 +146,10 @@
 
 "common_warning" = "Warning";
 
+"common_camera_denied_alert_title" = "Camera access denied";
+
+"common_camera_denied_alert_message" = "You have not given access to your camera, please adjust your privacy settings";
+
+"common_camera_aler_button_settings" = "Settings";
+
 "warning_erase_wallet" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
