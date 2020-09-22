@@ -170,14 +170,18 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadImage() {
-        guard image == nil else {
+        guard image == nil, let cid = card.cardId else {
+            return
+        }
+        
+        if cid.lowercased().starts(with: "bc") {
+            self.image =  UIImage(named: "card_bc00")
             return
         }
         
         guard let artworkId = verifyCardResponse?.artworkInfo?.id,
-            let cid = card.cardId,
             let cardPublicKey = card.cardPublicKey else {
-                self.image = UIImage(named: "card-default")
+                 self.image =  UIImage(named: "card-default")
                 return
         }
         
