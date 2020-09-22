@@ -43,6 +43,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
     
+    private var updateTimer: AnyCancellable? = nil
     private var bag =  Set<AnyCancellable>()
     
     init(card: Card, verifyCardResponse: VerifyCardResponse? = nil) {
@@ -134,6 +135,10 @@ class CardViewModel: Identifiable, ObservableObject {
                         self.loadRates()
                     }
                     self.isWalletLoading = false
+                    
+                    if !(self.wallet?.hasPendingTx ?? false) {
+                        self.updateTimer = nil
+                    }
                 }
             }
         } else {
@@ -264,7 +269,16 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    func showSendWithDelay() {
+    func onTransactionSend() {
+        updateTimer = Timer.TimerPublisher(interval: 10.0,
+                                            tolerance: 0.1,
+                                            runLoop: .main,
+                                            mode: .common)
+            .autoconnect()
+            .sink() {[unowned self] _ in
+                self.update()
+        }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.showSendAlert = true
         }
