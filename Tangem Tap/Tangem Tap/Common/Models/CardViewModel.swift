@@ -113,11 +113,13 @@ class CardViewModel: Identifiable, ObservableObject {
         
     }
     
-    public func update() {
+    public func update(silent: Bool = false) {
         loadingError = nil
         loadImage()
         if let walletManager = self.walletManager {
-            isWalletLoading = true
+            if !silent {
+                isWalletLoading = true
+            }
             loadPayIDInfo()
             walletManager.update { [weak self] result in
                 guard let self = self else {return}
@@ -245,7 +247,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     private func makeBalanceViewModel(from wallet: Wallet) -> BalanceViewModel? {
         guard self.loadingError != nil || !wallet.amounts.isEmpty else { //not yet loaded
-            return nil
+            return self.balanceViewModel
         }
         
         if let token = wallet.token {
@@ -276,7 +278,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                             mode: .common)
             .autoconnect()
             .sink() {[unowned self] _ in
-                self.update()
+                self.update(silent: true)
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
