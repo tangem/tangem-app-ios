@@ -13,6 +13,7 @@ import TangemSdk
 class ReadViewModel: ObservableObject {
     enum State {
         case welcome
+        case welcomeBack
         case ready
         case read
     }
@@ -21,8 +22,12 @@ class ReadViewModel: ObservableObject {
     @Published var openDetails: Bool = false
     @Published var state: State = .welcome
     
+    @Storage("tangem_tap_first_time_scan", defaultValue: true)
+    var firstTimeScan: Bool
+    
     init(sdkService: TangemSdkService) {
         self.sdkService = sdkService
+        self.state = firstTimeScan ? .welcome : .welcomeBack
     }
     
     func openShop() {
@@ -31,7 +36,7 @@ class ReadViewModel: ObservableObject {
     
     func nextState() {
         switch state {
-        case .read:
+        case .read, .welcomeBack:
             break
         case .ready:
             state = .read
@@ -45,6 +50,7 @@ class ReadViewModel: ObservableObject {
             switch scanResult {
             case .success:
                 self?.openDetails = true
+                self?.firstTimeScan = false
             case .failure(let error):
                 if case .userCancelled = error.toTangemSdkError() {
                     return
