@@ -120,6 +120,7 @@
 
 "send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
 
+"send_invalid_total_error" = "Amount with fee greater than balance";
 
 "settings_title" = "Details";
 
