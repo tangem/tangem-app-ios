@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import TangemSdk
 import BlockchainSdk
+import AVFoundation
 
 struct ExtractView: View {
     @ObservedObject var viewModel: ExtractViewModel
@@ -60,7 +61,11 @@ struct ExtractView: View {
                             .disabled(self.viewModel.validatedClipboard == nil)
                             //.alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
                             Button(action: {
-                                self.viewModel.showQR = true
+                                if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+                                    self.viewModel.showCameraDeniedAlert = true
+                                } else {
+                                    self.viewModel.showQR = true
+                                }
                             }) {
                                 ZStack {
                                     Circle()
@@ -76,6 +81,14 @@ struct ExtractView: View {
                                 QRScannerView(code: self.$viewModel.destination,
                                               codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
                                     .edgesIgnoringSafeArea(.all)
+                            }
+                            .alert(isPresented: self.$viewModel.showCameraDeniedAlert) {
+                                return Alert(title: Text("common_camera_denied_alert_title"),
+                                             message: Text("common_camera_denied_alert_message"),
+                                             primaryButton: Alert.Button.default(Text("common_camera_aler_button_settings"),
+                                                                                 action: {self.viewModel.openSystemSettings()}),
+                                             secondaryButton: Alert.Button.default(Text("common_ok"),
+                                                                                 action: {}))
                             }
                         }
                         Color.tangemTapGrayLight5
@@ -114,7 +127,7 @@ struct ExtractView: View {
                                 Image("arrow.up.arrow.down")
                                     .font(Font.system(size: 17.0, weight: .regular, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                    Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
                                 }
                             }
                             .disabled(!self.viewModel.canFiatCalculation)
