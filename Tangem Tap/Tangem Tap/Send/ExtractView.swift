@@ -109,12 +109,15 @@ struct ExtractView: View {
                             }) { HStack(alignment: .center, spacing: 8.0) {
                                 Text(self.viewModel.currencyUnit)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
-                                    .foregroundColor(Color.tangemTapBlue)
+                                    .foregroundColor(self.viewModel.canFiatCalculation ?
+                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
                                 Image("arrow.up.arrow.down")
                                     .font(Font.system(size: 17.0, weight: .regular, design: .default))
-                                    .foregroundColor(Color.tangemTapBlue)
+                                    .foregroundColor(self.viewModel.canFiatCalculation ?
+                                    Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
                                 }
                             }
+                            .disabled(!self.viewModel.canFiatCalculation)
                         }
                         .padding(.top, 25.0)
                         Color.tangemTapGrayLight5
