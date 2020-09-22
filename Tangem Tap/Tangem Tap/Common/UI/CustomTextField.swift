@@ -50,6 +50,12 @@ struct CustomTextField: UIViewRepresentable {
             DispatchQueue.main.async {
                 self.isResponder = false
             }
+            
+            if let toClear = defaultStringToClear {
+                if textField.text == "" {
+                    textField.text = toClear
+                }
+            }
         }
         
         @objc func actionTapped() {
