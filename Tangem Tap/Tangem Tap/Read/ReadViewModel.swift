@@ -46,6 +46,10 @@ class ReadViewModel: ObservableObject {
             case .success:
                 self?.openDetails = true
             case .failure(let error):
+                if case .userCancelled = error.toTangemSdkError() {
+                    return
+                }
+                
                 //[REDACTED_TODO_COMMENT]
                 break
             }
