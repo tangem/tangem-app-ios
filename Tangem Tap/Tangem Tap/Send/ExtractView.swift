@@ -96,6 +96,7 @@ struct ExtractView: View {
                             CustomTextField(text: self.$viewModel.amountText,
                                             isResponder:  Binding.constant(nil),
                                             actionButtonTapped: self.$viewModel.maxAmountTapped,
+                                            defaultStringToClear: "0",
                                             handleKeyboard: true,
                                             actionButton: "send_max_amount_label".localized,
                                             keyboard: UIKeyboardType.decimalPad,
