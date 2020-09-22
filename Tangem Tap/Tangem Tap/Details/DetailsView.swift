@@ -54,7 +54,7 @@ struct DetailsView: View {
                             Image(uiImage: self.viewModel.cardViewModel.image!)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: geometry.size.width, height: nil, alignment: .center)
+                                .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
                         }
                         VStack {
                             if self.viewModel.cardViewModel.isWalletLoading {
