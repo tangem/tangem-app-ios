@@ -241,23 +241,21 @@ class CardViewModel: Identifiable, ObservableObject {
         
         if let token = wallet.token {
             return BalanceViewModel(isToken: true,
-                                    //dataLoaded: !wallet.amounts.isEmpty,
                                     loadingError: self.loadingError?.localizedDescription,
                                     name: token.displayName,
-                                    fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? "-",
+                                    fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? " ",
                                     balance: wallet.amounts[.token]?.description ?? "-",
                                     secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
-                                    secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "-",
+                                    secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
                                     secondaryName: wallet.blockchain.displayName )
         } else {
             return BalanceViewModel(isToken: false,
-                                    //dataLoaded: !wallet.amounts.isEmpty,
                                     loadingError: self.loadingError?.localizedDescription,
                                     name:  wallet.blockchain.displayName,
-                                    fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "-",
+                                    fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
                                     balance: wallet.amounts[.coin]?.description ?? "-",
                                     secondaryBalance: "-",
-                                    secondaryFiatBalance: "-",
+                                    secondaryFiatBalance: " ",
                                     secondaryName: "-")
         }
     }
@@ -277,50 +275,6 @@ enum WalletState {
     case accountNotCreated(message: String)
     case loadingFailed(message: String)
 }
-
-/*class WalletViewModel {
- var balanceViewModel: BalanceViewModel {
- let name = wallet.token != nil ? wallet.token!.displayName :  wallet.blockchain.displayName
- let secondaryName = wallet.token != nil ?  wallet.blockchain.displayName : ""
- 
- switch state {
- case .loadingFailed(let message):
- return BalanceViewModel(isToken: wallet.token != nil,
- dataLoaded: false,
- loadingError: message,
- name: name,
- usdBalance: "",
- balance: "-",
- secondaryBalance: "-",
- secondaryName: secondaryName)
- default:
- return BalanceViewModel(isToken: wallet.token != nil,
- dataLoaded: true,
- loadingError: nil,
- name: name,
- usdBalance: "-",
- balance: wallet.amounts[.coin]?.description ?? "-",
- secondaryBalance: "",
- secondaryName: secondaryName)
- 
- }
- }
- 
- let wallet: Wallet
- 
- @Published var state: WalletState = .initialized
- let address: String
- var payId: PayIdStatus
- 
- init(wallet: Wallet) {
- self.wallet = wallet
- address = wallet.address
- payId = .notCreated
- //noAccountMessage = "Load 10+ XLM to create account"
- }
- 
- 
- }*/
 
 struct BalanceViewModel {
     let isToken: Bool
