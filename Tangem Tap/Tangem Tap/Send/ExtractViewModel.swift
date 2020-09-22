@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 import EFQRCode
 import BlockchainSdk
+import TangemSdk
 
 struct TextHint {
     let isError: Bool
@@ -395,6 +396,10 @@ class ExtractViewModel: ObservableObject {
                 appDelegate.removeLoadingView()
                
                 if case let .failure(error) = completion {
+                    if case .userCancelled = error.toTangemSdkError() {
+                        return
+                    }
+                    
                     self.sendError = error.detailedError
                     self.showErrorAlert = true
                 } else {
