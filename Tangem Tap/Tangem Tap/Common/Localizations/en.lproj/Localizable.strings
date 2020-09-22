@@ -10,14 +10,19 @@
 
 "read_welcome_subtitle" = "Do you have one of \nour cards?";
 
+"read_welcome_back_title" = "Welcome back to \nTangem Tap";
+
+"read_welcome_back_subtitle" = "Scan your card to start.";
+
 "read_button_yes" = "Yes!";
 
-"read_button_shop" = "No. Go to shop";
+"read_button_shop" = "Shop";
 
 "read_ready_title" = "Get ready to tap your \ncard to the back of the \nphone.";
 
 "read_button_tapin" = "Tap in";
 
+"read_button_scan" = "Scan card";
 
 "details_button_scan" = "Scan";
 
@@ -75,6 +80,8 @@
 "common_error" = "Error";
 
 "common_ok" = "Ok";
+
+"common_no" = "No";
 
 "create_payid_success_message" = "PayID created successfully and copied to clipboard";
 
