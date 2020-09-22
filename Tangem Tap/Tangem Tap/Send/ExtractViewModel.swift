@@ -37,6 +37,7 @@ class ExtractViewModel: ObservableObject {
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
     
+    
     //MARK: UI
     var shoudShowFeeSelector: Bool {
         return txSender.allowsFeeSelection
@@ -63,6 +64,8 @@ class ExtractViewModel: ObservableObject {
     @Published var selectedFee: Amount? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
     @Published var showErrorAlert: Bool = false
+    @Published var canFiatCalculation: Bool = true
+    
     var sendError: Error? = nil
     @Binding var sdkService: TangemSdkService
     @Binding var cardViewModel: CardViewModel {
@@ -112,6 +115,7 @@ class ExtractViewModel: ObservableObject {
                                     type: .coin,
                                     value: 0)
         self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount)
+        self.canFiatCalculation = self.cardViewModel.hasRates(for: amountToSend)
         fillTotalBlockWithDefaults()
         bind()
     }
