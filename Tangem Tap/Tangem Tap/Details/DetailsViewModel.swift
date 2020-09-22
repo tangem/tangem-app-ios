@@ -123,6 +123,9 @@ class DetailsViewModel: ObservableObject {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
             case .failure(let error):
+                if case .userCancelled = error.toTangemSdkError() {
+                                      return
+                                  }
                 //[REDACTED_TODO_COMMENT]
                 break
             }
@@ -135,6 +138,9 @@ class DetailsViewModel: ObservableObject {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
             case .failure(let error):
+                if case .userCancelled = error.toTangemSdkError() {
+                                      return
+                                  }
                 //[REDACTED_TODO_COMMENT]
                 break
             }
