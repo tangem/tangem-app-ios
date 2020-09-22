@@ -49,7 +49,7 @@ class SettingsViewModel: ObservableObject {
                 self.cardViewModel = cardViewModel
                 self.canPurgeWallet = self.getPurgeWalletStatus()
                 completion(.success(()))
-            case .failure(let error):
+            case .failure(let error):                
                 completion(.failure(error))
                 //[REDACTED_TODO_COMMENT]
                 break
