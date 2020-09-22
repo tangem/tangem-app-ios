@@ -122,9 +122,9 @@ class ExtractViewModel: ObservableObject {
     }
     
     private func fillTotalBlockWithDefaults() {
-        let sendDummyAmount = Amount(with: self.amountToSend, value: 0)
-        self.sendAmount = getDescription(for: sendDummyAmount)
-        self.sendTotal = amountToSend.type == .coin ? getDescription(for: sendDummyAmount) : "-"
+        //let sendDummyAmount = Amount(with: self.amountToSend, value: 0)
+        self.sendAmount = "-" //getDescription(for: sendDummyAmount)
+        self.sendTotal = "-" // amountToSend.type == .coin ? getDescription(for: sendDummyAmount) : "-"
         self.sendTotalSubtitle = ""
     }
     
@@ -293,7 +293,9 @@ class ExtractViewModel: ObservableObject {
                     self.amountHint = nil
                     return tx
                 case .failure(let error):
-                    self.amountHint = TextHint(isError: true, message: "send_validation_invalid_amount".localized)
+                    let message = error.contains(TransactionError.wrongTotal) ?
+                        "send_invalid_total_error".localized : "send_validation_invalid_amount".localized
+                    self.amountHint = TextHint(isError: true, message: message)
                     return nil
                 }
         }.sink{[unowned self] tx in
