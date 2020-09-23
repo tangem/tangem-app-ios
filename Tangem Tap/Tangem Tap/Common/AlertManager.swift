@@ -14,6 +14,7 @@ class AlertManager {
     enum AlertType {
         case oldDeviceOldCard
         case untrustedCard
+        case devCard
         
         private var alertMessage: String {
             switch self {
@@ -21,6 +22,8 @@ class AlertManager {
                 return "alert_old_device_this_card".localized
             case .untrustedCard:
                 return "alert_loaded_wallet_warning_card_signed_transactions".localized
+            case .devCard:
+                return "alert_developer_card".localized
             }
         }
         
@@ -36,6 +39,9 @@ class AlertManager {
     
     @Storage("tangem_tap_scanned_cards", defaultValue: [])
     private var scannedCards: [String]
+    
+    @Storage("tangem_tap_scanned_dev_cards", defaultValue: [])
+    private var scannedDevCards: [String]
     
     func getAlert(_ alertType: AlertType, for card: Card) -> AlertBinder? {
         if canShow(alertType, card: card) {
@@ -69,7 +75,7 @@ class AlertManager {
         case .untrustedCard:
             guard let signedHashes = card.walletSignedHashes,
                 let cid = card.cardId else {
-                return false
+                    return false
             }
             
             let scannedCards = self.scannedCards
@@ -78,10 +84,23 @@ class AlertManager {
             }
             
             if signedHashes == 0 {
-               return false
+                return false
             }
             
             self.scannedCards = scannedCards + [cid]
+            return true
+            
+        case .devCard:
+            guard let cid = card.cardId else {
+                return false
+            }
+            
+            let scannedDevCards = self.scannedDevCards
+            if scannedDevCards.contains(cid) {
+                return false
+            }
+            
+            self.scannedDevCards = scannedDevCards + [cid]
             return true
         }
     }
