@@ -14,6 +14,8 @@ class TangemSdkService {
     
     var cards = [String: CardViewModel]()
     
+    let excludeBatches = ["0027", "0030", "0031"]
+    
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
         return sdk
@@ -23,10 +25,32 @@ class TangemSdkService {
         tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
             case .failure(let error):
-                completion(.failure(error))  //[REDACTED_TODO_COMMENT]
+                completion(.failure(error))
             case .success(let response):
                 guard let cid = response.card.cardId else {
                     completion(.failure(TangemSdkError.unknownError))
+                    return
+                }
+                
+                if let product = response.card.cardData?.productMask, !product.contains(ProductMask.note) { //filter product
+                    completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
+                    return
+                }
+                
+                if let status = response.card.status { //filter status
+                    if status == .notPersonalized {
+                        completion(.failure(TangemSdkError.notPersonalized))
+                        return
+                    }
+                    
+                    if status == .purged {
+                        completion(.failure(TangemSdkError.cardIsPurged))
+                        return
+                    }
+                }
+                
+                if let batch = response.card.cardData?.batchId, self.excludeBatches.contains(batch) { //filter bach
+                    completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
                     return
                 }
                 
