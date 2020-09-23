@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import TangemSdk
 import BlockchainSdk
+import AVFoundation
 
 struct ExtractView: View {
     @ObservedObject var viewModel: ExtractViewModel
@@ -26,6 +27,7 @@ struct ExtractView: View {
                         Spacer()
                     }
                     .padding(.bottom)
+                    .alert(item: self.$viewModel.oldCardAlert) { $0.alert }
                     Group {
                         HStack(alignment: .center) {
                             VStack(alignment: .leading, spacing: 0.0) {
@@ -60,7 +62,11 @@ struct ExtractView: View {
                             .disabled(self.viewModel.validatedClipboard == nil)
                             //.alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
                             Button(action: {
-                                self.viewModel.showQR = true
+                                if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+                                    self.viewModel.showCameraDeniedAlert = true
+                                } else {
+                                    self.viewModel.showQR = true
+                                }
                             }) {
                                 ZStack {
                                     Circle()
@@ -76,6 +82,14 @@ struct ExtractView: View {
                                 QRScannerView(code: self.$viewModel.destination,
                                               codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
                                     .edgesIgnoringSafeArea(.all)
+                            }
+                            .alert(isPresented: self.$viewModel.showCameraDeniedAlert) {
+                                return Alert(title: Text("common_camera_denied_alert_title"),
+                                             message: Text("common_camera_denied_alert_message"),
+                                             primaryButton: Alert.Button.default(Text("common_camera_aler_button_settings"),
+                                                                                 action: {self.viewModel.openSystemSettings()}),
+                                             secondaryButton: Alert.Button.default(Text("common_ok"),
+                                                                                 action: {}))
                             }
                         }
                         Color.tangemTapGrayLight5
@@ -96,23 +110,28 @@ struct ExtractView: View {
                             CustomTextField(text: self.$viewModel.amountText,
                                             isResponder:  Binding.constant(nil),
                                             actionButtonTapped: self.$viewModel.maxAmountTapped,
+                                            defaultStringToClear: "0",
                                             handleKeyboard: true,
                                             actionButton: "send_max_amount_label".localized,
                                             keyboard: UIKeyboardType.decimalPad,
                                             textColor: UIColor.tangemTapGrayDark6,
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
-                                            placeholder: "")
+                                            placeholder: "",
+                                            decimalCount: self.viewModel.cardViewModel.wallet?.blockchain.decimalCount)
                             Button(action: {
                                 self.viewModel.isFiatCalculation.toggle()
                             }) { HStack(alignment: .center, spacing: 8.0) {
                                 Text(self.viewModel.currencyUnit)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
-                                    .foregroundColor(Color.tangemTapBlue)
+                                    .foregroundColor(self.viewModel.canFiatCalculation ?
+                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
                                 Image("arrow.up.arrow.down")
                                     .font(Font.system(size: 17.0, weight: .regular, design: .default))
-                                    .foregroundColor(Color.tangemTapBlue)
+                                    .foregroundColor(self.viewModel.canFiatCalculation ?
+                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
                                 }
                             }
+                            .disabled(!self.viewModel.canFiatCalculation)
                         }
                         .padding(.top, 25.0)
                         Color.tangemTapGrayLight5
@@ -225,13 +244,7 @@ struct ExtractView: View {
                                                        colorStyle: .green,
                                                        isDisabled: !self.viewModel.isSendEnabled))
                             .disabled(!self.viewModel.isSendEnabled)
-                            .alert(isPresented: self.$viewModel.showErrorAlert) { () -> Alert in
-                                return Alert(title: Text("common_error"),
-                                             message: Text(self.viewModel.sendError!.localizedDescription),
-                                             dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                                 action: { }))
-                                
-                        }
+                            .alert(item: self.$viewModel.sendError) { $0.alert }
                     }
                     .padding(.top, 16.0)
                 }
