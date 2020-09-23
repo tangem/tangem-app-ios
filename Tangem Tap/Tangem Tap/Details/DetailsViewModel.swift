@@ -30,6 +30,7 @@ class DetailsViewModel: ObservableObject {
     
     //Mark: Output
     @Published var cardError: AlertBinder?
+    @Published var untrustedCardAlert: AlertBinder?
     
     public var canCreateWallet: Bool {
         return cardViewModel.wallet == nil && cardViewModel.isCardSupported
@@ -152,7 +153,17 @@ class DetailsViewModel: ObservableObject {
         }
     }
     
+    func showUntrustedDisclaimerIfNeeded() {
+        if cardViewModel.card.cardType != .release {
+            untrustedCardAlert = AlertManager().getAlert(.devCard, for: cardViewModel.card)
+        } else {
+            untrustedCardAlert = AlertManager().getAlert(.untrustedCard, for: cardViewModel.card)
+        }
+    }
+    
     func onAppear() {
-        
+       // DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.showUntrustedDisclaimerIfNeeded()
+      //  }
     }    
 }
