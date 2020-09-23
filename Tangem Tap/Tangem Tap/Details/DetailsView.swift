@@ -92,7 +92,7 @@ struct DetailsView: View {
                 CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
                     .environmentObject(self.viewModel.cardViewModel)
             })
-            .alert(item: self.$viewModel.cardViewModel.untrustedCardAlert) { $0.alert }
+            .alert(item: self.$viewModel.untrustedCardAlert) { $0.alert }
             HStack(alignment: .center, spacing: 8.0) {
                 Button(action: {
                     withAnimation {
