@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import SwiftUI
 
 extension Error {
     var detailedError: Error {
@@ -18,5 +19,23 @@ extension Error {
             return String(data: response.data, encoding: .utf8) ?? self
         }
         return self
+    }
+}
+
+
+struct AlertBinder: Identifiable {
+    let id = UUID()
+    let alert: Alert
+}
+
+extension Error {
+    var alertBinder: AlertBinder {
+        return AlertBinder(alert: alert)
+    }
+    
+    var alert: Alert {
+        return Alert(title: Text("common_error".localized),
+                     message: Text(self.localizedDescription),
+                     dismissButton: Alert.Button.default(Text("common_ok")))
     }
 }
