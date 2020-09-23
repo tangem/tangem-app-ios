@@ -18,7 +18,7 @@ enum PayIdStatus {
 
 struct AddressDetailView: View {
     @State private(set) var showQr: Bool = false
-    @State private(set) var showCreatePayid: Bool = false
+    @Binding var showCreatePayID: Bool
     @EnvironmentObject var cardViewModel: CardViewModel
     
     var showPayIdBlock: Bool {
@@ -105,7 +105,6 @@ struct AddressDetailView: View {
                     // VStack {
                     //    Spacer()
                     QRCodeView(title: "\(self.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
-                        address: self.cardViewModel.wallet!.address,
                         shareString: self.cardViewModel.wallet!.shareString)
                         .transition(AnyTransition.move(edge: .bottom))
                     //   Spacer()
@@ -129,7 +128,7 @@ struct AddressDetailView: View {
                     
                     if !isPayIdCreated {
                         Button(action: {
-                            self.showCreatePayid = true
+                            self.showCreatePayID = true
                         }) {
                             HStack {
                                 Text("addressDetails_button_createPayid")
@@ -143,10 +142,6 @@ struct AddressDetailView: View {
                                 
                             }
                         }
-                        .sheet(isPresented: $showCreatePayid, content: {
-                            CreatePayIdView(cardId: self.cardViewModel.card.cardId ?? "")
-                                .environmentObject(self.cardViewModel)
-                        })
                     } else {
                         Text(payIdText)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
@@ -173,11 +168,12 @@ struct AddressDetailView: View {
 
 struct AddressDetailView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel(card: Card.testCard)
+    @State static var showPayID = false
     
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
-            AddressDetailView()
+            AddressDetailView(showCreatePayID: $showPayID)
             .environmentObject(cardViewModel)
         }
     }
