@@ -17,13 +17,17 @@ struct CustomTextField: UIViewRepresentable {
         @Binding var isResponder : Bool?
         @Binding var actionButtonTapped: Bool
         let placeholder: String
+        let decimalCount: Int?
+        let defaultStringToClear: String?
         
-        init(text: Binding<String>, placeholder: String,
+        init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
              isResponder : Binding<Bool?>, actionButtonTapped: Binding<Bool>) {
             _text = text
             _isResponder = isResponder
             _actionButtonTapped = actionButtonTapped
             self.placeholder = placeholder
+            self.decimalCount = decimalCount
+            self.defaultStringToClear = defaultStringToClear
         }
         
         func textFieldDidChangeSelection(_ textField: UITextField) {
@@ -34,11 +38,23 @@ struct CustomTextField: UIViewRepresentable {
             DispatchQueue.main.async {
                 self.isResponder = true
             }
+            
+            if let toClear = defaultStringToClear {
+                if textField.text == toClear {
+                    textField.text = ""
+                }
+            }
         }
         
         func textFieldDidEndEditing(_ textField: UITextField) {
             DispatchQueue.main.async {
                 self.isResponder = false
+            }
+            
+            if let toClear = defaultStringToClear {
+                if textField.text == "" {
+                    textField.text = toClear
+                }
             }
         }
         
@@ -50,6 +66,41 @@ struct CustomTextField: UIViewRepresentable {
             UIApplication.shared.windows.first { $0.isKeyWindow }?.endEditing(true)
         }
         
+        func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+            guard let maxLength = self.decimalCount else {
+                return true
+            }
+            
+            let currentString: NSString = textField.text! as NSString
+            let newString: String =
+                currentString.replacingCharacters(in: range, with: string) as String
+            
+            
+            
+            var allowNew = true
+            
+            if let dotIndex = newString.firstIndex(of: ".") {
+                let fromIndex = newString.index(after: dotIndex)
+                let decimalsString = newString[fromIndex...]
+                allowNew = decimalsString.count <= maxLength
+            } else {
+                allowNew = true
+            }
+            
+            guard allowNew else {
+                return false
+            }
+            
+            if string == "," {
+                if let text = textField.text {
+                    textField.text = text + "."
+                    return false
+                }
+            }
+            
+            return true
+        }
+        
     }
     
     @Binding var text: String
@@ -57,6 +108,8 @@ struct CustomTextField: UIViewRepresentable {
     @Binding var actionButtonTapped: Bool
     
     var isSecured : Bool = false
+    var clearsOnBeginEditing: Bool = false
+    var defaultStringToClear: String? = ""
     var handleKeyboard : Bool = false
     var actionButton : String? =  nil
     var keyboard : UIKeyboardType = .default
@@ -64,10 +117,12 @@ struct CustomTextField: UIViewRepresentable {
     var font: UIFont = UIFont.systemFont(ofSize: 16.0)
     let placeholder: String
     let toolbarItems: [UIBarButtonItem]? = nil
+    var decimalCount: Int? = nil
 
     func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UITextField {
         let textField = UITextField(frame: .zero)
         textField.isSecureTextEntry = isSecured
+        textField.clearsOnBeginEditing = clearsOnBeginEditing
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
         textField.keyboardType = keyboard
@@ -111,7 +166,11 @@ struct CustomTextField: UIViewRepresentable {
     }
     
     func makeCoordinator() -> CustomTextField.Coordinator {
-        return Coordinator(text: $text, placeholder: placeholder, isResponder: $isResponder, actionButtonTapped: $actionButtonTapped)
+        return Coordinator(text: $text, placeholder: placeholder,
+                           decimalCount: decimalCount,
+                           defaultStringToClear: defaultStringToClear,
+                           isResponder: $isResponder,
+                           actionButtonTapped: $actionButtonTapped)
     }
     
     func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
@@ -125,3 +184,4 @@ struct CustomTextField: UIViewRepresentable {
     }
     
 }
+
