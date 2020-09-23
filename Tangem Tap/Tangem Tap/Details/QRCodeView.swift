@@ -13,7 +13,6 @@ import UIKit
 
 struct QRCodeView: View {
     let title: String
-    let address: String
     let shareString: String
     @State var userBrightness: CGFloat = 0.5
     
@@ -21,7 +20,7 @@ struct QRCodeView: View {
         VStack {
             VStack(alignment: .center, spacing: 8.0) {
                 HStack {
-                    Text(self.title)
+                    Text(title)
                         .font(Font.system(size: 30.0, weight: .bold, design: .default) )
                         .foregroundColor(Color.tangemTapGrayDark6)
                     Spacer()
@@ -30,7 +29,7 @@ struct QRCodeView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .padding(.all, 20.0)
-                Text(self.address)
+                Text(shareString)
                     .font(Font.system(size: 13.0, weight: .regular, design: .default) )
                     .foregroundColor(Color.tangemTapGrayDark)
                     .multilineTextAlignment(.center)
@@ -77,7 +76,6 @@ struct QRCodeView_Previews: PreviewProvider {
         VStack {
             Spacer()
             QRCodeView(title: "Bitcoin Wallet",
-                       address: "121u30812748127450821705871230nc10857875815nc1808n71ncqwejfhjkh245h2kj4h5j23bj34i7y247y524y3",
                        shareString: "asdjfhaskjfwjb5khjv3kv3lb535345435cdgdcgdgjshdgjkewk345t3")
             Spacer()
         }
