@@ -39,7 +39,6 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var image: UIImage? = nil
     @Published var selectedCurrency: String = ""
     @Published var showSendAlert: Bool = false
-    @Published var untrustedCardAlert: AlertBinder?
 
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
@@ -60,20 +59,11 @@ class CardViewModel: Identifiable, ObservableObject {
                     print("wallet received")
                     self.wallet = wallet
                     self.balanceViewModel = self.makeBalanceViewModel(from: wallet)
-                    self.showUntrustedDisclaimerIfNeeded()
                 })
                 .store(in: &bag)
         } else {
             isCardSupported = WalletManagerFactory().isBlockchainSupported(card) 
         }
-    }
-    
-    func showUntrustedDisclaimerIfNeeded() {
-        guard let wallet = self.wallet, !wallet.isEmptyAmount else{
-            return
-        }
-        
-        untrustedCardAlert = AlertManager().getAlert(.untrustedCard, for: card)
     }
     
     func loadPayIDInfo () {
