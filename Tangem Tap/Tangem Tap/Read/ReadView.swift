@@ -156,7 +156,7 @@ struct ReadView: View {
                 nc.navigationBar.tintColor = UIColor.tangemTapGrayDark6
                 nc.navigationBar.shadowImage = UIImage()
             })
-            
+                .alert(item: $viewModel.scanError) { $0.alert }
             
         }
     }
