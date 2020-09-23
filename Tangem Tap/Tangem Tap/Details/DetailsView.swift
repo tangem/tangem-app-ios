@@ -89,9 +89,10 @@ struct DetailsView: View {
                 
             }
             .sheet(isPresented: self.$viewModel.showCreatePayID, content: {
-                          CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
-                              .environmentObject(self.viewModel.cardViewModel)
-                  })
+                CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
+                    .environmentObject(self.viewModel.cardViewModel)
+            })
+            .alert(item: self.$viewModel.cardViewModel.untrustedCardAlert) { $0.alert }
             HStack(alignment: .center, spacing: 8.0) {
                 Button(action: {
                     withAnimation {
@@ -106,40 +107,62 @@ struct DetailsView: View {
                     .padding(.horizontal)
                 }
                 .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                .alert(item: $viewModel.cardError) { $0.alert }
                 
                 if self.viewModel.cardViewModel.isCardSupported {
-                    Button(action: {
-                        self.viewModel.actionButtonTapped()
-                    }) { HStack(alignment: .center, spacing: 16.0) {
-                        Text(self.viewModel.canCreateWallet ? "details_button_create_wallet" :  "details_button_send" )
-                        Spacer()
-                        Image("arrow.right")
-                    }
-                    .padding(.horizontal)
-                    }
-                    .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.isActionButtonDisabled))
-                    .disabled(self.viewModel.isActionButtonDisabled)
-                    .transition(.offset(x: 400.0, y: 0.0))
-                    .sheet(isPresented: $viewModel.showSend) {
-                        ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
-                                                                cardViewModel: self.$viewModel.cardViewModel,
-                                                                sdkSerice: self.$viewModel.sdkService))
-                    }
-                    .actionSheet(isPresented: self.$viewModel.showSendChoise) {
-                        ActionSheet(title: Text("details_choice_wallet_option_title"),
-                                    message: nil,
-                                    buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+                    if self.viewModel.cardViewModel.wallet == nil {
+                        Button(action: {
+                            self.viewModel.createWallet()
+                        }) { HStack(alignment: .center, spacing: 16.0) {
+                            Text("details_button_create_wallet")
+                            Spacer()
+                            Image("arrow.right")
+                        }
+                        .padding(.horizontal)
+                        }
+                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canCreateWallet))
+                        .disabled(!self.viewModel.canCreateWallet)
+                        .alert(item: $viewModel.cardError) { $0.alert }
+                    } else {
                         
+                        Button(action: {
+                            self.viewModel.sendTapped()
+                        }) { HStack(alignment: .center, spacing: 16.0) {
+                            Text("details_button_send" )
+                            Spacer()
+                            Image("arrow.right")
+                        }
+                        .padding(.horizontal)
+                        }
+                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canSend))
+                        .disabled(!self.viewModel.canSend)
+                        .sheet(isPresented: $viewModel.showSend) {
+                            ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
+                                                                    cardViewModel: self.$viewModel.cardViewModel,
+                                                                    sdkSerice: self.$viewModel.sdkService))
+                        }
+                        .actionSheet(isPresented: self.$viewModel.showSendChoise) {
+                            ActionSheet(title: Text("details_choice_wallet_option_title"),
+                                        message: nil,
+                                        buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+                            
+                        }
+                        .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
+                            return Alert(title: Text("common_success"),
+                                         message: Text("send_transaction_success"),
+                                         dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                             action: {}))
+                        }
                     }
                 }
-            }
-            if viewModel.showSettings {
-                NavigationLink(
-                    destination: SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService)),
-                    isActive: $viewModel.showSettings,
-                    label: {
-                        EmptyView()
+                if viewModel.showSettings {
+                    NavigationLink(
+                        destination: SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService)),
+                        isActive: $viewModel.showSettings,
+                        label: {
+                            EmptyView()
                     })
+                }
             }
         }
         .padding(.bottom, 16.0)
@@ -153,22 +176,18 @@ struct DetailsView: View {
             .frame(width: 44.0, height: 44.0, alignment: .center)
             .offset(x: 10.0, y: 0.0)
         })
-        .padding(0.0)
+            .padding(0.0)
         )
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+            .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+            .onAppear {
+                self.viewModel.onAppear()
+        }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 .delay(for: 0.3, scheduler: DispatchQueue.global())
                 .receive(on: DispatchQueue.main)) { _ in
-                self.viewModel.cardViewModel.update(silent: true)
-            }
-        .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
-            return Alert(title: Text("common_success"),
-                         message: Text("send_transaction_success"),
-                         dismissButton: Alert.Button.default(Text("common_ok"),
-                                                             action: {}))
-            
+                    self.viewModel.cardViewModel.update(silent: true)
         }
-      
+        
     }
 }
 
