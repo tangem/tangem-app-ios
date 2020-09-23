@@ -12,6 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
+
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
     
@@ -48,41 +49,50 @@ struct DetailsView: View {
         VStack {
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
-                    VStack(spacing: 48.0) {
+                    VStack(spacing: 24.0) {
                         if self.viewModel.cardViewModel.image != nil {
                             Image(uiImage: self.viewModel.cardViewModel.image!)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: geometry.size.width, height: nil, alignment: .center)
+                                .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
                         }
                         VStack {
                             if self.viewModel.cardViewModel.isWalletLoading {
                                 ActivityIndicatorView(isAnimating: true, style: .medium)
                                     .padding(.bottom, 16.0)
                             } else {
-                                if self.viewModel.cardViewModel.noAccountMessage != nil {
-                                    ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
-                                } else {
-                                    if self.viewModel.cardViewModel.walletManager != nil {
-                                        self.pendingTransactionView
-                                            .padding(.bottom, 8.0)
-                                        BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
-                                        AddressDetailView().environmentObject(self.viewModel.cardViewModel)
+                                if self.viewModel.cardViewModel.wallet != nil {
+                                    self.pendingTransactionView
+                                        .padding(.bottom, 8.0)
+                                    
+                                    if self.viewModel.cardViewModel.noAccountMessage != nil {
+                                        ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
                                     } else {
-                                        if !self.viewModel.cardViewModel.isCardSupported  {
-                                            ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
-                                        } else {
-                                            ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
-                                        }
+                                        BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
+                                    }
+                                    AddressDetailView(showCreatePayID: self.$viewModel.showCreatePayID)
+                                        .environmentObject(self.viewModel.cardViewModel)
+                                } else {
+                                    if !self.viewModel.cardViewModel.isCardSupported  {
+                                        ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
+                                    } else {
+                                        ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
                                     }
                                 }
+                                
                                 
                             }
                         }
                         Spacer()
                     }
                 }
+                
             }
+            .sheet(isPresented: self.$viewModel.showCreatePayID, content: {
+                CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
+                    .environmentObject(self.viewModel.cardViewModel)
+            })
+            .alert(item: self.$viewModel.untrustedCardAlert) { $0.alert }
             HStack(alignment: .center, spacing: 8.0) {
                 Button(action: {
                     withAnimation {
@@ -97,35 +107,62 @@ struct DetailsView: View {
                     .padding(.horizontal)
                 }
                 .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
-                Button(action: {
-                    if self.viewModel.cardViewModel.wallet == nil && self.viewModel.cardViewModel.isCardSupported  {
-                        self.viewModel.createWallet()
-                    } else {
-                        self.viewModel.sendTapped()
-                    }
-                }) { HStack(alignment: .center, spacing: 16.0) {
-                    Text(self.viewModel.cardViewModel.wallet == nil &&  self.viewModel.cardViewModel.isCardSupported ? "details_button_create_wallet" : "details_button_send")
-                    Spacer()
-                    Image("arrow.right")
-                }
-                .padding(.horizontal)
-                }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.canExtract))
-                .animation(.easeIn)
-                .disabled(self.viewModel.cardViewModel.wallet == nil && !self.viewModel.cardViewModel.isCardSupported ? true : !self.viewModel.canExtract)
-                .transition(.offset(x: 400.0, y: 0.0))
-                .sheet(isPresented: $viewModel.showSend) {
-                    ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
-                                                            cardViewModel: self.$viewModel.cardViewModel,
-                                                            sdkSerice: self.$viewModel.sdkService))
-                }
-                .actionSheet(isPresented: self.$viewModel.showSendChoise) {
-                    ActionSheet(title: Text("details_choice_wallet_option_title"),
-                                message: nil,
-                                buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
-                    
-                }
+                .alert(item: $viewModel.cardError) { $0.alert }
                 
+                if self.viewModel.cardViewModel.isCardSupported {
+                    if self.viewModel.cardViewModel.wallet == nil {
+                        Button(action: {
+                            self.viewModel.createWallet()
+                        }) { HStack(alignment: .center, spacing: 16.0) {
+                            Text("details_button_create_wallet")
+                            Spacer()
+                            Image("arrow.right")
+                        }
+                        .padding(.horizontal)
+                        }
+                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canCreateWallet))
+                        .disabled(!self.viewModel.canCreateWallet)
+                        .alert(item: $viewModel.cardError) { $0.alert }
+                    } else {
+                        
+                        Button(action: {
+                            self.viewModel.sendTapped()
+                        }) { HStack(alignment: .center, spacing: 16.0) {
+                            Text("details_button_send" )
+                            Spacer()
+                            Image("arrow.right")
+                        }
+                        .padding(.horizontal)
+                        }
+                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canSend))
+                        .disabled(!self.viewModel.canSend)
+                        .sheet(isPresented: $viewModel.showSend) {
+                            ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
+                                                                    cardViewModel: self.$viewModel.cardViewModel,
+                                                                    sdkSerice: self.$viewModel.sdkService))
+                        }
+                        .actionSheet(isPresented: self.$viewModel.showSendChoise) {
+                            ActionSheet(title: Text("details_choice_wallet_option_title"),
+                                        message: nil,
+                                        buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+                            
+                        }
+                        .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
+                            return Alert(title: Text("common_success"),
+                                         message: Text("send_transaction_success"),
+                                         dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                             action: {}))
+                        }
+                    }
+                }
+                if viewModel.showSettings {
+                    NavigationLink(
+                        destination: SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService)),
+                        isActive: $viewModel.showSettings,
+                        label: {
+                            EmptyView()
+                    })
+                }
             }
         }
         .padding(.bottom, 16.0)
@@ -139,24 +176,18 @@ struct DetailsView: View {
             .frame(width: 44.0, height: 44.0, alignment: .center)
             .offset(x: 10.0, y: 0.0)
         })
-        .padding(0.0)
+            .padding(0.0)
         )
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
-        .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
-            return Alert(title: Text("common_success"),
-                         message: Text("send_transaction_success"),
-                         dismissButton: Alert.Button.default(Text("common_ok"),
-                                                             action: {}))
-            
+            .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+            .onAppear {
+                self.viewModel.onAppear()
         }
-        if viewModel.showSettings {
-            NavigationLink(
-                destination: SettingsView(viewModel: SettingsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService)),
-                isActive: $viewModel.showSettings,
-                label: {
-                    EmptyView()
-                })
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+                .delay(for: 0.3, scheduler: DispatchQueue.global())
+                .receive(on: DispatchQueue.main)) { _ in
+                    self.viewModel.cardViewModel.update(silent: true)
         }
+        
     }
 }
 
