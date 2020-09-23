@@ -15,8 +15,7 @@ struct CardOperationView: View {
     var alert: String
     var actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
     @Environment(\.presentationMode) var presentationMode
-    @State var showErrorAlert = false
-    @State var error: Error? = nil
+    @State var error: AlertBinder?
     
     var body: some View {
         VStack(spacing: 24.0) {
@@ -41,8 +40,11 @@ struct CardOperationView: View {
                         case .success:
                             self.presentationMode.wrappedValue.dismiss()
                         case .failure(let error):
-                            self.error = error
-                            self.showErrorAlert = true
+                            if case .userCancelled = error.toTangemSdkError() {
+                                return
+                            }
+                            
+                            self.error = error.alertBinder
                         }
                         
                     }
@@ -55,13 +57,7 @@ struct CardOperationView: View {
                 .buttonStyle(TangemButtonStyle(size: .big,
                                                colorStyle: .black,
                                                isDisabled: false))
-                .alert(isPresented: self.$showErrorAlert) { () -> Alert in
-                    return Alert(title: Text("common_error"),
-                                 message: Text(self.error!.localizedDescription),
-                                 dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                     action: { }))
-                    
-                }
+                    .alert(item: self.$error) { $0.alert }
             }
             .padding(.horizontal, 36.0)
         }
