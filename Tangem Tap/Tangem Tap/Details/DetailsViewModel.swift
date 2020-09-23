@@ -14,7 +14,7 @@ import BlockchainSdk
 class DetailsViewModel: ObservableObject {
     var sdkService: TangemSdkService
     var amountToSend: Amount? = nil
-
+    
     @Published var cardViewModel: CardViewModel {
         didSet {
             bind()
@@ -29,9 +29,7 @@ class DetailsViewModel: ObservableObject {
     @Published var showCreatePayID = false
     
     //Mark: Output
-    public var isActionButtonDisabled: Bool {
-        return !canCreateWallet && !canSend
-    }
+    @Published var cardError: AlertBinder?
     
     public var canCreateWallet: Bool {
         return cardViewModel.wallet == nil && cardViewModel.isCardSupported
@@ -45,7 +43,7 @@ class DetailsViewModel: ObservableObject {
         if wallet.hasPendingTx {
             return false
         }
-       
+        
         if let fw = cardViewModel.card.firmwareVersionValue, fw < 2.29 {
             if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 {
                 return false // [REDACTED_TODO_COMMENT]
@@ -99,8 +97,8 @@ class DetailsViewModel: ObservableObject {
             .filter { $0 }
             .sink{ [unowned self] _ in
                 self.cardViewModel.update()
-            }
-            .store(in: &bag)
+        }
+        .store(in: &bag)
         
         cardViewModel.$isWalletLoading
             .filter { !$0 }
@@ -124,10 +122,9 @@ class DetailsViewModel: ObservableObject {
                 self?.cardViewModel = cardViewModel
             case .failure(let error):
                 if case .userCancelled = error.toTangemSdkError() {
-                                      return
-                                  }
-                //[REDACTED_TODO_COMMENT]
-                break
+                    return
+                }
+                self?.cardError = error.alertBinder
             }
         }
     }
@@ -139,10 +136,9 @@ class DetailsViewModel: ObservableObject {
                 self?.cardViewModel = cardViewModel
             case .failure(let error):
                 if case .userCancelled = error.toTangemSdkError() {
-                                      return
-                                  }
-                //[REDACTED_TODO_COMMENT]
-                break
+                    return
+                }
+                self?.cardError = error.alertBinder
             }
         }
     }
@@ -156,12 +152,7 @@ class DetailsViewModel: ObservableObject {
         }
     }
     
-    
-    func actionButtonTapped() {
-        if canCreateWallet {
-            createWallet()
-        } else if canSend {
-            sendTapped()
-        }
-    }
+    func onAppear() {
+        
+    }    
 }
