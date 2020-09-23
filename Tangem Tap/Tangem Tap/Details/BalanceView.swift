@@ -29,13 +29,14 @@ struct BalanceView: View {
                 }
                 HStack(alignment: .firstTextBaseline) {
                     Text(balanceViewModel.name)
-                         .font(Font.system(size: 20.0, weight: .bold, design: .default))
+                        .font(Font.system(size: 20.0, weight: .bold, design: .default))
+                        .minimumScaleFactor(0.6)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .lineLimit(1)
                     Spacer()
                     Text(balanceViewModel.balance)
-                         .font(Font.system(size: 20.0, weight: .bold, design: .default))
+                        .font(Font.system(size: 20.0, weight: .bold, design: .default))
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .multilineTextAlignment(.trailing)
                         .lineLimit(1)
@@ -44,40 +45,36 @@ struct BalanceView: View {
                 .padding(.horizontal, 24.0)
             }
             .padding(.top, 16.0)
-            VStack(spacing: 0) {
-                HStack(alignment: .center, spacing: 5.0) {
-                    Image(balanceViewModel.loadingError == nil  ? "checkmark.circle" : "exclamationmark.circle" )
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundColor(balanceViewModel.loadingError == nil  ? Color.tangemTapGreen :
-                            Color.tangemTapWarning)
-                        .frame(width: 10.0, height: 10.0)
-                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
+            HStack(alignment: .firstTextBaseline, spacing: 5.0) {
+                Image(balanceViewModel.loadingError == nil  ? "checkmark.circle" : "exclamationmark.circle" )
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundColor(balanceViewModel.loadingError == nil  ? Color.tangemTapGreen :
+                        Color.tangemTapWarning)
+                    .frame(width: 10.0, height: 10.0)
+                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                VStack(alignment: .leading) {
                     Text(balanceViewModel.loadingError == nil ? "balanceView_blockchain_verified" : "balanceView_blockchain_unreachable")
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .foregroundColor(balanceViewModel.loadingError == nil ? Color.tangemTapGreen :
                             Color.tangemTapWarning)
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
-                    Spacer()
-                    Text(balanceViewModel.fiatBalance)
-                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                        .multilineTextAlignment(.trailing)
-                        .lineLimit(1)
-                        .foregroundColor(Color.tangemTapGrayDark)
-                }
-                HStack {
                     if balanceViewModel.loadingError != nil {
                         Text(balanceViewModel.loadingError!)
-                           .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(balanceViewModel.loadingError == nil ? Color.tangemTapGreen :
                                 Color.tangemTapWarning)
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(2)
-                            .padding(.leading, 15.0)
+                            .frame(idealHeight: .infinity)
+                        
                     }
-                    Spacer()
                 }
+                Spacer()
+                Text(balanceViewModel.fiatBalance)
+                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                    .multilineTextAlignment(.trailing)
+                    .lineLimit(1)
+                    .foregroundColor(Color.tangemTapGrayDark)
             }
             .padding(.bottom, 16.0)
             .padding(.horizontal, 24.0)
@@ -88,13 +85,13 @@ struct BalanceView: View {
                         .padding(.bottom, 4.0)
                     HStack(alignment: .firstTextBaseline) {
                         Text(balanceViewModel.secondaryName)
-                           .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .multilineTextAlignment(.leading)
                             .foregroundColor(Color.tangemTapGrayDark6)
                             .lineLimit(1)
                         Spacer()
                         Text(balanceViewModel.secondaryBalance)
-                           .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor(Color.tangemTapGrayDark6)
                             .multilineTextAlignment(.trailing)
                             .lineLimit(1)
@@ -103,10 +100,10 @@ struct BalanceView: View {
                     HStack {
                         Spacer()
                         Text(balanceViewModel.secondaryFiatBalance)
-                                                                         .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                                                         .multilineTextAlignment(.trailing)
-                                                                         .lineLimit(1)
-                                                                         .foregroundColor(Color.tangemTapGrayDark)
+                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                            .multilineTextAlignment(.trailing)
+                            .lineLimit(1)
+                            .foregroundColor(Color.tangemTapGrayDark)
                     }
                 }
                 .padding(.horizontal, 24.0)
@@ -125,37 +122,37 @@ struct BalanceView_Previews: PreviewProvider {
             ZStack {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
-                                                              // dataLoaded: true,
-                                                               loadingError: nil,
-                                                               name: "Bitcoin",
-                                                               fiatBalance: "$3.45",
-                                                               balance: "0.00000348573986753845001 BTC",
-                                                               secondaryBalance: "", secondaryFiatBalance: "",
-                                                               secondaryName: ""))
+                                                               // dataLoaded: true,
+                    loadingError: nil,
+                    name: "Bitcoin",
+                    fiatBalance: "$3.45",
+                    balance: "0.00000348573986753845001 BTC",
+                    secondaryBalance: "", secondaryFiatBalance: "",
+                    secondaryName: ""))
+            }
+            ZStack {
+                Color.tangemTapBgGray
+                BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
+                                                               // dataLoaded: false,
+                    loadingError: "The internet connection appears to be offline",
+                    name: "Bitcoin token",
+                    fiatBalance: " ",
+                    balance: "-",
+                    secondaryBalance: "-",
+                    secondaryFiatBalance: " ",
+                    secondaryName: "Bitcoin"))
             }
             ZStack {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
-                                                              // dataLoaded: false,
-                                                               loadingError: "Something went wrong",
-                                                               name: "Bitcoin token",
-                                                               fiatBalance: "-",
-                                                               balance: "10 BTCA",
-                                                               secondaryBalance: "19 BTC",
-                                                               secondaryFiatBalance: "-",
-                                                               secondaryName: "Bitcoin"))
-            }
-            ZStack {
-                Color.tangemTapBgGray
-                BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
-                                                              // dataLoaded: true,
-                                                               loadingError: "Something went wrong",
-                                                               name: "Bitcoin token",
-                                                               fiatBalance: "5 USD",
-                                                               balance: "10 BTCA",
-                                                               secondaryBalance: "19 BTC",
-                                                                secondaryFiatBalance: "10 USD",
-                                                               secondaryName: "Bitcoin"))
+                                                               // dataLoaded: true,
+                    loadingError: "Something went wrong",
+                    name: "Bitcoin token",
+                    fiatBalance: "5 USD",
+                    balance: "10 BTCA",
+                    secondaryBalance: "19 BTC",
+                    secondaryFiatBalance: "10 USD",
+                    secondaryName: "Bitcoin"))
             }
         }
     }
