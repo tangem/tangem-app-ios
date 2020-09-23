@@ -13,20 +13,30 @@ import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
     var sdkService: TangemSdkService
+    var amountToSend: Amount? = nil
     
-    @Published var isRefreshing = false
-    @Published var showSettings = false
-    @Published var showSend = false
-    @Published var showSendChoise = false
     @Published var cardViewModel: CardViewModel {
         didSet {
             bind()
         }
     }
     
-    var amountToSend: Amount? = nil
+    //Mark: Input
+    @Published var isRefreshing = false
+    @Published var showSettings = false
+    @Published var showSend = false
+    @Published var showSendChoise = false
+    @Published var showCreatePayID = false
     
-    public var canExtract: Bool {
+    //Mark: Output
+    @Published var cardError: AlertBinder?
+    @Published var untrustedCardAlert: AlertBinder?
+    
+    public var canCreateWallet: Bool {
+        return cardViewModel.wallet == nil && cardViewModel.isCardSupported
+    }
+    
+    public var canSend: Bool {
         guard let wallet = cardViewModel.wallet else {
             return false
         }
@@ -34,7 +44,7 @@ class DetailsViewModel: ObservableObject {
         if wallet.hasPendingTx {
             return false
         }
-       
+        
         if let fw = cardViewModel.card.firmwareVersionValue, fw < 2.29 {
             if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 {
                 return false // [REDACTED_TODO_COMMENT]
@@ -86,18 +96,15 @@ class DetailsViewModel: ObservableObject {
         $isRefreshing
             .removeDuplicates()
             .filter { $0 }
-            .sink(receiveValue: { [unowned self] _ in
+            .sink{ [unowned self] _ in
                 self.cardViewModel.update()
-            })
-            .store(in: &bag)
+        }
+        .store(in: &bag)
         
         cardViewModel.$isWalletLoading
-            .removeDuplicates()
             .filter { !$0 }
             .receive(on: RunLoop.main)
-            .sink (receiveValue: {[unowned self] isWalletLoading in
-                self.isRefreshing = isWalletLoading
-            })
+            .assign(to: \.isRefreshing, on: self)
             .store(in: &bag)
         
         cardViewModel.objectWillChange
@@ -115,8 +122,10 @@ class DetailsViewModel: ObservableObject {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
             case .failure(let error):
-                //[REDACTED_TODO_COMMENT]
-                break
+                if case .userCancelled = error.toTangemSdkError() {
+                    return
+                }
+                self?.cardError = error.alertBinder
             }
         }
     }
@@ -127,8 +136,10 @@ class DetailsViewModel: ObservableObject {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
             case .failure(let error):
-                //[REDACTED_TODO_COMMENT]
-                break
+                if case .userCancelled = error.toTangemSdkError() {
+                    return
+                }
+                self?.cardError = error.alertBinder
             }
         }
     }
@@ -141,4 +152,18 @@ class DetailsViewModel: ObservableObject {
             showSend = true
         }
     }
+    
+    func showUntrustedDisclaimerIfNeeded() {
+        if cardViewModel.card.cardType != .release {
+            untrustedCardAlert = AlertManager().getAlert(.devCard, for: cardViewModel.card)
+        } else {
+            untrustedCardAlert = AlertManager().getAlert(.untrustedCard, for: cardViewModel.card)
+        }
+    }
+    
+    func onAppear() {
+       // DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.showUntrustedDisclaimerIfNeeded()
+      //  }
+    }    
 }
