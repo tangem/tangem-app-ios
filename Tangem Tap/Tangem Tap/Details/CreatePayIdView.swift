@@ -12,9 +12,10 @@ import TangemSdk
 
 struct CreatePayIdView: View {
     var cardId: String
-    @State var payIdText: String = ""
-    @State var isLoading: Bool = false
-    @State var successAlert: Bool = false
+    @State private var payIdText: String = ""
+    @State private var isLoading: Bool = false
+    @State private var showAlert: Bool = false
+    @State private var payIdError: Error? = nil
     @State private var isFirstResponder : Bool? = false
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var cardViewModel: CardViewModel
@@ -30,8 +31,7 @@ struct CreatePayIdView: View {
                     .foregroundColor(Color.tangemTapGrayDark)
             }
             .padding(.top, 22.0)
-            VStack {
-                Spacer()
+            .padding(.bottom, 44.0)
                 HStack(alignment: .firstBaselineCustom, spacing: 0.0){
                     VStack(alignment: .leading) {
                         CustomTextField(
@@ -47,7 +47,7 @@ struct CreatePayIdView: View {
                             //   .disableAutocorrectiontrue)
                             .onAppear {
                                 self.isFirstResponder = true
-                        }
+                                                       }
                         Color.tangemTapGrayLight5
                             .frame(width: 180, height: 1.0, alignment: .center)
                     }
@@ -59,16 +59,15 @@ struct CreatePayIdView: View {
                             d[.bottom] / 2 + 0.35 } //First responder custom shit
                         .padding(.trailing)
                 }
-                Spacer()
-            }
+            Spacer()
             HStack {
                 Text("create_payid_info")
                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark)
                     .multilineTextAlignment(.leading)
-                    .lineLimit(2)
+                    .lineLimit(4)
                     .padding(.trailing)
-                Spacer(minLength: 100.0)
+                Spacer(minLength: 40.0)
             }
             .padding(.bottom, 32.0)
             .fixedSize(horizontal: false, vertical: true)
@@ -82,17 +81,17 @@ struct CreatePayIdView: View {
                     self.isLoading = false
                     switch result {
                     case .success:
-                        self.successAlert = true
+                        self.showAlert = true
                     case .failure(let error):
-                        //[REDACTED_TODO_COMMENT]
-                        break
+                        self.payIdError = error
+                        self.showAlert = true
                     }
                 }
                 
                 }
             ) {
                 if self.isLoading {
-                    ActivityIndicatorView(isAnimating: true, style: .medium)
+                    ActivityIndicatorView(isAnimating: true, style: .large)
                 } else {
                     HStack(alignment: .center, spacing: 16.0) {
                         Text("create_payid_button_title")
@@ -105,15 +104,20 @@ struct CreatePayIdView: View {
             .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: payIdText.isEmpty))
             .padding(.bottom)
             .disabled(payIdText.isEmpty)
-            .alert(isPresented: $successAlert) { () -> Alert in
-                Alert(title: Text("common_success"), message: Text("create_payid_success_message"), dismissButton: Alert.Button.default(Text("common_ok"), action: {
-                    self.presentationMode.wrappedValue.dismiss()
-                }))
-            }
-        
         }
         .padding(.horizontal)
         .keyboardAdaptive()
+        .alert(isPresented: $showAlert) { () -> Alert in
+            if let error = self.payIdError {
+                return error.alert
+            } else {
+                return Alert(title: Text("common_success"),
+                      message: Text("create_payid_success_message"),
+                      dismissButton: Alert.Button.default(Text("common_ok"), action: {
+                            self.presentationMode.wrappedValue.dismiss()
+                      }))
+            }
+        }
     }
 }
 
