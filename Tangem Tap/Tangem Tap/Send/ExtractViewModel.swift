@@ -64,10 +64,10 @@ class ExtractViewModel: ObservableObject {
     @Published var isSendEnabled: Bool = false
     @Published var selectedFee: Amount? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
-    @Published var showErrorAlert: Bool = false
     @Published var canFiatCalculation: Bool = true
+    @Published var oldCardAlert: AlertBinder?
     
-    var sendError: Error? = nil
+    var sendError: AlertBinder?
     @Binding var sdkService: TangemSdkService
     @Binding var cardViewModel: CardViewModel {
         didSet {
@@ -311,6 +311,8 @@ class ExtractViewModel: ObservableObject {
     
     func onAppear() {
         validateClipboard()
+        
+        oldCardAlert = AlertManager().getAlert(.oldDeviceOldCard, for: cardViewModel.card)
     }
     
     func validateClipboard() {
@@ -386,7 +388,6 @@ class ExtractViewModel: ObservableObject {
     }
     
     func send(_ callback: @escaping () -> Void) {
-        self.sendError = nil
         guard var tx = self.transaction else {
             return
         }
@@ -407,14 +408,14 @@ class ExtractViewModel: ObservableObject {
                         return
                     }
                     
-                    self.sendError = error.detailedError
-                    self.showErrorAlert = true
+                    self.sendError = error.detailedError.alertBinder
                 } else {
                     callback()
                     self.cardViewModel.onTransactionSend()
                 }
               
-                }, receiveValue: {[unowned self]  _ in
+                }, receiveValue: {[unowned self] signResponse in
+                    self.cardViewModel.card.walletSignedHashes = signResponse.walletSignedHashes
             })
             .store(in: &bag)
     }
