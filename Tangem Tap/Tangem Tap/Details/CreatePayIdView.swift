@@ -109,10 +109,7 @@ struct CreatePayIdView: View {
         .keyboardAdaptive()
         .alert(isPresented: $showAlert) { () -> Alert in
             if let error = self.payIdError {
-                return Alert(title: Text("common_error"),
-                      message: Text(error.localizedDescription),
-                      dismissButton: Alert.Button.default(Text("common_ok"), action: {
-                      }))
+                return error.alert
             } else {
                 return Alert(title: Text("common_success"),
                       message: Text("create_payid_success_message"),

@@ -22,6 +22,8 @@ class ReadViewModel: ObservableObject {
     @Published var openDetails: Bool = false
     @Published var state: State = .welcome
     
+    @Published var scanError: AlertBinder?
+    
     @Storage("tangem_tap_first_time_scan", defaultValue: true)
     var firstTimeScan: Bool
     
@@ -55,9 +57,7 @@ class ReadViewModel: ObservableObject {
                 if case .userCancelled = error.toTangemSdkError() {
                     return
                 }
-                
-                //[REDACTED_TODO_COMMENT]
-                break
+                self?.scanError = error.alertBinder
             }
         }
     }

@@ -16,8 +16,7 @@ struct CurrencySelectView: View {
     
     @State private var loading: Bool = false
     @State private var currencies: [FiatCurrency] = []
-    @State private var showError: Bool = false
-    @State private var error: Error? = nil
+    @State private var error: AlertBinder?
     @State private var bag = Set<AnyCancellable>()
    // [REDACTED_USERNAME] private var selected: String = ""
     var body: some View {
@@ -47,7 +46,6 @@ struct CurrencySelectView: View {
             }
         }
         .onAppear {
-           // self.selected = cardViewModel.ratesService!.selectedCurrencyCode
             self.loading = true
             self.cardViewModel
                 .ratesService?
@@ -55,8 +53,7 @@ struct CurrencySelectView: View {
                 .receive(on: DispatchQueue.main)
                 .sink(receiveCompletion: { completion in
                     if case let .failure(error) = completion {
-                        self.error = error
-                        self.showError = true
+                        self.error = error.alertBinder
                     }
                     self.loading = false
                 }, receiveValue: { currencies in
@@ -64,12 +61,6 @@ struct CurrencySelectView: View {
                 })
                 .store(in: &self.bag)
         }
-        .alert(isPresented: $showError) { () -> Alert in
-            return Alert(title: Text("common_error"),
-                         message: Text(self.error!.localizedDescription),
-                         dismissButton: Alert.Button.default(Text("common_ok"),
-                                                             action: { }))
-            
-        }
+        .alert(item: $error) { $0.alert }
     }
 }
