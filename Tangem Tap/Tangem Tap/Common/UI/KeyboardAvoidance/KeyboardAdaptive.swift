@@ -19,7 +19,7 @@ struct KeyboardAdaptive: ViewModifier {
        // GeometryReader { geometry in
             content
                 .padding(.bottom, self.bottomPadding)
-                .onReceive(Publishers.keyboardInfo) { keyboardHeight, animationDuration in
+                .onReceive(Publishers.keyboardInfo.debounce(for: 0.1, scheduler: RunLoop.main)) { keyboardHeight, animationDuration in
                    // let keyboardTop = geometry.frame(in: .global).height - keyboardHeight
                    // let focusedTextInputBottom = UIResponder.currentFirstResponder?.globalFrame?.maxY ?? 0
                     let bottomSafeAreaInset = keyboardHeight > 0 ? UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0 : 0
