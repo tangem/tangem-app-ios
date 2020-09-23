@@ -16,7 +16,7 @@ struct ReadView: View {
         switch viewModel.state {
         case .read: return 0.4
         case .ready: return 0.25
-        case .welcome: return 1.0
+        case .welcome, .welcomeBack: return 1.0
         }
     }
     
@@ -24,7 +24,7 @@ struct ReadView: View {
         switch viewModel.state {
         case .read: return 0
         case .ready: return -UIScreen.main.bounds.width*1.8
-        case .welcome: return -UIScreen.main.bounds.width/4.0
+        case .welcome, .welcomeBack: return -UIScreen.main.bounds.width/4.0
         }
     }
     
@@ -32,7 +32,48 @@ struct ReadView: View {
         switch viewModel.state {
         case .read: return -240.0
         case .ready: return -300.0
-        case .welcome: return 0.0
+        case .welcome, .welcomeBack: return 0.0
+        }
+    }
+    
+    var greenButtonTitleKey: String {
+        switch viewModel.state {
+        case .read, .ready:
+            return "read_button_tapin"
+        case .welcome:
+            return "read_button_yes"
+        case .welcomeBack:
+            return "read_button_scan"
+        }
+    }
+    
+    var blackButtonTitleKey: String {
+        switch viewModel.state {
+        case .welcomeBack:
+            return "read_button_shop"
+        default:
+            return "common_no"
+        }
+    }
+    
+    var titleKey: String {
+        switch viewModel.state {
+        case .welcomeBack:
+            return "read_welcome_back_title"
+        default:
+            return "read_welcome_title"
+        }
+    }
+    
+    var subTitleKey: String {
+        switch viewModel.state {
+        case .welcome:
+            return "read_welcome_subtitle"
+        case .welcomeBack:
+            return "read_welcome_back_subtitle"
+        case .read, .ready:
+            return "read_ready_title"
+            
         }
     }
     
@@ -45,57 +86,56 @@ struct ReadView: View {
                         .animation(.easeInOut)
                         .offset(x: cardOffsetX, y: cardOffsetY)
                         .scaleEffect(cardScale)
-                    if viewModel.state != .welcome {
+                    if viewModel.state == .read || viewModel.state == .ready  {
                         Image("iphone")
                             .transition(.offset(x: 400.0, y: 0.0))
                     }
                 }
                 Spacer()
                 VStack(alignment: .leading, spacing: 8.0) {
-                    if viewModel.state == .welcome {
-                        Text("read_welcome_title")
+                    if viewModel.state == .welcome || viewModel.state == .welcomeBack {
+                        Text(titleKey.localized)
                             .font(Font.system(size: 29.0, weight: .light, design: .default))
                             .foregroundColor(Color.tangemTapGrayDark6)
                     }
-                    Text(viewModel.state == .welcome  ? "read_welcome_subtitle" : "read_ready_title" )
+                    Text(subTitleKey.localized)
                         .font(Font.system(size: 29.0, weight: .light, design: .default))
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 8.0) {
-                        Button(action: {
-                            withAnimation {
-                                self.viewModel.nextState()
-                            }
-                            if self.viewModel.state == .read {
-                                self.viewModel.scan()
-                            }
-                        }) {
-                            if viewModel.state == .welcome {
-                                Text("read_button_yes")
-                            } else {
-                                HStack(alignment: .center) {
-                                    Text("read_button_tapin")
-                                    Spacer()
-                                    Image("arrow.right")
-                                }
-                                .padding(.horizontal)
-                            }
-                        }
-                        .buttonStyle(TangemButtonStyle(size: viewModel.state != ReadViewModel.State.welcome ? .big : .small, colorStyle: .green))
-                        if viewModel.state == ReadViewModel.State.welcome {
+                        if viewModel.state == .welcome ||
+                            viewModel.state == .welcomeBack {
                             Button(action: {
                                 self.viewModel.openShop()
-                            }) { HStack(alignment: .center, spacing: 16.0) {
-                                Text("read_button_shop")
+                            }) { HStack(alignment: .center) {
+                                Text(blackButtonTitleKey.localized)
                                 Spacer()
                                 Image("shopBag")
                             }
                             .padding(.horizontal)
                             }
-                            .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black))
-                            .animation(.easeIn)
-                            .transition(.offset(x: 400.0, y: 0.0))
+                            .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                            .transition(.offset(x: -200.0, y: 0.0))
                         }
+                        Button(action: {
+                            withAnimation {
+                                self.viewModel.nextState()
+                            }
+                            switch self.viewModel.state {
+                            case .read, .welcomeBack:
+                                self.viewModel.scan()
+                            default:
+                                break
+                            }
+                        }) {
+                            HStack(alignment: .center) {
+                                Text(greenButtonTitleKey.localized)
+                                Spacer()
+                                Image("arrow.right")
+                            }
+                            .padding(.horizontal)
+                        }
+                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
                         Spacer()
                     }
                     .padding(.top, 16.0)
@@ -116,7 +156,7 @@ struct ReadView: View {
                 nc.navigationBar.tintColor = UIColor.tangemTapGrayDark6
                 nc.navigationBar.shadowImage = UIImage()
             })
-            
+                .alert(item: $viewModel.scanError) { $0.alert }
             
         }
     }
