@@ -214,8 +214,6 @@ class PayIDService {
     
     func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void) {
         payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: self.network)) {[weak self] moyaResult in
-            guard let self = self else { return }
-            
             DispatchQueue.main.async {
                 switch moyaResult {
                 case .success(let response):
@@ -237,13 +235,14 @@ class PayIDService {
     }
     
     func validate(_ address: String) -> Bool {
+        let lowercased = address.lowercased()
         let regex = NSRegularExpression("^[a-z0-9!#@%&*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#@%&*+/=?^_`{|}~-]+)*\\$(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z-]*[a-z0-9])?|(?:[0-9]{1,3}\\.){3}[0-9]{1,3})$")
         
-        guard regex.matches(address) else {
+        guard regex.matches(lowercased) else {
             return false
         }
         
-        let addressParts = address.split(separator: "$")
+        let addressParts = lowercased.split(separator: "$")
         if addressParts.count != 2 {
             return false
         }
