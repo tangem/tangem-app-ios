@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 import EFQRCode
 import BlockchainSdk
+import TangemSdk
 
 struct TextHint {
     let isError: Bool
@@ -25,16 +26,18 @@ struct TextHint {
 class ExtractViewModel: ObservableObject {
     //MARK: Navigation
     @Published var showQR = false
+    @Published var showCameraDeniedAlert = false
     
     //MARK: Input
     @Published var validatedClipboard: String? = nil
     @Published var destination: String = ""
     @Published var amountText: String = "0"
     @Published var isFiatCalculation: Bool = false
-    @Published var isFeeIncluded: Bool = true
+    @Published var isFeeIncluded: Bool = false
     @Published var selectedFeeLevel: Int = 1
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
+    
     
     //MARK: UI
     var shoudShowFeeSelector: Bool {
@@ -61,8 +64,10 @@ class ExtractViewModel: ObservableObject {
     @Published var isSendEnabled: Bool = false
     @Published var selectedFee: Amount? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
-    @Published var showErrorAlert: Bool = false
-    var sendError: Error? = nil
+    @Published var canFiatCalculation: Bool = true
+    @Published var oldCardAlert: AlertBinder?
+    
+    var sendError: AlertBinder?
     @Binding var sdkService: TangemSdkService
     @Binding var cardViewModel: CardViewModel {
         didSet {
@@ -75,8 +80,12 @@ class ExtractViewModel: ObservableObject {
     }
     
     var walletTotalBalanceDecimals: String {
-        let amount = cardViewModel.wallet?.amounts[self.amountToSend.type]
-        return isFiatCalculation ? self.cardViewModel.getFiat(for: amount)?.description ?? ""
+        guard let wallet = cardViewModel.wallet else {
+            return ""
+        }
+        
+        let amount = wallet.amounts[self.amountToSend.type]
+        return isFiatCalculation ? self.cardViewModel.getFiat(for: amount)?.rounded(blockchain: wallet.blockchain).description ?? ""
             : amount?.value.description ?? ""
     }
     
@@ -107,6 +116,7 @@ class ExtractViewModel: ObservableObject {
                                     type: .coin,
                                     value: 0)
         self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount)
+        self.canFiatCalculation = self.cardViewModel.hasRates(for: amountToSend)
         fillTotalBlockWithDefaults()
         bind()
     }
@@ -117,9 +127,9 @@ class ExtractViewModel: ObservableObject {
     }
     
     private func fillTotalBlockWithDefaults() {
-        let sendDummyAmount = Amount(with: self.amountToSend, value: 0)
-        self.sendAmount = getDescription(for: sendDummyAmount)
-        self.sendTotal = amountToSend.type == .coin ? getDescription(for: sendDummyAmount) : "-"
+        //let sendDummyAmount = Amount(with: self.amountToSend, value: 0)
+        self.sendAmount = "-" //getDescription(for: sendDummyAmount)
+        self.sendTotal = "-" // amountToSend.type == .coin ? getDescription(for: sendDummyAmount) : "-"
         self.sendTotalSubtitle = ""
     }
     
@@ -152,12 +162,14 @@ class ExtractViewModel: ObservableObject {
         $amountText //handle amount input
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] newAmount in
-                guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")) else {
+                guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")),
+                    let wallet = self.cardViewModel.wallet else {
                     self.amountToSend.value = 0
                     return
                 }
                 
-                self.amountToSend.value = self.isFiatCalculation ? self.cardViewModel.getCrypto(for: decimals, currencySymbol: self.amountToSend.currencySymbol) ?? 0 : decimals
+                self.amountToSend.value = self.isFiatCalculation ? self.cardViewModel.getCrypto(for: decimals,
+                                                                                                currencySymbol:  self.amountToSend.currencySymbol)?.rounded(blockchain: wallet.blockchain) ?? 0 : decimals
         }
         .store(in: &bag)
         
@@ -189,7 +201,12 @@ class ExtractViewModel: ObservableObject {
         
         $isFiatCalculation //handle conversion
             .sink { [unowned self] value in
-                self.amountText = value ? self.cardViewModel.getFiat(for: self.amountToSend)?.description ?? ""
+                guard let wallet = self.cardViewModel.wallet else {
+                    return
+                }
+                
+                self.amountText = value ? self.cardViewModel.getFiat(for: self.amountToSend)?
+                    .rounded(blockchain: wallet.blockchain).description ?? ""
                     : self.amountToSend.value.description
         }
         .store(in: &bag)
@@ -281,7 +298,9 @@ class ExtractViewModel: ObservableObject {
                     self.amountHint = nil
                     return tx
                 case .failure(let error):
-                    self.amountHint = TextHint(isError: true, message: "send_validation_invalid_amount".localized)
+                    let message = error.contains(TransactionError.wrongTotal) ?
+                        "send_invalid_total_error".localized : "send_validation_invalid_amount".localized
+                    self.amountHint = TextHint(isError: true, message: message)
                     return nil
                 }
         }.sink{[unowned self] tx in
@@ -292,6 +311,8 @@ class ExtractViewModel: ObservableObject {
     
     func onAppear() {
         validateClipboard()
+        
+        oldCardAlert = AlertManager().getAlert(.oldDeviceOldCard, for: cardViewModel.card)
     }
     
     func validateClipboard() {
@@ -367,7 +388,6 @@ class ExtractViewModel: ObservableObject {
     }
     
     func send(_ callback: @escaping () -> Void) {
-        self.sendError = nil
         guard var tx = self.transaction else {
             return
         }
@@ -384,17 +404,27 @@ class ExtractViewModel: ObservableObject {
                 appDelegate.removeLoadingView()
                
                 if case let .failure(error) = completion {
-                    self.sendError = error.detailedError
-                    self.showErrorAlert = true
-                } else {
-                     callback()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        self.cardViewModel.showSendAlert = true
+                    if case .userCancelled = error.toTangemSdkError() {
+                        return
                     }
+                    
+                    self.sendError = error.detailedError.alertBinder
+                } else {
+                    callback()
+                    self.cardViewModel.onTransactionSend()
                 }
               
-                }, receiveValue: {[unowned self]  _ in
+                }, receiveValue: {[unowned self] signResponse in
+                    self.cardViewModel.card.walletSignedHashes = signResponse.walletSignedHashes
             })
             .store(in: &bag)
+    }
+    
+    func openSystemSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
     }
 }

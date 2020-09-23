@@ -10,14 +10,19 @@
 
 "read_welcome_subtitle" = "Do you have one of \nour cards?";
 
+"read_welcome_back_title" = "Welcome back to \nTangem Tap";
+
+"read_welcome_back_subtitle" = "Scan your card to start.";
+
 "read_button_yes" = "Yes!";
 
-"read_button_shop" = "No. Go to shop";
+"read_button_shop" = "Shop";
 
 "read_ready_title" = "Get ready to tap your \ncard to the back of the \nphone.";
 
 "read_button_tapin" = "Tap in";
 
+"read_button_scan" = "Scan card";
 
 "details_button_scan" = "Scan";
 
@@ -76,7 +81,13 @@
 
 "common_ok" = "Ok";
 
+"common_no" = "No";
+
 "create_payid_success_message" = "PayID created successfully and copied to clipboard";
+
+"create_payid_error_message" = "Error response while creating PayID";
+
+"create_payid_already_created_message" = "This PayID already exists. Try a different one.";
 
 "send_destination_placeholder" = "Address or PayID";
 
@@ -116,6 +127,7 @@
 
 "send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
 
+"send_invalid_total_error" = "Amount with fee greater than balance";
 
 "settings_title" = "Details";
 
@@ -141,4 +153,19 @@
 
 "common_warning" = "Warning";
 
+"common_camera_denied_alert_title" = "Camera access denied";
+
+"common_camera_denied_alert_message" = "You have not given access to your camera, please adjust your privacy settings";
+
+"common_camera_aler_button_settings" = "Settings";
+
 "warning_erase_wallet" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
+
+
+"alert_old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
+
+"alert_loaded_wallet_warning_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
+
+"alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
+
+"alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment";
