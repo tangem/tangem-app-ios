@@ -165,3 +165,7 @@
 "alert_old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
 
 "alert_loaded_wallet_warning_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
+
+"alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
+
+"alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment";
