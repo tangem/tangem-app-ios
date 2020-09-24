@@ -149,9 +149,13 @@ class SendViewModel: ObservableObject {
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .dropFirst()
             .sink { [unowned self] _ in
-                //[REDACTED_TODO_COMMENT]
                 self.amountToSend = self.cardViewModel.wallet!.amounts[self.amountToSend.type]!
                 self.amountText = self.walletTotalBalanceDecimals
+                
+                withAnimation {
+                    self.isFeeIncluded = true
+                    self.isNetworkFeeBlockOpen = true
+                }
         }
         .store(in: &bag)
         
