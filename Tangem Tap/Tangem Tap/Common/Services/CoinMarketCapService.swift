@@ -101,7 +101,7 @@ class CoinMarketCapService {
     var selectedCurrencyCode: String
     
     let apiKey: String
-    let provider = MoyaProvider<CoinMarketCapTarget>(plugins: [NetworkLoggerPlugin(configuration: NetworkLoggerPlugin.Configuration.verboseConfiguration)])
+    let provider = MoyaProvider<CoinMarketCapTarget>(/*plugins: [NetworkLoggerPlugin(configuration: NetworkLoggerPlugin.Configuration.verboseConfiguration)]*/)
     
     internal init(apiKey: String) {
         self.apiKey = apiKey
