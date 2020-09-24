@@ -52,24 +52,24 @@ struct SettingsView: View {
     var body: some View {
         List {
             Section(header: Color.tangemTapBgGray
-                        .listRowInsets(EdgeInsets())) {
-                DetailsRowView(title: "settings_row_title_cid".localized,
-                               subtitle: CardIdFormatter(cid: viewModel.cardViewModel.card.cardId ?? "").formatted())
-                DetailsRowView(title: "settings_row_title_issuer".localized,
-                               subtitle: viewModel.cardViewModel.card.cardData?.issuerName ?? " ")
-                if viewModel.cardViewModel.card.walletSignedHashes != nil {
-                    DetailsRowView(title: "settings_row_title_signed".localized,
-                                   subtitle: String(format: "settings_row_subtitle_signed_hashes_format".localized,
-                                                    viewModel.cardViewModel.card.walletSignedHashes!.description))
-                }
+                .listRowInsets(EdgeInsets())) {
+                    DetailsRowView(title: "settings_row_title_cid".localized,
+                                   subtitle: CardIdFormatter(cid: viewModel.cardViewModel.card.cardId ?? "").formatted())
+                    DetailsRowView(title: "settings_row_title_issuer".localized,
+                                   subtitle: viewModel.cardViewModel.card.cardData?.issuerName ?? " ")
+                    if viewModel.cardViewModel.card.walletSignedHashes != nil {
+                        DetailsRowView(title: "settings_row_title_signed".localized,
+                                       subtitle: String(format: "settings_row_subtitle_signed_hashes_format".localized,
+                                                        viewModel.cardViewModel.card.walletSignedHashes!.description))
+                    }
             }
             
             Section(header: HeaderView(text: "settings_section_title_settings".localized)) {
                 NavigationLink(destination:CurrencySelectView()
-                                .environmentObject(self.viewModel.cardViewModel)) {
-                    DetailsRowView(title: "settings_row_title_currency".localized,
-                                   subtitle: viewModel.cardViewModel.selectedCurrency)
-                    
+                    .environmentObject(self.viewModel.cardViewModel)) {
+                        DetailsRowView(title: "settings_row_title_currency".localized,
+                                       subtitle: viewModel.cardViewModel.selectedCurrency)
+                        
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
             }
             
@@ -78,29 +78,29 @@ struct SettingsView: View {
                 //                    DetailsRowView(title: "settings_row_title_validate".localized, subtitle: "")
                 //                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                //                NavigationLink(destination:CurrencySelectView()) {
-                //                    DetailsRowView(title: "settings_row_title_manage_security".localized, subtitle: "Passcode")
-                //                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                NavigationLink(destination:SecurityManagementView()
+                    .environmentObject(viewModel.cardViewModel)
+                    .environmentObject(viewModel.sdkService)) {
+                        DetailsRowView(title: "settings_row_title_manage_security".localized, subtitle: viewModel.cardViewModel.selectedSecOption.title)
+                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
                 NavigationLink(destination: CardOperationView(title: "settings_row_title_erase_wallet".localized,
-                                                              alert: "warning_erase_wallet".localized,
+                                                              alert: "cardOperation_erase_wallet".localized,
                                                               actionButtonPressed: { completion in
                                                                 self.viewModel.purgeWallet(completion: completion)
-                                                              })
+                })
                 ) {
                     DetailsRowView(title: "settings_row_title_erase_wallet".localized, subtitle: "")
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.canPurgeWallet)
-                
+                    .disabled(!viewModel.canPurgeWallet)
             }
             
             Section(header: Color.tangemTapBgGray
-                        .listRowInsets(EdgeInsets())) {
-                EmptyView()
+                .listRowInsets(EdgeInsets())) {
+                    EmptyView()
             }
             
         }
-        .listStyle(PlainListStyle())
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("settings_title", displayMode: .inline)
     }
@@ -125,12 +125,12 @@ struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             SettingsView(viewModel: SettingsViewModel(
-                            cardViewModel: $cardWallet,
-                            sdkSerice: $sdkService))
+                cardViewModel: $cardWallet,
+                sdkSerice: $sdkService))
             
             SettingsView(viewModel: SettingsViewModel(
-                            cardViewModel: $cardNoWallet,
-                            sdkSerice: $sdkService))
+                cardViewModel: $cardNoWallet,
+                sdkSerice: $sdkService))
         }
     }
 }
