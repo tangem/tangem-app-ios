@@ -96,6 +96,12 @@ extension Color {
     @nonobjc static var tangemTapBg: Color {
         return Color("tangem_tap_bg")
     }
+    
+    //MARK: Tints
+    
+    @nonobjc static var tangemTapBlueLight: Color {
+        return Color("tangem_tap_blue_light")
+    }
 }
 
 extension UIColor {
