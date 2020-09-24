@@ -116,16 +116,17 @@ class CoinMarketCapService {
             .eraseToAnyPublisher()
     }
     
-    func loadRates(for currencies: [String: Decimal]) -> AnyPublisher<[String: [String: Decimal]], MoyaError> {
+    func loadRates(for currencies: [String: Decimal]) -> AnyPublisher<[String: [String: Decimal]], Never> {
         currencies
             .publisher
-            .setFailureType(to: MoyaError.self)
             .flatMap { [unowned self] item in
                 return self.provider
                     .requestPublisher(.rate(amount: item.value, symbol: item.key, convert: [self.selectedCurrencyCode], apiKey: self.apiKey))
                     .filterSuccessfulStatusAndRedirectCodes()
                     .map(RateInfoResponse.self)
-                    .map { (item.key, $0.data.quote.mapValues {  $0.price }) }
+                    .map { $0.data }
+                    .map { (item.key, $0.quote.mapValues {  $0.price }) }
+                    .catch { _ in Empty(completeImmediately: true) }
         }
         .collect()
         .map { $0.reduce(into: [String: [String: Decimal]]()) { $0[$1.0] = $1.1 } }
