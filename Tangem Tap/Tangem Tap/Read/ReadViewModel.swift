@@ -54,10 +54,9 @@ class ReadViewModel: ObservableObject {
                 self?.openDetails = true
                 self?.firstTimeScan = false
             case .failure(let error):
-                if case .userCancelled = error.toTangemSdkError() {
-                    return
+                if case .unknownError = error.toTangemSdkError() {
+                    self?.scanError = error.alertBinder
                 }
-                self?.scanError = error.alertBinder
             }
         }
     }
