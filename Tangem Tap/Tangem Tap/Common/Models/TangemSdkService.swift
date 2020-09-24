@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-class TangemSdkService {
+class TangemSdkService: ObservableObject {
     var ratesService: CoinMarketCapService!
     
     var cards = [String: CardViewModel]()
@@ -61,16 +61,11 @@ class TangemSdkService {
         }
     }
     
-    func createWallet(cardId: String?, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        let createWalletTask = CreateWalletReadTask()
-        tangemSdk.startSession(with: createWalletTask, cardId: cardId) { result in
+    func createWallet(card: Card, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        tangemSdk.createWallet(cardId: card.cardId) { result in
             switch result {
             case .success(let response):
-                guard let _ = response.card.cardId else {
-                    completion(.failure(TangemSdkError.unknownError))
-                    return
-                }
-                let vm =  self.updateViewModel(with: response.card)
+                let vm =  self.updateViewModel(with: card.updating(with: response))
                 completion(.success(vm))
             case .failure(let error):
                 completion(.failure(error))
@@ -79,20 +74,55 @@ class TangemSdkService {
         }
     }
     
-    func purgeWallet(cardId: String?, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        let purgeWalletTask = PurgeWalletReadTask()
-        tangemSdk.startSession(with: purgeWalletTask, cardId: cardId) { result in
+    func purgeWallet(card: Card, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        tangemSdk.purgeWallet(cardId: card.cardId) { result in
             switch result {
             case .success(let response):
-                guard let _ = response.card.cardId else {
-                    completion(.failure(TangemSdkError.unknownError))
-                    return
-                }
-                let vm =  self.updateViewModel(with: response.card)
+                let vm =  self.updateViewModel(with: card.updating(with: response))
                 completion(.success(vm))
             case .failure(let error):
                 completion(.failure(error))
                 break
+            }
+        }
+    }
+    
+    func changeSecOption(_ option: SecurityManagementOption, card: Card, completion: @escaping (Result<Void, Error>) -> Void) {
+        let vm = self.cards[card.cardId!]
+        switch option {
+        case .accessCode:
+            tangemSdk.changePin1(cardId: card.cardId) {result in
+                switch result {
+                case .success:
+                    vm?.card.isPin1Default = false
+                       vm?.updateCurrentSecOption()
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        case .longTap:
+            tangemSdk.startSession(with: SetPinCommand(), cardId: card.cardId) {result in
+                switch result {
+                case .success:
+                    vm?.card.isPin1Default = true
+                    vm?.card.isPin2Default = true
+                    vm?.updateCurrentSecOption()
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        case .passCode:
+            tangemSdk.changePin2(cardId: card.cardId) {result in
+                vm?.card.isPin2Default = false
+                vm?.updateCurrentSecOption()
+                switch result {
+                case .success:
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             }
         }
     }
