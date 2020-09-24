@@ -19,7 +19,7 @@ class SettingsViewModel: ObservableObject {
         }
     }
     @Published var canPurgeWallet: Bool = false
-
+    
     private var bag = Set<AnyCancellable>()
     
     init(cardViewModel: Binding<CardViewModel>, sdkSerice: Binding<TangemSdkService>) {
@@ -41,7 +41,7 @@ class SettingsViewModel: ObservableObject {
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
-        sdkService.purgeWallet(cardId: cardViewModel.card.cardId) { [weak self] result in
+        sdkService.purgeWallet(card: cardViewModel.card) { [weak self] result in
             switch result {
             case .success(let cardViewModel):
                 guard let self = self else { return }
@@ -49,9 +49,8 @@ class SettingsViewModel: ObservableObject {
                 self.cardViewModel = cardViewModel
                 self.canPurgeWallet = self.getPurgeWalletStatus()
                 completion(.success(()))
-            case .failure(let error):                
+            case .failure(let error):
                 completion(.failure(error))
-                //[REDACTED_TODO_COMMENT]
                 break
             }
         }
@@ -65,14 +64,6 @@ class SettingsViewModel: ObservableObject {
         if (cardViewModel.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false) {
             return false
         }
-        //[REDACTED_TODO_COMMENT]
-        //        if card.cardData?.productMask?.contains(.idCard) ?? true {
-        //             return false
-        //        }
-        //
-        //        if card.cardData?.productMask?.contains(.idIssuer) ?? true {
-        //             return false
-        //        }
         
         if let wallet = cardViewModel.wallet {
             if let loadingError = cardViewModel.loadingError {
