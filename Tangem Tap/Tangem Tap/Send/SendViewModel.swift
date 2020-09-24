@@ -1,5 +1,5 @@
 //
-//  ExtractViewModel.swift
+//  SendViewModel.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -18,12 +18,7 @@ struct TextHint {
     let message: String
 }
 
-//enum CurrencyUnit {
-//    case crypto(symbol: String)
-//    case fiat(symbol: String)
-//}
-
-class ExtractViewModel: ObservableObject {
+class SendViewModel: ObservableObject {
     //MARK: Navigation
     @Published var showQR = false
     @Published var showCameraDeniedAlert = false
@@ -67,7 +62,7 @@ class ExtractViewModel: ObservableObject {
     @Published var canFiatCalculation: Bool = true
     @Published var oldCardAlert: AlertBinder?
     
-    var sendError: AlertBinder?
+    @Published var sendError: AlertBinder?
     @Binding var sdkService: TangemSdkService
     @Binding var cardViewModel: CardViewModel {
         didSet {
