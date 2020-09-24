@@ -159,8 +159,9 @@
 
 "common_camera_aler_button_settings" = "Settings";
 
-"warning_erase_wallet" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
+"cardOperation_erase_wallet" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
 
+"cardOperation_security_management" = "If you forget the code, you will lose the ability to use the card. There is no way to recover or change your code if you lose it.";
 
 "alert_old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
 
@@ -169,3 +170,18 @@
 "alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
 
 "alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment";
+
+
+"manage_security_title" = "Manage Security";
+
+"manage_security_row_title_longtap" = "Long Tap";
+
+"manage_security_row_subtitle_longtap" = "This mechanism protects against proximity attack on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
+
+"manage_security_row_title_passcode" = "Passcode";
+
+"manage_security_row_subtitle_passcode" = "Before execution any command entailing a change of the card state you will have to enter the passcode.";
+
+"manage_security_row_title_access_code" = "Access code";
+
+"manage_security_row_subtitle_access_code" = "You will have to submit the correct access code before scanning the card";
