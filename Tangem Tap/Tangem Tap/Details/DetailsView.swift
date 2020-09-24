@@ -137,7 +137,7 @@ struct DetailsView: View {
                         .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
                         .sheet(isPresented: $viewModel.showSend) {
-                            ExtractView(viewModel: ExtractViewModel(amountToSend: self.viewModel.amountToSend!,
+                            SendView(viewModel: SendViewModel(amountToSend: self.viewModel.amountToSend!,
                                                                     cardViewModel: self.$viewModel.cardViewModel,
                                                                     sdkSerice: self.$viewModel.sdkService))
                         }

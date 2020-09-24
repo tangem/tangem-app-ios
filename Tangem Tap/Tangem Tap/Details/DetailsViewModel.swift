@@ -121,11 +121,11 @@ class DetailsViewModel: ObservableObject {
             switch scanResult {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
+                self?.showUntrustedDisclaimerIfNeeded()
             case .failure(let error):
-                if case .userCancelled = error.toTangemSdkError() {
-                    return
+                if case .unknownError = error.toTangemSdkError() {
+                    self?.cardError = error.alertBinder
                 }
-                self?.cardError = error.alertBinder
             }
         }
     }
@@ -162,8 +162,6 @@ class DetailsViewModel: ObservableObject {
     }
     
     func onAppear() {
-       // DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.showUntrustedDisclaimerIfNeeded()
-      //  }
+         showUntrustedDisclaimerIfNeeded()
     }    
 }
