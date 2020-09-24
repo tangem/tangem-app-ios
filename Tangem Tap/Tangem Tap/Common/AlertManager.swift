@@ -40,9 +40,6 @@ class AlertManager {
     @Storage("tangem_tap_scanned_cards", defaultValue: [])
     private var scannedCards: [String]
     
-    @Storage("tangem_tap_scanned_dev_cards", defaultValue: [])
-    private var scannedDevCards: [String]
-    
     func getAlert(_ alertType: AlertType, for card: Card) -> AlertBinder? {
         if canShow(alertType, card: card) {
             return AlertBinder(alert: alertType.alert)
@@ -95,12 +92,12 @@ class AlertManager {
                 return false
             }
             
-            let scannedDevCards = self.scannedDevCards
-            if scannedDevCards.contains(cid) {
+            let scannedCards = self.scannedCards
+            if scannedCards.contains(cid) {
                 return false
             }
             
-            self.scannedDevCards = scannedDevCards + [cid]
+            self.scannedCards = scannedCards + [cid]
             return true
         }
     }
