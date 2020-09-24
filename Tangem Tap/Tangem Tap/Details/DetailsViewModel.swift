@@ -122,10 +122,9 @@ class DetailsViewModel: ObservableObject {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
             case .failure(let error):
-                if case .userCancelled = error.toTangemSdkError() {
-                    return
+                if case .unknownError = error.toTangemSdkError() {
+                    self?.cardError = error.alertBinder
                 }
-                self?.cardError = error.alertBinder
             }
         }
     }
