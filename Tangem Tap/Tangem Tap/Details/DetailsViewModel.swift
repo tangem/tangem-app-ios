@@ -131,7 +131,7 @@ class DetailsViewModel: ObservableObject {
     }
     
     func createWallet() {
-        sdkService.createWallet(cardId: cardViewModel.card.cardId) { [weak self] result in
+        sdkService.createWallet(card: cardViewModel.card) { [weak self] result in
             switch result {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
