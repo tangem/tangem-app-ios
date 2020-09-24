@@ -12,7 +12,7 @@ import BlockchainSdk
 import Combine
 
 class CardViewModel: Identifiable, ObservableObject {
-    var card: Card
+    @Published var card: Card
     let service = NetworkService()
     var payIDService: PayIDService? = nil
     var ratesService: CoinMarketCapService! {
@@ -39,6 +39,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var image: UIImage? = nil
     @Published var selectedCurrency: String = ""
     @Published var showSendAlert: Bool = false
+    @Published private(set) var selectedSecOption: SecurityManagementOption = .longTap
 
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
@@ -49,6 +50,7 @@ class CardViewModel: Identifiable, ObservableObject {
     init(card: Card, verifyCardResponse: VerifyCardResponse? = nil) {
         self.card = card
         self.verifyCardResponse = verifyCardResponse
+        updateCurrentSecOption()
         if let walletManager = WalletManagerFactory().makeWalletManager(from: card) {
             self.walletManager = walletManager
             self.payIDService = PayIDService.make(from: walletManager.wallet.blockchain)
@@ -63,6 +65,17 @@ class CardViewModel: Identifiable, ObservableObject {
                 .store(in: &bag)
         } else {
             isCardSupported = WalletManagerFactory().isBlockchainSupported(card) 
+        }
+    }
+    
+    func updateCurrentSecOption() {
+        if !(card.isPin1Default ?? true) {
+            self.selectedSecOption = .accessCode
+        } else if !(card.isPin2Default ?? true) {
+            self.selectedSecOption = .passCode
+        }
+        else {
+            self.selectedSecOption = .longTap
         }
     }
     
