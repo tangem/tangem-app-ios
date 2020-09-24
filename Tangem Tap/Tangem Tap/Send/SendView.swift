@@ -1,5 +1,5 @@
 //
-//  ExtractView.swift
+//  SendView.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,8 +12,8 @@ import TangemSdk
 import BlockchainSdk
 import AVFoundation
 
-struct ExtractView: View {
-    @ObservedObject var viewModel: ExtractViewModel
+struct SendView: View {
+    @ObservedObject var viewModel: SendViewModel
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -271,7 +271,7 @@ struct ExtractView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel(card: Card.testCard)
     
     static var previews: some View {
-        ExtractView(viewModel: ExtractViewModel(amountToSend: Amount(with: cardViewModel.wallet!.blockchain,
+        SendView(viewModel: SendViewModel(amountToSend: Amount(with: cardViewModel.wallet!.blockchain,
                                                                      address: "adsfafa",
                                                                      type: .coin,
                                                                      value: 0.0),
