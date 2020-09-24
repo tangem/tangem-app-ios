@@ -19,6 +19,8 @@ struct TapScanTaskResponse: ResponseCodable {
 }
 
 final class TapScanTask: CardSessionRunnable {
+    let excludeBatches = ["0027", "0030", "0031"]
+    
     var needPreflightRead: Bool {
         return false
     }
@@ -32,11 +34,29 @@ final class TapScanTask: CardSessionRunnable {
         scanTask.run(in: session) { result in
             switch result {
             case .success(let card):
-                if let status = card.status, status == .loaded || status == .empty {
-                    self.verifyCard(card, session: session, completion: completion)
-                } else {
-                    completion(.failure(ScanError.wrongState.toTangemSdkError()))
+                if let product = card.cardData?.productMask, !product.contains(ProductMask.note) { //filter product
+                    completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
+                    return
                 }
+                
+                if let status = card.status { //filter status
+                    if status == .notPersonalized {
+                        completion(.failure(TangemSdkError.notPersonalized))
+                        return
+                    }
+                    
+                    if status == .purged {
+                        completion(.failure(TangemSdkError.cardIsPurged))
+                        return
+                    }
+                }
+                
+                if let batch = card.cardData?.batchId, self.excludeBatches.contains(batch) { //filter bach
+                    completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
+                    return
+                }
+                
+                self.verifyCard(card, session: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
