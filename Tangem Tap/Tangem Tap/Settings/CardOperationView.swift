@@ -60,8 +60,18 @@ struct CardOperationView: View {
                     .alert(item: self.$error) { $0.alert }
             }
             .padding(.horizontal, 36.0)
+            .padding(.bottom, 16.0)
         }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(title)
+    }
+}
+
+
+struct CardOperationVIew_Previews: PreviewProvider {
+    static var previews: some View {
+        CardOperationView(title: "Manage",
+                          alert: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Et quis vitae dictumst consequat.",
+                          actionButtonPressed: { _ in })
     }
 }
