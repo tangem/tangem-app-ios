@@ -96,15 +96,9 @@ struct SecurityManagementRowView: View {
 
 
 struct SecurityManagementView: View {
-    @EnvironmentObject var cardViewModel: CardViewModel
-    @EnvironmentObject var sdkService: TangemSdkService
-    
     var body: some View {
         List(SecurityManagementOption.allCases) { option in
             SecurityManagementRowView(option: option)
-                .environmentObject(self.cardViewModel)
-                .environmentObject(self.sdkService)
-            
         }
         .listStyle(PlainListStyle())
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
