@@ -38,7 +38,6 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var wallet: Wallet? = nil
     @Published var image: UIImage? = nil
     @Published var selectedCurrency: String = ""
-    @Published var showSendAlert: Bool = false
     @Published private(set) var selectedSecOption: SecurityManagementOption = .longTap
     
     var walletManager: WalletManager?
@@ -294,10 +293,6 @@ class CardViewModel: Identifiable, ObservableObject {
             .autoconnect()
             .sink() {[unowned self] _ in
                 self.update(silent: true)
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.showSendAlert = true
         }
     }
 }
