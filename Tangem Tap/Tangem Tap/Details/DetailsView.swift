@@ -56,19 +56,28 @@ struct DetailsView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
                         }
-                        VStack {
+ 
+                        VStack(spacing: 8.0) {
                             if self.viewModel.cardViewModel.isWalletLoading {
                                 ActivityIndicatorView(isAnimating: true, style: .medium)
                                     .padding(.bottom, 16.0)
                             } else {
+                                
+                                if !self.viewModel.cardCanSign {
+                                    AlertCardView(title: "common_warning".localized,
+                                                  message: "alert_old_card".localized)
+                                        .padding(.horizontal, 16.0)
+                                }
+                                
                                 if self.viewModel.cardViewModel.wallet != nil {
                                     self.pendingTransactionView
-                                        .padding(.bottom, 8.0)
                                     
                                     if self.viewModel.cardViewModel.noAccountMessage != nil {
                                         ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
                                     } else {
+                                        if self.viewModel.cardViewModel.balanceViewModel != nil {
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
+                                        }
                                     }
                                     AddressDetailView(showCreatePayID: self.$viewModel.showCreatePayID)
                                         .environmentObject(self.viewModel.cardViewModel)
@@ -83,7 +92,7 @@ struct DetailsView: View {
                                 
                             }
                         }
-                        Spacer()
+                        //Spacer()
                     }
                 }
                 
@@ -92,7 +101,6 @@ struct DetailsView: View {
                 CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
                     .environmentObject(self.viewModel.cardViewModel)
             })
-            .alert(item: self.$viewModel.untrustedCardAlert) { $0.alert }
             HStack(alignment: .center, spacing: 8.0) {
                 Button(action: {
                     withAnimation {
@@ -107,7 +115,6 @@ struct DetailsView: View {
                     .padding(.horizontal)
                 }
                 .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
-                .alert(item: $viewModel.cardError) { $0.alert }
                 
                 if self.viewModel.cardViewModel.isCardSupported {
                     if self.viewModel.cardViewModel.wallet == nil {
@@ -122,7 +129,6 @@ struct DetailsView: View {
                         }
                         .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canCreateWallet))
                         .disabled(!self.viewModel.canCreateWallet)
-                        .alert(item: $viewModel.cardError) { $0.alert }
                     } else {
                         
                         Button(action: {
@@ -138,20 +144,23 @@ struct DetailsView: View {
                         .disabled(!self.viewModel.canSend)
                         .sheet(isPresented: $viewModel.showSend) {
                             SendView(viewModel: SendViewModel(amountToSend: self.viewModel.amountToSend!,
-                                                                    cardViewModel: self.$viewModel.cardViewModel,
-                                                                    sdkSerice: self.$viewModel.sdkService))
+                                                              cardViewModel: self.$viewModel.cardViewModel,
+                                                              sdkSerice: self.$viewModel.sdkService), onSuccess: {
+                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                                    let alert = Alert(title: Text("common_success"),
+                                                                                      message: Text("send_transaction_success"),
+                                                                                      dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                                                                          action: {}))
+                                                                    
+                                                                    self.viewModel.error = AlertBinder(alert: alert)
+                                                                }
+                            })
                         }
                         .actionSheet(isPresented: self.$viewModel.showSendChoise) {
                             ActionSheet(title: Text("details_choice_wallet_option_title"),
                                         message: nil,
                                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
                             
-                        }
-                        .alert(isPresented: self.$viewModel.cardViewModel.showSendAlert) { () -> Alert in
-                            return Alert(title: Text("common_success"),
-                                         message: Text("send_transaction_success"),
-                                         dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                             action: {}))
                         }
                     }
                 }
@@ -182,11 +191,12 @@ struct DetailsView: View {
             .onAppear {
                 self.viewModel.onAppear()
         }
-            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-                .delay(for: 0.3, scheduler: DispatchQueue.global())
-                .receive(on: DispatchQueue.main)) { _ in
-                    self.viewModel.cardViewModel.update(silent: true)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+        .delay(for: 0.3, scheduler: DispatchQueue.global())
+        .receive(on: DispatchQueue.main)) { _ in
+            self.viewModel.cardViewModel.update(silent: true)
         }
+        .alert(item: $viewModel.error) { $0.alert }
         
     }
 }
