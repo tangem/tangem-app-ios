@@ -105,9 +105,11 @@
 
 "send_validation_invalid_address" = "Invalid address";
 
-"send_validation_invalid_amount" = "Invalid amount";
+"send_validation_invalid_amount" = "Amount Exceeds Balance";
 
-"send_validation_invalid_total" = "Invalid total";
+"send_validation_invalid_total" = "Total Exceeds Balance";
+
+"send_validation_invalid_fee" = "Fee Exceeds Balance";
 
 "send_fee_picker_low" = "Low";
 
@@ -126,8 +128,6 @@
 "send_balance_subtitle_format" = "Balance: %@";
 
 "send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
-
-"send_invalid_total_error" = "Amount with fee greater than balance";
 
 "settings_title" = "Details";
 
