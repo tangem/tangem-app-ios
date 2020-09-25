@@ -145,7 +145,7 @@ class DetailsViewModel: ObservableObject {
     }
     
     func sendTapped() {
-        if cardViewModel.wallet!.amounts[.token] != nil {
+        if let tokenAmount = cardViewModel.wallet!.amounts[.token], tokenAmount.value > 0 {
             showSendChoise = true
         } else {
             amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
