@@ -146,6 +146,8 @@ struct SendView: View {
                             Spacer()
                             Text(self.viewModel.walletTotalBalanceFormatted)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
                                 .foregroundColor(Color.tangemTapGrayDark)
                         }
                     }
@@ -219,6 +221,8 @@ struct SendView: View {
                             Spacer()
                             Text(self.viewModel.sendTotal)
                                 .font(Font.system(size: 20.0, weight: .bold, design: .default))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
                                 .foregroundColor(Color.tangemTapGrayDark6)
                             
                         }
@@ -273,7 +277,7 @@ struct ExtractView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel(card: Card.testCard)
     
     static var previews: some View {
-        SendView(viewModel: SendViewModel(amountToSend: Amount(with: cardViewModel.wallet!.blockchain,
+        SendView(viewModel: SendViewModel(amountToSend: Amount(with: Blockchain.ethereum(testnet: false),
                                                                      address: "adsfafa",
                                                                      type: .coin,
                                                                      value: 0.0),
