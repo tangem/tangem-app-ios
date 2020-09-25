@@ -61,7 +61,12 @@ class BlockchainInfoBalanceOperation: GBAsyncOperation {
                 self?.unspent = value
                 self?.handleRequestFinish()
             case .failure(let error):
-                self?.failOperationWith(error: error)
+                if (error as? String)?.contains("No free outputs to spend") ?? false {
+                        self?.unspent = BlockchainInfoUnspentResponse(unspent_outputs: [])
+                        self?.handleRequestFinish()
+                } else {
+                    self?.failOperationWith(error: error)
+                }
             }
             
         })
