@@ -40,7 +40,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var selectedCurrency: String = ""
     @Published var showSendAlert: Bool = false
     @Published private(set) var selectedSecOption: SecurityManagementOption = .longTap
-
+    
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
     
@@ -165,9 +165,11 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func loadRates() {
         rates = [:]
-        if let currenciesToExchange = wallet?.amounts.values
+        if let currenciesToExchange = wallet?.amounts
+            .filter({ $0.key != .reserve }).values
             .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
             .reduce(into: [String: Decimal](), { $0[$1.0] = $1.1 }) {
+            
             ratesService?
                 .loadRates(for: currenciesToExchange)
                 .receive(on: RunLoop.main)
@@ -201,7 +203,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         guard let artworkId = verifyCardResponse?.artworkInfo?.id,
             let cardPublicKey = card.cardPublicKey else {
-                 self.image =  UIImage(named: "card-default")
+                self.image =  UIImage(named: "card-default")
                 return
         }
         
@@ -245,7 +247,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
             let rate = quotes[selectedCurrency] {
-            return value * rate
+            return (value * rate).rounded(2)
         }
         return nil
     }
@@ -253,7 +255,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func getCrypto(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
             let rate = quotes[selectedCurrency] {
-            return value / rate
+            return (value / rate).rounded(blockchain: wallet!.blockchain)
         }
         return nil
     }
@@ -286,9 +288,9 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func onTransactionSend() {
         updateTimer = Timer.TimerPublisher(interval: 10.0,
-                                            tolerance: 0.1,
-                                            runLoop: .main,
-                                            mode: .common)
+                                           tolerance: 0.1,
+                                           runLoop: .main,
+                                           mode: .common)
             .autoconnect()
             .sink() {[unowned self] _ in
                 self.update(silent: true)
