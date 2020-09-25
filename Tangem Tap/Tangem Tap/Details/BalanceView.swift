@@ -31,7 +31,6 @@ struct BalanceView: View {
                     Text(balanceViewModel.name)
                         .font(Font.system(size: 20.0, weight: .bold, design: .default))
                         .minimumScaleFactor(0.6)
-                        .multilineTextAlignment(.leading)
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .lineLimit(1)
                     Spacer()
@@ -42,7 +41,7 @@ struct BalanceView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                 }
-                .padding(.horizontal, 24.0)
+                .padding(.horizontal, 23.0)
             }
             .padding(.top, 16.0)
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
@@ -52,6 +51,7 @@ struct BalanceView: View {
                     .foregroundColor(balanceViewModel.loadingError == nil  ? Color.tangemTapGreen :
                         Color.tangemTapWarning)
                     .frame(width: 10.0, height: 10.0)
+                    //.offset(x: 1)
                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                 VStack(alignment: .leading) {
                     Text(balanceViewModel.loadingError == nil ? "balanceView_blockchain_verified" : "balanceView_blockchain_unreachable")
