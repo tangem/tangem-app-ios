@@ -763,6 +763,10 @@ public extension CardViewModel {
             "\(Localizations.detailsCategoryManufacturer): \(manufactureName)",
             "\(Localizations.detailsRegistrationDate): \(manufactureDateTime)"]
         
+        if !node.isEmpty {
+            strings.append("\(Localizations.detailsValidationNode): \(node)")
+        }
+        
         let sigs = remainingSignatures == -1 ? "" : "\(remainingSignatures)"
         
         if type != .slix2 {
