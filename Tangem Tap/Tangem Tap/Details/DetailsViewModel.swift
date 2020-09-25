@@ -29,26 +29,37 @@ class DetailsViewModel: ObservableObject {
     @Published var showCreatePayID = false
     
     //Mark: Output
-    @Published var cardError: AlertBinder?
-    @Published var untrustedCardAlert: AlertBinder?
+    @Published var error: AlertBinder?
     
     public var canCreateWallet: Bool {
         return cardViewModel.wallet == nil && cardViewModel.isCardSupported
     }
     
+    public var cardCanSign: Bool {
+        let isPin2Default = cardViewModel.card.isPin2Default ?? true
+        let hasSmartSecurityDelay = cardViewModel.card.settingsMask?.contains(.smartSecurityDelay) ?? false
+        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
+        
+        if let fw = cardViewModel.card.firmwareVersionValue, fw < 2.28 {
+            if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 && !canSkipSD {
+                return false
+            }
+        }
+        
+        return true
+    }
+    
     public var canSend: Bool {
+        guard cardCanSign else {
+            return false
+        }
+        
         guard let wallet = cardViewModel.wallet else {
             return false
         }
         
         if wallet.hasPendingTx {
             return false
-        }
-        
-        if let fw = cardViewModel.card.firmwareVersionValue, fw < 2.29 {
-            if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 {
-                return false // [REDACTED_TODO_COMMENT]
-            }
         }
         
         if wallet.amounts.isEmpty { //not loaded from blockchain
@@ -124,7 +135,7 @@ class DetailsViewModel: ObservableObject {
                 self?.showUntrustedDisclaimerIfNeeded()
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
-                    self?.cardError = error.alertBinder
+                    self?.error = error.alertBinder
                 }
             }
         }
@@ -139,7 +150,7 @@ class DetailsViewModel: ObservableObject {
                 if case .userCancelled = error.toTangemSdkError() {
                     return
                 }
-                self?.cardError = error.alertBinder
+                self?.error = error.alertBinder
             }
         }
     }
@@ -155,9 +166,9 @@ class DetailsViewModel: ObservableObject {
     
     func showUntrustedDisclaimerIfNeeded() {
         if cardViewModel.card.cardType != .release {
-            untrustedCardAlert = AlertManager().getAlert(.devCard, for: cardViewModel.card)
+            error = AlertManager().getAlert(.devCard, for: cardViewModel.card)
         } else {
-            untrustedCardAlert = AlertManager().getAlert(.untrustedCard, for: cardViewModel.card)
+            error = AlertManager().getAlert(.untrustedCard, for: cardViewModel.card)
         }
     }
     
