@@ -30,16 +30,16 @@ struct BalanceView: View {
                 HStack(alignment: .firstTextBaseline) {
                     Text(balanceViewModel.name)
                         .font(Font.system(size: 20.0, weight: .bold, design: .default))
-                        .minimumScaleFactor(0.6)
+                        .minimumScaleFactor(0.4)
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .lineLimit(1)
                     Spacer()
                     Text(balanceViewModel.balance)
                         .font(Font.system(size: 20.0, weight: .bold, design: .default))
                         .foregroundColor(Color.tangemTapGrayDark6)
-                        .multilineTextAlignment(.trailing)
+                        .truncationMode(.middle)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.5)
+                        .minimumScaleFactor(0.4)
                 }
                 .padding(.horizontal, 23.0)
             }
