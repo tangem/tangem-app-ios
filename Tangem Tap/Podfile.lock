@@ -2,9 +2,9 @@ PODS:
   - Alamofire (5.2.1)
   - AnyCodable-FlightSchool (0.2.3)
   - BigInt (4.0.0)
-  - BinanceChain (1.0.0-beta):
-    - BinanceChain/Core (= 1.0.0-beta)
-  - BinanceChain/Core (1.0.0-beta):
+  - BinanceChain (1.0.1-beta):
+    - BinanceChain/Core (= 1.0.1-beta)
+  - BinanceChain/Core (1.0.1-beta):
     - Alamofire
     - BinanceChain/Libraries
     - BinanceChain/Protobuf
@@ -16,9 +16,9 @@ PODS:
     - SwiftProtobuf (~> 1.4)
     - SwiftyJSON
     - XCGLogger (~> 7.0)
-  - BinanceChain/Libraries (1.0.0-beta)
-  - BinanceChain/Protobuf (1.0.0-beta)
-  - BinanceChain/Util (1.0.0-beta)
+  - BinanceChain/Libraries (1.0.1-beta)
+  - BinanceChain/Protobuf (1.0.1-beta)
+  - BinanceChain/Util (1.0.1-beta)
   - BlockchainSdk (0.0.1):
     - AnyCodable-FlightSchool
     - BigInt
@@ -66,7 +66,7 @@ PODS:
   - stellar-ios-mac-sdk (1.8.4)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.0.3)
-  - SwiftProtobuf (1.9.0)
+  - SwiftProtobuf (1.11.0)
   - SwiftyJSON (5.0.0)
   - TangemSdk (2.0.2)
   - web3swift (2.2.1):
@@ -82,7 +82,7 @@ PODS:
 
 DEPENDENCIES:
   - AnyCodable-FlightSchool
-  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.6`)
+  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
   - BlockchainSdk (from `../../blockchain-sdk-swift`)
   - EFQRCode
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
@@ -114,7 +114,7 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
-    :tag: 0.0.6
+    :tag: 0.0.7
   BlockchainSdk:
     :path: "../../blockchain-sdk-swift"
   HDWalletKit:
@@ -129,7 +129,7 @@ EXTERNAL SOURCES:
 CHECKOUT OPTIONS:
   BinanceChain:
     :git: https://bitbucket.org/tangem/swiftbinancechain.git
-    :tag: 0.0.6
+    :tag: 0.0.7
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
@@ -141,7 +141,7 @@ SPEC CHECKSUMS:
   Alamofire: e911732990610fe89af59ac0077f923d72dc3dfd
   AnyCodable-FlightSchool: cf53737f4bd1d9187cea453679734506e478fff3
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
-  BinanceChain: 3f6724155e3d65f6f9ca86b20343cf316f9eabf6
+  BinanceChain: 590254fcbe333b0374c69f5ea80f56afb291bb26
   BlockchainSdk: 34e7770ff22d9bce6c68aac39649b40d59790160
   CryptoSwift: f12f037f6d0fcd6d48c96db0071b653de64e6c4d
   EFQRCode: a7ea2e517912f5bf6ba258b631327a83cd8084a5
@@ -156,12 +156,12 @@ SPEC CHECKSUMS:
   stellar-ios-mac-sdk: 8cc8fa273da2ef6965d6ce614fbd7d15eb240944
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
-  SwiftProtobuf: ecbec1be9036d15655f6b3443a1c4ea693c97932
+  SwiftProtobuf: f889fe5772f90ef7d7b8aac352d1fddf39650713
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   TangemSdk: 2c0260f85c41711af449f8901f698c12b6e45673
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 90a6c05b9059e21ade1705cd22e6cb6ac3ea8aa3
+PODFILE CHECKSUM: fc55aecec9f6f6edbd1797c39195efbc9e30ab67
 
 COCOAPODS: 1.9.3
