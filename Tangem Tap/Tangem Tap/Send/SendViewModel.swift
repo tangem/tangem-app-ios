@@ -238,7 +238,7 @@ class SendViewModel: ObservableObject {
                                    tx.fee.description)
                     } else {
                         self.sendAmount = tx.amount.description
-                        self.sendTotal =  tx.amount.type == tx.fee.type ? totalAmount.description : "-"
+                        self.sendTotal =  (tx.amount + tx.fee).description
                         self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
                                                                                         totalFiatAmountFormatted!,
                                                                                         self.cardViewModel.getFiatFormatted(for: tx.fee)!)
@@ -302,8 +302,14 @@ class SendViewModel: ObservableObject {
                     self.amountHint = nil
                     return tx
                 case .failure(let error):
-                    let message = error.contains(TransactionError.wrongTotal) ?
-                        "send_invalid_total_error".localized : "send_validation_invalid_amount".localized
+                    var message: String
+                    if error.contains(.wrongTotal) {
+                        message = "send_validation_invalid_total".localized
+                    } else if  error.contains(.wrongFee) {
+                        message =  "send_validation_invalid_fee".localized
+                    } else {
+                        message = "send_validation_invalid_amount".localized
+                    }
                     self.amountHint = TextHint(isError: true, message: message)
                     return nil
                 }
