@@ -15,6 +15,7 @@ import AVFoundation
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
     @Environment(\.presentationMode) var presentationMode
+    let onSuccess: () -> Void
     
     var body: some View {
         GeometryReader { geometry in
@@ -233,6 +234,7 @@ struct SendView: View {
                         Button(action: {
                             self.viewModel.send() {
                                 self.presentationMode.wrappedValue.dismiss()
+                                self.onSuccess()
                             }
                         }) { HStack(alignment: .center, spacing: 16.0) {
                             Text("details_button_send")
@@ -276,6 +278,6 @@ struct ExtractView_Previews: PreviewProvider {
                                                                      type: .coin,
                                                                      value: 0.0),
                                                 cardViewModel: $cardViewModel,
-                                                sdkSerice: $sdkService))
+                                                sdkSerice: $sdkService), onSuccess: {})
     }
 }
