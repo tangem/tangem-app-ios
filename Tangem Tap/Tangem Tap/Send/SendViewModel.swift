@@ -80,7 +80,7 @@ class SendViewModel: ObservableObject {
         }
         
         let amount = wallet.amounts[self.amountToSend.type]
-        return isFiatCalculation ? self.cardViewModel.getFiat(for: amount)?.rounded(blockchain: wallet.blockchain).description ?? ""
+        return isFiatCalculation ? self.cardViewModel.getFiat(for: amount)?.description ?? ""
             : amount?.value.description ?? ""
     }
     
@@ -161,6 +161,14 @@ class SendViewModel: ObservableObject {
         
         $amountText //handle amount input
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .filter { string -> Bool in
+                if self.isFiatCalculation,
+                    let fiat =  self.cardViewModel.getFiat(for: self.amountToSend)?.description,
+                    string == fiat {
+                    return false //prevent cross-convert after max amount tap
+                }
+                return true
+            }
             .sink{ [unowned self] newAmount in
                 guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")),
                     let wallet = self.cardViewModel.wallet else {
@@ -201,12 +209,8 @@ class SendViewModel: ObservableObject {
         
         $isFiatCalculation //handle conversion
             .sink { [unowned self] value in
-                guard let wallet = self.cardViewModel.wallet else {
-                    return
-                }
-                
-                self.amountText = value ? self.cardViewModel.getFiat(for: self.amountToSend)?
-                    .rounded(blockchain: wallet.blockchain).description ?? ""
+                self.amountText = value ? self.cardViewModel.getFiat(for: self.amountToSend)?.description
+                    ?? ""
                     : self.amountToSend.value.description
         }
         .store(in: &bag)
