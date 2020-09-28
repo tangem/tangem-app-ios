@@ -50,51 +50,50 @@ struct DetailsView: View {
         VStack {
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
-                    VStack(spacing: 24.0) {
+                    VStack(spacing: 8.0) {
                         if self.viewModel.cardViewModel.image != nil {
                             Image(uiImage: self.viewModel.cardViewModel.image!)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
+                                .padding(.bottom, 16.0)
                         }
- 
-                        VStack(spacing: 8.0) {
-                            if self.viewModel.cardViewModel.isWalletLoading {
-                                ActivityIndicatorView(isAnimating: true, style: .medium)
-                                    .padding(.bottom, 16.0)
-                            } else {
-                                
-                                if !self.viewModel.cardCanSign {
-                                    AlertCardView(title: "common_warning".localized,
-                                                  message: "alert_old_card".localized)
-                                        .padding(.horizontal, 16.0)
-                                }
-                                
-                                if self.viewModel.cardViewModel.wallet != nil {
-                                    
-                                    ForEach(self.pendingTransactionViews) { $0 }
-                                    
-                                    if self.viewModel.cardViewModel.noAccountMessage != nil {
-                                        ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
-                                    } else {
-                                        if self.viewModel.cardViewModel.balanceViewModel != nil {
-                                        BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
-                                        }
-                                    }
-                                    AddressDetailView(showCreatePayID: self.$viewModel.showCreatePayID)
-                                        .environmentObject(self.viewModel.cardViewModel)
-                                } else {
-                                    if !self.viewModel.cardViewModel.isCardSupported  {
-                                        ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
-                                    } else {
-                                        ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
-                                    }
-                                }
-                                
-                                
+                        
+                        if self.viewModel.cardViewModel.isWalletLoading {
+                            ActivityIndicatorView(isAnimating: true, style: .medium)
+                                .padding(.bottom, 16.0)
+                        } else {
+                            
+                            if !self.viewModel.cardCanSign {
+                                AlertCardView(title: "common_warning".localized,
+                                              message: "alert_old_card".localized)
+                                    .padding(.horizontal, 16.0)
                             }
+                            
+                            if self.viewModel.cardViewModel.wallet != nil {
+                                
+                                ForEach(self.pendingTransactionViews) { $0 }
+                                
+                                if self.viewModel.cardViewModel.noAccountMessage != nil {
+                                    ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
+                                } else {
+                                    if self.viewModel.cardViewModel.balanceViewModel != nil {
+                                        BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
+                                            .layoutPriority(2)
+                                    }
+                                }
+                                AddressDetailView(showCreatePayID: self.$viewModel.showCreatePayID)
+                                    .environmentObject(self.viewModel.cardViewModel)
+                            } else {
+                                if !self.viewModel.cardViewModel.isCardSupported  {
+                                    ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
+                                } else {
+                                    ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
+                                }
+                            }
+                            
+                            
                         }
-                        //Spacer()
                     }
                 }
                 
