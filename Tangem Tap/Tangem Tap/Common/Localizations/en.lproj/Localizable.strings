@@ -151,6 +151,8 @@
 
 "common_button_title_save_changes" = "Save changes";
 
+"common_continue" = "Continue";
+
 "common_warning" = "Warning";
 
 "common_camera_denied_alert_title" = "Camera access denied";
