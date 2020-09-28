@@ -60,7 +60,7 @@ struct DetailsView: View {
                         }
                         
                         if self.viewModel.cardViewModel.isWalletLoading {
-                            ActivityIndicatorView(isAnimating: true, style: .medium)
+                            ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark6)
                                 .padding(.bottom, 16.0)
                         } else {
                             
