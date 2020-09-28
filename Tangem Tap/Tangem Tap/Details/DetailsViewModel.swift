@@ -83,7 +83,9 @@ class DetailsViewModel: ObservableObject {
             return []
         }
         
-        return wallet.transactions.filter { $0.destinationAddress == wallet.address && $0.status == .unconfirmed}
+        return wallet.transactions.filter { $0.destinationAddress == wallet.address
+            && $0.status == .unconfirmed
+            && $0.sourceAddress != "unknown" }
     }
     
     var outgoingTransactions: [BlockchainSdk.Transaction] {
@@ -91,9 +93,13 @@ class DetailsViewModel: ObservableObject {
             return []
         }
         
-        return wallet.transactions.filter { $0.sourceAddress == wallet.address && $0.status == .unconfirmed }
+        return wallet.transactions.filter { $0.sourceAddress == wallet.address
+            && $0.status == .unconfirmed
+            && $0.destinationAddress != "unknown"
+        }
     }
     
+    private var updateTimer: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
     
     init(cid: String, sdkService: TangemSdkService) {
@@ -124,6 +130,21 @@ class DetailsViewModel: ObservableObject {
                 self?.objectWillChange.send()
         }
         .store(in: &bag)
+        
+        cardViewModel
+            .walletManager?
+            .$wallet
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] wallet in
+                if wallet.hasPendingTx {
+                    if self.updateTimer == nil {
+                        self.startUpdatingTimer()
+                    }
+                } else {
+                    self.updateTimer = nil
+                }
+        }
+        .store(in: &bag)               
     }
     
     
@@ -174,5 +195,16 @@ class DetailsViewModel: ObservableObject {
     
     func onAppear() {
          showUntrustedDisclaimerIfNeeded()
-    }    
+    }
+    
+    func startUpdatingTimer() {
+        updateTimer = Timer.TimerPublisher(interval: 10.0,
+                                           tolerance: 0.1,
+                                           runLoop: .main,
+                                           mode: .common)
+            .autoconnect()
+            .sink() {[weak self] _ in
+                self?.cardViewModel.update(silent: true)
+        }
+    }
 }
