@@ -13,6 +13,26 @@ import TangemSdk
 struct BalanceView: View {
     var balanceViewModel: BalanceViewModel
     
+    var blockchainText: String {
+        if balanceViewModel.loadingError != nil {
+            return "balanceView_blockchain_unreachable".localized
+        }
+        
+        if balanceViewModel.hasTransactionInProgress {
+            return  "pendingTxView_unknown".localized
+        }
+        
+        return "balanceView_blockchain_verified".localized
+    }
+    
+    
+    var accentColor: Color {
+        if balanceViewModel.loadingError == nil && !balanceViewModel.hasTransactionInProgress {
+            return .tangemTapGreen
+        }
+        return .tangemTapWarning
+    }
+    
     var body: some View {
         VStack(spacing: 8.0) {
             VStack {
@@ -45,26 +65,23 @@ struct BalanceView: View {
             }
             .padding(.top, 16.0)
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                Image(balanceViewModel.loadingError == nil  ? "checkmark.circle" : "exclamationmark.circle" )
+                Image(balanceViewModel.loadingError == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundColor(balanceViewModel.loadingError == nil  ? Color.tangemTapGreen :
-                        Color.tangemTapWarning)
+                    .foregroundColor(accentColor)
                     .frame(width: 10.0, height: 10.0)
                     //.offset(x: 1)
                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                 VStack(alignment: .leading) {
-                    Text(balanceViewModel.loadingError == nil ? "balanceView_blockchain_verified" : "balanceView_blockchain_unreachable")
+                    Text(blockchainText)
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                        .foregroundColor(balanceViewModel.loadingError == nil ? Color.tangemTapGreen :
-                            Color.tangemTapWarning)
+                        .foregroundColor(accentColor)
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
                     if balanceViewModel.loadingError != nil {
                         Text(balanceViewModel.loadingError!)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                            .foregroundColor(balanceViewModel.loadingError == nil ? Color.tangemTapGreen :
-                                Color.tangemTapWarning)
+                            .foregroundColor(accentColor)
                             .frame(idealHeight: .infinity)
                         
                     }
@@ -122,37 +139,37 @@ struct BalanceView_Previews: PreviewProvider {
             ZStack {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
-                                                               // dataLoaded: true,
-                    loadingError: nil,
-                    name: "Bitcoin",
-                    fiatBalance: "$3.45",
-                    balance: "0.00000348573986753845001 BTC",
-                    secondaryBalance: "", secondaryFiatBalance: "",
-                    secondaryName: ""))
+                                                               hasTransactionInProgress: false,
+                                                               loadingError: nil,
+                                                               name: "Bitcoin",
+                                                               fiatBalance: "$3.45",
+                                                               balance: "0.00000348573986753845001 BTC",
+                                                               secondaryBalance: "", secondaryFiatBalance: "",
+                                                               secondaryName: ""))
             }
             ZStack {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
-                                                               // dataLoaded: false,
-                    loadingError: "The internet connection appears to be offline",
-                    name: "Bitcoin token",
-                    fiatBalance: " ",
-                    balance: "-",
-                    secondaryBalance: "-",
-                    secondaryFiatBalance: " ",
-                    secondaryName: "Bitcoin"))
+                                                               hasTransactionInProgress: false,
+                                                               loadingError: "The internet connection appears to be offline",
+                                                               name: "Bitcoin token",
+                                                               fiatBalance: " ",
+                                                               balance: "-",
+                                                               secondaryBalance: "-",
+                                                               secondaryFiatBalance: " ",
+                                                               secondaryName: "Bitcoin"))
             }
             ZStack {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
-                                                               // dataLoaded: true,
-                    loadingError: "Something went wrong",
-                    name: "Bitcoin token",
-                    fiatBalance: "5 USD",
-                    balance: "10 BTCA",
-                    secondaryBalance: "19 BTC",
-                    secondaryFiatBalance: "10 USD",
-                    secondaryName: "Bitcoin"))
+                                                               hasTransactionInProgress: true,
+                                                               loadingError: nil,
+                                                               name: "Bitcoin token",
+                                                               fiatBalance: "5 USD",
+                                                               balance: "10 BTCA",
+                                                               secondaryBalance: "19 BTC",
+                                                               secondaryFiatBalance: "10 USD",
+                                                               secondaryName: "Bitcoin"))
             }
         }
     }
