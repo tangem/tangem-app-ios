@@ -17,7 +17,7 @@ struct TangemButton: View {
     
     var body: some View {
         Button(action: {
-            if !isLoading {
+            if !self.isLoading {
                 self.action()
             }
         }, label:  {
