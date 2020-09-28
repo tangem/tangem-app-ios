@@ -36,7 +36,7 @@ struct ReadView: View {
         }
     }
     
-    var greenButtonTitleKey: String {
+    var greenButtonTitleKey: LocalizedStringKey {
         switch viewModel.state {
         case .read, .ready:
             return "read_button_tapin"
@@ -47,7 +47,7 @@ struct ReadView: View {
         }
     }
     
-    var blackButtonTitleKey: String {
+    var blackButtonTitleKey: LocalizedStringKey {
         switch viewModel.state {
         case .welcomeBack:
             return "read_button_shop"
@@ -56,7 +56,7 @@ struct ReadView: View {
         }
     }
     
-    var titleKey: String {
+    var titleKey: LocalizedStringKey {
         switch viewModel.state {
         case .welcomeBack:
             return "read_welcome_back_title"
@@ -65,7 +65,7 @@ struct ReadView: View {
         }
     }
     
-    var subTitleKey: String {
+    var subTitleKey: LocalizedStringKey {
         switch viewModel.state {
         case .welcome:
             return "read_welcome_subtitle"
@@ -94,11 +94,11 @@ struct ReadView: View {
                 Spacer()
                 VStack(alignment: .leading, spacing: 8.0) {
                     if viewModel.state == .welcome || viewModel.state == .welcomeBack {
-                        Text(titleKey.localized)
+                        Text(titleKey)
                             .font(Font.system(size: 29.0, weight: .light, design: .default))
                             .foregroundColor(Color.tangemTapGrayDark6)
                     }
-                    Text(subTitleKey.localized)
+                    Text(subTitleKey)
                         .font(Font.system(size: 29.0, weight: .light, design: .default))
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .fixedSize(horizontal: false, vertical: true)
@@ -108,7 +108,7 @@ struct ReadView: View {
                             Button(action: {
                                 self.viewModel.openShop()
                             }) { HStack(alignment: .center) {
-                                Text(blackButtonTitleKey.localized)
+                                Text(blackButtonTitleKey)
                                 Spacer()
                                 Image("shopBag")
                             }
@@ -117,25 +117,19 @@ struct ReadView: View {
                             .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
                             .transition(.offset(x: -200.0, y: 0.0))
                         }
-                        Button(action: {
-                            withAnimation {
-                                self.viewModel.nextState()
-                            }
-                            switch self.viewModel.state {
-                            case .read, .welcomeBack:
-                                self.viewModel.scan()
-                            default:
-                                break
-                            }
-                        }) {
-                            HStack(alignment: .center) {
-                                Text(greenButtonTitleKey.localized)
-                                Spacer()
-                                Image("arrow.right")
-                            }
-                            .padding(.horizontal)
-                        }
-                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                        TangemButton(isLoading: self.viewModel.isLoading,
+                                     title: greenButtonTitleKey,
+                                     image: "arrow.right") {
+                                        withAnimation {
+                                            self.viewModel.nextState()
+                                        }
+                                        switch self.viewModel.state {
+                                        case .read, .welcomeBack:
+                                            self.viewModel.scan()
+                                        default:
+                                            break
+                                        }
+                        }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
                         Spacer()
                     }
                     .padding(.top, 16.0)

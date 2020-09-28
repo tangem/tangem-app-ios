@@ -16,19 +16,19 @@ class AlertManager {
         case untrustedCard
         case devCard
         
-        private var alertMessage: String {
+        private var alertMessage: LocalizedStringKey {
             switch self {
             case .oldDeviceOldCard:
-                return "alert_old_device_this_card".localized
+                return "alert_old_device_this_card"
             case .untrustedCard:
-                return "alert_loaded_wallet_warning_card_signed_transactions".localized
+                return "alert_loaded_wallet_warning_card_signed_transactions"
             case .devCard:
-                return "alert_developer_card".localized
+                return "alert_developer_card"
             }
         }
         
         fileprivate var alert: Alert {
-            return Alert(title: Text("common_warning".localized),
+            return Alert(title: Text("common_warning"),
                          message: Text(alertMessage),
                          dismissButton: Alert.Button.default(Text("common_ok")))
         }
