@@ -10,12 +10,14 @@ import Foundation
 import SwiftUI
 
 
-struct PendingTxView: View {
+struct PendingTxView: View, Identifiable {
+    
     enum State {
         case incoming
         case outgoing
     }
     
+    var id = UUID()
     var txState: State
     var amount: String
     var address: String
@@ -31,7 +33,7 @@ struct PendingTxView: View {
     
     var text: String {
         if address == "unknown" {
-            return  "pendingTxView_unknown".localized
+            return "pendingTxView_unknown".localized
         } else {
             return String(format: NSLocalizedString(titleFormatKey, comment: ""), amount, AddressFormatter(address: address).truncated())
         }
