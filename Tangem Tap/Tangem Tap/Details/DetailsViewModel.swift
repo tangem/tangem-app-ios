@@ -30,6 +30,8 @@ class DetailsViewModel: ObservableObject {
     
     //Mark: Output
     @Published var error: AlertBinder?
+    @Published var isScanning: Bool = false
+    @Published var isCreatingWallet: Bool = false
     
     public var canCreateWallet: Bool {
         return cardViewModel.wallet == nil && cardViewModel.isCardSupported
@@ -149,6 +151,7 @@ class DetailsViewModel: ObservableObject {
     
     
     func scan() {
+        self.isScanning = true
         sdkService.scan { [weak self] scanResult in
             switch scanResult {
             case .success(let cardViewModel):
@@ -159,10 +162,12 @@ class DetailsViewModel: ObservableObject {
                     self?.error = error.alertBinder
                 }
             }
+              self?.isScanning = false
         }
     }
     
     func createWallet() {
+        self.isCreatingWallet = true
         sdkService.createWallet(card: cardViewModel.card) { [weak self] result in
             switch result {
             case .success(let cardViewModel):
@@ -173,6 +178,7 @@ class DetailsViewModel: ObservableObject {
                 }
                 self?.error = error.alertBinder
             }
+            self?.isCreatingWallet = false
         }
     }
     
