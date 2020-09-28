@@ -80,10 +80,10 @@ struct BalanceView: View {
                         .lineLimit(1)
                     if balanceViewModel.loadingError != nil {
                         Text(balanceViewModel.loadingError!)
+                            .layoutPriority(1)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(accentColor)
-                            .frame(idealHeight: .infinity)
-                        
+                            
                     }
                 }
                 Spacer()
