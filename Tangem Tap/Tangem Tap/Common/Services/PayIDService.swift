@@ -136,7 +136,7 @@ class PayIDService {
     }
     
     let network: PayIdNetwork
-    let payIdProvider = MoyaProvider<PayIdTarget>(plugins: [NetworkLoggerPlugin()])
+    let payIdProvider = MoyaProvider<PayIdTarget>(/*plugins: [NetworkLoggerPlugin()]*/)
     
     
     static func make(from blockchain: Blockchain) -> PayIDService? {
