@@ -32,33 +32,33 @@ struct CreatePayIdView: View {
             }
             .padding(.top, 22.0)
             .padding(.bottom, 44.0)
-                HStack(alignment: .firstBaselineCustom, spacing: 0.0){
-                    VStack(alignment: .leading) {
-                        CustomTextField(
-                            text: $payIdText, //First responder custom shit
-                            isResponder:  $isFirstResponder,
-                            actionButtonTapped: Binding.constant(true),
-                            placeholder: NSLocalizedString("create_payid_placeholder", comment: ""))
-                            //                        TextField("create_payid_placeholder", text: $payIdText)
-                            //                            .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                            // .foregroundColor(Color("tangem_tap_gray_dark"))
-                            .alignmentGuide(.firstBaselineCustom) { d in
-                                d[.bottom] / 2 } //First responder custom shit
-                            //   .disableAutocorrectiontrue)
-                            .onAppear {
-                                self.isFirstResponder = true
-                                                       }
-                        Color.tangemTapGrayLight5
-                            .frame(width: 180, height: 1.0, alignment: .center)
-                    }
-                    
-                    Text("create_payid_domain")
-                        .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                        .foregroundColor(Color.tangemTapGrayDark4)
+            HStack(alignment: .firstBaselineCustom, spacing: 0.0){
+                VStack(alignment: .leading) {
+                    CustomTextField(
+                        text: $payIdText, //First responder custom shit
+                        isResponder:  $isFirstResponder,
+                        actionButtonTapped: Binding.constant(true),
+                        placeholder: NSLocalizedString("create_payid_placeholder", comment: ""))
+                        //                        TextField("create_payid_placeholder", text: $payIdText)
+                        //                            .font(Font.system(size: 16.0, weight: .regular, design: .default))
+                        // .foregroundColor(Color("tangem_tap_gray_dark"))
                         .alignmentGuide(.firstBaselineCustom) { d in
-                            d[.bottom] / 2 + 0.35 } //First responder custom shit
-                        .padding(.trailing)
+                            d[.bottom] / 2 } //First responder custom shit
+                        //   .disableAutocorrectiontrue)
+                        .onAppear {
+                            self.isFirstResponder = true
+                    }
+                    Color.tangemTapGrayLight5
+                        .frame(width: 180, height: 1.0, alignment: .center)
                 }
+                
+                Text("create_payid_domain")
+                    .font(Font.system(size: 16.0, weight: .regular, design: .default))
+                    .foregroundColor(Color.tangemTapGrayDark4)
+                    .alignmentGuide(.firstBaselineCustom) { d in
+                        d[.bottom] / 2 + 0.35 } //First responder custom shit
+                    .padding(.trailing)
+            }
             Spacer()
             HStack {
                 Text("create_payid_info")
@@ -71,7 +71,7 @@ struct CreatePayIdView: View {
             }
             .padding(.bottom, 32.0)
             .fixedSize(horizontal: false, vertical: true)
-            Button(action: {
+            TangemButton(isLoading: self.isLoading, title: "create_payid_button_title", image: "arrow.right") {
                 if self.isLoading {
                     return
                 }
@@ -87,23 +87,9 @@ struct CreatePayIdView: View {
                         self.showAlert = true
                     }
                 }
-                
-                }
-            ) {
-                if self.isLoading {
-                    ActivityIndicatorView(isAnimating: true, style: .large)
-                } else {
-                    HStack(alignment: .center, spacing: 16.0) {
-                        Text("create_payid_button_title")
-                        Spacer()
-                        Image("arrow.right")
-                    }
-                        .padding(.horizontal)
-                    }
-            }
-            .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: payIdText.isEmpty))
-            .padding(.bottom)
-            .disabled(payIdText.isEmpty)
+            }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: payIdText.isEmpty))
+                .padding(.bottom)
+                .disabled(payIdText.isEmpty)
         }
         .padding(.horizontal)
         .keyboardAdaptive()
@@ -112,10 +98,10 @@ struct CreatePayIdView: View {
                 return error.alert
             } else {
                 return Alert(title: Text("common_success"),
-                      message: Text("create_payid_success_message"),
-                      dismissButton: Alert.Button.default(Text("common_ok"), action: {
-                            self.presentationMode.wrappedValue.dismiss()
-                      }))
+                             message: Text("create_payid_success_message"),
+                             dismissButton: Alert.Button.default(Text("common_ok"), action: {
+                                self.presentationMode.wrappedValue.dismiss()
+                             }))
             }
         }
     }
@@ -126,6 +112,6 @@ struct CreatePayIdView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel(card: Card.testCard)
     static var previews: some View {
         CreatePayIdView(cardId: "CB23 4344 5455 6544")
-        .environmentObject(cardViewModel)
+            .environmentObject(cardViewModel)
     }
 }
