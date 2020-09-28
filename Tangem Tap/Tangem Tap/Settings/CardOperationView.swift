@@ -59,7 +59,7 @@ struct CardOperationView: View {
                                                isDisabled: false))
                     .alert(item: self.$error) { $0.alert }
             }
-            .padding(.horizontal, 36.0)
+            .padding(.horizontal, 16.0)
             .padding(.bottom, 16.0)
         }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
