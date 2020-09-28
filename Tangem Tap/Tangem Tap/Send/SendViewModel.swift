@@ -421,7 +421,6 @@ class SendViewModel: ObservableObject {
                     self.sendError = error.detailedError.alertBinder
                 } else {
                     callback()
-                    self.cardViewModel.onTransactionSend()
                 }
               
                 }, receiveValue: {[unowned self] signResponse in
