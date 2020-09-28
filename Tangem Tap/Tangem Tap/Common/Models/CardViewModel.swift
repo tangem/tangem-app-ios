@@ -10,6 +10,9 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import Combine
+import Alamofire
+import  SwiftUI
+
 
 class CardViewModel: Identifiable, ObservableObject {
     @Published var card: Card
@@ -54,7 +57,8 @@ class CardViewModel: Identifiable, ObservableObject {
             self.payIDService = PayIDService.make(from: walletManager.wallet.blockchain)
             self.balanceViewModel = self.makeBalanceViewModel(from: walletManager.wallet)
             walletManager.$wallet
-                .receive(on: RunLoop.main)
+                .subscribe(on: DispatchQueue.global())
+                .receive(on: DispatchQueue.main)
                 .sink(receiveValue: {[unowned self] wallet in
                     print("wallet received")
                     self.wallet = wallet
@@ -186,18 +190,23 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadImage() {
-        guard image == nil, let cid = card.cardId else {
+        guard image == nil, let cid = card.cardId?.lowercased() else {
             return
         }
         
-        if cid.lowercased().starts(with: "bc") {
-            self.image =  UIImage(named: "card_bc00")
+        if cid.starts(with: "bc01") { //Sergio
+            backedLoadImage(name: "card_tg059")
+            return
+        }
+        
+        if cid.starts(with: "bc02") { //Marta
+            backedLoadImage(name: "card_tg083")
             return
         }
         
         guard let artworkId = verifyCardResponse?.artworkInfo?.id,
             let cardPublicKey = card.cardPublicKey else {
-                self.image =  UIImage(named: "card-default")
+                backedLoadImage(name: "card_default")
                 return
         }
         
@@ -209,11 +218,31 @@ class CardViewModel: Identifiable, ObservableObject {
                         self?.image = img
                     }
                 case .failure(let error):
+                    print(error)
                     //[REDACTED_TODO_COMMENT]
                     break
                 }
             }
         }
+    }
+    
+    func backedLoadImage(name: String) {
+        let configuration = URLSessionConfiguration.default
+        configuration.requestCachePolicy = .returnCacheDataElseLoad
+        let session = URLSession(configuration: configuration)
+        session
+            .dataTaskPublisher(for: URL(string: "https://app.tangem.com/cards/\(name).png")!)
+            .subscribe(on: DispatchQueue.global())
+            .map { data, response -> UIImage? in
+                return UIImage(data: data)
+        }
+        .catch{ error -> AnyPublisher<UIImage?, Never> in
+            print(error)
+            return Just(nil).eraseToAnyPublisher()
+        }
+        .receive(on: DispatchQueue.main)
+        .assign(to: \.image, on: self)
+        .store(in: &bag)
     }
     
     func hasRates(for amount: Amount) -> Bool {
