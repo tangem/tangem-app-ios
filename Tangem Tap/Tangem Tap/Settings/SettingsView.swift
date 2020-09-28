@@ -83,6 +83,7 @@ struct SettingsView: View {
                     .environmentObject(viewModel.sdkService)) {
                         DetailsRowView(title: "settings_row_title_manage_security".localized, subtitle: viewModel.cardViewModel.selectedSecOption.title)
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                    .disabled(!viewModel.canManageSecurity)
                 
                 NavigationLink(destination: CardOperationView(title: "settings_row_title_erase_wallet".localized,
                                                               alert: "cardOperation_erase_wallet".localized,
