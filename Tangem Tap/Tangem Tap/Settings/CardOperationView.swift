@@ -16,6 +16,7 @@ struct CardOperationView: View {
     var actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
     @Environment(\.presentationMode) var presentationMode
     @State var error: AlertBinder?
+    @State var isLoading: Bool = false
     
     var body: some View {
         VStack(spacing: 24.0) {
@@ -34,29 +35,27 @@ struct CardOperationView: View {
             Spacer()
             HStack(alignment: .center, spacing: 8.0) {
                 Spacer()
-                Button(action: {
-                    self.actionButtonPressed {result in
-                        switch result {
-                        case .success:
-                            self.presentationMode.wrappedValue.dismiss()
-                        case .failure(let error):
-                            if case .userCancelled = error.toTangemSdkError() {
-                                return
-                            }
-                            
-                            self.error = error.alertBinder
-                        }
-                        
-                    }
-                }) { HStack(alignment: .center, spacing: 16.0) {
-                    Text("common_button_title_save_changes")
-                    Spacer()
-                    Image("save")
-                }.padding(.horizontal)
-                }
-                .buttonStyle(TangemButtonStyle(size: .big,
-                                               colorStyle: .black,
-                                               isDisabled: false))
+                TangemButton(isLoading: self.isLoading,
+                             title: "common_button_title_save_changes",
+                             image: "save") {
+                                self.isLoading = true
+                                self.actionButtonPressed {result in
+                                    self.isLoading = false
+                                    switch result {
+                                    case .success:
+                                        self.presentationMode.wrappedValue.dismiss()
+                                    case .failure(let error):
+                                        if case .userCancelled = error.toTangemSdkError() {
+                                            return
+                                        }
+                                        
+                                        self.error = error.alertBinder
+                                    }
+                                    
+                                }
+                }.buttonStyle(TangemButtonStyle(size: .big,
+                                                colorStyle: .black,
+                                                isDisabled: false))
                     .alert(item: self.$error) { $0.alert }
             }
             .padding(.horizontal, 16.0)
