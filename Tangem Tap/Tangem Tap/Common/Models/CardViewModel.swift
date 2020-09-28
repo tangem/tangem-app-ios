@@ -38,7 +38,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var wallet: Wallet? = nil
     @Published var image: UIImage? = nil
     @Published var selectedCurrency: String = ""
-    @Published private(set) var selectedSecOption: SecurityManagementOption = .longTap
+    @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
@@ -68,12 +68,12 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func updateCurrentSecOption() {
         if !(card.isPin1Default ?? true) {
-            self.selectedSecOption = .accessCode
+            self.currentSecOption = .accessCode
         } else if !(card.isPin2Default ?? true) {
-            self.selectedSecOption = .passCode
+            self.currentSecOption = .passCode
         }
         else {
-            self.selectedSecOption = .longTap
+            self.currentSecOption = .longTap
         }
     }
     

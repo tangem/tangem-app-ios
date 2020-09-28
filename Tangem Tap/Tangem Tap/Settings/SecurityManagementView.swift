@@ -42,7 +42,8 @@ enum SecurityManagementOption: CaseIterable, Identifiable {
 }
 
 struct SecurityManagementRowView: View {
-    var option: SecurityManagementOption
+    @Binding var selectedOption: SecurityManagementOption
+    let option: SecurityManagementOption
     
     @EnvironmentObject var cardViewModel: CardViewModel
     @EnvironmentObject var sdkService: TangemSdkService
@@ -58,7 +59,7 @@ struct SecurityManagementRowView: View {
         }
     }
     
-    var isSelected: Bool { cardViewModel.selectedSecOption == option }
+    var isSelected: Bool { selectedOption == option }
     
     var body: some View {
         VStack (alignment: .leading, spacing: 0) {
@@ -80,27 +81,79 @@ struct SecurityManagementRowView: View {
                 .padding([.top, .leading, .trailing], 8.0)
                 .padding(.bottom, 26.0)
                 .opacity(isEnabled ? 1.0 : 0.5)
-            
-            
-            NavigationLink(destination: CardOperationView(title: option.title,
-                                                          alert: "cardOperation_security_management".localized,
-                                                          actionButtonPressed: { completion in
-                                                            self.sdkService.changeSecOption(self.option,
-                                                                                            card: self.cardViewModel.card,
-                                                                                            completion: completion) }))
-            { EmptyView() }
-                .disabled(!isEnabled || isSelected)
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if self.isEnabled {
+                self.selectedOption = self.option
+            }
+        }
+        .overlay(isEnabled ? Color.clear : Color.white.opacity(0.4))
     }
 }
 
 
 struct SecurityManagementView: View {
+    @State private(set) var error: AlertBinder?
+    @State private(set) var selectedOption: SecurityManagementOption
+    @State private(set) var openWarning: Bool = false
+    
+    @EnvironmentObject var cardViewModel: CardViewModel
+    @EnvironmentObject var sdkService: TangemSdkService
+    
     var body: some View {
-        List(SecurityManagementOption.allCases) { option in
-            SecurityManagementRowView(option: option)
+        VStack {
+            List(SecurityManagementOption.allCases) { option in
+                SecurityManagementRowView(selectedOption: self.$selectedOption, option: option)
+            }
+            .listStyle(PlainListStyle())
+            
+            HStack(alignment: .center, spacing: 8.0) {
+                Spacer()
+                Button(action: {
+                    switch self.selectedOption {
+                    case .accessCode, .passCode:
+                        self.openWarning = true
+                    case .longTap:
+                        self.sdkService.changeSecOption(.longTap,
+                                                        card: self.cardViewModel.card) { result in
+                                                            switch result {
+                                                            case .success:
+                                                                break
+                                                            case .failure(let error):
+                                                                self.error = error.alertBinder
+                                                            }
+                        }
+                    }
+                }) { HStack(alignment: .center, spacing: 16.0) {
+                    Text(selectedOption == .longTap ? "common_button_title_save_changes" : "common_continue")
+                    Spacer()
+                    Image("save")
+                }.padding(.horizontal)
+                }
+                .buttonStyle(TangemButtonStyle(size: .big,
+                                               colorStyle: .black,
+                                               isDisabled: selectedOption == cardViewModel.currentSecOption))
+                    .alert(item: self.$error) { $0.alert }
+                    .disabled(selectedOption == cardViewModel.currentSecOption)
+            }
+            .padding(.horizontal, 16.0)
+            .padding(.bottom, 16.0)
+            
+            if openWarning {
+                NavigationLink(destination: CardOperationView(title: selectedOption.title,
+                                                              alert: "cardOperation_security_management".localized,
+                                                              actionButtonPressed: { completion in
+                                                                self.sdkService.changeSecOption(self.selectedOption,
+                                                                                                card: self.cardViewModel.card,
+                                                                                                completion: completion) }),
+                               isActive: $openWarning)
+                {
+                    EmptyView()
+                    
+                }
+            }
         }
-        .listStyle(PlainListStyle())
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("manage_security_title", displayMode: .inline)
     }
@@ -120,7 +173,7 @@ struct SecurityManagementView_Previews: PreviewProvider {
     }()
     
     static var previews: some View {
-        SecurityManagementView()
+        SecurityManagementView(selectedOption: .longTap)
             .environmentObject(cardWallet)
             .environmentObject(sdkService)
     }
