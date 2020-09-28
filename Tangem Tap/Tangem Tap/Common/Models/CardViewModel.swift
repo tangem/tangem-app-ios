@@ -43,7 +43,6 @@ class CardViewModel: Identifiable, ObservableObject {
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
     
-    private var updateTimer: AnyCancellable? = nil
     private var bag =  Set<AnyCancellable>()
     
     init(card: Card, verifyCardResponse: VerifyCardResponse? = nil) {
@@ -149,10 +148,6 @@ class CardViewModel: Identifiable, ObservableObject {
                         self.loadRates()
                     }
                     self.isWalletLoading = false
-                    
-                    if !(self.wallet?.hasPendingTx ?? false) {
-                        self.updateTimer = nil
-                    }
                 }
             }
         } else {
@@ -266,6 +261,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         if let token = wallet.token {
             return BalanceViewModel(isToken: true,
+                                    hasTransactionInProgress: self.wallet?.hasPendingTx ?? false,
                                     loadingError: self.loadingError?.localizedDescription,
                                     name: token.displayName,
                                     fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? " ",
@@ -275,6 +271,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                     secondaryName: wallet.blockchain.displayName )
         } else {
             return BalanceViewModel(isToken: false,
+                                    hasTransactionInProgress: self.wallet?.hasPendingTx ?? false,
                                     loadingError: self.loadingError?.localizedDescription,
                                     name:  wallet.blockchain.displayName,
                                     fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
@@ -282,17 +279,6 @@ class CardViewModel: Identifiable, ObservableObject {
                                     secondaryBalance: "-",
                                     secondaryFiatBalance: " ",
                                     secondaryName: "-")
-        }
-    }
-    
-    func onTransactionSend() {
-        updateTimer = Timer.TimerPublisher(interval: 10.0,
-                                           tolerance: 0.1,
-                                           runLoop: .main,
-                                           mode: .common)
-            .autoconnect()
-            .sink() {[unowned self] _ in
-                self.update(silent: true)
         }
     }
 }
@@ -308,7 +294,7 @@ enum WalletState {
 
 struct BalanceViewModel {
     let isToken: Bool
-    //let dataLoaded: Bool
+    let hasTransactionInProgress: Bool
     let loadingError: String?
     let name: String
     let fiatBalance: String
