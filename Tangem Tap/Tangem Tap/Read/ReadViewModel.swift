@@ -21,7 +21,7 @@ class ReadViewModel: ObservableObject {
     var sdkService: TangemSdkService
     @Published var openDetails: Bool = false
     @Published var state: State = .welcome
-    
+    @Published var isLoading: Bool = false
     @Published var scanError: AlertBinder?
     
     @Storage("tangem_tap_first_time_scan", defaultValue: true)
@@ -48,6 +48,7 @@ class ReadViewModel: ObservableObject {
     }
     
     func scan() {
+        self.isLoading = true
         sdkService.scan { [weak self] scanResult in
             switch scanResult {
             case .success:
@@ -58,6 +59,7 @@ class ReadViewModel: ObservableObject {
                     self?.scanError = error.alertBinder
                 }
             }
+             self?.isLoading = false
         }
     }
 }
