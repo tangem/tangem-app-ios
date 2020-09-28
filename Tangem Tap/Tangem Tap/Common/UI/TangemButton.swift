@@ -17,7 +17,9 @@ struct TangemButton: View {
     
     var body: some View {
         Button(action: {
-            self.action()
+            if !isLoading {
+                self.action()
+            }
         }, label:  {
             if isLoading {
                 ActivityIndicatorView()
