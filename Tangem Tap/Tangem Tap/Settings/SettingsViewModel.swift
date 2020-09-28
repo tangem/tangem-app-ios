@@ -20,6 +20,11 @@ class SettingsViewModel: ObservableObject {
     }
     @Published var canPurgeWallet: Bool = false
     
+    var canManageSecurity: Bool {
+        cardViewModel.card.isPin1Default != nil &&
+        cardViewModel.card.isPin2Default != nil
+    }
+    
     private var bag = Set<AnyCancellable>()
     
     init(cardViewModel: Binding<CardViewModel>, sdkSerice: Binding<TangemSdkService>) {
