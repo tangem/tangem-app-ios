@@ -78,10 +78,10 @@ struct SettingsView: View {
                 //                    DetailsRowView(title: "settings_row_title_validate".localized, subtitle: "")
                 //                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                NavigationLink(destination:SecurityManagementView()
+                NavigationLink(destination:SecurityManagementView(selectedOption: viewModel.cardViewModel.currentSecOption)
                     .environmentObject(viewModel.cardViewModel)
                     .environmentObject(viewModel.sdkService)) {
-                        DetailsRowView(title: "settings_row_title_manage_security".localized, subtitle: viewModel.cardViewModel.selectedSecOption.title)
+                        DetailsRowView(title: "settings_row_title_manage_security".localized, subtitle: viewModel.cardViewModel.currentSecOption.title)
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                     .disabled(!viewModel.canManageSecurity)
                 
