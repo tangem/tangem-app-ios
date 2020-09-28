@@ -97,6 +97,7 @@ struct SecurityManagementView: View {
     @State private(set) var error: AlertBinder?
     @State private(set) var selectedOption: SecurityManagementOption
     @State private(set) var openWarning: Bool = false
+    @State private(set) var isLoading: Bool = false
     
     @EnvironmentObject var cardViewModel: CardViewModel
     @EnvironmentObject var sdkService: TangemSdkService
@@ -110,30 +111,28 @@ struct SecurityManagementView: View {
             
             HStack(alignment: .center, spacing: 8.0) {
                 Spacer()
-                Button(action: {
-                    switch self.selectedOption {
-                    case .accessCode, .passCode:
-                        self.openWarning = true
-                    case .longTap:
-                        self.sdkService.changeSecOption(.longTap,
-                                                        card: self.cardViewModel.card) { result in
-                                                            switch result {
-                                                            case .success:
-                                                                break
-                                                            case .failure(let error):
-                                                                self.error = error.alertBinder
-                                                            }
-                        }
-                    }
-                }) { HStack(alignment: .center, spacing: 16.0) {
-                    Text(selectedOption == .longTap ? "common_button_title_save_changes" : "common_continue")
-                    Spacer()
-                    Image("save")
-                }.padding(.horizontal)
-                }
-                .buttonStyle(TangemButtonStyle(size: .big,
-                                               colorStyle: .black,
-                                               isDisabled: selectedOption == cardViewModel.currentSecOption))
+                TangemButton(isLoading: self.isLoading,
+                             title: selectedOption == .longTap ? "common_button_title_save_changes" : "common_continue",
+                             image: "save") {
+                                switch self.selectedOption {
+                                case .accessCode, .passCode:
+                                    self.openWarning = true
+                                case .longTap:
+                                    self.isLoading = true
+                                    self.sdkService.changeSecOption(.longTap,
+                                                                    card: self.cardViewModel.card) { result in
+                                                                        self.isLoading = false
+                                                                        switch result {
+                                                                        case .success:
+                                                                            break
+                                                                        case .failure(let error):
+                                                                            self.error = error.alertBinder
+                                                                        }
+                                    }
+                                }
+                }.buttonStyle(TangemButtonStyle(size: .big,
+                                                colorStyle: .black,
+                                                isDisabled: selectedOption == cardViewModel.currentSecOption))
                     .alert(item: self.$error) { $0.alert }
                     .disabled(selectedOption == cardViewModel.currentSecOption)
             }
