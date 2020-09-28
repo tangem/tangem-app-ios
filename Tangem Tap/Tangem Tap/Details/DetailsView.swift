@@ -34,15 +34,16 @@ struct DetailsView: View {
         return buttons
     }
     
-    var pendingTransactionView: PendingTxView? {
-        if let incTx = self.viewModel.incomingTransactions.first {
-            return PendingTxView(txState: .incoming, amount: incTx.amount.description, address: incTx.sourceAddress)
+    var pendingTransactionViews: [PendingTxView] {
+        let incTx = self.viewModel.incomingTransactions.map {
+            return PendingTxView(txState: .incoming, amount: $0.amount.description, address: $0.sourceAddress)
         }
         
-        if let outgTx = self.viewModel.outgoingTransactions.first {
-            return PendingTxView(txState: .outgoing, amount: outgTx.amount.description, address: outgTx.destinationAddress)
+        let outgTx = self.viewModel.outgoingTransactions.map {
+            return PendingTxView(txState: .outgoing, amount: $0.amount.description, address: $0.destinationAddress)
         }
-        return nil
+        
+        return incTx + outgTx
     }
     
     var body: some View {
@@ -70,7 +71,8 @@ struct DetailsView: View {
                                 }
                                 
                                 if self.viewModel.cardViewModel.wallet != nil {
-                                    self.pendingTransactionView
+                                    
+                                    ForEach(self.pendingTransactionViews) { $0 }
                                     
                                     if self.viewModel.cardViewModel.noAccountMessage != nil {
                                         ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
