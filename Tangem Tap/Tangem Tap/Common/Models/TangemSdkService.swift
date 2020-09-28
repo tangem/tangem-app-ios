@@ -67,11 +67,12 @@ class TangemSdkService: ObservableObject {
         let vm = self.cards[card.cardId!]
         switch option {
         case .accessCode:
-            tangemSdk.changePin1(cardId: card.cardId) {result in
+             tangemSdk.startSession(with: SetPinCommand(pinType: .pin1, isExclusive: true), cardId: card.cardId) { result in
                 switch result {
                 case .success:
                     vm?.card.isPin1Default = false
-                       vm?.updateCurrentSecOption()
+                    vm?.card.isPin2Default = true
+                    vm?.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
                     completion(.failure(error))
@@ -90,8 +91,9 @@ class TangemSdkService: ObservableObject {
                 }
             }
         case .passCode:
-            tangemSdk.changePin2(cardId: card.cardId) {result in
+            tangemSdk.startSession(with: SetPinCommand(pinType: .pin2, isExclusive: true), cardId: card.cardId) { result in
                 vm?.card.isPin2Default = false
+                vm?.card.isPin1Default = true
                 vm?.updateCurrentSecOption()
                 switch result {
                 case .success:
