@@ -103,35 +103,23 @@ struct DetailsView: View {
                     .environmentObject(self.viewModel.cardViewModel)
             })
             HStack(alignment: .center, spacing: 8.0) {
-                Button(action: {
-                    withAnimation {
-                        self.viewModel.scan()
-                    }
-                }) {
-                    HStack(alignment: .center) {
-                        Text("details_button_scan")
-                        Spacer()
-                        Image("scan")
-                    }
-                    .padding(.horizontal)
-                }
-                .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                TangemButton(isLoading: self.viewModel.isScanning,
+                             title: "details_button_scan",
+                             image: "scan") {
+                                withAnimation {
+                                    self.viewModel.scan()
+                                }
+                }.buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
                 
                 if self.viewModel.cardViewModel.isCardSupported {
                     if self.viewModel.cardViewModel.wallet == nil {
-                        Button(action: {
-                            self.viewModel.createWallet()
-                        }) { HStack(alignment: .center, spacing: 16.0) {
-                            Text("details_button_create_wallet")
-                            Spacer()
-                            Image("arrow.right")
-                        }
-                        .padding(.horizontal)
-                        }
-                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canCreateWallet))
+                        TangemButton(isLoading: self.viewModel.isCreatingWallet,
+                                     title: "details_button_create_wallet",
+                                     image: "arrow.right") {
+                                         self.viewModel.createWallet()
+                        }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canCreateWallet))
                         .disabled(!self.viewModel.canCreateWallet)
                     } else {
-                        
                         Button(action: {
                             self.viewModel.sendTapped()
                         }) { HStack(alignment: .center, spacing: 16.0) {
