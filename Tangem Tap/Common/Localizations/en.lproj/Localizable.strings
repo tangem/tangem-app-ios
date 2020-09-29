@@ -196,3 +196,6 @@
 "initial_message_create_wallet_body" = "Tap to create wallet";
 "initial_message_change_access_code_body" = "Tap to change the access code";
 "initial_message_change_passcode_body" = "Tap to change the passcode";
+
+
+"payid_service_error_loading" = "Invalid PayID";
