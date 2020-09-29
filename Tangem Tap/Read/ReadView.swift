@@ -22,7 +22,7 @@ struct ReadView: View {
     
     var cardOffsetX: CGFloat {
         switch viewModel.state {
-        case .read: return 0
+        case .read: return 0.25*CircleView.diameter
         case .ready: return -UIScreen.main.bounds.width*1.8
         case .welcome, .welcomeBack: return -UIScreen.main.bounds.width/4.0
         }
@@ -30,9 +30,9 @@ struct ReadView: View {
     
     var cardOffsetY: CGFloat {
         switch viewModel.state {
-        case .read: return -240.0
-        case .ready: return -300.0
-        case .welcome, .welcomeBack: return 0.0
+        case .read: return -80.0
+        case .ready: return -200.0
+        case .welcome, .welcomeBack: return 0
         }
     }
     
@@ -78,62 +78,75 @@ struct ReadView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack(alignment: .center) {
+        ZStack {
+            NavigationView {
+                VStack {
+                    Spacer()
+                }
+            }
+            VStack(alignment: .leading, spacing: 0) {
                 ZStack {
-                    CircleView().offset(x: UIScreen.main.bounds.width/8.0, y: -UIScreen.main.bounds.height/8.0)
+                    CircleView().offset(x: 0.1*CircleView.diameter, y: -0.1*CircleView.diameter)
                     CardRectView(withShadow: viewModel.state != .read)
                         .animation(.easeInOut)
                         .offset(x: cardOffsetX, y: cardOffsetY)
                         .scaleEffect(cardScale)
                     if viewModel.state == .read || viewModel.state == .ready  {
                         Image("iphone")
+                            .offset(x: 0.1*CircleView.diameter, y: 0.15*CircleView.diameter)
                             .transition(.offset(x: 400.0, y: 0.0))
                     }
                 }
+                .frame(width: UIScreen.main.bounds.width, height: 427)
+
                 Spacer()
-                VStack(alignment: .leading, spacing: 8.0) {
-                    if viewModel.state == .welcome || viewModel.state == .welcomeBack {
-                        Text(titleKey)
-                            .font(Font.system(size: 29.0, weight: .light, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark6)
-                    }
-                    Text(subTitleKey)
+                
+                if viewModel.state == .welcome || viewModel.state == .welcomeBack {
+                    Text(titleKey)
                         .font(Font.system(size: 29.0, weight: .light, design: .default))
                         .foregroundColor(Color.tangemTapGrayDark6)
-                        .fixedSize(horizontal: false, vertical: true)
-                    HStack(spacing: 8.0) {
-                        if viewModel.state == .welcome ||
-                            viewModel.state == .welcomeBack {
-                            Button(action: {
-                                self.viewModel.openShop()
-                            }) { HStack(alignment: .center) {
-                                Text(blackButtonTitleKey)
-                                Spacer()
-                                Image("shopBag")
-                            }
-                            .padding(.horizontal)
-                            }
-                            .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
-                            .transition(.offset(x: -200.0, y: 0.0))
-                        }
-                        TangemButton(isLoading: self.viewModel.isLoading,
-                                     title: greenButtonTitleKey,
-                                     image: "arrow.right") {
-                                        withAnimation {
-                                            self.viewModel.nextState()
-                                        }
-                                        switch self.viewModel.state {
-                                        case .read, .welcomeBack:
-                                            self.viewModel.scan()
-                                        default:
-                                            break
-                                        }
-                        }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
-                        Spacer()
-                    }
-                    .padding(.top, 16.0)
+                        .padding(.leading, 16)
                 }
+                Text(subTitleKey)
+                    .font(Font.system(size: 29.0, weight: .light, design: .default))
+                    .foregroundColor(Color.tangemTapGrayDark6)
+                    .padding(.leading, 16)
+                // .fixedSize(horizontal: false, vertical: true)
+                
+                 Spacer()
+                
+                HStack(spacing: 8.0) {
+                    if viewModel.state == .welcome ||
+                        viewModel.state == .welcomeBack {
+                        Button(action: {
+                            self.viewModel.openShop()
+                        }) { HStack(alignment: .center) {
+                            Text(blackButtonTitleKey)
+                            Spacer()
+                            Image("shopBag")
+                        }
+                        .padding(.horizontal)
+                        }
+                        .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                        .transition(.offset(x: -200.0, y: 0.0))
+                    }
+                    TangemButton(isLoading: self.viewModel.isLoading,
+                                 title: greenButtonTitleKey,
+                                 image: "arrow.right") {
+                                    withAnimation {
+                                        self.viewModel.nextState()
+                                    }
+                                    switch self.viewModel.state {
+                                    case .read, .welcomeBack:
+                                        self.viewModel.scan()
+                                    default:
+                                        break
+                                    }
+                    }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                    Spacer()
+                }
+                .padding([.leading, .bottom, .trailing], 16.0)
+                
                 if viewModel.openDetails {
                     NavigationLink(destination:
                         DetailsView(viewModel: DetailsViewModel(cid: viewModel.sdkService.cards.first!.key,
@@ -142,8 +155,9 @@ struct ReadView: View {
                                     EmptyView()
                     }
                 }
+                
             }
-            .padding([.leading, .bottom, .trailing], 16.0)
+            .edgesIgnoringSafeArea(.top)
             .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
             .background(NavigationConfigurator() { nc in
                 nc.navigationBar.barTintColor = UIColor.tangemTapBgGray
@@ -151,10 +165,11 @@ struct ReadView: View {
                 nc.navigationBar.shadowImage = UIImage()
             })
                 .alert(item: $viewModel.scanError) { $0.alert }
-            
         }
-    }
+        }
 }
+
+
 struct ReadView_Previews: PreviewProvider {
     static var sdkService = TangemSdkService()
     static var previews: some View {
