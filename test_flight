@@ -1,5 +1,0 @@
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-export FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=ncmt-ghpz-oemm-tjfp
-
-bundle exec fastlane test_flight
