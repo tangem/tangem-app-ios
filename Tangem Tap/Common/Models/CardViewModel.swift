@@ -36,7 +36,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var loadingError: Error?
     @Published var noAccountMessage: String?
     @Published var isCardSupported: Bool = true
-    @Published var payId: PayIdStatus = .notCreated
+    @Published var payId: PayIdStatus = .notSupported
     @Published var balanceViewModel: BalanceViewModel!
     @Published var wallet: Wallet? = nil
     @Published var image: UIImage? = nil
