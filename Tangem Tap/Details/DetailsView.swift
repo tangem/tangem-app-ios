@@ -58,12 +58,7 @@ struct DetailsView: View {
                                 .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
                                 .padding(.bottom, 16.0)
                         }
-                        
-                        if self.viewModel.cardViewModel.isWalletLoading {
-                            ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark6)
-                                .padding(.bottom, 16.0)
-                        } else {
-                            
+
                             if !self.viewModel.cardCanSign {
                                 AlertCardView(title: "common_warning".localized,
                                               message: "alert_old_card".localized)
@@ -93,7 +88,7 @@ struct DetailsView: View {
                             }
                             
                             
-                        }
+                        
                     }
                 }
                 
