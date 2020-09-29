@@ -207,9 +207,15 @@ struct SendView: View {
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemTapGrayDark)
                             Spacer()
-                            Text(self.viewModel.sendFee)
+                            if self.viewModel.isFeeLoading {
+                                ActivityIndicatorView(color: UIColor.tangemTapGrayDark)
+                                    .offset(x: 8)
+                            } else {
+                                Text(self.viewModel.sendFee)
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemTapGrayDark)
+                                .frame(height: 20)
+                            }
                         }
                         Color.tangemTapGrayLight5
                             .frame(width: nil, height: 1.0, alignment: .center)
