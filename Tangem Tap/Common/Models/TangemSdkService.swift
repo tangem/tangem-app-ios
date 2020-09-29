@@ -8,6 +8,8 @@
 
 import Foundation
 import TangemSdk
+import BlockchainSdk
+
 
 class TangemSdkService: ObservableObject {
     var ratesService: CoinMarketCapService!
@@ -18,6 +20,13 @@ class TangemSdkService: ObservableObject {
         let sdk = TangemSdk()
         return sdk
     }()
+    
+    var signer: TransactionSigner {
+        let signer = DefaultSigner(tangemSdk: self.tangemSdk,
+                                   initialMessage: Message(header: nil,
+                                                           body: "initial_message_sign_header".localized))
+        return signer
+    }
     
     func scan(_ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
@@ -38,7 +47,9 @@ class TangemSdkService: ObservableObject {
     }
     
     func createWallet(card: Card, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        tangemSdk.createWallet(cardId: card.cardId) { result in
+        tangemSdk.createWallet(cardId: card.cardId,
+                               initialMessage: Message(header: nil,
+                                                       body: "initial_message_create_wallet_body".localized)) { result in
             switch result {
             case .success(let response):
                 let vm =  self.updateViewModel(with: card.updating(with: response))
@@ -51,7 +62,9 @@ class TangemSdkService: ObservableObject {
     }
     
     func purgeWallet(card: Card, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        tangemSdk.purgeWallet(cardId: card.cardId) { result in
+        tangemSdk.purgeWallet(cardId: card.cardId,
+                              initialMessage: Message(header: nil,
+                                                      body: "initial_message_purge_wallet_body".localized)) { result in
             switch result {
             case .success(let response):
                 let vm =  self.updateViewModel(with: card.updating(with: response))
@@ -67,7 +80,7 @@ class TangemSdkService: ObservableObject {
         let vm = self.cards[card.cardId!]
         switch option {
         case .accessCode:
-             tangemSdk.startSession(with: SetPinCommand(pinType: .pin1, isExclusive: true), cardId: card.cardId) { result in
+            tangemSdk.startSession(with: SetPinCommand(pinType: .pin1, isExclusive: true), cardId: card.cardId, initialMessage: Message(header: nil, body: "initial_message_change_access_code_body".localized)) { result in
                 switch result {
                 case .success:
                     vm?.card.isPin1Default = false
@@ -91,7 +104,7 @@ class TangemSdkService: ObservableObject {
                 }
             }
         case .passCode:
-            tangemSdk.startSession(with: SetPinCommand(pinType: .pin2, isExclusive: true), cardId: card.cardId) { result in
+            tangemSdk.startSession(with: SetPinCommand(pinType: .pin2, isExclusive: true), cardId: card.cardId, initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) { result in
                 vm?.card.isPin2Default = false
                 vm?.card.isPin1Default = true
                 vm?.updateCurrentSecOption()
