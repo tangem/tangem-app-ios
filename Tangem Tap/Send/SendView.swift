@@ -260,7 +260,6 @@ struct SendView: View {
                        minHeight: geometry.size.height,
                        maxHeight: .infinity, alignment: .top)
             }
-            //.contentShape(Rectangle())
             .onTapGesture {
               UIApplication.shared.windows.first { $0.isKeyWindow }?.endEditing(true)
             }
