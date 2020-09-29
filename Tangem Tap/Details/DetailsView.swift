@@ -176,6 +176,10 @@ struct DetailsView: View {
                 self.viewModel.onAppear()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+        .filter {_ in !self.viewModel.showSettings
+            && !self.viewModel.showSend
+            && !self.viewModel.showCreatePayID
+        }
         .delay(for: 0.3, scheduler: DispatchQueue.global())
         .receive(on: DispatchQueue.main)) { _ in
             self.viewModel.cardViewModel.update(silent: true)
