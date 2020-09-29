@@ -51,7 +51,7 @@ struct SettingsView: View {
     
     var body: some View {
         List {
-            Section(header: Color.tangemTapBgGray
+            Section(header: EmptyView()
                 .listRowInsets(EdgeInsets())) {
                     DetailsRowView(title: "settings_row_title_cid".localized,
                                    subtitle: CardIdFormatter(cid: viewModel.cardViewModel.card.cardId ?? "").formatted())
@@ -102,6 +102,7 @@ struct SettingsView: View {
             }
             
         }
+        .padding(.top, 16.0)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("settings_title", displayMode: .inline)
     }
