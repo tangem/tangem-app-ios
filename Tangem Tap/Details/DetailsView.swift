@@ -56,7 +56,7 @@ struct DetailsView: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
-                                .padding(.horizontal, 16.0)
+                                .padding(.vertical, 16.0)
                         }
 
                             if !self.viewModel.cardCanSign {
