@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UIUserInterfaceStyle</key>
-	<string>Light</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -17,11 +15,25 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NFCReaderUsageDescription</key>
+	<string>To Scan Smart Card</string>
+	<key>NSCameraUsageDescription</key>
+	<string>To Scan QR Code</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>SairaSemiCondensed-Bold.ttf</string>
+		<string>SairaSemiCondensed-Light.ttf</string>
+		<string>SairaSemiCondensed-Medium.ttf</string>
+		<string>SairaSemiCondensed-Regular.ttf</string>
+		<string>SairaSemiCondensed-SemiBold.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -44,29 +56,25 @@
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>nfc</string>
+		<string>armv7</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>SairaSemiCondensed-Bold.ttf</string>
-		<string>SairaSemiCondensed-Light.ttf</string>
-		<string>SairaSemiCondensed-Medium.ttf</string>
-		<string>SairaSemiCondensed-Regular.ttf</string>
-		<string>SairaSemiCondensed-SemiBold.ttf</string>
-	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
 		<string>A000000812010208</string>
 		<string>D2760000850101</string>
 	</array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>NSCameraUsageDescription</key>
-	<string>To Scan QR Code</string>
-	<key>NFCReaderUsageDescription</key>
-	<string>To Scan Smart Card</string>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 </dict>
 </plist>
