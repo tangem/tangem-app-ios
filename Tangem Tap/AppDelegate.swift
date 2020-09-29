@@ -37,12 +37,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UISwitch.appearance().onTintColor = .tangemTapBlue
         UITableView.appearance().backgroundColor = .clear
         
-        if #available(iOS 14.0, *) {
+       // if #available(iOS 14.0, *) { //for xcode 12
             // iOS 14 doesn't have extra separators below the list by default.
-        } else {
+      //  } else {
             // To remove only extra separators below the list:
             UITableView.appearance().tableFooterView = UIView()
-        }
+       // }
         
 //        let bgView = UIView()
 //        bgView.backgroundColor = UIColor.tangemTapBgGray
