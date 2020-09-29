@@ -139,7 +139,7 @@ class SendViewModel: ObservableObject {
         .store(in: &bag)
         
         $destination //destination validation
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] newText in
                 self.validateDestination(newText)
         }
@@ -160,7 +160,7 @@ class SendViewModel: ObservableObject {
         .store(in: &bag)
         
         $amountText //handle amount input
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .filter { string -> Bool in
                 if self.isFiatCalculation,
                     let fiat =  self.cardViewModel.getFiat(for: self.amountToSend)?.description,
