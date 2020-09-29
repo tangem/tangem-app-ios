@@ -1,0 +1,190 @@
+/* 
+  Localizable.strings
+  Tangem Tap
+
+  Created by Alexander Osokin on 04.08.2020.
+  Copyright © 2020 Tangem AG. All rights reserved.
+*/
+
+"read_welcome_title" = "Welcome to Tangem.";
+
+"read_welcome_subtitle" = "Do you have one of \nour cards?";
+
+"read_welcome_back_title" = "Welcome back to \nTangem Tap";
+
+"read_welcome_back_subtitle" = "Scan your card to start.";
+
+"read_button_yes" = "Yes!";
+
+"read_button_shop" = "Shop";
+
+"read_ready_title" = "Get ready to tap your \ncard to the back of the \nphone.";
+
+"read_button_tapin" = "Tap in";
+
+"read_button_scan" = "Scan card";
+
+"details_button_scan" = "Scan";
+
+"details_button_send" = "Send";
+
+"details_button_create_wallet" = "Create wallet";
+
+"details_title" = "Tangem Tap";
+
+"details_choice_wallet_option_title" = "Choice wallet option";
+
+"balanceView_token_title" = "Token";
+
+"balanceView_blockchain_verified" = "Verified Balance";
+
+"balanceView_blockchain_unreachable" = "Blockchain is unreachable";
+
+"error_title_no_account" = "Account is not created";
+
+"error_title_empty_card" = "Empty card";
+
+"error_subtitle_empty_card" = "Create wallet to start using Tangem card";
+
+
+"error_title_unsupported_blockchain" = "This card is not supported";
+
+"error_subtitle_unsupported_blockchain" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
+
+"pendingTxView_unknown" = "Transaction in progress...";
+
+"pendingTxView_sending_format" = "Sending %@ to %@";
+
+"pendingTxView_receiving_format" = "Receiving %@ from %@";
+
+"addressDetails_button_explore" = "Explore address";
+
+"addressDetails_button_createPayid" = "Create PayID";
+
+"qr_title_wallet" = "Wallet";
+
+"create_payid_title" = "Create PayID";
+
+"create_payid_card_format" = "Card: %@";
+
+"create_payid_placeholder" = "PayID name";
+
+"create_payid_domain" = "$payid.tangem.com";
+
+"create_payid_button_title" = "Create";
+
+"create_payid_info" = "Your PayID is information unique to you, like your phone number, email or ABN.";
+
+"common_success" = "Success";
+
+"common_error" = "Error";
+
+"common_ok" = "Ok";
+
+"common_no" = "No";
+
+"create_payid_success_message" = "PayID created successfully and copied to clipboard";
+
+"create_payid_error_message" = "Error response while creating PayID";
+
+"create_payid_already_created_message" = "This PayID already exists. Try a different one.";
+
+"send_destination_placeholder" = "Address or PayID";
+
+"send_title" = "Send";
+
+"send_network_fee_title" = "Network fee";
+
+"send_amount_label" = "Amount";
+
+"send_fee_label" = "Fee";
+
+"send_total_label" = "Total";
+
+"send_max_amount_label" = "Maximum amount";
+
+"send_validation_invalid_address" = "Invalid address";
+
+"send_validation_invalid_amount" = "Amount Exceeds Balance";
+
+"send_validation_invalid_total" = "Total Exceeds Balance";
+
+"send_validation_invalid_fee" = "Fee Exceeds Balance";
+
+"send_fee_picker_low" = "Low";
+
+"send_fee_picker_normal" = "Normal";
+
+"send_fee_picker_priority" = "Priority";
+
+"send_fee_include_description" = "Include fee";
+
+"send_total_subtitle_format" = "%@ will be sent";
+
+"send_total_subtitle_fiat_format" = "≈ %@ (inc. fee: %@)";
+
+"send_total_subtitle_asset_format" = "%@ and %@ will be sent";
+
+"send_balance_subtitle_format" = "Balance: %@";
+
+"send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
+
+"settings_title" = "Details";
+
+"settings_row_title_cid" = "Card ID";
+"settings_row_title_issuer" = "Issuer";
+"settings_row_title_signed" = "Signed";
+
+"settings_row_subtitle_signed_hashes_format" = "%@ hashes";
+
+"settings_row_title_currency" = "App currency";
+
+"settings_section_title_settings" = "Settings";
+
+"settings_section_title_card" = "Card";
+
+"settings_row_title_validate" = "Validate card";
+
+"settings_row_title_manage_security" = "Manage Security";
+
+"settings_row_title_erase_wallet" = "Erase wallet";
+
+"common_button_title_save_changes" = "Save changes";
+
+"common_continue" = "Continue";
+
+"common_warning" = "Warning";
+
+"common_camera_denied_alert_title" = "Camera access denied";
+
+"common_camera_denied_alert_message" = "You have not given access to your camera, please adjust your privacy settings";
+
+"common_camera_aler_button_settings" = "Settings";
+
+"cardOperation_erase_wallet" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
+
+"cardOperation_security_management" = "If you forget the code, you will lose the ability to use the card. There is no way to recover or change your code if you lose it.";
+
+"alert_old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
+
+"alert_loaded_wallet_warning_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
+
+"alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
+
+"alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment";
+
+"alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
+
+"manage_security_title" = "Manage Security";
+
+"manage_security_row_title_longtap" = "Long Tap";
+
+"manage_security_row_subtitle_longtap" = "This mechanism protects against proximity attack on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
+
+"manage_security_row_title_passcode" = "Passcode";
+
+"manage_security_row_subtitle_passcode" = "Before execution any command entailing a change of the card state you will have to enter the passcode.";
+
+"manage_security_row_title_access_code" = "Access code";
+
+"manage_security_row_subtitle_access_code" = "You will have to submit the correct access code before scanning the card";
