@@ -188,3 +188,11 @@
 "manage_security_row_title_access_code" = "Access code";
 
 "manage_security_row_subtitle_access_code" = "You will have to submit the correct access code before scanning the card";
+
+
+"initial_message_sign_header" = "Tap to sign";
+"initial_message_sign_body" = "Tap the card to your phone as shown above";
+"initial_message_purge_wallet_body" = "Tap to purge wallet";
+"initial_message_create_wallet_body" = "Tap to create wallet";
+"initial_message_change_access_code_body" = "Tap to change the access code";
+"initial_message_change_passcode_body" = "Tap to change the passcode";
