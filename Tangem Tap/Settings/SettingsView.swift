@@ -86,6 +86,7 @@ struct SettingsView: View {
                     .disabled(!viewModel.canManageSecurity)
                 
                 NavigationLink(destination: CardOperationView(title: "settings_row_title_erase_wallet".localized,
+                                                              buttonTitle: "settings_row_title_erase_wallet",
                                                               alert: "cardOperation_erase_wallet".localized,
                                                               actionButtonPressed: { completion in
                                                                 self.viewModel.purgeWallet(completion: completion)
