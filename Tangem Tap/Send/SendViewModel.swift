@@ -408,7 +408,7 @@ class SendViewModel: ObservableObject {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        txSender.send(tx, signer: sdkService.tangemSdk)
+        txSender.send(tx, signer: sdkService.signer)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
