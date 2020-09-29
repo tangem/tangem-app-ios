@@ -190,16 +190,16 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadImage() {
-        guard image == nil, let cid = card.cardId?.lowercased() else {
+        guard image == nil, let cid = card.cardId else {
             return
         }
         
-        if cid.starts(with: "bc01") { //Sergio
+        if cid.starts(with: "BC01") { //Sergio
             backedLoadImage(name: "card_tg059")
             return
         }
         
-        if cid.starts(with: "bc02") { //Marta
+        if cid.starts(with: "BC02") { //Marta
             backedLoadImage(name: "card_tg083")
             return
         }
@@ -219,8 +219,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     }
                 case .failure(let error):
                     print(error)
-                    //[REDACTED_TODO_COMMENT]
-                    break
+                    self?.backedLoadImage(name: "card_default")
                 }
             }
         }
