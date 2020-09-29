@@ -163,7 +163,7 @@ struct SendView: View {
                                         self.viewModel.isNetworkFeeBlockOpen.toggle()
                                     }
                                 }) {
-                                    Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.compact.up" : "chevron.compact.down")
+                                    Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
                                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                         .foregroundColor(Color.tangemTapGrayDark6)
                                 }
@@ -182,7 +182,7 @@ struct SendView: View {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
                                             Text("send_fee_include_description")
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                                .foregroundColor(Color.tangemTapGrayLight4)
+                                                 .foregroundColor(Color.tangemTapGrayDark6)
                                         }
                                     }
                                 }
@@ -259,6 +259,10 @@ struct SendView: View {
                        maxWidth: geometry.size.width,
                        minHeight: geometry.size.height,
                        maxHeight: .infinity, alignment: .top)
+            }
+            //.contentShape(Rectangle())
+            .onTapGesture {
+              UIApplication.shared.windows.first { $0.isKeyWindow }?.endEditing(true)
             }
         }
         .onAppear() {
