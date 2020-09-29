@@ -78,94 +78,84 @@ struct ReadView: View {
     }
     
     var body: some View {
-        ZStack {
-            NavigationView {
-                VStack {
-                    Spacer()
-                    if viewModel.openDetails {
-                        NavigationLink(destination:
-                            DetailsView(viewModel: DetailsViewModel(cid: viewModel.sdkService.cards.first!.key,
-                                                                    sdkService: viewModel.sdkService)),
-                                       isActive: $viewModel.openDetails) {
-                                        EmptyView()
-                        }
+        NavigationView {
+            ZStack {
+            VStack(alignment: .leading, spacing: 0) {
+                ZStack {
+                    CircleView().offset(x: 0.1*CircleView.diameter, y: -0.1*CircleView.diameter)
+                    CardRectView(withShadow: viewModel.state != .read)
+                        .animation(.easeInOut)
+                        .offset(x: cardOffsetX, y: cardOffsetY)
+                        .scaleEffect(cardScale)
+                    if viewModel.state == .read || viewModel.state == .ready  {
+                        Image("iphone")
+                            .offset(x: 0.1*CircleView.diameter, y: 0.15*CircleView.diameter)
+                            .transition(.offset(x: 400.0, y: 0.0))
                     }
                 }
-            }
-            if !viewModel.openDetails {
-                VStack(alignment: .leading, spacing: 0) {
-                    ZStack {
-                        CircleView().offset(x: 0.1*CircleView.diameter, y: -0.1*CircleView.diameter)
-                        CardRectView(withShadow: viewModel.state != .read)
-                            .animation(.easeInOut)
-                            .offset(x: cardOffsetX, y: cardOffsetY)
-                            .scaleEffect(cardScale)
-                        if viewModel.state == .read || viewModel.state == .ready  {
-                            Image("iphone")
-                                .offset(x: 0.1*CircleView.diameter, y: 0.15*CircleView.diameter)
-                                .transition(.offset(x: 400.0, y: 0.0))
-                        }
-                    }
-                    .frame(width: UIScreen.main.bounds.width, height: 427)
-                    
-                    Spacer()
-                    
-                    if viewModel.state == .welcome || viewModel.state == .welcomeBack {
-                        Text(titleKey)
-                            .font(Font.system(size: 29.0, weight: .light, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark6)
-                            .padding(.leading, 16)
-                    }
-                    Text(subTitleKey)
+                .frame(width: UIScreen.main.bounds.width, height: 390)
+                Spacer()
+                
+                if viewModel.state == .welcome || viewModel.state == .welcomeBack {
+                    Text(titleKey)
                         .font(Font.system(size: 29.0, weight: .light, design: .default))
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .padding(.leading, 16)
-                    // .fixedSize(horizontal: false, vertical: true)
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 8.0) {
-                        if viewModel.state == .welcome ||
-                            viewModel.state == .welcomeBack {
-                            Button(action: {
-                                self.viewModel.openShop()
-                            }) { HStack(alignment: .center) {
-                                Text(blackButtonTitleKey)
-                                Spacer()
-                                Image("shopBag")
-                            }
-                            .padding(.horizontal)
-                            }
-                            .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
-                            // .transition(.offset(x: -200.0, y: 0.0))
-                        } else {
-                            Color.clear.frame(width: 93, height: 56)
-                        }
-                        TangemButton(isLoading: self.viewModel.isLoading,
-                                     title: greenButtonTitleKey,
-                                     image: "arrow.right") {
-                                        withAnimation {
-                                            self.viewModel.nextState()
-                                        }
-                                        switch self.viewModel.state {
-                                        case .read, .welcomeBack:
-                                            self.viewModel.scan()
-                                        default:
-                                            break
-                                        }
-                        }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
-                        Spacer()
-                    }
-                    .padding([.leading, .bottom, .trailing], 16.0)
                 }
-                .edgesIgnoringSafeArea(.top)
-                .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
-                .background(NavigationConfigurator() { nc in
-                    nc.navigationBar.barTintColor = UIColor.tangemTapBgGray
-                    nc.navigationBar.tintColor = UIColor.tangemTapGrayDark6
-                    nc.navigationBar.shadowImage = UIImage()
-                })
-                    .alert(item: $viewModel.scanError) { $0.alert }
+                Text(subTitleKey)
+                    .font(Font.system(size: 29.0, weight: .light, design: .default))
+                    .foregroundColor(Color.tangemTapGrayDark6)
+                    .padding(.leading, 16)
+                // .fixedSize(horizontal: false, vertical: true)
+                
+                Spacer()
+                
+                HStack(spacing: 8.0) {
+                    if viewModel.state == .welcome ||
+                        viewModel.state == .welcomeBack {
+                        Button(action: {
+                            self.viewModel.openShop()
+                        }) { HStack(alignment: .center) {
+                            Text(blackButtonTitleKey)
+                            Spacer()
+                            Image("shopBag")
+                        }
+                        .padding(.horizontal)
+                        }
+                        .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                        // .transition(.offset(x: -200.0, y: 0.0))
+                    } else {
+                        Color.clear.frame(width: 93, height: 56)
+                    }
+                    TangemButton(isLoading: self.viewModel.isLoading,
+                                 title: greenButtonTitleKey,
+                                 image: "arrow.right") {
+                                    withAnimation {
+                                        self.viewModel.nextState()
+                                    }
+                                    switch self.viewModel.state {
+                                    case .read, .welcomeBack:
+                                        self.viewModel.scan()
+                                    default:
+                                        break
+                                    }
+                    }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                    Spacer()
+                }
+                .padding([.leading, .bottom, .trailing], 16.0)
+            }
+            .edgesIgnoringSafeArea(.top)
+            .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
+            .alert(item: $viewModel.scanError) { $0.alert }
+            
+                if viewModel.openDetails {
+                    NavigationLink(destination:
+                        DetailsView(viewModel: DetailsViewModel(cid: viewModel.sdkService.cards.first!.key,
+                                                                sdkService: viewModel.sdkService)),
+                                   isActive: $viewModel.openDetails) {
+                                    EmptyView()
+                    }
+                }
             }
         }
     }
