@@ -128,7 +128,9 @@ struct ReadView: View {
                         .padding(.horizontal)
                         }
                         .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
-                        .transition(.offset(x: -200.0, y: 0.0))
+                       // .transition(.offset(x: -200.0, y: 0.0))
+                    } else {
+                        Color.clear.frame(width: 93, height: 56)
                     }
                     TangemButton(isLoading: self.viewModel.isLoading,
                                  title: greenButtonTitleKey,
