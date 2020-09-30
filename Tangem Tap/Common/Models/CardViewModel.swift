@@ -56,6 +56,7 @@ class CardViewModel: Identifiable, ObservableObject {
             self.walletManager = walletManager
             self.payIDService = PayIDService.make(from: walletManager.wallet.blockchain)
             self.balanceViewModel = self.makeBalanceViewModel(from: walletManager.wallet)
+            self.wallet = walletManager.wallet
             walletManager.$wallet
                 .subscribe(on: DispatchQueue.global())
                 .receive(on: DispatchQueue.main)
