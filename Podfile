@@ -18,6 +18,8 @@ target 'Tangem Tap' do
   pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.3'
   pod 'Moya'
   pod 'EFQRCode'
+  pod 'Firebase/Crashlytics'
+  pod 'Firebase/Analytics'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
