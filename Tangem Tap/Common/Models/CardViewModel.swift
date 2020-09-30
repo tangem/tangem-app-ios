@@ -300,7 +300,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                     secondaryName: wallet.blockchain.displayName )
         } else {
             return BalanceViewModel(isToken: false,
-                                    hasTransactionInProgress: true, //self.wallet?.hasPendingTx ?? false,
+                                    hasTransactionInProgress: self.wallet?.hasPendingTx ?? false,
                                     loadingError: self.loadingError?.localizedDescription,
                                     name:  wallet.blockchain.displayName,
                                     fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
