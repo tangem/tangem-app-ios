@@ -84,7 +84,7 @@ class SendViewModel: ObservableObject {
     
     var walletTotalBalanceFormatted: String {
         let amount = cardViewModel.wallet?.amounts[self.amountToSend.type]
-        let value = getDescription(for: amount)
+        let value = getDescription(for: amount, isFiat: isFiatCalculation)
         return String(format: "send_balance_subtitle_format".localized, value)
     }
     
@@ -107,15 +107,15 @@ class SendViewModel: ObservableObject {
                                         address: wallet.address,
                                         type: .coin,
                                         value: 0)
-           self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount)
+            self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount, isFiat: isFiatCalculation)
         }
 
         fillTotalBlockWithDefaults()
         bind()
     }
     
-    private func getDescription(for amount: Amount?) -> String {
-        return isFiatCalculation ? self.cardViewModel.getFiatFormatted(for: amount) ?? ""
+    private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
+        return isFiat ? self.cardViewModel.getFiatFormatted(for: amount) ?? ""
             : amount?.description ?? ""
     }
     
@@ -210,10 +210,12 @@ class SendViewModel: ObservableObject {
         .store(in: &bag)
         
         $selectedFee //update fee label
-            .sink{ [unowned self] newAmount in
+        .combineLatest($isFiatCalculation)
+            .debounce(for: 0.3, scheduler: RunLoop.main)
+            .sink{ [unowned self] newAmount, isFiat in
                 if let wallet = self.cardViewModel.wallet {
                     let feeDummyAmount = Amount(with: wallet.blockchain, address: wallet.address, type: .coin, value: 0)
-                    self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount)
+                    self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
                 }
         }
         .store(in: &bag)
