@@ -51,13 +51,19 @@ struct DetailsView: View {
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
-                        if self.viewModel.cardViewModel.image != nil {
-                            Image(uiImage: self.viewModel.cardViewModel.image!)
+                        if self.viewModel.image != nil {
+                            Image(uiImage: self.viewModel.image!)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
                                 .padding(.vertical, 16.0)
-                        }
+                        } else {
+                            Color.tangemTapGrayLight4
+                                .opacity(0.5)
+                             .frame(width: geometry.size.width - 32.0, height: 180, alignment: .center)
+                                .cornerRadius(6)
+                              .padding(.vertical, 16.0)
+                       }
 
                             if !self.viewModel.cardCanSign {
                                 AlertCardView(title: "common_warning".localized,
