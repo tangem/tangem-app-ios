@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -48,9 +49,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITableView.appearance().tableFooterView = UIView()
        // }
         
-//        let bgView = UIView()
-//        bgView.backgroundColor = UIColor.tangemTapBgGray
-//        UITableView.appearance().backgroundView = bgView
+        
+        FirebaseApp.configure()
+        
+        #if DEBUG
+        Firebase.Analytics.setAnalyticsCollectionEnabled(false)
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #else
+//        Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled) //[REDACTED_TODO_COMMENT]
+//        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
+        #endif
+        
         return true
     }
 
