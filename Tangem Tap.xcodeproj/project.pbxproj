@@ -287,6 +287,7 @@
 		5D3F77B924BF56D800E8695B = {
 			isa = PBXGroup;
 			children = (
+				5D225CB62524B592001564A3 /* GoogleService-Info.plist */,
 				5D3F77C424BF56D800E8695B /* Tangem Tap */,
 				5D3F77DB24BF56DC00E8695B /* Tangem TapTests */,
 				5D3F77E624BF56DC00E8695B /* Tangem TapUITests */,
@@ -319,7 +320,6 @@
 				5D3F77C724BF56D800E8695B /* SceneDelegate.swift */,
 				5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
-				5D225CB62524B592001564A3 /* GoogleService-Info.plist */,
 				5D3F77D324BF56DC00E8695B /* Info.plist */,
 				5D3F77CD24BF56DC00E8695B /* Preview Content */,
 				5D5E058D24FEA2DB00F04DE1 /* Config.plist */,

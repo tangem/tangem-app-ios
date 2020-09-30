@@ -49,13 +49,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITableView.appearance().tableFooterView = UIView()
        // }
         
-        
-        FirebaseApp.configure()
-        
+
         #if DEBUG
         Firebase.Analytics.setAnalyticsCollectionEnabled(false)
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
         #else
+          FirebaseApp.configure()
 //        Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled) //[REDACTED_TODO_COMMENT]
 //        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
         #endif
