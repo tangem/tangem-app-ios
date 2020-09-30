@@ -28,7 +28,7 @@ struct DetailsView: View {
         let buttons = symbols.map { amount in
             return ActionSheet.Button.default(Text(amount.currencySymbol)) {
                 self.viewModel.amountToSend = Amount(with: amount, value: 0)
-                self.viewModel.showSend = true
+                self.viewModel.showSendScreen()
             }
         }
         return buttons
@@ -133,9 +133,7 @@ struct DetailsView: View {
                         .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
                         .sheet(isPresented: $viewModel.showSend) {
-                            SendView(viewModel: SendViewModel(amountToSend: self.viewModel.amountToSend!,
-                                                              cardViewModel: self.$viewModel.cardViewModel,
-                                                              sdkSerice: self.$viewModel.sdkService), onSuccess: {
+                            SendView(viewModel: self.viewModel.sendViewModel, onSuccess: {
                                                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                                                     let alert = Alert(title: Text("common_success"),
                                                                                       message: Text("send_transaction_success"),
