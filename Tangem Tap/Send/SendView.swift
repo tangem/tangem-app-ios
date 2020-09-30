@@ -297,7 +297,7 @@ struct ExtractView_Previews: PreviewProvider {
                                                                      address: "adsfafa",
                                                                      type: .coin,
                                                                      value: 0.0),
-                                                cardViewModel: $cardViewModel,
-                                                sdkSerice: $sdkService), onSuccess: {})
+                                                cardViewModel: cardViewModel,
+                                                sdkSerice: sdkService), onSuccess: {})
     }
 }
