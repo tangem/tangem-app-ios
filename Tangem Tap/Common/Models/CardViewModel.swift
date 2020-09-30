@@ -58,7 +58,6 @@ class CardViewModel: Identifiable, ObservableObject {
             self.balanceViewModel = self.makeBalanceViewModel(from: walletManager.wallet)
             self.wallet = walletManager.wallet
             walletManager.$wallet
-                .debounce(for: 0.5, scheduler: RunLoop.main, options: nil)
                 .subscribe(on: DispatchQueue.global())
                 .receive(on: DispatchQueue.main)
                 .sink(receiveValue: {[unowned self] wallet in
@@ -301,7 +300,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                     secondaryName: wallet.blockchain.displayName )
         } else {
             return BalanceViewModel(isToken: false,
-                                    hasTransactionInProgress: self.wallet?.hasPendingTx ?? false,
+                                    hasTransactionInProgress: true, //self.wallet?.hasPendingTx ?? false,
                                     loadingError: self.loadingError?.localizedDescription,
                                     name:  wallet.blockchain.displayName,
                                     fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
