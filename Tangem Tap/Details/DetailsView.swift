@@ -56,14 +56,9 @@ struct DetailsView: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
-                                .padding(.bottom, 16.0)
+                                .padding(.vertical, 16.0)
                         }
-                        
-                        if self.viewModel.cardViewModel.isWalletLoading {
-                            ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark6)
-                                .padding(.bottom, 16.0)
-                        } else {
-                            
+
                             if !self.viewModel.cardCanSign {
                                 AlertCardView(title: "common_warning".localized,
                                               message: "alert_old_card".localized)
@@ -93,7 +88,7 @@ struct DetailsView: View {
                             }
                             
                             
-                        }
+                        
                     }
                 }
                 
@@ -181,6 +176,10 @@ struct DetailsView: View {
                 self.viewModel.onAppear()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+        .filter {_ in !self.viewModel.showSettings
+            && !self.viewModel.showSend
+            && !self.viewModel.showCreatePayID
+        }
         .delay(for: 0.3, scheduler: DispatchQueue.global())
         .receive(on: DispatchQueue.main)) { _ in
             self.viewModel.cardViewModel.update(silent: true)
