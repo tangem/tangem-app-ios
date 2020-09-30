@@ -76,8 +76,10 @@ struct BalanceView: View {
                     Text(blockchainText)
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .foregroundColor(accentColor)
+                        .minimumScaleFactor(0.8)
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
+                    
                     if balanceViewModel.loadingError != nil {
                         Text(balanceViewModel.loadingError!)
                             .layoutPriority(1)
