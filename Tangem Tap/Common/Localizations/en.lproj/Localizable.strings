@@ -105,7 +105,7 @@
 
 "send_validation_invalid_address" = "Invalid address";
 
-"send_validation_invalid_amount" = "Amount Exceeds Balance";
+"send_validation_invalid_amount" =  "Invalid amount"; //"Amount Exceeds Balance";
 
 "send_validation_invalid_total" = "Total Exceeds Balance";
 
