@@ -32,6 +32,7 @@ class TangemSdkService: ObservableObject {
         tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
             case .failure(let error):
+                Analytics.log(error: error)
                 completion(.failure(error))
             case .success(let response):
                 guard let cid = response.card.cardId else {
@@ -50,14 +51,14 @@ class TangemSdkService: ObservableObject {
         tangemSdk.createWallet(cardId: card.cardId,
                                initialMessage: Message(header: nil,
                                                        body: "initial_message_create_wallet_body".localized)) { result in
-            switch result {
-            case .success(let response):
-                let vm =  self.updateViewModel(with: card.updating(with: response))
-                completion(.success(vm))
-            case .failure(let error):
-                completion(.failure(error))
-                break
-            }
+                                                        switch result {
+                                                        case .success(let response):
+                                                            let vm =  self.updateViewModel(with: card.updating(with: response))
+                                                            completion(.success(vm))
+                                                        case .failure(let error):
+                                                            Analytics.log(error: error)
+                                                            completion(.failure(error))
+                                                        }
         }
     }
     
@@ -65,14 +66,14 @@ class TangemSdkService: ObservableObject {
         tangemSdk.purgeWallet(cardId: card.cardId,
                               initialMessage: Message(header: nil,
                                                       body: "initial_message_purge_wallet_body".localized)) { result in
-            switch result {
-            case .success(let response):
-                let vm =  self.updateViewModel(with: card.updating(with: response))
-                completion(.success(vm))
-            case .failure(let error):
-                completion(.failure(error))
-                break
-            }
+                                                        switch result {
+                                                        case .success(let response):
+                                                            let vm =  self.updateViewModel(with: card.updating(with: response))
+                                                            completion(.success(vm))
+                                                        case .failure(let error):
+                                                            Analytics.log(error: error)
+                                                            completion(.failure(error))
+                                                        }
         }
     }
     
@@ -88,6 +89,7 @@ class TangemSdkService: ObservableObject {
                     vm?.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
+                    Analytics.log(error: error)
                     completion(.failure(error))
                 }
             }
@@ -100,18 +102,20 @@ class TangemSdkService: ObservableObject {
                     vm?.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
+                    Analytics.log(error: error)
                     completion(.failure(error))
                 }
             }
         case .passCode:
             tangemSdk.startSession(with: SetPinCommand(pinType: .pin2, isExclusive: true), cardId: card.cardId, initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) { result in
-                vm?.card.isPin2Default = false
-                vm?.card.isPin1Default = true
-                vm?.updateCurrentSecOption()
                 switch result {
                 case .success:
+                    vm?.card.isPin2Default = false
+                    vm?.card.isPin1Default = true
+                    vm?.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
+                    Analytics.log(error: error)
                     completion(.failure(error))
                 }
             }
