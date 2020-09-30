@@ -14,7 +14,7 @@
 
 "read_welcome_back_subtitle" = "Scan your card to start.";
 
-"read_button_yes" = "Yes!";
+"read_button_yes" = "Yes! Scan it.";
 
 "read_button_shop" = "Shop";
 
@@ -51,7 +51,7 @@
 
 "error_subtitle_unsupported_blockchain" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
 
-"pendingTxView_unknown" = "Transaction in progress...";
+"pendingTxView_unknown" = "Transaction is in progress...";
 
 "pendingTxView_sending_format" = "Sending %@ to %@";
 
@@ -192,7 +192,10 @@
 
 "initial_message_sign_header" = "Tap to sign";
 "initial_message_sign_body" = "Tap the card to your phone as shown above";
-"initial_message_purge_wallet_body" = "Tap to purge wallet";
+"initial_message_purge_wallet_body" = "Tap to erase wallet";
 "initial_message_create_wallet_body" = "Tap to create wallet";
 "initial_message_change_access_code_body" = "Tap to change the access code";
 "initial_message_change_passcode_body" = "Tap to change the passcode";
+
+
+"payid_service_error_loading" = "Invalid PayID";
