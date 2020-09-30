@@ -32,6 +32,7 @@ class DetailsViewModel: ObservableObject {
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
+    @Published var image: UIImage? = nil
     
     public var canCreateWallet: Bool {
         return cardViewModel.wallet == nil && cardViewModel.isCardSupported
@@ -124,6 +125,13 @@ class DetailsViewModel: ObservableObject {
             .filter { !$0 }
             .receive(on: RunLoop.main)
             .assign(to: \.isRefreshing, on: self)
+            .store(in: &bag)
+        
+        cardViewModel.$image
+            .dropFirst()
+            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .receive(on: RunLoop.main)
+            .assign(to: \.image, on: self)
             .store(in: &bag)
         
         cardViewModel.objectWillChange
