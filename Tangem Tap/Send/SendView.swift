@@ -35,16 +35,26 @@ struct SendView: View {
                                 Text(!self.viewModel.destination.isEmpty ? "send_destination_placeholder" : " ")
                                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemTapGrayDark)
-                                TextField("send_destination_placeholder",
-                                          text: self.$viewModel.destination,
-                                          onEditingChanged: { hz in
-                                            
-                                }) {
-                                    
-                                }
-                                .truncationMode(.middle)
-                                .disableAutocorrection(true)
-                                .font(Font.system(size: 16.0, weight: .regular, design: .default))
+
+                                CustomTextField(text: self.$viewModel.destination,
+                                                isResponder:  Binding.constant(nil),
+                                                actionButtonTapped: Binding.constant(true),
+                                                handleKeyboard: true,
+                                                textColor: UIColor.tangemTapGrayDark6,
+                                                font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
+                                                placeholder: "send_destination_placeholder".localized,
+                                                decimalCount: self.viewModel.cardViewModel.wallet?.blockchain.decimalCount)
+                                
+//                                TextField("send_destination_placeholder",
+//                                          text: self.$viewModel.destination,
+//                                          onEditingChanged: { hz in
+//
+//                                }) {
+//
+//                                }
+//                                .truncationMode(.middle)
+//                                .disableAutocorrection(true)
+//                                .font(Font.system(size: 16.0, weight: .regular, design: .default))
                                 //.alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
                             }
                             Spacer()
@@ -265,9 +275,6 @@ struct SendView: View {
                        maxWidth: geometry.size.width,
                        minHeight: geometry.size.height,
                        maxHeight: .infinity, alignment: .top)
-            }
-            .onTapGesture {
-              UIApplication.shared.windows.first { $0.isKeyWindow }?.endEditing(true)
             }
         }
         .onAppear() {
