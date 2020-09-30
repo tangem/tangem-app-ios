@@ -42,8 +42,7 @@ struct SendView: View {
                                                 handleKeyboard: true,
                                                 textColor: UIColor.tangemTapGrayDark6,
                                                 font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
-                                                placeholder: "send_destination_placeholder".localized,
-                                                decimalCount: self.viewModel.cardViewModel.wallet?.blockchain.decimalCount)
+                                                placeholder: "send_destination_placeholder".localized)
                                 
 //                                TextField("send_destination_placeholder",
 //                                          text: self.$viewModel.destination,
