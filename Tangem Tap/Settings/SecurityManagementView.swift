@@ -126,6 +126,9 @@ struct SecurityManagementView: View {
                                                                         case .success:
                                                                             break
                                                                         case .failure(let error):
+                                                                            if case .userCancelled = error.toTangemSdkError() {
+                                                                                return
+                                                                            }                                                                                                                   
                                                                             self.error = error.alertBinder
                                                                         }
                                     }
