@@ -426,7 +426,7 @@ class SendViewModel: ObservableObject {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
-                    
+                    Analytics.log(error: error)
                     self.sendError = error.detailedError.alertBinder
                 } else {
                     callback()
