@@ -214,6 +214,7 @@ class SendViewModel: ObservableObject {
         
         
         $isFiatCalculation //handle conversion
+            .filter {[unowned self] _ in self.amountToSend.value != 0 }
             .sink { [unowned self] value in
                 self.amountText = value ? self.cardViewModel.getFiat(for: self.amountToSend)?.description
                     ?? ""
