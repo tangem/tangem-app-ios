@@ -108,11 +108,11 @@ class TangemSdkService: ObservableObject {
             }
         case .passCode:
             tangemSdk.startSession(with: SetPinCommand(pinType: .pin2, isExclusive: true), cardId: card.cardId, initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) { result in
-                vm?.card.isPin2Default = false
-                vm?.card.isPin1Default = true
-                vm?.updateCurrentSecOption()
                 switch result {
                 case .success:
+                    vm?.card.isPin2Default = false
+                    vm?.card.isPin1Default = true
+                    vm?.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.log(error: error)
