@@ -272,15 +272,16 @@ class PayIDService {
                     }).first {
                         completion(.success(resolvedAddressDetails))
                     } else {
-                        completion(.failure("Unknown address format in PayID response"))
+                        completion(.failure("payid_service_error_loading".localized))
                     }
                 } else {
-                    completion(.failure("Unknown response format on PayID request"))
+                    completion(.failure("payid_service_error_loading".localized))
                 }
                 
             case .failure(let error):
                 let err = "PayID request failed. \(error.localizedDescription)"
-                completion(.failure(err))
+                print(err)
+                completion(.failure("payid_service_error_loading".localized))
             }
         }
     }
