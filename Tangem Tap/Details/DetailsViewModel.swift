@@ -33,6 +33,7 @@ class DetailsViewModel: ObservableObject {
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
+    var sendViewModel: SendViewModel!
     
     public var canCreateWallet: Bool {
         return cardViewModel.wallet == nil && cardViewModel.isCardSupported
@@ -195,8 +196,15 @@ class DetailsViewModel: ObservableObject {
             showSendChoise = true
         } else {
             amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
-            showSend = true
+           showSendScreen() 
         }
+    }
+    
+    func showSendScreen() {
+        sendViewModel = SendViewModel(amountToSend: amountToSend!,
+                                      cardViewModel: cardViewModel,
+                                      sdkSerice: sdkService)
+        showSend = true
     }
     
     func showUntrustedDisclaimerIfNeeded() {
