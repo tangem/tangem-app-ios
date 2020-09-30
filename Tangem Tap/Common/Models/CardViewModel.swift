@@ -30,7 +30,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 .store(in: &bag)
         }
     }
-    var rates: [String: [String: Decimal]] = [:]
+    @Published var rates: [String: [String: Decimal]] = [:]
     
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
@@ -243,10 +243,6 @@ class CardViewModel: Identifiable, ObservableObject {
         .receive(on: DispatchQueue.main)
         .assign(to: \.image, on: self)
         .store(in: &bag)
-    }
-    
-    func hasRates(for amount: Amount) -> Bool {
-        return rates[amount.currencySymbol] != nil
     }
     
     func getFiatFormatted(for amount: Amount?) -> String? {
