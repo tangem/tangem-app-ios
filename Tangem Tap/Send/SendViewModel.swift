@@ -163,23 +163,28 @@ class SendViewModel: ObservableObject {
         }
         .store(in: &bag)
         
-        $amountText //handle amount input
-            .filter { string -> Bool in
-                if self.isFiatCalculation,
+        $amountText
+        .combineLatest($isFiatCalculation)
+
+            .filter { (string, isFiat) -> Bool in
+                if string == self.amountText {
+                    return false
+                }
+                if isFiat,
                     let fiat =  self.cardViewModel.getFiat(for: self.amountToSend)?.description,
                     string == fiat {
                     return false //prevent cross-convert after max amount tap
                 }
                 return true
             }
-            .sink{ [unowned self] newAmount in
+            .sink{ [unowned self] newAmount, isFiat in
                 guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")),
                     let wallet = self.cardViewModel.wallet else {
                     self.amountToSend.value = 0
                     return
                 }
                 
-                self.amountToSend.value = self.isFiatCalculation ? self.cardViewModel.getCrypto(for: decimals,
+                self.amountToSend.value = isFiat ? self.cardViewModel.getCrypto(for: decimals,
                                                                                                 currencySymbol:  self.amountToSend.currencySymbol)?.rounded(blockchain: wallet.blockchain) ?? 0 : decimals
         }
         .store(in: &bag)
@@ -349,7 +354,7 @@ class SendViewModel: ObservableObject {
     
     func validateAddress(_ address: String) -> Bool {
         return cardViewModel.wallet?.blockchain.validate(address: address) ?? false
-            && address != cardViewModel.wallet!.address
+        && address != cardViewModel.wallet!.address
     }
     
     
