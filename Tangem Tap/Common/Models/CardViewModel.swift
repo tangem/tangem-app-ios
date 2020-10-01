@@ -30,13 +30,13 @@ class CardViewModel: Identifiable, ObservableObject {
                 .store(in: &bag)
         }
     }
-    var rates: [String: [String: Decimal]] = [:]
+    @Published var rates: [String: [String: Decimal]] = [:]
     
     @Published var isWalletLoading: Bool = false
     @Published var loadingError: Error?
     @Published var noAccountMessage: String?
     @Published var isCardSupported: Bool = true
-    @Published var payId: PayIdStatus = .notCreated
+    @Published var payId: PayIdStatus = .notSupported
     @Published var balanceViewModel: BalanceViewModel!
     @Published var wallet: Wallet? = nil
     @Published var image: UIImage? = nil
@@ -56,6 +56,7 @@ class CardViewModel: Identifiable, ObservableObject {
             self.walletManager = walletManager
             self.payIDService = PayIDService.make(from: walletManager.wallet.blockchain)
             self.balanceViewModel = self.makeBalanceViewModel(from: walletManager.wallet)
+            self.wallet = walletManager.wallet
             walletManager.$wallet
                 .subscribe(on: DispatchQueue.global())
                 .receive(on: DispatchQueue.main)
@@ -190,16 +191,16 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadImage() {
-        guard image == nil, let cid = card.cardId?.lowercased() else {
+        guard image == nil, let cid = card.cardId else {
             return
         }
         
-        if cid.starts(with: "bc01") { //Sergio
+        if cid.starts(with: "BC01") { //Sergio
             backedLoadImage(name: "card_tg059")
             return
         }
         
-        if cid.starts(with: "bc02") { //Marta
+        if cid.starts(with: "BC02") { //Marta
             backedLoadImage(name: "card_tg083")
             return
         }
@@ -219,8 +220,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     }
                 case .failure(let error):
                     print(error)
-                    //[REDACTED_TODO_COMMENT]
-                    break
+                    self?.backedLoadImage(name: "card_default")
                 }
             }
         }
@@ -243,10 +243,6 @@ class CardViewModel: Identifiable, ObservableObject {
         .receive(on: DispatchQueue.main)
         .assign(to: \.image, on: self)
         .store(in: &bag)
-    }
-    
-    func hasRates(for amount: Amount) -> Bool {
-        return rates[amount.currencySymbol] != nil
     }
     
     func getFiatFormatted(for amount: Amount?) -> String? {
