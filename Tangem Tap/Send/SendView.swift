@@ -35,16 +35,25 @@ struct SendView: View {
                                 Text(!self.viewModel.destination.isEmpty ? "send_destination_placeholder" : " ")
                                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemTapGrayDark)
-                                TextField("send_destination_placeholder",
-                                          text: self.$viewModel.destination,
-                                          onEditingChanged: { hz in
-                                            
-                                }) {
-                                    
-                                }
-                                .truncationMode(.middle)
-                                .disableAutocorrection(true)
-                                .font(Font.system(size: 16.0, weight: .regular, design: .default))
+
+                                CustomTextField(text: self.$viewModel.destination,
+                                                isResponder:  Binding.constant(nil),
+                                                actionButtonTapped: Binding.constant(true),
+                                                handleKeyboard: true,
+                                                textColor: UIColor.tangemTapGrayDark6,
+                                                font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
+                                                placeholder: "send_destination_placeholder".localized)
+                                
+//                                TextField("send_destination_placeholder",
+//                                          text: self.$viewModel.destination,
+//                                          onEditingChanged: { hz in
+//
+//                                }) {
+//
+//                                }
+//                                .truncationMode(.middle)
+//                                .disableAutocorrection(true)
+//                                .font(Font.system(size: 16.0, weight: .regular, design: .default))
                                 //.alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
                             }
                             Spacer()
@@ -163,7 +172,7 @@ struct SendView: View {
                                         self.viewModel.isNetworkFeeBlockOpen.toggle()
                                     }
                                 }) {
-                                    Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.compact.up" : "chevron.compact.down")
+                                    Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
                                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                         .foregroundColor(Color.tangemTapGrayDark6)
                                 }
@@ -182,7 +191,7 @@ struct SendView: View {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
                                             Text("send_fee_include_description")
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                                .foregroundColor(Color.tangemTapGrayLight4)
+                                                 .foregroundColor(Color.tangemTapGrayDark6)
                                         }
                                     }
                                 }
@@ -207,9 +216,15 @@ struct SendView: View {
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemTapGrayDark)
                             Spacer()
-                            Text(self.viewModel.sendFee)
+                            if self.viewModel.isFeeLoading {
+                                ActivityIndicatorView(color: UIColor.tangemTapGrayDark)
+                                    .offset(x: 8)
+                            } else {
+                                Text(self.viewModel.sendFee)
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemTapGrayDark)
+                                .frame(height: 20)
+                            }
                         }
                         Color.tangemTapGrayLight5
                             .frame(width: nil, height: 1.0, alignment: .center)
@@ -281,7 +296,7 @@ struct ExtractView_Previews: PreviewProvider {
                                                                      address: "adsfafa",
                                                                      type: .coin,
                                                                      value: 0.0),
-                                                cardViewModel: $cardViewModel,
-                                                sdkSerice: $sdkService), onSuccess: {})
+                                                cardViewModel: cardViewModel,
+                                                sdkSerice: sdkService), onSuccess: {})
     }
 }
