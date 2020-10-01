@@ -61,14 +61,12 @@ class SendViewModel: ObservableObject {
     @Published var transaction: BlockchainSdk.Transaction? = nil
     @Published var canFiatCalculation: Bool = true
     @Published var oldCardAlert: AlertBinder?
+    @Published var isFeeLoading: Bool = false
     
     @Published var sendError: AlertBinder?
-    @Binding var sdkService: TangemSdkService
-    @Binding var cardViewModel: CardViewModel {
-        didSet {
-            bind()
-        }
-    }
+    
+    var sdkService: TangemSdkService
+    var cardViewModel: CardViewModel
     
     var currencyUnit: String {
         return isFiatCalculation ? self.cardViewModel.selectedCurrency: self.amountToSend.currencySymbol
@@ -86,7 +84,7 @@ class SendViewModel: ObservableObject {
     
     var walletTotalBalanceFormatted: String {
         let amount = cardViewModel.wallet?.amounts[self.amountToSend.type]
-        let value = getDescription(for: amount)
+        let value = getDescription(for: amount, isFiat: isFiatCalculation)
         return String(format: "send_balance_subtitle_format".localized, value)
     }
     
@@ -100,24 +98,24 @@ class SendViewModel: ObservableObject {
         cardViewModel.walletManager as! TransactionSender
     }
     
-    
-    
-    init(amountToSend: Amount, cardViewModel: Binding<CardViewModel>, sdkSerice: Binding<TangemSdkService>) {
-        self._sdkService = sdkSerice
-        self._cardViewModel = cardViewModel
+    init(amountToSend: Amount, cardViewModel: CardViewModel, sdkSerice: TangemSdkService) {
+        self.sdkService = sdkSerice
+        self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
-        let feeDummyAmount = Amount(with: self.cardViewModel.wallet!.blockchain,
-                                    address: self.cardViewModel.wallet!.address,
-                                    type: .coin,
-                                    value: 0)
-        self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount)
-        self.canFiatCalculation = self.cardViewModel.hasRates(for: amountToSend)
+        if let wallet = self.cardViewModel.wallet {
+            let feeDummyAmount = Amount(with: wallet.blockchain,
+                                        address: wallet.address,
+                                        type: .coin,
+                                        value: 0)
+            self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount, isFiat: isFiatCalculation)
+        }
+
         fillTotalBlockWithDefaults()
         bind()
     }
     
-    private func getDescription(for amount: Amount?) -> String {
-        return isFiatCalculation ? self.cardViewModel.getFiatFormatted(for: amount) ?? ""
+    private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
+        return isFiat ? self.cardViewModel.getFiatFormatted(for: amount) ?? ""
             : amount?.description ?? ""
     }
     
@@ -138,8 +136,16 @@ class SendViewModel: ObservableObject {
         }
         .store(in: &bag)
         
+        cardViewModel
+            .$rates
+            .map {[unowned self] newRates -> Bool in
+                return newRates[self.amountToSend.currencySymbol] != nil
+        }
+        .assign(to: \.canFiatCalculation, on: self)
+        .store(in: &bag)
+        
         $destination //destination validation
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] newText in
                 self.validateDestination(newText)
         }
@@ -149,39 +155,43 @@ class SendViewModel: ObservableObject {
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .dropFirst()
             .sink { [unowned self] _ in
-                self.amountToSend = self.cardViewModel.wallet!.amounts[self.amountToSend.type]!
-                self.amountText = self.walletTotalBalanceDecimals
-                
-                withAnimation {
-                    self.isFeeIncluded = true
-                    self.isNetworkFeeBlockOpen = true
+                if let wallet = self.cardViewModel.wallet {
+                    self.amountToSend = wallet.amounts[self.amountToSend.type]!
+                    self.amountText = self.walletTotalBalanceDecimals
+                    
+                    withAnimation {
+                        self.isFeeIncluded = true
+                        self.isNetworkFeeBlockOpen = true
+                    }
                 }
         }
         .store(in: &bag)
         
-        $amountText //handle amount input
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
-            .filter { string -> Bool in
-                if self.isFiatCalculation,
+        $amountText
+        .combineLatest($isFiatCalculation)
+            .debounce(for: 0.3, scheduler: RunLoop.main)
+            .filter {[unowned self] (string, isFiat) -> Bool in
+                if isFiat,
                     let fiat =  self.cardViewModel.getFiat(for: self.amountToSend)?.description,
                     string == fiat {
                     return false //prevent cross-convert after max amount tap
                 }
                 return true
             }
-            .sink{ [unowned self] newAmount in
+            .sink{ [unowned self] newAmount, isFiat in
                 guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")),
                     let wallet = self.cardViewModel.wallet else {
                     self.amountToSend.value = 0
                     return
                 }
                 
-                self.amountToSend.value = self.isFiatCalculation ? self.cardViewModel.getCrypto(for: decimals,
+                self.amountToSend.value = isFiat ? self.cardViewModel.getCrypto(for: decimals,
                                                                                                 currencySymbol:  self.amountToSend.currencySymbol)?.rounded(blockchain: wallet.blockchain) ?? 0 : decimals
         }
         .store(in: &bag)
         
         $amountToSend //amount validation
+            .debounce(for: 0.5, scheduler: RunLoop.main, options: nil)
             .sink {[unowned self] newAmount in
                 if newAmount.value == 0 {
                     self.amountHint = nil
@@ -200,14 +210,19 @@ class SendViewModel: ObservableObject {
         .store(in: &bag)
         
         $selectedFee //update fee label
-            .sink{ [unowned self] newAmount in
-                let feeDummyAmount = Amount(with: self.cardViewModel.wallet!.blockchain, address: self.cardViewModel.wallet!.address, type: .coin, value: 0)
-                self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount)
+        .combineLatest($isFiatCalculation)
+            .debounce(for: 0.3, scheduler: RunLoop.main)
+            .sink{ [unowned self] newAmount, isFiat in
+                if let wallet = self.cardViewModel.wallet {
+                    let feeDummyAmount = Amount(with: wallet.blockchain, address: wallet.address, type: .coin, value: 0)
+                    self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
+                }
         }
         .store(in: &bag)
         
         
         $isFiatCalculation //handle conversion
+            .filter {[unowned self] _ in self.amountToSend.value != 0 }
             .sink { [unowned self] value in
                 self.amountText = value ? self.cardViewModel.getFiat(for: self.amountToSend)?.description
                     ?? ""
@@ -215,8 +230,11 @@ class SendViewModel: ObservableObject {
         }
         .store(in: &bag)
         
-        $transaction //update total block
-            .sink { [unowned self] tx in
+        $transaction
+        .combineLatest($isFiatCalculation)
+            .debounce(for: 0.3, scheduler: RunLoop.main)
+            //update total block
+            .sink { [unowned self] tx, isFiatCalculation in
                 if let tx = tx {
                     self.isSendEnabled = true
                     let totalAmount = tx.amount + tx.fee
@@ -228,7 +246,7 @@ class SendViewModel: ObservableObject {
                     
                     let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.cardViewModel.selectedCurrency)
                     
-                    if self.isFiatCalculation {
+                    if isFiatCalculation {
                         self.sendAmount = self.cardViewModel.getFiatFormatted(for: tx.amount) ?? ""
                         self.sendTotal = totalFiatAmountFormatted ?? "-"
                         self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
@@ -255,17 +273,20 @@ class SendViewModel: ObservableObject {
             .filter { $0 }
             .combineLatest($validatedDestination.compactMap { $0 })
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
-            .flatMap {[unowned self] in
-                self.txSender.getFee(amount: self.amountToSend, destination: $1)
-                    .catch{ error -> Just<[Amount]> in
+            .flatMap { [unowned self] _, dest -> AnyPublisher<[Amount], Never> in
+                self.isFeeLoading = true
+                return self.txSender.getFee(amount: self.amountToSend, destination: dest)
+                    .catch { error -> Just<[Amount]> in
                         print(error)
                         return Just([Amount]())
-                }
+                }.eraseToAnyPublisher()
         }
         .receive(on: RunLoop.main)
         .sink(receiveCompletion: { [unowned self] completion in
+            self.isFeeLoading = false
             self.fees = []
             }, receiveValue: {[unowned self] fees in
+                self.isFeeLoading = false
                 self.fees = fees
         })
             .store(in: &bag)
@@ -288,6 +309,7 @@ class SendViewModel: ObservableObject {
             .combineLatest($validatedDestination,
                            $selectedFee,
                            $isFeeIncluded)
+            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .map {[unowned self] amountValidated, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
               
                 if !amountValidated || destination == nil || fee == nil {
@@ -338,8 +360,8 @@ class SendViewModel: ObservableObject {
     }
     
     func validateAddress(_ address: String) -> Bool {
-        return cardViewModel.wallet!.blockchain.validate(address: address)
-            && address != cardViewModel.wallet!.address
+        return cardViewModel.wallet?.blockchain.validate(address: address) ?? false
+        && address != cardViewModel.wallet!.address
     }
     
     
@@ -417,7 +439,7 @@ class SendViewModel: ObservableObject {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
-                    
+                    Analytics.log(error: error)
                     self.sendError = error.detailedError.alertBinder
                 } else {
                     callback()
