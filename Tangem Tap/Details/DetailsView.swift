@@ -28,7 +28,7 @@ struct DetailsView: View {
         let buttons = symbols.map { amount in
             return ActionSheet.Button.default(Text(amount.currencySymbol)) {
                 self.viewModel.amountToSend = Amount(with: amount, value: 0)
-                self.viewModel.showSend = true
+                self.viewModel.showSendScreen()
             }
         }
         return buttons
@@ -51,19 +51,20 @@ struct DetailsView: View {
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
-                        if self.viewModel.cardViewModel.image != nil {
-                            Image(uiImage: self.viewModel.cardViewModel.image!)
+                        if self.viewModel.image != nil {
+                            Image(uiImage: self.viewModel.image!)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
-                                .padding(.bottom, 16.0)
-                        }
-                        
-                        if self.viewModel.cardViewModel.isWalletLoading {
-                            ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark6)
-                                .padding(.bottom, 16.0)
+                                .padding(.vertical, 16.0)
                         } else {
-                            
+                            Color.tangemTapGrayLight4
+                                .opacity(0.5)
+                             .frame(width: geometry.size.width - 32.0, height: 180, alignment: .center)
+                                .cornerRadius(6)
+                              .padding(.vertical, 16.0)
+                       }
+
                             if !self.viewModel.cardCanSign {
                                 AlertCardView(title: "common_warning".localized,
                                               message: "alert_old_card".localized)
@@ -93,7 +94,7 @@ struct DetailsView: View {
                             }
                             
                             
-                        }
+                        
                     }
                 }
                 
@@ -132,9 +133,7 @@ struct DetailsView: View {
                         .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
                         .sheet(isPresented: $viewModel.showSend) {
-                            SendView(viewModel: SendViewModel(amountToSend: self.viewModel.amountToSend!,
-                                                              cardViewModel: self.$viewModel.cardViewModel,
-                                                              sdkSerice: self.$viewModel.sdkService), onSuccess: {
+                            SendView(viewModel: self.viewModel.sendViewModel, onSuccess: {
                                                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                                                     let alert = Alert(title: Text("common_success"),
                                                                                       message: Text("send_transaction_success"),
@@ -181,6 +180,10 @@ struct DetailsView: View {
                 self.viewModel.onAppear()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+        .filter {_ in !self.viewModel.showSettings
+            && !self.viewModel.showSend
+            && !self.viewModel.showCreatePayID
+        }
         .delay(for: 0.3, scheduler: DispatchQueue.global())
         .receive(on: DispatchQueue.main)) { _ in
             self.viewModel.cardViewModel.update(silent: true)
