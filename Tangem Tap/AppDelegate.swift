@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -36,17 +37,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         UISwitch.appearance().onTintColor = .tangemTapBlue
         UITableView.appearance().backgroundColor = .clear
+        UINavigationBar.appearance().shadowImage = UIImage()
+        UINavigationBar.appearance().barTintColor = UIColor.tangemTapBgGray
+        UINavigationBar.appearance().tintColor = UIColor.tangemTapGrayDark6
         
-        if #available(iOS 14.0, *) {
+        
+       // if #available(iOS 14.0, *) { //for xcode 12
             // iOS 14 doesn't have extra separators below the list by default.
-        } else {
+      //  } else {
             // To remove only extra separators below the list:
             UITableView.appearance().tableFooterView = UIView()
-        }
+       // }
         
-//        let bgView = UIView()
-//        bgView.backgroundColor = UIColor.tangemTapBgGray
-//        UITableView.appearance().backgroundView = bgView
+
+        #if DEBUG
+        Firebase.Analytics.setAnalyticsCollectionEnabled(false)
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #else
+          FirebaseApp.configure()
+//        Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled) //[REDACTED_TODO_COMMENT]
+//        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
+        #endif
+        
         return true
     }
 
