@@ -12,6 +12,7 @@ import SwiftUI
 
 struct CardOperationView: View {
     var title: String
+    var buttonTitle: LocalizedStringKey = "common_button_title_save_changes"
     var alert: String
     var actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
     @Environment(\.presentationMode) var presentationMode
@@ -36,7 +37,7 @@ struct CardOperationView: View {
             HStack(alignment: .center, spacing: 8.0) {
                 Spacer()
                 TangemButton(isLoading: self.isLoading,
-                             title: "common_button_title_save_changes",
+                             title: buttonTitle,
                              image: "save") {
                                 self.isLoading = true
                                 self.actionButtonPressed {result in
