@@ -16,14 +16,16 @@ struct CardRectView: View {
             if withShadow {
                 Rectangle()
                     .fill(Color.tangemTapBlue.opacity(0.1))
-                    .aspectRatio(1.86, contentMode: .fit)
+                   // .aspectRatio(1.86, contentMode: .fit)
                     .cornerRadius(22.0)
                     .offset(x: -12.0, y: 8.0)
+                    .frame(width: 456, height: 244, alignment: .center)
             }
             Rectangle()
                 .fill(Color.tangemTapBlue)
-                .aspectRatio(1.86, contentMode: .fit)
+               // .aspectRatio(1.86, contentMode: .fit)
                 .cornerRadius(22.0)
+                .frame(width: 456, height: 244, alignment: .center)
             VStack(alignment: .trailing, spacing: 16.0) {
             Image("tangemLogo")
                 .accentColor(Color.white)

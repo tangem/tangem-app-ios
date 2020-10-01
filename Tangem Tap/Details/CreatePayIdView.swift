@@ -14,8 +14,7 @@ struct CreatePayIdView: View {
     var cardId: String
     @State private var payIdText: String = ""
     @State private var isLoading: Bool = false
-    @State private var showAlert: Bool = false
-    @State private var payIdError: Error? = nil
+    @State private var alert: AlertBinder? = nil
     @State private var isFirstResponder : Bool? = false
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var cardViewModel: CardViewModel
@@ -81,10 +80,13 @@ struct CreatePayIdView: View {
                     self.isLoading = false
                     switch result {
                     case .success:
-                        self.showAlert = true
+                        self.alert = AlertBinder(alert:  Alert(title: Text("common_success"),
+                                                               message: Text("create_payid_success_message"),
+                                                               dismissButton: Alert.Button.default(Text("common_ok"), action: {
+                                                                self.presentationMode.wrappedValue.dismiss()
+                                                               })))
                     case .failure(let error):
-                        self.payIdError = error
-                        self.showAlert = true
+                        self.alert = error.alertBinder
                     }
                 }
             }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: payIdText.isEmpty))
@@ -93,17 +95,7 @@ struct CreatePayIdView: View {
         }
         .padding(.horizontal)
         .keyboardAdaptive()
-        .alert(isPresented: $showAlert) { () -> Alert in
-            if let error = self.payIdError {
-                return error.alert
-            } else {
-                return Alert(title: Text("common_success"),
-                             message: Text("create_payid_success_message"),
-                             dismissButton: Alert.Button.default(Text("common_ok"), action: {
-                                self.presentationMode.wrappedValue.dismiss()
-                             }))
-            }
-        }
+        .alert(item: self.$alert) { $0.alert }
     }
 }
 

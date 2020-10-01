@@ -51,7 +51,7 @@ struct SettingsView: View {
     
     var body: some View {
         List {
-            Section(header: Color.tangemTapBgGray
+            Section(header: EmptyView()
                 .listRowInsets(EdgeInsets())) {
                     DetailsRowView(title: "settings_row_title_cid".localized,
                                    subtitle: CardIdFormatter(cid: viewModel.cardViewModel.card.cardId ?? "").formatted())
@@ -86,6 +86,7 @@ struct SettingsView: View {
                     .disabled(!viewModel.canManageSecurity)
                 
                 NavigationLink(destination: CardOperationView(title: "settings_row_title_erase_wallet".localized,
+                                                              buttonTitle: "settings_row_title_erase_wallet",
                                                               alert: "cardOperation_erase_wallet".localized,
                                                               actionButtonPressed: { completion in
                                                                 self.viewModel.purgeWallet(completion: completion)
@@ -102,6 +103,7 @@ struct SettingsView: View {
             }
             
         }
+        .padding(.top, 16.0)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("settings_title", displayMode: .inline)
     }
