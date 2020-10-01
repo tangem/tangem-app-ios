@@ -10,6 +10,8 @@
 		31B33C8CA6A7BDF8E74D9091 /* Pods_Tangem_TapTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30730268D19E81F373712C02 /* Pods_Tangem_TapTests.framework */; };
 		5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */; };
 		5D0B4F9324F54F23007A0CD1 /* TangemSdkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0B4F9224F54F23007A0CD1 /* TangemSdkService.swift */; };
+		5D225CB72524B592001564A3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D225CB62524B592001564A3 /* GoogleService-Info.plist */; };
+		5D225CB92524B721001564A3 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
 		5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */; };
 		5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
 		5D2C7DAC251378CA001B29D0 /* Pods_Tangem_Tap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13E2B49EFB622F929FD5C46A /* Pods_Tangem_Tap.framework */; settings = {ATTRIBUTES = (Required, ); }; };
@@ -117,6 +119,8 @@
 		453C6E5BE6FDD4AA1524167D /* Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegualrExpression+.swift"; sourceTree = "<group>"; };
 		5D0B4F9224F54F23007A0CD1 /* TangemSdkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkService.swift; sourceTree = "<group>"; };
+		5D225CB62524B592001564A3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		5D225CB82524B721001564A3 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkLoggerConfiguration+.swift"; sourceTree = "<group>"; };
 		5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
 		5D312C9424D87FF800B4DDEB /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
@@ -263,6 +267,7 @@
 			children = (
 				5D384B8A24FD154C00C2C92C /* PayIDService.swift */,
 				5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */,
+				5D225CB82524B721001564A3 /* Analytics.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -282,6 +287,7 @@
 		5D3F77B924BF56D800E8695B = {
 			isa = PBXGroup;
 			children = (
+				5D225CB62524B592001564A3 /* GoogleService-Info.plist */,
 				5D3F77C424BF56D800E8695B /* Tangem Tap */,
 				5D3F77DB24BF56DC00E8695B /* Tangem TapTests */,
 				5D3F77E624BF56DC00E8695B /* Tangem TapUITests */,
@@ -603,6 +609,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D225CB72524B592001564A3 /* GoogleService-Info.plist in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5E058E24FEA2DB00F04DE1 /* Config.plist in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
@@ -796,6 +803,7 @@
 				5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */,
 				5D958E1624F51402006BD932 /* NavigationConfigurator.swift in Sources */,
 				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
+				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				5D9004E424FA79F700E90939 /* onWillDisappear.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */,
@@ -995,7 +1003,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -1020,7 +1028,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "App Store Provisioning Profile";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
