@@ -74,8 +74,10 @@ struct CustomTextField: UIViewRepresentable {
             let currentString: NSString = textField.text! as NSString
             let newString: String =
                 currentString.replacingCharacters(in: range, with: string) as String
-            
-            
+        
+            guard Array(newString).filter({ $0 == "." || $0 == "," }).count  <= 1 else {
+                  return false
+            }
             
             var allowNew = true
             
@@ -91,11 +93,9 @@ struct CustomTextField: UIViewRepresentable {
                 return false
             }
             
-            if string == "," {
-                if let text = textField.text {
-                    textField.text = text + "."
-                    return false
-                }
+            if newString.contains(",") {
+                textField.text = newString.replacingOccurrences(of: ",", with: ".")
+                return false
             }
             
             return true
