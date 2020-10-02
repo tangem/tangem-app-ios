@@ -50,11 +50,9 @@ struct AddressDetailView: View {
     var body: some View {
         VStack(spacing: 0.0) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text(AddressFormatter(address: cardViewModel.wallet?.address ?? "").truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                        .minimumScaleFactor(0.5)
-                        .multilineTextAlignment(.leading)
                         .lineLimit(1)
                         .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
