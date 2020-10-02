@@ -150,7 +150,7 @@ struct ReadView: View {
             
                 if viewModel.openDetails {
                     NavigationLink(destination:
-                        DetailsView(viewModel: DetailsViewModel(cid: viewModel.sdkService.cards.first!.key,
+                        MainView(viewModel: MainViewModel(cid: viewModel.sdkService.cards.first!.key,
                                                                 sdkService: viewModel.sdkService)),
                                    isActive: $viewModel.openDetails) {
                                     EmptyView()
