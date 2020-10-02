@@ -80,7 +80,8 @@ struct MainView: View {
                                 } else {
                                     if self.viewModel.cardViewModel.balanceViewModel != nil {
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
-                                            .layoutPriority(2)
+                                            .padding(.horizontal, 16.0)
+                                         
                                     }
                                 }
                                 AddressDetailView(showCreatePayID: self.$viewModel.showCreatePayID)
