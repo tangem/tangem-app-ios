@@ -155,7 +155,7 @@ PODS:
 DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
-  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-28`)"
+  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-30`)"
   - EFQRCode
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -203,7 +203,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.7
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-28
+    :tag: build-30
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
@@ -220,7 +220,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.7
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-28
+    :tag: build-30
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
@@ -267,6 +267,6 @@ SPEC CHECKSUMS:
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: ad99802fa0c4d03d92683a0a7a77f99f0ef4a0f4
+PODFILE CHECKSUM: 5af82e54063941c6fac263062042089ef018ca6f
 
 COCOAPODS: 1.9.3
