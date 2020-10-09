@@ -235,7 +235,9 @@
 "payid_service_error_loading" = "Invalid PayID";
 
 
-"disclaimer_text" = "1.  Tangem Tap application (Software)
+"disclaimer_text" = "Legal Disclaimer
+
+1.  Tangem Tap application (Software)
  
 The Software is intended for usage only with Tangem hardware wallets (Cards) via NFC interface. The Software DOES NOT:
  
@@ -290,6 +292,6 @@ Unless otherwise required by law, in no event shall the owners of, or contributo
  
 This disclaimer was amended for the last time on October 1st, 2020.";
 
-"disclaimer_title" = "Legal Disclaimer";
+"disclaimer_title" = "Terms of service";
 
 "common_accept" = "Accept";
