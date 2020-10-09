@@ -256,7 +256,7 @@ struct SendView: View {
                                 self.onSuccess()
                             }
                         }) { HStack(alignment: .center, spacing: 16.0) {
-                            Text("details_button_send")
+                            Text("main_button_send")
                             Spacer()
                             Image("arrow.right")
                         }.padding(.horizontal)
