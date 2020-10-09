@@ -292,7 +292,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                     fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? " ",
                                     balance: wallet.amounts[.token]?.description ?? "-",
                                     secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
-                                    secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
+                                    secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
                                     secondaryName: wallet.blockchain.displayName )
         } else {
             return BalanceViewModel(isToken: false,
