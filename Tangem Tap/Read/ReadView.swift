@@ -125,7 +125,7 @@ struct ReadView: View {
                         .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
                         // .transition(.offset(x: -200.0, y: 0.0))
                     } else {
-                        Color.clear.frame(width: 93, height: 56)
+                        Color.clear.frame(width: ButtonSize.small.value.width, height: ButtonSize.small.value.height)
                     }
                     TangemButton(isLoading: self.viewModel.isLoading,
                                  title: greenButtonTitleKey,
@@ -154,6 +154,13 @@ struct ReadView: View {
                                                                 sdkService: viewModel.sdkService)),
                                    isActive: $viewModel.openDetails) {
                                     EmptyView()
+                    }
+                }
+                
+                if viewModel.openDisclaimer {
+                    NavigationLink(destination: DisclaimerView(sdkService: viewModel.sdkService),
+                                   isActive: $viewModel.openDisclaimer) {
+                                      EmptyView()
                     }
                 }
             }
