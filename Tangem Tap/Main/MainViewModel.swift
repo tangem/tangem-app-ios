@@ -129,8 +129,6 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
         
         cardViewModel.$image
-            .dropFirst()
-            .debounce(for: 0.5, scheduler: RunLoop.main)
             .receive(on: RunLoop.main)
             .assign(to: \.image, on: self)
             .store(in: &bag)
