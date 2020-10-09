@@ -10,8 +10,17 @@ import Foundation
 import SwiftUI
 
 enum ButtonSize: CGFloat {
-    case small = 93.0
-    case big = 200.0
+    case small
+    case big
+    
+    var value: CGSize {
+        switch self {
+        case .small:
+            return CGSize(width: 93.0, height: 56.0)
+        case .big:
+            return CGSize(width: 200.0, height: 56.0)
+        }
+    }
 }
 
 enum ButtonColorStyle {
@@ -29,7 +38,7 @@ struct TangemButtonStyle: ButtonStyle {
             .label
             .font(Font.custom("SairaSemiCondensed-Bold", size: 15.0))
             .foregroundColor(Color.white)
-            .frame(width: size.rawValue, height: 56.0, alignment: .center)
+            .frame(width: size.value.width, height: size.value.height, alignment: .center)
             .background(
                 configuration.isPressed ?
                 (colorStyle == .green ? Color.tangemTapGreen1 : Color.tangemTapGrayDark4) :
