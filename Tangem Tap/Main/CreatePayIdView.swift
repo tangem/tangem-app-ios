@@ -22,10 +22,10 @@ struct CreatePayIdView: View {
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 6.0) {
-                Text("create_payid_title")
+                Text("wallet_create_payid")
                     .font(Font.system(size: 30.0, weight: .bold, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark6)
-                Text(String(format: NSLocalizedString("create_payid_card_format", comment: ""), CardIdFormatter(cid: cardId).formatted()))
+                Text(String(format: NSLocalizedString("wallet_create_payid_card_format", comment: ""), CardIdFormatter(cid: cardId).formatted()))
                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark)
             }
@@ -37,8 +37,8 @@ struct CreatePayIdView: View {
                         text: $payIdText, //First responder custom shit
                         isResponder:  $isFirstResponder,
                         actionButtonTapped: Binding.constant(true),
-                        placeholder: NSLocalizedString("create_payid_placeholder", comment: ""))
-                        //                        TextField("create_payid_placeholder", text: $payIdText)
+                        placeholder: NSLocalizedString("wallet_create_payid_hint", comment: ""))
+                        //                        TextField("wallet_create_payid_hint", text: $payIdText)
                         //                            .font(Font.system(size: 16.0, weight: .regular, design: .default))
                         // .foregroundColor(Color("tangem_tap_gray_dark"))
                         .alignmentGuide(.firstBaselineCustom) { d in
@@ -51,7 +51,7 @@ struct CreatePayIdView: View {
                         .frame(width: 180, height: 1.0, alignment: .center)
                 }
                 
-                Text("create_payid_domain")
+                Text("wallet_create_payid_domain")
                     .font(Font.system(size: 16.0, weight: .regular, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark4)
                     .alignmentGuide(.firstBaselineCustom) { d in
@@ -60,7 +60,7 @@ struct CreatePayIdView: View {
             }
             Spacer()
             HStack {
-                Text("create_payid_info")
+                Text("wallet_create_payid_info")
                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark)
                     .multilineTextAlignment(.leading)
@@ -70,7 +70,7 @@ struct CreatePayIdView: View {
             }
             .padding(.bottom, 32.0)
             .fixedSize(horizontal: false, vertical: true)
-            TangemButton(isLoading: self.isLoading, title: "create_payid_button_title", image: "arrow.right") {
+            TangemButton(isLoading: self.isLoading, title: "wallet_create_payid_button_title", image: "arrow.right") {
                 if self.isLoading {
                     return
                 }
@@ -81,7 +81,7 @@ struct CreatePayIdView: View {
                     switch result {
                     case .success:
                         self.alert = AlertBinder(alert:  Alert(title: Text("common_success"),
-                                                               message: Text("create_payid_success_message"),
+                                                               message: Text("wallet_create_payid_success_message"),
                                                                dismissButton: Alert.Button.default(Text("common_ok"), action: {
                                                                 self.presentationMode.wrappedValue.dismiss()
                                                                })))
