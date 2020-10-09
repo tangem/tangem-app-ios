@@ -23,10 +23,11 @@ struct DisclaimerView: View {
     static var isTermsOfServiceAccepted: Bool
     
     var body: some View {
-        VStack(alignment: .leading) {            
+        VStack(alignment: .trailing) {
             ScrollView {
                 Text("disclaimer_text")
                     .font(Font.system(size: 16, weight: .regular, design: .default))
+                    .foregroundColor(.tangemTapGrayDark2)
                     .padding()
             }
             
@@ -37,8 +38,7 @@ struct DisclaimerView: View {
                                 DisclaimerView.isTermsOfServiceAccepted = true
                                 self.openDetails = true
                 }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
-                    .padding(.bottom)
-                    .padding(.leading, 16+8+ButtonSize.small.value.width)
+                    .padding([.bottom, .trailing])
             }
             
             if sdkService != nil {
