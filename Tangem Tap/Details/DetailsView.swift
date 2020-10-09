@@ -71,6 +71,12 @@ struct DetailsView: View {
                                        subtitle: viewModel.cardViewModel.selectedCurrency)
                         
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                
+                NavigationLink(destination:DisclaimerView(state: .read).background(Color.tangemTapBgGray)) {
+                                       DetailsRowView(title: "disclaimer_title".localized,
+                                                      subtitle: "")
+                                       
+                               }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
             }
             
             Section(header: HeaderView(text: "details_section_title_card".localized)) {
