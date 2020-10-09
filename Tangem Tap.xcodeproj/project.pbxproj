@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		31B33C8CA6A7BDF8E74D9091 /* Pods_Tangem_TapTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30730268D19E81F373712C02 /* Pods_Tangem_TapTests.framework */; };
+		5D011A242530778200758010 /* DisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D011A232530778200758010 /* DisclaimerView.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */; };
 		5D0B4F9324F54F23007A0CD1 /* TangemSdkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0B4F9224F54F23007A0CD1 /* TangemSdkService.swift */; };
 		5D225CB72524B592001564A3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D225CB62524B592001564A3 /* GoogleService-Info.plist */; };
@@ -117,6 +118,7 @@
 		2459667052667F113C3CBF58 /* Pods-Tangem TapTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.release.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.release.xcconfig"; sourceTree = "<group>"; };
 		30730268D19E81F373712C02 /* Pods_Tangem_TapTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TapTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		453C6E5BE6FDD4AA1524167D /* Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		5D011A232530778200758010 /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegualrExpression+.swift"; sourceTree = "<group>"; };
 		5D0B4F9224F54F23007A0CD1 /* TangemSdkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkService.swift; sourceTree = "<group>"; };
 		5D225CB62524B592001564A3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -244,6 +246,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		5D011A222530776A00758010 /* Disclaimer */ = {
+			isa = PBXGroup;
+			children = (
+				5D011A232530778200758010 /* DisclaimerView.swift */,
+			);
+			path = Disclaimer;
+			sourceTree = "<group>";
+		};
 		5D383E3C24D95B6B00C9BFF6 /* Localizations */ = {
 			isa = PBXGroup;
 			children = (
@@ -310,6 +320,7 @@
 		5D3F77C424BF56D800E8695B /* Tangem Tap */ = {
 			isa = PBXGroup;
 			children = (
+				5D011A222530776A00758010 /* Disclaimer */,
 				5D384B9224FD51B200C2C92C /* Details */,
 				5DFCCB7224C3817E0014A293 /* Send */,
 				5DFCCB6D24C372830014A293 /* Main */,
@@ -768,6 +779,7 @@
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				5DFF006125224C85005203FB /* TangemButton.swift in Sources */,
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
+				5D011A242530778200758010 /* DisclaimerView.swift in Sources */,
 				5DA3A2ED251B589E009A8E08 /* AlertManager.swift in Sources */,
 				5D5E059224FEA4B800F04DE1 /* CoinMarketCapService.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */,
