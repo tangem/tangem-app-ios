@@ -76,7 +76,7 @@ struct MainView: View {
                                 ForEach(self.pendingTransactionViews) { $0 }
                                 
                                 if self.viewModel.cardViewModel.noAccountMessage != nil {
-                                    ErrorView(title: "error_title_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
+                                    ErrorView(title: "wallet_error_no_account".localized, subtitle: self.viewModel.cardViewModel.noAccountMessage!)
                                 } else {
                                     if self.viewModel.cardViewModel.balanceViewModel != nil {
                                         BalanceView(balanceViewModel: self.viewModel.cardViewModel.balanceViewModel)
@@ -88,9 +88,9 @@ struct MainView: View {
                                     .environmentObject(self.viewModel.cardViewModel)
                             } else {
                                 if !self.viewModel.cardViewModel.isCardSupported  {
-                                    ErrorView(title: "error_title_unsupported_blockchain".localized, subtitle: "error_subtitle_unsupported_blockchain".localized)
+                                    ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
                                 } else {
-                                    ErrorView(title: "error_title_empty_card".localized, subtitle: "error_subtitle_empty_card".localized)
+                                    ErrorView(title: "wallet_error_empty_card".localized, subtitle: "wallet_error_empty_card_subtitle".localized)
                                 }
                             }
                             
@@ -106,7 +106,7 @@ struct MainView: View {
             })
             HStack(alignment: .center, spacing: 8.0) {
                 TangemButton(isLoading: self.viewModel.isScanning,
-                             title: "main_button_scan",
+                             title: "wallet_button_scan",
                              image: "scan") {
                                 withAnimation {
                                     self.viewModel.scan()
@@ -116,7 +116,7 @@ struct MainView: View {
                 if self.viewModel.cardViewModel.isCardSupported {
                     if self.viewModel.cardViewModel.wallet == nil {
                         TangemButton(isLoading: self.viewModel.isCreatingWallet,
-                                     title: "main_button_create_wallet",
+                                     title: "wallet_button_create_wallet",
                                      image: "arrow.right") {
                                          self.viewModel.createWallet()
                         }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canCreateWallet))
@@ -125,7 +125,7 @@ struct MainView: View {
                         Button(action: {
                             self.viewModel.sendTapped()
                         }) { HStack(alignment: .center, spacing: 16.0) {
-                            Text("main_button_send" )
+                            Text("wallet_button_send" )
                             Spacer()
                             Image("arrow.right")
                         }
@@ -146,7 +146,7 @@ struct MainView: View {
                             })
                         }
                         .actionSheet(isPresented: self.$viewModel.showSendChoise) {
-                            ActionSheet(title: Text("main_choice_wallet_option_title"),
+                            ActionSheet(title: Text("wallet_choice_wallet_option_title"),
                                         message: nil,
                                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
                             
@@ -165,7 +165,7 @@ struct MainView: View {
         }
         .padding(.bottom, 16.0)
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(viewModel.showSettings ? "" : "main_title", displayMode: .inline)
+        .navigationBarTitle(viewModel.showSettings ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
             self.viewModel.showSettings = true
             
