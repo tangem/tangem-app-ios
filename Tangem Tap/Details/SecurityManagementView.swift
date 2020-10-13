@@ -21,22 +21,22 @@ enum SecurityManagementOption: CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .accessCode:
-            return "manage_security_row_title_access_code".localized
+            return "details_manage_security_access_code".localized
         case .longTap:
-            return "manage_security_row_title_longtap".localized
+            return "details_manage_security_long_tap".localized
         case .passCode:
-            return "manage_security_row_title_passcode".localized
+            return "details_manage_security_passcode".localized
         }
     }
     
     var subtitle: String {
         switch self {
         case .accessCode:
-            return "manage_security_row_subtitle_access_code".localized
+            return "details_manage_security_access_code_description".localized
         case .longTap:
-            return "manage_security_row_subtitle_longtap".localized
+            return "details_manage_security_longtap_description".localized
         case .passCode:
-            return "manage_security_row_subtitle_passcode".localized
+            return "details_manage_security_passcode_description".localized
         }
     }
 }
@@ -112,7 +112,7 @@ struct SecurityManagementView: View {
             HStack(alignment: .center, spacing: 8.0) {
                 Spacer()
                 TangemButton(isLoading: self.isLoading,
-                             title: selectedOption == .longTap ? "common_button_title_save_changes" : "common_continue",
+                             title: selectedOption == .longTap ? "common_save_changes" : "common_continue",
                              image: "save") {
                                 switch self.selectedOption {
                                 case .accessCode, .passCode:
@@ -144,7 +144,7 @@ struct SecurityManagementView: View {
             
             if openWarning {
                 NavigationLink(destination: CardOperationView(title: selectedOption.title,
-                                                              alert: "cardOperation_security_management".localized,
+                                                              alert: "details_security_management_warning".localized,
                                                               actionButtonPressed: { completion in
                                                                 self.sdkService.changeSecOption(self.selectedOption,
                                                                                                 card: self.cardViewModel.card,
@@ -157,7 +157,7 @@ struct SecurityManagementView: View {
             }
         }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
-        .navigationBarTitle("manage_security_title", displayMode: .inline)
+        .navigationBarTitle("details_manage_security_title", displayMode: .inline)
     }
 }
 

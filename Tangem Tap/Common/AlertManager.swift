@@ -21,7 +21,7 @@ class AlertManager {
             case .oldDeviceOldCard:
                 return "alert_old_device_this_card"
             case .untrustedCard:
-                return "alert_loaded_wallet_warning_card_signed_transactions"
+                return "alert_card_signed_transactions"
             case .devCard:
                 return "alert_developer_card"
             }
