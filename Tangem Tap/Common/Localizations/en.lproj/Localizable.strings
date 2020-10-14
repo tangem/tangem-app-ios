@@ -10,13 +10,13 @@
 
 "common_error" = "Error";
 
-"common_ok" = "Ok";
+"common_ok" = "OK";
 
 "common_no" = "No";
 
-"common_button_title_save_changes" = "Save changes";
-
 "common_continue" = "Continue";
+
+"common_save_changes" = "Save changes";
 
 "common_warning" = "Warning";
 
@@ -24,101 +24,102 @@
 
 "common_camera_denied_alert_message" = "You have not given access to your camera, please adjust your privacy settings";
 
-"common_camera_aler_button_settings" = "Settings";
+"common_camera_alert_button_settings" = "Settings";
+
+
+"home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
+
+"home_welcome_back" = "Welcome back to Tangem Tap. \nScan your card to start.";
+
+"home_button_yes" = "Yes! Scan it.";
+
+"home_button_shop" = "Shop";
+
+"home_ready_title" = "Get ready to tap your \ncard to the back of the \nphone.";
+
+"home_button_tapin" = "Tap in";
+
+"home_button_scan" = "Scan card";
+
+"wallet_error_no_account_subtitle_format" = "Load %@+ %@ to create account";
+
+"wallet_button_scan" = "Scan";
+
+"wallet_button_send" = "Send";
+
+"wallet_button_create_wallet" = "Create wallet";
+
+"wallet_title" = "Tangem Tap";
+
+"wallet_choice_wallet_option_title" = "Choice wallet option";
 
 
 
-"read_welcome_title" = "Welcome to Tangem.";
+"wallet_balance_token_title" = "Token";
 
-"read_welcome_subtitle" = "Do you have one of \nour cards?";
+"wallet_balance_tokens_title" = "Tokens";
 
-"read_welcome_back_title" = "Welcome back to \nTangem Tap";
+"wallet_balance_verified" = "Verified Balance";
 
-"read_welcome_back_subtitle" = "Scan your card to start.";
-
-"read_button_yes" = "Yes! Scan it.";
-
-"read_button_shop" = "Shop";
-
-"read_ready_title" = "Get ready to tap your \ncard to the back of the \nphone.";
-
-"read_button_tapin" = "Tap in";
-
-"read_button_scan" = "Scan card";
+"wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
 
 
 
-"main_button_scan" = "Scan";
+"wallet_error_no_account" = "Account is not created";
 
-"main_button_send" = "Send";
+"wallet_error_empty_card" = "Empty card";
 
-"main_button_create_wallet" = "Create wallet";
+"wallet_error_empty_card_subtitle" = "Create wallet to start using Tangem card";
 
-"main_title" = "Tangem Tap";
+"wallet_error_unsupported_blockchain" = "This card is not supported";
 
-"main_choice_wallet_option_title" = "Choice wallet option";
+"wallet_error_unsupported_blockchain_subtitle" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
 
+"wallet_balance_loading" = "Balance is loading…";
 
-
-"balanceView_token_title" = "Token";
-
-"balanceView_blockchain_verified" = "Verified Balance";
-
-"balanceView_blockchain_unreachable" = "Blockchain is unreachable";
-
-
-
-"error_title_no_account" = "Account is not created";
-
-"error_title_empty_card" = "Empty card";
-
-"error_subtitle_empty_card" = "Create wallet to start using Tangem card";
-
-"error_title_unsupported_blockchain" = "This card is not supported";
-
-"error_subtitle_unsupported_blockchain" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
-
-
-
-"pendingTxView_unknown" = "Transaction is in progress...";
+"wallet_balance_tx_in_progress" = "Transaction is in progress...";
 
 "pendingTxView_sending_format" = "Sending %@ to %@";
 
 "pendingTxView_receiving_format" = "Receiving %@ from %@";
 
+"wallet_pending_tx_receiving" = "Receiving ";
+"wallet_pending_tx_receiving_address_format" = " from %@ ";
+"wallet_pending_tx_sending" = "Sending ";
+"wallet_pending_tx_sending_address_format" = " to %@ ";
 
 
-"addressDetails_button_explore" = "Explore address";
+"wallet_address_button_explore" = "Explore address";
 
-"addressDetails_button_createPayid" = "Create PayID";
-
-
-
-"qr_title_wallet" = "Wallet";
-
-
-
-"create_payid_title" = "Create PayID";
-
-"create_payid_card_format" = "Card: %@";
-
-"create_payid_placeholder" = "PayID name";
-
-"create_payid_domain" = "$payid.tangem.com";
-
-"create_payid_button_title" = "Create";
-
-"create_payid_info" = "Your PayID is information unique to you, like your phone number, email or ABN.";
-
-"create_payid_success_message" = "PayID created successfully and copied to clipboard";
-
-"create_payid_error_message" = "Error response while creating PayID";
-
-"create_payid_already_created_message" = "This PayID already exists. Try a different one.";
+"wallet_address_button_create_payid" = "Create PayID";
 
 
 
-"send_destination_placeholder" = "Address or PayID";
+"wallet_qr_title_format" = "%@ wallet";
+
+
+
+"wallet_create_payid" = "Create PayID";
+
+"wallet_create_payid_card_format" = "Card: %@";
+
+"wallet_create_payid_hint" = "PayID name";
+
+"wallet_create_payid_domain" = "$payid.tangem.com"; //not translatable
+
+"wallet_create_payid_button_title" = "Create";
+
+"wallet_create_payid_info" = "Your PayID is information unique to you, like your phone number, email or ABN.";
+
+"wallet_create_payid_success_message" = "PayID created successfully and copied to clipboard";
+
+"wallet_create_payid_error_message" = "Error response while creating PayID";
+
+"wallet_create_payid_error_already_created" = "This PayID already exists. Try a different one.";
+
+
+
+"send_destination_hint" = "Address or PayID";
 
 "send_title" = "Send";
 
@@ -155,8 +156,7 @@
 "send_total_subtitle_asset_format" = "%@ and %@ will be sent";
 
 "send_balance_subtitle_format" = "Balance: %@";
-
-"send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
+"send_transaction_success" = "Transaction has been successfully signed and sent to the blockchain node. Wallet balance will be updated in a while";
 
 
 
@@ -166,7 +166,7 @@
 
 "details_row_title_issuer" = "Issuer";
 
-"details_row_title_signed" = "Signed";
+"details_row_title_signed_hashes" = "Signed";
 
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
 
@@ -184,31 +184,28 @@
 
 
 
-"cardOperation_erase_wallet" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
+"details_erase_wallet_warning" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
 
-"cardOperation_security_management" = "If you forget the code, you will lose the ability to use the card. There is no way to recover or change your code if you lose it.";
-
-
-
-"manage_security_title" = "Manage Security";
-
-"manage_security_row_title_longtap" = "Long Tap";
-
-"manage_security_row_subtitle_longtap" = "This mechanism protects against proximity attack on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
-
-"manage_security_row_title_passcode" = "Passcode";
-
-"manage_security_row_subtitle_passcode" = "Before execution any command entailing a change of the card state you will have to enter the passcode.";
-
-"manage_security_row_title_access_code" = "Access code";
-
-"manage_security_row_subtitle_access_code" = "You will have to submit the correct access code before scanning the card";
+"details_security_management_warning" = "If you forget the code, you will lose the ability to use the card. There is no way to recover or change your code if you lose it.";
 
 
+"details_manage_security_title" = "Manage Security";
 
-"alert_old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
+"details_manage_security_long_tap" = "Long Tap";
 
-"alert_loaded_wallet_warning_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
+"details_manage_security_long_tap_description" = "This mechanism protects against proximity attacks on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
+
+"details_manage_security_passcode" = "Passcode";
+
+"details_manage_security_passcode_description" = "Before execution any command entailing a change of the card state, you will have to enter the passcode.";
+
+"details_manage_security_access_code" = "Access code";
+
+"details_manage_security_access_code_description" = "You will have to submit the correct access code before scanning the card";
+
+"alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
+
+"alert_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
 
 "alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
 
@@ -229,8 +226,6 @@
 "initial_message_change_access_code_body" = "Tap to change the access code";
 
 "initial_message_change_passcode_body" = "Tap to change the passcode";
-
-
 
 "payid_service_error_loading" = "Invalid PayID";
 
