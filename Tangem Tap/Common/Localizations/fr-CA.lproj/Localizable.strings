@@ -98,7 +98,7 @@
 
 
 
-"wallet_qr_title_format" = "Portefeuille $s";
+"wallet_qr_title_format" = "Portefeuille %@";
 
 
 "wallet_create_payid" = "Créer PayID";
@@ -151,13 +151,13 @@
 
 "send_fee_include_description" = "Inclure les commissions";
 
-"send_total_subtitle_format" = "Sera envoyé %@ %@";
+"send_total_subtitle_format" = "Sera envoyé %@";
 
 "send_total_subtitle_fiat_format" = "≈ %@ (incl. les commissions : %@)";
 
-"send_total_subtitle_asset_format" = "Sera envoyé %@ %@ et %@ %@";
+"send_total_subtitle_asset_format" = "Sera envoyé %@ et %@";
 
-"send_balance_subtitle_format" = "Solde : %@ %@";
+"send_balance_subtitle_format" = "Solde : %@";
 "send_transaction_success" = "La transaction a été signée avec succès et envoyée au nœud de blockchain. Le solde du portefeuille sera mis à jour après un certain temps";
 
 
