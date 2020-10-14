@@ -22,20 +22,30 @@ struct PendingTxView: View, Identifiable {
     var amount: String
     var address: String
     
-    var titleFormatKey: String {
+    
+    var titlePrefixLocalized: String {
+           switch txState {
+           case .outgoing:
+               return "wallet_pending_tx_sending".localized
+           case .incoming:
+               return "wallet_pending_tx_receiving".localized
+           }
+       }
+    
+    var titleFormat: String {
         switch txState {
         case .outgoing:
-            return "pendingTxView_sending_format"
+            return "wallet_pending_tx_sending_address_format".localized
         case .incoming:
-            return "pendingTxView_receiving_format"
+            return "wallet_pending_tx_receiving_address_format".localized
         }
     }
     
     var text: String {
         if address == "unknown" {
-            return "pendingTxView_unknown".localized
+            return "wallet_balance_tx_in_progress".localized
         } else {
-            return String(format: NSLocalizedString(titleFormatKey, comment: ""), amount, AddressFormatter(address: address).truncated())
+            return titlePrefixLocalized + String(format: titleFormat, amount, AddressFormatter(address: address).truncated())
         }
     }
     
