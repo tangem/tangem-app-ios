@@ -61,7 +61,7 @@ struct AddressDetailView: View {
                         }
                     }) {
                         HStack {
-                            Text("addressDetails_button_explore")
+                            Text("wallet_address_button_explore")
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                 .foregroundColor(Color.tangemTapGrayDark6)
                                 .multilineTextAlignment(.leading)
@@ -102,7 +102,7 @@ struct AddressDetailView: View {
                 .sheet(isPresented: $showQr) {
                     // VStack {
                     //    Spacer()
-                    QRCodeView(title: "\(self.cardViewModel.wallet!.blockchain.displayName) \(NSLocalizedString("qr_title_wallet", comment: ""))",
+                    QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.cardViewModel.wallet!.blockchain.displayName),
                         shareString: self.cardViewModel.wallet!.shareString)
                         .transition(AnyTransition.move(edge: .bottom))
                     //   Spacer()
@@ -129,7 +129,7 @@ struct AddressDetailView: View {
                             self.showCreatePayID = true
                         }) {
                             HStack {
-                                Text("addressDetails_button_createPayid")
+                                Text("wallet_address_button_create_payid")
                                     .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(1)

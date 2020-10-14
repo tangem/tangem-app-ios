@@ -58,7 +58,7 @@ struct DetailsView: View {
                     DetailsRowView(title: "details_row_title_issuer".localized,
                                    subtitle: viewModel.cardViewModel.card.cardData?.issuerName ?? " ")
                     if viewModel.cardViewModel.card.walletSignedHashes != nil {
-                        DetailsRowView(title: "details_row_title_signed".localized,
+                        DetailsRowView(title: "details_row_title_signed_hashes".localized,
                                        subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
                                                         viewModel.cardViewModel.card.walletSignedHashes!.description))
                     }
@@ -93,7 +93,7 @@ struct DetailsView: View {
                 
                 NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
                                                               buttonTitle: "details_row_title_erase_wallet",
-                                                              alert: "cardOperation_erase_wallet".localized,
+                                                              alert: "details_erase_wallet_warning".localized,
                                                               actionButtonPressed: { completion in
                                                                 self.viewModel.purgeWallet(completion: completion)
                 })
