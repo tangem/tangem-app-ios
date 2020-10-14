@@ -38,7 +38,7 @@ struct TangemButtonStyle: ButtonStyle {
             .label
             .font(Font.custom("SairaSemiCondensed-Bold", size: 15.0))
             .foregroundColor(Color.white)
-            .frame(width: size.value.width, height: size.value.height, alignment: .center)
+			.frame(minWidth: size.value.width, maxWidth: .infinity, minHeight: size.value.height, maxHeight: size.value.height, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
             .background(
                 configuration.isPressed ?
                 (colorStyle == .green ? Color.tangemTapGreen1 : Color.tangemTapGrayDark4) :
