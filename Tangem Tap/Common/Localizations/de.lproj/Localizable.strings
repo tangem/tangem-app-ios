@@ -90,33 +90,33 @@
 
 "wallet_address_button_explore" = "Adresse erkunden";
 
-"wallet_address_button_create_payid" = "ZahlungsID erstellen";
+"wallet_address_button_create_payid" = "PayID erstellen";
 
 
-"wallet_qr_title_format" = "$s Wallet";
+"wallet_qr_title_format" = "%@ Wallet";
 
 
-"wallet_create_payid" = "ZahlungsID erstellen";
+"wallet_create_payid" = "PayID erstellen";
 
 "wallet_create_payid_card_format" = "Karte: %@";
 
-"wallet_create_payid_hint" = "ZahlungsID Name";
+"wallet_create_payid_hint" = "PayID Name";
 
 "wallet_create_payid_domain" = "$payid.tangem.com";
 
 "wallet_create_payid_button_title" = "Erstellen";
 
-"wallet_create_payid_info" = "ZahlungsID sind Ihre einzigartigen Identifikationsdaten wie Telefonnummer, E-Mail-Adresse oder ABN.";
+"wallet_create_payid_info" = "PayID sind Ihre einzigartigen Identifikationsdaten wie Telefonnummer, E-Mail-Adresse oder ABN.";
 
-"wallet_create_payid_success_message" = "Ihre ZahlungsID wurde erfolgreich erstellt und zum Clipboard kopiert";
+"wallet_create_payid_success_message" = "Ihre PayID wurde erfolgreich erstellt und zum Clipboard kopiert";
 
-"wallet_create_payid_error_message" = "Fehlerantwort beim Erstellen der ZahlungsID";
+"wallet_create_payid_error_message" = "Fehlerantwort beim Erstellen der PayID";
 
-"wallet_create_payid_error_already_created" = "Diese ZahlungsID existiert bereits. Versuchen Sie mit einer anderen erneut.";
+"wallet_create_payid_error_already_created" = "Diese PayID existiert bereits. Versuchen Sie mit einer anderen erneut.";
 
 
 
-"send_destination_hint" = "Adresse oder ZahlungsID";
+"send_destination_hint" = "Adresse oder PayID";
 
 "send_title" = "Absenden";
 
@@ -146,13 +146,13 @@
 
 "send_fee_include_description" = "inkl. Gebühr";
 
-"send_total_subtitle_format" = "%@ %@ wird gesendet";
+"send_total_subtitle_format" = "%@ wird gesendet";
 
 "send_total_subtitle_fiat_format" = "≈ %@ (inkl. Gebühr: %@)";
 
-"send_total_subtitle_asset_format" = "%@ %@ und %@ %@ werden gesendet";
+"send_total_subtitle_asset_format" = "%@ und %@ werden gesendet";
 
-"send_balance_subtitle_format" = "Bilanz: %@ %@";
+"send_balance_subtitle_format" = "Bilanz: %@";
 "send_transaction_success" = "Die Transaktion wurde erfolgreich signiert und an den Blockchain-Knoten gesendet. Die Walletbilanz wird aktualisiert";
 
 
@@ -227,7 +227,7 @@
 
 
 
-"payid_service_error_loading" = "Ungültige ZahlungsID";
+"payid_service_error_loading" = "Ungültige PayId";
 
 
 
