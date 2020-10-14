@@ -156,8 +156,7 @@
 "send_total_subtitle_asset_format" = "%@ and %@ will be sent";
 
 "send_balance_subtitle_format" = "Balance: %@";
-
-"send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
+"send_transaction_success" = "Transaction has been successfully signed and sent to the blockchain node. Wallet balance will be updated in a while";
 
 
 
@@ -194,11 +193,11 @@
 
 "details_manage_security_long_tap" = "Long Tap";
 
-"details_manage_security_long_tap_description" = "This mechanism protects against proximity attack on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
+"details_manage_security_long_tap_description" = "This mechanism protects against proximity attacks on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
 
 "details_manage_security_passcode" = "Passcode";
 
-"details_manage_security_passcode_description" = "Before execution any command entailing a change of the card state you will have to enter the passcode.";
+"details_manage_security_passcode_description" = "Before execution any command entailing a change of the card state, you will have to enter the passcode.";
 
 "details_manage_security_access_code" = "Access code";
 
