@@ -10,7 +10,7 @@
 
 "common_error" = "Error";
 
-"common_ok" = "Ok";
+"common_ok" = "OK";
 
 "common_no" = "No";
 
@@ -105,7 +105,7 @@
 
 "wallet_create_payid_hint" = "PayID name";
 
-"wallet_create_payid_domain" = "$payid.tangem.com";
+"wallet_create_payid_domain" = "$payid.tangem.com"; //not translatable
 
 "wallet_create_payid_button_title" = "Create";
 
@@ -194,7 +194,7 @@
 
 "details_manage_security_long_tap" = "Long Tap";
 
-"details_manage_security_longtap_description" = "This mechanism protects against proximity attack on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
+"details_manage_security_long_tap_description" = "This mechanism protects against proximity attack on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
 
 "details_manage_security_passcode" = "Passcode";
 
@@ -204,7 +204,7 @@
 
 "details_manage_security_access_code_description" = "You will have to submit the correct access code before scanning the card";
 
-"alert_old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
+"alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
 
 "alert_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
 
