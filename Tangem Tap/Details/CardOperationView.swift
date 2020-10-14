@@ -12,7 +12,7 @@ import SwiftUI
 
 struct CardOperationView: View {
     var title: String
-    var buttonTitle: LocalizedStringKey = "common_button_title_save_changes"
+    var buttonTitle: LocalizedStringKey = "common_save_changes"
     var alert: String
     var actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
     @Environment(\.presentationMode) var presentationMode
