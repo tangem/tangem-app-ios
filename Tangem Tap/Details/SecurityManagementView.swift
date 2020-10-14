@@ -34,7 +34,7 @@ enum SecurityManagementOption: CaseIterable, Identifiable {
         case .accessCode:
             return "details_manage_security_access_code_description".localized
         case .longTap:
-            return "details_manage_security_longtap_description".localized
+            return "details_manage_security_long_tap_description".localized
         case .passCode:
             return "details_manage_security_passcode_description".localized
         }
