@@ -15,14 +15,14 @@ struct BalanceView: View {
     
     var blockchainText: String {
         if balanceViewModel.loadingError != nil {
-            return "balanceView_blockchain_unreachable".localized
+            return "wallet_balance_blockchain_unreachable".localized
         }
         
         if balanceViewModel.hasTransactionInProgress {
-            return  "pendingTxView_unknown".localized
+            return  "wallet_balance_tx_in_progress".localized
         }
         
-        return "balanceView_blockchain_verified".localized
+        return "wallet_balance_verified".localized
     }
     
     
@@ -39,7 +39,7 @@ struct BalanceView: View {
             Color.clear.frame(height: 16)
             
             if balanceViewModel.isToken {
-                Text("balanceView_token_title")
+                Text("wallet_balance_token_title")
                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                     .lineLimit(1)
                     .foregroundColor(Color.tangemTapGrayDark)
