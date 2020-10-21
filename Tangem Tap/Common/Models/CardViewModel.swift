@@ -16,7 +16,9 @@ import  SwiftUI
 
 class CardViewModel: Identifiable, ObservableObject {
     @Published var card: Card
-    let service = NetworkService()
+    let networkService = NetworkService()
+    let workaroundsService = WorkaroundsService()
+    
     var payIDService: PayIDService? = nil
     var ratesService: CoinMarketCapService! {
         didSet {
@@ -83,7 +85,9 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadPayIDInfo () {
-        guard let cid = card.cardId, let key = card.cardPublicKey else {
+        guard workaroundsService.isPayIDSupported(for: card),
+            let cid = card.cardId,
+            let key = card.cardPublicKey else {
             payId = .notSupported
             return
         }
@@ -211,7 +215,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 return
         }
         
-        service.request(TangemEndpoint.artwork(cid: cid, cardPublicKey: cardPublicKey, artworkId: artworkId)) {[weak self] result in
+        networkService.request(TangemEndpoint.artwork(cid: cid, cardPublicKey: cardPublicKey, artworkId: artworkId)) {[weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let data):
@@ -292,7 +296,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                     fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? " ",
                                     balance: wallet.amounts[.token]?.description ?? "-",
                                     secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
-                                    secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
+                                    secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
                                     secondaryName: wallet.blockchain.displayName )
         } else {
             return BalanceViewModel(isToken: false,

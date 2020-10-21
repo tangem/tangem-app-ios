@@ -46,6 +46,7 @@ enum PayIdNetwork: String {
     case RSK
     case ADA
     case DUC
+    case XTZ
 }
 
 enum PayIdTarget: TargetType {
@@ -171,6 +172,8 @@ class PayIDService {
             }
         case .xrp:
             return PayIDService(network: .XRPL)
+        case .tezos:
+            return PayIDService(network: .XTZ)
         }
         return nil
     }
@@ -221,10 +224,12 @@ class PayIDService {
                         _ = try response.filterSuccessfulStatusCodes()
                         completion(.success(true))
                     } catch {
-                        if let errorResponse = try? response.map(PayIdErrorResponse.self), let msg = errorResponse.message {
+                        if response.statusCode == 409 {
+                            completion(.failure("wallet_create_payid_error_already_created".localized))
+                        } else if let errorResponse = try? response.map(PayIdErrorResponse.self), let msg = errorResponse.message {
                             completion(.failure(msg))
                         } else {
-                            completion(.failure("Request failed. Try again later"))
+                            completion(.failure("wallet_create_payid_error_message".localized))
                         }
                     }
                 case .failure(let error):
