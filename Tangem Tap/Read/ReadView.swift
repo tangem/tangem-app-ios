@@ -39,18 +39,18 @@ struct ReadView: View {
     var greenButtonTitleKey: LocalizedStringKey {
         switch viewModel.state {
         case .read, .ready:
-            return "read_button_tapin"
+            return "home_button_tapin"
         case .welcome:
-            return "read_button_yes"
+            return "home_button_yes"
         case .welcomeBack:
-            return "read_button_scan"
+            return "home_button_scan"
         }
     }
     
     var blackButtonTitleKey: LocalizedStringKey {
         switch viewModel.state {
         case .welcomeBack:
-            return "read_button_shop"
+            return "home_button_shop"
         default:
             return "common_no"
         }
@@ -58,22 +58,12 @@ struct ReadView: View {
     
     var titleKey: LocalizedStringKey {
         switch viewModel.state {
-        case .welcomeBack:
-            return "read_welcome_back_title"
-        default:
-            return "read_welcome_title"
-        }
-    }
-    
-    var subTitleKey: LocalizedStringKey {
-        switch viewModel.state {
         case .welcome:
-            return "read_welcome_subtitle"
+            return "home_welcome"
         case .welcomeBack:
-            return "read_welcome_back_subtitle"
+            return "home_welcome_back"
         case .read, .ready:
-            return "read_ready_title"
-            
+            return "home_ready_title"
         }
     }
     
@@ -96,18 +86,11 @@ struct ReadView: View {
                 .frame(width: UIScreen.main.bounds.width, height: 390)
                 Spacer()
                 
-                if viewModel.state == .welcome || viewModel.state == .welcomeBack {
                     Text(titleKey)
                         .font(Font.system(size: 29.0, weight: .light, design: .default))
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .padding(.leading, 16)
-                }
-                Text(subTitleKey)
-                    .font(Font.system(size: 29.0, weight: .light, design: .default))
-                    .foregroundColor(Color.tangemTapGrayDark6)
-                    .padding(.leading, 16)
-                // .fixedSize(horizontal: false, vertical: true)
-                
+                        .padding(.trailing, 50)
                 Spacer()
                 
                 HStack(spacing: 8.0) {
@@ -125,7 +108,7 @@ struct ReadView: View {
                         .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
                         // .transition(.offset(x: -200.0, y: 0.0))
                     } else {
-                        Color.clear.frame(width: 93, height: 56)
+                        Color.clear.frame(width: ButtonSize.small.value.width, height: ButtonSize.small.value.height)
                     }
                     TangemButton(isLoading: self.viewModel.isLoading,
                                  title: greenButtonTitleKey,
@@ -150,10 +133,17 @@ struct ReadView: View {
             
                 if viewModel.openDetails {
                     NavigationLink(destination:
-                        DetailsView(viewModel: DetailsViewModel(cid: viewModel.sdkService.cards.first!.key,
+                        MainView(viewModel: MainViewModel(cid: viewModel.sdkService.cards.first!.key,
                                                                 sdkService: viewModel.sdkService)),
                                    isActive: $viewModel.openDetails) {
                                     EmptyView()
+                    }
+                }
+                
+                if viewModel.openDisclaimer {
+                    NavigationLink(destination: DisclaimerView(sdkService: viewModel.sdkService),
+                                   isActive: $viewModel.openDisclaimer) {
+                                      EmptyView()
                     }
                 }
             }
