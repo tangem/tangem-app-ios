@@ -6,90 +6,120 @@
   Copyright © 2020 Tangem AG. All rights reserved.
 */
 
-"read_welcome_title" = "Welcome to Tangem.";
+"common_success" = "Success";
 
-"read_welcome_subtitle" = "Do you have one of \nour cards?";
+"common_error" = "Error";
 
-"read_welcome_back_title" = "Welcome back to \nTangem Tap";
+"common_ok" = "OK";
 
-"read_welcome_back_subtitle" = "Scan your card to start.";
+"common_no" = "No";
 
-"read_button_yes" = "Yes! Scan it.";
+"common_continue" = "Continue";
 
-"read_button_shop" = "Shop";
+"common_save_changes" = "Save changes";
 
-"read_ready_title" = "Get ready to tap your \ncard to the back of the \nphone.";
+"common_warning" = "Warning";
 
-"read_button_tapin" = "Tap in";
+"common_camera_denied_alert_title" = "Camera access denied";
 
-"read_button_scan" = "Scan card";
+"common_camera_denied_alert_message" = "You have not given access to your camera, please adjust your privacy settings";
 
-"details_button_scan" = "Scan";
-
-"details_button_send" = "Send";
-
-"details_button_create_wallet" = "Create wallet";
-
-"details_title" = "Tangem Tap";
-
-"details_choice_wallet_option_title" = "Choice wallet option";
-
-"balanceView_token_title" = "Token";
-
-"balanceView_blockchain_verified" = "Verified Balance";
-
-"balanceView_blockchain_unreachable" = "Blockchain is unreachable";
-
-"error_title_no_account" = "Account is not created";
-
-"error_title_empty_card" = "Empty card";
-
-"error_subtitle_empty_card" = "Create wallet to start using Tangem card";
+"common_camera_alert_button_settings" = "Settings";
 
 
-"error_title_unsupported_blockchain" = "This card is not supported";
+"home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
-"error_subtitle_unsupported_blockchain" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
+"home_welcome_back" = "Welcome back to Tangem Tap. \nScan your card to start.";
 
-"pendingTxView_unknown" = "Transaction is in progress...";
+"home_button_yes" = "Yes! Scan it.";
+
+"home_button_shop" = "Shop";
+
+"home_ready_title" = "Get ready to tap your \ncard to the back of the \nphone.";
+
+"home_button_tapin" = "Tap in";
+
+"home_button_scan" = "Scan card";
+
+"wallet_error_no_account_subtitle_format" = "Load %@+ %@ to create account";
+
+"wallet_button_scan" = "Scan";
+
+"wallet_button_send" = "Send";
+
+"wallet_button_create_wallet" = "Create wallet";
+
+"wallet_title" = "Tangem Tap";
+
+"wallet_choice_wallet_option_title" = "Choice wallet option";
+
+
+
+"wallet_balance_token_title" = "Token";
+
+"wallet_balance_tokens_title" = "Tokens";
+
+"wallet_balance_verified" = "Verified Balance";
+
+"wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
+
+
+
+"wallet_error_no_account" = "Account is not created";
+
+"wallet_error_empty_card" = "Empty card";
+
+"wallet_error_empty_card_subtitle" = "Create wallet to start using Tangem card";
+
+"wallet_error_unsupported_blockchain" = "This card is not supported";
+
+"wallet_error_unsupported_blockchain_subtitle" = "Your Tangem card was made to work with a different application. Please see the name and instructions on your card, and install the correct app";
+
+"wallet_balance_loading" = "Balance is loading…";
+
+"wallet_balance_tx_in_progress" = "Transaction is in progress...";
 
 "pendingTxView_sending_format" = "Sending %@ to %@";
 
 "pendingTxView_receiving_format" = "Receiving %@ from %@";
 
-"addressDetails_button_explore" = "Explore address";
+"wallet_pending_tx_receiving" = "Receiving ";
+"wallet_pending_tx_receiving_address_format" = " from %@ ";
+"wallet_pending_tx_sending" = "Sending ";
+"wallet_pending_tx_sending_address_format" = " to %@ ";
 
-"addressDetails_button_createPayid" = "Create PayID";
 
-"qr_title_wallet" = "Wallet";
+"wallet_address_button_explore" = "Explore address";
 
-"create_payid_title" = "Create PayID";
+"wallet_address_button_create_payid" = "Create PayID";
 
-"create_payid_card_format" = "Card: %@";
 
-"create_payid_placeholder" = "PayID name";
 
-"create_payid_domain" = "$payid.tangem.com";
+"wallet_qr_title_format" = "%@ wallet";
 
-"create_payid_button_title" = "Create";
 
-"create_payid_info" = "Your PayID is information unique to you, like your phone number, email or ABN.";
 
-"common_success" = "Success";
+"wallet_create_payid" = "Create PayID";
 
-"common_error" = "Error";
+"wallet_create_payid_card_format" = "Card: %@";
 
-"common_ok" = "Ok";
+"wallet_create_payid_hint" = "PayID name";
 
-"common_no" = "No";
+"wallet_create_payid_domain" = "$payid.tangem.com"; //not translatable
 
-"create_payid_success_message" = "PayID created successfully and copied to clipboard";
+"wallet_create_payid_button_title" = "Create";
 
-"create_payid_error_message" = "Error response while creating PayID";
+"wallet_create_payid_info" = "Your PayID is information unique to you, like your phone number, email or ABN.";
 
-"create_payid_already_created_message" = "This PayID already exists. Try a different one.";
+"wallet_create_payid_success_message" = "PayID created successfully and copied to clipboard";
 
-"send_destination_placeholder" = "Address or PayID";
+"wallet_create_payid_error_message" = "Error response while creating PayID";
+
+"wallet_create_payid_error_already_created" = "This PayID already exists. Try a different one.";
+
+
+
+"send_destination_hint" = "Address or PayID";
 
 "send_title" = "Send";
 
@@ -126,48 +156,56 @@
 "send_total_subtitle_asset_format" = "%@ and %@ will be sent";
 
 "send_balance_subtitle_format" = "Balance: %@";
+"send_transaction_success" = "Transaction has been successfully signed and sent to the blockchain node. Wallet balance will be updated in a while";
 
-"send_transaction_success" = "Transaction has been successfully signed and sent to blockchain node. Wallet balance will be updated in a while";
 
-"settings_title" = "Details";
 
-"settings_row_title_cid" = "Card ID";
-"settings_row_title_issuer" = "Issuer";
-"settings_row_title_signed" = "Signed";
+"details_title" = "Details";
 
-"settings_row_subtitle_signed_hashes_format" = "%@ hashes";
+"details_row_title_cid" = "Card ID";
 
-"settings_row_title_currency" = "App currency";
+"details_row_title_issuer" = "Issuer";
 
-"settings_section_title_settings" = "Settings";
+"details_row_title_signed_hashes" = "Signed";
 
-"settings_section_title_card" = "Card";
+"details_row_subtitle_signed_hashes_format" = "%@ hashes";
 
-"settings_row_title_validate" = "Validate card";
+"details_row_title_currency" = "App currency";
 
-"settings_row_title_manage_security" = "Manage Security";
+"details_section_title_settings" = "Settings";
 
-"settings_row_title_erase_wallet" = "Erase wallet";
+"details_section_title_card" = "Card";
 
-"common_button_title_save_changes" = "Save changes";
+"details_row_title_validate" = "Validate card";
 
-"common_continue" = "Continue";
+"details_row_title_manage_security" = "Manage Security";
 
-"common_warning" = "Warning";
+"details_row_title_erase_wallet" = "Erase wallet";
 
-"common_camera_denied_alert_title" = "Camera access denied";
 
-"common_camera_denied_alert_message" = "You have not given access to your camera, please adjust your privacy settings";
 
-"common_camera_aler_button_settings" = "Settings";
+"details_erase_wallet_warning" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
 
-"cardOperation_erase_wallet" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
+"details_security_management_warning" = "If you forget the code, you will lose the ability to use the card. There is no way to recover or change your code if you lose it.";
 
-"cardOperation_security_management" = "If you forget the code, you will lose the ability to use the card. There is no way to recover or change your code if you lose it.";
 
-"alert_old_device_this_card"="You may experience NFC problems with some iPhone 7/7+ during the extraction";
+"details_manage_security_title" = "Manage Security";
 
-"alert_loaded_wallet_warning_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
+"details_manage_security_long_tap" = "Long Tap";
+
+"details_manage_security_long_tap_description" = "This mechanism protects against proximity attacks on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
+
+"details_manage_security_passcode" = "Passcode";
+
+"details_manage_security_passcode_description" = "Before execution any command entailing a change of the card state, you will have to enter the passcode.";
+
+"details_manage_security_access_code" = "Access code";
+
+"details_manage_security_access_code_description" = "You will have to submit the correct access code before scanning the card";
+
+"alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
+
+"alert_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
 
 "alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
 
@@ -175,27 +213,80 @@
 
 "alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
 
-"manage_security_title" = "Manage Security";
-
-"manage_security_row_title_longtap" = "Long Tap";
-
-"manage_security_row_subtitle_longtap" = "This mechanism protects against proximity attack on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
-
-"manage_security_row_title_passcode" = "Passcode";
-
-"manage_security_row_subtitle_passcode" = "Before execution any command entailing a change of the card state you will have to enter the passcode.";
-
-"manage_security_row_title_access_code" = "Access code";
-
-"manage_security_row_subtitle_access_code" = "You will have to submit the correct access code before scanning the card";
 
 
 "initial_message_sign_header" = "Tap to sign";
+
 "initial_message_sign_body" = "Tap the card to your phone as shown above";
+
 "initial_message_purge_wallet_body" = "Tap to erase wallet";
+
 "initial_message_create_wallet_body" = "Tap to create wallet";
+
 "initial_message_change_access_code_body" = "Tap to change the access code";
+
 "initial_message_change_passcode_body" = "Tap to change the passcode";
 
-
 "payid_service_error_loading" = "Invalid PayID";
+
+
+"disclaimer_text" = "Legal Disclaimer
+
+1.  Tangem Tap application (Software)
+ 
+The Software is intended for usage only with Tangem hardware wallets (Cards) via NFC interface. The Software DOES NOT:
+ 
+a) Generate, store, transmit, or have access to private (secret) cryptographic keys to blockchain wallets holding digital assets, including crypto-currency.
+
+b) Generate, store, transmit, or have access to secret keys, passwords, passphrases, recovery phrases that can be used to restore or to copy private (secret) keys to blockchain wallets holding digital assets, including crypto-currency.
+
+c) Provide exchange, trading, investment services on behalf of Tangem AG.
+ 
+ 
+2.  Risks related to the use of Software
+ 
+Tangem will not be responsible for any losses, damages or claims arising from events falling within the scope of the following five categories:
+ 
+a) Mistakes made by the user of any cryptocurrency-related software or service, e.g., forgotten passwords, payments sent to wrong addresses, and accidental deletion of blockchain wallets on Cards.
+
+b) Problems of Software and/or any blockchain- or cryptocurrency- related software or service, e.g., corrupted files, incorrectly constructed transactions, unsafe cryptographic libraries, malware.
+
+c) Technical failures in the hardware of the user, including Cards, of any cryptocurrency-related software or service, e.g., data loss due to a faulty or damaged storage device.
+
+d) Security problems experienced by the user of any cryptocurrency-related software or service, e.g., unauthorized access to users' wallets and/or accounts.
+
+e) Actions or inactions of third parties and/or events experienced by third parties, e.g., bankruptcy of service providers, information security attacks on service providers, and fraud conducted by third parties.
+ 
+
+3.  Trading and Investment risks
+ 
+There is considerable exposure to risk in any crypto-currency or other digital asset exchange transaction. Any transaction involving currencies involves risks including, but not limited to, the potential for changing economic conditions that may substantially affect the price or liquidity of a currency. Investments in crypto-currency exchange speculation may also be susceptible to sharp rises and falls as the relevant market values fluctuate. It is for this reason that when speculating in such markets it is advisable to use only risk capital.
+ 
+ 
+4.  Electronic Trading Risks
+ 
+Before you engage in transactions using an electronic system, you should carefully review the rules and regulations of the exchanges offering the system and/or listing the instruments you intend to trade. Online trading has inherent risk due to system response and access times that may vary due to market conditions, system performance, and other factors. You should understand these and additional risks before trading.
+ 
+
+5. Compliance with tax obligations
+ 
+The users of the Software are solely responsible to determinate what, if any, taxes apply to their crypto-currency transactions. The owners of, or contributors to, the Software are NOT responsible for determining the taxes that apply to crypto-currency transactions.
+ 
+
+6.  No warranties
+
+The Software is provided on an \"as is\" basis without any warranties of any kind regarding the Software and/or any content, data, materials and/or services provided on the Software.
+ 
+
+7.  Limitation of liability
+ 
+Unless otherwise required by law, in no event shall the owners of, or contributors to, the Software be liable for any damages of any kind, including, but not limited to, loss of use, loss of profits, or loss of data arising out of or in any way connected with the use of the Software. In no way are the owners of, or contributors to, the Software responsible for the actions, decisions, or other behavior taken or not taken by you in reliance upon the Software.
+ 
+ 
+8.  Last amendment
+ 
+This disclaimer was amended for the last time on October 1st, 2020.";
+
+"disclaimer_title" = "Terms of service";
+
+"common_accept" = "Accept";
