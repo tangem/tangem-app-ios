@@ -46,6 +46,7 @@ enum PayIdNetwork: String {
     case RSK
     case ADA
     case DUC
+    case XTZ
 }
 
 enum PayIdTarget: TargetType {
@@ -171,6 +172,8 @@ class PayIDService {
             }
         case .xrp:
             return PayIDService(network: .XRPL)
+        case .tezos:
+            return PayIDService(network: .XTZ)
         }
         return nil
     }
