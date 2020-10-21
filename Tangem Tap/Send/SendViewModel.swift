@@ -109,7 +109,7 @@ class SendViewModel: ObservableObject {
                                         value: 0)
             self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount, isFiat: isFiatCalculation)
         }
-
+        
         fillTotalBlockWithDefaults()
         bind()
     }
@@ -168,7 +168,8 @@ class SendViewModel: ObservableObject {
         .store(in: &bag)
         
         $amountText
-        .combineLatest($isFiatCalculation)
+            .removeDuplicates()
+            .combineLatest($isFiatCalculation)
             .debounce(for: 0.3, scheduler: RunLoop.main)
             .filter {[unowned self] (string, isFiat) -> Bool in
                 if isFiat,
@@ -177,20 +178,21 @@ class SendViewModel: ObservableObject {
                     return false //prevent cross-convert after max amount tap
                 }
                 return true
-            }
-            .sink{ [unowned self] newAmount, isFiat in
-                guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")),
-                    let wallet = self.cardViewModel.wallet else {
+        }
+        .sink{ [unowned self] newAmount, isFiat in
+            guard let decimals = Decimal(string: newAmount.replacingOccurrences(of: ",", with: ".")),
+                let wallet = self.cardViewModel.wallet else {
                     self.amountToSend.value = 0
                     return
-                }
-                
-                self.amountToSend.value = isFiat ? self.cardViewModel.getCrypto(for: decimals,
-                                                                                                currencySymbol:  self.amountToSend.currencySymbol)?.rounded(blockchain: wallet.blockchain) ?? 0 : decimals
+            }
+            
+            self.amountToSend.value = isFiat ? self.cardViewModel.getCrypto(for: decimals,
+                                                                            currencySymbol:  self.amountToSend.currencySymbol)?.rounded(blockchain: wallet.blockchain) ?? 0 : decimals
         }
         .store(in: &bag)
         
         $amountToSend //amount validation
+            .removeDuplicates()
             .debounce(for: 0.5, scheduler: RunLoop.main, options: nil)
             .sink {[unowned self] newAmount in
                 if newAmount.value == 0 {
@@ -210,7 +212,7 @@ class SendViewModel: ObservableObject {
         .store(in: &bag)
         
         $selectedFee //update fee label
-        .combineLatest($isFiatCalculation)
+            .combineLatest($isFiatCalculation)
             .debounce(for: 0.3, scheduler: RunLoop.main)
             .sink{ [unowned self] newAmount, isFiat in
                 if let wallet = self.cardViewModel.wallet {
@@ -231,7 +233,7 @@ class SendViewModel: ObservableObject {
         .store(in: &bag)
         
         $transaction
-        .combineLatest($isFiatCalculation)
+            .combineLatest($isFiatCalculation)
             .debounce(for: 0.3, scheduler: RunLoop.main)
             //update total block
             .sink { [unowned self] tx, isFiatCalculation in
@@ -258,10 +260,12 @@ class SendViewModel: ObservableObject {
                         self.sendAmount = tx.amount.description
                         self.sendTotal =  (tx.amount + tx.fee).description
                         self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
-                                                                                        totalFiatAmountFormatted!,
-                                                                                        self.cardViewModel.getFiatFormatted(for: tx.fee)!)
+                                                                                                 totalFiatAmountFormatted!,
+                                                                                                 self.cardViewModel.getFiatFormatted(for: tx.fee)!)
                     }
-                    
+                    DispatchQueue.main.async {
+                        self.validateWithdrawal(tx)
+                    }
                 } else {
                     self.fillTotalBlockWithDefaults()
                     self.isSendEnabled = false
@@ -311,7 +315,7 @@ class SendViewModel: ObservableObject {
                            $isFeeIncluded)
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .map {[unowned self] amountValidated, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
-              
+                
                 if !amountValidated || destination == nil || fee == nil {
                     return nil
                 }
@@ -332,6 +336,7 @@ class SendViewModel: ObservableObject {
                     } else {
                         message = "send_validation_invalid_amount".localized
                     }
+                    
                     self.amountHint = TextHint(isError: true, message: message)
                     return nil
                 }
@@ -361,7 +366,7 @@ class SendViewModel: ObservableObject {
     
     func validateAddress(_ address: String) -> Bool {
         return cardViewModel.wallet?.blockchain.validate(address: address) ?? false
-        && address != cardViewModel.wallet!.address
+            && address != cardViewModel.wallet!.address
     }
     
     
@@ -405,6 +410,25 @@ class SendViewModel: ObservableObject {
         }
     }
     
+    func validateWithdrawal(_ transaction: BlockchainSdk.Transaction) {
+        if let validator = cardViewModel.walletManager as? WithdrawalValidator,
+            let warning = validator.validate(transaction),
+            sendError == nil {
+            let alert = Alert(title: Text("common_warning"),
+                              message: Text(warning.warningMessage),
+                              primaryButton: Alert.Button.default(Text(warning.reduceMessage),
+                                                                  action: {
+                                                                    self.amountText = (transaction.amount + transaction.fee - warning.suggestedReduceAmount).value.description
+                              }),
+                              secondaryButton: Alert.Button.cancel(Text(warning.ignoreMessage),
+                                                                   action: {
+                                                                   
+                              }))
+            UIApplication.shared.windows.first { $0.isKeyWindow }?.endEditing(true)
+            self.sendError = AlertBinder(alert: alert)
+        }
+    }
+    
     func pasteClipboardTapped() {
         if let validatedClipboard = self.validatedClipboard {
             destination = validatedClipboard
@@ -434,7 +458,7 @@ class SendViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
-               
+                
                 if case let .failure(error) = completion {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
@@ -444,7 +468,7 @@ class SendViewModel: ObservableObject {
                 } else {
                     callback()
                 }
-              
+                
                 }, receiveValue: {[unowned self] signResponse in
                     self.cardViewModel.card.walletSignedHashes = signResponse.walletSignedHashes
             })
