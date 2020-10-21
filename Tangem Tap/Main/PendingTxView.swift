@@ -45,7 +45,7 @@ struct PendingTxView: View, Identifiable {
         if address == "unknown" {
             return "wallet_balance_tx_in_progress".localized
         } else {
-            return titlePrefixLocalized + String(format: titleFormat, amount, AddressFormatter(address: address).truncated())
+            return titlePrefixLocalized + amount.description + String(format: titleFormat, AddressFormatter(address: address).truncated())
         }
     }
     
@@ -79,7 +79,7 @@ struct PendingTxView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
-            PendingTxView(txState: .incoming, amount: "0.2 BTC", address: "unknown")
+            PendingTxView(txState: .outgoing, amount: "0.2 BTC", address: "sadfasdfasdfsadf")
         }
     }
 }
