@@ -22,20 +22,30 @@ struct PendingTxView: View, Identifiable {
     var amount: String
     var address: String
     
-    var titleFormatKey: String {
+    
+    var titlePrefixLocalized: String {
+           switch txState {
+           case .outgoing:
+               return "wallet_pending_tx_sending".localized
+           case .incoming:
+               return "wallet_pending_tx_receiving".localized
+           }
+       }
+    
+    var titleFormat: String {
         switch txState {
         case .outgoing:
-            return "pendingTxView_sending_format"
+            return "wallet_pending_tx_sending_address_format".localized
         case .incoming:
-            return "pendingTxView_receiving_format"
+            return "wallet_pending_tx_receiving_address_format".localized
         }
     }
     
     var text: String {
         if address == "unknown" {
-            return "pendingTxView_unknown".localized
+            return "wallet_balance_tx_in_progress".localized
         } else {
-            return String(format: NSLocalizedString(titleFormatKey, comment: ""), amount, AddressFormatter(address: address).truncated())
+            return titlePrefixLocalized + amount.description + String(format: titleFormat, AddressFormatter(address: address).truncated())
         }
     }
     
@@ -69,7 +79,7 @@ struct PendingTxView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
-            PendingTxView(txState: .incoming, amount: "0.2 BTC", address: "unknown")
+            PendingTxView(txState: .outgoing, amount: "0.2 BTC", address: "sadfasdfasdfsadf")
         }
     }
 }
