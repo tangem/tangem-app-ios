@@ -20,12 +20,14 @@ class ReadViewModel: ObservableObject {
     
     var sdkService: TangemSdkService
     @Published var openDetails: Bool = false
+    @Published var openDisclaimer: Bool = false
     @Published var state: State = .welcome
     @Published var isLoading: Bool = false
     @Published var scanError: AlertBinder?
     
     @Storage("tangem_tap_first_time_scan", defaultValue: true)
     var firstTimeScan: Bool
+    
     
     init(sdkService: TangemSdkService) {
         self.sdkService = sdkService
@@ -50,16 +52,21 @@ class ReadViewModel: ObservableObject {
     func scan() {
         self.isLoading = true
         sdkService.scan { [weak self] scanResult in
+            guard let self = self else { return }
             switch scanResult {
             case .success:
-                self?.openDetails = true
-                self?.firstTimeScan = false
+                if DisclaimerView.isTermsOfServiceAccepted {
+                    self.openDetails = true
+                } else {
+                    self.openDisclaimer = true
+                }
+                self.firstTimeScan = false
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
-                    self?.scanError = error.alertBinder
+                    self.scanError = error.alertBinder
                 }
             }
-             self?.isLoading = false
+             self.isLoading = false
         }
     }
 }
