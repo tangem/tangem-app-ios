@@ -32,7 +32,7 @@ struct SendView: View {
                     Group {
                         HStack(alignment: .center) {
                             VStack(alignment: .leading, spacing: 0.0) {
-                                Text(!self.viewModel.destination.isEmpty ? "send_destination_placeholder" : " ")
+                                Text(!self.viewModel.destination.isEmpty ? "send_destination_hint" : " ")
                                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemTapGrayDark)
 
@@ -42,9 +42,9 @@ struct SendView: View {
                                                 handleKeyboard: true,
                                                 textColor: UIColor.tangemTapGrayDark6,
                                                 font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
-                                                placeholder: "send_destination_placeholder".localized)
+                                                placeholder: "send_destination_hint".localized)
                                 
-//                                TextField("send_destination_placeholder",
+//                                TextField("send_destination_hint",
 //                                          text: self.$viewModel.destination,
 //                                          onEditingChanged: { hz in
 //
@@ -96,7 +96,7 @@ struct SendView: View {
                             .alert(isPresented: self.$viewModel.showCameraDeniedAlert) {
                                 return Alert(title: Text("common_camera_denied_alert_title"),
                                              message: Text("common_camera_denied_alert_message"),
-                                             primaryButton: Alert.Button.default(Text("common_camera_aler_button_settings"),
+                                             primaryButton: Alert.Button.default(Text("common_camera_alert_button_settings"),
                                                                                  action: {self.viewModel.openSystemSettings()}),
                                              secondaryButton: Alert.Button.default(Text("common_ok"),
                                                                                  action: {}))
@@ -256,7 +256,7 @@ struct SendView: View {
                                 self.onSuccess()
                             }
                         }) { HStack(alignment: .center, spacing: 16.0) {
-                            Text("details_button_send")
+                            Text("wallet_button_send")
                             Spacer()
                             Image("arrow.right")
                         }.padding(.horizontal)
