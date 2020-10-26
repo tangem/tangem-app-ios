@@ -29,6 +29,7 @@ class TangemSdkService: ObservableObject {
     }
     
     func scan(_ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        Analytics.log(event: .readyToScan)
         tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
             case .failure(let error):
@@ -39,7 +40,7 @@ class TangemSdkService: ObservableObject {
                     completion(.failure(TangemSdkError.unknownError))
                     return
                 }
-                
+                Analytics.logScan(card: response.card)
                 let vm = self.makeCardViewModel(card: response.card, verifyCardResponse: response.verifyResponse)
                 self.cards[cid] = vm
                 completion(.success(vm))
