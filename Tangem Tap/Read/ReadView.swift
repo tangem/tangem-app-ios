@@ -71,6 +71,7 @@ struct ReadView: View {
         NavigationView {
             ZStack {
             VStack(alignment: .leading, spacing: 0) {
+                GeometryReader { geo in
                 ZStack {
                     CircleView().offset(x: 0.1*CircleView.diameter, y: -0.1*CircleView.diameter)
                     CardRectView(withShadow: viewModel.state != .read)
@@ -83,7 +84,11 @@ struct ReadView: View {
                             .transition(.offset(x: 400.0, y: 0.0))
                     }
                 }
-                .frame(width: UIScreen.main.bounds.width, height: 390)
+                .frame(width: geo.size.width, height: geo.size.height)
+                }
+                .frame(minHeight: nil,
+                       idealHeight: 390,
+                       maxHeight: 390)
                 Spacer()
                 
                     Text(titleKey)
@@ -122,10 +127,11 @@ struct ReadView: View {
                                     default:
                                         break
                                     }
-                    }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                    }
+                    .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
                     Spacer()
                 }
-                .padding([.leading, .bottom, .trailing], 16.0)
+                .padding([.leading, .bottom], 16.0)
             }
             .edgesIgnoringSafeArea(.top)
             .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
@@ -157,6 +163,7 @@ struct ReadView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ReadView(viewModel: ReadViewModel(sdkService: sdkService))
+                .previewLayout(.fixed(width: 320.0, height: 568))
                 .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
                 .previewDisplayName("iPhone 7")
             ReadView(viewModel: ReadViewModel(sdkService: sdkService))
