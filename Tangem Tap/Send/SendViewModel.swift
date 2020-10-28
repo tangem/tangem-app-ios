@@ -263,9 +263,6 @@ class SendViewModel: ObservableObject {
                                                                                                  totalFiatAmountFormatted!,
                                                                                                  self.cardViewModel.getFiatFormatted(for: tx.fee)!)
                     }
-                    DispatchQueue.main.async {
-                        self.validateWithdrawal(tx)
-                    }
                 } else {
                     self.fillTotalBlockWithDefaults()
                     self.isSendEnabled = false
@@ -282,6 +279,7 @@ class SendViewModel: ObservableObject {
                 return self.txSender.getFee(amount: self.amountToSend, destination: dest)
                     .catch { error -> Just<[Amount]> in
                         print(error)
+                        Analytics.log(error: error)
                         return Just([Amount]())
                 }.eraseToAnyPublisher()
         }
@@ -325,6 +323,9 @@ class SendViewModel: ObservableObject {
                                                                                  destinationAddress: destination!)
                 switch result {
                 case .success(let tx):
+                    DispatchQueue.main.async {
+                        self.validateWithdrawal(tx)
+                    }
                     self.amountHint = nil
                     return tx
                 case .failure(let error):
@@ -418,7 +419,11 @@ class SendViewModel: ObservableObject {
                               message: Text(warning.warningMessage),
                               primaryButton: Alert.Button.default(Text(warning.reduceMessage),
                                                                   action: {
-                                                                    self.amountText = (transaction.amount + transaction.fee - warning.suggestedReduceAmount).value.description
+                                                                    self.amountToSend = self.amountToSend - warning.suggestedReduceAmount
+                                                                    
+                                                                    self.amountText = self.isFiatCalculation ? self.cardViewModel.getFiat(for:
+                                                                        self.amountToSend)?.description ?? "0" :
+                                                                        self.amountToSend.value.description
                               }),
                               secondaryButton: Alert.Button.cancel(Text(warning.ignoreMessage),
                                                                    action: {
@@ -451,7 +456,6 @@ class SendViewModel: ObservableObject {
         if let payIdTag = self.validatedTag {
             tx.infos[Transaction.InfoKey.destinationTag] = payIdTag
         }
-        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         txSender.send(tx, signer: sdkService.signer)
@@ -466,6 +470,7 @@ class SendViewModel: ObservableObject {
                     Analytics.log(error: error)
                     self.sendError = error.detailedError.alertBinder
                 } else {
+                    Analytics.logTx(blockchainName: self.cardViewModel.card.cardData?.blockchainName)
                     callback()
                 }
                 
