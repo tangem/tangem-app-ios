@@ -284,6 +284,7 @@ class PayIDService {
                 }
                 
             case .failure(let error):
+                Analytics.log(error: error)
                 let err = "PayID request failed. \(error.localizedDescription)"
                 print(err)
                 completion(.failure("payid_service_error_loading".localized))
