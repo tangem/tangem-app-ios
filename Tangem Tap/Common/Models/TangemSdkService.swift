@@ -13,7 +13,7 @@ import BlockchainSdk
 
 class TangemSdkService: ObservableObject {
     var ratesService: CoinMarketCapService!
-    
+    let config = Config()
     var cards = [String: CardViewModel]()
     
     lazy var tangemSdk: TangemSdk = {

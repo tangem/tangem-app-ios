@@ -47,6 +47,8 @@
 
 "wallet_button_send" = "Send";
 
+"wallet_button_topup" = "Top up";
+
 "wallet_button_create_wallet" = "Create wallet";
 
 "wallet_title" = "Tangem Tap";
