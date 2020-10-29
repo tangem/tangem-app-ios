@@ -102,7 +102,7 @@ struct ReadView: View {
                     if viewModel.state == .welcome ||
                         viewModel.state == .welcomeBack {
                         Button(action: {
-                            self.viewModel.openShop()
+                            self.viewModel.openShop = true
                         }) { HStack(alignment: .center) {
                             Text(blackButtonTitleKey)
                             Spacer()
@@ -150,6 +150,13 @@ struct ReadView: View {
                     NavigationLink(destination: DisclaimerView(sdkService: viewModel.sdkService),
                                    isActive: $viewModel.openDisclaimer) {
                                       EmptyView()
+                    }
+                }
+                
+                if viewModel.openShop {
+                    NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
+                                   isActive: $viewModel.openShop) {
+                                  EmptyView()
                     }
                 }
             }
