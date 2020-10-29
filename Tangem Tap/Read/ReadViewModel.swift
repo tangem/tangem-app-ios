@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemSdk
+import SafariServices
 
 class ReadViewModel: ObservableObject {
     enum State {
@@ -21,9 +22,12 @@ class ReadViewModel: ObservableObject {
     var sdkService: TangemSdkService
     @Published var openDetails: Bool = false
     @Published var openDisclaimer: Bool = false
+    @Published var openShop: Bool = false
     @Published var state: State = .welcome
     @Published var isLoading: Bool = false
     @Published var scanError: AlertBinder?
+    var shopURL = URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!
+    
     
     @Storage("tangem_tap_first_time_scan", defaultValue: true)
     var firstTimeScan: Bool
@@ -32,10 +36,6 @@ class ReadViewModel: ObservableObject {
     init(sdkService: TangemSdkService) {
         self.sdkService = sdkService
         self.state = firstTimeScan ? .welcome : .welcomeBack
-    }
-    
-    func openShop() {
-        UIApplication.shared.open(URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!, options: [:], completionHandler: nil)
     }
     
     func nextState() {

@@ -45,6 +45,8 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var selectedCurrency: String = ""
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     
+    public var canTopup: Bool { workaroundsService.isTopupSupported(for: card) }
+    
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
     
@@ -134,6 +136,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     public func update(silent: Bool = false) {
+        guard !isWalletLoading else {
+            return
+        }
+        
         loadingError = nil
         loadImage()
         if let walletManager = self.walletManager {
