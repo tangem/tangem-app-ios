@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 import BlockchainSdk
+import CryptoKit
 
 class MainViewModel: ObservableObject {
     var sdkService: TangemSdkService
@@ -27,6 +28,7 @@ class MainViewModel: ObservableObject {
     @Published var showSend = false
     @Published var showSendChoise = false
     @Published var showCreatePayID = false
+    @Published var showTopup = false
     
     //Mark: Output
     @Published var error: AlertBinder?
@@ -106,6 +108,18 @@ class MainViewModel: ObservableObject {
     private var updateTimer: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
     
+    var topupURL: URL {
+        let url = "https://buy-staging.moonpay.io"
+        let query = "?apiKey=\(sdkService.config.moonPayApiKey)&currencyCode=\(cardViewModel.wallet!.blockchain.currencySymbol)&walletAddress=\(cardViewModel.wallet!.address)"
+
+        let signature = HMAC<SHA256>.authenticationCode(for: query.data(using: .utf8)!, using: SymmetricKey(data: sdkService.config.moonPaySecretApiKey.data(using: .utf8)!))
+        let signatureData = Data(signature)
+        let signatureString = signatureData.base64EncodedString().addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        
+        let finalUrl = url + query + "&signature=\(signatureString)"
+        return URL(string: finalUrl)!
+    }
+    
     init(cid: String, sdkService: TangemSdkService) {
         self.sdkService = sdkService
         self.cardViewModel = sdkService.cards[cid]!
@@ -169,7 +183,7 @@ class MainViewModel: ObservableObject {
                     self?.error = error.alertBinder
                 }
             }
-              self?.isScanning = false
+            self?.isScanning = false
         }
     }
     
@@ -189,12 +203,23 @@ class MainViewModel: ObservableObject {
         }
     }
     
+    //func topupTapped() {
+//        let urlString = "https://www.hackingwithswift.com"
+//
+//        if let url = URL(string: urlString) {
+//            let vc = SFSafariViewController(url: url, entersReaderIfAvailable: true)
+//            vc.delegate = self
+//
+//            present(vc, animated: true)
+//        }
+   // }
+    
     func sendTapped() {
         if let tokenAmount = cardViewModel.wallet!.amounts[.token], tokenAmount.value > 0 {
             showSendChoise = true
         } else {
             amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
-           showSendScreen() 
+            showSendScreen() 
         }
     }
     
@@ -214,7 +239,7 @@ class MainViewModel: ObservableObject {
     }
     
     func onAppear() {
-         showUntrustedDisclaimerIfNeeded()
+        showUntrustedDisclaimerIfNeeded()
     }
     
     func startUpdatingTimer() {
