@@ -32,6 +32,7 @@ struct ErrorView: View {
                     .lineLimit(1)
                     .alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
                     .foregroundColor(Color.tangemTapGrayDark6)
+                    .minimumScaleFactor(0.8)
                 Text(subtitle)
                     .font(Font.system(size: 13.0))
                     .fontWeight(.medium)
