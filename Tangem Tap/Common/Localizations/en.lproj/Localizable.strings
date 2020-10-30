@@ -135,12 +135,6 @@
 
 "send_validation_invalid_address" = "Invalid address";
 
-"send_validation_invalid_amount" =  "Invalid amount"; //"Amount Exceeds Balance";
-
-"send_validation_invalid_total" = "Total Exceeds Balance";
-
-"send_validation_invalid_fee" = "Fee Exceeds Balance";
-
 "send_fee_picker_low" = "Low";
 
 "send_fee_picker_normal" = "Normal";
