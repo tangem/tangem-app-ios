@@ -420,7 +420,7 @@ class SendViewModel: ObservableObject {
                                                                    action: {
                                                                    
                               }))
-            UIApplication.shared.windows.first { $0.isKeyWindow }?.endEditing(true)
+            UIApplication.shared.endEditing()
             self.sendError = AlertBinder(alert: alert)
         }
     }
