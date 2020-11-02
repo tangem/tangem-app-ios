@@ -11,7 +11,7 @@ target 'Tangem Tap' do
   pod 'AnyCodable-FlightSchool'
   pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.7'
   pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.8'
-  pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-65'
+  pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-67'
   #pod 'TangemSdk', :path => '../card-sdk-swift'
   pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-37'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
