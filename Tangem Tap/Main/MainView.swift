@@ -168,7 +168,7 @@ struct MainView: View {
         .navigationBarTitle(viewModel.showSettings ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
             self.viewModel.showSettings = true
-            
+
         }, label: { Image("verticalDots")
             .foregroundColor(Color.tangemTapGrayDark6)
             .frame(width: 44.0, height: 44.0, alignment: .center)
@@ -180,6 +180,7 @@ struct MainView: View {
             .onAppear {
                 self.viewModel.onAppear()
         }
+        .ignoresKeyboard()
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
         .filter {_ in !self.viewModel.showSettings
             && !self.viewModel.showSend
@@ -190,7 +191,7 @@ struct MainView: View {
             self.viewModel.cardViewModel.update(silent: true)
         }
         .alert(item: $viewModel.error) { $0.alert }
-        
+
     }
 }
 
