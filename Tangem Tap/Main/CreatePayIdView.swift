@@ -14,24 +14,23 @@ struct CreatePayIdView: View {
     var cardId: String
     @State private var payIdText: String = ""
     @State private var isLoading: Bool = false
+    @State private var isAppeared: Bool = false
     @State private var alert: AlertBinder? = nil
     @State private var isFirstResponder : Bool? = false
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var cardViewModel: CardViewModel
     
     var body: some View {
-        VStack(alignment: .leading) {
-            VStack(alignment: .leading, spacing: 6.0) {
+        VStack(alignment: .leading, spacing: 8) {
                 Text("wallet_create_payid")
                     .font(Font.system(size: 30.0, weight: .bold, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark6)
+                    .padding(.top, 22.0)
                 Text(String(format: NSLocalizedString("wallet_create_payid_card_format", comment: ""), CardIdFormatter(cid: cardId).formatted()))
                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark)
-            }
-            .padding(.top, 22.0)
-            .padding(.bottom, 44.0)
-            HStack(alignment: .firstBaselineCustom, spacing: 0.0){
+                    .padding(.bottom, 22.0)
+            HStack(alignment: .firstBaselineCustom, spacing: 0.0) {
                 VStack(alignment: .leading) {
                     CustomTextField(
                         text: $payIdText, //First responder custom shit
@@ -44,9 +43,6 @@ struct CreatePayIdView: View {
                         .alignmentGuide(.firstBaselineCustom) { d in
                             d[.bottom] / 2 } //First responder custom shit
                         //   .disableAutocorrectiontrue)
-                        .onAppear {
-                            self.isFirstResponder = true
-                    }
                     Color.tangemTapGrayLight5
                         .frame(height: 1.0, alignment: .center)
                 }
@@ -96,7 +92,16 @@ struct CreatePayIdView: View {
                 .disabled(payIdText.isEmpty)
         }
         .padding(.horizontal)
-        .keyboardAdaptive()
+        .keyboardAdaptive(animated: $isAppeared)
+        .onWillAppear {
+            self.isFirstResponder = true          
+        }
+        .onWillDisappear {
+            self.isFirstResponder = false
+        }
+        .onDidAppear {
+            self.isAppeared = true
+        }
         .alert(item: self.$alert) { $0.alert }
     }
 }
