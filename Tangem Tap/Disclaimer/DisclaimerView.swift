@@ -10,17 +10,7 @@ import Foundation
 import SwiftUI
 
 struct DisclaimerView: View {
-    enum DisclaimerViewState {
-        case accept
-        case read
-    }
-    
-    @State private(set) var openDetails: Bool = false
-    var state: DisclaimerViewState = .accept
-    var sdkService: TangemSdkService? = nil
-    
-    @Storage("tangem_tap_terms_of_service_accepted", defaultValue: false)
-    static var isTermsOfServiceAccepted: Bool
+    @ObservedObject var viewModel: DisclaimerViewModel
     
     var body: some View {
         VStack(alignment: .trailing) {
@@ -31,33 +21,30 @@ struct DisclaimerView: View {
                     .padding()
             }
             
-            if state == .accept {
+            if viewModel.state == .accept {
                 TangemButton(isLoading: false,
                              title: "common_accept",
                              image: "arrow.right") {
-                                DisclaimerView.isTermsOfServiceAccepted = true
-                                self.openDetails = true
+                    viewModel.accept()
                 }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
-                    .padding([.bottom, .trailing])
-            }
-            
-            if sdkService != nil {
-                NavigationLink(destination:
-                    MainView(viewModel: MainViewModel(cid: sdkService!.cards.first!.key,
-                                                      sdkService: sdkService!)),
-                               isActive: $openDetails) {
-                                EmptyView()
+                .padding([.bottom, .trailing])
+                
+                if viewModel.navigation.openMainFromDisclaimer {
+                    NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
+                                   isActive: $viewModel.navigation.openMainFromDisclaimer) {
+                        EmptyView()
+                    }
                 }
             }
         }
         .foregroundColor(.tangemTapGrayDark6)
         .navigationBarTitle("disclaimer_title")
-        .navigationBarBackButtonHidden(state == .accept)
+        .navigationBarBackButtonHidden(viewModel.state == .accept)
     }
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
     static var previews: some View {
-        DisclaimerView(sdkService: TangemSdkService())
+        DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel())
     }
 }
