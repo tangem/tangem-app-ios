@@ -7,13 +7,25 @@
 //
 
 import Foundation
+import Combine
 
 class DisclaimerViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    @Published var navigation: NavigationCoordinator! {
+        didSet {
+            navigation.objectWillChange
+                          .receive(on: RunLoop.main)
+                          .sink { [weak self] in
+                              self?.objectWillChange.send()
+                      }
+                      .store(in: &bag)
+        }
+    }
     var assembly: Assembly!
     var userPrefsService: UserPrefsService!
     
     @Published var state: State = .accept
+    
+    private var bag = Set<AnyCancellable>()
     
     func accept() {
         userPrefsService.isTermsOfServiceAccepted = true
