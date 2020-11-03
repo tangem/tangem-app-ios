@@ -11,13 +11,18 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-class DetailsViewModel: ObservableObject {
-    @Binding var sdkService: TangemSdkService
-    @Binding var cardViewModel: CardViewModel {
+class DetailsViewModel: ViewModel {
+    @Published var navigation: NavigationCoordinator!
+    var assembly: Assembly!
+    var cardsRepository: CardsRepository!
+    var bag = Set<AnyCancellable>()
+    
+    @Published var cardViewModel: CardViewModel! {
         didSet {
             bind()
         }
     }
+    
     @Published var canPurgeWallet: Bool = false
     
     var canManageSecurity: Bool {
@@ -25,28 +30,13 @@ class DetailsViewModel: ObservableObject {
         cardViewModel.card.isPin2Default != nil
     }
     
-    private var bag = Set<AnyCancellable>()
-    
-    init(cardViewModel: Binding<CardViewModel>, sdkSerice: Binding<TangemSdkService>) {
-        self._sdkService = sdkSerice
-        self._cardViewModel = cardViewModel
-        bind()
-    }
-    
     func bind() {
         bag = Set<AnyCancellable>()
         canPurgeWallet = getPurgeWalletStatus()
-        
-        cardViewModel.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-        }
-        .store(in: &bag)
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
-        sdkService.purgeWallet(card: cardViewModel.card) { [weak self] result in
+        cardsRepository.purgeWallet(card: cardViewModel.card) { [weak self] result in
             switch result {
             case .success(let cardViewModel):
                 guard let self = self else { return }
