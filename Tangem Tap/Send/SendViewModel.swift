@@ -18,9 +18,10 @@ struct TextHint {
     let message: String
 }
 
-class SendViewModel: ObservableObject {
-    //MARK: Navigation
-    @Published var showQR = false
+class SendViewModel: ViewModel {
+    @Published var navigation: NavigationCoordinator!
+    var assembly: Assembly!
+    
     @Published var showCameraDeniedAlert = false
     
     //MARK: Input
@@ -65,8 +66,9 @@ class SendViewModel: ObservableObject {
     
     @Published var sendError: AlertBinder?
     
-    var sdkService: TangemSdkService
+    var signer: TransactionSigner
     var cardViewModel: CardViewModel
+    var bag = Set<AnyCancellable>()
     
     var currencyUnit: String {
         return isFiatCalculation ? self.cardViewModel.selectedCurrency: self.amountToSend.currencySymbol
@@ -92,14 +94,14 @@ class SendViewModel: ObservableObject {
     @Published private var validatedDestination: String? = nil
     @Published private var amountValidated: Bool = false
     private var validatedTag: String? = nil
-    private var bag = Set<AnyCancellable>()
+
     @Published private var amountToSend: Amount
     private var txSender: TransactionSender {
         cardViewModel.walletManager as! TransactionSender
     }
     
-    init(amountToSend: Amount, cardViewModel: CardViewModel, sdkSerice: TangemSdkService) {
-        self.sdkService = sdkSerice
+    init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner) {
+        self.signer = signer
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
         if let wallet = self.cardViewModel.wallet {
@@ -128,13 +130,6 @@ class SendViewModel: ObservableObject {
     
     func bind() {
         bag = Set<AnyCancellable>()
-        
-        cardViewModel.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] in
-                self.objectWillChange.send()
-        }
-        .store(in: &bag)
         
         cardViewModel
             .$rates
@@ -449,7 +444,7 @@ class SendViewModel: ObservableObject {
         }
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        txSender.send(tx, signer: sdkService.signer)
+        txSender.send(tx, signer: signer)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
