@@ -84,7 +84,7 @@ struct MainView: View {
                                          
                                     }
                                 }
-                                AddressDetailView(showCreatePayID: self.$viewModel.showCreatePayID)
+                                AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID)
                                     .environmentObject(self.viewModel.cardViewModel)
                             } else {
                                 if !self.viewModel.cardViewModel.isCardSupported  {
@@ -100,7 +100,7 @@ struct MainView: View {
                 }
                 
             }
-            .sheet(isPresented: self.$viewModel.showCreatePayID, content: {
+            .sheet(isPresented: self.$viewModel.navigation.showCreatePayID, content: {
                 CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
                     .environmentObject(self.viewModel.cardViewModel)
             })
@@ -133,7 +133,7 @@ struct MainView: View {
                         }
                         .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
-                        .sheet(isPresented: $viewModel.showSend) {
+                        .sheet(isPresented: $viewModel.navigation.showSend) {
                             SendView(viewModel: self.viewModel.sendViewModel, onSuccess: {
                                                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                                                     let alert = Alert(title: Text("common_success"),
@@ -145,7 +145,7 @@ struct MainView: View {
                                                                 }
                             })
                         }
-                        .actionSheet(isPresented: self.$viewModel.showSendChoise) {
+                        .actionSheet(isPresented: self.$viewModel.navigation.showSendChoise) {
                             ActionSheet(title: Text("wallet_choice_wallet_option_title"),
                                         message: nil,
                                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
@@ -153,10 +153,10 @@ struct MainView: View {
                         }
                     }
                 }
-                if viewModel.showSettings {
+                if viewModel.navigation.showSettings {
                     NavigationLink(
-                        destination: DetailsView(viewModel: DetailsViewModel(cardViewModel: self.$viewModel.cardViewModel, sdkSerice: self.$viewModel.sdkService)),
-                        isActive: $viewModel.showSettings,
+                        destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.cardViewModel)),
+                        isActive: $viewModel.navigation.showSettings,
                         label: {
                             EmptyView()
                     })
@@ -165,10 +165,9 @@ struct MainView: View {
         }
         .padding(.bottom, 16.0)
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(viewModel.showSettings ? "" : "wallet_title", displayMode: .inline)
+        .navigationBarTitle(viewModel.navigation.showSettings ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
-            self.viewModel.showSettings = true
-
+            viewModel.navigation.showSettings = true
         }, label: { Image("verticalDots")
             .foregroundColor(Color.tangemTapGrayDark6)
             .frame(width: 44.0, height: 44.0, alignment: .center)
@@ -182,9 +181,9 @@ struct MainView: View {
         }
         .ignoresKeyboard()
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-        .filter {_ in !self.viewModel.showSettings
-            && !self.viewModel.showSend
-            && !self.viewModel.showCreatePayID
+                    .filter {_ in !self.viewModel.navigation.showSettings
+                        && !self.viewModel.navigation.showSend
+                        && !self.viewModel.navigation.showCreatePayID
         }
         .delay(for: 0.3, scheduler: DispatchQueue.global())
         .receive(on: DispatchQueue.main)) { _ in
@@ -197,23 +196,30 @@ struct MainView: View {
 
 
 struct DetailsView_Previews: PreviewProvider {
-    static var sdkService: TangemSdkService = {
-        let service = TangemSdkService()
-        service.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
-        service.cards[Card.testCardNoWallet.cardId!] = CardViewModel(card: Card.testCardNoWallet)
-        return service
-    }()
+    static var testVM: MainViewModel {
+        let assembly = Assembly.previewAssembly
+        let vm = assembly.makeMainViewModel()
+        vm.cardViewModel = assembly.cardsRepository.cards[Card.testCard.cardId!]!
+        return vm
+    }
+    
+    static var testNoWalletVM: MainViewModel {
+        let assembly = Assembly.previewAssembly
+        let vm = assembly.makeMainViewModel()
+        vm.cardViewModel = assembly.cardsRepository.cards[Card.testCardNoWallet.cardId!]!
+        return vm
+    }
     
     static var previews: some View {
         Group {
             NavigationView {
-                MainView(viewModel: MainViewModel(cid: Card.testCard.cardId!, sdkService: sdkService))
+                MainView(viewModel: testVM)
             }
             .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
             .previewDisplayName("iPhone 8")
             
             NavigationView {
-                MainView(viewModel: MainViewModel(cid: Card.testCardNoWallet.cardId!, sdkService: sdkService))
+                MainView(viewModel: testNoWalletVM)
             }
         }
     }
