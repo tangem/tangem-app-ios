@@ -11,14 +11,30 @@ import SwiftUI
 import Combine
 
 class SecurityManagementViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    @Published var navigation: NavigationCoordinator!{
+        didSet {
+            navigation.objectWillChange
+                          .receive(on: RunLoop.main)
+                          .sink { [weak self] in
+                              self?.objectWillChange.send()
+                      }
+                      .store(in: &bag)
+        }
+    }
     var assembly: Assembly!
     var bag = Set<AnyCancellable>()
     @Published var cardViewModel: CardViewModel! {
         didSet {
             selectedOption = cardViewModel.currentSecOption
+            cardViewModel.objectWillChange
+                          .receive(on: RunLoop.main)
+                          .sink { [weak self] in
+                              self?.objectWillChange.send()
+                      }
+                      .store(in: &bag)
         }
     }
+    
     var cardsRepository: CardsRepository!
     
     @Published var error: AlertBinder?
