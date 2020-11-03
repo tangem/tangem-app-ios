@@ -19,7 +19,16 @@ struct TextHint {
 }
 
 class SendViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    @Published var navigation: NavigationCoordinator! {
+        didSet {
+            navigation.objectWillChange
+                          .receive(on: RunLoop.main)
+                          .sink { [weak self] in
+                              self?.objectWillChange.send()
+                      }
+                      .store(in: &bag)
+        }
+    }
     var assembly: Assembly!
     
     @Published var showCameraDeniedAlert = false
@@ -67,7 +76,16 @@ class SendViewModel: ViewModel {
     @Published var sendError: AlertBinder?
     
     var signer: TransactionSigner
-    var cardViewModel: CardViewModel
+    var cardViewModel: CardViewModel {
+        didSet {
+            cardViewModel.objectWillChange
+                .receive(on: RunLoop.main)
+                .sink { [weak self] in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &bag)
+        }
+    }
     var bag = Set<AnyCancellable>()
     
     var currencyUnit: String {
