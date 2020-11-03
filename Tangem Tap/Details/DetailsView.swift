@@ -72,7 +72,8 @@ struct DetailsView: View {
                         
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                NavigationLink(destination:DisclaimerView(state: .read).background(Color.tangemTapBgGray)) {
+                NavigationLink(destination:DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
+                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))) {
                                        DetailsRowView(title: "disclaimer_title".localized,
                                                       subtitle: "")
                                        
@@ -84,30 +85,28 @@ struct DetailsView: View {
                 //                    DetailsRowView(title: "details_row_title_validate".localized, subtitle: "")
                 //                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                NavigationLink(destination:SecurityManagementView(selectedOption: viewModel.cardViewModel.currentSecOption)
-                    .environmentObject(viewModel.cardViewModel)
-                    .environmentObject(viewModel.sdkService)) {
-                        DetailsRowView(title: "details_row_title_manage_security".localized, subtitle: viewModel.cardViewModel.currentSecOption.title)
-                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                    .disabled(!viewModel.canManageSecurity)
+                NavigationLink(destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardViewModel))) {
+                        DetailsRowView(title: "details_row_title_manage_security".localized,
+                                       subtitle: viewModel.cardViewModel.currentSecOption.title)
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                .disabled(!viewModel.canManageSecurity)
                 
                 NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
                                                               buttonTitle: "details_row_title_erase_wallet",
                                                               alert: "details_erase_wallet_warning".localized,
-                                                              actionButtonPressed: { completion in
-                                                                self.viewModel.purgeWallet(completion: completion)
-                })
-                ) {
+                                                              actionButtonPressed: {viewModel.purgeWallet(completion: $0)}
+                )) {
                     DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
-                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                    .disabled(!viewModel.canPurgeWallet)
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                .disabled(!viewModel.canPurgeWallet)
             }
             
             Section(header: Color.tangemTapBgGray
                 .listRowInsets(EdgeInsets())) {
                     EmptyView()
             }
-            
         }
         .padding(.top, 16.0)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
@@ -116,30 +115,7 @@ struct DetailsView: View {
 }
 
 struct SettingsView_Previews: PreviewProvider {
-    @State static var sdkService: TangemSdkService = {
-        let service = TangemSdkService()
-        service.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
-        service.cards[Card.testCardNoWallet.cardId!] = CardViewModel(card: Card.testCardNoWallet)
-        return service
-    }()
-    
-    @State static var cardWallet: CardViewModel = {
-        return sdkService.cards[Card.testCard.cardId!]!
-    }()
-    
-    @State static var cardNoWallet: CardViewModel = {
-        return sdkService.cards[Card.testCardNoWallet.cardId!]!
-    }()
-    
     static var previews: some View {
-        Group {
-            DetailsView(viewModel: DetailsViewModel(
-                cardViewModel: $cardWallet,
-                sdkSerice: $sdkService))
-            
-            DetailsView(viewModel: DetailsViewModel(
-                cardViewModel: $cardNoWallet,
-                sdkSerice: $sdkService))
-        }
+        DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: Assembly.previewAssembly.cardsRepository.cards.values.first!))
     }
 }
