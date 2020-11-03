@@ -9,23 +9,23 @@
 import Foundation
 import SwiftUI
 
-struct NavigationCoordinator {
+class NavigationCoordinator: ObservableObject {
     // MARK: ReadView
-    var openMain: Bool = false
-    var openDisclaimer: Bool = false
+    @Published var openMain: Bool = false
+    @Published var openDisclaimer: Bool = false
     
     // MARK: DisclaimerView
-    var openMainFromDisclaimer: Bool = false
+    @Published var openMainFromDisclaimer: Bool = false
     
     // MARK: SecurityManagementView
-    var openWarning: Bool = false
+    @Published var openWarning: Bool = false
     
     // MARK: MainView
-    var showSettings = false
-    var showSend = false
-    var showSendChoise = false
-    var showCreatePayID = false
+    @Published var showSettings = false
+    @Published var showSend = false
+    @Published var showSendChoise = false
+    @Published var showCreatePayID = false
     
     // MARK: SendView
-    var showQR = false
+    @Published var showQR = false
 }
