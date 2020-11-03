@@ -11,6 +11,6 @@ import SwiftUI
 import Combine
 
 protocol ViewModel: ObservableObject {
-    var navigation: NavigationCoordinator! {get set}
-    var assembly: Assembly! {get set}
+    var assembly: Assembly! { get set }
+    var navigation: NavigationCoordinator! { get set }
 }
