@@ -11,11 +11,15 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 
-class MainViewModel: ObservableObject {
-    var sdkService: TangemSdkService
-    var amountToSend: Amount? = nil
+class MainViewModel: ViewModel {
+    @Published var navigation: NavigationCoordinator! 
+    var assembly: Assembly!
     
-    @Published var cardViewModel: CardViewModel {
+    var amountToSend: Amount? = nil
+    var bag = Set<AnyCancellable>()
+    var cardsRepository: CardsRepository!
+    
+    @Published var cardViewModel: CardViewModel! {
         didSet {
             bind()
         }
@@ -23,10 +27,6 @@ class MainViewModel: ObservableObject {
     
     //Mark: Input
     @Published var isRefreshing = false
-    @Published var showSettings = false
-    @Published var showSend = false
-    @Published var showSendChoise = false
-    @Published var showCreatePayID = false
     
     //Mark: Output
     @Published var error: AlertBinder?
@@ -104,13 +104,6 @@ class MainViewModel: ObservableObject {
     }
     
     private var updateTimer: AnyCancellable? = nil
-    private var bag = Set<AnyCancellable>()
-    
-    init(cid: String, sdkService: TangemSdkService) {
-        self.sdkService = sdkService
-        self.cardViewModel = sdkService.cards[cid]!
-        bind()
-    }
     
     func bind() {
         bag = Set<AnyCancellable>()
@@ -133,13 +126,6 @@ class MainViewModel: ObservableObject {
             .assign(to: \.image, on: self)
             .store(in: &bag)
         
-        cardViewModel.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-        }
-        .store(in: &bag)
-        
         cardViewModel
             .walletManager?
             .$wallet
@@ -159,7 +145,7 @@ class MainViewModel: ObservableObject {
     
     func scan() {
         self.isScanning = true
-        sdkService.scan { [weak self] scanResult in
+        cardsRepository.scan { [weak self] scanResult in
             switch scanResult {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
@@ -175,7 +161,7 @@ class MainViewModel: ObservableObject {
     
     func createWallet() {
         self.isCreatingWallet = true
-        sdkService.createWallet(card: cardViewModel.card) { [weak self] result in
+        cardsRepository.createWallet(card: cardViewModel.card) { [weak self] result in
             switch result {
             case .success(let cardViewModel):
                 self?.cardViewModel = cardViewModel
@@ -191,7 +177,7 @@ class MainViewModel: ObservableObject {
     
     func sendTapped() {
         if let tokenAmount = cardViewModel.wallet!.amounts[.token], tokenAmount.value > 0 {
-            showSendChoise = true
+            navigation.showSendChoise = true
         } else {
             amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
            showSendScreen() 
@@ -199,10 +185,8 @@ class MainViewModel: ObservableObject {
     }
     
     func showSendScreen() {
-        sendViewModel = SendViewModel(amountToSend: amountToSend!,
-                                      cardViewModel: cardViewModel,
-                                      sdkSerice: sdkService)
-        showSend = true
+        sendViewModel = assembly.makeSendViewModel(with: amountToSend!, card: cardViewModel)
+        navigation.showSend = true
     }
     
     func showUntrustedDisclaimerIfNeeded() {
