@@ -12,7 +12,16 @@ import Combine
 import BlockchainSdk
 
 class DetailsViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    @Published var navigation: NavigationCoordinator! {
+        didSet {
+            navigation.objectWillChange
+                .receive(on: RunLoop.main)
+                .sink { [weak self] in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &bag)
+        }
+    }
     var assembly: Assembly!
     var cardsRepository: CardsRepository!
     var bag = Set<AnyCancellable>()
@@ -27,12 +36,19 @@ class DetailsViewModel: ViewModel {
     
     var canManageSecurity: Bool {
         cardViewModel.card.isPin1Default != nil &&
-        cardViewModel.card.isPin2Default != nil
+            cardViewModel.card.isPin2Default != nil
     }
     
     func bind() {
         bag = Set<AnyCancellable>()
         canPurgeWallet = getPurgeWalletStatus()
+        
+        cardViewModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
