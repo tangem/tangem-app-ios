@@ -12,7 +12,16 @@ import SwiftUI
 import BlockchainSdk
 
 class MainViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator! 
+    @Published var navigation: NavigationCoordinator!  {
+        didSet {
+            navigation.objectWillChange
+                          .receive(on: RunLoop.main)
+                          .sink { [weak self] in
+                              self?.objectWillChange.send()
+                      }
+                      .store(in: &bag)
+        }
+    }
     var assembly: Assembly!
     
     var amountToSend: Amount? = nil
@@ -107,6 +116,14 @@ class MainViewModel: ViewModel {
     
     func bind() {
         bag = Set<AnyCancellable>()
+        
+        cardViewModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
+        
         $isRefreshing
             .removeDuplicates()
             .filter { $0 }
