@@ -9,9 +9,19 @@
 import Foundation
 import SwiftUI
 import TangemSdk
+import Combine
 
 class ReadViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    @Published var navigation: NavigationCoordinator! {
+        didSet {
+            navigation.objectWillChange
+                          .receive(on: RunLoop.main)
+                          .sink { [weak self] in
+                              self?.objectWillChange.send()
+                      }
+                      .store(in: &bag)
+        }
+    }
     var assembly: Assembly!
     
     //injected
@@ -27,6 +37,7 @@ class ReadViewModel: ViewModel {
     @Storage("tangem_tap_first_time_scan", defaultValue: true)
     private var firstTimeScan: Bool
     
+    private var bag = Set<AnyCancellable>()
     init() {
         self.state = firstTimeScan ? .welcome : .welcomeBack
     }
