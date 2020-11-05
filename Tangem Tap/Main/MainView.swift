@@ -168,7 +168,7 @@ struct MainView: View {
                 
                 if viewModel.showTopup {
                     NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
-                                                                 closeUrl: viewModel.topupCloseUrl,
+                                                                 closeUrl: viewModel.topupCloseUrl.removeLatestSlash(),
                                                                  title: "wallet_button_topup")
                                     .onDisappear {
                                         self.viewModel.cardViewModel.update(silent: true)
