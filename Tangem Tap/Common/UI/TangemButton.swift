@@ -52,11 +52,13 @@ struct TangemVerticalButton: View {
                 self.action()
             }
         }, label:  {
-            VStack(alignment: .center, spacing: 0) {
+            VStack(alignment: .center, spacing:0) {
                 if isLoading {
                     ActivityIndicatorView()
                 } else {
                     Image(image)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 20, height: 20)
                     Text(title)
                 }
             }
@@ -111,10 +113,23 @@ struct TangemButton_Previews: PreviewProvider {
                          image: "scan") {}
                 .buttonStyle(TangemButtonStyle(color: .black))
             
-            TangemVerticalButton(isLoading: false,
-                                 title: "wallet_button_scan",
-                                 image: "scan") {}
-                .buttonStyle(TangemButtonStyle(color: .green))
+            HStack {
+                TangemVerticalButton(isLoading: false,
+                                     title: "wallet_button_scan",
+                                     image: "scan") {}
+                    .buttonStyle(TangemButtonStyle(color: .green))
+                
+                TangemVerticalButton(isLoading: false,
+                                     title: "wallet_button_scan",
+                                     image: "arrow.right") {}
+                    .buttonStyle(TangemButtonStyle(color: .green))
+                
+                TangemVerticalButton(isLoading: false,
+                                     title: "wallet_button_scan",
+                                     image: "arrow.up") {}
+                    .buttonStyle(TangemButtonStyle(color: .green))
+            }
+           
             
             TangemLongButton(isLoading: false,
                              title: "wallet_button_scan",
