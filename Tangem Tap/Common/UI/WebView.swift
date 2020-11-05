@@ -30,6 +30,7 @@ struct WebViewContainer: View {
     
     var body: some View {
         WebView(url: url, urlActions: urlActions)
+            .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
             .navigationBarTitle(title, displayMode: .inline)
     }
 }
@@ -59,8 +60,9 @@ struct WebView: UIViewRepresentable {
         
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             
+            
             if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
-               let actionForURL = urlActions[String(url)] {
+               let actionForURL = urlActions[String(url).removeLatestSlash()] {
                 decisionHandler(.cancel)
                 actionForURL()
                 return
