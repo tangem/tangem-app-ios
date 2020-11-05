@@ -14,10 +14,22 @@ import WebKit
 
 struct WebViewContainer: View {
     var url: URL
+    var closeUrl: String? = nil
     var title: LocalizedStringKey
+    @Environment(\.presentationMode) var presentationMode
+    
+    var urlActions: [String : (() -> Void)]  {
+        if let closeUrl = closeUrl {
+            return [closeUrl: {
+                presentationMode.wrappedValue.dismiss()
+            }]
+        } else {
+            return [:]
+        }
+    }
     
     var body: some View {
-        WebView(url: url)
+        WebView(url: url, urlActions: urlActions)
             .navigationBarTitle(title, displayMode: .inline)
     }
 }
@@ -25,14 +37,42 @@ struct WebViewContainer: View {
 
 struct WebView: UIViewRepresentable {
     var url: URL
+    var urlActions: [String : (() -> Void)] = [:]
     
     func makeUIView(context: Context) -> WKWebView {
         let view =  WKWebView()
         view.load(URLRequest(url: url))
+        view.navigationDelegate = context.coordinator
         return view
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {}
+    
+    
+    
+    class Coordinator: NSObject, WKNavigationDelegate {
+        let urlActions: [String: (() -> Void)]
+        
+        init(urlActions: [String : (() -> Void)] = [:]) {
+            self.urlActions = urlActions
+        }
+        
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            
+            if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
+               let actionForURL = urlActions[String(url)] {
+                decisionHandler(.cancel)
+                actionForURL()
+                return
+            }
+            
+            decisionHandler(.allow)
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(urlActions: urlActions)
+    }
 }
 
 //class CustomSafariViewController: UIViewController {
