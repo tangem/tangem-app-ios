@@ -105,37 +105,37 @@ struct MainView: View {
                     .environmentObject(self.viewModel.cardViewModel)
             })
             HStack(alignment: .center, spacing: 8.0) {
-                TangemButton(isLoading: self.viewModel.isScanning,
+                TangemVerticalButton(isLoading: self.viewModel.isScanning,
                              title: "wallet_button_scan",
                              image: "scan") {
                                 withAnimation {
                                     self.viewModel.scan()
                                 }
-                }.buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                }.buttonStyle(TangemButtonStyle(color: .black))
                 
                 if self.viewModel.cardViewModel.isCardSupported {
                     if self.viewModel.cardViewModel.wallet == nil {
-                        TangemButton(isLoading: self.viewModel.isCreatingWallet,
+                        TangemLongButton(isLoading: self.viewModel.isCreatingWallet,
                                      title: "wallet_button_create_wallet",
                                      image: "arrow.right") {
                                          self.viewModel.createWallet()
-                        }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canCreateWallet))
+                        }.buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canCreateWallet))
                         .disabled(!self.viewModel.canCreateWallet)
                     } else {
                         if viewModel.cardViewModel.canTopup {
-                            TangemButton(isLoading: false,
+                            TangemVerticalButton(isLoading: false,
                                          title: "wallet_button_topup",
                                          image: "arrow.up") {
                                 self.viewModel.showTopup = true
                             }
-                            .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .green, isDisabled: false))
+                            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
                         }
-                        TangemButton(isLoading: false,
+                        TangemVerticalButton(isLoading: false,
                                      title: "wallet_button_send",
                                      image: "arrow.right") {
                                           self.viewModel.sendTapped()
                         }
-                        .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .green, isDisabled: !self.viewModel.canSend))
+                        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
                         .sheet(isPresented: $viewModel.showSend) {
                             SendView(viewModel: self.viewModel.sendViewModel, onSuccess: {
@@ -168,7 +168,8 @@ struct MainView: View {
                 
                 if viewModel.showTopup {
                     NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
-                                                            title: "wallet_button_topup")
+                                                                 closeUrl: viewModel.topupCloseUrl,
+                                                                 title: "wallet_button_topup")
                                     .onDisappear {
                                         self.viewModel.cardViewModel.update(silent: true)
                                     },
