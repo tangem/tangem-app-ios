@@ -32,12 +32,12 @@ struct DisclaimerView: View {
             }
             
             if state == .accept {
-                TangemButton(isLoading: false,
+                TangemLongButton(isLoading: false,
                              title: "common_accept",
                              image: "arrow.right") {
                                 DisclaimerView.isTermsOfServiceAccepted = true
                                 self.openDetails = true
-                }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                }.buttonStyle(TangemButtonStyle(color: .green))
                     .padding([.bottom, .trailing])
             }
             
