@@ -114,25 +114,25 @@ class MainViewModel: ObservableObject {
         urlComponents.host = "buy-staging.moonpay.io"
         
         var queryItems = [URLQueryItem]()
-        queryItems.append(URLQueryItem(name: "apiKey", value: sdkService.config.moonPayApiKey))
-        queryItems.append(URLQueryItem(name: "currencyCode", value: cardViewModel.wallet!.blockchain.currencySymbol))
-        queryItems.append(URLQueryItem(name: "walletAddress", value: cardViewModel.wallet!.address))
-      //  queryItems.append(URLQueryItem(name: "redirectURL", value: topupCloseUrl))
+        queryItems.append(URLQueryItem(name: "apiKey", value: sdkService.config.moonPayApiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "currencyCode", value: cardViewModel.wallet!.blockchain.currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "walletAddress", value: cardViewModel.wallet!.address.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "redirectURL", value: topupCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
         
-        urlComponents.queryItems = queryItems
-        let queryData = "?\(urlComponents.query!)".data(using: .utf8)!
+        urlComponents.percentEncodedQueryItems = queryItems
+        let queryData = "?\(urlComponents.percentEncodedQuery!)".data(using: .utf8)!
         let secretKey = sdkService.config.moonPaySecretApiKey.data(using: .utf8)!
         let signature = HMAC<SHA256>.authenticationCode(for: queryData, using: SymmetricKey(data: secretKey))
         
-        queryItems.append(URLQueryItem(name: "signature", value: Data(signature).base64EncodedString()))
-        urlComponents.queryItems = queryItems
+        queryItems.append(URLQueryItem(name: "signature", value: Data(signature).base64EncodedString().addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        urlComponents.percentEncodedQueryItems = queryItems
         
         let url = urlComponents.url!
         print(url)
         return url
     }
     
-    let topupCloseUrl = "https://tangem.topup.close.com/"
+    let topupCloseUrl = "https://success.tangem.com"
     
     init(cid: String, sdkService: TangemSdkService) {
         self.sdkService = sdkService
