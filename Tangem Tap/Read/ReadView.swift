@@ -101,21 +101,15 @@ struct ReadView: View {
                 HStack(spacing: 8.0) {
                     if viewModel.state == .welcome ||
                         viewModel.state == .welcomeBack {
-                        Button(action: {
+                        TangemButton(isLoading: false,
+                                     title: blackButtonTitleKey,
+                                     image: "shopBag" ) {
                             self.viewModel.openShop = true
-                        }) { HStack(alignment: .center) {
-                            Text(blackButtonTitleKey)
-                            Spacer()
-                            Image("shopBag")
-                        }
-                        .padding(.horizontal)
-                        }
-                        .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
-                        // .transition(.offset(x: -200.0, y: 0.0))
+                        }.buttonStyle(TangemButtonStyle(color: .black))
                     } else {
                         Color.clear.frame(width: ButtonSize.small.value.width, height: ButtonSize.small.value.height)
                     }
-                    TangemButton(isLoading: self.viewModel.isLoading,
+                    TangemLongButton(isLoading: self.viewModel.isLoading,
                                  title: greenButtonTitleKey,
                                  image: "arrow.right") {
                                     withAnimation {
@@ -128,7 +122,7 @@ struct ReadView: View {
                                         break
                                     }
                     }
-                    .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
+                    .buttonStyle(TangemButtonStyle(color: .green))
                     Spacer()
                 }
                 .padding([.leading, .bottom], 16.0)
