@@ -12,4 +12,12 @@ extension String {
     var localized: String {
         return NSLocalizedString(self, comment: "")
     }
+    
+    func removeLatestSlash() -> String {
+        if self.last == "/" {
+            return String(self.dropLast())
+        }
+        
+        return self
+    }
 }
