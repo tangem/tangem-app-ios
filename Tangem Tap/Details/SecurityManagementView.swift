@@ -111,7 +111,7 @@ struct SecurityManagementView: View {
             
             HStack(alignment: .center, spacing: 8.0) {
                 Spacer()
-                TangemButton(isLoading: self.isLoading,
+                TangemLongButton(isLoading: self.isLoading,
                              title: selectedOption == .longTap ? "common_save_changes" : "common_continue",
                              image: "save") {
                                 switch self.selectedOption {
@@ -133,8 +133,7 @@ struct SecurityManagementView: View {
                                                                         }
                                     }
                                 }
-                }.buttonStyle(TangemButtonStyle(size: .big,
-                                                colorStyle: .black,
+                }.buttonStyle(TangemButtonStyle(color: .black,
                                                 isDisabled: selectedOption == cardViewModel.currentSecOption))
                     .alert(item: self.$error) { $0.alert }
                     .disabled(selectedOption == cardViewModel.currentSecOption)
