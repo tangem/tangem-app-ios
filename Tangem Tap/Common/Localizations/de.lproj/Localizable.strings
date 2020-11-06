@@ -132,12 +132,6 @@
 
 "send_validation_invalid_address" = "Ungültige Adresse";
 
-"send_validation_invalid_amount" = "Ungültiger Betrag"; //"Der Betrag geht über die Bilanz hinaus";
-
-"send_validation_invalid_total" = "Der Gesamtbetrag geht über die Bilanz hinaus";
-
-"send_validation_invalid_fee" = "Die Gebühr geht über die Bilanz hinaus";
-
 "send_fee_picker_low" = "Niedrig";
 
 "send_fee_picker_normal" = "Normal";
