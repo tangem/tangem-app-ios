@@ -105,33 +105,37 @@ struct MainView: View {
                     .environmentObject(self.viewModel.cardViewModel)
             })
             HStack(alignment: .center, spacing: 8.0) {
-                TangemButton(isLoading: self.viewModel.isScanning,
+                TangemVerticalButton(isLoading: self.viewModel.isScanning,
                              title: "wallet_button_scan",
                              image: "scan") {
                                 withAnimation {
                                     self.viewModel.scan()
                                 }
-                }.buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                }.buttonStyle(TangemButtonStyle(color: .black))
                 
                 if self.viewModel.cardViewModel.isCardSupported {
                     if self.viewModel.cardViewModel.wallet == nil {
-                        TangemButton(isLoading: self.viewModel.isCreatingWallet,
+                        TangemLongButton(isLoading: self.viewModel.isCreatingWallet,
                                      title: "wallet_button_create_wallet",
                                      image: "arrow.right") {
                                          self.viewModel.createWallet()
-                        }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canCreateWallet))
+                        }.buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canCreateWallet))
                         .disabled(!self.viewModel.canCreateWallet)
                     } else {
-                        Button(action: {
-                            self.viewModel.sendTapped()
-                        }) { HStack(alignment: .center, spacing: 16.0) {
-                            Text("wallet_button_send" )
-                            Spacer()
-                            Image("arrow.right")
+                        if viewModel.cardViewModel.canTopup {
+                            TangemVerticalButton(isLoading: false,
+                                         title: "wallet_button_topup",
+                                         image: "arrow.up") {
+                                self.viewModel.showTopup = true
+                            }
+                            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
                         }
-                        .padding(.horizontal)
+                        TangemVerticalButton(isLoading: false,
+                                     title: "wallet_button_send",
+                                     image: "arrow.right") {
+                                          self.viewModel.sendTapped()
                         }
-                        .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: !self.viewModel.canSend))
+                        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
                         .sheet(isPresented: $viewModel.showSend) {
                             SendView(viewModel: self.viewModel.sendViewModel, onSuccess: {
@@ -161,11 +165,23 @@ struct MainView: View {
                             EmptyView()
                     })
                 }
+                
+                if viewModel.showTopup {
+                    NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
+                                                                 closeUrl: viewModel.topupCloseUrl.removeLatestSlash(),
+                                                                 title: "wallet_button_topup")
+                                    .onDisappear {
+                                        self.viewModel.cardViewModel.update(silent: true)
+                                    },
+                                   isActive: $viewModel.showTopup) {
+                                  EmptyView()
+                    }
+                }
             }
         }
         .padding(.bottom, 16.0)
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(viewModel.showSettings ? "" : "wallet_title", displayMode: .inline)
+        .navigationBarTitle(viewModel.showSettings || viewModel.showTopup ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
             self.viewModel.showSettings = true
             
