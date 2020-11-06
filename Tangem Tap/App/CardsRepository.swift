@@ -12,8 +12,12 @@ import TangemSdk
 class CardsRepository {
     var tangemSdk: TangemSdk!
     var ratesService: CoinMarketCapService!
+    var networkService: NetworkService!
+    var workaroundsService: WorkaroundsService!
+    
     
     var cards = [String: CardViewModel]()
+    
     
     func scan(_ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
@@ -121,6 +125,8 @@ class CardsRepository {
     private func makeCardViewModel(card: Card, verifyCardResponse: VerifyCardResponse) -> CardViewModel {
         let vm = CardViewModel(card: card, verifyCardResponse: verifyCardResponse)
         vm.ratesService = self.ratesService
+        vm.networkService = networkService
+        vm.workaroundsService = workaroundsService
         vm.update()
         return vm
     }
