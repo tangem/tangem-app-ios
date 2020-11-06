@@ -68,7 +68,9 @@ struct CreatePayIdView: View {
             }
             .padding(.bottom, 32.0)
             .fixedSize(horizontal: false, vertical: true)
-            TangemButton(isLoading: self.isLoading, title: "wallet_create_payid_button_title", image: "arrow.right") {
+            TangemLongButton(isLoading: self.isLoading,
+                             title: "wallet_create_payid_button_title",
+                             image: "arrow.right") {
                 if self.isLoading {
                     return
                 }
@@ -87,7 +89,9 @@ struct CreatePayIdView: View {
                         self.alert = error.alertBinder
                     }
                 }
-            }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: payIdText.isEmpty))
+            }
+            .buttonStyle(TangemButtonStyle(color: .black,
+                                            isDisabled: payIdText.isEmpty))
                 .padding(.bottom)
                 .disabled(payIdText.isEmpty)
         }
