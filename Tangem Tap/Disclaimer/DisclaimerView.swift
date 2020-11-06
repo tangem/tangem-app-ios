@@ -22,13 +22,13 @@ struct DisclaimerView: View {
             }
             
             if viewModel.state == .accept {
-                TangemButton(isLoading: false,
+                TangemLongButton(isLoading: false,
                              title: "common_accept",
                              image: "arrow.right") {
-                    viewModel.accept()
-                }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green))
-                .padding([.bottom, .trailing])
-                
+                        viewModel.accept()
+                }.buttonStyle(TangemButtonStyle(color: .green))
+                    .padding([.bottom, .trailing])
+            
                 if viewModel.navigation.openMainFromDisclaimer {
                     NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
                                    isActive: $viewModel.navigation.openMainFromDisclaimer) {
