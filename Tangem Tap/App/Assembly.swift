@@ -21,11 +21,16 @@ class Assembly {
     lazy var navigationCoordinator =  NavigationCoordinator()
     lazy var ratesService = CoinMarketCapService(apiKey: config.coinMarketCapApiKey)
     lazy var userPrefsService = UserPrefsService()
+    lazy var networkService = NetworkService()
+    lazy var workaroundsService = WorkaroundsService()
+    
     
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
         crepo.ratesService = ratesService
+        crepo.networkService = networkService
+        crepo.workaroundsService = workaroundsService
         return crepo
     }()
     
@@ -40,6 +45,7 @@ class Assembly {
     func makeMainViewModel() -> MainViewModel {
         let vm = MainViewModel()
         initialize(vm)
+        vm.config = config
         vm.cardsRepository = cardsRepository
         vm.cardViewModel = cardsRepository.cards.values.first!
         return vm
