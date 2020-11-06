@@ -16,10 +16,10 @@ import  SwiftUI
 
 class CardViewModel: Identifiable, ObservableObject {
     @Published var card: Card
-    let networkService = NetworkService()
-    let workaroundsService = WorkaroundsService()
-    
+    var networkService: NetworkService!
+    var workaroundsService: WorkaroundsService!
     var payIDService: PayIDService? = nil
+    
     var ratesService: CoinMarketCapService! {
         didSet {
             selectedCurrency = ratesService.selectedCurrencyCode
@@ -44,6 +44,8 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var image: UIImage? = nil
     @Published var selectedCurrency: String = ""
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
+    
+    public var canTopup: Bool { workaroundsService.isTopupSupported(for: card) }
     
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
@@ -134,6 +136,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     public func update(silent: Bool = false) {
+        guard !isWalletLoading else {
+            return
+        }
+        
         loadingError = nil
         loadImage()
         if let walletManager = self.walletManager {
