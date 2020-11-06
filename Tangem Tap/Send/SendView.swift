@@ -250,19 +250,14 @@ struct SendView: View {
                     }
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        Button(action: {
-                            self.viewModel.send() {
+                        TangemLongButton(isLoading: false,
+                                         title: "wallet_button_send",
+                                         image: "arrow.right") {
+                                self.viewModel.send() {
                                 self.presentationMode.wrappedValue.dismiss()
                                 self.onSuccess()
                             }
-                        }) { HStack(alignment: .center, spacing: 16.0) {
-                            Text("wallet_button_send")
-                            Spacer()
-                            Image("arrow.right")
-                        }.padding(.horizontal)
-                        }
-                        .buttonStyle(TangemButtonStyle(size: .big,
-                                                       colorStyle: .green,
+                        }.buttonStyle(TangemButtonStyle(color: .green,
                                                        isDisabled: !self.viewModel.isSendEnabled))
                             .disabled(!self.viewModel.isSendEnabled)
                             .alert(item: self.$viewModel.sendError) { $0.alert }
