@@ -21,7 +21,7 @@ struct WebViewContainer: View {
     var urlActions: [String : (() -> Void)]  {
         if let closeUrl = closeUrl {
             return [closeUrl: {
-                presentationMode.wrappedValue.dismiss()
+                self.presentationMode.wrappedValue.dismiss()
             }]
         } else {
             return [:]
