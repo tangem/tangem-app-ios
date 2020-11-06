@@ -33,6 +33,8 @@ class ReadViewModel: ViewModel {
     //scan button state
     @Published var isLoading: Bool = false
     @Published var scanError: AlertBinder?
+    var shopURL = URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!
+    
     
     @Storage("tangem_tap_first_time_scan", defaultValue: true)
     private var firstTimeScan: Bool
@@ -40,10 +42,6 @@ class ReadViewModel: ViewModel {
     private var bag = Set<AnyCancellable>()
     init() {
         self.state = firstTimeScan ? .welcome : .welcomeBack
-    }
-    
-    func openShop() {
-        UIApplication.shared.open(URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!, options: [:], completionHandler: nil)
     }
     
     func nextState() {
