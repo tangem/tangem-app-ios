@@ -122,7 +122,7 @@ struct AddressDetailView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 58.0, height: 18.0)
-                    Spacer()
+                    Spacer(minLength: 8)
                     
                     if !isPayIdCreated {
                         Button(action: {
@@ -143,9 +143,7 @@ struct AddressDetailView: View {
                     } else {
                         Text(payIdText)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                            .multilineTextAlignment(.trailing)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(Color.tangemTapGrayDark)
                             .onTapGesture {
                                 UIPasteboard.general.string = self.payIdText
