@@ -12,6 +12,7 @@ import SwiftUI
 class NavigationCoordinator: ObservableObject {
     // MARK: ReadView
     @Published var openMain: Bool = false
+    @Published var openShop: Bool = false
     @Published var openDisclaimer: Bool = false
     
     // MARK: DisclaimerView
@@ -25,6 +26,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var showSend = false
     @Published var showSendChoise = false
     @Published var showCreatePayID = false
+    @Published var showTopup = false
     
     // MARK: SendView
     @Published var showQR = false
