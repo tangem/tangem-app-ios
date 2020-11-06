@@ -155,8 +155,8 @@ struct SendView: View {
                             Spacer()
                             Text(self.viewModel.walletTotalBalanceFormatted)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.5)
+                                .lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true)
                                 .foregroundColor(Color.tangemTapGrayDark)
                         }
                     }
