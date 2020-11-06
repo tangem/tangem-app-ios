@@ -47,6 +47,8 @@
 
 "wallet_button_send" = "Send";
 
+"wallet_button_topup" = "Top up";
+
 "wallet_button_create_wallet" = "Create wallet";
 
 "wallet_title" = "Tangem Tap";
@@ -284,3 +286,18 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "disclaimer_title" = "Terms of service";
 
 "common_accept" = "Accept";
+
+"send_error_payid_verification_failed" = "PayID verification failed";
+"send_error_payid_unsupported_by_blockchain" = "PayID unsupported by blockchain";
+"send_error_payid_not_registered" = "PayID not registered";
+"send_error_payid_request_failed" = "PayID request failed";
+"send_error_address_same_as_wallet" = "Address is the same as your wallet address";
+
+"wallet_notification_address_copied" = "Address was successfully copied";
+"wallet_create_payid_empty" = "Enter desired PayID first";
+
+"initial_message_scan_header" = "Tap to scan";
+"initial_message_tap_header" = "Tap the card";
+
+"details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Delete Wallet function not possible.";
+"details_notification_security_option_already_active" = "This is the currently active option";
