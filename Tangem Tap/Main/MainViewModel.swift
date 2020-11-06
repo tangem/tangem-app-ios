@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 import BlockchainSdk
+import CryptoKit
 
 class MainViewModel: ViewModel {
     @Published var navigation: NavigationCoordinator!  {
@@ -23,6 +24,7 @@ class MainViewModel: ViewModel {
         }
     }
     var assembly: Assembly!
+    var config: Config!
     
     var amountToSend: Amount? = nil
     var bag = Set<AnyCancellable>()
@@ -114,6 +116,32 @@ class MainViewModel: ViewModel {
     
     private var updateTimer: AnyCancellable? = nil
     
+    var topupURL: URL {
+        var urlComponents = URLComponents()
+        urlComponents.scheme = "https"
+        urlComponents.host = "buy-staging.moonpay.io"
+        
+        var queryItems = [URLQueryItem]()
+        queryItems.append(URLQueryItem(name: "apiKey", value: config.moonPayApiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "currencyCode", value: cardViewModel.wallet!.blockchain.currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "walletAddress", value: cardViewModel.wallet!.address.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "redirectURL", value: topupCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
+        
+        urlComponents.percentEncodedQueryItems = queryItems
+        let queryData = "?\(urlComponents.percentEncodedQuery!)".data(using: .utf8)!
+        let secretKey = config.moonPaySecretApiKey.data(using: .utf8)!
+        let signature = HMAC<SHA256>.authenticationCode(for: queryData, using: SymmetricKey(data: secretKey))
+        
+        queryItems.append(URLQueryItem(name: "signature", value: Data(signature).base64EncodedString().addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        urlComponents.percentEncodedQueryItems = queryItems
+        
+        let url = urlComponents.url!
+        print(url)
+        return url
+    }
+    
+    let topupCloseUrl = "https://success.tangem.com"
+    
     func bind() {
         bag = Set<AnyCancellable>()
         
@@ -172,7 +200,7 @@ class MainViewModel: ViewModel {
                     self?.error = error.alertBinder
                 }
             }
-              self?.isScanning = false
+            self?.isScanning = false
         }
     }
     
@@ -192,12 +220,23 @@ class MainViewModel: ViewModel {
         }
     }
     
+    //func topupTapped() {
+//        let urlString = "https://www.hackingwithswift.com"
+//
+//        if let url = URL(string: urlString) {
+//            let vc = SFSafariViewController(url: url, entersReaderIfAvailable: true)
+//            vc.delegate = self
+//
+//            present(vc, animated: true)
+//        }
+   // }
+    
     func sendTapped() {
         if let tokenAmount = cardViewModel.wallet!.amounts[.token], tokenAmount.value > 0 {
             navigation.showSendChoise = true
         } else {
             amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
-           showSendScreen() 
+            showSendScreen() 
         }
     }
     
@@ -215,7 +254,7 @@ class MainViewModel: ViewModel {
     }
     
     func onAppear() {
-         showUntrustedDisclaimerIfNeeded()
+        showUntrustedDisclaimerIfNeeded()
     }
     
     func startUpdatingTimer() {
