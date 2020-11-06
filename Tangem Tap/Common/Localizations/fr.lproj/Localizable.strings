@@ -137,12 +137,6 @@
 
 "send_validation_invalid_address" = "Adresse incorrecte";
 
-"send_validation_invalid_amount" =  " Somme incorrecte"; //" Le montant dépasse le solde";
-
-"send_validation_invalid_total" = "Le total dépasse le solde";
-
-"send_validation_invalid_fee" = "Les commissions dépassent le solde";
-
 "send_fee_picker_low" = "Bas";
 
 "send_fee_picker_normal" = "Normal";
