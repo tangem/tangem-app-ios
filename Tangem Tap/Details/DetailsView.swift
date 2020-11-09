@@ -54,21 +54,20 @@ struct DetailsView: View {
             Section(header: EmptyView()
                 .listRowInsets(EdgeInsets())) {
                     DetailsRowView(title: "details_row_title_cid".localized,
-                                   subtitle: CardIdFormatter(cid: viewModel.cardViewModel.card.cardId ?? "").formatted())
+                                   subtitle: CardIdFormatter(cid: viewModel.cardModel.cardInfo.card.cardId ?? "").formatted())
                     DetailsRowView(title: "details_row_title_issuer".localized,
-                                   subtitle: viewModel.cardViewModel.card.cardData?.issuerName ?? " ")
-                    if viewModel.cardViewModel.card.walletSignedHashes != nil {
+                                   subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
+                if viewModel.cardModel.cardInfo.card.walletSignedHashes != nil {
                         DetailsRowView(title: "details_row_title_signed_hashes".localized,
                                        subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
-                                                        viewModel.cardViewModel.card.walletSignedHashes!.description))
+                                                        viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
                     }
             }
             
             Section(header: HeaderView(text: "details_section_title_settings".localized)) {
-                NavigationLink(destination:CurrencySelectView()
-                    .environmentObject(self.viewModel.cardViewModel)) {
+                NavigationLink(destination:CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel())) {
                         DetailsRowView(title: "details_row_title_currency".localized,
-                                       subtitle: viewModel.cardViewModel.selectedCurrency)
+                                       subtitle: viewModel.ratesService.selectedCurrencyCode)
                         
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
@@ -85,22 +84,23 @@ struct DetailsView: View {
                 //                    DetailsRowView(title: "details_row_title_validate".localized, subtitle: "")
                 //                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                NavigationLink(destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardViewModel))) {
+                NavigationLink(destination: SecurityManagementView(viewModel:
+                                                                    viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel))) {
                         DetailsRowView(title: "details_row_title_manage_security".localized,
-                                       subtitle: viewModel.cardViewModel.currentSecOption.title)
+                                       subtitle: viewModel.cardModel.currentSecOption.title)
                 }
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.canManageSecurity)
+                .disabled(!viewModel.cardModel.canManageSecurity)
                 
                 NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
                                                               buttonTitle: "details_row_title_erase_wallet",
                                                               alert: "details_erase_wallet_warning".localized,
-                                                              actionButtonPressed: {viewModel.purgeWallet(completion: $0)}
+                                                              actionButtonPressed: {viewModel.cardModel.purgeWallet(completion: $0)}
                 )) {
                     DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
                 }
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.canPurgeWallet)
+                .disabled(!viewModel.cardModel.canPurgeWallet)
             }
             
             Section(header: Color.tangemTapBgGray
@@ -116,6 +116,6 @@ struct DetailsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: Assembly.previewAssembly.cardsRepository.cards.values.first!))
+        DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
     }
 }
