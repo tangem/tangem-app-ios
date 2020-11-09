@@ -112,7 +112,7 @@ struct CreatePayIdView: View {
 
 
 struct CreatePayIdView_Previews: PreviewProvider {
-    @State static var cardViewModel = CardViewModel(card: Card.testCard)
+    @State static var cardViewModel = CardViewModel.previewCardViewModel
     static var previews: some View {
         CreatePayIdView(cardId: "CB23 4344 5455 6544")
             .previewLayout(.fixed(width: 320.0, height: 568))
