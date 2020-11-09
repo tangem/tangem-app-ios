@@ -18,21 +18,20 @@ struct MainView: View {
     
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
-            .cardViewModel
-            .walletManager
-            .wallet
+            .state
+            .wallet?
             .amounts
             .filter { $0.key != .reserve && $0.value.value > 0 }
             .values
             .map { $0.self }
         
-        let buttons = symbols.map { amount in
+        let buttons = symbols?.map { amount in
             return ActionSheet.Button.default(Text(amount.currencySymbol)) {
                 self.viewModel.amountToSend = Amount(with: amount, value: 0)
                 self.viewModel.showSendScreen()
             }
         }
-        return buttons
+        return buttons ?? []
     }
     
     var pendingTransactionViews: [PendingTxView] {
@@ -65,42 +64,43 @@ struct MainView: View {
                                 .cornerRadius(6)
                                 .padding(.vertical, 16.0)
                         }
-                        
-                        if !self.viewModel.cardCanSign {
+
+                        if let cardModel = self.viewModel.state.cardModel, !cardModel.canSign {
                             AlertCardView(title: "common_warning".localized,
                                           message: "alert_old_card".localized)
                                 .padding(.horizontal, 16.0)
                         }
-                        
-                        switch viewModel.state {
-                        case .loaded(let cardModel):
-                            ForEach(self.pendingTransactionViews) { $0 }
                             
+                        switch viewModel.state {
+                        case .card(let cardModel):
+                            ForEach(self.pendingTransactionViews) { $0 }
+
                             switch cardModel.state {
-                            case .noAccount(let message):
-                                ErrorView(title: "wallet_error_no_account".localized, subtitle: message)
-                            default:
-                                if cardModel.balanceViewModel != nil {
-                                    BalanceView(balanceViewModel: cardModel.balanceViewModel)
+                            case .empty, .created:
+                                ErrorView(title: "wallet_error_empty_card".localized, subtitle: "wallet_error_empty_card_subtitle".localized)
+                            case .loaded(let walletModel):
+                                
+                                switch walletModel.state {
+                                case .noAccount(let message):
+                                    ErrorView(title: "wallet_error_no_account".localized, subtitle: message)
+                                default:
+                                    BalanceView(balanceViewModel: walletModel.balanceViewModel)
                                         .padding(.horizontal, 16.0)
-                                    
                                 }
                             }
-                            
+
                             AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID)
-                                .environmentObject(self.viewModel.cardViewModel)
+                                .environmentObject(cardModel)
                         case .unsupported:
                             ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
-                        case .empty:
-                            ErrorView(title: "wallet_error_empty_card".localized, subtitle: "wallet_error_empty_card_subtitle".localized)
                         }
                     }
                 }
-                
+
             }
             .sheet(isPresented: self.$viewModel.navigation.showCreatePayID, content: {
-                CreatePayIdView(cardId: self.viewModel.cardViewModel.card.cardId ?? "")
-                    .environmentObject(self.viewModel.cardViewModel)
+                CreatePayIdView(cardId: self.viewModel.state.cardModel!.cardInfo.card.cardId ?? "")
+                    .environmentObject(self.viewModel.state.cardModel!)
             })
             HStack(alignment: .center, spacing: 8.0) {
                 TangemVerticalButton(isLoading: self.viewModel.isScanning,
@@ -111,8 +111,8 @@ struct MainView: View {
                     }
                 }.buttonStyle(TangemButtonStyle(color: .black))
                 
-                if self.viewModel.cardViewModel.isCardSupported {
-                    if self.viewModel.cardViewModel.wallet == nil {
+                if let cardModel = self.viewModel.state.cardModel {
+                    if viewModel.canCreateWallet {
                         TangemLongButton(isLoading: self.viewModel.isCreatingWallet,
                                          title: "wallet_button_create_wallet",
                                          image: "arrow.right") {
@@ -120,7 +120,7 @@ struct MainView: View {
                         }.buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canCreateWallet))
                         .disabled(!self.viewModel.canCreateWallet)
                     } else {
-                        if viewModel.cardViewModel.canTopup {
+                        if cardModel.canTopup {
                             TangemVerticalButton(isLoading: false,
                                                  title: "wallet_button_topup",
                                                  image: "arrow.up") {
@@ -136,7 +136,7 @@ struct MainView: View {
                         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
                         .sheet(isPresented: $viewModel.navigation.showSend) {
-                            SendView(viewModel: self.viewModel.sendViewModel, onSuccess: {
+                            SendView(viewModel: self.viewModel.sendViewModel!, onSuccess: {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                     let alert = Alert(title: Text("common_success"),
                                                       message: Text("send_transaction_success"),
@@ -157,7 +157,7 @@ struct MainView: View {
                 }
                 if viewModel.navigation.showSettings {
                     NavigationLink(
-                        destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.cardViewModel)),
+                        destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
                         isActive: $viewModel.navigation.showSettings,
                         label: {
                             EmptyView()
@@ -170,7 +170,7 @@ struct MainView: View {
                                                                      closeUrl: viewModel.topupCloseUrl,
                                                                      title: "wallet_button_topup")
                                         .onDisappear {
-                                            self.viewModel.cardViewModel.update(silent: true)
+                                            self.viewModel.state.cardModel?.update(silent: true)
                                         },
                                        isActive: $viewModel.navigation.showTopup) {
                             EmptyView()
@@ -183,7 +183,9 @@ struct MainView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(viewModel.navigation.showSettings || viewModel.navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
-            viewModel.navigation.showSettings = true
+            if viewModel.state.cardModel != nil {
+                viewModel.navigation.showSettings = true
+            }
         }, label: { Image("verticalDots")
             .foregroundColor(Color.tangemTapGrayDark6)
             .frame(width: 44.0, height: 44.0, alignment: .center)
@@ -203,7 +205,7 @@ struct MainView: View {
                     }
                     .delay(for: 0.3, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
-            self.viewModel.cardViewModel.update(silent: true)
+            self.viewModel.state.cardModel?.update(silent: true)
         }
         .alert(item: $viewModel.error) { $0.alert }
         
@@ -215,14 +217,14 @@ struct DetailsView_Previews: PreviewProvider {
     static var testVM: MainViewModel {
         let assembly = Assembly.previewAssembly
         let vm = assembly.makeMainViewModel()
-        vm.cardViewModel = assembly.cardsRepository.cards[Card.testCard.cardId!]!
+        vm.state = .card(model: CardViewModel.previewCardViewModel)
         return vm
     }
     
     static var testNoWalletVM: MainViewModel {
         let assembly = Assembly.previewAssembly
         let vm = assembly.makeMainViewModel()
-        vm.cardViewModel = assembly.cardsRepository.cards[Card.testCardNoWallet.cardId!]!
+        vm.state = .card(model: CardViewModel.previewCardViewModelNoWallet)
         return vm
     }
     
