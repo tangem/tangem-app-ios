@@ -42,17 +42,19 @@ class MainViewModel: ViewModel {
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
-    @Published var cardState: CardState = .new
+    @Published var state: ScanResult = .unsupported
     
     public var canCreateWallet: Bool {
-        if case .empty = cardState {
+        if let state = state.cardModel?.state,
+           case .empty = state {
             return true
         }
+        
         return false
     }
     
     var topupURL: URL? {
-        if let wallet = cardState.wallet {
+        if let wallet = state.wallet {
             return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
                                      walletAddress: wallet.address)
         }
@@ -64,7 +66,7 @@ class MainViewModel: ViewModel {
     }
     
     public var canSend: Bool {
-        guard case let .loaded(model) = cardState else {
+        guard let model = state.cardModel else {
             return false
         }
         
@@ -72,7 +74,9 @@ class MainViewModel: ViewModel {
             return false
         }
         
-        let wallet = model.walletManager.wallet
+        guard let wallet = state.wallet else {
+            return false
+        }
         
         if wallet.hasPendingTx {
             return false
@@ -95,7 +99,7 @@ class MainViewModel: ViewModel {
     }
     
     var incomingTransactions: [BlockchainSdk.Transaction] {
-        guard let wallet = cardState.wallet else {
+        guard let wallet = state.wallet else {
             return []
         }
         
@@ -106,7 +110,7 @@ class MainViewModel: ViewModel {
     }
     
     var outgoingTransactions: [BlockchainSdk.Transaction] {
-        guard let wallet = cardState.wallet else {
+        guard let wallet = state.wallet else {
             return []
         }
         
@@ -130,7 +134,7 @@ class MainViewModel: ViewModel {
             .removeDuplicates()
             .filter { $0}
             .sink{ [unowned self] _ in
-                if let cardModel = cardState.cardModel {
+                if let cardModel = state.cardModel {
                     cardModel.update()
                 } else {
                     self.isRefreshing = false //todo check it
@@ -138,16 +142,16 @@ class MainViewModel: ViewModel {
             }
             .store(in: &bag)
         
-        $cardState
-            .compactMap{ $0.cardModel }
+        $state
+            .compactMap{ $0.cardModel?.state.walletModel }
             .map { $0.state.isLoading }
             .filter { !$0 }
             .receive(on: RunLoop.main)
             .assign(to: \.isRefreshing, on: self)
             .store(in: &bag)
         
-        $cardState
-            .compactMap { $0.card }
+        $state
+            .compactMap { $0.cardModel?.cardInfo }
             .tryMap { cardInfo -> (String, Data, ArtworkInfo?) in
                 if let cid = cardInfo.card.cardId,
                    let key = cardInfo.card.cardPublicKey  {
@@ -181,7 +185,7 @@ class MainViewModel: ViewModel {
         cardsRepository.scan { [weak self] scanResult in
             switch scanResult {
             case .success(let state):
-                self?.cardState = state
+                self?.state = state
                 self?.showUntrustedDisclaimerIfNeeded()
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
@@ -193,15 +197,15 @@ class MainViewModel: ViewModel {
     }
     
     func createWallet() {
-        guard let card = cardState.card else {
+        guard let cardModel = state.cardModel else {
             return
         }
         
         self.isCreatingWallet = true
-        cardsRepository.createWallet(card: card.card) { [weak self] result in
+        cardModel.createWallet() { [weak self] result in
             switch result {
-            case .success(let state):
-                self?.cardState = state
+            case .success:
+                break
             case .failure(let error):
                 if case .userCancelled = error.toTangemSdkError() {
                     return
@@ -213,7 +217,7 @@ class MainViewModel: ViewModel {
     }
     
     func sendTapped() {
-        guard let wallet = cardState.wallet else {
+        guard let wallet = state.wallet else {
             return
         }
         
@@ -226,7 +230,7 @@ class MainViewModel: ViewModel {
     }
     
     func showSendScreen() {
-        guard case let .loaded(model) = cardState else {
+        guard let model = state.cardModel else {
             return
         }
         
@@ -235,7 +239,7 @@ class MainViewModel: ViewModel {
     }
     
     func showUntrustedDisclaimerIfNeeded() {
-        guard let card = cardState.card?.card else {
+        guard let card = state.card else {
             return
         }
         
