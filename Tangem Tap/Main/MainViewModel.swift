@@ -10,9 +10,12 @@ import Foundation
 import Combine
 import SwiftUI
 import BlockchainSdk
-import CryptoKit
+import TangemSdk
 
 class MainViewModel: ViewModel {
+    var imageLoaderService: ImageLoaderService!
+    var topupService: TopupService!
+    
     @Published var navigation: NavigationCoordinator!  {
         didSet {
             navigation.objectWillChange
@@ -29,12 +32,7 @@ class MainViewModel: ViewModel {
     var amountToSend: Amount? = nil
     var bag = Set<AnyCancellable>()
     var cardsRepository: CardsRepository!
-    
-    @Published var cardViewModel: CardViewModel! {
-        didSet {
-            bind()
-        }
-    }
+    var sendViewModel: SendViewModel? = nil
     
     //Mark: Input
     @Published var isRefreshing = false
@@ -44,34 +42,37 @@ class MainViewModel: ViewModel {
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
-    var sendViewModel: SendViewModel!
+    @Published var cardState: CardState = .new
     
     public var canCreateWallet: Bool {
-        return cardViewModel.wallet == nil && cardViewModel.isCardSupported
+        if case .empty = cardState {
+            return true
+        }
+        return false
     }
     
-    public var cardCanSign: Bool {
-        let isPin2Default = cardViewModel.card.isPin2Default ?? true
-        let hasSmartSecurityDelay = cardViewModel.card.settingsMask?.contains(.smartSecurityDelay) ?? false
-        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
-        
-        if let fw = cardViewModel.card.firmwareVersionValue, fw < 2.28 {
-            if let securityDelay = cardViewModel.card.pauseBeforePin2, securityDelay > 1500 && !canSkipSD {
-                return false
-            }
+    var topupURL: URL? {
+        if let wallet = cardState.wallet {
+            return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
+                                     walletAddress: wallet.address)
         }
-        
-        return true
+        return nil
+    }
+    
+    var topupCloseUrl: String {
+        return topupService.topupCloseUrl.removeLatestSlash()
     }
     
     public var canSend: Bool {
-        guard cardCanSign else {
+        guard case let .loaded(model) = cardState else {
             return false
         }
         
-        guard let wallet = cardViewModel.wallet else {
+        guard model.canSign else {
             return false
         }
+        
+        let wallet = model.walletManager.wallet
         
         if wallet.hasPendingTx {
             return false
@@ -94,17 +95,18 @@ class MainViewModel: ViewModel {
     }
     
     var incomingTransactions: [BlockchainSdk.Transaction] {
-        guard let wallet = cardViewModel.wallet else {
+        guard let wallet = cardState.wallet else {
             return []
         }
         
         return wallet.transactions.filter { $0.destinationAddress == wallet.address
             && $0.status == .unconfirmed
-            && $0.sourceAddress != "unknown" }
+            && $0.sourceAddress != "unknown"
+        }
     }
     
     var outgoingTransactions: [BlockchainSdk.Transaction] {
-        guard let wallet = cardViewModel.wallet else {
+        guard let wallet = cardState.wallet else {
             return []
         }
         
@@ -114,86 +116,72 @@ class MainViewModel: ViewModel {
         }
     }
     
-    private var updateTimer: AnyCancellable? = nil
-    
-    var topupURL: URL {
-        var urlComponents = URLComponents()
-        urlComponents.scheme = "https"
-        urlComponents.host = "buy-staging.moonpay.io"
-        
-        var queryItems = [URLQueryItem]()
-        queryItems.append(URLQueryItem(name: "apiKey", value: config.moonPayApiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(URLQueryItem(name: "currencyCode", value: cardViewModel.wallet!.blockchain.currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(URLQueryItem(name: "walletAddress", value: cardViewModel.wallet!.address.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(URLQueryItem(name: "redirectURL", value: topupCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
-        
-        urlComponents.percentEncodedQueryItems = queryItems
-        let queryData = "?\(urlComponents.percentEncodedQuery!)".data(using: .utf8)!
-        let secretKey = config.moonPaySecretApiKey.data(using: .utf8)!
-        let signature = HMAC<SHA256>.authenticationCode(for: queryData, using: SymmetricKey(data: secretKey))
-        
-        queryItems.append(URLQueryItem(name: "signature", value: Data(signature).base64EncodedString().addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        urlComponents.percentEncodedQueryItems = queryItems
-        
-        let url = urlComponents.url!
-        print(url)
-        return url
-    }
-    
-    let topupCloseUrl = "https://success.tangem.com"
-    
     func bind() {
         bag = Set<AnyCancellable>()
         
-        cardViewModel.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
+//        cardViewModel.objectWillChange
+//            .receive(on: RunLoop.main)
+//            .sink { [weak self] in
+//                self?.objectWillChange.send()
+//            }
+//            .store(in: &bag)
+//
+        $isRefreshing
+            .removeDuplicates()
+            .filter { $0}
+            .sink{ [unowned self] _ in
+                if let cardModel = cardState.cardModel {
+                    cardModel.update()
+                } else {
+                    self.isRefreshing = false //todo check it
+                }
             }
             .store(in: &bag)
         
-        $isRefreshing
-            .removeDuplicates()
-            .filter { $0 }
-            .sink{ [unowned self] _ in
-                self.cardViewModel.update()
-        }
-        .store(in: &bag)
-        
-        cardViewModel.$isWalletLoading
+        $cardState
+            .compactMap{ $0.cardModel }
+            .map { $0.state.isLoading }
             .filter { !$0 }
             .receive(on: RunLoop.main)
             .assign(to: \.isRefreshing, on: self)
             .store(in: &bag)
         
-        cardViewModel.$image
-            .receive(on: RunLoop.main)
-            .assign(to: \.image, on: self)
-            .store(in: &bag)
-        
-        cardViewModel
-            .walletManager?
-            .$wallet
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] wallet in
-                if wallet.hasPendingTx {
-                    if self.updateTimer == nil {
-                        self.startUpdatingTimer()
-                    }
-                } else {
-                    self.updateTimer = nil
+        $cardState
+            .compactMap { $0.card }
+            .tryMap { cardInfo -> (String, Data, ArtworkInfo?) in
+                if let cid = cardInfo.card.cardId,
+                   let key = cardInfo.card.cardPublicKey  {
+                    return (cid, key, cardInfo.artworkInfo)
                 }
-        }
-        .store(in: &bag)               
+                
+                throw "Some error"
+            }
+            .flatMap {[unowned self] info in
+                return self.imageLoaderService
+                    .loadImage(cid: info.0,
+                               cardPublicKey: info.1,
+                               artworkInfo: info.2)
+            }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        Analytics.log(error: error)
+                        print(error.localizedDescription)
+                    case .finished:
+                        break
+                    }}){ [unowned self] image in
+                self.image = image
+            }
+            .store(in: &bag)
     }
-    
     
     func scan() {
         self.isScanning = true
         cardsRepository.scan { [weak self] scanResult in
             switch scanResult {
-            case .success(let cardViewModel):
-                self?.cardViewModel = cardViewModel
+            case .success(let state):
+                self?.cardState = state
                 self?.showUntrustedDisclaimerIfNeeded()
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
@@ -205,11 +193,15 @@ class MainViewModel: ViewModel {
     }
     
     func createWallet() {
+        guard let card = cardState.card else {
+            return
+        }
+        
         self.isCreatingWallet = true
-        cardsRepository.createWallet(card: cardViewModel.card) { [weak self] result in
+        cardsRepository.createWallet(card: card.card) { [weak self] result in
             switch result {
-            case .success(let cardViewModel):
-                self?.cardViewModel = cardViewModel
+            case .success(let state):
+                self?.cardState = state
             case .failure(let error):
                 if case .userCancelled = error.toTangemSdkError() {
                     return
@@ -220,51 +212,41 @@ class MainViewModel: ViewModel {
         }
     }
     
-    //func topupTapped() {
-//        let urlString = "https://www.hackingwithswift.com"
-//
-//        if let url = URL(string: urlString) {
-//            let vc = SFSafariViewController(url: url, entersReaderIfAvailable: true)
-//            vc.delegate = self
-//
-//            present(vc, animated: true)
-//        }
-   // }
-    
     func sendTapped() {
-        if let tokenAmount = cardViewModel.wallet!.amounts[.token], tokenAmount.value > 0 {
+        guard let wallet = cardState.wallet else {
+            return
+        }
+        
+        if let tokenAmount = wallet.amounts[.token], tokenAmount.value > 0 {
             navigation.showSendChoise = true
         } else {
-            amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
+            amountToSend = Amount(with: wallet.amounts[.coin]!, value: 0)
             showSendScreen() 
         }
     }
     
     func showSendScreen() {
-        sendViewModel = assembly.makeSendViewModel(with: amountToSend!, card: cardViewModel)
+        guard case let .loaded(model) = cardState else {
+            return
+        }
+        
+        sendViewModel = assembly.makeSendViewModel(with: amountToSend!, card: model)
         navigation.showSend = true
     }
     
     func showUntrustedDisclaimerIfNeeded() {
-        if cardViewModel.card.cardType != .release {
-            error = AlertManager().getAlert(.devCard, for: cardViewModel.card)
+        guard let card = cardState.card?.card else {
+            return
+        }
+        
+        if card.cardType != .release {
+            error = AlertManager().getAlert(.devCard, for: card)
         } else {
-            error = AlertManager().getAlert(.untrustedCard, for: cardViewModel.card)
+            error = AlertManager().getAlert(.untrustedCard, for: card)
         }
     }
     
     func onAppear() {
         showUntrustedDisclaimerIfNeeded()
-    }
-    
-    func startUpdatingTimer() {
-        updateTimer = Timer.TimerPublisher(interval: 10.0,
-                                           tolerance: 0.1,
-                                           runLoop: .main,
-                                           mode: .common)
-            .autoconnect()
-            .sink() {[weak self] _ in
-                self?.cardViewModel.update(silent: true)
-        }
     }
 }
