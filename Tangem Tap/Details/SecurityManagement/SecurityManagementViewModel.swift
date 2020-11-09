@@ -23,6 +23,7 @@ class SecurityManagementViewModel: ViewModel {
     }
     var assembly: Assembly!
     var bag = Set<AnyCancellable>()
+    
     @Published var cardViewModel: CardViewModel! {
         didSet {
             selectedOption = cardViewModel.currentSecOption
@@ -35,16 +36,13 @@ class SecurityManagementViewModel: ViewModel {
         }
     }
     
-    var cardsRepository: CardsRepository!
-    
     @Published var error: AlertBinder?
     @Published var selectedOption: SecurityManagementOption = .longTap
     @Published var isLoading: Bool = false
     
     var actionButtonPressedHandler: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void {
         return { completion in
-            self.cardsRepository.changeSecOption(self.selectedOption,
-                                                 card: self.cardViewModel.cardInfo.card,
+            self.cardViewModel.changeSecOption(self.selectedOption,
                                                  completion: completion) }
     }
     
@@ -54,8 +52,7 @@ class SecurityManagementViewModel: ViewModel {
             navigation.openWarning = true
         case .longTap:
             isLoading = true
-            cardsRepository.changeSecOption(.longTap,
-                                            card: self.cardViewModel.cardInfo.card) { result in
+            cardViewModel.changeSecOption(.longTap) { result in
                 self.isLoading = false
                 switch result {
                 case .success:
