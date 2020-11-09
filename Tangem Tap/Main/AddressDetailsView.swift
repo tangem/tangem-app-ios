@@ -10,12 +10,6 @@ import Foundation
 import SwiftUI
 import TangemSdk
 
-enum PayIdStatus {
-    case notCreated
-    case created(payId: String)
-    case notSupported
-}
-
 struct AddressDetailView: View {
     @State private(set) var showQr: Bool = false
     @Binding var showCreatePayID: Bool
