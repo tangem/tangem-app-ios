@@ -46,6 +46,8 @@
 
 "wallet_button_send" = "Absenden";
 
+"wallet_button_topup" = "Auffüllen";
+
 "wallet_button_create_wallet" = "ein Wallet erstellen";
 
 "wallet_title" = "Tangem Tap";
@@ -131,12 +133,6 @@
 "send_max_amount_label" = "Höchstbetrag";
 
 "send_validation_invalid_address" = "Ungültige Adresse";
-
-"send_validation_invalid_amount" = "Ungültiger Betrag"; //"Der Betrag geht über die Bilanz hinaus";
-
-"send_validation_invalid_total" = "Der Gesamtbetrag geht über die Bilanz hinaus";
-
-"send_validation_invalid_fee" = "Die Gebühr geht über die Bilanz hinaus";
 
 "send_fee_picker_low" = "Niedrig";
 
@@ -285,3 +281,16 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "disclaimer_title" = "Nutzungsbedingungen";
 
 "common_accept" = "Akzeptieren";
+
+"send_error_payid_verification_failed" = "Verifikation der PayID ist fehlgeschlagen";
+"send_error_payid_unsupported_by_blockchain" = "PayID wird von der Blockchain nicht unterstützt";
+"send_error_payid_not_registered" = "PayID ist nicht registriert";
+"send_error_payid_request_failed" = "PayID-Anfrage ist fehlgeschlagen";
+"send_error_address_same_as_wallet" = "Die Adresse stimmt mit der Adresse Ihrer Brieftasche überein";
+
+"wallet_notification_address_copied" = "Die Adresse wurde erfolgreich kopiert";
+"wallet_create_payid_empty" = "Zuerst geben Sie die gewünschte PayID ein";
+"initial_message_scan_header" = "Legen Sie die Karte zum Scannen an";
+"initial_message_tap_header" = "Legen Sie die Karte an";
+"details_notification_erase_wallet_not_possible" = "Ihr Kontostand in dieser Brieftasche ist nicht Null, oder Sie haben unbestätigte Transaktionen. Es ist unmöglich die Funktion der Brieftasche zu löschen.";
+"details_notification_security_option_already_active" = "Dies ist die derzeit aktive Wahl";
