@@ -12,6 +12,10 @@ import Combine
 import BlockchainSdk
 
 class DetailsViewModel: ViewModel {
+    var assembly: Assembly!
+    var cardsRepository: CardsRepository!
+    var ratesService: CoinMarketCapService!
+    
     @Published var navigation: NavigationCoordinator! {
         didSet {
             navigation.objectWillChange
@@ -22,51 +26,28 @@ class DetailsViewModel: ViewModel {
                 .store(in: &bag)
         }
     }
-    var assembly: Assembly!
-    var cardsRepository: CardsRepository!
-    var bag = Set<AnyCancellable>()
-    
-    @Binding var cardState: CardState { //todo: is bindind needed?
+   
+    @Published private(set) var cardModel: CardViewModel {
         didSet {
-            if let cardModel = cardState.cardModel {
-                self.canPurgeWallet = cardModel.canPurgeWallet
-            } else {
-                self.canPurgeWallet = false
-            }
+            cardModel.objectWillChange
+                .receive(on: RunLoop.main)
+                .sink { [weak self] in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &bag)
         }
     }
     
-    @Published var canPurgeWallet: Bool = false
+    private var bag = Set<AnyCancellable>()
     
-//    func bind() {
-//        bag = Set<AnyCancellable>()
-//        Just(cardState) //todo check it
-//            .sink { [unowned self] state in
-//                if let cardModel = state?.cardModel {
-//                    self.canPurgeWallet = cardModel.canPurgeWallet
-//                } else {
-//                    self.canPurgeWallet = false
-//                }
-//            }
-//            .store(in: &bag)
-//    }
-//
-    
-    init(cardState: Binding<CardState>) {
-        self._cardState = cardState
+    init(cardModel: CardViewModel) {
+        self.cardModel = cardModel
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
-        guard let cardInfo = cardState.card else {
-            return
-        }
-        
-        cardsRepository.purgeWallet(card: cardInfo.card) { [weak self] result in
+        cardModel.purgeWallet() {result in
             switch result {
-            case .success(let state):
-                guard let self = self else { return }
-                
-                self.cardState = state
+            case .success:
                 completion(.success(()))
             case .failure(let error):
                 completion(.failure(error))
