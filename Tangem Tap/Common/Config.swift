@@ -13,8 +13,18 @@ struct Config {
         raw[Config.Keys.coinMarketCapApiKey.rawValue] as! String
     }
     
+    var moonPayApiKey: String {
+        raw[Config.Keys.moonPayApiKey.rawValue] as! String
+    }
+    
+    var moonPaySecretApiKey: String {
+        raw[Config.Keys.moonPaySecretApiKey.rawValue] as! String
+    }
+    
     private enum Keys: String {
         case coinMarketCapApiKey
+        case moonPayApiKey
+        case moonPaySecretApiKey
     }
     
     let raw: [String: Any]
