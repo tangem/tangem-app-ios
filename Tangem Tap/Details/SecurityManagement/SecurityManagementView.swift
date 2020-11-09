@@ -19,11 +19,11 @@ struct SecurityManagementRowView: View {
     var isEnabled: Bool {
         switch option {
         case .accessCode:
-            return cardViewModel.card.settingsMask?.contains(.allowSetPIN1) ?? false
+            return cardViewModel.cardInfo.card.settingsMask?.contains(.allowSetPIN1) ?? false
         case .longTap:
-            return cardViewModel.card.settingsMask?.contains(.allowSetPIN2) ?? false
+            return cardViewModel.cardInfo.card.settingsMask?.contains(.allowSetPIN2) ?? false
         case .passCode:
-            return !(cardViewModel.card.settingsMask?.contains(.prohibitDefaultPIN1) ?? false)
+            return !(cardViewModel.cardInfo.card.settingsMask?.contains(.prohibitDefaultPIN1) ?? false)
         }
     }
     
@@ -104,6 +104,6 @@ struct SecurityManagementView: View {
 
 struct SecurityManagementView_Previews: PreviewProvider {
     static var previews: some View {
-        SecurityManagementView(viewModel: Assembly.previewAssembly.makeSecurityManagementViewModel(with: Assembly.previewAssembly.cardsRepository.cards.values.first!))
+        SecurityManagementView(viewModel: Assembly.previewAssembly.makeSecurityManagementViewModel(with: CardViewModel.previewCardViewModel))
     }
 }
