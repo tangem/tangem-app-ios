@@ -23,13 +23,19 @@ class Assembly {
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = NetworkService()
     lazy var workaroundsService = WorkaroundsService()
-    
+    lazy var imageLoaderService: ImageLoaderService = {
+        return ImageLoaderService(networkService: networkService)
+    }()
+    lazy var topupService: TopupService = {
+        let s = TopupService()
+        s.config = config
+        return s
+    }()
     
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
         crepo.ratesService = ratesService
-        crepo.networkService = networkService
         crepo.workaroundsService = workaroundsService
         return crepo
     }()
@@ -47,7 +53,9 @@ class Assembly {
         initialize(vm)
         vm.config = config
         vm.cardsRepository = cardsRepository
-        vm.cardViewModel = cardsRepository.cards.values.first!
+        vm.imageLoaderService = imageLoaderService
+        vm.topupService = topupService
+        vm.cardState = 
         return vm
     }
     
@@ -91,8 +99,8 @@ class Assembly {
 extension Assembly {
     static var previewAssembly: Assembly {
         let assembly = Assembly()
-        assembly.cardsRepository.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
-        assembly.cardsRepository.cards[Card.testCardNoWallet.cardId!] = CardViewModel(card: Card.testCardNoWallet)
+        assembly.cardsRepository.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard,
+                                                                              walletManager: WalletManagerFactory().makeWalletManager(from: Card.testCard)!)
         return assembly
     }
 }
