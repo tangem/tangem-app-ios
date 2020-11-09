@@ -44,7 +44,7 @@ class SecurityManagementViewModel: ViewModel {
     var actionButtonPressedHandler: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void {
         return { completion in
             self.cardsRepository.changeSecOption(self.selectedOption,
-                                                 card: self.cardViewModel.card,
+                                                 card: self.cardViewModel.cardInfo.card,
                                                  completion: completion) }
     }
     
@@ -55,7 +55,7 @@ class SecurityManagementViewModel: ViewModel {
         case .longTap:
             isLoading = true
             cardsRepository.changeSecOption(.longTap,
-                                            card: self.cardViewModel.card) { result in
+                                            card: self.cardViewModel.cardInfo.card) { result in
                 self.isLoading = false
                 switch result {
                 case .success:
