@@ -22,6 +22,7 @@ class Assembly {
     lazy var ratesService = CoinMarketCapService(apiKey: config.coinMarketCapApiKey)
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = NetworkService()
+    lazy var walletManagerFactory = WalletManagerFactory()
     lazy var workaroundsService = WorkaroundsService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
@@ -35,8 +36,7 @@ class Assembly {
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
-        crepo.ratesService = ratesService
-        crepo.workaroundsService = workaroundsService
+        crepo.assembly = self
         return crepo
     }()
     
@@ -55,7 +55,36 @@ class Assembly {
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
         vm.topupService = topupService
-        vm.cardState = 
+        vm.state = cardsRepository.cards.first!.value
+        return vm
+    }
+    
+    func makeWalletModel(from card: Card) -> WalletModel? {
+        if let walletManager = walletManagerFactory.makeWalletManager(from: card) {
+            let wm = WalletModel(walletManager: walletManager)
+            wm.ratesService = ratesService
+            return wm
+        } else {
+            return nil
+        }
+    }
+    
+    func makeCardModel(from info: CardInfo) -> CardViewModel? {
+        guard let blockchainName = info.card.cardData?.blockchainName,
+              let curve = info.card.curve,
+              let blockchain = Blockchain.from(blockchainName: blockchainName, curve: curve) else {
+            return nil
+        }
+        
+        let vm = CardViewModel(cardInfo: info)
+        vm.workaroundsService = workaroundsService
+        vm.assembly = self
+        vm.tangemSdk = tangemSdk
+        if let payIdService = PayIDService.make(from: blockchain) {
+            payIdService.workaroundsService = workaroundsService
+            vm.payIDService = payIdService
+        }
+        vm.update()
         return vm
     }
     
@@ -68,24 +97,30 @@ class Assembly {
     }
     
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
-        let vm = DetailsViewModel()
+        let vm = DetailsViewModel(cardModel: card)
         initialize(vm)
         vm.cardsRepository = cardsRepository
-        vm.cardViewModel = card
+        vm.ratesService = ratesService
         return vm
     }
     
     func makeSecurityManagementViewModel(with card: CardViewModel) -> SecurityManagementViewModel {
         let vm = SecurityManagementViewModel()
         initialize(vm)
-        vm.cardsRepository = cardsRepository
         vm.cardViewModel = card
+        return vm
+    }
+    
+    func makeCurrencySelectViewModel() -> CurrencySelectViewModel {
+        let vm = CurrencySelectViewModel()
+        initialize(vm)
         return vm
     }
     
     func makeSendViewModel(with amount: Amount, card: CardViewModel) -> SendViewModel {
         let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
         initialize(vm)
+        vm.ratesService = ratesService
         return vm
     }
     
@@ -99,8 +134,12 @@ class Assembly {
 extension Assembly {
     static var previewAssembly: Assembly {
         let assembly = Assembly()
-        assembly.cardsRepository.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard,
-                                                                              walletManager: WalletManagerFactory().makeWalletManager(from: Card.testCard)!)
+        let ci = CardInfo(card: Card.testCard,
+                          verificationState: nil,
+                          artworkInfo: nil)
+        let vm = assembly.makeCardModel(from: ci)!
+        let scanResult = ScanResult.card(model: vm)
+        assembly.cardsRepository.cards[Card.testCard.cardId!] = scanResult
         return assembly
     }
 }
