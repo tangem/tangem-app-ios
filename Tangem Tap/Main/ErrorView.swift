@@ -29,9 +29,10 @@ struct ErrorView: View {
                 Text(title)
                     .font(Font.system(size: 20.0, weight: .bold, design: .default))
                     .multilineTextAlignment(.leading)
-                    .lineLimit(1)
+                    .lineLimit(2)
                     .alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
                     .foregroundColor(Color.tangemTapGrayDark6)
+                    .minimumScaleFactor(0.8)
                 Text(subtitle)
                     .font(Font.system(size: 13.0))
                     .fontWeight(.medium)

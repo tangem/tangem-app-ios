@@ -12,13 +12,16 @@ import SwiftUI
 enum ButtonSize: CGFloat {
     case small
     case big
+    case smallVertical
     
     var value: CGSize {
         switch self {
         case .small:
-            return CGSize(width: 93.0, height: 56.0)
+            return CGSize(width: 95.0, height: 56.0)
         case .big:
             return CGSize(width: 200.0, height: 56.0)
+        case .smallVertical:
+            return CGSize(width: 100.0, height: 56.0)
         }
     }
 }
@@ -29,8 +32,7 @@ enum ButtonColorStyle {
 }
 
 struct TangemButtonStyle: ButtonStyle {
-    var size: ButtonSize = .small
-    var colorStyle: ButtonColorStyle = .green
+    var color: ButtonColorStyle = .green
     var isDisabled: Bool = false
     
     func makeBody(configuration: Configuration) -> some View {
@@ -38,14 +40,12 @@ struct TangemButtonStyle: ButtonStyle {
             .label
             .font(Font.custom("SairaSemiCondensed-Bold", size: 15.0))
             .foregroundColor(Color.white)
-			.frame(minWidth: size.value.width, maxWidth: .infinity, minHeight: size.value.height, maxHeight: size.value.height, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
             .background(
                 configuration.isPressed ?
-                (colorStyle == .green ? Color.tangemTapGreen1 : Color.tangemTapGrayDark4) :
-                (colorStyle == .green ? Color.tangemTapGreen : Color.tangemTapGrayDark6))
+                (color == .green ? Color.tangemTapGreen1 : Color.tangemTapGrayDark4) :
+                (color == .green ? Color.tangemTapGreen : Color.tangemTapGrayDark6))
             .cornerRadius(8)
             .overlay( !isDisabled ? Color.clear : Color.white.opacity(0.4))
-            .fixedSize()
     }
 }
 
@@ -54,17 +54,16 @@ struct ButtonStyles_Previews: PreviewProvider {
         VStack(alignment: .center, spacing: 16.0) {
             Button(action:{}){
                 Text("Tap in!")}
-                .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .green))
-            
-            
+                .buttonStyle(TangemButtonStyle(color: .green))
+
             Button(action: {}) { Text("Tap in!") }
-                .buttonStyle(TangemButtonStyle(size: .small, colorStyle: .black))
+                .buttonStyle(TangemButtonStyle(color: .black))
             
             Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .green, isDisabled: true))
+                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: true))
             
             Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: true))
+                .buttonStyle(TangemButtonStyle(color: .black, isDisabled: true))
         }
     }
 }
