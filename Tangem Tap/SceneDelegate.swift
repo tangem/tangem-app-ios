@@ -14,7 +14,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     
-    let config = Config()
     var sdkService = TangemSdkService()
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -24,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Create the SwiftUI view that provides the window contents.
        
-        sdkService.ratesService = CoinMarketCapService(apiKey: config.coinMarketCapApiKey)
+        sdkService.ratesService = CoinMarketCapService(apiKey: sdkService.config.coinMarketCapApiKey)
         let contentView = ReadView(viewModel: ReadViewModel(sdkService: sdkService))
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
