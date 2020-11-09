@@ -45,6 +45,8 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var selectedCurrency: String = ""
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     
+    public var canTopup: Bool { workaroundsService.isTopupSupported(for: card) }
+    
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
     
@@ -103,7 +105,6 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.payId = .notCreated
                 }
             case .failure(let error):
-                //[REDACTED_TODO_COMMENT]
                 self.payId = .notSupported
             }
         })
@@ -127,6 +128,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self?.payId = .created(payId: fullPayIdString)
                 completion(.success(()))
             case .failure(let error):
+                Analytics.log(error: error)
                 completion(.failure(error))
             }
         }
@@ -134,6 +136,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     public func update(silent: Bool = false) {
+        guard !isWalletLoading else {
+            return
+        }
+        
         loadingError = nil
         loadImage()
         if let walletManager = self.walletManager {
@@ -149,6 +155,8 @@ class CardViewModel: Identifiable, ObservableObject {
                         self.loadingError = error.detailedError
                         if case let .noAccount(noAccountMessage) = (error as? WalletError) {
                             self.noAccountMessage = noAccountMessage
+                        } else {
+                              Analytics.log(error: error)
                         }
                         if let wallet = self.wallet  {
                             self.balanceViewModel = self.makeBalanceViewModel(from: wallet)
@@ -179,6 +187,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 .sink(receiveCompletion: { completion in
                     switch completion {
                     case .failure(let error):
+                        Analytics.log(error: error)
                         print(error.localizedDescription)
                     case .finished:
                         break
@@ -223,6 +232,7 @@ class CardViewModel: Identifiable, ObservableObject {
                         self?.image = img
                     }
                 case .failure(let error):
+                    Analytics.log(error: error)
                     print(error)
                     self?.backedLoadImage(name: "card_default")
                 }
@@ -242,6 +252,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         .catch{ error -> AnyPublisher<UIImage?, Never> in
             print(error)
+            Analytics.log(error: error)
             return Just(nil).eraseToAnyPublisher()
         }
         .receive(on: DispatchQueue.main)
