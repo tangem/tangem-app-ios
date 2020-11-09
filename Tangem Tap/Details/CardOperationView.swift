@@ -36,7 +36,7 @@ struct CardOperationView: View {
             Spacer()
             HStack(alignment: .center, spacing: 8.0) {
                 Spacer()
-                TangemButton(isLoading: self.isLoading,
+                TangemLongButton(isLoading: self.isLoading,
                              title: buttonTitle,
                              image: "save") {
                                 self.isLoading = true
@@ -54,8 +54,7 @@ struct CardOperationView: View {
                                     }
                                     
                                 }
-                }.buttonStyle(TangemButtonStyle(size: .big,
-                                                colorStyle: .black,
+                }.buttonStyle(TangemButtonStyle(color: .black,
                                                 isDisabled: false))
                     .alert(item: self.$error) { $0.alert }
             }
