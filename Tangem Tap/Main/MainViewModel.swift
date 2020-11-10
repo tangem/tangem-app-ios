@@ -13,26 +13,16 @@ import BlockchainSdk
 import TangemSdk
 
 class MainViewModel: ViewModel {
-    var imageLoaderService: ImageLoaderService!
-    var topupService: TopupService!
+    weak var imageLoaderService: ImageLoaderService!
+    weak var topupService: TopupService!
     
-    @Published var navigation: NavigationCoordinator!  {
-        didSet {
-            navigation.objectWillChange
-                          .receive(on: RunLoop.main)
-                          .sink { [weak self] in
-                              self?.objectWillChange.send()
-                      }
-                      .store(in: &bag)
-        }
-    }
-    var assembly: Assembly!
+    @Published var navigation: NavigationCoordinator!
+    weak var assembly: Assembly!
     var config: Config!
     
     var amountToSend: Amount? = nil
     var bag = Set<AnyCancellable>()
-    var cardsRepository: CardsRepository!
-    var sendViewModel: SendViewModel? = nil
+    weak var cardsRepository: CardsRepository!
     
     //Mark: Input
     @Published var isRefreshing = false
@@ -120,16 +110,22 @@ class MainViewModel: ViewModel {
         }
     }
     
+    init() {
+        bind()
+    }
+    
     func bind() {
         bag = Set<AnyCancellable>()
+    
+//        if let cardModel = state.cardModel {
+//            cardModel.objectWillChange
+//                .receive(on: RunLoop.main)
+//                .sink { [weak self] in
+//                    self?.objectWillChange.send()
+//                }
+//                .store(in: &bag)
+//        }
         
-//        cardViewModel.objectWillChange
-//            .receive(on: RunLoop.main)
-//            .sink { [weak self] in
-//                self?.objectWillChange.send()
-//            }
-//            .store(in: &bag)
-//
         $isRefreshing
             .removeDuplicates()
             .filter { $0}
@@ -186,6 +182,7 @@ class MainViewModel: ViewModel {
             switch scanResult {
             case .success(let state):
                 self?.state = state
+                self?.assembly.reset()
                 self?.showUntrustedDisclaimerIfNeeded()
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
@@ -230,11 +227,6 @@ class MainViewModel: ViewModel {
     }
     
     func showSendScreen() {
-        guard let model = state.cardModel else {
-            return
-        }
-        
-        sendViewModel = assembly.makeSendViewModel(with: amountToSend!, card: model)
         navigation.showSend = true
     }
     
