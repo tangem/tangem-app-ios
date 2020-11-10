@@ -19,8 +19,9 @@ class WalletModel: ObservableObject, Identifiable {
         didSet {
             ratesService
                 .$selectedCurrencyCodePublished
+                .dropFirst()
                 .sink {[unowned self] _ in
-                    self.loadRates() //[REDACTED_TODO_COMMENT]
+                    self.loadRates()
                 }
                 .store(in: &bag)
         }
@@ -69,7 +70,6 @@ class WalletModel: ObservableObject, Identifiable {
         if !silent {
             state = .loading
         }
-        
         walletManager.update { result in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
@@ -84,7 +84,7 @@ class WalletModel: ObservableObject, Identifiable {
                     
                     self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 } else {
-                   // self.loadRates()
+                    self.loadRates()
                     self.state = .idle
                 }
             }
