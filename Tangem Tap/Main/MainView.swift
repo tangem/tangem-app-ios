@@ -79,13 +79,14 @@ struct MainView: View {
                             case .empty, .created:
                                 ErrorView(title: "wallet_error_empty_card".localized, subtitle: "wallet_error_empty_card_subtitle".localized)
                             case .loaded(let walletModel):
-                                
                                 switch walletModel.state {
                                 case .noAccount(let message):
                                     ErrorView(title: "wallet_error_no_account".localized, subtitle: message)
-                                default:
+                                case .idle, .loading, .failed:
                                     BalanceView(balanceViewModel: walletModel.balanceViewModel)
                                         .padding(.horizontal, 16.0)
+                                case .created:
+                                    EmptyView()
                                 }
                             }
 
@@ -124,6 +125,7 @@ struct MainView: View {
                             TangemVerticalButton(isLoading: false,
                                                  title: "wallet_button_topup",
                                                  image: "arrow.up") {
+                                self.viewModel.objectWillChange.send()
                                 self.viewModel.navigation.showTopup = true
                             }
                             .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
@@ -136,7 +138,9 @@ struct MainView: View {
                         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
                         .sheet(isPresented: $viewModel.navigation.showSend) {
-                            SendView(viewModel: self.viewModel.sendViewModel!, onSuccess: {
+                            SendView(viewModel: self.viewModel.assembly.makeSendViewModel(
+                                        with: self.viewModel.amountToSend!,
+                                        card: self.viewModel.state.cardModel!), onSuccess: {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                     let alert = Alert(title: Text("common_success"),
                                                       message: Text("send_transaction_success"),
@@ -159,9 +163,7 @@ struct MainView: View {
                     NavigationLink(
                         destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
                         isActive: $viewModel.navigation.showSettings,
-                        label: {
-                            EmptyView()
-                        })
+                        label: { EmptyView() })
                 }
                 
                 if viewModel.navigation.showTopup {
@@ -184,6 +186,7 @@ struct MainView: View {
         .navigationBarTitle(viewModel.navigation.showSettings || viewModel.navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
             if viewModel.state.cardModel != nil {
+                viewModel.objectWillChange.send()
                 viewModel.navigation.showSettings = true
             }
         }, label: { Image("verticalDots")
