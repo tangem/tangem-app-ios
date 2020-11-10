@@ -12,21 +12,12 @@ import TangemSdk
 import Combine
 
 class ReadViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator! {
-        didSet {
-            navigation.objectWillChange
-                          .receive(on: RunLoop.main)
-                          .sink { [weak self] in
-                              self?.objectWillChange.send()
-                      }
-                      .store(in: &bag)
-        }
-    }
-    var assembly: Assembly!
+    @Published var navigation: NavigationCoordinator!
+    weak var assembly: Assembly!
     
     //injected
-    var cardsRepository: CardsRepository!
-    var userPrefsService: UserPrefsService!
+    weak var cardsRepository: CardsRepository!
+    weak var userPrefsService: UserPrefsService!
     
     //viewState
     @Published var state: State = .welcome
