@@ -61,8 +61,8 @@ enum ScanResult: Equatable {
 }
 
 class CardsRepository {
-    var tangemSdk: TangemSdk!
-    var assembly: Assembly!
+    weak var tangemSdk: TangemSdk!
+    weak var assembly: Assembly!
 
     var cards = [String: ScanResult]()
     

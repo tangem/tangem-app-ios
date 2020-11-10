@@ -12,21 +12,22 @@ import Combine
 import BlockchainSdk
 
 class DetailsViewModel: ViewModel {
-    var assembly: Assembly!
-    var cardsRepository: CardsRepository!
-    var ratesService: CoinMarketCapService!
-    
-    @Published var navigation: NavigationCoordinator! {
+    weak var assembly: Assembly!
+    weak var cardsRepository: CardsRepository!
+    weak var ratesService: CoinMarketCapService!
+    {
         didSet {
-            navigation.objectWillChange
+            ratesService
+                .$selectedCurrencyCodePublished
                 .receive(on: RunLoop.main)
-                .sink { [weak self] in
+                .sink { [weak self] _ in
                     self?.objectWillChange.send()
                 }
                 .store(in: &bag)
         }
     }
-   
+    
+    @Published var navigation: NavigationCoordinator!
     @Published private(set) var cardModel: CardViewModel {
         didSet {
             cardModel.objectWillChange
