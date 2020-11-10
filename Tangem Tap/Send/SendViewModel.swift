@@ -70,7 +70,16 @@ class SendViewModel: ViewModel {
     var signer: TransactionSigner
     var cardViewModel: CardViewModel {
         didSet {
-            cardViewModel.objectWillChange
+            cardViewModel
+                .objectWillChange
+                .receive(on: RunLoop.main)
+                .sink { [weak self] in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &bag)
+            
+            cardViewModel.state.walletModel!
+                .objectWillChange
                 .receive(on: RunLoop.main)
                 .sink { [weak self] in
                     self?.objectWillChange.send()
