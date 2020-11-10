@@ -18,7 +18,7 @@ struct CurrencySelectView: View {
     var body: some View {
         VStack {
             if viewModel.loading {
-                ActivityIndicatorView(isAnimating: true, style: .medium)
+            ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark)
             } else {
                 List (viewModel.currencies) { currency in
                     HStack {
@@ -34,6 +34,7 @@ struct CurrencySelectView: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
+                        self.viewModel.objectWillChange.send()
                         self.viewModel.ratesService.selectedCurrencyCode = currency.symbol
                        // self.selected = currency.symbol
                     }
