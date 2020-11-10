@@ -11,17 +11,8 @@ import SwiftUI
 import Combine
 
 class SecurityManagementViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!{
-        didSet {
-            navigation.objectWillChange
-                          .receive(on: RunLoop.main)
-                          .sink { [weak self] in
-                              self?.objectWillChange.send()
-                      }
-                      .store(in: &bag)
-        }
-    }
-    var assembly: Assembly!
+    @Published var navigation: NavigationCoordinator!
+    weak var assembly: Assembly!
     var bag = Set<AnyCancellable>()
     
     @Published var cardViewModel: CardViewModel! {
@@ -49,6 +40,7 @@ class SecurityManagementViewModel: ViewModel {
     func onTap() {
         switch selectedOption {
         case .accessCode, .passCode:
+            objectWillChange.send()
             navigation.openWarning = true
         case .longTap:
             isLoading = true
