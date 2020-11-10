@@ -10,22 +10,13 @@ import Foundation
 import Combine
 
 class CurrencySelectViewModel: ViewModel {
-    var assembly: Assembly!
-    var ratesService: CoinMarketCapService!
+    weak var assembly: Assembly!
+    weak var ratesService: CoinMarketCapService!
     
-    @Published var navigation: NavigationCoordinator! {
-        didSet {
-            navigation.objectWillChange
-                .receive(on: RunLoop.main)
-                .sink { [weak self] in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-        }
-    }
+    @Published var navigation: NavigationCoordinator!
     
-    @Published private(set) var loading: Bool = false
-    @Published private(set) var currencies: [FiatCurrency] = []
+    @Published var loading: Bool = false
+    @Published var currencies: [FiatCurrency] = []
     @Published var error: AlertBinder?
     
     private var bag = Set<AnyCancellable>()
