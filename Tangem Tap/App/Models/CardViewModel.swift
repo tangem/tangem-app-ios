@@ -15,10 +15,10 @@ import SwiftUI
 
 class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
-    var workaroundsService: WorkaroundsService!
-    var payIDService: PayIDService? = nil
-    var tangemSdk: TangemSdk!
-    var assembly: Assembly!
+    weak var workaroundsService: WorkaroundsService!
+    weak var payIDService: PayIDService? = nil
+    weak var tangemSdk: TangemSdk!
+    weak var assembly: Assembly!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -79,11 +79,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     public private(set) var cardInfo: CardInfo {
         didSet {
-            if let wm = self.assembly.makeWalletModel(from: cardInfo.card) {
-                self.state = .loaded(walletModel: wm)
-            } else {
-                self.state = .empty
-            }
+            updateState()
         }
     }
     
@@ -222,6 +218,14 @@ class CardViewModel: Identifiable, ObservableObject {
                 Analytics.log(error: error)
                 completion(.failure(error))
             }
+        }
+    }
+    
+    func updateState() {
+        if let wm = self.assembly.makeWalletModel(from: cardInfo.card) {
+            self.state = .loaded(walletModel: wm)
+        } else {
+            self.state = .empty
         }
     }
     
