@@ -18,7 +18,7 @@ class Assembly {
         return sdk
     }()
     
-    lazy var navigationCoordinator =  NavigationCoordinator()
+    lazy var navigationCoordinator = NavigationCoordinator()
     lazy var ratesService = CoinMarketCapService(apiKey: config.coinMarketCapApiKey)
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = NetworkService()
@@ -40,8 +40,10 @@ class Assembly {
         return crepo
     }()
     
+    private var modelsStorage = [String : Any]()
+    
     func makeReadViewModel() -> ReadViewModel {
-        let vm = ReadViewModel()
+        let vm: ReadViewModel = get() ?? ReadViewModel()
         initialize(vm)
         vm.userPrefsService = userPrefsService
         vm.cardsRepository = cardsRepository
@@ -49,7 +51,7 @@ class Assembly {
     }
     
     func makeMainViewModel() -> MainViewModel {
-        let vm = MainViewModel()
+        let vm: MainViewModel = get() ?? MainViewModel()
         initialize(vm)
         vm.config = config
         vm.cardsRepository = cardsRepository
@@ -84,12 +86,14 @@ class Assembly {
             payIdService.workaroundsService = workaroundsService
             vm.payIDService = payIdService
         }
+        
+        vm.updateState()
         vm.update()
         return vm
     }
     
     func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
-        let vm = DisclaimerViewModel()
+        let vm: DisclaimerViewModel = get() ?? DisclaimerViewModel()
         vm.state = state
         vm.userPrefsService = userPrefsService
         initialize(vm)
@@ -97,7 +101,7 @@ class Assembly {
     }
     
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
-        let vm = DetailsViewModel(cardModel: card)
+        let vm: DetailsViewModel = get() ?? DetailsViewModel(cardModel: card)
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.ratesService = ratesService
@@ -105,20 +109,21 @@ class Assembly {
     }
     
     func makeSecurityManagementViewModel(with card: CardViewModel) -> SecurityManagementViewModel {
-        let vm = SecurityManagementViewModel()
+        let vm: SecurityManagementViewModel = get() ?? SecurityManagementViewModel()
         initialize(vm)
         vm.cardViewModel = card
         return vm
     }
     
     func makeCurrencySelectViewModel() -> CurrencySelectViewModel {
-        let vm = CurrencySelectViewModel()
+        let vm: CurrencySelectViewModel = get() ?? CurrencySelectViewModel()
         initialize(vm)
+        vm.ratesService = ratesService
         return vm
     }
     
     func makeSendViewModel(with amount: Amount, card: CardViewModel) -> SendViewModel {
-        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
+        let vm: SendViewModel = get() ?? SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
         initialize(vm)
         vm.ratesService = ratesService
         return vm
@@ -127,9 +132,28 @@ class Assembly {
     private func initialize<V: ViewModel>(_ vm: V) {
         vm.navigation = navigationCoordinator
         vm.assembly = self
+        store(vm)
+    }
+    
+    public func reset() {
+        let mainKey = String(describing: type(of: MainViewModel.self))
+        let readKey = String(describing: type(of: ReadViewModel.self))
+        
+        let indicesToRemove = modelsStorage.keys.filter { $0 != mainKey && $0 != readKey }
+        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
+    }
+    
+    private func store<T>(_ object: T ) {
+        let key = String(describing: type(of: T.self))
+        print(key)
+        modelsStorage[key] = object
+    }
+    
+    private func get<T>() -> T? {
+        let key = String(describing: type(of: T.self))
+        return (modelsStorage[key] as? T)
     }
 }
-
 
 extension Assembly {
     static var previewAssembly: Assembly {
