@@ -11,11 +11,11 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-class WalletModel: ObservableObject {
+class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
     @Published var rates: [String: [String: Decimal]] = [:]
-    var ratesService: CoinMarketCapService! {
+    weak var ratesService: CoinMarketCapService! {
         didSet {
             ratesService
                 .$selectedCurrencyCodePublished
@@ -75,19 +75,18 @@ class WalletModel: ObservableObject {
                 guard let self = self else {return}
                 
                 if case let .failure(error) = result {
-                    self.state = .failed(error: error.detailedError)
                     if case let .noAccount(noAccountMessage) = (error as? WalletError) {
                         self.state = .noAccount(message: noAccountMessage)
                     } else {
+                        self.state = .failed(error: error.detailedError)
                         Analytics.log(error: error)
                     }
                     
                     self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 } else {
-                    self.loadRates()
+                   // self.loadRates()
+                    self.state = .idle
                 }
-                
-                self.state = .idle
             }
         }
     }
@@ -194,6 +193,7 @@ class WalletModel: ObservableObject {
 
 extension WalletModel {
     enum State {
+        case created
         case idle
         case loading
         case noAccount(message: String)

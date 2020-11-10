@@ -19,18 +19,9 @@ struct TextHint {
 }
 
 class SendViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator! {
-        didSet {
-            navigation.objectWillChange
-                .receive(on: RunLoop.main)
-                .sink { [weak self] in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-        }
-    }
-    var assembly: Assembly!
-    var ratesService: CoinMarketCapService!
+    @Published var navigation: NavigationCoordinator!
+    weak var assembly: Assembly!
+    weak var ratesService: CoinMarketCapService!
     
     @Published var showCameraDeniedAlert = false
     
