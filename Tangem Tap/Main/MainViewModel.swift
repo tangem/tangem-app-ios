@@ -32,7 +32,11 @@ class MainViewModel: ViewModel {
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
-    @Published var state: ScanResult = .unsupported
+    @Published var state: ScanResult = .unsupported {
+        didSet {
+            bind()
+        }
+    }
     
     public var canCreateWallet: Bool {
         if let state = state.cardModel?.state,
@@ -110,40 +114,49 @@ class MainViewModel: ViewModel {
         }
     }
     
-    init() {
-        bind()
-    }
-    
+
     func bind() {
         bag = Set<AnyCancellable>()
     
-//        if let cardModel = state.cardModel {
-//            cardModel.objectWillChange
-//                .receive(on: RunLoop.main)
-//                .sink { [weak self] in
-//                    self?.objectWillChange.send()
-//                }
-//                .store(in: &bag)
-//        }
+        if let cardModel = state.cardModel {
+            cardModel.objectWillChange
+                .receive(on: RunLoop.main)
+                .sink { [weak self] in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &bag)
+            
+            if let walletModel = cardModel.state.walletModel {
+                walletModel.objectWillChange
+                    .receive(on: RunLoop.main)
+                    .sink { [weak self] in
+                        self?.objectWillChange.send()
+                }
+                .store(in: &bag)
+                
+                
+                walletModel.$state
+                    .map { $0.isLoading }
+                    .filter { !$0 }
+                    .receive(on: RunLoop.main)
+                    .assign(to: \.isRefreshing, on: self)
+                    .store(in: &bag)
+            }
+        }
         
         $isRefreshing
             .removeDuplicates()
-            .filter { $0}
+            .filter { $0 }
             .sink{ [unowned self] _ in
-                if let cardModel = state.cardModel {
+                if let cardModel = self.state.cardModel {
                     cardModel.update()
                 } else {
-                    self.isRefreshing = false //todo check it
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.isRefreshing = false
+                    }
                 }
+                
             }
-            .store(in: &bag)
-        
-        $state
-            .compactMap{ $0.cardModel?.state.walletModel }
-            .map { $0.state.isLoading }
-            .filter { !$0 }
-            .receive(on: RunLoop.main)
-            .assign(to: \.isRefreshing, on: self)
             .store(in: &bag)
         
         $state
