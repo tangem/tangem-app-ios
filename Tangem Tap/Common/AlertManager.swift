@@ -76,9 +76,9 @@ class AlertManager {
             }
             
             let scannedCards = self.scannedCards
-            if scannedCards.contains(cid) {
-                return false
-            }
+//            if scannedCards.contains(cid) {
+//                return false
+//            }
             
             if signedHashes == 0 {
                 return false
