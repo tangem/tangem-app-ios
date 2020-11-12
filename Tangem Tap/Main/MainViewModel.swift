@@ -244,14 +244,6 @@ class MainViewModel: ObservableObject {
         showSend = true
     }
     
-    func showUntrustedDisclaimerIfNeeded() {
-        if cardViewModel.card.cardType != .release {
-            error = AlertManager().getAlert(.devCard, for: cardViewModel.card)
-        } else {
-            error = AlertManager().getAlert(.untrustedCard, for: cardViewModel.card)
-        }
-    }
-    
     func onAppear() {
         showUntrustedDisclaimerIfNeeded()
     }
@@ -266,4 +258,35 @@ class MainViewModel: ObservableObject {
                 self?.cardViewModel.update(silent: true)
         }
     }
+	
+	private func showUntrustedDisclaimerIfNeeded() {
+//		if cardViewModel.card.cardType != .release {
+//			error = AlertManager().getAlert(.devCard, for: cardViewModel.card)
+//		} else {
+			validateHashesCount()
+//		}
+	}
+	
+	private func validateHashesCount() {
+		guard let validator = cardViewModel.walletManager as? SignatureCountValidator else { return }
+		
+		validator.validateSignatureCount(signedHashes: cardViewModel.card.walletSignedHashes ?? 0)
+			.receive(on: RunLoop.main)
+			.sink(receiveCompletion: { [unowned self] failure in
+				switch failure {
+				case .finished:
+					return
+				case .failure(let error):
+					switch error {
+					case BlockchainSdkError.signatureCountNotMatched:
+						self.error = AlertManager().getAlert(.untrustedCard, for: cardViewModel.card)
+					case BlockchainSdkError.notImplemented:
+						return
+					default:
+						self.error = error.alertBinder
+					}
+				}
+			}, receiveValue: { _ in })
+			.store(in: &bag)
+	}
 }
