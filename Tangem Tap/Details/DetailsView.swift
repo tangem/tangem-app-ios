@@ -95,7 +95,7 @@ struct DetailsView: View {
                 NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
                                                               buttonTitle: "details_row_title_erase_wallet",
                                                               alert: "details_erase_wallet_warning".localized,
-                                                              actionButtonPressed: {viewModel.cardModel.purgeWallet(completion: $0)}
+                                                              actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
                 )) {
                     DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
                 }
