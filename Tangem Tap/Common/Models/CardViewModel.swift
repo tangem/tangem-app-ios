@@ -45,7 +45,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var selectedCurrency: String = ""
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     
-    public var canTopup: Bool { workaroundsService.isTopupSupported(for: card) }
+    public var canTopup: Bool { Config().isEnableMoonPay && workaroundsService.isTopupSupported(for: card) }
     
     var walletManager: WalletManager?
     public let verifyCardResponse: VerifyCardResponse?
@@ -58,7 +58,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecOption()
         if let walletManager = WalletManagerFactory().makeWalletManager(from: card) {
             self.walletManager = walletManager
-            self.payIDService = PayIDService.make(from: walletManager.wallet.blockchain)
+            self.payIDService = Config().isEnablePayID ? PayIDService.make(from: walletManager.wallet.blockchain) : nil
             self.balanceViewModel = self.makeBalanceViewModel(from: walletManager.wallet)
             self.wallet = walletManager.wallet
             walletManager.$wallet
