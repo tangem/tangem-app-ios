@@ -86,7 +86,7 @@ class CardsRepository {
                                         artworkInfo: response.verifyResponse.artworkInfo)
                 
                
-                let cm = assembly.makeCardModel(from: cardInfo)
+                let cm = self.assembly.makeCardModel(from: cardInfo)
                 let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
                 self.cards[cardInfo.card.cardId!] = res
                 completion(.success(res))
