@@ -98,7 +98,13 @@ struct Status: Codable {
 
 class CoinMarketCapService {
     @Storage("tangem_tap_selected_currency_code", defaultValue: "USD")
-    var selectedCurrencyCode: String
+    var selectedCurrencyCode: String {
+        didSet {
+            selectedCurrencyCodePublished = selectedCurrencyCode
+        }
+    }
+    
+    @Published var selectedCurrencyCodePublished: String = ""
     
     let apiKey: String
     let provider = MoyaProvider<CoinMarketCapTarget>(/*plugins: [NetworkLoggerPlugin(configuration: NetworkLoggerPlugin.Configuration.verboseConfiguration)]*/)
