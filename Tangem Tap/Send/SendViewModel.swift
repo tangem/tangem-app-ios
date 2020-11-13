@@ -163,7 +163,7 @@ class SendViewModel: ViewModel {
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .dropFirst()
             .sink { [unowned self] _ in
-                self.amountToSend = walletModel.wallet.amounts[self.amountToSend.type]!
+                self.amountToSend = self.walletModel.wallet.amounts[self.amountToSend.type]!
                 self.amountText = self.walletTotalBalanceDecimals
                 
                 withAnimation {
@@ -219,7 +219,7 @@ class SendViewModel: ViewModel {
             .combineLatest($isFiatCalculation)
             .debounce(for: 0.3, scheduler: RunLoop.main)
             .sink{ [unowned self] newAmount, isFiat in
-                let feeDummyAmount = Amount(with: walletModel.wallet.blockchain, address: walletModel.wallet.address, type: .coin, value: 0)
+                let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, address: self.walletModel.wallet.address, type: .coin, value: 0)
                 self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
             }
             .store(in: &bag)
