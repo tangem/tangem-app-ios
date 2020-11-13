@@ -46,6 +46,62 @@ struct MainView: View {
         return incTx + outgTx
     }
     
+    var shouldShowAlertView: Bool {
+        if let cardModel = self.viewModel.state.cardModel, !cardModel.canSign {
+            return true
+        }
+        return false
+    }
+    
+    var isUnsupportdState: Bool {
+        switch viewModel.state {
+        case .unsupported:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var shouldShowEmptyView: Bool {
+        if let cardModel = self.viewModel.state.cardModel {
+            switch cardModel.state {
+            case .empty, .created:
+                return true
+            default:
+                return false
+            }
+        }
+        return false
+    }
+    
+    var shouldShowBalanceView: Bool {
+        if let walletModel = self.viewModel.state.cardModel?.state.walletModel {
+            switch walletModel.state {
+            case .idle, .loading, .failed:
+               return true
+            default:
+                return false
+            }
+            
+        }
+        
+        return false
+    }
+    
+    var noAccountView: ErrorView? {
+        if let walletModel = self.viewModel.state.cardModel?.state.walletModel {
+            switch walletModel.state {
+            case .noAccount(let message):
+               return ErrorView(title: "wallet_error_no_account".localized, subtitle: message)
+            default:
+                return nil
+            }
+            
+        }
+        
+        return nil
+    }
+    
     var body: some View {
         VStack {
             GeometryReader { geometry in
@@ -65,35 +121,34 @@ struct MainView: View {
                                 .padding(.vertical, 16.0)
                         }
 
-                        if let cardModel = self.viewModel.state.cardModel, !cardModel.canSign {
+                        if self.shouldShowAlertView {
                             AlertCardView(title: "common_warning".localized,
                                           message: "alert_old_card".localized)
                                 .padding(.horizontal, 16.0)
                         }
-                            
-                        switch viewModel.state {
-                        case .card(let cardModel):
+                        
+                        if self.isUnsupportdState {
+                             ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
+                        } else {
                             ForEach(self.pendingTransactionViews) { $0 }
-
-                            switch cardModel.state {
-                            case .empty, .created:
-                                ErrorView(title: "wallet_error_empty_card".localized, subtitle: "wallet_error_empty_card_subtitle".localized)
-                            case .loaded(let walletModel):
-                                switch walletModel.state {
-                                case .noAccount(let message):
-                                    ErrorView(title: "wallet_error_no_account".localized, subtitle: message)
-                                case .idle, .loading, .failed:
-                                    BalanceView(balanceViewModel: walletModel.balanceViewModel)
-                                        .padding(.horizontal, 16.0)
-                                case .created:
-                                    EmptyView()
+                            
+                            if self.shouldShowEmptyView {
+                                 ErrorView(title: "wallet_error_empty_card".localized, subtitle: "wallet_error_empty_card_subtitle".localized)
+                            } else {
+                                if self.shouldShowBalanceView {
+                                    BalanceView(balanceViewModel: self.viewModel.state.cardModel!.state.walletModel!.balanceViewModel)
+                                                                          .padding(.horizontal, 16.0)
+                                } else {
+                                    if self.noAccountView != nil {
+                                        self.noAccountView!
+                                    } else {
+                                         EmptyView()
+                                    }
                                 }
                             }
-
+                            
                             AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID)
-                                .environmentObject(cardModel)
-                        case .unsupported:
-                            ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
+                                .environmentObject(self.viewModel.state.cardModel!)
                         }
                     }
                 }
@@ -112,7 +167,7 @@ struct MainView: View {
                     }
                 }.buttonStyle(TangemButtonStyle(color: .black))
                 
-                if let cardModel = self.viewModel.state.cardModel {
+                if self.viewModel.state.cardModel != nil {
                     if viewModel.canCreateWallet {
                         TangemLongButton(isLoading: self.viewModel.isCreatingWallet,
                                          title: "wallet_button_create_wallet",
@@ -121,7 +176,7 @@ struct MainView: View {
                         }.buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canCreateWallet))
                         .disabled(!self.viewModel.canCreateWallet)
                     } else {
-                        if cardModel.canTopup {
+                        if self.viewModel.state.cardModel!.canTopup {
                             TangemVerticalButton(isLoading: false,
                                                  title: "wallet_button_topup",
                                                  image: "arrow.up") {
@@ -167,8 +222,8 @@ struct MainView: View {
                 }
                 
                 if viewModel.navigation.showTopup {
-                    if let topupUrl = viewModel.topupURL {
-                        NavigationLink(destination: WebViewContainer(url: topupUrl,
+                    if viewModel.topupURL != nil {
+                        NavigationLink(destination: WebViewContainer(url: viewModel.topupURL!,
                                                                      closeUrl: viewModel.topupCloseUrl,
                                                                      title: "wallet_button_topup")
                                         .onDisappear {
@@ -185,9 +240,9 @@ struct MainView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(viewModel.navigation.showSettings || viewModel.navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
-            if viewModel.state.cardModel != nil {
-                viewModel.objectWillChange.send()
-                viewModel.navigation.showSettings = true
+            if self.viewModel.state.cardModel != nil {
+                self.viewModel.objectWillChange.send()
+                self.viewModel.navigation.showSettings = true
             }
         }, label: { Image("verticalDots")
             .foregroundColor(Color.tangemTapGrayDark6)
