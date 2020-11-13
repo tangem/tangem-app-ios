@@ -75,7 +75,7 @@ struct SendView: View {
                                 if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
                                     self.viewModel.showCameraDeniedAlert = true
                                 } else {
-                                    self.viewModel.showQR = true
+                                    self.viewModel.navigation.showQR = true
                                 }
                             }) {
                                 ZStack {
@@ -88,7 +88,7 @@ struct SendView: View {
                                     
                                 }
                             }
-                            .sheet(isPresented: self.$viewModel.showQR) {
+                            .sheet(isPresented: self.$viewModel.navigation.showQR) {
                                 QRScannerView(code: self.$viewModel.destination,
                                               codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
                                     .edgesIgnoringSafeArea(.all)
@@ -127,7 +127,7 @@ struct SendView: View {
                                             textColor: UIColor.tangemTapGrayDark6,
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
                                             placeholder: "",
-                                            decimalCount: self.viewModel.cardViewModel.wallet?.blockchain.decimalCount)
+                                            decimalCount: self.viewModel.cardViewModel.state.wallet?.blockchain.decimalCount)
                             Button(action: {
                                 self.viewModel.isFiatCalculation.toggle()
                             }) { HStack(alignment: .center, spacing: 8.0) {
@@ -278,20 +278,12 @@ struct SendView: View {
 }
 
 struct ExtractView_Previews: PreviewProvider {
-    @State static var sdkService: TangemSdkService = {
-        let service = TangemSdkService()
-        service.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
-        return service
-    }()
-    
-    @State static var cardViewModel = CardViewModel(card: Card.testCard)
-    
     static var previews: some View {
-        SendView(viewModel: SendViewModel(amountToSend: Amount(with: Blockchain.ethereum(testnet: false),
-                                                                     address: "adsfafa",
-                                                                     type: .coin,
-                                                                     value: 0.0),
-                                                cardViewModel: cardViewModel,
-                                                sdkSerice: sdkService), onSuccess: {})
+        SendView(viewModel: Assembly.previewAssembly.makeSendViewModel(with: Amount(with: Blockchain.ethereum(testnet: false),
+                                                                                    address: "adsfafa",
+                                                                                    type: .coin,
+                                                                                    value: 0.0),
+                                                                       card: CardViewModel.previewCardViewModel),
+                 onSuccess: {})
     }
 }
