@@ -17,6 +17,7 @@ class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
     weak var workaroundsService: WorkaroundsService!
     weak var payIDService: PayIDService? = nil
+    var config: Config!
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
     
@@ -75,7 +76,7 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInfo.card.isPin2Default != nil
     }
     
-    var canTopup: Bool { workaroundsService.isTopupSupported(for: cardInfo.card) }
+    var canTopup: Bool { config.isEnableMoonPay && workaroundsService.isTopupSupported(for: cardInfo.card) }
     
     public private(set) var cardInfo: CardInfo {
         didSet {
