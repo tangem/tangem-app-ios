@@ -65,9 +65,9 @@ struct SecurityManagementView: View {
     var body: some View {
         VStack {
             List(SecurityManagementOption.allCases) { option in
-                SecurityManagementRowView(selectedOption: $viewModel.selectedOption,
+                SecurityManagementRowView(selectedOption: self.$viewModel.selectedOption,
                                           option: option)
-                    .environmentObject(viewModel.cardViewModel)
+                    .environmentObject(self.viewModel.cardViewModel)
             }
             .listStyle(PlainListStyle())
             
@@ -76,7 +76,7 @@ struct SecurityManagementView: View {
                 TangemLongButton(isLoading: viewModel.isLoading,
                              title: viewModel.selectedOption == .longTap ? "common_save_changes" : "common_continue",
                              image: "save") {
-                    viewModel.onTap()
+                                self.viewModel.onTap()
                 }.buttonStyle(TangemButtonStyle(color: .black,
                                                 isDisabled: viewModel.selectedOption == viewModel.cardViewModel.currentSecOption))
                 .alert(item: $viewModel.error) { $0.alert }
