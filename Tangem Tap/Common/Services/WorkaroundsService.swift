@@ -12,7 +12,7 @@ import TangemSdk
 class WorkaroundsService {
     func isPayIDSupported(for card: Card) -> Bool {
         if let issuerName = card.cardData?.issuerName,
-            issuerName == "start2coin" { //restrict payID for start2coin cards
+            issuerName.lowercased() == "start2coin" { //restrict payID for start2coin cards
             return false
         }
         
@@ -21,7 +21,7 @@ class WorkaroundsService {
     
     func isTopupSupported(for card: Card) -> Bool {
         if let issuerName = card.cardData?.issuerName,
-            issuerName == "start2coin" { //restrict payID for start2coin cards
+        issuerName.lowercased() == "start2coin" { //restrict payID for start2coin cards
             return false
         }
         
