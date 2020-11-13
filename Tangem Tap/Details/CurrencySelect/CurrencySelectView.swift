@@ -43,7 +43,7 @@ struct CurrencySelectView: View {
             }
         }
         .onAppear {
-            viewModel.onAppear()
+            self.viewModel.onAppear()
         }
         .alert(item: $viewModel.error) { $0.alert }
     }
