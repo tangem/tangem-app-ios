@@ -80,9 +80,10 @@ class Assembly {
         
         let vm = CardViewModel(cardInfo: info)
         vm.workaroundsService = workaroundsService
+        vm.config = config
         vm.assembly = self
         vm.tangemSdk = tangemSdk
-        if let payIdService = PayIDService.make(from: blockchain) {
+        if config.isEnablePayID, let payIdService = PayIDService.make(from: blockchain) {
             payIdService.workaroundsService = workaroundsService
             vm.payIDService = payIdService
         }
