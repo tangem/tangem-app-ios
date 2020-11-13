@@ -108,7 +108,7 @@
 
 "wallet_create_payid_button_title" = "Crea";
 
-"wallet_create_payid_info" = "Ваш PayID – informazioni per te uniche, come il tuo numero di telefono, indirizzo email o ABN.";
+"wallet_create_payid_info" = "Il tuo PayID – informazioni per te uniche, come il tuo numero di telefono, indirizzo email o ABN.";
 
 "wallet_create_payid_success_message" = "PayID creato con successo e copiato negli appunti";
 
