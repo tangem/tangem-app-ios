@@ -25,7 +25,7 @@ struct DisclaimerView: View {
                 TangemLongButton(isLoading: false,
                              title: "common_accept",
                              image: "arrow.right") {
-                        viewModel.accept()
+                                self.viewModel.accept()
                 }.buttonStyle(TangemButtonStyle(color: .green))
                     .padding([.bottom, .trailing])
             
