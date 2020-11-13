@@ -10,12 +10,6 @@ import Foundation
 import SwiftUI
 import TangemSdk
 
-enum PayIdStatus {
-    case notCreated
-    case created(payId: String)
-    case notSupported
-}
-
 struct AddressDetailView: View {
     @State private(set) var showQr: Bool = false
     @Binding var showCreatePayID: Bool
@@ -51,12 +45,12 @@ struct AddressDetailView: View {
         VStack(spacing: 0.0) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(AddressFormatter(address: cardViewModel.wallet?.address ?? "").truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
+                    Text(AddressFormatter(address: cardViewModel.state.wallet?.address ?? "").truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .lineLimit(1)
                         .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
-                        if let url = self.cardViewModel.wallet?.exploreUrl {
+                        if let url = self.cardViewModel.state.wallet?.exploreUrl {
                             UIApplication.shared.open(url, options: [:], completionHandler: nil)
                         }
                     }) {
@@ -74,7 +68,7 @@ struct AddressDetailView: View {
                 }
                 Spacer()
                 Button(action: {
-                    if let address = self.cardViewModel.wallet?.address {
+                    if let address = self.cardViewModel.state.wallet?.address {
                         UIPasteboard.general.string = address
                     }
                 }) {
@@ -88,7 +82,9 @@ struct AddressDetailView: View {
                     }
                 }
                 Button(action: {
-                    self.showQr = true
+                    if self.cardViewModel.state.wallet != nil {
+                        self.showQr = true
+                    }
                 }) {
                     ZStack {
                         Circle()
@@ -102,8 +98,8 @@ struct AddressDetailView: View {
                 .sheet(isPresented: $showQr) {
                     // VStack {
                     //    Spacer()
-                    QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.cardViewModel.wallet!.blockchain.displayName),
-                        shareString: self.cardViewModel.wallet!.shareString)
+                    QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.cardViewModel.state.wallet!.blockchain.displayName),
+                               shareString: self.cardViewModel.state.wallet!.shareString)
                         .transition(AnyTransition.move(edge: .bottom))
                     //   Spacer()
                     // }
@@ -163,7 +159,7 @@ struct AddressDetailView: View {
 }
 
 struct AddressDetailView_Previews: PreviewProvider {
-    @State static var cardViewModel = CardViewModel(card: Card.testCard)
+    @State static var cardViewModel = CardViewModel.previewCardViewModel
     @State static var showPayID = false
     
     static var previews: some View {
