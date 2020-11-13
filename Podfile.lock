@@ -162,7 +162,7 @@ DEPENDENCIES:
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
   - Moya
   - SwiftyJSON
-  - TangemSdk (from `../card-sdk-swift`)
+  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-73`)"
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.3`)
 
 SPEC REPOS:
@@ -208,7 +208,8 @@ EXTERNAL SOURCES:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
   TangemSdk:
-    :path: "../card-sdk-swift"
+    :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
+    :tag: build-73
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.3
@@ -223,6 +224,9 @@ CHECKOUT OPTIONS:
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.8
+  TangemSdk:
+    :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
+    :tag: build-73
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.3
@@ -263,6 +267,6 @@ SPEC CHECKSUMS:
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 087c3b0fda8cabe311d3049f9861d81d2cdcec84
+PODFILE CHECKSUM: 8fb90431924c85a1d95f01e9ec4a42e02e839484
 
 COCOAPODS: 1.9.3
