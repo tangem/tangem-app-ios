@@ -17,6 +17,7 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: DisclaimerView
     @Published var openMainFromDisclaimer: Bool = false
+	@Published var openTwinCardOnboarding: Bool = false
     
     // MARK: SecurityManagementView
     @Published var openWarning: Bool = false
@@ -30,4 +31,8 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: SendView
     @Published var showQR = false
+	
+	// MARK: TwinCardOnboardingView
+	@Published var openMainFromTwinOnboarding: Bool = false
+	@Published var openTwinCardWalletCreation: Bool = false
 }
