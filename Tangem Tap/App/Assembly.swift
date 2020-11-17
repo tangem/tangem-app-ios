@@ -129,6 +129,13 @@ class Assembly {
         vm.ratesService = ratesService
         return vm
     }
+	
+	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
+		let vm: TwinCardOnboardingViewModel = get() ?? TwinCardOnboardingViewModel(state: state)
+		initialize(vm)
+		vm.imageLoader = imageLoaderService
+		return vm
+	}
     
     private func initialize<V: ViewModel>(_ vm: V) {
         vm.navigation = navigationCoordinator
