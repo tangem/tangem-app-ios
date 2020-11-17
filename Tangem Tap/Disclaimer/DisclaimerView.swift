@@ -35,6 +35,10 @@ struct DisclaimerView: View {
                         EmptyView()
                     }
                 }
+				if viewModel.navigation.openTwinCardOnboarding {
+					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(state: .onboarding)),
+								   isActive: $viewModel.navigation.openTwinCardOnboarding)
+				}
             }
         }
         .foregroundColor(.tangemTapGrayDark6)
