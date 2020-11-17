@@ -134,23 +134,17 @@ struct ReadView: View {
                 if viewModel.navigation.openMain {
                     NavigationLink(destination:
                                     MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-                                   isActive: $viewModel.navigation.openMain) {
-                                    EmptyView()
-                    }
+                                   isActive: $viewModel.navigation.openMain)
                 }
                 
                 if viewModel.navigation.openDisclaimer {
                     NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel()),
-                                   isActive: $viewModel.navigation.openDisclaimer) {
-                                      EmptyView()
-                    }
+                                   isActive: $viewModel.navigation.openDisclaimer)
                 }
                 
                 if viewModel.navigation.openShop {
                     NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
-                                   isActive: $viewModel.navigation.openShop) {
-                                  EmptyView()
-                    }
+                                   isActive: $viewModel.navigation.openShop)
                 }
             }
         }
