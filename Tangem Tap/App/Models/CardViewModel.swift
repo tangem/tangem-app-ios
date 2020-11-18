@@ -70,6 +70,19 @@ class CardViewModel: Identifiable, ObservableObject {
             return false
         }
     }
+	
+	var isTwinCard: Bool {
+		// [REDACTED_TODO_COMMENT]
+		if !(cardInfo.card.cardData?.productMask?.contains(.note) ?? false) {
+			return false
+		}
+		
+		if let status = cardInfo.card.status, status == .empty {
+			return false
+		}
+		
+		return true
+	}
     
     var canManageSecurity: Bool {
         cardInfo.card.isPin1Default != nil &&
