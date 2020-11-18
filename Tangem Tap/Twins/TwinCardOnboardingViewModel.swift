@@ -45,10 +45,15 @@ class TwinCardOnboardingViewModel: ViewModel {
 	func buttonAction() {
 		switch state {
 		case .onboarding:
-			navigation.openMainFromTwinOnboarding = true
+			if navigation.showTwinCardOnboarding {
+				navigation.showTwinCardOnboarding = false
+			} else {
+				navigation.openMainFromTwinOnboarding = true
+			}
 		case .warning:
 			navigation.openTwinCardWalletCreation = true
 		}
+		navigation.objectWillChange.send()
 		objectWillChange.send()
 	}
 	
