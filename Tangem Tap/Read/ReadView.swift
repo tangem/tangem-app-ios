@@ -133,14 +133,19 @@ struct ReadView: View {
             
                 if viewModel.navigation.openMain {
                     NavigationLink(destination:
-                                    MainView(viewModel: viewModel.assembly.makeMainViewModel()),
+									MainView(viewModel: viewModel.assembly.makeMainViewModel()),
                                    isActive: $viewModel.navigation.openMain)
                 }
                 
                 if viewModel.navigation.openDisclaimer {
-                    NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel()),
+					NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(for: viewModel.card)),
                                    isActive: $viewModel.navigation.openDisclaimer)
                 }
+				
+				if viewModel.navigation.openTwinCardOnboarding {
+					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(state: .onboarding)),
+								   isActive: $viewModel.navigation.openTwinCardOnboarding)
+				}
                 
                 if viewModel.navigation.openShop {
                     NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
