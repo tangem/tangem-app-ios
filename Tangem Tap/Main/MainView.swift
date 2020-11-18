@@ -217,8 +217,7 @@ struct MainView: View {
                 if viewModel.navigation.showSettings {
                     NavigationLink(
                         destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
-                        isActive: $viewModel.navigation.showSettings,
-                        label: { EmptyView() })
+                        isActive: $viewModel.navigation.showSettings)
                 }
                 
                 if viewModel.navigation.showTopup {
@@ -229,16 +228,20 @@ struct MainView: View {
                                         .onDisappear {
                                             self.viewModel.state.cardModel?.update(silent: true)
                                         },
-                                       isActive: $viewModel.navigation.showTopup) {
-                            EmptyView()
-                        }
+                                       isActive: $viewModel.navigation.showTopup)
                     }
                 }
+				
+				if viewModel.navigation.showTwinCardOnboarding {
+					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(state: .onboarding)),
+								   isActive: $viewModel.navigation.showTwinCardOnboarding)
+				}
             }
         }
         .padding(.bottom, 16.0)
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(viewModel.navigation.showSettings || viewModel.navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
+		.navigationBarHidden(viewModel.navigation.showTwinCardOnboarding)
         .navigationBarItems(trailing: Button(action: {
             if self.viewModel.state.cardModel != nil {
                 self.viewModel.objectWillChange.send()
