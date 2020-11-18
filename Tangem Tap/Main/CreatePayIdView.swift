@@ -48,11 +48,13 @@ struct CreatePayIdView: View {
                             self.isFirstResponder = true
                     }
                     Color.tangemTapGrayLight5
-                        .frame(width: 180, height: 1.0, alignment: .center)
+                        .frame(height: 1.0, alignment: .center)
                 }
                 
                 Text("wallet_create_payid_domain")
                     .font(Font.system(size: 16.0, weight: .regular, design: .default))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                     .foregroundColor(Color.tangemTapGrayDark4)
                     .alignmentGuide(.firstBaselineCustom) { d in
                         d[.bottom] / 2 + 0.35 } //First responder custom shit
@@ -70,7 +72,9 @@ struct CreatePayIdView: View {
             }
             .padding(.bottom, 32.0)
             .fixedSize(horizontal: false, vertical: true)
-            TangemButton(isLoading: self.isLoading, title: "wallet_create_payid_button_title", image: "arrow.right") {
+            TangemLongButton(isLoading: self.isLoading,
+                             title: "wallet_create_payid_button_title",
+                             image: "arrow.right") {
                 if self.isLoading {
                     return
                 }
@@ -89,7 +93,9 @@ struct CreatePayIdView: View {
                         self.alert = error.alertBinder
                     }
                 }
-            }.buttonStyle(TangemButtonStyle(size: .big, colorStyle: .black, isDisabled: payIdText.isEmpty))
+            }
+            .buttonStyle(TangemButtonStyle(color: .black,
+                                            isDisabled: payIdText.isEmpty))
                 .padding(.bottom)
                 .disabled(payIdText.isEmpty)
         }
@@ -104,6 +110,7 @@ struct CreatePayIdView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel(card: Card.testCard)
     static var previews: some View {
         CreatePayIdView(cardId: "CB23 4344 5455 6544")
+            .previewLayout(.fixed(width: 320.0, height: 568))
             .environmentObject(cardViewModel)
     }
 }
