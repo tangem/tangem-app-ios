@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 import BlockchainSdk
+import CryptoKit
 
 class MainViewModel: ObservableObject {
     var sdkService: TangemSdkService
@@ -27,6 +28,7 @@ class MainViewModel: ObservableObject {
     @Published var showSend = false
     @Published var showSendChoise = false
     @Published var showCreatePayID = false
+    @Published var showTopup = false
     
     //Mark: Output
     @Published var error: AlertBinder?
@@ -106,6 +108,32 @@ class MainViewModel: ObservableObject {
     private var updateTimer: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
     
+    var topupURL: URL {
+        var urlComponents = URLComponents()
+        urlComponents.scheme = "https"
+        urlComponents.host = "buy-staging.moonpay.io"
+        
+        var queryItems = [URLQueryItem]()
+        queryItems.append(URLQueryItem(name: "apiKey", value: sdkService.config.moonPayApiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "currencyCode", value: cardViewModel.wallet!.blockchain.currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "walletAddress", value: cardViewModel.wallet!.address.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(URLQueryItem(name: "redirectURL", value: topupCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
+        
+        urlComponents.percentEncodedQueryItems = queryItems
+        let queryData = "?\(urlComponents.percentEncodedQuery!)".data(using: .utf8)!
+        let secretKey = sdkService.config.moonPaySecretApiKey.data(using: .utf8)!
+        let signature = HMAC<SHA256>.authenticationCode(for: queryData, using: SymmetricKey(data: secretKey))
+        
+        queryItems.append(URLQueryItem(name: "signature", value: Data(signature).base64EncodedString().addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        urlComponents.percentEncodedQueryItems = queryItems
+        
+        let url = urlComponents.url!
+        print(url)
+        return url
+    }
+    
+    let topupCloseUrl = "https://success.tangem.com"
+    
     init(cid: String, sdkService: TangemSdkService) {
         self.sdkService = sdkService
         self.cardViewModel = sdkService.cards[cid]!
@@ -169,7 +197,7 @@ class MainViewModel: ObservableObject {
                     self?.error = error.alertBinder
                 }
             }
-              self?.isScanning = false
+            self?.isScanning = false
         }
     }
     
@@ -189,12 +217,23 @@ class MainViewModel: ObservableObject {
         }
     }
     
+    //func topupTapped() {
+//        let urlString = "https://www.hackingwithswift.com"
+//
+//        if let url = URL(string: urlString) {
+//            let vc = SFSafariViewController(url: url, entersReaderIfAvailable: true)
+//            vc.delegate = self
+//
+//            present(vc, animated: true)
+//        }
+   // }
+    
     func sendTapped() {
         if let tokenAmount = cardViewModel.wallet!.amounts[.token], tokenAmount.value > 0 {
             showSendChoise = true
         } else {
             amountToSend = Amount(with: cardViewModel.wallet!.amounts[.coin]!, value: 0)
-           showSendScreen() 
+            showSendScreen() 
         }
     }
     
@@ -214,7 +253,7 @@ class MainViewModel: ObservableObject {
     }
     
     func onAppear() {
-         showUntrustedDisclaimerIfNeeded()
+        showUntrustedDisclaimerIfNeeded()
     }
     
     func startUpdatingTimer() {
