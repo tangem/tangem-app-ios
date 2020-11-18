@@ -49,6 +49,6 @@ struct DisclaimerView: View {
 
 struct DisclaimerView_Previews: PreviewProvider {
     static var previews: some View {
-        DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel())
+		DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel(for: nil))
     }
 }
