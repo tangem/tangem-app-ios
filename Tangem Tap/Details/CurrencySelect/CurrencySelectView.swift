@@ -11,26 +11,22 @@ import SwiftUI
 import Combine
 
 struct CurrencySelectView: View {
-    @EnvironmentObject var cardViewModel: CardViewModel
+    @ObservedObject var viewModel: CurrencySelectViewModel
     @Environment(\.presentationMode) var presentationMode
-    
-    @State private var loading: Bool = false
-    @State private var currencies: [FiatCurrency] = []
-    @State private var error: AlertBinder?
-    @State private var bag = Set<AnyCancellable>()
+
    // [REDACTED_USERNAME] private var selected: String = ""
     var body: some View {
         VStack {
-            if loading {
-                ActivityIndicatorView(isAnimating: true, style: .medium)
+            if viewModel.loading {
+            ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark)
             } else {
-                List (currencies) { currency in
+                List (viewModel.currencies) { currency in
                     HStack {
                         Text("\(currency.name) (\(currency.symbol)) - \(currency.sign)")
                             .font(.system(size: 16, weight: .regular, design: .default))
                             .foregroundColor(.tangemTapGrayDark6)
                         Spacer()
-                        if self.cardViewModel.selectedCurrency == currency.symbol {
+                        if self.viewModel.ratesService.selectedCurrencyCode == currency.symbol {
                             Image("checkmark.circle")
                                 .font(.system(size: 18, weight: .regular, design: .default))
                                 .foregroundColor(Color.tangemTapGreen)
@@ -38,7 +34,8 @@ struct CurrencySelectView: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        self.cardViewModel.selectedCurrency = currency.symbol
+                        self.viewModel.objectWillChange.send()
+                        self.viewModel.ratesService.selectedCurrencyCode = currency.symbol
                        // self.selected = currency.symbol
                     }
                 }
@@ -46,21 +43,8 @@ struct CurrencySelectView: View {
             }
         }
         .onAppear {
-            self.loading = true
-            self.cardViewModel
-                .ratesService?
-                .loadFiatMap()
-                .receive(on: DispatchQueue.main)
-                .sink(receiveCompletion: { completion in
-                    if case let .failure(error) = completion {
-                        self.error = error.alertBinder
-                    }
-                    self.loading = false
-                }, receiveValue: { currencies in
-                    self.currencies = currencies
-                })
-                .store(in: &self.bag)
+            self.viewModel.onAppear()
         }
-        .alert(item: $error) { $0.alert }
+        .alert(item: $viewModel.error) { $0.alert }
     }
 }
