@@ -218,6 +218,21 @@
 
 "twin_warning_message" = "Lorem ipsum dolor sit amet, consectetur adipisc elit. Massa habitant mi mattis in tempor, egestas cursus. Facilisi urna, aliquam quisque feu. Lorem ipsum dolor sit amet, consectetur adipisc elit mas.";
 
+"twin_wallet_creation_navigation_create" = "Create wallet";
+"twin_wallet_creation_navigation_recreate" = "Re-create wallet";
+
+"twin_wallet_creation_step_title_first" = "1st step";
+"twin_wallet_creation_step_title_second" = "2nd step";
+"twin_wallet_creation_step_title_third" = "3rd step";
+
+"twin_wallet_creation_title_tap_first_twin" = "Tap #1 twin card";
+"twin_wallet_creation_title_tap_second_twin" = "Tap #2 twin card";
+
+"twin_wallet_creation_hint" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
+
+"twin_wallet_creation_tap_first_card" = "Tap the card #1";
+"twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
+
 // MARK: - Alert
 
 "alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
