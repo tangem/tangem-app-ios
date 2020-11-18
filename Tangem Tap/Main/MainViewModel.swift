@@ -15,6 +15,7 @@ import TangemSdk
 class MainViewModel: ViewModel {
     weak var imageLoaderService: ImageLoaderService!
     weak var topupService: TopupService!
+	weak var userPrefsService: UserPrefsService!
     
     @Published var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
@@ -197,6 +198,7 @@ class MainViewModel: ViewModel {
                 self?.state = state
                 self?.assembly.reset()
                 self?.showUntrustedDisclaimerIfNeeded()
+				self?.showTwinCardOnboardingIfNeeded()
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
                     self?.error = error.alertBinder
@@ -254,6 +256,19 @@ class MainViewModel: ViewModel {
             error = AlertManager().getAlert(.untrustedCard, for: card)
         }
     }
+	
+	private var naviObs: AnyCancellable!
+	func showTwinCardOnboardingIfNeeded() {
+		guard let model = state.cardModel, model.isTwinCard else { return }
+		
+		if userPrefsService.isTwinCardOnboardingWasDisplayed { return }
+		
+		navigation.showTwinCardOnboarding = true
+		naviObs = navigation.$showTwinCardOnboarding
+			.sink(receiveValue: { _ in
+				self.objectWillChange.send()
+			})
+	}
     
     func onAppear() {
         showUntrustedDisclaimerIfNeeded()
