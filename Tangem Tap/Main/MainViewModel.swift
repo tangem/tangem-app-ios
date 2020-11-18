@@ -256,21 +256,22 @@ class MainViewModel: ViewModel {
             error = AlertManager().getAlert(.untrustedCard, for: card)
         }
     }
+    
+    func onAppear() {
+        showUntrustedDisclaimerIfNeeded()
+    }
 	
 	private var naviObs: AnyCancellable!
-	func showTwinCardOnboardingIfNeeded() {
+	private func showTwinCardOnboardingIfNeeded() {
 		guard let model = state.cardModel, model.isTwinCard else { return }
 		
 		if userPrefsService.isTwinCardOnboardingWasDisplayed { return }
 		
 		navigation.showTwinCardOnboarding = true
+		// [REDACTED_TODO_COMMENT]
 		naviObs = navigation.$showTwinCardOnboarding
 			.sink(receiveValue: { _ in
 				self.objectWillChange.send()
 			})
 	}
-    
-    func onAppear() {
-        showUntrustedDisclaimerIfNeeded()
-    }
 }
