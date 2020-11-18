@@ -137,6 +137,12 @@ class Assembly {
 		vm.imageLoader = imageLoaderService
 		return vm
 	}
+	
+	func makeTwinsWalletCreationViewModel(isRecreating: Bool) -> TwinsWalletCreationViewModel {
+		let vm: TwinsWalletCreationViewModel = get() ?? TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating)
+		initialize(vm)
+		return vm
+	}
     
     private func initialize<V: ViewModel>(_ vm: V) {
         vm.navigation = navigationCoordinator
