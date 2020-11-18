@@ -58,6 +58,7 @@ class Assembly {
         vm.imageLoaderService = imageLoaderService
         vm.topupService = topupService
         vm.state = cardsRepository.cards.first!.value
+		vm.userPrefsService = userPrefsService
         return vm
     }
     
@@ -93,8 +94,8 @@ class Assembly {
         return vm
     }
     
-    func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
-        let vm: DisclaimerViewModel = get() ?? DisclaimerViewModel()
+	func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read, for card: CardViewModel?) -> DisclaimerViewModel {
+		let vm: DisclaimerViewModel = get() ?? DisclaimerViewModel(cardViewModel: card)
         vm.state = state
         vm.userPrefsService = userPrefsService
         initialize(vm)
