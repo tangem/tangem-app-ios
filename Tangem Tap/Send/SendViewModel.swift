@@ -201,9 +201,9 @@ class SendViewModel: ObservableObject {
                     return
                 }
                 
-                if !self.cardViewModel.walletManager!.validate(amount: newAmount) {
+                if let amountError = self.cardViewModel.walletManager!.validate(amount: newAmount) {
                     self.amountValidated = false
-                    self.amountHint = TextHint(isError: true, message: "send_validation_invalid_amount".localized)
+                    self.amountHint = TextHint(isError: true, message: amountError.localizedDescription)
                 } else {
                     self.amountValidated = true
                     self.amountHint = nil
@@ -279,6 +279,7 @@ class SendViewModel: ObservableObject {
                 return self.txSender.getFee(amount: self.amountToSend, destination: dest)
                     .catch { error -> Just<[Amount]> in
                         print(error)
+                        Analytics.log(error: error)
                         return Just([Amount]())
                 }.eraseToAnyPublisher()
         }
@@ -328,16 +329,7 @@ class SendViewModel: ObservableObject {
                     self.amountHint = nil
                     return tx
                 case .failure(let error):
-                    var message: String
-                    if error.contains(.wrongTotal) {
-                        message = "send_validation_invalid_total".localized
-                    } else if  error.contains(.wrongFee) {
-                        message =  "send_validation_invalid_fee".localized
-                    } else {
-                        message = "send_validation_invalid_amount".localized
-                    }
-                    
-                    self.amountHint = TextHint(isError: true, message: message)
+                    self.amountHint = TextHint(isError: true, message: error.errors.first!.localizedDescription)
                     return nil
                 }
         }.sink{[unowned self] tx in
@@ -455,7 +447,6 @@ class SendViewModel: ObservableObject {
         if let payIdTag = self.validatedTag {
             tx.infos[Transaction.InfoKey.destinationTag] = payIdTag
         }
-        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         txSender.send(tx, signer: sdkService.signer)
@@ -470,6 +461,7 @@ class SendViewModel: ObservableObject {
                     Analytics.log(error: error)
                     self.sendError = error.detailedError.alertBinder
                 } else {
+                    Analytics.logTx(blockchainName: self.cardViewModel.card.cardData?.blockchainName)
                     callback()
                 }
                 
