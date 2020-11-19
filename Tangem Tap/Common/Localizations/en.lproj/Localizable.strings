@@ -209,18 +209,31 @@
 
 // MARK: - Twin Cards
 
-"twin_tangem_twin" = "Twin Cards";
+"twins_onboarding_title" = "Tangem Twin";
 
-"twin_description_small" = "One wallet. Two cards.";
+"twins_onboarding_subtitle" = "One wallet. Two cards.";
 
-"twin_description_first" = "This one that you are holding in your hands and the other one with number xxxxxxxxxxxx.";
-"twin_description_second" = "Both cards can be used to extract funds from this wallet.";
+"twins_onboarding_description_format" = "This one that you are holding in your hands and the other one with number %@.\n\nBoth cards can be used to extract funds from this wallet.";
 
-"twin_warning_message" = "Lorem ipsum dolor sit amet, consectetur adipisc elit. Massa habitant mi mattis in tempor, egestas cursus. Facilisi urna, aliquam quisque feu. Lorem ipsum dolor sit amet, consectetur adipisc elit mas.";
+"details_twins_recreate_warning" = "Lorem ipsum dolor sit amet, consectetur adipisc elit. Massa habitant mi mattis in tempor, egestas cursus. Facilisi urna, aliquam quisque feu. Lorem ipsum dolor sit amet, consectetur adipisc elit mas.";
 
-"twin_wallet_creation_navigation_create" = "Create wallet";
-"twin_wallet_creation_navigation_recreate" = "Re-create wallet";
+"details_twins_recreate_toolbar" = "Re-create wallet";
+"details_row_title_twins_create" = "Create wallet";
 
+
+"details_row_title_twins_recreate" = "Re-create twin wallet";
+
+
+"wallet_twins_chip_format" = "Card %d of 2";
+"details_twins_recreate_step_format" = "Step %d";
+"details_twins_recreate_title_format" = "Tap the #%d twin card";
+
+"details_twins_recreate_button_format" = "Tap the card #%d";
+
+"notification_twins_recreate_success" = "The twin address was successfully created";
+
+
+// old
 "twin_wallet_creation_step_title_first" = "1st step";
 "twin_wallet_creation_step_title_second" = "2nd step";
 "twin_wallet_creation_step_title_third" = "3rd step";
@@ -228,7 +241,7 @@
 "twin_wallet_creation_title_tap_first_twin" = "Tap #1 twin card";
 "twin_wallet_creation_title_tap_second_twin" = "Tap #2 twin card";
 
-"twin_wallet_creation_hint" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
+"details_twins_recreate_subtitle" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
 
 "twin_wallet_creation_tap_first_card" = "Tap the card #1";
 "twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
