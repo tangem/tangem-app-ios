@@ -113,6 +113,9 @@
 		B0A943602565010900A7958E /* TwinCardsWalletCreationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9435F2565010900A7958E /* TwinCardsWalletCreationService.swift */; };
 		B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */; };
 		B0C04BBE2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */; };
+		B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
+		B0C87B482566492000F861DE /* TwinCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinCardInfo.swift */; };
+		B0C87B4D2566495C00F861DE /* Card+Twin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B4C2566495C00F861DE /* Card+Twin.swift */; };
 		B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0CE2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift */; };
 		B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
 		E7B877C2D1F9ECC207398075 /* Pods_Tangem_Tap_Tangem_TapUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */; };
@@ -248,6 +251,9 @@
 		B0A9435F2565010900A7958E /* TwinCardsWalletCreationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsWalletCreationService.swift; sourceTree = "<group>"; };
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationLink+EmptyLabel.swift"; sourceTree = "<group>"; };
+		B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsFileCoder.swift; sourceTree = "<group>"; };
+		B0C87B472566492000F861DE /* TwinCardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardInfo.swift; sourceTree = "<group>"; };
+		B0C87B4C2566495C00F861DE /* Card+Twin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+Twin.swift"; sourceTree = "<group>"; };
 		B0C8A0CE2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingView.swift; sourceTree = "<group>"; };
 		B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+PreviewDevice.swift"; sourceTree = "<group>"; };
 		B9F1CD10D9C48557C2894B61 /* Pods-Tangem Tap.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.debug.xcconfig"; sourceTree = "<group>"; };
@@ -332,6 +338,7 @@
 				5D79D3142555ABE700650DD7 /* ImageLoaderService.swift */,
 				5D39514C2556CDDF002CC452 /* TopupService.swift */,
 				B0A9435F2565010900A7958E /* TwinCardsWalletCreationService.swift */,
+				B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -498,6 +505,7 @@
 				5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */,
 				5DBBAB0A24D853B600E78F1C /* Color+.swift */,
 				5DFB499924E554140037E76F /* Card+Preview.swift */,
+				B0C87B4C2566495C00F861DE /* Card+Twin.swift */,
 				5DFE855624EF051400194106 /* Error+.swift */,
 				5DF2522A24F9439D0015B429 /* UIImage+.swift */,
 				5DF2522C24F95E390015B429 /* UIScreen+.swift */,
@@ -529,6 +537,7 @@
 			children = (
 				5DF2522624F914E30015B429 /* TapScanTask.swift */,
 				5DB862B7252396CD00566AA0 /* DefaultSigner.swift */,
+				B0C87B472566492000F861DE /* TwinCardInfo.swift */,
 			);
 			path = TangemSdk;
 			sourceTree = "<group>";
@@ -922,11 +931,14 @@
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
 				5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
+				B0C87B4D2566495C00F861DE /* Card+Twin.swift in Sources */,
 				5DFCCB7624C381A70014A293 /* SendViewModel.swift in Sources */,
 				5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */,
 				5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */,
+				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */,
 				5DFCCB6F24C3728E0014A293 /* MainView.swift in Sources */,
+				B0C87B482566492000F861DE /* TwinCardInfo.swift in Sources */,
 				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
 				B0A943602565010900A7958E /* TwinCardsWalletCreationService.swift in Sources */,
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
