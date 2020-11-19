@@ -14,6 +14,7 @@ struct CardInfo {
     var card: Card
     var verificationState: VerifyCardState?
     var artworkInfo: ArtworkInfo?
+	let twinCardInfo: TwinCardInfo?
 }
 
 enum ScanResult: Equatable {
@@ -65,6 +66,12 @@ class CardsRepository {
     weak var assembly: Assembly!
 
     var cards = [String: ScanResult]()
+	
+	private let twinCardFileDecoder: TwinCardFileDecoder
+	
+	init(twinCardFileDecoder: TwinCardFileDecoder) {
+		self.twinCardFileDecoder = twinCardFileDecoder
+	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
@@ -83,7 +90,8 @@ class CardsRepository {
                 
                 let cardInfo = CardInfo(card: response.card,
                                         verificationState: response.verifyResponse.verificationState,
-                                        artworkInfo: response.verifyResponse.artworkInfo)
+										artworkInfo: response.verifyResponse.artworkInfo,
+										twinCardInfo: self.decodeTwinFile(from: response))
                 
                
                 let cm = self.assembly.makeCardModel(from: cardInfo)
@@ -93,4 +101,20 @@ class CardsRepository {
             }
         }
     }
+	
+	private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
+		guard
+			response.files.count > 0,
+			let twinSeries = TwinCardSeries.series(for: response.card.cardId)
+			else { return nil }
+		for file in response.files {
+			do {
+				let twinFile = try twinCardFileDecoder.decode(file)
+				return TwinCardInfo(series: twinSeries, pairPublicKey: twinFile.publicKey)
+			} catch {
+				print("File doesn't contain twin card dara")
+			}
+		}
+		return nil
+	}
 }
