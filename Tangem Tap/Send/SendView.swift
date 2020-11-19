@@ -42,7 +42,9 @@ struct SendView: View {
                                                 handleKeyboard: true,
                                                 textColor: UIColor.tangemTapGrayDark6,
                                                 font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
-                                                placeholder: "send_destination_hint".localized)
+												placeholder: self.viewModel.isPayIdSupported ?
+													"send_destination_hint".localized :
+													"send_destination_hint_address".localized)
                                 
 //                                TextField("send_destination_hint",
 //                                          text: self.$viewModel.destination,
