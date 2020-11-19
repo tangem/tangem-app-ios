@@ -80,13 +80,11 @@ struct TwinCardOnboardingView: View {
 			return VStack {
 				Spacer()
 				VStack(alignment: .leading, spacing: 16) {
-					Text("twin_tangem_twin")
+					Text("twins_onboarding_title")
 						.font(.system(size: 30, weight: .bold))
-					Text("twin_description_small")
+					Text("twins_onboarding_subtitle")
 						.font(.system(size: 17, weight: .medium))
-					Text("twin_description_first")
-						.foregroundColor(.tangemTapGrayDark3)
-					Text("twin_description_second")
+					Text("twins_onboarding_description_format")
 						.foregroundColor(.tangemTapGrayDark3)
 				}
 				.font(.system(size: 14, weight: .regular))
@@ -114,7 +112,7 @@ struct TwinCardOnboardingView: View {
 							Text("common_warning")
 								.font(.system(size: 30, weight: .bold))
 						}
-						Text("twin_warning_message")
+						Text("details_twins_recreate_warning")
 							.foregroundColor(.tangemTapGrayDark3)
 					}
 					.font(.system(size: 14, weight: .regular))
