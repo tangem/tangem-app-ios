@@ -34,7 +34,7 @@ class Assembly {
     }()
     
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository()
+		let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder())
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         return crepo
@@ -175,7 +175,8 @@ extension Assembly {
         let assembly = Assembly()
         let ci = CardInfo(card: Card.testCard,
                           verificationState: nil,
-                          artworkInfo: nil)
+						  artworkInfo: nil,
+						  twinCardInfo: nil)
         let vm = assembly.makeCardModel(from: ci)!
         let scanResult = ScanResult.card(model: vm)
         assembly.cardsRepository.cards[Card.testCard.cardId!] = scanResult
