@@ -16,6 +16,13 @@ enum ScanError: Error {
 struct TapScanTaskResponse: ResponseCodable {
     let card: Card
     let verifyResponse: VerifyCardResponse
+	let files: [File]
+	
+	internal init(card: Card, verifyResponse: VerifyCardResponse, files: [File] = []) {
+		self.card = card
+		self.verifyResponse = verifyResponse
+		self.files = files
+	}
 }
 
 final class TapScanTask: CardSessionRunnable {
@@ -68,10 +75,26 @@ final class TapScanTask: CardSessionRunnable {
         verifyCommand.run(in: session) { verifyResult in
             switch verifyResult {
             case .success(let verifyResponse):
-                completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse)))
+				if card.isTwinCard {
+					self.readFiles(card, verifyResponse: verifyResponse, session: session, completion: completion)
+				} else {
+					completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse)))
+				}
             case .failure(let error):
                 completion(.failure(error))
             }
         }
     }
+	
+	private func readFiles(_ card: Card, verifyResponse: VerifyCardResponse, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+		let filesTask = ReadFilesTask(settings: .init(readPrivateFiles: false))
+		filesTask.run(in: session) { filesResponse in
+			switch filesResponse {
+			case .success(let filesResponse):
+				completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse, files: filesResponse.files)))
+			case .failure(let error):
+				completion(.failure(error))
+			}
+		}
+	}
 }
