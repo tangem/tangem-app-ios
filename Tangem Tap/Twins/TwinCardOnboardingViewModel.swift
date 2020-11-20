@@ -7,16 +7,24 @@
 //
 
 import Combine
+import SwiftUI
 
 class TwinCardOnboardingViewModel: ViewModel {
 	
 	enum State {
-		case onboarding, warning
+		case onboarding(withPairCid: String), warning
 		
 		var backgroundName: String {
 			switch self {
 			case .onboarding: return "TwinBackGrey"
 			case .warning: return "TwinBackOrange"
+			}
+		}
+		
+		var buttonTitle: LocalizedStringKey {
+			switch self {
+			case .onboarding: return "common_continue"
+			case .warning: return "common_start"
 			}
 		}
 	}
