@@ -88,6 +88,7 @@ class CardsRepository {
                 
                 Analytics.logScan(card: response.card)
                 
+				let luhn = self.luhn(cid: response.card.cardId ?? "")
                 let cardInfo = CardInfo(card: response.card,
                                         verificationState: response.verifyResponse.verificationState,
 										artworkInfo: response.verifyResponse.artworkInfo,
@@ -107,14 +108,30 @@ class CardsRepository {
 			response.files.count > 0,
 			let twinSeries = TwinCardSeries.series(for: response.card.cardId)
 			else { return nil }
+		
 		for file in response.files {
 			do {
 				let twinFile = try twinCardFileDecoder.decode(file)
-				return TwinCardInfo(series: twinSeries, pairPublicKey: twinFile.publicKey)
+				return TwinCardInfo(series: twinSeries, pairCid: response.card.cardId ?? "", pairPublicKey: twinFile.publicKey)
 			} catch {
 				print("File doesn't contain twin card dara")
 			}
 		}
 		return nil
+	}
+	
+	private func luhn(cid: String) -> Int {
+		let result = cid.enumerated()
+			.reduce(0, {
+				var int = ($1.element.hexDigitValue ?? 0)
+				int -= int < 10 ? 0 : 0xA
+				if $1.offset % 2 != 0 {
+					return $0 + int
+				} else {
+					let doubled = int * 2
+					return $0 + (doubled > 10 ? doubled - 9 : doubled)
+				}
+			})
+		return result
 	}
 }
