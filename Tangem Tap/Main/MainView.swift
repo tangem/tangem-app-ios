@@ -233,7 +233,7 @@ struct MainView: View {
                 }
 				
 				if viewModel.navigation.showTwinCardOnboarding {
-					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(state: .onboarding)),
+					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
 								   isActive: $viewModel.navigation.showTwinCardOnboarding)
 				}
             }
