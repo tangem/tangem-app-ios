@@ -65,7 +65,7 @@ struct TwinsWalletCreationView: View {
 		.padding(.horizontal, 24)
 		.background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
 		.foregroundColor(.tangemTapGrayDark6)
-		.navigationBarTitle(viewModel.isRecreatingWallet ? "twin_wallet_creation_navigation_recreate" : "twin_wallet_creation_navigation_create")
+		.navigationBarTitle(viewModel.isRecreatingWallet ? "details_twins_recreate_toolbar" : "details_row_title_twins_create")
 		.navigationBarBackButtonHidden(false)
 		.navigationBarHidden(false)
     }
