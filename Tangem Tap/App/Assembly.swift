@@ -57,7 +57,7 @@ class Assembly {
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
         vm.topupService = topupService
-        vm.state = cardsRepository.cards.first!.value
+        vm.state = cardsRepository.lastScanResult
 		vm.userPrefsService = userPrefsService
         return vm
     }
@@ -94,8 +94,8 @@ class Assembly {
         return vm
     }
     
-	func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read, for card: CardViewModel?) -> DisclaimerViewModel {
-		let vm: DisclaimerViewModel = get() ?? DisclaimerViewModel(cardViewModel: card)
+	func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
+		let vm: DisclaimerViewModel = get() ?? DisclaimerViewModel(cardViewModel: cardsRepository.lastScanResult.cardModel)
         vm.state = state
         vm.userPrefsService = userPrefsService
         initialize(vm)
@@ -130,6 +130,16 @@ class Assembly {
         vm.ratesService = ratesService
         return vm
     }
+	
+	func makeTwinCardOnboardingViewModel() -> TwinCardOnboardingViewModel {
+		let scanResult = cardsRepository.lastScanResult
+		let twinPairCid = scanResult.cardModel?.cardInfo.twinCardInfo?.pairCid
+		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid ?? ""))
+	}
+	
+	func makeTwinCardWarningViewModel() -> TwinCardOnboardingViewModel {
+		makeTwinCardOnboardingViewModel(state: .warning)
+	}
 	
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
 		let vm: TwinCardOnboardingViewModel = get() ?? TwinCardOnboardingViewModel(state: state)
