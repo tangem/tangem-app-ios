@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import TangemSdk
 
-enum PayIdStatus {
+enum PayIdStatus: Equatable {
     case notCreated
     case created(payId: String)
     case notSupported
