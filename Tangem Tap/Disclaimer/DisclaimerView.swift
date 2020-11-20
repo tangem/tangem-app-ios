@@ -36,7 +36,7 @@ struct DisclaimerView: View {
                     }
                 }
 				if viewModel.navigation.openTwinCardOnboarding {
-					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(state: .onboarding)),
+					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
 								   isActive: $viewModel.navigation.openTwinCardOnboarding)
 				}
             }
@@ -49,6 +49,6 @@ struct DisclaimerView: View {
 
 struct DisclaimerView_Previews: PreviewProvider {
     static var previews: some View {
-		DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel(for: nil))
+		DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel())
     }
 }
