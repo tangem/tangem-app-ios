@@ -61,7 +61,7 @@ struct TwinCardOnboardingView: View {
 							   isActive: $viewModel.navigation.openMainFromTwinOnboarding)
 			}
 			if viewModel.navigation.openTwinCardWalletCreation {
-				NavigationLink(destination: EmptyView(),
+				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
 							   isActive: $viewModel.navigation.openTwinCardWalletCreation)
 			}
 		}
