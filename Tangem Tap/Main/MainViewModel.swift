@@ -111,8 +111,9 @@ class MainViewModel: ObservableObject {
     var topupURL: URL {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
-        urlComponents.host = "buy-staging.moonpay.io"
-        
+        //urlComponents.host = "buy-staging.moonpay.io" //dev
+        urlComponents.host = "buy.moonpay.io"
+      
         var queryItems = [URLQueryItem]()
         queryItems.append(URLQueryItem(name: "apiKey", value: sdkService.config.moonPayApiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(URLQueryItem(name: "currencyCode", value: cardViewModel.wallet!.blockchain.currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
