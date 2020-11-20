@@ -138,12 +138,12 @@ struct ReadView: View {
                 }
                 
                 if viewModel.navigation.openDisclaimer {
-					NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(for: viewModel.card)),
+					NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel()),
                                    isActive: $viewModel.navigation.openDisclaimer)
                 }
 				
 				if viewModel.navigation.openTwinCardOnboarding {
-					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(state: .onboarding)),
+					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
 								   isActive: $viewModel.navigation.openTwinCardOnboarding)
 				}
                 
