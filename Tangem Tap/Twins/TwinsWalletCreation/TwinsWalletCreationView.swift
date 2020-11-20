@@ -29,7 +29,6 @@ struct TwinsWalletCreationView: View {
 			Text(viewModel.step.stepTitle)
 				.font(.system(size: 30, weight: .bold))
 				.foregroundColor(.tangemTapBlue)
-				.frame(width: .infinity)
 			HStack {
 				SimpleProgressBar(isSelected: true)
 				SimpleProgressBar(isSelected: viewModel.step >= .second)
@@ -60,7 +59,7 @@ struct TwinsWalletCreationView: View {
 				}
 				.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
 			}
-			
+			.padding(.bottom, 16)
 		}
 		.padding(.horizontal, 24)
 		.background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
