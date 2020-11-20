@@ -75,8 +75,17 @@ struct TwinCardOnboardingView: View {
 	}
 	
 	private func content() -> some View {
+		let bottomButton = HStack {
+			Spacer()
+			TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: {
+					  self.viewModel.buttonAction()
+				  })
+				  .buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
+				  .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 34))
+			  }
+		
 		switch viewModel.state {
-		case .onboarding:
+		case .onboarding(let pairCid):
 			return VStack {
 				Spacer()
 				VStack(alignment: .leading, spacing: 16) {
@@ -84,21 +93,14 @@ struct TwinCardOnboardingView: View {
 						.font(.system(size: 30, weight: .bold))
 					Text("twins_onboarding_subtitle")
 						.font(.system(size: 17, weight: .medium))
-					Text("twins_onboarding_description_format")
+					Text(String(format: "twins_onboarding_description_format".localized, pairCid))
 						.foregroundColor(.tangemTapGrayDark3)
 				}
 				.font(.system(size: 14, weight: .regular))
 				.lineSpacing(8)
 				.padding(.horizontal, 37)
 				.padding(.bottom, 28)
-				HStack {
-					Spacer()
-					TangemLongButton(isLoading: false, title: "common_continue", image: "arrow.right", action: {
-						self.viewModel.buttonAction()
-					})
-					.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
-					.padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 34))
-				}
+				bottomButton
 			}.toAnyView()
 		case .warning:
 			return VStack {
@@ -119,14 +121,7 @@ struct TwinCardOnboardingView: View {
 					.lineSpacing(8)
 					.padding(.horizontal, 37)
 					.padding(.bottom, 44)
-					HStack {
-						Spacer()
-						TangemLongButton(isLoading: false, title: "common_start", image: "arrow.right", action: {
-							self.viewModel.buttonAction()
-						})
-						.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
-						.padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 34))
-					}
+					bottomButton
 				}
 			}.toAnyView()
 		}
@@ -143,7 +138,7 @@ struct TwinCardOnboardingView: View {
 
 struct TwinCardOnboardingView_Previews: PreviewProvider {
 	static var previews: some View {
-		TwinCardOnboardingView(viewModel: Assembly.previewAssembly.makeTwinCardOnboardingViewModel(state: .onboarding))
+		TwinCardOnboardingView(viewModel: Assembly.previewAssembly.makeTwinCardOnboardingViewModel())
 			.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone11Pro, .iPhone11ProMax])
 	}
 }
