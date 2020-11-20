@@ -71,7 +71,7 @@ struct DetailsView: View {
                         
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-				NavigationLink(destination:DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read, for: nil))
+				NavigationLink(destination:DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
                                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))) {
                                        DetailsRowView(title: "disclaimer_title".localized,
                                                       subtitle: "")
