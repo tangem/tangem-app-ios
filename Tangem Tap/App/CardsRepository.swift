@@ -20,6 +20,7 @@ struct CardInfo {
 enum ScanResult: Equatable {
     case card(model: CardViewModel)
     case unsupported
+	case notScannedYet
     
     var wallet: Wallet? {
         switch self {
@@ -49,15 +50,14 @@ enum ScanResult: Equatable {
     }
 
     static func == (lhs: ScanResult, rhs: ScanResult) -> Bool {
-        if case .card = lhs, case .card = rhs {
-            return true
-        }
-
-        if case .unsupported = lhs, case .unsupported = rhs {
-            return true
-        }
-
-        return false
+		switch (lhs, rhs) {
+		
+		case (.card, .card): return true
+		case (.unsupported, .unsupported): return true
+		case (.notScannedYet, .notScannedYet): return true
+		default:
+			return false
+		}
     }
 }
 
@@ -66,6 +66,7 @@ class CardsRepository {
     weak var assembly: Assembly!
 
     var cards = [String: ScanResult]()
+	private(set) var lastScanResult: ScanResult = .notScannedYet
 	
 	private let twinCardFileDecoder: TwinCardFileDecoder
 	
@@ -88,7 +89,6 @@ class CardsRepository {
                 
                 Analytics.logScan(card: response.card)
                 
-				let luhn = self.luhn(cid: response.card.cardId ?? "")
                 let cardInfo = CardInfo(card: response.card,
                                         verificationState: response.verifyResponse.verificationState,
 										artworkInfo: response.verifyResponse.artworkInfo,
@@ -98,6 +98,7 @@ class CardsRepository {
                 let cm = self.assembly.makeCardModel(from: cardInfo)
                 let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
                 self.cards[cardInfo.card.cardId!] = res
+				self.lastScanResult = res
                 completion(.success(res))
             }
         }
@@ -105,33 +106,22 @@ class CardsRepository {
 	
 	private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
 		guard
-			response.files.count > 0,
+			let cardId = response.card.cardId,
+			let pairCid = TwinCardsUtils.makePairCid(for: cardId),
 			let twinSeries = TwinCardSeries.series(for: response.card.cardId)
 			else { return nil }
 		
+		var pairPublicKey: Data?
 		for file in response.files {
 			do {
 				let twinFile = try twinCardFileDecoder.decode(file)
-				return TwinCardInfo(series: twinSeries, pairCid: response.card.cardId ?? "", pairPublicKey: twinFile.publicKey)
+				pairPublicKey = twinFile.publicKey
+				break
 			} catch {
 				print("File doesn't contain twin card dara")
 			}
 		}
-		return nil
+		return TwinCardInfo(series: twinSeries, pairCid: pairCid, pairPublicKey: pairPublicKey)
 	}
 	
-	private func luhn(cid: String) -> Int {
-		let result = cid.enumerated()
-			.reduce(0, {
-				var int = ($1.element.hexDigitValue ?? 0)
-				int -= int < 10 ? 0 : 0xA
-				if $1.offset % 2 != 0 {
-					return $0 + int
-				} else {
-					let doubled = int * 2
-					return $0 + (doubled > 10 ? doubled - 9 : doubled)
-				}
-			})
-		return result
-	}
 }
