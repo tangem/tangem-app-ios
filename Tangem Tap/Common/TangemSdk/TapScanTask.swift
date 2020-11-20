@@ -75,7 +75,7 @@ final class TapScanTask: CardSessionRunnable {
         verifyCommand.run(in: session) { verifyResult in
             switch verifyResult {
             case .success(let verifyResponse):
-				if card.isTwinCard {
+				if card.firmwareVersionValue ?? 0.0 >= 3.37, card.isTwinCard {
 					self.readFiles(card, verifyResponse: verifyResponse, session: session, completion: completion)
 				} else {
 					completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse)))
