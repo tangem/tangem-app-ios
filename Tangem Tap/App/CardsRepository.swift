@@ -66,7 +66,7 @@ class CardsRepository {
     weak var assembly: Assembly!
 
     var cards = [String: ScanResult]()
-	private(set) var lastScanResult: ScanResult = .notScannedYet
+	var lastScanResult: ScanResult = .notScannedYet
 	
 	private let twinCardFileDecoder: TwinCardFileDecoder
 	
@@ -121,7 +121,7 @@ class CardsRepository {
 				print("File doesn't contain twin card dara")
 			}
 		}
-		return TwinCardInfo(series: twinSeries, pairCid: pairCid, pairPublicKey: pairPublicKey)
+		return TwinCardInfo(cid: cardId, series: twinSeries, pairCid: pairCid, pairPublicKey: pairPublicKey)
 	}
 	
 }
