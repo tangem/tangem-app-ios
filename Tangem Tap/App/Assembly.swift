@@ -143,13 +143,18 @@ class Assembly {
 	
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
 		let vm: TwinCardOnboardingViewModel = get() ?? TwinCardOnboardingViewModel(state: state)
+		vm.state = state
 		initialize(vm)
+		vm.userPrefsService = userPrefsService
 		vm.imageLoader = imageLoaderService
 		return vm
 	}
 	
 	func makeTwinsWalletCreationViewModel(isRecreating: Bool) -> TwinsWalletCreationViewModel {
-		let vm: TwinsWalletCreationViewModel = get() ?? TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating)
+		let service = TwinsWalletCreationService(tangemSdk: tangemSdk,
+												 twinFileEncoder: TwinCardTlvFileEncoder(),
+												 twinInfo: cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo!)
+		let vm: TwinsWalletCreationViewModel = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating, walletCreationService: service)
 		initialize(vm)
 		return vm
 	}
@@ -186,10 +191,11 @@ extension Assembly {
         let ci = CardInfo(card: Card.testCard,
                           verificationState: nil,
 						  artworkInfo: nil,
-						  twinCardInfo: nil)
+						  twinCardInfo: TwinCardInfo(cid: "BB04000000006522", series: .dev4, pairCid: "BB05000000006521", pairPublicKey: nil))
         let vm = assembly.makeCardModel(from: ci)!
         let scanResult = ScanResult.card(model: vm)
         assembly.cardsRepository.cards[Card.testCard.cardId!] = scanResult
+		assembly.cardsRepository.lastScanResult = scanResult
         return assembly
     }
 }
