@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class NavigationCoordinator: ObservableObject {
     // MARK: ReadView
@@ -29,6 +30,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var showCreatePayID = false
     @Published var showTopup = false
 	@Published var showTwinCardOnboarding = false
+	@Published var showTwinsWalletCreation = false
     
     // MARK: SendView
     @Published var showQR = false
