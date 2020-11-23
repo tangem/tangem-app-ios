@@ -227,6 +227,7 @@
 "wallet_twins_chip_format" = "Card %d of 2";
 "details_twins_recreate_step_format" = "Step %d";
 "details_twins_recreate_title_format" = "Tap the #%d twin card";
+"details_twins_recreate_subtitle" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
 
 "details_twins_recreate_button_format" = "Tap the card #%d";
 
@@ -240,8 +241,6 @@
 
 "twin_wallet_creation_title_tap_first_twin" = "Tap #1 twin card";
 "twin_wallet_creation_title_tap_second_twin" = "Tap #2 twin card";
-
-"details_twins_recreate_subtitle" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
 
 "twin_wallet_creation_tap_first_card" = "Tap the card #1";
 "twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
