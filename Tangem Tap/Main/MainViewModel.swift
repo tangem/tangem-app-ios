@@ -17,7 +17,7 @@ class MainViewModel: ViewModel {
     weak var topupService: TopupService!
 	weak var userPrefsService: UserPrefsService!
     
-    @Published var navigation: NavigationCoordinator!
+	var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     var config: Config!
     
@@ -114,7 +114,10 @@ class MainViewModel: ViewModel {
             && $0.destinationAddress != "unknown"
         }
     }
-    
+	
+	var cardNumber: Int? {
+		state.cardModel?.cardInfo.twinCardInfo?.series.number
+	}
 
     func bind() {
         bag = Set<AnyCancellable>()
@@ -212,20 +215,24 @@ class MainViewModel: ViewModel {
         guard let cardModel = state.cardModel else {
             return
         }
-        
-        self.isCreatingWallet = true
-        cardModel.createWallet() { [weak self] result in
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                if case .userCancelled = error.toTangemSdkError() {
-                    return
-                }
-                self?.error = error.alertBinder
-            }
-            self?.isCreatingWallet = false
-        }
+		
+		if cardModel.isTwinCard {
+			navigation.showTwinsWalletCreation = true
+		} else {
+			self.isCreatingWallet = true
+			cardModel.createWallet() { [weak self] result in
+				switch result {
+				case .success:
+					break
+				case .failure(let error):
+					if case .userCancelled = error.toTangemSdkError() {
+						return
+					}
+					self?.error = error.alertBinder
+				}
+				self?.isCreatingWallet = false
+			}
+		}
     }
     
     func sendTapped() {
@@ -261,17 +268,11 @@ class MainViewModel: ViewModel {
         showUntrustedDisclaimerIfNeeded()
     }
 	
-	private var naviObs: AnyCancellable!
 	private func showTwinCardOnboardingIfNeeded() {
 		guard let model = state.cardModel, model.isTwinCard else { return }
 		
 		if userPrefsService.isTwinCardOnboardingWasDisplayed { return }
 		
 		navigation.showTwinCardOnboarding = true
-		// [REDACTED_TODO_COMMENT]
-		naviObs = navigation.$showTwinCardOnboarding
-			.sink(receiveValue: { _ in
-				self.objectWillChange.send()
-			})
 	}
 }
