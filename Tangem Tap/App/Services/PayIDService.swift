@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
-enum PayIdStatus {
+enum PayIdStatus: Equatable {
     case notCreated
     case created(payId: String)
     case notSupported
