@@ -145,10 +145,9 @@ struct MainView: View {
                                          EmptyView()
                                     }
                                 }
+                                AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID)
+                                    .environmentObject(self.viewModel.state.cardModel!)
                             }
-                            
-                            AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID)
-                                .environmentObject(self.viewModel.state.cardModel!)
                         }
                     }
                 }
