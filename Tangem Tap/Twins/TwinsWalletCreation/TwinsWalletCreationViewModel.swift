@@ -11,77 +11,116 @@ import SwiftUI
 
 class TwinsWalletCreationViewModel: ViewModel {
 	
-	enum Step: Comparable {
-		case first, second, third
+	enum Step: Int, Comparable, CaseIterable {
+		static func < (lhs: TwinsWalletCreationViewModel.Step, rhs: TwinsWalletCreationViewModel.Step) -> Bool {
+			lhs.rawValue < rhs.rawValue
+		}
 		
-		var stepTitle: LocalizedStringKey {
+		case first = 1, second, third, dismiss
+		
+		var cardNumberToInteractWith: Int {
 			switch self {
-			case .first: return "twin_wallet_creation_step_title_first"
-			case .second: return "twin_wallet_creation_step_title_second"
-			case .third: return "twin_wallet_creation_step_title_third"
+			case .second: return 2
+			default: return 1
 			}
 		}
 		
-		var title: LocalizedStringKey {
-			switch self {
-			case .first, .third: return "twin_wallet_creation_title_tap_first_twin"
-			case .second: return "twin_wallet_creation_title_tap_second_twin"
-			}
+		var stepTitle: String {
+			String(format: "details_twins_recreate_step_format".localized, rawValue)
+		}
+		
+		var title: String {
+			String(format: "details_twins_recreate_title_format".localized, cardNumberToInteractWith)
 		}
 		
 		var hint: LocalizedStringKey {
-			"twin_wallet_creation_hint"
+			"details_twins_recreate_subtitle"
 		}
 		
 		var buttonTitle: LocalizedStringKey {
-			switch self {
-			case .first, .third: return "twin_wallet_creation_tap_first_card"
-			case .second: return "twin_wallet_creation_tap_second_card"
-			}
+			LocalizedStringKey(String(format: "details_twins_recreate_button_format".localized, cardNumberToInteractWith))
 		}
 		
 		func nextStep() -> Step {
 			switch self {
 			case .first: return .second
 			case .second: return .third
-			case .third: return .first
+			default: return .dismiss
+			}
+		}
+		
+		static func uiStep(from step: TwinsWalletCreationService.CreationStep) -> Step {
+			switch step {
+			case .first: return .first
+			case .second: return .second
+			case .third: return .third
+			case .done: return .dismiss
 			}
 		}
 	}
 	
 	@Published var navigation: NavigationCoordinator!
 	@Published var step: Step = .first
+	@Published var error: AlertBinder?
+	@Published var doneAlertPresented: Bool = false
+	
+	private(set) var shouldDismiss: Bool = false
 	
 	weak var assembly: Assembly!
 	
 	let isRecreatingWallet: Bool
 	
-	init(isRecreatingWallet: Bool) {
+	private var walletCreationService: TwinsWalletCreationService
+	
+	private var bag = Set<AnyCancellable>()
+	
+	init(isRecreatingWallet: Bool, walletCreationService: TwinsWalletCreationService) {
 		self.isRecreatingWallet = isRecreatingWallet
+		self.walletCreationService = walletCreationService
+		bind()
 	}
 	
 	func buttonAction() {
+		walletCreationService.executeCurrentStep()
+	}
+	
+	func backAction() {
 		switch step {
 		case .first:
-			firstStepScan()
+			if navigation.showTwinsWalletCreation {
+				navigation.showTwinsWalletCreation = false
+			}
 		case .second:
-			secondStepScan()
+			step = .first
 		case .third:
-			thirdStepScan()
+			step = .second
+		default: return
 		}
-		step = step.nextStep()
 	}
 	
-	private func firstStepScan() {
-	}
-	
-	private func secondStepScan() {
-	}
-	
-	private func thirdStepScan() {
+	private func bind() {
+		walletCreationService.step
+			.dropFirst()
+			.receive(on: DispatchQueue.main)
+			.sink(receiveValue: { [weak self] in
+				if $0 == .done {
+					self?.done()
+				} else {
+					self?.step = .uiStep(from: $0)
+				}
+			})
+			.store(in: &bag)
+		
+		walletCreationService.occuredError
+			.receive(on: DispatchQueue.main)
+			.sink(receiveValue: { [weak self] in
+				self?.error = $0.alertBinder
+			})
+			.store(in: &bag)
 	}
 	
 	private func done() {
+		self.doneAlertPresented = true
 	}
 	
 }
