@@ -11,7 +11,7 @@ import SwiftUI
 
 class TwinCardOnboardingViewModel: ViewModel {
 	
-	enum State {
+	enum State: Equatable {
 		case onboarding(withPairCid: String), warning
 		
 		var backgroundName: String {
@@ -29,12 +29,12 @@ class TwinCardOnboardingViewModel: ViewModel {
 		}
 	}
 	
-	@Published var navigation: NavigationCoordinator!
-	
+	weak var navigation: NavigationCoordinator!
 	weak var assembly: Assembly!
 	weak var imageLoader: ImageLoaderService!
+	weak var userPrefsService: UserPrefsService!
 	
-	let state: State
+	var state: State
 	
 	private var bag = Set<AnyCancellable>()
 	
@@ -58,11 +58,10 @@ class TwinCardOnboardingViewModel: ViewModel {
 			} else {
 				navigation.openMainFromTwinOnboarding = true
 			}
+			userPrefsService.isTwinCardOnboardingWasDisplayed = true
 		case .warning:
 			navigation.openTwinCardWalletCreation = true
 		}
-		navigation.objectWillChange.send()
-		objectWillChange.send()
 	}
 	
 }
