@@ -18,7 +18,7 @@ class MainViewModel: ViewModel {
     
     @Published var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    var config: Config!
+    var config: AppConfig!
     
     var amountToSend: Amount? = nil
     var bag = Set<AnyCancellable>()
