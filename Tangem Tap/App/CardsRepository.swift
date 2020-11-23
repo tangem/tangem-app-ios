@@ -95,7 +95,9 @@ class CardsRepository {
                 let cm = self.assembly.makeCardModel(from: cardInfo)
                 let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
                 self.cards[cardInfo.card.cardId!] = res
-                completion(.success(res))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    completion(.success(res))
+                }
             }
         }
     }
