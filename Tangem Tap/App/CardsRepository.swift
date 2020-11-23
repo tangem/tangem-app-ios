@@ -88,8 +88,8 @@ class CardsRepository {
                                         artworkInfo: response.verifyResponse.artworkInfo)
                 
                
-                if !featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
-                    tangemSdk.config.linkedTerminal = false
+                if !self.featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
+                    self.tangemSdk.config.linkedTerminal = false
                 }
                 
                 let cm = self.assembly.makeCardModel(from: cardInfo)
