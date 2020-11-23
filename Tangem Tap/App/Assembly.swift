@@ -44,7 +44,11 @@ class Assembly {
     private var modelsStorage = [String : Any]()
     
     func makeReadViewModel() -> ReadViewModel {
-        let vm: ReadViewModel = get() ?? ReadViewModel()
+        if let restored: ReadViewModel = get() {
+            return restored
+        }
+        
+        let vm =  ReadViewModel()
         initialize(vm)
         vm.userPrefsService = userPrefsService
         vm.cardsRepository = cardsRepository
@@ -52,7 +56,10 @@ class Assembly {
     }
     
     func makeMainViewModel() -> MainViewModel {
-        let vm: MainViewModel = get() ?? MainViewModel()
+        if let restored: MainViewModel = get() {
+            return restored
+        }
+        let vm =  MainViewModel()
         initialize(vm)
         vm.config = config
         vm.cardsRepository = cardsRepository
@@ -95,7 +102,11 @@ class Assembly {
     }
     
     func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
-        let vm: DisclaimerViewModel = get() ?? DisclaimerViewModel()
+        if let restored: DisclaimerViewModel = get() {
+            return restored
+        }
+        
+        let vm =  DisclaimerViewModel()
         vm.state = state
         vm.userPrefsService = userPrefsService
         initialize(vm)
@@ -103,7 +114,11 @@ class Assembly {
     }
     
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
-        let vm: DetailsViewModel = get() ?? DetailsViewModel(cardModel: card)
+        if let restored: DetailsViewModel = get() {
+            return restored
+        }
+        
+        let vm =  DetailsViewModel(cardModel: card)
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.ratesService = ratesService
@@ -111,21 +126,33 @@ class Assembly {
     }
     
     func makeSecurityManagementViewModel(with card: CardViewModel) -> SecurityManagementViewModel {
-        let vm: SecurityManagementViewModel = get() ?? SecurityManagementViewModel()
+        if let restored: SecurityManagementViewModel = get() {
+            return restored
+        }
+        
+        let vm = SecurityManagementViewModel()
         initialize(vm)
         vm.cardViewModel = card
         return vm
     }
     
     func makeCurrencySelectViewModel() -> CurrencySelectViewModel {
-        let vm: CurrencySelectViewModel = get() ?? CurrencySelectViewModel()
+        if let restored: CurrencySelectViewModel = get() {
+            return restored
+        }
+        
+        let vm =  CurrencySelectViewModel()
         initialize(vm)
         vm.ratesService = ratesService
         return vm
     }
     
     func makeSendViewModel(with amount: Amount, card: CardViewModel) -> SendViewModel {
-        let vm: SendViewModel = get() ?? SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
+        if let restored: SendViewModel = get() {
+            return restored
+        }
+        
+        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
         initialize(vm)
         vm.ratesService = ratesService
         return vm
