@@ -18,7 +18,7 @@ class TopupService {
     func getTopupURL(currencySymbol: String, walletAddress: String) -> URL {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
-        urlComponents.host = "buy-staging.moonpay.io"
+        urlComponents.host = "buy.moonpay.io"
         
         var queryItems = [URLQueryItem]()
         queryItems.append(URLQueryItem(name: "apiKey", value: config.moonPayApiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
