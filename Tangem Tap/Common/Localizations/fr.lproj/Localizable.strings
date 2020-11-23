@@ -124,6 +124,8 @@
 
 "send_destination_hint" = "Adresse ou PayID";
 
+"send_destination_hint_address" = "Adresse";
+
 "send_title" = "Envoyer";
 
 "send_network_fee_title" = "Commissions du réseau";
