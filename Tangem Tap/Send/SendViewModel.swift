@@ -48,6 +48,10 @@ class SendViewModel: ViewModel {
     var shouldShowNetworkBlock: Bool  {
         return shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
+
+    	var isPayIdSupported: Bool {
+		cardViewModel.payId != .notSupported
+	}
     
     @Published var isNetworkFeeBlockOpen: Bool = false
     
@@ -107,6 +111,10 @@ class SendViewModel: ViewModel {
         let value = getDescription(for: amount, isFiat: isFiatCalculation)
         return String(format: "send_balance_subtitle_format".localized, value)
     }
+	
+	var isPayIdSupported: Bool {
+		cardViewModel.payId != .notSupported
+	}
     
     //MARK: Private
     @Published private var validatedDestination: String? = nil
@@ -373,7 +381,8 @@ class SendViewModel: ViewModel {
             return
         }
         
-        if let payIdService = cardViewModel.payIDService,
+        if let payIdService = cardViewModel.payIDService, 
+            isPayIdSupported,
            payIdService.validate(destination) {
             payIdService.resolve(destination) {[weak self] result in
                 switch result {

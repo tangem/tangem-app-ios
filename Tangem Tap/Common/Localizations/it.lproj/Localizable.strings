@@ -120,6 +120,8 @@
 
 "send_destination_hint" = "Indirizzo o PayID";
 
+"send_destination_hint_address" = "Indirizzo";
+
 "send_title" = "Invia";
 
 "send_network_fee_title" = "Rete libera";
