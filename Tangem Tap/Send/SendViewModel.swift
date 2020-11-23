@@ -439,7 +439,8 @@ class SendViewModel: ViewModel {
     }
     
     func stripBlockchainPrefix(_ string: String) -> String {
-         return string.remove(walletModel.wallet.blockchain.qrPrefix)
+        let cleaned = string.split(separator: "?").first.map { String($0) } ?? string
+        return cleaned.remove(walletModel.wallet.blockchain.qrPrefix)
     }
     
     func send(_ callback: @escaping () -> Void) {
