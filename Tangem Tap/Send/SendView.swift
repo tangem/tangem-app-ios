@@ -17,6 +17,12 @@ struct SendView: View {
     @Environment(\.presentationMode) var presentationMode
     let onSuccess: () -> Void
     
+	private var addressHint: String {
+		viewModel.isPayIdSupported ?
+			"send_destination_hint".localized :
+			"send_destination_hint_address".localized
+	}
+	
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
@@ -32,7 +38,7 @@ struct SendView: View {
                     Group {
                         HStack(alignment: .center) {
                             VStack(alignment: .leading, spacing: 0.0) {
-                                Text(!self.viewModel.destination.isEmpty ? "send_destination_hint" : " ")
+								Text(!self.viewModel.destination.isEmpty ? self.addressHint : " ")
                                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemTapGrayDark)
 
@@ -42,7 +48,7 @@ struct SendView: View {
                                                 handleKeyboard: true,
                                                 textColor: UIColor.tangemTapGrayDark6,
                                                 font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
-                                                placeholder: "send_destination_hint".localized)
+												placeholder: self.addressHint)
                                 
 //                                TextField("send_destination_hint",
 //                                          text: self.$viewModel.destination,
