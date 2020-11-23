@@ -16,11 +16,21 @@ class MainViewModel: ViewModel {
     weak var imageLoaderService: ImageLoaderService!
     weak var topupService: TopupService!
     
-    @Published var navigation: NavigationCoordinator!
+    @Published var navigation: NavigationCoordinator! {
+        didSet {
+            navigation.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &persistentBag)
+        }
+    }
     weak var assembly: Assembly!
     var config: AppConfig!
     
     var amountToSend: Amount? = nil
+    var persistentBag = Set<AnyCancellable>()
     var bag = Set<AnyCancellable>()
     weak var cardsRepository: CardsRepository!
     
@@ -117,7 +127,7 @@ class MainViewModel: ViewModel {
 
     func bind() {
         bag = Set<AnyCancellable>()
-    
+        
         if let cardModel = state.cardModel {
             cardModel.objectWillChange
                 .receive(on: RunLoop.main)
@@ -194,8 +204,8 @@ class MainViewModel: ViewModel {
         cardsRepository.scan { [weak self] scanResult in
             switch scanResult {
             case .success(let state):
-                self?.state = state
                 self?.assembly.reset()
+                self?.state = state
                 self?.showUntrustedDisclaimerIfNeeded()
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
@@ -230,7 +240,7 @@ class MainViewModel: ViewModel {
         guard let wallet = state.wallet else {
             return
         }
-        
+
         if let tokenAmount = wallet.amounts[.token], tokenAmount.value > 0 {
             navigation.showSendChoise = true
         } else {

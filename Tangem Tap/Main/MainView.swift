@@ -179,7 +179,6 @@ struct MainView: View {
                             TangemVerticalButton(isLoading: false,
                                                  title: "wallet_button_topup",
                                                  image: "arrow.up") {
-                                self.viewModel.objectWillChange.send()
                                 self.viewModel.navigation.showTopup = true
                             }
                             .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
@@ -240,7 +239,6 @@ struct MainView: View {
         .navigationBarTitle(viewModel.navigation.showSettings || viewModel.navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
             if self.viewModel.state.cardModel != nil {
-                self.viewModel.objectWillChange.send()
                 self.viewModel.navigation.showSettings = true
             }
         }, label: { Image("verticalDots")
