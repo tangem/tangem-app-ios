@@ -10,6 +10,7 @@ import SwiftUI
 
 struct TwinCardOnboardingView: View {
 	
+	@EnvironmentObject var navigation: NavigationCoordinator
 	@ObservedObject var viewModel: TwinCardOnboardingViewModel
 	
 	private let backHeightAspect: CGFloat = 1.3
@@ -56,13 +57,13 @@ struct TwinCardOnboardingView: View {
 			}
 			content()
 			
-			if viewModel.navigation.openMainFromTwinOnboarding {
+			if navigation.openMainFromTwinOnboarding, viewModel.state != .warning {
 				NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-							   isActive: $viewModel.navigation.openMainFromTwinOnboarding)
+							   isActive: $navigation.openMainFromTwinOnboarding)
 			}
-			if viewModel.navigation.openTwinCardWalletCreation {
+			if navigation.openTwinCardWalletCreation {
 				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
-							   isActive: $viewModel.navigation.openTwinCardWalletCreation)
+							   isActive: $navigation.openTwinCardWalletCreation)
 			}
 		}
 		.onDidAppear {
