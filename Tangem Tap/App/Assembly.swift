@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 class Assembly {
-    lazy var config = Config()
+    lazy var config = AppConfig()
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
@@ -23,7 +23,7 @@ class Assembly {
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = NetworkService()
     lazy var walletManagerFactory = WalletManagerFactory()
-    lazy var workaroundsService = WorkaroundsService()
+    lazy var featuresService = AppFeaturesService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -37,6 +37,7 @@ class Assembly {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
+        crepo.featuresService = featuresService
         return crepo
     }()
     
@@ -79,12 +80,12 @@ class Assembly {
         }
         
         let vm = CardViewModel(cardInfo: info)
-        vm.workaroundsService = workaroundsService
+        vm.featuresService = featuresService
         vm.config = config
         vm.assembly = self
         vm.tangemSdk = tangemSdk
         if config.isEnablePayID, let payIdService = PayIDService.make(from: blockchain) {
-            payIdService.workaroundsService = workaroundsService
+            payIdService.featuresService = featuresService
             vm.payIDService = payIdService
         }
         
