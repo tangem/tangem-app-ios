@@ -101,25 +101,17 @@ struct MainView: View {
         
         return nil
     }
+	
+	@EnvironmentObject var navigation: NavigationCoordinator
     
     var body: some View {
         VStack {
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
-                        if self.viewModel.image != nil {
-                            Image(uiImage: self.viewModel.image!)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: geometry.size.width - 32.0, height: nil, alignment: .center)
-                                .padding(.vertical, 16.0)
-                        } else {
-                            Color.tangemTapGrayLight4
-                                .opacity(0.5)
-                                .frame(width: geometry.size.width - 32.0, height: 180, alignment: .center)
-                                .cornerRadius(6)
-                                .padding(.vertical, 16.0)
-                        }
+						CardView(image: self.viewModel.image,
+								 width: geometry.size.width - 32,
+								 currentCardNumber: self.viewModel.cardNumber)
 
                         if self.shouldShowAlertView {
                             AlertCardView(title: "common_warning".localized,
@@ -214,10 +206,10 @@ struct MainView: View {
                         }
                     }
                 }
-                if viewModel.navigation.showSettings {
+                if navigation.showSettings {
                     NavigationLink(
                         destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
-                        isActive: $viewModel.navigation.showSettings)
+                        isActive: $navigation.showSettings)
                 }
                 
                 if viewModel.navigation.showTopup {
@@ -232,19 +224,25 @@ struct MainView: View {
                     }
                 }
 				
-				if viewModel.navigation.showTwinCardOnboarding {
+				if navigation.showTwinCardOnboarding {
 					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
-								   isActive: $viewModel.navigation.showTwinCardOnboarding)
+								   isActive: $navigation.showTwinCardOnboarding)
 				}
+				
+				if navigation.showTwinsWalletCreation {
+					NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
+								   isActive: $navigation.showTwinsWalletCreation)
+				}
+				
             }
         }
         .padding(.bottom, 16.0)
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(viewModel.navigation.showSettings || viewModel.navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
-		.navigationBarHidden(viewModel.navigation.showTwinCardOnboarding)
+        .navigationBarTitle(navigation.showSettings || navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
+		.navigationBarHidden(navigation.showTwinCardOnboarding || navigation.showTwinsWalletCreation)
         .navigationBarItems(trailing: Button(action: {
             if self.viewModel.state.cardModel != nil {
-                self.viewModel.objectWillChange.send()
+//                self.viewModel.objectWillChange.send()
                 self.viewModel.navigation.showSettings = true
             }
         }, label: { Image("verticalDots")
