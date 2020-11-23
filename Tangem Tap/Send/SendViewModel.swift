@@ -111,10 +111,6 @@ class SendViewModel: ViewModel {
         let value = getDescription(for: amount, isFiat: isFiatCalculation)
         return String(format: "send_balance_subtitle_format".localized, value)
     }
-	
-	var isPayIdSupported: Bool {
-		cardViewModel.payId != .notSupported
-	}
     
     //MARK: Private
     @Published private var validatedDestination: String? = nil
