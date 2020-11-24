@@ -95,7 +95,10 @@ class Assembly {
     }
     
 	func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
-		let vm: DisclaimerViewModel = get() ?? DisclaimerViewModel(cardViewModel: cardsRepository.lastScanResult.cardModel)
+		if let vm: DisclaimerViewModel = get() {
+			return vm
+		}
+		let vm = DisclaimerViewModel(cardViewModel: cardsRepository.lastScanResult.cardModel)
         vm.state = state
         vm.userPrefsService = userPrefsService
         initialize(vm)
@@ -103,7 +106,11 @@ class Assembly {
     }
     
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
-        let vm: DetailsViewModel = get() ?? DetailsViewModel(cardModel: card)
+		if let vm: DetailsViewModel = get() {
+			return vm
+		}
+		
+		let vm = DetailsViewModel(cardModel: card)
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.ratesService = ratesService
@@ -111,21 +118,32 @@ class Assembly {
     }
     
     func makeSecurityManagementViewModel(with card: CardViewModel) -> SecurityManagementViewModel {
-        let vm: SecurityManagementViewModel = get() ?? SecurityManagementViewModel()
+		if let vm: SecurityManagementViewModel = get() {
+			return vm
+		}
+		
+		let vm = SecurityManagementViewModel()
         initialize(vm)
         vm.cardViewModel = card
         return vm
     }
     
     func makeCurrencySelectViewModel() -> CurrencySelectViewModel {
-        let vm: CurrencySelectViewModel = get() ?? CurrencySelectViewModel()
+		if let vm: CurrencySelectViewModel = get() {
+			return vm
+		}
+		
+		let vm = CurrencySelectViewModel()
         initialize(vm)
         vm.ratesService = ratesService
         return vm
     }
     
     func makeSendViewModel(with amount: Amount, card: CardViewModel) -> SendViewModel {
-        let vm: SendViewModel = get() ?? SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
+		if let vm: SendViewModel = get() {
+			return vm
+		}
+		let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
         initialize(vm)
         vm.ratesService = ratesService
         return vm
@@ -142,7 +160,12 @@ class Assembly {
 	}
 	
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
-		let vm: TwinCardOnboardingViewModel = get() ?? TwinCardOnboardingViewModel(state: state)
+		if let vm: TwinCardOnboardingViewModel = get() {
+			vm.state = state
+			return vm
+		}
+		
+		let vm = TwinCardOnboardingViewModel(state: state)
 		vm.state = state
 		initialize(vm)
 		vm.userPrefsService = userPrefsService
@@ -154,7 +177,13 @@ class Assembly {
 		let service = TwinsWalletCreationService(tangemSdk: tangemSdk,
 												 twinFileEncoder: TwinCardTlvFileEncoder(),
 												 twinInfo: cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo!)
-		let vm: TwinsWalletCreationViewModel = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating, walletCreationService: service)
+		
+		if let vm: TwinsWalletCreationViewModel = get() {
+			vm.walletCreationService = service
+			return vm
+		}
+		
+		let vm = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating, walletCreationService: service)
 		initialize(vm)
 		return vm
 	}
@@ -186,9 +215,9 @@ class Assembly {
 }
 
 extension Assembly {
-    static var previewAssembly: Assembly {
+    static var previewAssembly: Assembly = {
         let assembly = Assembly()
-        let ci = CardInfo(card: Card.testCard,
+        let ci = CardInfo(card: Card.testTwinCard,
                           verificationState: nil,
 						  artworkInfo: nil,
 						  twinCardInfo: TwinCardInfo(cid: "BB04000000006522", series: .dev4, pairCid: "BB05000000006521", pairPublicKey: nil))
@@ -197,5 +226,5 @@ extension Assembly {
         assembly.cardsRepository.cards[Card.testCard.cardId!] = scanResult
 		assembly.cardsRepository.lastScanResult = scanResult
         return assembly
-    }
+    }()
 }
