@@ -17,7 +17,7 @@ struct ArrowBack: View {
 			Image(systemName: "chevron.left")
 				.foregroundColor(color)
 		})
-		.padding(.all, 8)
+		.padding(.all, 16)
 	}
 }
 
