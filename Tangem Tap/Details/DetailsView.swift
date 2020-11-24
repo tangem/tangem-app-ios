@@ -11,44 +11,51 @@ import SwiftUI
 import TangemSdk
 
 struct DetailsRowView: View {
-    var title: String
-    var subtitle: String
-    var body: some View {
-        HStack (alignment: .center) {
-            Text(title)
-                .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                .foregroundColor(.tangemTapGrayDark6)
-                .padding()
-            Spacer()
-            Text(subtitle)
-                .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                .foregroundColor(.tangemTapGrayDark)
-                .padding()
-        }
-        .listRowInsets(EdgeInsets())
-    }
+	var title: String
+	var subtitle: String
+	var body: some View {
+		HStack (alignment: .center) {
+			Text(title)
+				.font(Font.system(size: 16.0, weight: .regular, design: .default))
+				.foregroundColor(.tangemTapGrayDark6)
+				.padding()
+			Spacer()
+			Text(subtitle)
+				.font(Font.system(size: 16.0, weight: .regular, design: .default))
+				.foregroundColor(.tangemTapGrayDark)
+				.padding()
+		}
+		.listRowInsets(EdgeInsets())
+	}
 }
 
 struct HeaderView: View {
-    var text: String
-    var body: some View {
-        HStack {
-            Text(text)
-                .font(.headline)
-                .foregroundColor(.tangemTapBlue)
-                .padding()
-            Spacer()
-        }
-        .padding(.top, 24.0)
-        .background(Color.tangemTapBgGray)
-        .listRowInsets(EdgeInsets())
-    }
+	var text: String
+	var body: some View {
+		HStack {
+			Text(text)
+				.font(.headline)
+				.foregroundColor(.tangemTapBlue)
+				.padding()
+			Spacer()
+		}
+		.padding(.top, 24.0)
+		.background(Color.tangemTapBgGray)
+		.listRowInsets(EdgeInsets())
+	}
 }
 
+struct DetailsDestination: Identifiable {
+	let id: Int
+	let destination: AnyView
+}
 
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
-    
+	@EnvironmentObject var navigation: NavigationCoordinator
+	
+	@State var isTwinRecreating: Bool = false
+	
     var body: some View {
         List {
             Section(header: EmptyView()
@@ -65,13 +72,13 @@ struct DetailsView: View {
             }
             
             Section(header: HeaderView(text: "details_section_title_settings".localized)) {
-                NavigationLink(destination:CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel())) {
+                NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel())) {
                         DetailsRowView(title: "details_row_title_currency".localized,
                                        subtitle: viewModel.ratesService.selectedCurrencyCode)
                         
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-				NavigationLink(destination:DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
+				NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
                                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))) {
                                        DetailsRowView(title: "disclaimer_title".localized,
                                                       subtitle: "")
@@ -92,15 +99,28 @@ struct DetailsView: View {
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 .disabled(!viewModel.cardModel.canManageSecurity)
                 
-                NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
-                                                              buttonTitle: "details_row_title_erase_wallet",
-                                                              alert: "details_erase_wallet_warning".localized,
-                                                              actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
-                )) {
-                    DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.cardModel.canPurgeWallet)
+				if viewModel.isTwinCard {
+					
+					NavigationLink(
+						destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(), isFromDetails: $isTwinRecreating),
+						isActive: $isTwinRecreating,
+						label: {
+							DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
+						}
+					)
+					
+				} else {
+					
+					NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
+																  buttonTitle: "details_row_title_erase_wallet",
+																  alert: "details_erase_wallet_warning".localized,
+																  actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
+					)) {
+						DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
+					}
+					.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+					.disabled(!viewModel.cardModel.canPurgeWallet)
+				}
             }
             
             Section(header: Color.tangemTapBgGray
@@ -115,7 +135,30 @@ struct DetailsView: View {
 }
 
 struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
-    }
+	static var previews: some View {
+		DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
+			.environmentObject(Assembly.previewAssembly.navigationCoordinator)
+	}
+}
+
+
+
+struct RootPresentationModeKey: EnvironmentKey {
+	static let defaultValue: Binding<RootPresentationMode> = .constant(RootPresentationMode())
+}
+
+extension EnvironmentValues {
+	var rootPresentationMode: Binding<RootPresentationMode> {
+		get { return self[RootPresentationModeKey.self] }
+		set { self[RootPresentationModeKey.self] = newValue }
+	}
+}
+
+typealias RootPresentationMode = Bool
+
+extension RootPresentationMode {
+	
+	public mutating func dismiss() {
+		self.toggle()
+	}
 }
