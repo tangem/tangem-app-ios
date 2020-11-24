@@ -36,6 +36,26 @@ class NavigationCoordinator: ObservableObject {
     @Published var showQR = false
 	
 	// MARK: TwinCardOnboardingView
-	@Published var openMainFromTwinOnboarding: Bool = false
-	@Published var openTwinCardWalletCreation: Bool = false
+	@Published var onboardingOpenMain: Bool = false
+	@Published var onboardingOpenTwinCardWalletCreation: Bool = false
+	
+	// MARK: DetailsView
+	@Published var detailsShowTwinsRecreateWarning: Bool = false {
+		willSet {
+			print("Navigation values setting new value on details show twins recreate warning", newValue)
+		}
+		didSet {
+			print("Navigation values new value on details show twins recreate warning was set", detailsShowTwinsRecreateWarning)
+		}
+	}
+	
+	func printValues() {
+		print("----------Navigation values--------------")
+		withUnsafePointer(to: self) {
+			print("App navigation value \(self) has address: \(String(format: "%p", $0))")
+		}
+		print("Onboarding open twin card wallet creation:", onboardingOpenTwinCardWalletCreation)
+		print("Details show twins recreate warning:", detailsShowTwinsRecreateWarning)
+		print("------------------------\n")
+	}
 }
