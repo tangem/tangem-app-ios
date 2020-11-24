@@ -87,6 +87,10 @@ class SendViewModel: ObservableObject {
         let value = getDescription(for: amount, isFiat: isFiatCalculation)
         return String(format: "send_balance_subtitle_format".localized, value)
     }
+	
+	var isPayIdSupported: Bool {
+		cardViewModel.payId != .notSupported
+	}
     
     //MARK: Private
     @Published private var validatedDestination: String? = nil
@@ -371,9 +375,11 @@ class SendViewModel: ObservableObject {
             return
         }
         
-        if let payIdService = cardViewModel.payIDService,
-            payIdService.validate(destination) {
-            payIdService.resolve(destination) {[weak self] result in
+        if isPayIdSupported,
+		   let payIdService = cardViewModel.payIDService,
+		   payIdService.validate(destination) {
+			
+			payIdService.resolve(destination) {[weak self] result in
                 switch result {
                 case .success(let resolvedDetails):
                     if let address = resolvedDetails.address,
