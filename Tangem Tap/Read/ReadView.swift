@@ -131,28 +131,25 @@ struct ReadView: View {
             .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
             .alert(item: $viewModel.scanError) { $0.alert }
             
-                if viewModel.navigation.openMain {
-                    NavigationLink(destination:
-									MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-                                   isActive: $viewModel.navigation.openMain)
-                }
-                
-                if viewModel.navigation.openDisclaimer {
-					NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel()),
-                                   isActive: $viewModel.navigation.openDisclaimer)
-                }
 				
-				if viewModel.navigation.openTwinCardOnboarding {
-					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
-								   isActive: $viewModel.navigation.openTwinCardOnboarding)
-				}
-                
-                if viewModel.navigation.openShop {
-                    NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
-                                   isActive: $viewModel.navigation.openShop)
-                }
+				// MARK: - Navigation links
+				NavigationLink(destination:
+								MainView(viewModel: viewModel.assembly.makeMainViewModel()),
+							   isActive: $viewModel.navigation.openMain)
+				
+				NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel()),
+							   isActive: $viewModel.navigation.openDisclaimer)
+				
+				NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
+							   isActive: $viewModel.navigation.openTwinCardOnboarding)
+				
+				NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
+							   isActive: $viewModel.navigation.openShop)
+				// MARK: End Navigation -
+				
             }
         }
+		.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
@@ -161,16 +158,17 @@ struct ReadView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-                .previewLayout(.fixed(width: 320.0, height: 568))
-                .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
-                .previewDisplayName("iPhone 7")
-            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
-                .previewDisplayName("iPhone 11 Pro Max")
-            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
-                .previewDisplayName("iPhone 11 Pro Max Dark")
-                .environment(\.colorScheme, .dark)
+				.deviceForPreview(.iPhone11Pro)
+//                .previewLayout(.fixed(width: 320.0, height: 568))
+//                .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
+//                .previewDisplayName("iPhone 7")
+//            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
+//                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
+//                .previewDisplayName("iPhone 11 Pro Max")
+//            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
+//                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
+//                .previewDisplayName("iPhone 11 Pro Max Dark")
+//                .environment(\.colorScheme, .dark)
             
         }
     }

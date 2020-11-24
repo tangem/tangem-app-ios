@@ -12,11 +12,19 @@ struct TwinCardOnboardingView: View {
 	
 	@EnvironmentObject var navigation: NavigationCoordinator
 	@ObservedObject var viewModel: TwinCardOnboardingViewModel
+	@Environment(\.presentationMode) var presentationMode
+	
+	@Binding var isFromDetails: Bool
+	@State var isDisplayingTwinCreation: Bool = false
+	
+	init(viewModel: TwinCardOnboardingViewModel, isFromDetails: Binding<Bool> = .constant(false)) {
+		self.viewModel = viewModel
+		self._isFromDetails = isFromDetails
+	}
 	
 	private let backHeightAspect: CGFloat = 1.3
 	private let backgroundMinBottomOffset: CGFloat = 300
 	private let screenSize: CGSize = UIScreen.main.bounds.size
-	
 	
 	private var backgroundHeight: CGFloat {
 		screenSize.width * backHeightAspect
@@ -56,20 +64,19 @@ struct TwinCardOnboardingView: View {
 				Spacer()
 			}
 			content()
-			
-			if navigation.openMainFromTwinOnboarding, viewModel.state != .warning {
+			if navigation.onboardingOpenMain, viewModel.state != .warning {
 				NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-							   isActive: $navigation.openMainFromTwinOnboarding)
+							   isActive: $navigation.onboardingOpenMain)
 			}
-			if navigation.openTwinCardWalletCreation {
-				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
-							   isActive: $navigation.openTwinCardWalletCreation)
-			}
+//			if isDisplayingTwinCreation {
+//			if viewModel.navigation.onboardingOpenTwinCardWalletCreation {
+//				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true), isFromDetails: self.$isFromDetails, dismissToDetails: dismissToDetails),
+//				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
+//							   isActive: $isDisplayingTwinCreation)
+//					.isDetailLink(false)
+//			}
 		}
-		.onDidAppear {
-			self.viewModel.didAppear()
-		}
-		.navigationBarTitle("")
+		.navigationBarTitle("Onboarding")
 		.navigationBarHidden(true)
 		.navigationBarBackButtonHidden(true)
 		.background(Color(.tangemTapBgGray2).edgesIgnoringSafeArea(.all))
@@ -122,7 +129,18 @@ struct TwinCardOnboardingView: View {
 					.lineSpacing(8)
 					.padding(.horizontal, 37)
 					.padding(.bottom, 44)
-					bottomButton
+					NavigationLink(
+						destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true), isFromDetails: $isFromDetails),
+						label: {
+							Text("common_start")
+//							TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: {} )
+//								.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
+//								.padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 34))
+						}
+					)
+//					NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
+//								   isActive: $isDisplayingTwinCreation)
+//					bottomButton
 				}
 			}.toAnyView()
 		}
@@ -141,5 +159,18 @@ struct TwinCardOnboardingView_Previews: PreviewProvider {
 	static var previews: some View {
 		TwinCardOnboardingView(viewModel: Assembly.previewAssembly.makeTwinCardOnboardingViewModel())
 			.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone11Pro, .iPhone11ProMax])
+	}
+}
+
+typealias DismissToParent = () -> Void
+
+struct ParentDismissingModeKey: EnvironmentKey {
+	static let defaultValue: DismissToParent = {}
+}
+
+extension EnvironmentValues {
+	var parentDismissMode: DismissToParent {
+		get { return self[ParentDismissingModeKey.self] }
+		set { self[ParentDismissingModeKey.self] = newValue }
 	}
 }
