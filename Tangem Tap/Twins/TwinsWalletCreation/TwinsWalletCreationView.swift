@@ -23,16 +23,35 @@ struct SimpleProgressBar: View {
 struct TwinsWalletCreationView: View {
 	
 	@EnvironmentObject var navigation: NavigationCoordinator
-	
 	@ObservedObject var viewModel: TwinsWalletCreationViewModel
 	
+	@Binding var isFromDetails: Bool
+	
+	init(viewModel: TwinsWalletCreationViewModel, isFromDetails: Binding<Bool> = .constant(false)) {
+		self.viewModel = viewModel
+		self._isFromDetails = isFromDetails
+	}
+	
     var body: some View {
-		VStack(spacing: 0) {
+		return VStack(spacing: 0) {
 			NavigationBar(title: viewModel.isRecreatingWallet ? "details_twins_recreate_toolbar" : "details_row_title_twins_create",
-						  settings: .init(horizontalPadding: 16),
+						  settings: .init(horizontalPadding: 8),
 						  backAction: {
 							withAnimation {
-								self.viewModel.backAction()
+								if self.viewModel.step == .first {
+									if self.navigation.showTwinsWalletCreation {
+										self.navigation.showTwinsWalletCreation = false
+//
+									} else {
+//										self.dismissToDetails()
+										self.isFromDetails = false
+//										self.viewModel.navigation.detailsShowTwinsRecreateWarning = false
+//										self.viewModel.navigation.onboardingOpenTwinCardWalletCreation = false
+									}
+//
+								} else {
+									self.viewModel.backAction()
+								}
 							}
 						  })
 			VStack(alignment: .leading, spacing: 8) {
@@ -74,7 +93,7 @@ struct TwinsWalletCreationView: View {
 			.padding(.horizontal, 24)
 			.background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
 			.foregroundColor(.tangemTapGrayDark6)
-			.navigationBarTitle("")
+			.navigationBarTitle("Twins")
 			.navigationBarBackButtonHidden(true)
 			.navigationBarHidden(true)
 		}
@@ -83,7 +102,14 @@ struct TwinsWalletCreationView: View {
 			Alert(title: Text("common_success"),
 				  message: Text("notification_twins_recreate_success"),
 				  dismissButton: .default(Text("common_ok"), action: {
-					self.navigation.showTwinsWalletCreation = false
+					
+//					if self.navigation.detailsShowTwinsRecreateWarning {
+//						self.navigation.detailsShowTwinsRecreateWarning = false
+//
+//					} else if self.navigation.showTwinsWalletCreation {
+//						self.navigation.showTwinsWalletCreation = false
+//					}
+					
 				  }))
 		})
     }
