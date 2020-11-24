@@ -70,7 +70,7 @@ class TwinsWalletCreationViewModel: ViewModel {
 	
 	let isRecreatingWallet: Bool
 	
-	private var walletCreationService: TwinsWalletCreationService
+	var walletCreationService: TwinsWalletCreationService
 	
 	private var bag = Set<AnyCancellable>()
 	
@@ -89,6 +89,8 @@ class TwinsWalletCreationViewModel: ViewModel {
 		case .first:
 			if navigation.showTwinsWalletCreation {
 				navigation.showTwinsWalletCreation = false
+			} else if navigation.detailsShowTwinsRecreateWarning {
+				navigation.detailsShowTwinsRecreateWarning = false
 			}
 		case .second:
 			step = .first
