@@ -38,6 +38,10 @@ class DetailsViewModel: ViewModel {
                 .store(in: &bag)
         }
     }
+	
+	var isTwinCard: Bool {
+		cardModel.isTwinCard
+	}
     
     private var bag = Set<AnyCancellable>()
     
