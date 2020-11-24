@@ -15,6 +15,12 @@ import Combine
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
+	@EnvironmentObject var navigation: NavigationCoordinator
+	
+	init(viewModel: MainViewModel) {
+		self.viewModel = viewModel
+		print("\nMain View initialized\n")
+	}
     
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
@@ -101,8 +107,6 @@ struct MainView: View {
         
         return nil
     }
-	
-	@EnvironmentObject var navigation: NavigationCoordinator
     
     var body: some View {
         VStack {
@@ -206,12 +210,8 @@ struct MainView: View {
                         }
                     }
                 }
-                if navigation.showSettings {
-                    NavigationLink(
-                        destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
-                        isActive: $navigation.showSettings)
-                }
-                
+				
+				
                 if viewModel.navigation.showTopup {
                     if viewModel.topupURL != nil {
                         NavigationLink(destination: WebViewContainer(url: viewModel.topupURL!,
@@ -224,16 +224,18 @@ struct MainView: View {
                     }
                 }
 				
-				if navigation.showTwinCardOnboarding {
-					NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
-								   isActive: $navigation.showTwinCardOnboarding)
-				}
+				// MARK: - Navigation links
+				NavigationLink(
+					destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
+					isActive: $navigation.showSettings
+				)
+				NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
+							   isActive: $navigation.showTwinCardOnboarding)
 				
-				if navigation.showTwinsWalletCreation {
-					NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
-								   isActive: $navigation.showTwinsWalletCreation)
-				}
+				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
+							   isActive: $navigation.showTwinsWalletCreation)
 				
+				// MARK: End navigation -
             }
         }
         .padding(.bottom, 16.0)
@@ -242,7 +244,6 @@ struct MainView: View {
 		.navigationBarHidden(navigation.showTwinCardOnboarding || navigation.showTwinsWalletCreation)
         .navigationBarItems(trailing: Button(action: {
             if self.viewModel.state.cardModel != nil {
-//                self.viewModel.objectWillChange.send()
                 self.viewModel.navigation.showSettings = true
             }
         }, label: { Image("verticalDots")
