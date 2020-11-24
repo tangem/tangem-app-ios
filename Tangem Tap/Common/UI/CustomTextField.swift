@@ -63,7 +63,7 @@ struct CustomTextField: UIViewRepresentable {
         }
         
         @objc func hideKeyboard() {
-            UIApplication.shared.windows.first { $0.isKeyWindow }?.endEditing(true)
+            UIApplication.shared.endEditing()
         }
         
         func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
