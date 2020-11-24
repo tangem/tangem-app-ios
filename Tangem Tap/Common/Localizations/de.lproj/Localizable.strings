@@ -120,6 +120,8 @@
 
 "send_destination_hint" = "Adresse oder PayID";
 
+"send_destination_hint_address" = "Adresse";
+
 "send_title" = "Absenden";
 
 "send_network_fee_title" = "Netzgebühr";
