@@ -11,7 +11,7 @@ import CryptoKit
 import Alamofire
 
 class TopupService {
-    var config: Config!
+    var config: AppConfig!
     
     let topupCloseUrl = "https://success.tangem.com"
     
