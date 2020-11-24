@@ -56,11 +56,11 @@ class TwinCardOnboardingViewModel: ViewModel {
 			if navigation.showTwinCardOnboarding {
 				navigation.showTwinCardOnboarding = false
 			} else {
-				navigation.openMainFromTwinOnboarding = true
+				navigation.onboardingOpenMain = true
 			}
 			userPrefsService.isTwinCardOnboardingWasDisplayed = true
 		case .warning:
-			navigation.openTwinCardWalletCreation = true
+			navigation.onboardingOpenTwinCardWalletCreation = true
 		}
 	}
 	
