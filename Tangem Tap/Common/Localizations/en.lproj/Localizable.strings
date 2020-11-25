@@ -131,6 +131,8 @@
 
 "send_destination_hint" = "Address or PayID";
 
+"send_destination_hint_address" = "Address";
+
 "send_title" = "Send";
 
 "send_network_fee_title" = "Network fee";
