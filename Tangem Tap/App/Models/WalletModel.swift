@@ -62,14 +62,13 @@ class WalletModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
     
-    func update(silent: Bool = false) {
+    func update() {
         if case .loading = state {
             return
         }
         
-        if !silent {
-            state = .loading
-        }
+        state = .loading
+
         walletManager.update { result in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else {return}
@@ -186,7 +185,7 @@ class WalletModel: ObservableObject, Identifiable {
                                            mode: .common)
             .autoconnect()
             .sink() {[weak self] _ in
-                self?.update(silent: true)
+                self?.update()
             }
     }
 }
