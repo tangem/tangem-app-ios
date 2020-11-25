@@ -12,7 +12,7 @@ import SwiftUI
 class TwinCardOnboardingViewModel: ViewModel {
 	
 	enum State: Equatable {
-		case onboarding(withPairCid: String), warning
+		case onboarding(withPairCid: String, isFromMain: Bool), warning
 		
 		var backgroundName: String {
 			switch self {
@@ -25,6 +25,15 @@ class TwinCardOnboardingViewModel: ViewModel {
 			switch self {
 			case .onboarding: return "common_continue"
 			case .warning: return "common_start"
+			}
+		}
+		
+		var storageKey: String {
+			switch self {
+			case let .onboarding(withPairCid, isFromMain):
+				return "onboarding_\(withPairCid)_\(isFromMain)"
+			case .warning:
+				return "onboarding_warning"
 			}
 		}
 	}
@@ -52,10 +61,10 @@ class TwinCardOnboardingViewModel: ViewModel {
 	
 	func buttonAction() {
 		switch state {
-		case .onboarding:
+		case .onboarding(_, let isFromMain):
 			if navigation.showTwinCardOnboarding {
 				navigation.showTwinCardOnboarding = false
-			} else {
+			} else if !isFromMain {
 				navigation.onboardingOpenMain = true
 			}
 			userPrefsService.isTwinCardOnboardingWasDisplayed = true
