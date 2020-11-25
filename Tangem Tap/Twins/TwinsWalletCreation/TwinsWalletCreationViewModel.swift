@@ -29,16 +29,8 @@ class TwinsWalletCreationViewModel: ViewModel {
 			String(format: "details_twins_recreate_step_format".localized, rawValue)
 		}
 		
-		var title: String {
-			String(format: "details_twins_recreate_title_format".localized, cardNumberToInteractWith)
-		}
-		
 		var hint: LocalizedStringKey {
 			"details_twins_recreate_subtitle"
-		}
-		
-		var buttonTitle: LocalizedStringKey {
-			LocalizedStringKey(String(format: "details_twins_recreate_button_format".localized, cardNumberToInteractWith))
 		}
 		
 		func nextStep() -> Step {
@@ -62,7 +54,10 @@ class TwinsWalletCreationViewModel: ViewModel {
 	@Published var navigation: NavigationCoordinator!
 	@Published var step: Step = .first
 	@Published var error: AlertBinder?
-	@Published var doneAlertPresented: Bool = false
+	@Published var finishedWalletCreation: Bool = false
+	
+	var title: String { String(format: "details_twins_recreate_title_format".localized, walletCreationService.stepCardNumber) }
+	var buttonTitle: LocalizedStringKey { LocalizedStringKey(String(format: "details_twins_recreate_button_format".localized, walletCreationService.stepCardNumber)) }
 	
 	private(set) var shouldDismiss: Bool = false
 	
@@ -77,32 +72,20 @@ class TwinsWalletCreationViewModel: ViewModel {
 	init(isRecreatingWallet: Bool, walletCreationService: TwinsWalletCreationService) {
 		self.isRecreatingWallet = isRecreatingWallet
 		self.walletCreationService = walletCreationService
-		bind()
 	}
 	
 	func buttonAction() {
 		walletCreationService.executeCurrentStep()
 	}
 	
-	func backAction() {
-		switch step {
-		case .first:
-			if navigation.showTwinsWalletCreation {
-				navigation.showTwinsWalletCreation = false
-			} else if navigation.detailsShowTwinsRecreateWarning {
-				navigation.detailsShowTwinsRecreateWarning = false
-			}
-		case .second:
-			step = .first
-		case .third:
-			step = .second
-		default: return
-		}
+	func onAppear() {
+		error = nil
+		walletCreationService.resetSteps()
+		bind()
 	}
 	
 	private func bind() {
 		walletCreationService.step
-			.dropFirst()
 			.receive(on: DispatchQueue.main)
 			.sink(receiveValue: { [weak self] in
 				if $0 == .done {
@@ -115,6 +98,12 @@ class TwinsWalletCreationViewModel: ViewModel {
 		
 		walletCreationService.occuredError
 			.receive(on: DispatchQueue.main)
+			.filter {
+				if case .userCancelled = $0.toTangemSdkError() {
+					return false
+				}
+				return true
+			}
 			.sink(receiveValue: { [weak self] in
 				self?.error = $0.alertBinder
 			})
@@ -122,7 +111,7 @@ class TwinsWalletCreationViewModel: ViewModel {
 	}
 	
 	private func done() {
-		self.doneAlertPresented = true
+		self.finishedWalletCreation = true
 	}
 	
 }
