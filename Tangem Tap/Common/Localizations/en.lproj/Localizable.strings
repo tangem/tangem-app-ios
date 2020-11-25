@@ -32,6 +32,8 @@
 
 "common_start" = "Start";
 
+"common_cancel" = "Cancel";
+
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
@@ -235,6 +237,9 @@
 
 "notification_twins_recreate_success" = "The twin address was successfully created";
 
+"twins_creation_warning_title" = "Cancel Twin Card creation?";
+"twins_creation_warning_message" = "Are you sure that you want to cancel wallet creation? Interuption of creation proccess will cause cards not work properly. Cancel wallet creation?";
+"twins_scan_twin_with_number" = "Hold your iPhone near the twin card with number %@";
 
 // old
 "twin_wallet_creation_step_title_first" = "1st step";
