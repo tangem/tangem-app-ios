@@ -102,12 +102,13 @@ struct DetailsView: View {
 				if viewModel.isTwinCard {
 					
 					NavigationLink(
-						destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(), isFromDetails: $isTwinRecreating),
-						isActive: $isTwinRecreating,
+						destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel()),
+						isActive: $navigation.detailsShowTwinsRecreateWarning,
 						label: {
 							DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
 						}
 					)
+					.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
 					
 				} else {
 					
@@ -131,6 +132,7 @@ struct DetailsView: View {
         .padding(.top, 16.0)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
+		.navigationBarHidden(false)
     }
 }
 
