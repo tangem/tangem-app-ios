@@ -219,18 +219,14 @@ struct MainView: View {
                         label: { EmptyView() })
                 }
                 
-                if viewModel.navigation.showTopup {
-                    if viewModel.topupURL != nil {
-                        NavigationLink(destination: WebViewContainer(url: viewModel.topupURL!,
-                                                                     closeUrl: viewModel.topupCloseUrl,
-                                                                     title: "wallet_button_topup")
-                                        .onDisappear {
-                                            self.viewModel.state.cardModel?.update(silent: true)
-                                        },
-                                       isActive: $viewModel.navigation.showTopup) {
-                            EmptyView()
-                        }
-                    }
+                NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
+                                                             closeUrl: viewModel.topupCloseUrl,
+                                                             title: "wallet_button_topup")
+                                .onDisappear {
+                                    self.viewModel.state.cardModel?.update(silent: true)
+                                },
+                               isActive: $viewModel.navigation.showTopup) {
+                    EmptyView()
                 }
             }
         }
