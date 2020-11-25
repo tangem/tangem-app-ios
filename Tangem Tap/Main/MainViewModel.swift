@@ -19,9 +19,10 @@ class MainViewModel: ViewModel {
     
 	var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    var config: Config!
+    var config: AppConfig!
     
     var amountToSend: Amount? = nil
+    var persistentBag = Set<AnyCancellable>()
     var bag = Set<AnyCancellable>()
     weak var cardsRepository: CardsRepository!
     
@@ -125,7 +126,7 @@ class MainViewModel: ViewModel {
 
     func bind() {
         bag = Set<AnyCancellable>()
-    
+        
         if let cardModel = state.cardModel {
             cardModel.objectWillChange
                 .receive(on: RunLoop.main)
@@ -245,7 +246,7 @@ class MainViewModel: ViewModel {
         guard let wallet = state.wallet else {
             return
         }
-        
+
         if let tokenAmount = wallet.amounts[.token], tokenAmount.value > 0 {
             navigation.showSendChoise = true
         } else {
