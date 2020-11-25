@@ -35,7 +35,6 @@ class TopupService {
         urlComponents.percentEncodedQueryItems = queryItems
         
         let url = urlComponents.url!
-        print(url)
         return url
     }
 }
