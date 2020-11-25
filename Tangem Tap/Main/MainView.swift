@@ -219,7 +219,7 @@ struct MainView: View {
                         label: { EmptyView() })
                 }
                 
-                NavigationLink(destination: WebViewContainer(url: viewModel.topupURL!,
+                NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                              closeUrl: viewModel.topupCloseUrl,
                                                              title: "wallet_button_topup")
                                 .onDisappear {
