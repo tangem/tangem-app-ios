@@ -95,13 +95,24 @@ class Assembly {
     }
     
 	func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
-		if let vm: DisclaimerViewModel = get() {
+		// This is needed to prevent updating state of views that already in view hierarchy. Creating new model for each state
+		// not so good solution, but this crucial when creating Navigation link without condition closures and Navigation link
+		// recreates every redraw process. If you don't want to reinstantiate Navigation link, then functionality of pop to
+		// specific View in navigation stack will be lost or push navigation animation will be disabled due to use of
+		// StackNavigationViewStyle for NavigationView. Probably this is bug in current Apple realisation of NavigationView
+		// and NavigationLinks - all navigation logic tightly coupled with View and redraw process.
+		
+		let name = String(describing: DisclaimerViewModel.self) + "_\(state)"
+		let isTwin = cardsRepository.lastScanResult.cardModel?.isTwinCard ?? false
+		if let vm: DisclaimerViewModel = get(key: name) {
+			vm.isTwinCard = isTwin
 			return vm
 		}
-		let vm = DisclaimerViewModel(cardViewModel: cardsRepository.lastScanResult.cardModel)
+		
+		let vm = DisclaimerViewModel(isTwinCard: isTwin)
         vm.state = state
         vm.userPrefsService = userPrefsService
-        initialize(vm)
+		initialize(vm, with: name)
         return vm
     }
     
@@ -149,10 +160,10 @@ class Assembly {
         return vm
     }
 	
-	func makeTwinCardOnboardingViewModel() -> TwinCardOnboardingViewModel {
+	func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
 		let scanResult = cardsRepository.lastScanResult
 		let twinPairCid = scanResult.cardModel?.cardInfo.twinCardInfo?.pairCid
-		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid ?? ""))
+		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid ?? "", isFromMain: isFromMain))
 	}
 	
 	func makeTwinCardWarningViewModel() -> TwinCardOnboardingViewModel {
@@ -160,14 +171,13 @@ class Assembly {
 	}
 	
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
-		if let vm: TwinCardOnboardingViewModel = get() {
-			vm.state = state
+		let key = String(describing: TwinCardOnboardingView.self) + "_" + state.storageKey
+		if let vm: TwinCardOnboardingViewModel = get(key: key) {
 			return vm
 		}
 		
 		let vm = TwinCardOnboardingViewModel(state: state)
-		vm.state = state
-		initialize(vm)
+		initialize(vm, with: key)
 		vm.userPrefsService = userPrefsService
 		vm.imageLoader = imageLoaderService
 		return vm
@@ -193,6 +203,12 @@ class Assembly {
         vm.assembly = self
         store(vm)
     }
+	
+	private func initialize<V: ViewModel>(_ vm: V, with key: String) {
+		vm.navigation = navigationCoordinator
+		vm.assembly = self
+		store(vm, with: key)
+	}
     
     public func reset() {
         let mainKey = String(describing: type(of: MainViewModel.self))
@@ -201,17 +217,25 @@ class Assembly {
         let indicesToRemove = modelsStorage.keys.filter { $0 != mainKey && $0 != readKey }
         indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
     }
-    
+	
     private func store<T>(_ object: T ) {
         let key = String(describing: type(of: T.self))
-        print(key)
-        modelsStorage[key] = object
+        store(object, with: key)
     }
+	
+	private func store<T>(_ object: T, with key: String) {
+		print(key)
+		modelsStorage[key] = object
+	}
     
     private func get<T>() -> T? {
         let key = String(describing: type(of: T.self))
-        return (modelsStorage[key] as? T)
+        return get(key: key)
     }
+	
+	private func get<T>(key: String) -> T? {
+		modelsStorage[key] as? T
+	}
 }
 
 extension Assembly {
