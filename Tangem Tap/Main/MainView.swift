@@ -205,11 +205,6 @@ struct MainView: View {
                     }
                 }
 				
-				
-//                if navigation.showTopup {
-//
-//                }
-				
 				NavigationLink(
 					destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
 					isActive: $navigation.showSettings
