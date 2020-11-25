@@ -104,6 +104,7 @@ struct ReadView: View {
                         TangemButton(isLoading: false,
                                      title: blackButtonTitleKey,
                                      image: "shopBag" ) {
+                            self.viewModel.objectWillChange.send()
                             self.viewModel.navigation.openShop = true
                         }.buttonStyle(TangemButtonStyle(color: .black))
                     } else {
@@ -146,11 +147,9 @@ struct ReadView: View {
                     }
                 }
                 
-                if viewModel.navigation.openShop {
-                    NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
-                                   isActive: $viewModel.navigation.openShop) {
-                                  EmptyView()
-                    }
+                NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
+                               isActive: $viewModel.navigation.openShop) {
+                    EmptyView()
                 }
             }
         }
