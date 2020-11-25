@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>moonPayApiKey</key>
-	<string>pk_test_kc90oYTANy7UQdBavDKGfL4K9l6VEPE</string>
+	<string>pk_live_YTDl4Uei4411FXLAFe2rn8R2qWSiQcm</string>
 	<key>moonPaySecretApiKey</key>
-	<string>sk_test_V8w4M19LbDjjYOt170s0tGuvXAgyEb1C</string>
+	<string>sk_live_7wMjoyGTGAB3i1suQHszCWRRqJBRPsQF</string>
 	<key>isEnableMoonPay</key>
-	<false/>
+	<true/>
 	<key>isEnablePayID</key>
 	<true/>
 	<key>coinMarketCapApiKey</key>
