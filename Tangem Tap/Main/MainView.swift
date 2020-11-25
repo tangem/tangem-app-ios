@@ -16,11 +16,6 @@ import Combine
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
 	@EnvironmentObject var navigation: NavigationCoordinator
-	
-	init(viewModel: MainViewModel) {
-		self.viewModel = viewModel
-		print("\nMain View initialized\n")
-	}
     
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
@@ -155,22 +150,11 @@ struct MainView: View {
                     .environmentObject(self.viewModel.state.cardModel!)
             })
             HStack(alignment: .center, spacing: 8.0) {
-                TangemVerticalButton(isLoading: self.viewModel.isScanning,
-                                     title: "wallet_button_scan",
-                                     image: "scan") {
-                    withAnimation {
-                        self.viewModel.scan()
-                    }
-                }.buttonStyle(TangemButtonStyle(color: .black))
+				scanButton
                 
                 if self.viewModel.state.cardModel != nil {
                     if viewModel.canCreateWallet {
-                        TangemLongButton(isLoading: self.viewModel.isCreatingWallet,
-                                         title: "wallet_button_create_wallet",
-                                         image: "arrow.right") {
-                            self.viewModel.createWallet()
-                        }.buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canCreateWallet))
-                        .disabled(!self.viewModel.canCreateWallet)
+						createWalletButton
                     } else {
                         if self.viewModel.state.cardModel!.canTopup {
                             TangemVerticalButton(isLoading: false,
@@ -224,18 +208,11 @@ struct MainView: View {
                     }
                 }
 				
-				// MARK: - Navigation links
 				NavigationLink(
 					destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
 					isActive: $navigation.showSettings
 				)
-				NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
-							   isActive: $navigation.showTwinCardOnboarding)
 				
-				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
-							   isActive: $navigation.showTwinsWalletCreation)
-				
-				// MARK: End navigation -
             }
         }
         .padding(.bottom, 16.0)
@@ -244,7 +221,7 @@ struct MainView: View {
 		.navigationBarHidden(navigation.showTwinCardOnboarding || navigation.showTwinsWalletCreation)
         .navigationBarItems(trailing: Button(action: {
             if self.viewModel.state.cardModel != nil {
-                self.viewModel.navigation.showSettings = true
+                self.navigation.showSettings = true
             }
         }, label: { Image("verticalDots")
             .foregroundColor(Color.tangemTapGrayDark6)
@@ -259,9 +236,9 @@ struct MainView: View {
         }
         .ignoresKeyboard()
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-                    .filter {_ in !self.viewModel.navigation.showSettings
-                        && !self.viewModel.navigation.showSend
-                        && !self.viewModel.navigation.showCreatePayID
+                    .filter {_ in !self.navigation.showSettings
+                        && !self.navigation.showSend
+                        && !self.navigation.showCreatePayID
                     }
                     .delay(for: 0.3, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
@@ -270,6 +247,47 @@ struct MainView: View {
         .alert(item: $viewModel.error) { $0.alert }
         
     }
+	
+	var scanButton: some View {
+		let button = TangemVerticalButton(isLoading: self.viewModel.isScanning,
+							 title: "wallet_button_scan",
+							 image: "scan") {
+			withAnimation {
+				self.viewModel.scan()
+			}
+		}
+		.buttonStyle(TangemButtonStyle(color: .black))
+		
+		if viewModel.isTwinCard {
+			return NavigationButton(button: button,
+									navigationLink: NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
+																   isActive: $navigation.showTwinCardOnboarding))
+				.toAnyView()
+		} else {
+			return button.toAnyView()
+		}
+	}
+	
+	var createWalletButton: some View {
+		let longButton = TangemLongButton(isLoading: self.viewModel.isCreatingWallet,
+										  title: "wallet_button_create_wallet",
+										  image: "arrow.right") {
+			self.viewModel.createWallet()
+		}
+		.buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canCreateWallet))
+		
+		if viewModel.isTwinCard {
+			return NavigationButton(button: longButton,
+							 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
+															isActive: $navigation.showTwinsWalletCreation))
+				.disabled(!self.viewModel.canCreateWallet)
+				.toAnyView()
+		} else {
+			return longButton
+				.disabled(!self.viewModel.canCreateWallet)
+				.toAnyView()
+		}
+	}
 }
 
 
