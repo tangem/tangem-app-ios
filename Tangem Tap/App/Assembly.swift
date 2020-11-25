@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 class Assembly {
-    lazy var config = Config()
+    lazy var config = AppConfig()
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
@@ -23,7 +23,7 @@ class Assembly {
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = NetworkService()
     lazy var walletManagerFactory = WalletManagerFactory()
-    lazy var workaroundsService = WorkaroundsService()
+    lazy var featuresService = AppFeaturesService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -37,13 +37,18 @@ class Assembly {
 		let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder())
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
+        crepo.featuresService = featuresService
         return crepo
     }()
     
     private var modelsStorage = [String : Any]()
     
     func makeReadViewModel() -> ReadViewModel {
-        let vm: ReadViewModel = get() ?? ReadViewModel()
+        if let restored: ReadViewModel = get() {
+            return restored
+        }
+        
+        let vm =  ReadViewModel()
         initialize(vm)
         vm.userPrefsService = userPrefsService
         vm.cardsRepository = cardsRepository
@@ -51,7 +56,11 @@ class Assembly {
     }
     
     func makeMainViewModel() -> MainViewModel {
-        let vm: MainViewModel = get() ?? MainViewModel()
+        if let restored: MainViewModel = get() {
+			restored.state = cardsRepository.lastScanResult
+            return restored
+        }
+        let vm =  MainViewModel()
         initialize(vm)
         vm.config = config
         vm.cardsRepository = cardsRepository
@@ -80,12 +89,12 @@ class Assembly {
         }
         
         let vm = CardViewModel(cardInfo: info)
-        vm.workaroundsService = workaroundsService
+        vm.featuresService = featuresService
         vm.config = config
         vm.assembly = self
         vm.tangemSdk = tangemSdk
         if config.isEnablePayID, let payIdService = PayIDService.make(from: blockchain) {
-            payIdService.workaroundsService = workaroundsService
+            payIdService.featuresService = featuresService
             vm.payIDService = payIdService
         }
         
@@ -94,6 +103,7 @@ class Assembly {
         return vm
     }
     
+
 	func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
 		// This is needed to prevent updating state of views that already in view hierarchy. Creating new model for each state
 		// not so good solution, but this crucial when creating Navigation link without condition closures and Navigation link
@@ -106,6 +116,7 @@ class Assembly {
 		let isTwin = cardsRepository.lastScanResult.cardModel?.isTwinCard ?? false
 		if let vm: DisclaimerViewModel = get(key: name) {
 			vm.isTwinCard = isTwin
+			vm.state = state
 			return vm
 		}
 		
@@ -117,11 +128,12 @@ class Assembly {
     }
     
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
-		if let vm: DetailsViewModel = get() {
-			return vm
-		}
-		
-		let vm = DetailsViewModel(cardModel: card)
+
+        if let restored: DetailsViewModel = get() {
+            return restored
+        }
+        
+        let vm =  DetailsViewModel(cardModel: card)
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.ratesService = ratesService
@@ -129,32 +141,33 @@ class Assembly {
     }
     
     func makeSecurityManagementViewModel(with card: CardViewModel) -> SecurityManagementViewModel {
-		if let vm: SecurityManagementViewModel = get() {
-			return vm
-		}
-		
-		let vm = SecurityManagementViewModel()
+        if let restored: SecurityManagementViewModel = get() {
+            return restored
+        }
+        
+        let vm = SecurityManagementViewModel()
         initialize(vm)
         vm.cardViewModel = card
         return vm
     }
     
     func makeCurrencySelectViewModel() -> CurrencySelectViewModel {
-		if let vm: CurrencySelectViewModel = get() {
-			return vm
-		}
-		
-		let vm = CurrencySelectViewModel()
+        if let restored: CurrencySelectViewModel = get() {
+            return restored
+        }
+        
+        let vm =  CurrencySelectViewModel()
         initialize(vm)
         vm.ratesService = ratesService
         return vm
     }
     
     func makeSendViewModel(with amount: Amount, card: CardViewModel) -> SendViewModel {
-		if let vm: SendViewModel = get() {
-			return vm
-		}
-		let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
+        if let restored: SendViewModel = get() {
+            return restored
+        }
+        
+        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
         initialize(vm)
         vm.ratesService = ratesService
         return vm

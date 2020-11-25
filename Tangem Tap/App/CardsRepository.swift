@@ -64,7 +64,8 @@ enum ScanResult: Equatable {
 class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
-
+    weak var featuresService: AppFeaturesService!
+    
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
 	
@@ -76,6 +77,7 @@ class CardsRepository {
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
+        tangemSdk.config = Config()
         tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
             case .failure(let error):
@@ -95,11 +97,17 @@ class CardsRepository {
 										twinCardInfo: self.decodeTwinFile(from: response))
                 
                
+                if !self.featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
+                    self.tangemSdk.config.linkedTerminal = false
+                }
+                
                 let cm = self.assembly.makeCardModel(from: cardInfo)
                 let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
                 self.cards[cardInfo.card.cardId!] = res
 				self.lastScanResult = res
-                completion(.success(res))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    completion(.success(res))
+                }
             }
         }
     }

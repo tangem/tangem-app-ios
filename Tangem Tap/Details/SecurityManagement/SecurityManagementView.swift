@@ -19,11 +19,11 @@ struct SecurityManagementRowView: View {
     var isEnabled: Bool {
         switch option {
         case .accessCode:
-            return cardViewModel.cardInfo.card.settingsMask?.contains(.allowSetPIN1) ?? false
+            return cardViewModel.canSetAccessCode
         case .longTap:
-            return cardViewModel.cardInfo.card.settingsMask?.contains(.allowSetPIN2) ?? false
+            return cardViewModel.canSetLongTap
         case .passCode:
-            return !(cardViewModel.cardInfo.card.settingsMask?.contains(.prohibitDefaultPIN1) ?? false)
+            return cardViewModel.canSetPasscode
         }
     }
     
