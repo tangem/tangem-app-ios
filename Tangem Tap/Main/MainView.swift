@@ -223,7 +223,7 @@ struct MainView: View {
                                                              closeUrl: viewModel.topupCloseUrl,
                                                              title: "wallet_button_topup")
                                 .onDisappear {
-                                    self.viewModel.state.cardModel?.update(silent: true)
+                                    self.viewModel.state.cardModel?.update()
                                 },
                                isActive: $viewModel.navigation.showTopup) {
                     EmptyView()
@@ -256,7 +256,7 @@ struct MainView: View {
                     }
                     .delay(for: 0.3, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
-            self.viewModel.state.cardModel?.update(silent: true)
+            self.viewModel.state.cardModel?.update()
         }
         .alert(item: $viewModel.error) { $0.alert }
         
