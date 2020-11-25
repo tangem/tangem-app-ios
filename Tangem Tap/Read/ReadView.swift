@@ -23,7 +23,7 @@ struct ReadView: View {
     
     var cardOffsetX: CGFloat {
         switch viewModel.state {
-        case .read: return 0.25*CircleView.diameter
+        case .read: return 0.25 * CircleView.diameter
         case .ready: return -UIScreen.main.bounds.width*1.8
         case .welcome, .welcomeBack: return -UIScreen.main.bounds.width/4.0
         }
@@ -74,14 +74,14 @@ struct ReadView: View {
             VStack(alignment: .leading, spacing: 0) {
                 GeometryReader { geo in
                 ZStack {
-                    CircleView().offset(x: 0.1*CircleView.diameter, y: -0.1*CircleView.diameter)
+                    CircleView().offset(x: 0.1 * CircleView.diameter, y: -0.1 * CircleView.diameter)
                     CardRectView(withShadow: self.viewModel.state != .read)
                         .animation(.easeInOut)
                         .offset(x: self.cardOffsetX, y: self.cardOffsetY)
                         .scaleEffect(self.cardScale)
                     if self.viewModel.state == .read || self.viewModel.state == .ready  {
                         Image("iphone")
-                            .offset(x: 0.1*CircleView.diameter, y: 0.15*CircleView.diameter)
+                            .offset(x: 0.1 * CircleView.diameter, y: 0.15 * CircleView.diameter)
                             .transition(.offset(x: 400.0, y: 0.0))
                     }
                 }
