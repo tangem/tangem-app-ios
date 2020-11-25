@@ -118,6 +118,10 @@ class MainViewModel: ViewModel {
 	var cardNumber: Int? {
 		state.cardModel?.cardInfo.twinCardInfo?.series.number
 	}
+	
+	var isTwinCard: Bool {
+		state.cardModel?.isTwinCard ?? false
+	}
 
     func bind() {
         bag = Set<AnyCancellable>()
@@ -196,18 +200,20 @@ class MainViewModel: ViewModel {
     func scan() {
         self.isScanning = true
         cardsRepository.scan { [weak self] scanResult in
+			guard let self = self else { return }
             switch scanResult {
             case .success(let state):
-                self?.state = state
-                self?.assembly.reset()
-                self?.showUntrustedDisclaimerIfNeeded()
-				self?.showTwinCardOnboardingIfNeeded()
+                self.state = state
+                self.assembly.reset()
+				if !self.showTwinCardOnboardingIfNeeded() {
+					self.showUntrustedDisclaimerIfNeeded()
+				}
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
-                    self?.error = error.alertBinder
+                    self.error = error.alertBinder
                 }
             }
-            self?.isScanning = false
+            self.isScanning = false
         }
     }
     
@@ -265,14 +271,17 @@ class MainViewModel: ViewModel {
     }
     
     func onAppear() {
-        showUntrustedDisclaimerIfNeeded()
+		if !showTwinCardOnboardingIfNeeded() {
+			showUntrustedDisclaimerIfNeeded()
+		}
     }
 	
-	private func showTwinCardOnboardingIfNeeded() {
-		guard let model = state.cardModel, model.isTwinCard else { return }
+	private func showTwinCardOnboardingIfNeeded() -> Bool {
+		guard let model = state.cardModel, model.isTwinCard else { return false }
 		
-		if userPrefsService.isTwinCardOnboardingWasDisplayed { return }
+		if userPrefsService.isTwinCardOnboardingWasDisplayed { return false }
 		
 		navigation.showTwinCardOnboarding = true
+		return true
 	}
 }
