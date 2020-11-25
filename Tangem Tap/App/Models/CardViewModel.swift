@@ -19,7 +19,15 @@ class CardViewModel: Identifiable, ObservableObject {
     var payIDService: PayIDService? = nil
     var config: AppConfig!
     weak var tangemSdk: TangemSdk!
-    weak var assembly: Assembly!
+    weak var assembly: Assembly! {
+        didSet {
+            if let wm = self.assembly.makeWalletModel(from: cardInfo.card) {
+                self.state = .loaded(walletModel: wm)
+            } else {
+                self.state = .empty
+            }
+        }
+    }
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -92,16 +100,13 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canTopup: Bool { config.isEnableMoonPay && featuresService.isTopupSupported(for: cardInfo.card) }
     
-    public private(set) var cardInfo: CardInfo {
-        didSet {
-            updateState()
-        }
-    }
+    public private(set) var cardInfo: CardInfo
     
     private var bag =  Set<AnyCancellable>()
     
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
+        
         updateCurrentSecOption()
     }
     
@@ -149,9 +154,9 @@ class CardViewModel: Identifiable, ObservableObject {
 
     }
     
-    func update(silent: Bool = false) {
+    func update() {
         loadPayIDInfo()
-        state.walletModel?.update(silent: silent)
+        state.walletModel?.update()
     }
     
     func onSign(_ signResponse: SignResponse) {
@@ -233,14 +238,6 @@ class CardViewModel: Identifiable, ObservableObject {
                 Analytics.log(error: error)
                 completion(.failure(error))
             }
-        }
-    }
-    
-    func updateState() {
-        if let wm = self.assembly.makeWalletModel(from: cardInfo.card) {
-            self.state = .loaded(walletModel: wm)
-        } else {
-            self.state = .empty
         }
     }
     
