@@ -25,13 +25,6 @@ struct TwinsWalletCreationView: View {
 	@EnvironmentObject var navigation: NavigationCoordinator
 	@ObservedObject var viewModel: TwinsWalletCreationViewModel
 	
-	@Binding var isFromDetails: Bool
-	
-	init(viewModel: TwinsWalletCreationViewModel, isFromDetails: Binding<Bool> = .constant(false)) {
-		self.viewModel = viewModel
-		self._isFromDetails = isFromDetails
-	}
-	
     var body: some View {
 		return VStack(spacing: 0) {
 			NavigationBar(title: viewModel.isRecreatingWallet ? "details_twins_recreate_toolbar" : "details_row_title_twins_create",
@@ -41,14 +34,10 @@ struct TwinsWalletCreationView: View {
 								if self.viewModel.step == .first {
 									if self.navigation.showTwinsWalletCreation {
 										self.navigation.showTwinsWalletCreation = false
-//
 									} else {
-//										self.dismissToDetails()
-										self.isFromDetails = false
-//										self.viewModel.navigation.detailsShowTwinsRecreateWarning = false
-//										self.viewModel.navigation.onboardingOpenTwinCardWalletCreation = false
+										self.navigation.detailsShowTwinsRecreateWarning = false
+//										self.navigation.onboardingOpenTwinCardWalletCreation = false
 									}
-//
 								} else {
 									self.viewModel.backAction()
 								}
@@ -93,10 +82,15 @@ struct TwinsWalletCreationView: View {
 			.padding(.horizontal, 24)
 			.background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
 			.foregroundColor(.tangemTapGrayDark6)
-			.navigationBarTitle("Twins")
+			.navigationBarTitle("")
 			.navigationBarBackButtonHidden(true)
 			.navigationBarHidden(true)
 		}
+		.onDisappear(perform: {
+			if self.navigation.onboardingOpenTwinCardWalletCreation {
+				self.navigation.onboardingOpenTwinCardWalletCreation = false
+			}
+		})
 		.alert(item: $viewModel.error) { $0.alert }
 		.alert(isPresented: $viewModel.doneAlertPresented, content: {
 			Alert(title: Text("common_success"),
