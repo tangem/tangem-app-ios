@@ -32,6 +32,7 @@ class MainViewModel: ViewModel {
     var amountToSend: Amount? = nil
     var persistentBag = Set<AnyCancellable>()
     var bag = Set<AnyCancellable>()
+    var walletBag = Set<AnyCancellable>()
     weak var cardsRepository: CardsRepository!
     
     //Mark: Input
@@ -128,31 +129,38 @@ class MainViewModel: ViewModel {
     func bind() {
         bag = Set<AnyCancellable>()
         
-        if let cardModel = state.cardModel {
-            cardModel.objectWillChange
-                .receive(on: RunLoop.main)
-                .sink { [weak self] in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-            
-            if let walletModel = cardModel.state.walletModel {
-                walletModel.objectWillChange
-                    .receive(on: RunLoop.main)
-                    .sink { [weak self] in
-                        self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-                
-                
-                walletModel.$state
-                    .map { $0.isLoading }
-                    .filter { !$0 }
-                    .receive(on: RunLoop.main)
-                    .assign(to: \.isRefreshing, on: self)
-                    .store(in: &bag)
+        
+        state.cardModel?
+            .objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
             }
-        }
+            .store(in: &bag)
+        
+        state.cardModel?
+            .$state
+            .map { $0.walletModel }
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] walletModel in
+                self.walletBag = Set<AnyCancellable>()
+                if let walletModel = walletModel {
+                    walletModel.objectWillChange
+                        .receive(on: RunLoop.main)
+                        .sink { [unowned self] in
+                            self.objectWillChange.send()
+                        }
+                        .store(in: &self.walletBag)
+                    
+                    walletModel.$state
+                        .map { $0.isLoading }
+                        .filter { !$0 }
+                        .receive(on: RunLoop.main)
+                        .assign(to: \.isRefreshing, on: self)
+                        .store(in: &walletBag)
+                }
+            }
+            .store(in: &bag)
         
         $isRefreshing
             .removeDuplicates()
