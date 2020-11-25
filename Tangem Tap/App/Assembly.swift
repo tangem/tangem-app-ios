@@ -96,7 +96,6 @@ class Assembly {
             vm.payIDService = payIdService
         }
         
-        vm.updateState()
         vm.update()
         return vm
     }
