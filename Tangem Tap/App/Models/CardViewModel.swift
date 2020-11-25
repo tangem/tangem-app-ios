@@ -15,15 +15,29 @@ import SwiftUI
 
 class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
-    weak var workaroundsService: WorkaroundsService!
+    weak var featuresService: AppFeaturesService!
     weak var payIDService: PayIDService? = nil
-    var config: Config!
+    var config: AppConfig!
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
+    
+    var canSetAccessCode: Bool {
+       return (cardInfo.card.settingsMask?.contains(.allowSetPIN1) ?? false ) &&
+        featuresService.getFeatures(for: cardInfo.card).contains(.pins)
+    }
+    
+    var canSetPasscode: Bool {
+        return !(cardInfo.card.settingsMask?.contains(.prohibitDefaultPIN1) ?? false) &&
+             featuresService.getFeatures(for: cardInfo.card).contains(.pins)
+    }
+    
+    var canSetLongTap: Bool {
+        return cardInfo.card.settingsMask?.contains(.allowSetPIN2) ?? false
+    }
     
     var canSign: Bool {
         let isPin2Default = cardInfo.card.isPin2Default ?? true
@@ -91,7 +105,7 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInfo.card.isPin2Default != nil
     }
     
-    var canTopup: Bool { config.isEnableMoonPay && workaroundsService.isTopupSupported(for: cardInfo.card) }
+    var canTopup: Bool { config.isEnableMoonPay && featuresService.isTopupSupported(for: cardInfo.card) }
     
     public private(set) var cardInfo: CardInfo {
         didSet {
