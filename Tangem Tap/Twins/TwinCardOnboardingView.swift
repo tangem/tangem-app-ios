@@ -14,14 +14,6 @@ struct TwinCardOnboardingView: View {
 	@ObservedObject var viewModel: TwinCardOnboardingViewModel
 	@Environment(\.presentationMode) var presentationMode
 	
-	@Binding var isFromDetails: Bool
-	@State var isDisplayingTwinCreation: Bool = false
-	
-	init(viewModel: TwinCardOnboardingViewModel, isFromDetails: Binding<Bool> = .constant(false)) {
-		self.viewModel = viewModel
-		self._isFromDetails = isFromDetails
-	}
-	
 	private let backHeightAspect: CGFloat = 1.3
 	private let backgroundMinBottomOffset: CGFloat = 300
 	private let screenSize: CGSize = UIScreen.main.bounds.size
@@ -63,37 +55,23 @@ struct TwinCardOnboardingView: View {
 				.edgesIgnoringSafeArea(.top)
 				Spacer()
 			}
+			.clipped()
+			.edgesIgnoringSafeArea(.all)
 			content()
-			if navigation.onboardingOpenMain, viewModel.state != .warning {
-				NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-							   isActive: $navigation.onboardingOpenMain)
-			}
-//			if isDisplayingTwinCreation {
-//			if viewModel.navigation.onboardingOpenTwinCardWalletCreation {
-//				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true), isFromDetails: self.$isFromDetails, dismissToDetails: dismissToDetails),
-//				NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
-//							   isActive: $isDisplayingTwinCreation)
-//					.isDetailLink(false)
-//			}
 		}
-		.navigationBarTitle("Onboarding")
+		.navigationBarTitle("")
 		.navigationBarHidden(true)
 		.navigationBarBackButtonHidden(true)
 		.background(Color(.tangemTapBgGray2).edgesIgnoringSafeArea(.all))
 	}
 	
 	private func content() -> some View {
-		let bottomButton = HStack {
-			Spacer()
-			TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: {
-					  self.viewModel.buttonAction()
-				  })
-				  .buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
-				  .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 34))
-			  }
+		let buttonEdgeInsets = EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 30)
+		let button = TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: { self.viewModel.buttonAction() })
+			.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
 		
 		switch viewModel.state {
-		case .onboarding(let pairCid):
+		case let .onboarding(pairCid, isFromMain):
 			return VStack {
 				Spacer()
 				VStack(alignment: .leading, spacing: 16) {
@@ -104,11 +82,22 @@ struct TwinCardOnboardingView: View {
 					Text(String(format: "twins_onboarding_description_format".localized, pairCid))
 						.foregroundColor(.tangemTapGrayDark3)
 				}
-				.font(.system(size: 14, weight: .regular))
+				.font(.system(size: 13, weight: .regular))
 				.lineSpacing(8)
 				.padding(.horizontal, 37)
 				.padding(.bottom, 28)
-				bottomButton
+				HStack {
+					Spacer()
+					if isFromMain {
+						button
+							.padding(buttonEdgeInsets)
+					} else {
+						NavigationButton(button: button,
+										 navigationLink: NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
+																		isActive: $navigation.onboardingOpenMain))
+							.padding(buttonEdgeInsets)
+					}
+				}
 			}.toAnyView()
 		case .warning:
 			return VStack {
@@ -125,22 +114,17 @@ struct TwinCardOnboardingView: View {
 						Text("details_twins_recreate_warning")
 							.foregroundColor(.tangemTapGrayDark3)
 					}
-					.font(.system(size: 14, weight: .regular))
+					.font(.system(size: 13, weight: .regular))
 					.lineSpacing(8)
-					.padding(.horizontal, 37)
+					.padding(.horizontal, 30)
 					.padding(.bottom, 44)
-					NavigationLink(
-						destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true), isFromDetails: $isFromDetails),
-						label: {
-							Text("common_start")
-//							TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: {} )
-//								.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
-//								.padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 34))
-						}
-					)
-//					NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
-//								   isActive: $isDisplayingTwinCreation)
-//					bottomButton
+					HStack {
+						Spacer()
+						NavigationButton(button: button,
+										 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
+																		isActive: $navigation.onboardingOpenTwinCardWalletCreation))
+							.padding(buttonEdgeInsets)
+					}
 				}
 			}.toAnyView()
 		}
@@ -156,21 +140,10 @@ struct TwinCardOnboardingView: View {
 }
 
 struct TwinCardOnboardingView_Previews: PreviewProvider {
+	static let assembly = Assembly.previewAssembly
 	static var previews: some View {
-		TwinCardOnboardingView(viewModel: Assembly.previewAssembly.makeTwinCardOnboardingViewModel())
-			.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone11Pro, .iPhone11ProMax])
-	}
-}
-
-typealias DismissToParent = () -> Void
-
-struct ParentDismissingModeKey: EnvironmentKey {
-	static let defaultValue: DismissToParent = {}
-}
-
-extension EnvironmentValues {
-	var parentDismissMode: DismissToParent {
-		get { return self[ParentDismissingModeKey.self] }
-		set { self[ParentDismissingModeKey.self] = newValue }
+		TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(isFromMain: false))
+			.environmentObject(assembly.navigationCoordinator)
+			.previewGroup(devices: [.iPhone11Pro])
 	}
 }
