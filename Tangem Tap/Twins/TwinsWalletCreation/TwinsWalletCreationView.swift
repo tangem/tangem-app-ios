@@ -25,22 +25,26 @@ struct TwinsWalletCreationView: View {
 	@EnvironmentObject var navigation: NavigationCoordinator
 	@ObservedObject var viewModel: TwinsWalletCreationViewModel
 	
+	@State var alert: AlertBinder?
+	
     var body: some View {
-		return VStack(spacing: 0) {
+		VStack(spacing: 0) {
 			NavigationBar(title: viewModel.isRecreatingWallet ? "details_twins_recreate_toolbar" : "details_row_title_twins_create",
 						  settings: .init(horizontalPadding: 8),
 						  backAction: {
-							withAnimation {
-								if self.viewModel.step == .first {
-									if self.navigation.showTwinsWalletCreation {
-										self.navigation.showTwinsWalletCreation = false
-									} else {
-										self.navigation.detailsShowTwinsRecreateWarning = false
-//										self.navigation.onboardingOpenTwinCardWalletCreation = false
-									}
+							if self.viewModel.step == .first {
+								if self.navigation.showTwinsWalletCreation {
+									self.navigation.showTwinsWalletCreation = false
 								} else {
-									self.viewModel.backAction()
+									self.navigation.detailsShowTwinsRecreateWarning = false
 								}
+							} else {
+								self.alert = AlertBinder(alert: Alert(title: Text("twins_creation_warning_title"),
+												   message: Text("twins_creation_warning_message"),
+								 primaryButton: Alert.Button.destructive(Text("common_cancel"), action: {
+								   self.dismiss()
+								 }),
+								 secondaryButton: Alert.Button.default(Text("common_continue"))))
 							}
 						  })
 			VStack(alignment: .leading, spacing: 8) {
@@ -51,25 +55,28 @@ struct TwinsWalletCreationView: View {
 					SimpleProgressBar(isSelected: true)
 					SimpleProgressBar(isSelected: viewModel.step >= .second)
 					SimpleProgressBar(isSelected: viewModel.step >= .third)
-					
 				}
+				.animation(.easeOut)
+				.transition(.opacity)
 				.frame(height: 3)
 				ZStack {
 					Image("twinSmall")
 						.offset(x: 22, y: -1.5)
 						.opacity(viewModel.step >= .second ? 1 : 0.0)
+						.animation(.easeOut)
+						.transition(.opacity)
 					Image("twinSmall")
 						.offset(y: 11)
 				}
 				.frame(height: 104, alignment: .leading)
-				Text(viewModel.step.title)
+				Text(viewModel.title)
 					.font(.system(size: 30, weight: .bold))
 				Text(viewModel.step.hint)
 				Spacer()
 				HStack {
 					Spacer()
 					TangemLongButton(isLoading: false,
-									 title: viewModel.step.buttonTitle,
+									 title: viewModel.buttonTitle,
 									 image: "scan") {
 						withAnimation {
 							self.viewModel.buttonAction()
@@ -91,22 +98,32 @@ struct TwinsWalletCreationView: View {
 				self.navigation.onboardingOpenTwinCardWalletCreation = false
 			}
 		})
-		.alert(item: $viewModel.error) { $0.alert }
-		.alert(isPresented: $viewModel.doneAlertPresented, content: {
-			Alert(title: Text("common_success"),
-				  message: Text("notification_twins_recreate_success"),
-				  dismissButton: .default(Text("common_ok"), action: {
-					
-//					if self.navigation.detailsShowTwinsRecreateWarning {
-//						self.navigation.detailsShowTwinsRecreateWarning = false
-//
-//					} else if self.navigation.showTwinsWalletCreation {
-//						self.navigation.showTwinsWalletCreation = false
-//					}
-					
-				  }))
+		.onAppear(perform: {
+			self.viewModel.onAppear()
 		})
+		.onReceive(viewModel.$error, perform: { error in
+			self.alert = error
+		})
+		.onReceive(viewModel.$finishedWalletCreation, perform: { isWalletsCreated in
+			if isWalletsCreated {
+				self.alert = AlertBinder(alert: Alert(title: Text("common_success"),
+													  message: Text("notification_twins_recreate_success"),
+									dismissButton: .default(Text("common_ok"), action: {
+									  self.dismiss()
+									})))
+			}
+		})
+		.alert(item: $alert) { $0.alert }
     }
+	
+	private func dismiss() {
+		if self.navigation.detailsShowTwinsRecreateWarning {
+			self.navigation.detailsShowTwinsRecreateWarning = false
+
+		} else if self.navigation.showTwinsWalletCreation {
+			self.navigation.showTwinsWalletCreation = false
+		}
+	}
 }
 
 struct TwinsWalletCreationView_Previews: PreviewProvider {
