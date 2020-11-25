@@ -16,13 +16,16 @@ class TwinsWalletCreationService {
 		case first, second, third, done
 	}
 	
-	private let twinFileName = "twinPublicKey"
+	private let twinFileName = "twin"
+	private let scanMessageKey = "twins_scan_twin_with_number"
 	
 	private let tangemSdk: TangemSdk
 	private let twinFileEncoder: TwinCardFileEncoder
+	private let cardsRepository: CardsRepository
 	
-	private let firstTwinCid: String
-	private let secondTwinCid: String
+	private var firstTwinCid: String = ""
+	private var secondTwinCid: String = ""
+	private var twinInfo: TwinCardInfo?
 	
 	private var firstTwinPublicKey: Data?
 	private var secondTwinPublicKey: Data?
@@ -30,16 +33,20 @@ class TwinsWalletCreationService {
 	private(set) var step = CurrentValueSubject<CreationStep, Never>(.first)
 	private(set) var occuredError = PassthroughSubject<Error, Never>()
 	
-	init(tangemSdk: TangemSdk, twinFileEncoder: TwinCardFileEncoder, twinInfo: TwinCardInfo) {
+	var stepCardNumber: Int {
+		guard let twin = twinInfo else { return 1 }
+		switch step.value {
+		case .first, .third, .done:
+			return twin.series.number
+		case .second:
+			return twin.series.pair.number
+		}
+	}
+	
+	init(tangemSdk: TangemSdk, twinFileEncoder: TwinCardFileEncoder, cardsRepository: CardsRepository) {
 		self.tangemSdk = tangemSdk
 		self.twinFileEncoder = twinFileEncoder
-		if twinInfo.series.number == 1 {
-			firstTwinCid = twinInfo.cid
-			secondTwinCid = twinInfo.pairCid
-		} else {
-			firstTwinCid = twinInfo.pairCid
-			secondTwinCid = twinInfo.cid
-		}
+		self.cardsRepository = cardsRepository
 	}
 	
 	func executeCurrentStep() {
@@ -55,9 +62,21 @@ class TwinsWalletCreationService {
 		}
 	}
 	
+	func setupTwins(for twin: TwinCardInfo) {
+		if twin.cid == firstTwinCid, twin.pairCid == secondTwinCid { return }
+		
+		twinInfo = twin
+		firstTwinCid = twin.cid
+		secondTwinCid = twin.pairCid
+	}
+	
+	func resetSteps() {
+		step = CurrentValueSubject<CreationStep, Never>(.first)
+	}
+	
 	private func createWalletOnFirstCard() {
 		let task = TwinsCreateWalletTask(targetCid: firstTwinCid, fileToWrite: nil)
-		tangemSdk.startSession(with: task, cardId: firstTwinCid) { (result) in
+		tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: Message(header: nil, body: String(format: scanMessageKey.localized, firstTwinCid))) { (result) in
 			switch result {
 			case .success(let response):
 				self.firstTwinPublicKey = response.walletPublicKey
@@ -78,7 +97,7 @@ class TwinsWalletCreationService {
 		switch twinFileToWrite(publicKey: firstTwinKey) {
 		case .success(let file):
 			let task = TwinsCreateWalletTask(targetCid: secondTwinCid, fileToWrite: file)
-			tangemSdk.startSession(with: task, cardId: secondTwinCid) { (result) in
+			tangemSdk.startSession(with: task, cardId: secondTwinCid, initialMessage: Message(header: nil, body: String(format: scanMessageKey.localized, secondTwinCid))) { (result) in
 				switch result {
 				case .success(let response):
 					self.secondTwinPublicKey = response.walletPublicKey
@@ -102,10 +121,12 @@ class TwinsWalletCreationService {
 		
 		switch twinFileToWrite(publicKey: secondTwinKey) {
 		case .success(let file):
-			let task = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: file))
-			tangemSdk.startSession(with: task, cardId: firstTwinCid) { (result) in
+			let task = TwinsFinalizeWalletCreationTask(fileToWrite: file)
+			tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: Message(header: nil, body: String(format: scanMessageKey.localized, firstTwinCid))) { [weak self] (result) in
+				guard let self = self else { return }
 				switch result {
-				case .success:
+				case .success(let response):
+					self.cardsRepository.processScanResponse(response)
 					self.step.send(.done)
 				case .failure(let error):
 					self.occuredError.send(error)
@@ -114,7 +135,6 @@ class TwinsWalletCreationService {
 		case .failure(let error):
 			occuredError.send(error)
 		}
-		
 	}
 	
 	private func twinFileToWrite(publicKey: Data) -> Result<Data, Error> {
