@@ -48,6 +48,10 @@ class SendViewModel: ViewModel {
     var shouldShowNetworkBlock: Bool  {
         return shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
+
+    	var isPayIdSupported: Bool {
+		cardViewModel.payId != .notSupported
+	}
     
     @Published var isNetworkFeeBlockOpen: Bool = false
     
@@ -373,7 +377,8 @@ class SendViewModel: ViewModel {
             return
         }
         
-        if let payIdService = cardViewModel.payIDService,
+        if let payIdService = cardViewModel.payIDService, 
+            isPayIdSupported,
            payIdService.validate(destination) {
             payIdService.resolve(destination) {[weak self] result in
                 switch result {
@@ -434,7 +439,8 @@ class SendViewModel: ViewModel {
     }
     
     func stripBlockchainPrefix(_ string: String) -> String {
-         return string.remove(walletModel.wallet.blockchain.qrPrefix)
+        let cleaned = string.split(separator: "?").first.map { String($0) } ?? string
+        return cleaned.remove(walletModel.wallet.blockchain.qrPrefix)
     }
     
     func send(_ callback: @escaping () -> Void) {
