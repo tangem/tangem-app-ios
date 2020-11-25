@@ -14,12 +14,13 @@ class DisclaimerViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var userPrefsService: UserPrefsService!
     
-    @Published var state: State = .accept
+    var state: State = .accept
     
     private var bag = Set<AnyCancellable>()
     
     func accept() {
         userPrefsService.isTermsOfServiceAccepted = true
+        objectWillChange.send()
         navigation.openMainFromDisclaimer = true
     }
 }
