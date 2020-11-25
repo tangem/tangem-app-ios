@@ -40,6 +40,12 @@ class Assembly {
         crepo.featuresService = featuresService
         return crepo
     }()
+	
+	lazy var twinsWalletCreationService = {
+		TwinsWalletCreationService(tangemSdk: tangemSdk,
+								   twinFileEncoder: TwinCardTlvFileEncoder(),
+								   cardsRepository: cardsRepository)
+	}()
     
     private var modelsStorage = [String : Any]()
     
@@ -197,16 +203,14 @@ class Assembly {
 	}
 	
 	func makeTwinsWalletCreationViewModel(isRecreating: Bool) -> TwinsWalletCreationViewModel {
-		let service = TwinsWalletCreationService(tangemSdk: tangemSdk,
-												 twinFileEncoder: TwinCardTlvFileEncoder(),
-												 twinInfo: cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo!)
-		
+		let twinInfo = cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo!
+		twinsWalletCreationService.setupTwins(for: twinInfo)
 		if let vm: TwinsWalletCreationViewModel = get() {
-			vm.walletCreationService = service
+			vm.walletCreationService = twinsWalletCreationService
 			return vm
 		}
 		
-		let vm = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating, walletCreationService: service)
+		let vm = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating, walletCreationService: twinsWalletCreationService)
 		initialize(vm)
 		return vm
 	}
