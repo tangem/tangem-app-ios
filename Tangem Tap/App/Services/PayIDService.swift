@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
-enum PayIdStatus {
+enum PayIdStatus: Equatable {
     case notCreated
     case created(payId: String)
     case notSupported
@@ -142,7 +142,7 @@ struct CreatePayIdResponse: Codable {
 class PayIDService {
     let network: PayIdNetwork
     //injected
-    var workaroundsService: WorkaroundsService!
+    var featuresService: AppFeaturesService!
     
     let payIdProvider = MoyaProvider<PayIdTarget>(/*plugins: [NetworkLoggerPlugin()]*/)
     
@@ -190,7 +190,7 @@ class PayIDService {
     
     
     func loadPayIDInfo (for card: Card) -> AnyPublisher<PayIdStatus, Error> {
-        guard workaroundsService.isPayIDSupported(for: card),
+        guard featuresService.isPayIDSupported(for: card),
               let cid = card.cardId,
               let key = card.cardPublicKey else {
             return Just(.notSupported)
