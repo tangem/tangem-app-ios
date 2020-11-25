@@ -140,7 +140,7 @@ struct ReadView: View {
                 }
                 
                 if viewModel.navigation.openDisclaimer {
-                    NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel()),
+                    NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
                                    isActive: $viewModel.navigation.openDisclaimer) {
                                       EmptyView()
                     }
