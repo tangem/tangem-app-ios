@@ -10,23 +10,23 @@ import Foundation
 import Combine
 
 class DisclaimerViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     weak var userPrefsService: UserPrefsService!
     
-    @Published var state: State = .accept
+    var state: State = .accept
 	
-	private var cardViewModel: CardViewModel?
+	var isTwinCard: Bool
     
     private var bag = Set<AnyCancellable>()
     
-	init(cardViewModel: CardViewModel?) {
-		self.cardViewModel = cardViewModel
+	init(isTwinCard: Bool) {
+		self.isTwinCard = isTwinCard
 	}
 	
     func accept() {
         userPrefsService.isTermsOfServiceAccepted = true
-		if (cardViewModel?.isTwinCard ?? false), !userPrefsService.isTwinCardOnboardingWasDisplayed {
+		if isTwinCard, !userPrefsService.isTwinCardOnboardingWasDisplayed {
 			navigation.openTwinCardOnboarding = true
 		} else {
 			navigation.openMainFromDisclaimer = true
