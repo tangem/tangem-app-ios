@@ -16,7 +16,7 @@ import SwiftUI
 class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
     weak var featuresService: AppFeaturesService!
-    weak var payIDService: PayIDService? = nil
+    var payIDService: PayIDService? = nil
     var config: AppConfig!
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
