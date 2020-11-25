@@ -50,12 +50,12 @@ class ReadViewModel: ViewModel {
         cardsRepository.scan { [weak self] scanResult in
             guard let self = self else { return }
             switch scanResult {
-			case .success(let card):
+			case .success:
                 if self.userPrefsService.isTermsOfServiceAccepted {
 					if self.userPrefsService.isTwinCardOnboardingWasDisplayed {
 						self.navigation.openMain = true
 					} else {
-						self.navigation.openTwinCardOnboarding = true
+						self.navigation.readOpenTwinCardOnboarding = true
 					}
                 } else {
                     self.navigation.openDisclaimer = true
