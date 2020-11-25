@@ -84,33 +84,39 @@ class CardsRepository {
                 Analytics.log(error: error)
                 completion(.failure(error))
             case .success(let response):
-                guard response.card.cardId != nil else {
-                    completion(.failure(TangemSdkError.unknownError))
-                    return
-                }
-                
-                Analytics.logScan(card: response.card)
-                
-                let cardInfo = CardInfo(card: response.card,
-                                        verificationState: response.verifyResponse.verificationState,
-										artworkInfo: response.verifyResponse.artworkInfo,
-										twinCardInfo: self.decodeTwinFile(from: response))
-                
-               
-                if !self.featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
-                    self.tangemSdk.config.linkedTerminal = false
-                }
-                
-                let cm = self.assembly.makeCardModel(from: cardInfo)
-                let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
-                self.cards[cardInfo.card.cardId!] = res
-				self.lastScanResult = res
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    completion(.success(res))
-                }
+				guard response.card.cardId != nil else {
+					completion(.failure(TangemSdkError.unknownError))
+					return
+				}
+				
+				Analytics.logScan(card: response.card)
+				
+                let res = processScanResponse(response)
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+					completion(.success(res))
+				}
             }
         }
     }
+	
+	@discardableResult
+	func processScanResponse(_ response: TapScanTaskResponse) -> ScanResult {
+		let cardInfo = CardInfo(card: response.card,
+								verificationState: response.verifyResponse.verificationState,
+								artworkInfo: response.verifyResponse.artworkInfo,
+								twinCardInfo: self.decodeTwinFile(from: response))
+		
+	   
+		if !self.featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
+			self.tangemSdk.config.linkedTerminal = false
+		}
+		
+		let cm = self.assembly.makeCardModel(from: cardInfo)
+		let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
+		self.cards[cardInfo.card.cardId!] = res
+		self.lastScanResult = res
+		return res
+	}
 	
 	private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
 		guard
