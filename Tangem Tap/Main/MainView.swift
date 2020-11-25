@@ -136,10 +136,9 @@ struct MainView: View {
                                          EmptyView()
                                     }
                                 }
+                                AddressDetailView(showCreatePayID: self.$navigation.showCreatePayID)
+                                    .environmentObject(self.viewModel.state.cardModel!)
                             }
-                            
-                            AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID)
-                                .environmentObject(self.viewModel.state.cardModel!)
                         }
                     }
                 }
@@ -156,15 +155,26 @@ struct MainView: View {
                     if viewModel.canCreateWallet {
 						createWalletButton
                     } else {
-                        if self.viewModel.state.cardModel!.canTopup {
-                            TangemVerticalButton(isLoading: false,
-                                                 title: "wallet_button_topup",
-                                                 image: "arrow.up") {
-                                self.viewModel.objectWillChange.send()
-                                self.viewModel.navigation.showTopup = true
-                            }
-                            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
-                        }
+						if self.viewModel.state.cardModel!.canTopup {
+							NavigationButton(
+								button: TangemVerticalButton(isLoading: false,
+															 title: "wallet_button_topup",
+															 image: "arrow.up") {
+									if self.viewModel.topupURL != nil {
+										self.viewModel.navigation.showTopup = true
+									}
+									
+								}
+								.buttonStyle(TangemButtonStyle(color: .green, isDisabled: false)),
+								navigationLink: NavigationLink(destination: WebViewContainer(url: viewModel.topupURL!,
+																							 closeUrl: viewModel.topupCloseUrl,
+																							 title: "wallet_button_topup")
+																.onDisappear {
+																	self.viewModel.state.cardModel?.update(silent: true)
+																},
+															   isActive: $navigation.showTopup))
+							
+						}
                         TangemVerticalButton(isLoading: false,
                                              title: "wallet_button_send",
                                              image: "arrow.right") {
@@ -196,17 +206,9 @@ struct MainView: View {
                 }
 				
 				
-                if viewModel.navigation.showTopup {
-                    if viewModel.topupURL != nil {
-                        NavigationLink(destination: WebViewContainer(url: viewModel.topupURL!,
-                                                                     closeUrl: viewModel.topupCloseUrl,
-                                                                     title: "wallet_button_topup")
-                                        .onDisappear {
-                                            self.viewModel.state.cardModel?.update(silent: true)
-                                        },
-                                       isActive: $viewModel.navigation.showTopup)
-                    }
-                }
+//                if navigation.showTopup {
+//
+//                }
 				
 				NavigationLink(
 					destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
