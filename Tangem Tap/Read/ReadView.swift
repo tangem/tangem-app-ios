@@ -11,6 +11,7 @@ import SwiftUI
 
 struct ReadView: View {
     @ObservedObject var viewModel: ReadViewModel
+	@EnvironmentObject var navigation: NavigationCoordinator
     
     var cardScale: CGFloat {
         switch viewModel.state {
@@ -104,7 +105,7 @@ struct ReadView: View {
                         TangemButton(isLoading: false,
                                      title: blackButtonTitleKey,
                                      image: "shopBag" ) {
-                            self.viewModel.navigation.openShop = true
+                            self.navigation.openShop = true
                         }.buttonStyle(TangemButtonStyle(color: .black))
                     } else {
                         Color.clear.frame(width: ButtonSize.small.value.width, height: ButtonSize.small.value.height)
@@ -135,16 +136,16 @@ struct ReadView: View {
 				// MARK: - Navigation links
 				NavigationLink(destination:
 								MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-							   isActive: $viewModel.navigation.openMain)
+							   isActive: $navigation.openMain)
 				
-				NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel()),
-							   isActive: $viewModel.navigation.openDisclaimer)
+				NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
+							   isActive: $navigation.openDisclaimer)
 				
-				NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel()),
-							   isActive: $viewModel.navigation.openTwinCardOnboarding)
+				NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
+							   isActive: $navigation.readOpenTwinCardOnboarding)
 				
 				NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
-							   isActive: $viewModel.navigation.openShop)
+							   isActive: $navigation.openShop)
 				// MARK: End Navigation -
 				
             }
