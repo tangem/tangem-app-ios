@@ -13,7 +13,7 @@ import WebKit
 
 
 struct WebViewContainer: View {
-    var url: URL
+    var url: URL?
     var closeUrl: String? = nil
     var title: LocalizedStringKey
     @Environment(\.presentationMode) var presentationMode
@@ -37,12 +37,14 @@ struct WebViewContainer: View {
 
 
 struct WebView: UIViewRepresentable {
-    var url: URL
+    var url: URL?
     var urlActions: [String : (() -> Void)] = [:]
     
     func makeUIView(context: Context) -> WKWebView {
         let view =  WKWebView()
-        view.load(URLRequest(url: url))
+        if let url = url {
+            view.load(URLRequest(url: url))
+        }
         view.navigationDelegate = context.coordinator
         return view
     }
