@@ -166,7 +166,7 @@ class MainViewModel: ViewModel {
             .removeDuplicates()
             .filter { $0 }
             .sink{ [unowned self] _ in
-                if let cardModel = self.state.cardModel {
+                if let cardModel = self.state.cardModel, cardModel.state.canUpdate {
                     cardModel.update()
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
