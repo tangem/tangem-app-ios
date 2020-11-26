@@ -151,6 +151,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func update() {
+        guard state.canUpdate else {
+            return
+        }
+        
         loadPayIDInfo()
         state.walletModel?.update()
     }
@@ -280,6 +284,15 @@ extension CardViewModel {
                 return model.wallet
             default:
                 return nil
+            }
+        }
+        
+        var canUpdate: Bool {
+            switch self {
+            case .loaded:
+                return true
+            default:
+                return false
             }
         }
     }
