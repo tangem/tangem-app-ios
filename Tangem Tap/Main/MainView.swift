@@ -170,7 +170,7 @@ struct MainView: View {
 																							 closeUrl: viewModel.topupCloseUrl,
 																							 title: "wallet_button_topup")
 																.onDisappear {
-																	self.viewModel.state.cardModel?.update(silent: true)
+																	self.viewModel.state.cardModel?.update()
 																},
 															   isActive: $navigation.showTopup))
 							
@@ -204,12 +204,10 @@ struct MainView: View {
                         }
                     }
                 }
-				
 				NavigationLink(
 					destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
 					isActive: $navigation.showSettings
 				)
-				
             }
         }
         .padding(.bottom, 16.0)
@@ -239,7 +237,7 @@ struct MainView: View {
                     }
                     .delay(for: 0.3, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
-            self.viewModel.state.cardModel?.update(silent: true)
+            self.viewModel.state.cardModel?.update()
         }
         .alert(item: $viewModel.error) { $0.alert }
         
