@@ -131,7 +131,6 @@ struct ReadView: View {
             .edgesIgnoringSafeArea(.top)
             .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
             .alert(item: $viewModel.scanError) { $0.alert }
-            
 				
 				// MARK: - Navigation links
 				NavigationLink(destination:
@@ -147,7 +146,6 @@ struct ReadView: View {
 				NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
 							   isActive: $navigation.openShop)
 				// MARK: End Navigation -
-				
             }
         }
 		.navigationViewStyle(StackNavigationViewStyle())
