@@ -103,7 +103,7 @@ class SendViewModel: ViewModel {
     var walletTotalBalanceDecimals: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
         return isFiatCalculation ? walletModel.getFiat(for: amount)?.description ?? ""
-            : amount?.value.description ?? ""
+            : amount?.value.rounded(blockchain: walletModel.wallet.blockchain).description ?? ""
     }
     
     var walletTotalBalanceFormatted: String {
