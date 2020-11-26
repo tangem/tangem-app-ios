@@ -11,6 +11,7 @@ import Foundation
 struct BalanceViewModel {
     let isToken: Bool
     let hasTransactionInProgress: Bool
+    let isLoading: Bool
     let loadingError: String?
     let name: String
     let fiatBalance: String
