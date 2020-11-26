@@ -15,7 +15,6 @@ class DisclaimerViewModel: ViewModel {
     weak var userPrefsService: UserPrefsService!
     
     var state: State = .accept
-	
 	var isTwinCard: Bool
     
     private var bag = Set<AnyCancellable>()
