@@ -47,6 +47,7 @@ class WalletModel: ObservableObject, Identifiable {
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
             .combineLatest($state)
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[unowned self] wallet, state in
                 print("wallet received")
@@ -125,13 +126,12 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
-//        guard loadingError != nil || !wallet.amounts.isEmpty else { //not yet loaded
-//            return
-//        }
-        
+        let isLoading = state.error == nil && wallet.amounts.isEmpty
+
         if let token = wallet.token {
             balanceViewModel = BalanceViewModel(isToken: true,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
+                                                isLoading: isLoading,
                                                 loadingError: state.error?.localizedDescription,
                                                 name: token.displayName,
                                                 fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? " ",
@@ -142,6 +142,7 @@ class WalletModel: ObservableObject, Identifiable {
         } else {
             balanceViewModel = BalanceViewModel(isToken: false,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
+                                                isLoading: isLoading,
                                                 loadingError: state.error?.localizedDescription,
                                                 name:  wallet.blockchain.displayName,
                                                 fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
