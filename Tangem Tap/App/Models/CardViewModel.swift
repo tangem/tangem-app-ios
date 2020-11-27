@@ -260,6 +260,8 @@ class CardViewModel: Identifiable, ObservableObject {
         } else {
             self.state = .empty
         }
+        
+        update()
     }
 }
 
