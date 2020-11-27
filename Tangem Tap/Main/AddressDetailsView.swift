@@ -50,7 +50,7 @@ struct AddressDetailView: View {
                         .lineLimit(1)
                         .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
-                        if let url = self.cardViewModel.state.wallet?.exploreUrl {
+                        if let url = self.cardViewModel.state.wallet?.getExploreURL() {
                             UIApplication.shared.open(url, options: [:], completionHandler: nil)
                         }
                     }) {
@@ -99,7 +99,7 @@ struct AddressDetailView: View {
                     // VStack {
                     //    Spacer()
                     QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.cardViewModel.state.wallet!.blockchain.displayName),
-                               shareString: self.cardViewModel.state.wallet!.shareString)
+                               shareString: self.cardViewModel.state.wallet!.getShareString())
                         .transition(AnyTransition.move(edge: .bottom))
                     //   Spacer()
                     // }
