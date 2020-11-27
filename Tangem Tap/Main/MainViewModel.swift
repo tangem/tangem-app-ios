@@ -248,7 +248,7 @@ class MainViewModel: ViewModel {
         guard let wallet = state.wallet else {
             return
         }
-
+        
         if let tokenAmount = wallet.amounts[.token], tokenAmount.value > 0 {
             navigation.showSendChoise = true
         } else {
@@ -258,6 +258,7 @@ class MainViewModel: ViewModel {
     }
     
     func showSendScreen() {
+        assembly.reset()
         navigation.showSend = true
     }
     
@@ -275,5 +276,6 @@ class MainViewModel: ViewModel {
     
     func onAppear() {
         showUntrustedDisclaimerIfNeeded()
+        assembly.reset()
     }
 }
