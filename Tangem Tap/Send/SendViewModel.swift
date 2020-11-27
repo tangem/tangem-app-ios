@@ -103,7 +103,7 @@ class SendViewModel: ViewModel {
     var walletTotalBalanceDecimals: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
         return isFiatCalculation ? walletModel.getFiat(for: amount)?.description ?? ""
-            : amount?.value.description ?? ""
+            : amount?.value.rounded(blockchain: walletModel.wallet.blockchain).description ?? ""
     }
     
     var walletTotalBalanceFormatted: String {
@@ -444,13 +444,13 @@ class SendViewModel: ViewModel {
     }
     
     func send(_ callback: @escaping () -> Void) {
-        guard var tx = self.transaction else {
+        guard let tx = self.transaction else {
             return
         }
         
-        if let payIdTag = self.validatedTag {
-            tx.infos[Transaction.InfoKey.destinationTag] = payIdTag
-        }
+//        if let payIdTag = self.validatedTag {
+//			tx.infos[BlockchainSdk.] = payIdTag
+//        }
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         walletModel.txSender.send(tx, signer: signer)
