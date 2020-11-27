@@ -165,7 +165,7 @@ class MainViewModel: ViewModel {
             .removeDuplicates()
             .filter { $0 }
             .sink{ [unowned self] _ in
-                if let cardModel = self.state.cardModel {
+                if let cardModel = self.state.cardModel, cardModel.state.canUpdate {
                     cardModel.update()
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -255,12 +255,12 @@ class MainViewModel: ViewModel {
             return
         }
 
-        if let tokenAmount = wallet.amounts[.token], tokenAmount.value > 0 {
-            navigation.showSendChoise = true
-        } else {
+//		if let tokenAmount = wallet.amounts[.coin], tokenAmount.value > 0 {
+//            navigation.showSendChoise = true
+//        } else {
             amountToSend = Amount(with: wallet.amounts[.coin]!, value: 0)
             showSendScreen() 
-        }
+//        }
     }
     
     func showSendScreen() {
