@@ -22,12 +22,23 @@ struct BalanceView: View {
             return  "wallet_balance_tx_in_progress".localized
         }
         
+        if balanceViewModel.isLoading {
+            return  "wallet_balance_loading".localized
+        }
+        
         return "wallet_balance_verified".localized
     }
     
+    var image: String {
+        balanceViewModel.loadingError == nil
+            && !balanceViewModel.hasTransactionInProgress
+            && !balanceViewModel.isLoading ? "checkmark.circle" : "exclamationmark.circle"
+    }
     
     var accentColor: Color {
-        if balanceViewModel.loadingError == nil && !balanceViewModel.hasTransactionInProgress {
+        if balanceViewModel.loadingError == nil
+            && !balanceViewModel.hasTransactionInProgress
+            && !balanceViewModel.isLoading {
             return .tangemTapGreen
         }
         return .tangemTapWarning
@@ -144,6 +155,7 @@ struct BalanceView_Previews: PreviewProvider {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
                                                                hasTransactionInProgress: false,
+                                                               isLoading: false,
                                                                loadingError: nil,
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: "$3.45",
@@ -156,6 +168,7 @@ struct BalanceView_Previews: PreviewProvider {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: false,
+                                                               isLoading: false,
                                                                loadingError: "The internet connection appears to be offline",
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: " ",
@@ -169,6 +182,7 @@ struct BalanceView_Previews: PreviewProvider {
                 Color.tangemTapBgGray
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: true,
+                                                               isLoading: false,
                                                                loadingError: nil,
                                                                name: "Bitcoin token",
                                                                fiatBalance: "5 USD",
