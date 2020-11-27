@@ -21,11 +21,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly! {
         didSet {
-            if let wm = self.assembly.makeWalletModel(from: cardInfo.card) {
-                self.state = .loaded(walletModel: wm)
-            } else {
-                self.state = .empty
-            }
+            updateState()
         }
     }
     
@@ -83,7 +79,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 return false
             }
             
-            if !walletModel.wallet.isEmptyAmount || walletModel.wallet.hasPendingTx {
+            if !walletModel.wallet.isEmpty || walletModel.wallet.hasPendingTx {
                 return false
             }
             
@@ -170,6 +166,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func update() {
+        guard state.canUpdate else {
+            return
+        }
+        
         loadPayIDInfo()
         state.walletModel?.update()
     }
@@ -233,6 +233,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success(let response):
                 self.cardInfo.card = self.cardInfo.card.updating(with: response)
+                self.updateState()
                 completion(.success(()))
             case .failure(let error):
                 Analytics.log(error: error)
@@ -248,6 +249,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success(let response):
                 self.cardInfo.card = self.cardInfo.card.updating(with: response)
+                self.updateState()
                 completion(.success(()))
             case .failure(let error):
                 Analytics.log(error: error)
@@ -264,6 +266,14 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         else {
             self.currentSecOption = .longTap
+        }
+    }
+    
+    private func updateState() {
+        if let wm = self.assembly.makeWalletModel(from: cardInfo) {
+            self.state = .loaded(walletModel: wm)
+        } else {
+            self.state = .empty
         }
     }
 }
@@ -289,6 +299,15 @@ extension CardViewModel {
                 return model.wallet
             default:
                 return nil
+            }
+        }
+        
+        var canUpdate: Bool {
+            switch self {
+            case .loaded:
+                return true
+            default:
+                return false
             }
         }
     }
