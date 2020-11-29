@@ -38,6 +38,7 @@ class ImageLoaderService {
         
         return networkService
             .requestPublisher(endpoint)
+            .subscribe(on: DispatchQueue.global())
             .tryMap { data -> UIImage in
                 if let image = UIImage(data: data) {
                     return image
