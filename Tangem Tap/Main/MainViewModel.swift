@@ -18,6 +18,7 @@ class MainViewModel: ViewModel {
     
     @Published var navigation: NavigationCoordinator! {
         didSet {
+            persistentBag = Set<AnyCancellable>()
             navigation.objectWillChange
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] in
