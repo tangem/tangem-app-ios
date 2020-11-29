@@ -49,9 +49,9 @@ class SendViewModel: ViewModel {
         return shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
 
-    	var isPayIdSupported: Bool {
-		cardViewModel.payId != .notSupported
-	}
+    var isPayIdSupported: Bool {
+        cardViewModel.payIDService != nil
+    }
     
     @Published var isNetworkFeeBlockOpen: Bool = false
     
@@ -377,8 +377,7 @@ class SendViewModel: ViewModel {
             return
         }
         
-        if let payIdService = cardViewModel.payIDService, 
-            isPayIdSupported,
+        if let payIdService = cardViewModel.payIDService,
            payIdService.validate(destination) {
             payIdService.resolve(destination) {[weak self] result in
                 switch result {
