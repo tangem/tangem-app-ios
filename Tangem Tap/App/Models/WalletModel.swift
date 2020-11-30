@@ -46,12 +46,11 @@ class WalletModel: ObservableObject, Identifiable {
         self.walletManager = walletManager
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
-            .combineLatest($state)
             .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: {[unowned self] wallet, state in
+            .sink(receiveValue: {[unowned self] wallet in
                 print("wallet received")
-                self.updateBalanceViewModel(with: wallet, state: state)
+                self.updateBalanceViewModel(with: wallet, state: self.state)
                 if wallet.hasPendingTx {
                     if self.updateTimer == nil {
                         self.startUpdatingTimer()
@@ -84,8 +83,8 @@ class WalletModel: ObservableObject, Identifiable {
                     
                     self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 } else {
-                    self.loadRates()
                     self.state = .idle
+                    self.loadRates()
                 }
             }
         }
@@ -128,18 +127,18 @@ class WalletModel: ObservableObject, Identifiable {
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         let isLoading = state.error == nil && wallet.amounts.isEmpty
 
-//		if let token = wallet.amounts[.token] {
-//            balanceViewModel = BalanceViewModel(isToken: true,
-//                                                hasTransactionInProgress: wallet.hasPendingTx,
-//                                                isLoading: isLoading,
-//                                                loadingError: state.error?.localizedDescription,
-//                                                name: token.displayName,
-//                                                fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? " ",
-//                                                balance: wallet.amounts[.token]?.description ?? "-",
-//                                                secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
-//                                                secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
-//                                                secondaryName: wallet.blockchain.displayName )
-//        } else {
+        if let token = walletManager.cardTokens.first {
+            balanceViewModel = BalanceViewModel(isToken: true,
+                                                hasTransactionInProgress: wallet.hasPendingTx,
+                                                isLoading: isLoading,
+                                                loadingError: state.error?.localizedDescription,
+                                                name: wallet.blockchain.tokenDisplayName,
+                                                fiatBalance: getFiatFormatted(for: wallet.amounts[.token(value: token)]) ?? " ",
+                                                balance: wallet.amounts[.token(value: token)]?.description ?? "-",
+                                                secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
+                                                secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
+                                                secondaryName: wallet.blockchain.displayName )
+        } else {
             balanceViewModel = BalanceViewModel(isToken: false,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
                                                 isLoading: isLoading,
@@ -150,7 +149,7 @@ class WalletModel: ObservableObject, Identifiable {
                                                 secondaryBalance: "-",
                                                 secondaryFiatBalance: " ",
                                                 secondaryName: "-")
-//        }
+        }
     }
     
     private func loadRates() {
@@ -162,7 +161,6 @@ class WalletModel: ObservableObject, Identifiable {
         
         ratesService?
             .loadRates(for: currenciesToExchange)
-            .combineLatest($state)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
@@ -172,9 +170,9 @@ class WalletModel: ObservableObject, Identifiable {
                 case .finished:
                     break
                 }
-            }) {[unowned self] rates, state in
+            }) {[unowned self] rates in
                 self.rates = rates
-                self.updateBalanceViewModel(with: self.wallet, state: state)
+                self.updateBalanceViewModel(with: self.wallet, state: self.state)
             }
             .store(in: &bag)
     }
