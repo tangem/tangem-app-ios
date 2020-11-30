@@ -103,7 +103,7 @@
 
 "wallet_address_button_explore" = "Explore address";
 
-"wallet_address_button_create_payid" = "Create PayID";
+"wallet_address_button_create_payid" = "Create PayString";
 
 
 
@@ -111,27 +111,27 @@
 
 
 
-"wallet_create_payid" = "Create PayID";
+"wallet_create_payid" = "Create PayString";
 
 "wallet_create_payid_card_format" = "Card: %@";
 
-"wallet_create_payid_hint" = "PayID name";
+"wallet_create_payid_hint" = "PayString name";
 
 "wallet_create_payid_domain" = "$payid.tangem.com"; //not translatable
 
 "wallet_create_payid_button_title" = "Create";
 
-"wallet_create_payid_info" = "Your PayID is information unique to you, like your phone number, email or ABN.";
+"wallet_create_payid_info" = "Your PayString is information unique to you, like your phone number, email or ABN.";
 
-"wallet_create_payid_success_message" = "PayID created successfully and copied to clipboard";
+"wallet_create_payid_success_message" = "PayString created successfully and copied to clipboard";
 
-"wallet_create_payid_error_message" = "Error response while creating PayID";
+"wallet_create_payid_error_message" = "Error response while creating PayString";
 
-"wallet_create_payid_error_already_created" = "This PayID already exists. Try a different one.";
+"wallet_create_payid_error_already_created" = "This PayString already exists. Try a different one.";
 
 // MARK: - Send
 
-"send_destination_hint" = "Address or PayID";
+"send_destination_hint" = "Address or PayString";
 
 "send_destination_hint_address" = "Address";
 
@@ -278,7 +278,7 @@
 
 "initial_message_change_passcode_body" = "Tap to change the passcode";
 
-"payid_service_error_loading" = "Invalid PayID";
+"payid_service_error_loading" = "Invalid PayString";
 
 
 "disclaimer_text" = "Legal Disclaimer
@@ -340,14 +340,17 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 
 "disclaimer_title" = "Terms of service";
 
-"send_error_payid_verification_failed" = "PayID verification failed";
-"send_error_payid_unsupported_by_blockchain" = "PayID unsupported by blockchain";
-"send_error_payid_not_registered" = "PayID not registered";
-"send_error_payid_request_failed" = "PayID request failed";
+"common_accept" = "Accept";
+
+"send_error_payid_verification_failed" = "PayString verification failed";
+"send_error_payid_unsupported_by_blockchain" = "PayString unsupported by blockchain";
+"send_error_payid_not_registered" = "PayString not registered";
+"send_error_payid_request_failed" = "PayString request failed";
+
 "send_error_address_same_as_wallet" = "Address is the same as your wallet address";
 
 "wallet_notification_address_copied" = "Address was successfully copied";
-"wallet_create_payid_empty" = "Enter desired PayID first";
+"wallet_create_payid_empty" = "Enter desired PayString first";
 
 "initial_message_scan_header" = "Tap to scan";
 "initial_message_tap_header" = "Tap the card";
