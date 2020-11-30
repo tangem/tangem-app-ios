@@ -79,7 +79,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 return false
             }
             
-            if !walletModel.wallet.isEmptyAmount || walletModel.wallet.hasPendingTx {
+            if !walletModel.wallet.isEmpty || walletModel.wallet.hasPendingTx {
                 return false
             }
             
