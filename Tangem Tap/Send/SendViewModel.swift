@@ -448,7 +448,7 @@ class SendViewModel: ViewModel {
         }
         
         if let payIdTag = self.validatedTag {
-            tx.infos[Transaction.InfoKey.destinationTag] = payIdTag
+            tx.params = XRPTransactionParams.destinationTag(value: payIdTag)
         }
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
