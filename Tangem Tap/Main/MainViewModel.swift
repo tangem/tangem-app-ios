@@ -250,7 +250,9 @@ class MainViewModel: ViewModel {
             return
         }
         
-        if let tokenAmount = wallet.amounts[.token], tokenAmount.value > 0 {
+        let hasTokenAmounts = wallet.amounts.values.filter { $0.type.isToken && !$0.isEmpty }.count > 0
+        
+        if hasTokenAmounts {
             navigation.showSendChoise = true
         } else {
             amountToSend = Amount(with: wallet.amounts[.coin]!, value: 0)
