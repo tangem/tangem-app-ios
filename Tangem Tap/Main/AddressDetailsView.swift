@@ -117,7 +117,7 @@ struct AddressDetailView: View {
                     Image ("payId")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 58.0, height: 18.0)
+                        .frame(width: 96.0, height: 19.0)
                     Spacer(minLength: 8)
                     
                     if !isPayIdCreated {
