@@ -230,6 +230,7 @@ class PayIDService {
                 
                 throw error
             }
+            .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
     }
     
