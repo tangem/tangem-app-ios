@@ -127,14 +127,14 @@ class WalletModel: ObservableObject, Identifiable {
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         let isLoading = state.error == nil && wallet.amounts.isEmpty
 
-        if let token = wallet.token {
+        if let token = walletManager.cardTokens.first {
             balanceViewModel = BalanceViewModel(isToken: true,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
                                                 isLoading: isLoading,
                                                 loadingError: state.error?.localizedDescription,
-                                                name: token.displayName,
-                                                fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? " ",
-                                                balance: wallet.amounts[.token]?.description ?? "-",
+                                                name: wallet.blockchain.tokenDisplayName,
+                                                fiatBalance: getFiatFormatted(for: wallet.amounts[.token(value: token)]) ?? " ",
+                                                balance: wallet.amounts[.token(value: token)]?.description ?? "-",
                                                 secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
                                                 secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
                                                 secondaryName: wallet.blockchain.displayName )
