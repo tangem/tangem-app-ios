@@ -28,21 +28,18 @@ class DetailsViewModel: ViewModel {
     }
     
     @Published var navigation: NavigationCoordinator!
-    @Published private(set) var cardModel: CardViewModel {
-        didSet {
-            cardModel.objectWillChange
-                .receive(on: RunLoop.main)
-                .sink { [weak self] in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-        }
-    }
+    @Published private(set) var cardModel: CardViewModel
     
     private var bag = Set<AnyCancellable>()
     
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
+        cardModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
