@@ -119,6 +119,7 @@ class CoinMarketCapService {
             .filterSuccessfulStatusCodes()
             .map(FiatResponse.self)
             .map { $0.data.sorted(by: { $0.name < $1.name } ) }
+            .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
     }
     
@@ -136,6 +137,7 @@ class CoinMarketCapService {
         }
         .collect()
         .map { $0.reduce(into: [String: [String: Decimal]]()) { $0[$1.0] = $1.1 } }
+        .subscribe(on: DispatchQueue.global())
         .eraseToAnyPublisher()
     }
 }
