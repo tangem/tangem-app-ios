@@ -254,16 +254,19 @@ class MainViewModel: ViewModel {
         guard let wallet = state.wallet else {
             return
         }
-
-//		if let tokenAmount = wallet.amounts[.coin], tokenAmount.value > 0 {
-//            navigation.showSendChoise = true
-//        } else {
+        
+        let hasTokenAmounts = wallet.amounts.values.filter { $0.type.isToken && !$0.isEmpty }.count > 0
+        
+        if hasTokenAmounts {
+            navigation.showSendChoise = true
+        } else {
             amountToSend = Amount(with: wallet.amounts[.coin]!, value: 0)
             showSendScreen() 
-//        }
+        }
     }
     
     func showSendScreen() {
+        assembly.reset()
         navigation.showSend = true
     }
     
@@ -283,6 +286,8 @@ class MainViewModel: ViewModel {
 		if !showTwinCardOnboardingIfNeeded() {
 			showUntrustedDisclaimerIfNeeded()
 		}
+		
+        assembly.reset()
     }
 	
 	private func showTwinCardOnboardingIfNeeded() -> Bool {
