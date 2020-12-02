@@ -1,5 +1,5 @@
 //
-//  Config.swift
+//  AppConfig.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,25 +8,25 @@
 
 import Foundation
 
-struct Config {
+struct AppConfig {
     var coinMarketCapApiKey: String {
-        raw[Config.Keys.coinMarketCapApiKey.rawValue] as! String
+        raw[AppConfig.Keys.coinMarketCapApiKey.rawValue] as! String
     }
     
     var moonPayApiKey: String {
-        raw[Config.Keys.moonPayApiKey.rawValue] as! String
+        raw[AppConfig.Keys.moonPayApiKey.rawValue] as! String
     }
     
     var moonPaySecretApiKey: String {
-        raw[Config.Keys.moonPaySecretApiKey.rawValue] as! String
+        raw[AppConfig.Keys.moonPaySecretApiKey.rawValue] as! String
     }
     
     var isEnableMoonPay: Bool {
-        raw[Config.Keys.isEnableMoonPay.rawValue] as! Bool
+        raw[AppConfig.Keys.isEnableMoonPay.rawValue] as! Bool
     }
     
     var isEnablePayID: Bool {
-           raw[Config.Keys.isEnablePayID.rawValue] as! Bool
+           raw[AppConfig.Keys.isEnablePayID.rawValue] as! Bool
        }
     
     private enum Keys: String {

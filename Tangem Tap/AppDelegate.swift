@@ -42,13 +42,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().tintColor = UIColor.tangemTapGrayDark6
         
         
-       // if #available(iOS 14.0, *) { //for xcode 12
+        
+        if #available(iOS 14.0, *) {
             // iOS 14 doesn't have extra separators below the list by default.
-      //  } else {
+        } else {
             // To remove only extra separators below the list:
             UITableView.appearance().tableFooterView = UIView()
-       // }
-        
+        }
 
         #if DEBUG
         Firebase.Analytics.setAnalyticsCollectionEnabled(false)
