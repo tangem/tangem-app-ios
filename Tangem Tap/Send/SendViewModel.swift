@@ -443,7 +443,7 @@ class SendViewModel: ViewModel {
     }
     
     func send(_ callback: @escaping () -> Void) {
-        guard let tx = self.transaction else {
+        guard var tx = self.transaction else {
             return
         }
         
