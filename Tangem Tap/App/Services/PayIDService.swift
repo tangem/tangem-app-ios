@@ -10,8 +10,17 @@ import Foundation
 import Moya
 import TangemSdk
 import BlockchainSdk
+import Combine
+
+enum PayIdStatus: Equatable {
+    case notCreated
+    case created(payId: String)
+    case notSupported
+}
 
 enum PayIdError: Error {
+    case anyError(message: String)
+    case emptyResponse
     case unknown
 }
 
@@ -131,14 +140,15 @@ struct CreatePayIdResponse: Codable {
 }
 
 class PayIDService {
+    let network: PayIdNetwork
+    //injected
+    var featuresService: AppFeaturesService!
+    
+    let payIdProvider = MoyaProvider<PayIdTarget>(/*plugins: [NetworkLoggerPlugin()]*/)
     
     internal init(network: PayIdNetwork) {
         self.network = network
     }
-    
-    let network: PayIdNetwork
-    let payIdProvider = MoyaProvider<PayIdTarget>(/*plugins: [NetworkLoggerPlugin()]*/)
-    
     
     static func make(from blockchain: Blockchain) -> PayIDService? {
         switch blockchain {
@@ -178,45 +188,54 @@ class PayIDService {
         return nil
     }
     
-    func loadPayId(cid: String, key: Data, completion: @escaping (Result<String?, Error>) -> Void) {
-        payIdProvider.request(.getPayId(cid: cid, cardPublicKey: key)) {[weak self] moyaResult in
-            guard let self = self else { return }
-            DispatchQueue.main.async {
-                switch moyaResult {
-                case .success(let response):
-                    do {
-                        _ = try response.filterSuccessfulStatusCodes()
-                        if let getResponse = try? response.map(GetPayIdResponse.self) {
-                            if let payId = getResponse.payId {
-                                completion(.success(payId))
-                            } else {
-                                completion(.failure("Empty PayID response"))
-                            }
-                        } else {
-                            completion(.failure("Unknown PayID response"))
-                        }
-                    } catch {
-                        if response.statusCode == 404 {
-                       
-                            completion(.success(nil))
-                            return
-                        } else {
-                            if let errorResponse = try? response.map(PayIdErrorResponse.self), let msg = errorResponse.message {
-                                completion(.failure(msg))
-                            } else {
-                                completion(.failure("Request failed. Try again later"))
-                            }
+    
+    func loadPayIDInfo (for card: Card) -> AnyPublisher<PayIdStatus, Error> {
+        guard featuresService.isPayIDSupported(for: card),
+              let cid = card.cardId,
+              let key = card.cardPublicKey else {
+            return Just(.notSupported)
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+        
+        return loadPayId(cid: cid, key: key)
+    }
+    
+    
+    private func loadPayId(cid: String, key: Data) -> AnyPublisher<PayIdStatus, Error> {
+        return payIdProvider
+            .requestPublisher(.getPayId(cid: cid, cardPublicKey: key))
+            .filterSuccessfulStatusCodes()
+            .map(GetPayIdResponse.self)
+            .tryMap { payIdResponse -> PayIdStatus in
+                if let payId = payIdResponse.payId {
+                    return .created(payId: payId)
+                }
+                throw PayIdError.emptyResponse
+            }
+            .tryCatch{ error -> AnyPublisher<PayIdStatus, Error> in
+                if let moyaError = error as? MoyaError,
+                   case let .statusCode(response) = moyaError {
+                    if response.statusCode == 404 {
+                        return Just(PayIdStatus.notCreated)
+                            .setFailureType(to: Error.self)
+                            .eraseToAnyPublisher()
+                    } else {
+                        if let errorResponse = try? response.map(PayIdErrorResponse.self),
+                           let msg = errorResponse.message {
+                            throw PayIdError.anyError(message: msg)
                         }
                     }
-                case .failure(let error):
-                    completion(.failure(error))
                 }
+                
+                throw error
             }
-        }
+            .subscribe(on: DispatchQueue.global())
+            .eraseToAnyPublisher()
     }
     
     func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void) {
-        payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: self.network)) {[weak self] moyaResult in
+        payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: self.network)) { moyaResult in
             DispatchQueue.main.async {
                 switch moyaResult {
                 case .success(let response):
