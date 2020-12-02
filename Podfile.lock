@@ -33,7 +33,7 @@ PODS:
     - SwiftyJSON
     - TangemSdk
     - web3swift
-  - CryptoSwift (1.3.5)
+  - CryptoSwift (1.3.7)
   - EFQRCode (6.0.0):
     - swift_qrcodejs (~> 1.2.0)
   - Firebase/Analytics (7.1.0):
@@ -158,7 +158,7 @@ DEPENDENCIES:
   - EFQRCode
   - Firebase/Analytics
   - Firebase/Crashlytics
-  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.9`)
+  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.11`)
   - Moya
   - SwiftyJSON
   - TangemSdk (from `../card-sdk-swift`)
@@ -204,7 +204,7 @@ EXTERNAL SOURCES:
     :path: "../blockchain-sdk-swift"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
-    :tag: 0.3.9
+    :tag: 0.3.11
   TangemSdk:
     :path: "../card-sdk-swift"
   web3swift:
@@ -217,7 +217,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.7
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
-    :tag: 0.3.9
+    :tag: 0.3.11
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.3
@@ -228,7 +228,7 @@ SPEC CHECKSUMS:
   BigInt: 2aad1a9942dc932ec8b84290d2c564a3d76f97ab
   BinanceChain: 590254fcbe333b0374c69f5ea80f56afb291bb26
   BlockchainSdk: 34e7770ff22d9bce6c68aac39649b40d59790160
-  CryptoSwift: 82a5798c280a72ec105e2392d607a456e8ae63b6
+  CryptoSwift: b6faad405e69964740422daf121918b5b1870f2b
   EFQRCode: 27f7ef4382159d79d583d839cdfc596b5ac98c9f
   Firebase: 78e8dd2e39d653de6270432ad84fe8b59f7bf4e8
   FirebaseAnalytics: 7f165a56dea86ddd5b8ce02af3bee982c683405c
@@ -258,6 +258,6 @@ SPEC CHECKSUMS:
   web3swift: e618d3efb2075e65eb42fa1e4c47580fefd8f76b
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 0930599f9996cfb0cf6600039c28a8bf6a0e7812
+PODFILE CHECKSUM: 5e68ed1c74087c57d61fd076620b5f9e291addef
 
 COCOAPODS: 1.10.0
