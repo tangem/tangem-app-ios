@@ -9,32 +9,29 @@
 import Foundation
 import SwiftUI
 import TangemSdk
-import SafariServices
+import Combine
 
-class ReadViewModel: ObservableObject {
-    enum State {
-        case welcome
-        case welcomeBack
-        case ready
-        case read
-    }
+class ReadViewModel: ViewModel {
+    @Published var navigation: NavigationCoordinator!
+    weak var assembly: Assembly!
     
-    var sdkService: TangemSdkService
-    @Published var openDetails: Bool = false
-    @Published var openDisclaimer: Bool = false
-    @Published var openShop: Bool = false
+    //injected
+    weak var cardsRepository: CardsRepository!
+    weak var userPrefsService: UserPrefsService!
+    
+    //viewState
     @Published var state: State = .welcome
+    //scan button state
     @Published var isLoading: Bool = false
     @Published var scanError: AlertBinder?
     var shopURL = URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!
     
     
     @Storage("tangem_tap_first_time_scan", defaultValue: true)
-    var firstTimeScan: Bool
+    private var firstTimeScan: Bool
     
-    
-    init(sdkService: TangemSdkService) {
-        self.sdkService = sdkService
+    private var bag = Set<AnyCancellable>()
+    init() {
         self.state = firstTimeScan ? .welcome : .welcomeBack
     }
     
@@ -51,14 +48,14 @@ class ReadViewModel: ObservableObject {
     
     func scan() {
         self.isLoading = true
-        sdkService.scan { [weak self] scanResult in
+        cardsRepository.scan { [weak self] scanResult in
             guard let self = self else { return }
             switch scanResult {
             case .success:
-                if DisclaimerView.isTermsOfServiceAccepted {
-                    self.openDetails = true
+                if self.userPrefsService.isTermsOfServiceAccepted {
+                    self.navigation.openMain = true
                 } else {
-                    self.openDisclaimer = true
+                    self.navigation.openDisclaimer = true
                 }
                 self.firstTimeScan = false
             case .failure(let error):
@@ -68,5 +65,14 @@ class ReadViewModel: ObservableObject {
             }
              self.isLoading = false
         }
+    }
+}
+
+extension ReadViewModel {
+    enum State {
+        case welcome
+        case welcomeBack
+        case ready
+        case read
     }
 }
