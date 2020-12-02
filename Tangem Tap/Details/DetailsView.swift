@@ -54,25 +54,25 @@ struct DetailsView: View {
             Section(header: EmptyView()
                 .listRowInsets(EdgeInsets())) {
                     DetailsRowView(title: "details_row_title_cid".localized,
-                                   subtitle: CardIdFormatter(cid: viewModel.cardViewModel.card.cardId ?? "").formatted())
+                                   subtitle: CardIdFormatter(cid: viewModel.cardModel.cardInfo.card.cardId ?? "").formatted())
                     DetailsRowView(title: "details_row_title_issuer".localized,
-                                   subtitle: viewModel.cardViewModel.card.cardData?.issuerName ?? " ")
-                    if viewModel.cardViewModel.card.walletSignedHashes != nil {
+                                   subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
+                if viewModel.cardModel.cardInfo.card.walletSignedHashes != nil {
                         DetailsRowView(title: "details_row_title_signed_hashes".localized,
                                        subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
-                                                        viewModel.cardViewModel.card.walletSignedHashes!.description))
+                                                        viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
                     }
             }
             
             Section(header: HeaderView(text: "details_section_title_settings".localized)) {
-                NavigationLink(destination:CurrencySelectView()
-                    .environmentObject(self.viewModel.cardViewModel)) {
+                NavigationLink(destination:CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel())) {
                         DetailsRowView(title: "details_row_title_currency".localized,
-                                       subtitle: viewModel.cardViewModel.selectedCurrency)
+                                       subtitle: viewModel.ratesService.selectedCurrencyCode)
                         
                 }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                NavigationLink(destination:DisclaimerView(state: .read).background(Color.tangemTapBgGray)) {
+                NavigationLink(destination:DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
+                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))) {
                                        DetailsRowView(title: "disclaimer_title".localized,
                                                       subtitle: "")
                                        
@@ -84,30 +84,29 @@ struct DetailsView: View {
                 //                    DetailsRowView(title: "details_row_title_validate".localized, subtitle: "")
                 //                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                NavigationLink(destination:SecurityManagementView(selectedOption: viewModel.cardViewModel.currentSecOption)
-                    .environmentObject(viewModel.cardViewModel)
-                    .environmentObject(viewModel.sdkService)) {
-                        DetailsRowView(title: "details_row_title_manage_security".localized, subtitle: viewModel.cardViewModel.currentSecOption.title)
-                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                    .disabled(!viewModel.canManageSecurity)
+                NavigationLink(destination: SecurityManagementView(viewModel:
+                                                                    viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel))) {
+                        DetailsRowView(title: "details_row_title_manage_security".localized,
+                                       subtitle: viewModel.cardModel.currentSecOption.title)
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                .disabled(!viewModel.cardModel.canManageSecurity)
                 
                 NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
                                                               buttonTitle: "details_row_title_erase_wallet",
                                                               alert: "details_erase_wallet_warning".localized,
-                                                              actionButtonPressed: { completion in
-                                                                self.viewModel.purgeWallet(completion: completion)
-                })
-                ) {
+                                                              actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
+                )) {
                     DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
-                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                    .disabled(!viewModel.canPurgeWallet)
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                .disabled(!viewModel.cardModel.canPurgeWallet)
             }
             
             Section(header: Color.tangemTapBgGray
                 .listRowInsets(EdgeInsets())) {
                     EmptyView()
             }
-            
         }
         .padding(.top, 16.0)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
@@ -116,30 +115,7 @@ struct DetailsView: View {
 }
 
 struct SettingsView_Previews: PreviewProvider {
-    @State static var sdkService: TangemSdkService = {
-        let service = TangemSdkService()
-        service.cards[Card.testCard.cardId!] = CardViewModel(card: Card.testCard)
-        service.cards[Card.testCardNoWallet.cardId!] = CardViewModel(card: Card.testCardNoWallet)
-        return service
-    }()
-    
-    @State static var cardWallet: CardViewModel = {
-        return sdkService.cards[Card.testCard.cardId!]!
-    }()
-    
-    @State static var cardNoWallet: CardViewModel = {
-        return sdkService.cards[Card.testCardNoWallet.cardId!]!
-    }()
-    
     static var previews: some View {
-        Group {
-            DetailsView(viewModel: DetailsViewModel(
-                cardViewModel: $cardWallet,
-                sdkSerice: $sdkService))
-            
-            DetailsView(viewModel: DetailsViewModel(
-                cardViewModel: $cardNoWallet,
-                sdkSerice: $sdkService))
-        }
+        DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
     }
 }
