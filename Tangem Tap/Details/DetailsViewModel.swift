@@ -11,81 +11,46 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-class DetailsViewModel: ObservableObject {
-    @Binding var sdkService: TangemSdkService
-    @Binding var cardViewModel: CardViewModel {
+class DetailsViewModel: ViewModel {
+    weak var assembly: Assembly!
+    weak var cardsRepository: CardsRepository!
+    weak var ratesService: CoinMarketCapService!
+    {
         didSet {
-            bind()
+            ratesService
+                .$selectedCurrencyCodePublished
+                .receive(on: RunLoop.main)
+                .sink { [weak self] _ in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &bag)
         }
     }
-    @Published var canPurgeWallet: Bool = false
     
-    var canManageSecurity: Bool {
-        cardViewModel.card.isPin1Default != nil &&
-        cardViewModel.card.isPin2Default != nil
-    }
+    @Published var navigation: NavigationCoordinator!
+    @Published private(set) var cardModel: CardViewModel
     
     private var bag = Set<AnyCancellable>()
     
-    init(cardViewModel: Binding<CardViewModel>, sdkSerice: Binding<TangemSdkService>) {
-        self._sdkService = sdkSerice
-        self._cardViewModel = cardViewModel
-        bind()
-    }
-    
-    func bind() {
-        bag = Set<AnyCancellable>()
-        canPurgeWallet = getPurgeWalletStatus()
-        
-        cardViewModel.objectWillChange
-            .receive(on: DispatchQueue.main)
+    init(cardModel: CardViewModel) {
+        self.cardModel = cardModel
+        cardModel.objectWillChange
+            .receive(on: RunLoop.main)
             .sink { [weak self] in
                 self?.objectWillChange.send()
-        }
-        .store(in: &bag)
+            }
+            .store(in: &bag)
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
-        sdkService.purgeWallet(card: cardViewModel.card) { [weak self] result in
+        cardModel.purgeWallet() {result in
             switch result {
-            case .success(let cardViewModel):
-                guard let self = self else { return }
-                
-                self.cardViewModel = cardViewModel
-                self.canPurgeWallet = self.getPurgeWalletStatus()
+            case .success:
                 completion(.success(()))
             case .failure(let error):
                 completion(.failure(error))
                 break
             }
-        }
-    }
-    
-    private func getPurgeWalletStatus() -> Bool {
-        if let status = cardViewModel.card.status, status == .empty {
-            return false
-        }
-        
-        if (cardViewModel.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false) {
-            return false
-        }
-        
-        if let wallet = cardViewModel.wallet {
-            if let loadingError = cardViewModel.loadingError {
-                if case .noAccount(_) = (loadingError as? WalletError) {
-                    return true
-                } else {
-                    return false
-                }
-            }
-            
-            if !wallet.isEmptyAmount || wallet.hasPendingTx {
-                return false
-            }
-            
-            return true
-        } else {
-            return false
         }
     }
 }
