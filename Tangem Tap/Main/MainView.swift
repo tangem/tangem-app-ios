@@ -228,19 +228,6 @@ struct MainView: View {
         .navigationBarBackButtonHidden(true)
 		.navigationBarTitle("")
 		.navigationBarHidden(true)
-//        .navigationBarTitle(navigation.showSettings || navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
-//		.navigationBarHidden(navigation.showTwinCardOnboarding || navigation.showTwinsWalletCreation)
-//        .navigationBarItems(trailing: Button(action: {
-//            if self.viewModel.state.cardModel != nil {
-//                self.navigation.showSettings = true
-//            }
-//        }, label: { Image("verticalDots")
-//            .foregroundColor(Color.tangemTapGrayDark6)
-//            .frame(width: 44.0, height: 44.0, alignment: .center)
-//            .offset(x: 10.0, y: 0.0)
-//        })
-//        .padding(0.0)
-//        )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
             self.viewModel.onAppear()
@@ -322,12 +309,7 @@ struct DetailsView_Previews: PreviewProvider {
             NavigationView {
                 MainView(viewModel: testVM)
             }
-            .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-            .previewDisplayName("iPhone 8")
-            
-            NavigationView {
-                MainView(viewModel: testNoWalletVM)
-            }
+			.deviceForPreview(.iPhone8Plus)
         }
     }
 }
