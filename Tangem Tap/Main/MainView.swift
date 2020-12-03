@@ -104,7 +104,19 @@ struct MainView: View {
     }
     
     var body: some View {
-        VStack {
+		VStack(spacing: 0) {
+			NavigationBar(title: "wallet_title",
+						  rightButtons: {
+							Button(action: {
+								if self.viewModel.state.cardModel != nil {
+									self.navigation.showSettings = true
+								}
+							}, label: { Image("verticalDots")
+								.foregroundColor(Color.tangemTapGrayDark6)
+								.frame(width: 44.0, height: 44.0, alignment: .center)
+							})
+						  }
+			)
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
@@ -172,7 +184,8 @@ struct MainView: View {
 																.onDisappear {
 																	self.viewModel.state.cardModel?.update()
 																},
-															   isActive: $navigation.showTopup))
+															   isActive: $navigation.showTopup)
+							)
 							
 						}
                         TangemVerticalButton(isLoading: false,
@@ -209,22 +222,25 @@ struct MainView: View {
 					isActive: $navigation.showSettings
 				)
             }
+			.padding(.top, 8)
         }
         .padding(.bottom, 16.0)
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(navigation.showSettings || navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
-		.navigationBarHidden(navigation.showTwinCardOnboarding || navigation.showTwinsWalletCreation)
-        .navigationBarItems(trailing: Button(action: {
-            if self.viewModel.state.cardModel != nil {
-                self.navigation.showSettings = true
-            }
-        }, label: { Image("verticalDots")
-            .foregroundColor(Color.tangemTapGrayDark6)
-            .frame(width: 44.0, height: 44.0, alignment: .center)
-            .offset(x: 10.0, y: 0.0)
-        })
-        .padding(0.0)
-        )
+		.navigationBarTitle("")
+		.navigationBarHidden(true)
+//        .navigationBarTitle(navigation.showSettings || navigation.showTopup ? "" : "wallet_title", displayMode: .inline)
+//		.navigationBarHidden(navigation.showTwinCardOnboarding || navigation.showTwinsWalletCreation)
+//        .navigationBarItems(trailing: Button(action: {
+//            if self.viewModel.state.cardModel != nil {
+//                self.navigation.showSettings = true
+//            }
+//        }, label: { Image("verticalDots")
+//            .foregroundColor(Color.tangemTapGrayDark6)
+//            .frame(width: 44.0, height: 44.0, alignment: .center)
+//            .offset(x: 10.0, y: 0.0)
+//        })
+//        .padding(0.0)
+//        )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
             self.viewModel.onAppear()
@@ -275,7 +291,7 @@ struct MainView: View {
 			return NavigationButton(button: longButton,
 							 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
 															isActive: $navigation.showTwinsWalletCreation))
-				.disabled(!self.viewModel.canCreateWallet)
+				.disabled(!(self.viewModel.canCreateWallet || self.viewModel.state.cardModel?.canRecreateTwinCard ?? false))
 				.toAnyView()
 		} else {
 			return longButton
