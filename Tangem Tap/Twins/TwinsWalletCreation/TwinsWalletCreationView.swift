@@ -56,12 +56,16 @@ struct TwinsWalletCreationView: View {
 				.transition(.opacity)
 				.frame(height: 3)
 				ZStack {
-					Image("twinSmall")
+					Image(uiImage: viewModel.walletCreationService.isStartedFromFirstNumber ? viewModel.firstTwinCardImage : viewModel.secondTwinCardImage)
+						.resizable()
+						.frame(width: 108, height: 57)
 						.offset(x: 22, y: -1.5)
 						.opacity(viewModel.step >= .second ? 1 : 0.0)
 						.animation(.easeOut)
 						.transition(.opacity)
-					Image("twinSmall")
+					Image(uiImage: viewModel.walletCreationService.isStartedFromFirstNumber ? viewModel.secondTwinCardImage : viewModel.firstTwinCardImage)
+						.resizable()
+						.frame(width: 108, height: 57)
 						.offset(y: 11)
 				}
 				.frame(height: 104, alignment: .leading)
