@@ -55,6 +55,8 @@ class TwinsWalletCreationViewModel: ViewModel {
 	@Published var step: Step = .first
 	@Published var error: AlertBinder?
 	@Published var finishedWalletCreation: Bool = false
+	@Published var firstTwinCardImage: UIImage = UIImage()
+	@Published var secondTwinCardImage: UIImage = UIImage()
 	
 	var title: String { String(format: "details_twins_recreate_title_format".localized, walletCreationService.stepCardNumber) }
 	var buttonTitle: LocalizedStringKey { LocalizedStringKey(String(format: "details_twins_recreate_button_format".localized, walletCreationService.stepCardNumber)) }
@@ -64,6 +66,7 @@ class TwinsWalletCreationViewModel: ViewModel {
 	private var isFirstTimeAppeared: Bool = false
 	
 	weak var assembly: Assembly!
+	weak var imageLoaderService: ImageLoaderService!
 	
 	let isRecreatingWallet: Bool
 	
@@ -71,9 +74,11 @@ class TwinsWalletCreationViewModel: ViewModel {
 	
 	private var bag = Set<AnyCancellable>()
 	
-	init(isRecreatingWallet: Bool, walletCreationService: TwinsWalletCreationService) {
+	init(isRecreatingWallet: Bool, walletCreationService: TwinsWalletCreationService, imageLoaderService: ImageLoaderService) {
 		self.isRecreatingWallet = isRecreatingWallet
 		self.walletCreationService = walletCreationService
+		self.imageLoaderService = imageLoaderService
+		loadImages()
 	}
 	
 	func buttonAction() {
@@ -114,6 +119,23 @@ class TwinsWalletCreationViewModel: ViewModel {
 			.sink(receiveValue: { [weak self] in
 				self?.error = $0.alertBinder
 			})
+			.store(in: &bag)
+	}
+	
+	private func loadImages() {
+		imageLoaderService.backedLoadImage(.twinCardOne)
+			.receive(on: DispatchQueue.main)
+			.sink(receiveCompletion: { _ in },
+				  receiveValue: { [weak self] image in
+					self?.firstTwinCardImage = image
+				  })
+			.store(in: &bag)
+		imageLoaderService.backedLoadImage(.twinCardTwo)
+			.receive(on: DispatchQueue.main)
+			.sink(receiveCompletion: { _ in },
+				  receiveValue: { [weak self] image in
+					self?.secondTwinCardImage = image
+				  })
 			.store(in: &bag)
 	}
 	
