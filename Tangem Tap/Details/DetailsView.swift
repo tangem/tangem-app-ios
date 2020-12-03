@@ -54,85 +54,87 @@ struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
 	@EnvironmentObject var navigation: NavigationCoordinator
 	
-	@State var isTwinRecreating: Bool = false
-	
     var body: some View {
-        List {
-            Section(header: EmptyView()
-                .listRowInsets(EdgeInsets())) {
-                    DetailsRowView(title: "details_row_title_cid".localized,
-                                   subtitle: CardIdFormatter(cid: viewModel.cardModel.cardInfo.card.cardId ?? "").formatted())
-                    DetailsRowView(title: "details_row_title_issuer".localized,
-                                   subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
-                if viewModel.cardModel.cardInfo.card.walletSignedHashes != nil {
-                        DetailsRowView(title: "details_row_title_signed_hashes".localized,
-                                       subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
-                                                        viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
-                    }
-            }
-            
-            Section(header: HeaderView(text: "details_section_title_settings".localized)) {
-                NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel())) {
-                        DetailsRowView(title: "details_row_title_currency".localized,
-                                       subtitle: viewModel.ratesService.selectedCurrencyCode)
-                        
-                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                
-				NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
-                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))) {
-                                       DetailsRowView(title: "disclaimer_title".localized,
-                                                      subtitle: "")
-                                       
-                               }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-            }
-            
-            Section(header: HeaderView(text: "details_section_title_card".localized)) {
-                //                NavigationLink(destination:CurrencySelectView()) {
-                //                    DetailsRowView(title: "details_row_title_validate".localized, subtitle: "")
-                //                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                
-                NavigationLink(destination: SecurityManagementView(viewModel:
-                                                                    viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel))) {
-                        DetailsRowView(title: "details_row_title_manage_security".localized,
-                                       subtitle: viewModel.cardModel.currentSecOption.title)
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.cardModel.canManageSecurity)
-                
-				if viewModel.isTwinCard {
-					
-					NavigationLink(
-						destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel()),
-						isActive: $navigation.detailsShowTwinsRecreateWarning,
-						label: {
-							DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
+		VStack(spacing: 0) {
+			NavigationBar(title: "details_title", backAction: { self.navigation.showSettings = false })
+			List {
+				Section(header: EmptyView().listRowInsets(EdgeInsets())) {
+						DetailsRowView(title: "details_row_title_cid".localized,
+									   subtitle: CardIdFormatter(cid: viewModel.cardModel.cardInfo.card.cardId ?? "").formatted())
+						DetailsRowView(title: "details_row_title_issuer".localized,
+									   subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
+					if viewModel.cardModel.cardInfo.card.walletSignedHashes != nil {
+							DetailsRowView(title: "details_row_title_signed_hashes".localized,
+										   subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
+															viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
 						}
-					)
-					.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+				}
+				
+				Section(header: HeaderView(text: "details_section_title_settings".localized)) {
+					NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel())) {
+							DetailsRowView(title: "details_row_title_currency".localized,
+										   subtitle: viewModel.ratesService.selectedCurrencyCode)
+							
+					}.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
 					
-				} else {
+					NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
+									.background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))) {
+										   DetailsRowView(title: "disclaimer_title".localized,
+														  subtitle: "")
+										   
+								   }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+				}
+				
+				Section(header: HeaderView(text: "details_section_title_card".localized)) {
+					//                NavigationLink(destination:CurrencySelectView()) {
+					//                    DetailsRowView(title: "details_row_title_validate".localized, subtitle: "")
+					//                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
 					
-					NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
-																  buttonTitle: "details_row_title_erase_wallet",
-																  alert: "details_erase_wallet_warning".localized,
-																  actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
-					)) {
-						DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
+					NavigationLink(destination: SecurityManagementView(viewModel:
+																		viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel))) {
+							DetailsRowView(title: "details_row_title_manage_security".localized,
+										   subtitle: viewModel.cardModel.currentSecOption.title)
 					}
 					.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-					.disabled(!viewModel.cardModel.canPurgeWallet)
+					.disabled(!viewModel.cardModel.canManageSecurity)
+					
+					if viewModel.isTwinCard {
+						
+						NavigationLink(
+							destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel()),
+							isActive: $navigation.detailsShowTwinsRecreateWarning,
+							label: {
+								DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
+							}
+						)
+						.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+						.disabled(!viewModel.cardModel.canRecreateTwinCard)
+						
+					} else {
+						
+						NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
+																	  buttonTitle: "details_row_title_erase_wallet",
+																	  alert: "details_erase_wallet_warning".localized,
+																	  actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
+						)) {
+							DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
+						}
+						.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+						.disabled(!viewModel.cardModel.canPurgeWallet)
+					}
 				}
-            }
-            
-            Section(header: Color.tangemTapBgGray
-                .listRowInsets(EdgeInsets())) {
-                    EmptyView()
-            }
-        }
-        .padding(.top, 16.0)
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
-        .navigationBarTitle("details_title", displayMode: .inline)
-		.navigationBarHidden(false)
+				
+				Section(header: Color.tangemTapBgGray
+					.listRowInsets(EdgeInsets())) {
+						EmptyView()
+				}
+			}
+			.padding(.top, 16)
+		}
+		.navigationBarTitle("")
+		.navigationBarHidden(true)
+		.navigationBarBackButtonHidden(true)
+		.background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
     }
 }
 
@@ -140,27 +142,5 @@ struct SettingsView_Previews: PreviewProvider {
 	static var previews: some View {
 		DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
 			.environmentObject(Assembly.previewAssembly.navigationCoordinator)
-	}
-}
-
-
-
-struct RootPresentationModeKey: EnvironmentKey {
-	static let defaultValue: Binding<RootPresentationMode> = .constant(RootPresentationMode())
-}
-
-extension EnvironmentValues {
-	var rootPresentationMode: Binding<RootPresentationMode> {
-		get { return self[RootPresentationModeKey.self] }
-		set { self[RootPresentationModeKey.self] = newValue }
-	}
-}
-
-typealias RootPresentationMode = Bool
-
-extension RootPresentationMode {
-	
-	public mutating func dismiss() {
-		self.toggle()
 	}
 }
