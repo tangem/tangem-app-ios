@@ -24,7 +24,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
        
      
 		let contentView = ReadView(viewModel: assembly.makeReadViewModel()).environmentObject(assembly.navigationCoordinator)
-//		let contentView = DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel)).environmentObject(assembly.navigationCoordinator)
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
