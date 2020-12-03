@@ -160,7 +160,7 @@ struct MainView: View {
                                         // VStack {
                                         //    Spacer()
                                         QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.viewModel.state.wallet!.blockchain.displayName),
-                                                   shareString: self.viewModel.state.wallet!.getShareString())
+                                                   shareString: self.viewModel.state.wallet!.shareString)
                                             .transition(AnyTransition.move(edge: .bottom))
                                         //   Spacer()
                                         // }
