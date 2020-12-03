@@ -61,14 +61,12 @@ struct TwinCardOnboardingView: View {
 		}
 		.navigationBarTitle("")
 		.navigationBarHidden(true)
-		.navigationBarBackButtonHidden(true)
 		.background(Color(.tangemTapBgGray2).edgesIgnoringSafeArea(.all))
 	}
 	
 	private func content() -> some View {
-		let buttonEdgeInsets = EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 30)
+		let buttonEdgeInsets = EdgeInsets(top: 0, leading: 30, bottom: 16, trailing: 30)
 		let button = TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: { self.viewModel.buttonAction() })
-			.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
 		
 		switch viewModel.state {
 		case let .onboarding(pairCid, isFromMain):
@@ -85,7 +83,7 @@ struct TwinCardOnboardingView: View {
 				.font(.system(size: 13, weight: .regular))
 				.lineSpacing(8)
 				.padding(.horizontal, 37)
-				.padding(.bottom, 28)
+				.padding(.bottom, 24)
 				HStack {
 					Spacer()
 					if isFromMain {
@@ -95,6 +93,7 @@ struct TwinCardOnboardingView: View {
 						NavigationButton(button: button,
 										 navigationLink: NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
 																		isActive: $navigation.onboardingOpenMain))
+							.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
 							.padding(buttonEdgeInsets)
 					}
 				}
@@ -118,13 +117,20 @@ struct TwinCardOnboardingView: View {
 					.lineSpacing(8)
 					.padding(.horizontal, 30)
 					.padding(.bottom, 44)
-					HStack {
-						Spacer()
+					HStack(alignment: .center, spacing: 12) {
+						TangemButton(isLoading: false,
+									 title: "common_back",
+									 image: "", action: {
+										self.presentationMode.wrappedValue.dismiss()
+//										self.navigation.detailsShowTwinsRecreateWarning = false
+									 })
+							.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
 						NavigationButton(button: button,
 										 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
 																		isActive: $navigation.onboardingOpenTwinCardWalletCreation))
-							.padding(buttonEdgeInsets)
+							.buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
 					}
+					.padding(buttonEdgeInsets)
 				}
 			}.toAnyView()
 		}
@@ -142,8 +148,9 @@ struct TwinCardOnboardingView: View {
 struct TwinCardOnboardingView_Previews: PreviewProvider {
 	static let assembly = Assembly.previewAssembly
 	static var previews: some View {
-		TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(isFromMain: false))
+//		TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(isFromMain: false))
+		TwinCardOnboardingView(viewModel: assembly.makeTwinCardWarningViewModel())
 			.environmentObject(assembly.navigationCoordinator)
-			.previewGroup(devices: [.iPhone11Pro])
+			.previewGroup(devices: [.iPhone11ProMax])
 	}
 }
