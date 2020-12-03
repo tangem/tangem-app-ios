@@ -90,18 +90,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 	
 	var isTwinCard: Bool {
-		return cardInfo.twinCardInfo != nil
-		
-//		// [REDACTED_TODO_COMMENT]
-//		if !(cardInfo.card.cardData?.productMask?.contains(.note) ?? false) {
-//			return false
-//		}
-//
-//		if let status = cardInfo.card.status, status == .empty {
-//			return false
-//		}
-//
-//		return true
+		cardInfo.card.isTwinCard
+	}
+	
+	var canRecreateTwinCard: Bool {
+		isTwinCard && TwinCardSeries.series(for: cardInfo.card.cardId) != nil && config.isEnableTwinRecreation
 	}
     
     var canManageSecurity: Bool {
