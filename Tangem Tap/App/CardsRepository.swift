@@ -120,6 +120,7 @@ class CardsRepository {
 	
 	private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
 		guard
+			response.card.isTwinCard,
 			let cardId = response.card.cardId,
 			let pairCid = TwinCardsUtils.makePairCid(for: cardId),
 			let twinSeries = TwinCardSeries.series(for: response.card.cardId)
