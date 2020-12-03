@@ -47,7 +47,9 @@ struct TwinCardsUtils {
 	}
 	
 	private static func calculateTwinPairValidationNumber(for cid: String) -> Int {
-		10 - calculateLuhnRemainder(cid)
+		let remainder = calculateLuhnRemainder(cid)
+		if remainder == 0 { return 0 }
+		return 10 - remainder
 	}
 	
 }
