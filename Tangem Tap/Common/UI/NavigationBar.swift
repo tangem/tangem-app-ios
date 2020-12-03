@@ -10,14 +10,17 @@ import SwiftUI
 
 struct ArrowBack: View {
 	let action: () -> Void
+	let height: CGFloat
 	var color: Color = .tangemTapGrayDark6
 	
 	var body: some View {
 		Button(action: action, label: {
 			Image(systemName: "chevron.left")
+				.frame(width: height, height: height)
+				.font(.system(size: 20, weight: .medium))
 				.foregroundColor(color)
 		})
-		.padding(.all, 16)
+		.frame(width: height, height: height)
 	}
 }
 
@@ -35,7 +38,7 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 		init(titleFont: Font = .system(size: 17, weight: .medium),
 			 titleColor: Color = .tangemTapGrayDark6,
 			 backgroundColor: Color = .tangemTapBgGray,
-			 horizontalPadding: CGFloat = 16,
+			 horizontalPadding: CGFloat = 0,
 			 height: CGFloat = 44) {
 			
 			self.titleFont = titleFont
@@ -83,15 +86,28 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 	}
 }
 
+extension NavigationBar where LeftButtons == EmptyView {
+	init(
+		title: LocalizedStringKey,
+		settings: Settings = .init(),
+		@ViewBuilder rightButtons: () -> RightButtons
+	) {
+		leftButtons = EmptyView()
+		self.rightButtons = rightButtons()
+		self.title = title
+		self.settings = settings
+	}
+}
+
 extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyView {
 	init(
 		title: LocalizedStringKey,
 		settings: Settings = .init(),
 		backAction: @escaping () -> Void
 	) {
-		leftButtons = ArrowBack {
+		leftButtons = ArrowBack(action: {
 			backAction()
-		}
+		}, height: settings.height)
 		rightButtons = EmptyView()
 		self.title = title
 		self.settings = settings
@@ -104,9 +120,9 @@ extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyVie
 		settings: Settings = .init(),
 		presentationMode:  Binding<PresentationMode>
 	) {
-		leftButtons = ArrowBack {
+		leftButtons = ArrowBack(action: {
 			presentationMode.wrappedValue.dismiss()
-		}
+		}, height: settings.height)
 		rightButtons = EmptyView()
 		self.title = title
 		self.settings = settings
@@ -115,8 +131,23 @@ extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyVie
 
 struct NavigationBar_Previews: PreviewProvider {
 	static var previews: some View {
-		NavigationBar(title: "Hello, World!", backAction: {})
-			.deviceForPreview(.iPhone11Pro)
+		Group {
+			VStack {
+				NavigationBar(title: "Hello, World!", backAction: {})
+				Spacer()
+			}.deviceForPreview(.iPhone11Pro)
+			VStack {
+				NavigationBar(title: "Hello, World!", rightButtons: {
+					Button(action: {},
+						   label: {
+							Image("verticalDots")
+								.foregroundColor(Color.tangemTapGrayDark6)
+								.frame(width: 44.0, height: 44.0, alignment: .center)
+						   })
+				})
+				Spacer()
+			}.deviceForPreview(.iPhone11ProMax)
+		}
 	}
 }
 
