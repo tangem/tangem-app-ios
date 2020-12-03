@@ -33,18 +33,14 @@ struct TwinsWalletCreationView: View {
 						  settings: .init(horizontalPadding: 8),
 						  backAction: {
 							if self.viewModel.step == .first {
-								if self.navigation.showTwinsWalletCreation {
-									self.navigation.showTwinsWalletCreation = false
-								} else {
-									self.navigation.detailsShowTwinsRecreateWarning = false
-								}
+								self.dismiss()
 							} else {
 								self.alert = AlertBinder(alert: Alert(title: Text("twins_creation_warning_title"),
 												   message: Text("twins_creation_warning_message"),
-								 primaryButton: Alert.Button.destructive(Text("common_cancel"), action: {
+								 primaryButton: Alert.Button.destructive(Text("common_ok"), action: {
 								   self.dismiss()
 								 }),
-								 secondaryButton: Alert.Button.default(Text("common_continue"))))
+								 secondaryButton: Alert.Button.default(Text("common_cancel"))))
 							}
 						  })
 			VStack(alignment: .leading, spacing: 8) {
@@ -94,6 +90,8 @@ struct TwinsWalletCreationView: View {
 			.navigationBarHidden(true)
 		}
 		.onDisappear(perform: {
+			guard self.viewModel.isDismissing else { return }
+			self.viewModel.onDismiss()
 			if self.navigation.onboardingOpenTwinCardWalletCreation {
 				self.navigation.onboardingOpenTwinCardWalletCreation = false
 			}
@@ -117,6 +115,7 @@ struct TwinsWalletCreationView: View {
     }
 	
 	private func dismiss() {
+		viewModel.isDismissing = true
 		if self.navigation.detailsShowTwinsRecreateWarning {
 			self.navigation.detailsShowTwinsRecreateWarning = false
 
