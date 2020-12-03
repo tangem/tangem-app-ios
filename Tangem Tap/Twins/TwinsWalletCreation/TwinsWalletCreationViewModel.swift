@@ -59,7 +59,9 @@ class TwinsWalletCreationViewModel: ViewModel {
 	var title: String { String(format: "details_twins_recreate_title_format".localized, walletCreationService.stepCardNumber) }
 	var buttonTitle: LocalizedStringKey { LocalizedStringKey(String(format: "details_twins_recreate_button_format".localized, walletCreationService.stepCardNumber)) }
 	
-	private(set) var shouldDismiss: Bool = false
+	var isDismissing: Bool = false
+	
+	private var isFirstTimeAppeared: Bool = false
 	
 	weak var assembly: Assembly!
 	
@@ -78,9 +80,14 @@ class TwinsWalletCreationViewModel: ViewModel {
 		walletCreationService.executeCurrentStep()
 	}
 	
-	func onAppear() {
-		error = nil
+	func onDismiss() {
 		walletCreationService.resetSteps()
+	}
+	
+	func onAppear() {
+		if isFirstTimeAppeared { return }
+		isFirstTimeAppeared = true
+		error = nil
 		bind()
 	}
 	
