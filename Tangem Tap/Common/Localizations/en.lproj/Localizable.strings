@@ -34,6 +34,8 @@
 
 "common_cancel" = "Cancel";
 
+"common_back" = "Back";
+
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
@@ -219,7 +221,7 @@
 
 "twins_onboarding_description_format" = "This one that you are holding in your hands and the other one with number %@.\n\nBoth cards can be used to extract funds from this wallet.";
 
-"details_twins_recreate_warning" = "Lorem ipsum dolor sit amet, consectetur adipisc elit. Massa habitant mi mattis in tempor, egestas cursus. Facilisi urna, aliquam quisque feu. Lorem ipsum dolor sit amet, consectetur adipisc elit mas.";
+"details_twins_recreate_warning" = "This action is irreversible. If, after deleting the old wallet, someone sends funds to it, then you will not be able to withdraw them.";
 
 "details_twins_recreate_toolbar" = "Re-create wallet";
 "details_row_title_twins_create" = "Create wallet";
@@ -238,7 +240,7 @@
 "notification_twins_recreate_success" = "The twin address was successfully created";
 
 "twins_creation_warning_title" = "Cancel Twin Card creation?";
-"twins_creation_warning_message" = "Are you sure that you want to cancel wallet creation? Interuption of creation proccess will cause cards not work properly. Cancel wallet creation?";
+"twins_creation_warning_message" = "You have already started the process of recreating twin wallet. If you interrupt it, you won't be able to use your twin cards until you start it again and complete recreating the wallet.";
 "twins_scan_twin_with_number" = "Hold your iPhone near the twin card with number %@";
 
 // old
