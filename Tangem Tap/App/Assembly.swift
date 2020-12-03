@@ -268,7 +268,7 @@ extension Assembly {
         let ci = CardInfo(card: Card.testTwinCard,
                           verificationState: nil,
 						  artworkInfo: nil,
-						  twinCardInfo: TwinCardInfo(cid: "BB04000000006522", series: .dev4, pairCid: "BB05000000006521", pairPublicKey: nil))
+						  twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
         let vm = assembly.makeCardModel(from: ci)!
         let scanResult = ScanResult.card(model: vm)
         assembly.cardsRepository.cards[Card.testCard.cardId!] = scanResult
