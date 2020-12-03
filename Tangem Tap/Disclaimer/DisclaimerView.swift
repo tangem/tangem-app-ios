@@ -28,7 +28,7 @@ struct DisclaimerView: View {
             }
         }
         .foregroundColor(.tangemTapGrayDark6)
-        .navigationBarTitle("disclaimer_title")
+		.navigationBarTitle("disclaimer_title", displayMode: .inline)
         .navigationBarBackButtonHidden(viewModel.state == .accept)
     }
 	
