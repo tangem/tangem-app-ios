@@ -41,7 +41,7 @@ final class TapScanTask: CardSessionRunnable {
         scanTask.run(in: session) { result in
             switch result {
             case .success(let card):
-                if let product = card.cardData?.productMask, !product.contains(ProductMask.note) { //filter product
+				if let product = card.cardData?.productMask, !(product.contains(ProductMask.note) || product.contains(.twinCard)) { //filter product
                     completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
                     return
                 }
