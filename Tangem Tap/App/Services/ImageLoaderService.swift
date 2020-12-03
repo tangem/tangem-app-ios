@@ -12,6 +12,20 @@ import UIKit
 import TangemSdk
 
 class ImageLoaderService {
+	enum BackedImages {
+		case sergio, marta, `default`, twinCardOne, twinCardTwo
+		
+		var name: String {
+			switch self {
+			case .sergio: return "card_tg059"
+			case .marta: return "card_tg083"
+			case .default: return "card_default"
+			case .twinCardOne: return "card_tg085"
+			case .twinCardTwo: return "card_tg086"
+			}
+		}
+	}
+	
     let networkService: TmpNetworkService
     private let defaultImageName = "card_default"
     
@@ -21,15 +35,15 @@ class ImageLoaderService {
     
     func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Error> {
         if cid.starts(with: "BC01") { //Sergio
-            return backedLoadImage(name: "card_tg059")
+			return backedLoadImage(.sergio)
         }
         
         if cid.starts(with: "BC02") { //Marta
-            return backedLoadImage(name: "card_tg083")
+			return backedLoadImage(.marta)
         }
         
         guard let artworkId = artworkInfo?.id else {
-            return backedLoadImage(name: defaultImageName)
+			return backedLoadImage(.default)
         }
         
         let endpoint = TangemEndpoint.artwork(cid: cid,
@@ -71,6 +85,10 @@ class ImageLoaderService {
                 throw "Image mapping failed"
             }.eraseToAnyPublisher()
     }
+	
+	func backedLoadImage(_ image: BackedImages) -> AnyPublisher<UIImage, Error> {
+		backedLoadImage(name: image.name)
+	}
 }
 
  class TmpNetworkService {
