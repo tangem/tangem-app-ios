@@ -121,9 +121,7 @@ class CardsRepository {
 	private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
 		guard
 			response.card.isTwinCard,
-			let cardId = response.card.cardId,
-			let pairCid = TwinCardsUtils.makePairCid(for: cardId),
-			let twinSeries = TwinCardSeries.series(for: response.card.cardId)
+			let cardId = response.card.cardId
 			else { return nil }
 		
 		var pairPublicKey: Data?
@@ -136,7 +134,7 @@ class CardsRepository {
 				print("File doesn't contain twin card dara")
 			}
 		}
-		return TwinCardInfo(cid: cardId, series: twinSeries, pairCid: pairCid, pairPublicKey: pairPublicKey)
+		return TwinCardInfo(cid: cardId, series: TwinCardSeries.series(for: response.card.cardId), pairCid: TwinCardsUtils.makePairCid(for: cardId), pairPublicKey: pairPublicKey)
 	}
 	
 }
