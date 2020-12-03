@@ -33,6 +33,12 @@ class TwinsWalletCreationService {
 	private(set) var step = CurrentValueSubject<CreationStep, Never>(.first)
 	private(set) var occuredError = PassthroughSubject<Error, Never>()
 	
+	/// Determines is user start twin wallet creation from Twin card with first number
+	var isStartedFromFirstNumber: Bool {
+		guard let twin = twinInfo else { return true }
+		return twin.series.number == 1
+	}
+	
 	var stepCardNumber: Int {
 		guard let twin = twinInfo else { return 1 }
 		switch step.value {
