@@ -145,18 +145,33 @@ struct MainView: View {
                                          EmptyView()
                                     }
                                 }
-                                AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID)
-                                    .environmentObject(self.viewModel.state.cardModel!)
+                                AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID,
+                                                  showQr: self.$viewModel.navigation.showQRAddress,
+                                                  cardViewModel: self.viewModel.state.cardModel!)
+                                
+                                EmptyView()
+                                    .sheet(isPresented: self.$viewModel.navigation.showCreatePayID, content: {
+                                        CreatePayIdView(cardId: self.viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
+                                                        cardViewModel: self.viewModel.state.cardModel!)
+                                    })
+                                
+                                EmptyView()
+                                    .sheet(isPresented: self.$viewModel.navigation.showQRAddress) {
+                                        // VStack {
+                                        //    Spacer()
+                                        QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.viewModel.state.wallet!.blockchain.displayName),
+                                                   shareString: self.viewModel.state.wallet!.shareString)
+                                            .transition(AnyTransition.move(edge: .bottom))
+                                        //   Spacer()
+                                        // }
+                                        // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
+                                    }
                             }
                         }
                     }
                 }
 
             }
-            .sheet(isPresented: self.$viewModel.navigation.showCreatePayID, content: {
-                CreatePayIdView(cardId: self.viewModel.state.cardModel!.cardInfo.card.cardId ?? "")
-                    .environmentObject(self.viewModel.state.cardModel!)
-            })
             HStack(alignment: .center, spacing: 8.0) {
                 TangemVerticalButton(isLoading: self.viewModel.isScanning,
                                      title: "wallet_button_scan",
