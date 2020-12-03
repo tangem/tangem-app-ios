@@ -203,10 +203,9 @@ class Assembly {
 			return vm
 		}
 		
-		let vm = TwinCardOnboardingViewModel(state: state)
+		let vm = TwinCardOnboardingViewModel(state: state, imageLoader: imageLoaderService)
 		initialize(vm, with: key)
 		vm.userPrefsService = userPrefsService
-		vm.imageLoader = imageLoaderService
 		return vm
 	}
 	
@@ -218,7 +217,7 @@ class Assembly {
 			return vm
 		}
 		
-		let vm = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating, walletCreationService: twinsWalletCreationService)
+		let vm = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating, walletCreationService: twinsWalletCreationService, imageLoaderService: imageLoaderService)
 		initialize(vm)
 		return vm
 	}
