@@ -43,20 +43,37 @@ class TwinCardOnboardingViewModel: ViewModel {
 	weak var imageLoader: ImageLoaderService!
 	weak var userPrefsService: UserPrefsService!
 	
+	@Published var firstTwinImage: UIImage = UIImage()
+	@Published var secondTwinImage: UIImage = UIImage()
+	
 	var state: State
 	
 	private var bag = Set<AnyCancellable>()
 	
-	init(state: State) {
+	init(state: State, imageLoader: ImageLoaderService) {
 		self.state = state
+		self.imageLoader = imageLoader
+		loadImages()
+	}
+	
+	func loadImages() {
+		imageLoader.backedLoadImage(.twinCardOne)
+			.receive(on: DispatchQueue.main)
+			.sink(receiveCompletion: { _ in },
+				  receiveValue: { [weak self] image in
+					self?.firstTwinImage = image
+				  })
+			.store(in: &bag)
+		imageLoader.backedLoadImage(.twinCardTwo)
+			.receive(on: DispatchQueue.main)
+			.sink(receiveCompletion: { _ in },
+				  receiveValue: { [weak self] image in
+					self?.secondTwinImage = image
+				  })
+			.store(in: &bag)
 	}
 	
 	func didAppear() {
-		imageLoader.backedLoadImage(name: "")
-			.sink(receiveCompletion: { _ in }, receiveValue: {
-				print("Image received", $0)
-			})
-			.store(in: &bag)
 	}
 	
 	func buttonAction() {
