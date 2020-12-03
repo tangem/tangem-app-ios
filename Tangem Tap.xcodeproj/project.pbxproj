@@ -27,7 +27,6 @@
 		5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39516025597DB1002CC452 /* BalanceViewModel.swift */; };
 		5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3951662559A87E002CC452 /* CurrencySelectViewModel.swift */; };
 		5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C524BF56D800E8695B /* AppDelegate.swift */; };
-		5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C724BF56D800E8695B /* SceneDelegate.swift */; };
 		5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CB24BF56DC00E8695B /* Assets.xcassets */; };
 		5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CE24BF56DC00E8695B /* Preview Assets.xcassets */; };
 		5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */; };
@@ -111,6 +110,7 @@
 		5DFF006125224C85005203FB /* TangemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFF006025224C85005203FB /* TangemButton.swift */; };
 		B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */; };
 		B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
+		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
 		B0917297256D6CCF001B626F /* NavigationButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0917296256D6CCF001B626F /* NavigationButton.swift */; };
 		B0A943532564E85800A7958E /* TwinsWalletCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */; };
@@ -170,7 +170,6 @@
 		5D3951662559A87E002CC452 /* CurrencySelectViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectViewModel.swift; sourceTree = "<group>"; };
 		5D3F77C224BF56D800E8695B /* Tangem Tap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tangem Tap.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77C524BF56D800E8695B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		5D3F77C724BF56D800E8695B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		5D3F77CB24BF56DC00E8695B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5D3F77CE24BF56DC00E8695B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		5D3F77D124BF56DC00E8695B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -256,6 +255,7 @@
 		B022D30F253746C900D934D7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsFinalizeWalletCreationTask.swift; sourceTree = "<group>"; };
 		B03ACAC82567CFFF00F5D269 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
+		B046EE172578D38E00EA38A5 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsUtils.swift; sourceTree = "<group>"; };
 		B0917296256D6CCF001B626F /* NavigationButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButton.swift; sourceTree = "<group>"; };
 		B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationView.swift; sourceTree = "<group>"; };
@@ -423,7 +423,7 @@
 				5DFCCB6324C371AC0014A293 /* Common */,
 				5D383E4224D9602700C9BFF6 /* Assets */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
-				5D3F77C724BF56D800E8695B /* SceneDelegate.swift */,
+				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
 				5DBFEA4D24DD642C0080D3DC /* Tangem Tap.entitlements */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
 				5D3F77D324BF56DC00E8695B /* Info.plist */,
@@ -957,7 +957,6 @@
 				5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */,
 				5D9DCAF92551857D0059799C /* TangemSdk+.swift in Sources */,
 				5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */,
-				5D3F77C824BF56D800E8695B /* SceneDelegate.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* TopupService.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				5DD4CB5224FAE4B9008F23CC /* CustomTextField.swift in Sources */,
@@ -987,6 +986,7 @@
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
 				5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */,
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
+				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */,
 				5D958E1624F51402006BD932 /* NavigationConfigurator.swift in Sources */,
 				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
