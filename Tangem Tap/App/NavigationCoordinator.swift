@@ -27,6 +27,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var showSendChoise = false
     @Published var showCreatePayID = false
     @Published var showTopup = false
+    @Published var showQRAddress = false
     
     // MARK: SendView
     @Published var showQR = false
