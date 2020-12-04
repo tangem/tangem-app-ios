@@ -11,9 +11,9 @@ import SwiftUI
 import TangemSdk
 
 struct AddressDetailView: View {
-    @State private(set) var showQr: Bool = false
     @Binding var showCreatePayID: Bool
-    @EnvironmentObject var cardViewModel: CardViewModel
+    @Binding var showQr: Bool
+    var cardViewModel: CardViewModel
     
     var showPayIdBlock: Bool {
         switch cardViewModel.payId {
@@ -95,16 +95,6 @@ struct AddressDetailView: View {
                             .foregroundColor(Color.tangemTapGrayDark6)
                     }
                 }
-                .sheet(isPresented: $showQr) {
-                    // VStack {
-                    //    Spacer()
-                    QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.cardViewModel.state.wallet!.blockchain.displayName),
-                               shareString: self.cardViewModel.state.wallet!.shareString)
-                        .transition(AnyTransition.move(edge: .bottom))
-                    //   Spacer()
-                    // }
-                    // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
-                }
             }
             .padding(.horizontal, 24.0)
             .padding(.vertical, 16.0)
@@ -161,12 +151,14 @@ struct AddressDetailView: View {
 struct AddressDetailView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel.previewCardViewModel
     @State static var showPayID = false
+    @State static var showQR = false
     
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
-            AddressDetailView(showCreatePayID: $showPayID)
-            .environmentObject(cardViewModel)
+            AddressDetailView(showCreatePayID: $showPayID,
+                              showQr: $showQR,
+                              cardViewModel: cardViewModel)
         }
     }
 }
