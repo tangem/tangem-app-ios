@@ -27,20 +27,24 @@ class ImageLoaderService {
 	}
 	
     let networkService: TmpNetworkService
-    private let defaultImageName = "card_default"
     
     init(networkService: TmpNetworkService) {
         self.networkService = networkService
     }
     
     func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Error> {
-        if cid.starts(with: "BC01") { //Sergio
+		let prefix = String(cid.prefix(4))
+		if prefix.elementsEqual("BC01") { //Sergio
 			return backedLoadImage(.sergio)
         }
         
-        if cid.starts(with: "BC02") { //Marta
+		if prefix.elementsEqual("BC02") { //Marta
 			return backedLoadImage(.marta)
         }
+		
+		if let series = TwinCardSeries.allCases.first(where: { prefix.elementsEqual($0.rawValue.uppercased()) }) {
+			return backedLoadImage(series.number == 1 ? .twinCardOne : .twinCardTwo)
+		}
         
         guard let artworkId = artworkInfo?.id else {
 			return backedLoadImage(.default)
@@ -65,7 +69,7 @@ class ImageLoaderService {
                     throw error
                 }
                 
-                return self.backedLoadImage(name: self.defaultImageName)
+				return self.backedLoadImage(name: BackedImages.default.name)
             }
             .eraseToAnyPublisher()
     }
