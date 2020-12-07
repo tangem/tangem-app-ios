@@ -1,5 +1,5 @@
 //
-//  TapRemoteConfig.swift
+//  RemoteConfigManager.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import FirebaseRemoteConfig
 
-class RemoteConfigTap {
+class RemoteConfigManager {
 	
 	struct TapFeatures: Decodable {
 		let isWalletPayIdEnabled: Bool
@@ -40,11 +40,11 @@ class RemoteConfigTap {
 	private func fetch() {
 		config.fetchAndActivate { [weak self] (status, error) in
 			guard let self = self else { return }
-			self.setupConfig()
+			self.setupFeatures()
 		}
 	}
 	
-	private func setupConfig() {
+	private func setupFeatures() {
 		var key: String = "features_"
 		#if DEBUG
 		key.append("dev")
