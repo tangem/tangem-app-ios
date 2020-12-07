@@ -30,7 +30,7 @@ struct AppConfig {
 		remoteConfig.features.isWalletPayIdEnabled
 	}
 	
-	private let remoteConfig = RemoteConfigTap()
+	private let remoteConfig = RemoteConfigManager()
 	private let keysManager: KeysManager!
     
     init() {
