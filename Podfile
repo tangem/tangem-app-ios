@@ -20,6 +20,7 @@ target 'Tangem Tap' do
   pod 'EFQRCode'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
+	pod 'Firebase/RemoteConfig'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
