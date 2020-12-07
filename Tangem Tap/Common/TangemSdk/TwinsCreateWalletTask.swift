@@ -11,6 +11,8 @@ import TangemSdk
 class TwinsCreateWalletTask: CardSessionRunnable {
 	typealias CommandResponse = CreateWalletResponse
 	
+	var requiresPin2: Bool { true }
+	
 	private let targetCid: String
 	private var fileToWrite: Data?
 	
@@ -20,7 +22,11 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
 	
 	func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
-		deleteFile(in: session, completion: completion)
+		if session.environment.card?.status == .empty {
+			deleteFile(in: session, completion: completion)
+		} else {
+			self.eraseWallet(in: session, completion: completion)
+		}
 	}
 	
 	private func deleteFile(at index: Int? = nil, in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
@@ -28,11 +34,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 		deleteFile.run(in: session) { (result) in
 			switch result {
 			case .success:
-				if session.environment.card?.status == .empty {
-					self.createWallet(in: session, completion: completion)
-				} else {
-					self.eraseWallet(in: session, completion: completion)
-				}
+				self.createWallet(in: session, completion: completion)
 			case .failure(let error):
 				completion(.failure(error))
 			}
@@ -44,7 +46,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 		erase.run(in: session) { (result) in
 			switch result {
 			case .success:
-				self.createWallet(in: session, completion: completion)
+				self.deleteFile(in: session, completion: completion)
 			case .failure(let error):
 				completion(.failure(error))
 			}
