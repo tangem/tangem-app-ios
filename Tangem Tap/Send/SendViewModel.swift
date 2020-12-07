@@ -278,11 +278,11 @@ class SendViewModel: ViewModel {
         
         $amountValidated //update fee
             .filter { $0 }
-            .combineLatest($validatedDestination.compactMap { $0 })
+            .combineLatest($validatedDestination.compactMap { $0 }, $isFeeIncluded)
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
-            .flatMap { [unowned self] _, dest -> AnyPublisher<[Amount], Never> in
+            .flatMap {[unowned self] _ , dest, includeFee -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.txSender.getFee(amount: self.amountToSend, destination: dest)
+                return self.walletModel.txSender.getFee(amount: self.amountToSend, destination: dest, includeFee: includeFee)
                     .catch { error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
