@@ -47,7 +47,7 @@ class RemoteConfigTap {
 	private func setupConfig() {
 		var key: String = "features_"
 		#if DEBUG
-		key.append("test")
+		key.append("dev")
 		#elseif FIREBASE
 		key.append("firebase")
 		#else
