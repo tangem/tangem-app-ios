@@ -111,6 +111,15 @@
 		B072A72F257A119700C5029C /* features_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72C257A119700C5029C /* features_dev.json */; };
 		B072A730257A119700C5029C /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
 		B072A731257A119700C5029C /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
+		B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
+		B09FC1B1257DFB6E009524D4 /* TapRemoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* TapRemoteConfig.swift */; };
+		B09FC1BE257DFB8E009524D4 /* features_firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D188257DED8D00A3AB98 /* features_firebase.json */; };
+		B09FC1BF257DFB8E009524D4 /* features_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72C257A119700C5029C /* features_dev.json */; };
+		B09FC1C0257DFB8E009524D4 /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
+		B09FC1C1257DFB8E009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
+		B09FC1C2257DFB8E009524D4 /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
+		B09FC1C6257DFB92009524D4 /* features_firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D188257DED8D00A3AB98 /* features_firebase.json */; };
+		B09FC1C7257DFB92009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
 		B0E1008C257A4C2D00E8AB94 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E058F24FEA3F200F04DE1 /* AppConfig.swift */; };
 		B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B0E1D17D257DE79000A3AB98 /* TapRemoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* TapRemoteConfig.swift */; };
@@ -727,6 +736,7 @@
 				B072A730257A119700C5029C /* features_prod.json in Resources */,
 				5D225CB72524B592001564A3 /* GoogleService-Info.plist in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
+				B09FC1C7257DFB92009524D4 /* config_prod.json in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5DFB499624E44BC90037E76F /* Cards.xcassets in Resources */,
@@ -737,6 +747,7 @@
 				B072A731257A119700C5029C /* config_dev.json in Resources */,
 				5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
+				B09FC1C6257DFB92009524D4 /* features_firebase.json in Resources */,
 				5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */,
 				5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
 			);
@@ -747,10 +758,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D9141E024D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
+				B09FC1BF257DFB8E009524D4 /* features_dev.json in Resources */,
+				B09FC1C1257DFB8E009524D4 /* config_prod.json in Resources */,
 				5D9141EC24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
+				B09FC1C0257DFB8E009524D4 /* config_dev.json in Resources */,
+				B09FC1C2257DFB8E009524D4 /* features_prod.json in Resources */,
 				5D9141E324D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5D9141E624D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
 				5D9141E924D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
+				B09FC1BE257DFB8E009524D4 /* features_firebase.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -959,8 +975,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */,
 				5D3F77DD24BF56DC00E8695B /* Tangem_TapTests.swift in Sources */,
 				B0E1008C257A4C2D00E8AB94 /* AppConfig.swift in Sources */,
+				B09FC1B1257DFB6E009524D4 /* TapRemoteConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
