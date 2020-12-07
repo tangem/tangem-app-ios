@@ -12,6 +12,8 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
 	
 	private let fileToWrite: Data
 	
+	var requiresPin2: Bool { true }
+	
 	init(fileToWrite: Data) {
 		self.fileToWrite = fileToWrite
 	}
