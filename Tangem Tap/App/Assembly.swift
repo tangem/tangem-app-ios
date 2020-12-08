@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 class Assembly {
-    lazy var config = AppConfig()
+    let config = AppConfig()
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()

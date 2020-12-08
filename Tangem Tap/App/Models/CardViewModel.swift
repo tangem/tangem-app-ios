@@ -94,7 +94,7 @@ class CardViewModel: Identifiable, ObservableObject {
 	}
 	
 	var canRecreateTwinCard: Bool {
-		isTwinCard && cardInfo.twinCardInfo?.series != nil && config.isEnableTwinRecreation
+		isTwinCard && cardInfo.twinCardInfo?.series != nil && config.isEnableTwinCreation
 	}
     
     var canManageSecurity: Bool {
