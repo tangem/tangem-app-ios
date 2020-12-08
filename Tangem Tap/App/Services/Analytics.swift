@@ -30,9 +30,9 @@ class Analytics {
     
     static func logScan(card: Card) {
         let blockchainName = card.cardData?.blockchainName ?? ""
-        let params = [ParameterKey.blockchain.rawValue: blockchainName,
-                      ParameterKey.batchId.rawValue: card.cardData?.batchId ?? "",
-                      ParameterKey.firmware.rawValue: card.firmwareVersion ?? ""]
+		let params = [ParameterKey.blockchain.rawValue: blockchainName,
+					  ParameterKey.batchId.rawValue: card.cardData?.batchId ?? "",
+					  ParameterKey.firmware.rawValue: card.firmwareVersion?.version ?? ""]
         
         FirebaseAnalytics.Analytics.logEvent(Event.cardIsScanned.rawValue, parameters: params)
         Crashlytics.crashlytics().setCustomValue(blockchainName, forKey: ParameterKey.blockchain.rawValue)
