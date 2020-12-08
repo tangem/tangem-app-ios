@@ -15,6 +15,7 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
     @Published var rates: [String: [String: Decimal]] = [:]
+
     weak var ratesService: CoinMarketCapService! {
         didSet {
             ratesService
@@ -111,7 +112,7 @@ class WalletModel: ObservableObject, Identifiable {
     func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
-			return (value * rate).rounded(scale: 2)
+            return (value * rate).rounded(scale: 2)
         }
         return nil
     }
@@ -122,6 +123,22 @@ class WalletModel: ObservableObject, Identifiable {
             return (value / rate).rounded(blockchain: walletManager.wallet.blockchain)
         }
         return nil
+    }
+    
+    func displayAddress(for index: Int) -> String {
+        wallet.addresses[index].value
+    }
+    
+    func displayAddressName(for index: Int) -> String {
+        wallet.addresses[index].localizedName
+    }
+    
+    func shareAddressString(for index: Int) -> String {
+        wallet.getShareString(for: wallet.addresses[index].value)
+    }
+    
+    func exploreURL(for index: Int) -> URL {
+        wallet.getExploreURL(for: wallet.addresses[index].value)
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {

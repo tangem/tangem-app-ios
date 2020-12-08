@@ -35,6 +35,7 @@ class MainViewModel: ViewModel {
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
+    @Published var selectedAddressIndex: Int = 0
     @Published var state: ScanResult = .unsupported {
         didSet {
             bind()
