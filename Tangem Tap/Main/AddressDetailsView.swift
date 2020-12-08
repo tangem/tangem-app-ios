@@ -13,6 +13,7 @@ import TangemSdk
 struct AddressDetailView: View {
     @Binding var showCreatePayID: Bool
     @Binding var showQr: Bool
+    @Binding var selectedAddressIndex: Int
     var cardViewModel: CardViewModel
     
     var showPayIdBlock: Bool {
@@ -33,6 +34,15 @@ struct AddressDetailView: View {
         }
     }
     
+    var showAddressSelector: Bool {
+        if cardViewModel.state.walletModel == nil {
+            return false
+        }
+        
+        let addressesCount = cardViewModel.state.wallet?.addresses.count ?? 1
+        return addressesCount > 1
+    }
+    
     var payIdText: String {
         if case let .created(text) = cardViewModel.payId {
             return text
@@ -41,16 +51,36 @@ struct AddressDetailView: View {
         }
     }
     
+    var pickerViews: [Text] {
+        var views = [Text]()
+        for (index, address) in cardViewModel.state.wallet!.addresses.enumerated() {
+            let textView = Text(address.localizedName).tag(index) as! Text
+            views.append(textView)
+        }
+        
+        return views
+    }
+    
     var body: some View {
         VStack(spacing: 0.0) {
+            if showAddressSelector {
+                Picker("", selection: $selectedAddressIndex) {
+                    ForEach(0..<cardViewModel.state.wallet!.addresses.count) {
+                        Text(cardViewModel.state.walletModel!.displayAddressName(for: $0))
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+            }
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(AddressFormatter(address: cardViewModel.state.wallet?.address ?? "").truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
+                    Text(AddressFormatter(address: cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex)).truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .lineLimit(1)
                         .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
-                        if let url = self.cardViewModel.state.wallet?.getExploreURL() {
+                        if let url = self.cardViewModel.state.walletModel?.exploreURL(for: selectedAddressIndex) {
                             UIApplication.shared.open(url, options: [:], completionHandler: nil)
                         }
                     }) {
@@ -68,9 +98,7 @@ struct AddressDetailView: View {
                 }
                 Spacer()
                 Button(action: {
-                    if let address = self.cardViewModel.state.wallet?.address {
-                        UIPasteboard.general.string = address
-                    }
+                        UIPasteboard.general.string = cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex)
                 }) {
                     ZStack {
                         Circle()
@@ -152,12 +180,14 @@ struct AddressDetailView_Previews: PreviewProvider {
     @State static var cardViewModel = CardViewModel.previewCardViewModel
     @State static var showPayID = false
     @State static var showQR = false
+    @State static var addressIndex = 0
     
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
             AddressDetailView(showCreatePayID: $showPayID,
                               showQr: $showQR,
+                              selectedAddressIndex: $addressIndex,
                               cardViewModel: cardViewModel)
         }
     }
