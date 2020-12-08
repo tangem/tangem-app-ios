@@ -111,7 +111,7 @@ class WalletModel: ObservableObject, Identifiable {
     func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
-            return (value * rate).rounded(2)
+			return (value * rate).rounded(scale: 2)
         }
         return nil
     }
