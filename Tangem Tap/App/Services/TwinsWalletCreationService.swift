@@ -16,7 +16,9 @@ class TwinsWalletCreationService {
 		case first, second, third, done
 	}
 	
-	private let twinFileName = "twin"
+//	static let twinFileName = "twin"
+	static let twinFileName = "TwinPublicKey"
+	
 	private let scanMessageKey = "twins_scan_twin_with_number"
 	
 	private let tangemSdk: TangemSdk
@@ -148,7 +150,7 @@ class TwinsWalletCreationService {
 	
 	private func twinFileToWrite(publicKey: Data) -> Result<Data, Error> {
 		do {
-			let data = try twinFileEncoder.encode(TwinCardFile(publicKey: publicKey, fileTypeName: twinFileName))
+			let data = try twinFileEncoder.encode(TwinCardFile(publicKey: publicKey, fileTypeName: TwinsWalletCreationService.twinFileName))
 			return .success(data)
 		} catch {
 			print("Failed to encode twin file:", error)
