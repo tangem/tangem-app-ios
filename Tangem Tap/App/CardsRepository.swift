@@ -128,8 +128,10 @@ class CardsRepository {
 		for file in response.files {
 			do {
 				let twinFile = try twinCardFileDecoder.decode(file)
-				pairPublicKey = twinFile.publicKey
-				break
+				if twinFile.fileTypeName == TwinsWalletCreationService.twinFileName {
+					pairPublicKey = twinFile.publicKey
+					break
+				}
 			} catch {
 				print("File doesn't contain twin card dara")
 			}
