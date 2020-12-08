@@ -9,18 +9,20 @@ target 'Tangem Tap' do
 
   # Pods for Tangem Tap
   pod 'AnyCodable-FlightSchool'
-  pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.7'
+	#pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.7'
+  pod 'BinanceChain', :path => '../swiftbinancechain'
   pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.11'
 	#pod 'HDWalletKit', :path => '../HDWallet'
 	pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-76'
   #pod 'TangemSdk', :path => '../card-sdk-swift'
   #pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-42'
   pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
-  pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.3'
+  pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.4'
   pod 'Moya'
   pod 'EFQRCode'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
+	pod 'BitcoinCore.swift', :path => '../bitcoincore'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
