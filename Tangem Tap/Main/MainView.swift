@@ -147,6 +147,7 @@ struct MainView: View {
                                 }
                                 AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID,
                                                   showQr: self.$viewModel.navigation.showQRAddress,
+                                                  selectedAddressIndex: self.$viewModel.selectedAddressIndex,
                                                   cardViewModel: self.viewModel.state.cardModel!)
                                 
                                 EmptyView()
@@ -160,7 +161,7 @@ struct MainView: View {
                                         // VStack {
                                         //    Spacer()
                                         QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.viewModel.state.wallet!.blockchain.displayName),
-                                                   shareString: self.viewModel.state.wallet!.getShareString())
+                                                   shareString: self.viewModel.state.cardModel!.state.walletModel!.shareAddressString(for: self.viewModel.selectedAddressIndex))
                                             .transition(AnyTransition.move(edge: .bottom))
                                         //   Spacer()
                                         // }
