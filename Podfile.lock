@@ -53,6 +53,11 @@ PODS:
   - Firebase/Crashlytics (7.1.0):
     - Firebase/CoreOnly
     - FirebaseCrashlytics (~> 7.1.0)
+  - Firebase/RemoteConfig (7.1.0):
+    - Firebase/CoreOnly
+    - FirebaseRemoteConfig (~> 7.1.0)
+  - FirebaseABTesting (7.1.0):
+    - FirebaseCore (~> 7.0)
   - FirebaseAnalytics (7.1.0):
     - FirebaseCore (~> 7.0)
     - FirebaseInstallations (~> 7.0)
@@ -82,6 +87,12 @@ PODS:
     - GoogleUtilities/Environment (~> 7.0)
     - GoogleUtilities/UserDefaults (~> 7.0)
     - PromisesObjC (~> 1.2)
+  - FirebaseRemoteConfig (7.1.0):
+    - FirebaseABTesting (~> 7.0)
+    - FirebaseCore (~> 7.0)
+    - FirebaseInstallations (~> 7.0)
+    - GoogleUtilities/Environment (~> 7.0)
+    - "GoogleUtilities/NSData+zlib (~> 7.0)"
   - GoogleAppMeasurement (7.1.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 7.0)
     - GoogleUtilities/MethodSwizzler (~> 7.0)
@@ -173,10 +184,11 @@ DEPENDENCIES:
   - EFQRCode
   - Firebase/Analytics
   - Firebase/Crashlytics
+  - Firebase/RemoteConfig
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.11`)
   - Moya
   - SwiftyJSON
-  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-76`)"
+  - TangemSdk (from `../card-sdk-swift`)
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.4`)
 
 SPEC REPOS:
@@ -187,11 +199,13 @@ SPEC REPOS:
     - CryptoSwift
     - EFQRCode
     - Firebase
+    - FirebaseABTesting
     - FirebaseAnalytics
     - FirebaseCore
     - FirebaseCoreDiagnostics
     - FirebaseCrashlytics
     - FirebaseInstallations
+    - FirebaseRemoteConfig
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleUtilities
@@ -227,8 +241,7 @@ EXTERNAL SOURCES:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.11
   TangemSdk:
-    :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-76
+    :path: "../card-sdk-swift"
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -237,9 +250,6 @@ CHECKOUT OPTIONS:
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.11
-  TangemSdk:
-    :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-76
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -254,11 +264,13 @@ SPEC CHECKSUMS:
   CryptoSwift: 01b0f0cba1d5c212e5a335ff6c054fb75a204f00
   EFQRCode: 27f7ef4382159d79d583d839cdfc596b5ac98c9f
   Firebase: 78e8dd2e39d653de6270432ad84fe8b59f7bf4e8
+  FirebaseABTesting: aaea04ea67858a4a9dce0d22ef645477dff50146
   FirebaseAnalytics: 7f165a56dea86ddd5b8ce02af3bee982c683405c
   FirebaseCore: 20046127eef0fcb8fa25df7fc12f7b97d4e48611
   FirebaseCoreDiagnostics: 872cdb9b749b23346dddd5c1014d1babd2257de3
   FirebaseCrashlytics: c722e4ca283272eb90eb5bc245fdc6588e2f22c2
   FirebaseInstallations: 3de38553e86171b5f81d83cdeef63473d37bfdb0
+  FirebaseRemoteConfig: 04cd72851dad51780aa66f05b01a7dd0b85cdbf5
   GoogleAppMeasurement: 89e1a64593f968713b0506ba1b53b38a154bf9a5
   GoogleDataTransport: e4085e6762f36a6141738f46b0153473ce57fb18
   GoogleUtilities: 3dc4ff0d5e4840e2fa8eef0889620e8c33d4218c
@@ -286,6 +298,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: bc03cb28765dcc40e3ced3369f56e72c163a9a2c
+PODFILE CHECKSUM: d42d1aa1a30eda6e8133524beb1f34584508c585
 
 COCOAPODS: 1.10.0

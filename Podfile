@@ -13,16 +13,19 @@ target 'Tangem Tap' do
   pod 'BinanceChain', :path => '../swiftbinancechain'
   pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.11'
 	#pod 'HDWalletKit', :path => '../HDWallet'
-	pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-76'
-  #pod 'TangemSdk', :path => '../card-sdk-swift'
-  #pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-42'
+	#pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-77'
+  pod 'TangemSdk', :path => '../card-sdk-swift'
+  #pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-43'
   pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.4'
+  pod 'BitcoinCore.swift', :path => '../bitcoincore'
+  #pod 'BitcoinCore.swift', :git => 'https://bitbucket.org/tangem/bitcoincore.git', :tag => '0.0.1'
+
   pod 'Moya'
   pod 'EFQRCode'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
-	pod 'BitcoinCore.swift', :path => '../bitcoincore'
+	pod 'Firebase/RemoteConfig'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
