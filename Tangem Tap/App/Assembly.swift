@@ -79,12 +79,15 @@ class Assembly {
     
     func makeWalletModel(from cardInfo: CardInfo) -> WalletModel? {
 		let card = cardInfo.card
-		if card.isTwinCard,
-		   let pairKey = cardInfo.twinCardInfo?.pairPublicKey,
-		   let walletManager = walletManagerFactory.makeMultisigWallet(from: card, with: pairKey) {
-			let wm = WalletModel(walletManager: walletManager)
-			wm.ratesService = ratesService
-			return wm
+		if card.isTwinCard {
+			if let pairKey = cardInfo.twinCardInfo?.pairPublicKey,
+			   let walletManager = walletManagerFactory.makeMultisigWallet(from: card, with: pairKey) {
+				let wm = WalletModel(walletManager: walletManager)
+				wm.ratesService = ratesService
+				return wm
+			} else {
+				return nil
+			}
 		}
         if let walletManager = walletManagerFactory.makeWalletManager(from: card) {
             let wm = WalletModel(walletManager: walletManager)
