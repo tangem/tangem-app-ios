@@ -16,6 +16,16 @@ class AppFeaturesService {
             return .none
         }
         
+        if let blockhainName = card.cardData?.blockchainName,
+           blockhainName.lowercased() == "btc" {
+            return .exceptPayId
+        }
+        
+//        if let productMask = card.cardData?.productMask, //todo for twins
+//           productMask.contains(.twin) {
+//            return .exceptPayId
+//        }
+        
         return .all
     }
     
@@ -52,6 +62,12 @@ extension Set where Element == AppFeature {
     
     static var none: Set<AppFeature> {
         return Set()
+    }
+    
+    static var exceptPayId: Set<AppFeature> {
+        var features = all
+        features.remove(.payID)
+        return features
     }
 }
 
