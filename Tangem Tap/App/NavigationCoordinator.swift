@@ -32,6 +32,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var showTopup = false
 	@Published var showTwinCardOnboarding = false
 	@Published var showTwinsWalletCreation = false
+    @Published var showQRAddress = false
     
     // MARK: SendView
     @Published var showQR = false
