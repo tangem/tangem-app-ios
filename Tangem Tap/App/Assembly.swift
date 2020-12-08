@@ -71,8 +71,7 @@ class Assembly {
     
     func makeWalletModel(from card: Card) -> WalletModel? {
         if let walletManager = walletManagerFactory.makeWalletManager(from: card) {
-            let wm = WalletModel(walletManager: walletManager)
-            wm.ratesService = ratesService
+            let wm = WalletModel(walletManager: walletManager, ratesService: ratesService)
             return wm
         } else {
             return nil
