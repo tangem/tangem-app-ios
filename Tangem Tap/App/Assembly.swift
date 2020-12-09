@@ -90,13 +90,9 @@ class Assembly {
         vm.config = config
         vm.assembly = self
         vm.tangemSdk = tangemSdk
-        if config.isEnablePayID,
-           featuresService.isPayIDSupported(for: info.card),
-           let payIdService = PayIDService.make(from: blockchain) {
-            payIdService.featuresService = featuresService
+        if config.isEnablePayID, let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
-        
         vm.update()
         return vm
     }
@@ -155,6 +151,7 @@ class Assembly {
         let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
         initialize(vm)
         vm.ratesService = ratesService
+        vm.featuresService = featuresService
         return vm
     }
     
