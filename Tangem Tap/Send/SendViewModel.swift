@@ -22,6 +22,7 @@ class SendViewModel: ViewModel {
     @Published var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
+    weak var featuresService: AppFeaturesService!
     
     @Published var showCameraDeniedAlert = false
     
@@ -50,7 +51,8 @@ class SendViewModel: ViewModel {
     }
 
     var isPayIdSupported: Bool {
-        cardViewModel.payIDService != nil
+        featuresService.getFeatures(for: cardViewModel.cardInfo.card).contains(.payIDSend)
+            && cardViewModel.payIDService != nil
     }
     
     @Published var isNetworkFeeBlockOpen: Bool = false
