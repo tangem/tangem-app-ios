@@ -178,17 +178,17 @@ PODS:
 
 DEPENDENCIES:
   - AnyCodable-FlightSchool
-  - BinanceChain (from `../swiftbinancechain`)
-  - BitcoinCore.swift (from `../bitcoincore`)
+  - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
+  - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.2`)
   - BlockchainSdk (from `../blockchain-sdk-swift`)
   - EFQRCode
   - Firebase/Analytics
   - Firebase/Crashlytics
   - Firebase/RemoteConfig
-  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.11`)
+  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.12`)
   - Moya
   - SwiftyJSON
-  - TangemSdk (from `../card-sdk-swift`)
+  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-78`)"
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.4`)
 
 SPEC REPOS:
@@ -232,24 +232,36 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   BinanceChain:
-    :path: "../swiftbinancechain"
+    :git: https://bitbucket.org/tangem/swiftbinancechain.git
+    :tag: 0.0.7
   BitcoinCore.swift:
-    :path: "../bitcoincore"
+    :git: https://bitbucket.org/tangem/bitcoincore.git
+    :tag: 0.0.2
   BlockchainSdk:
     :path: "../blockchain-sdk-swift"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
-    :tag: 0.3.11
+    :tag: 0.3.12
   TangemSdk:
-    :path: "../card-sdk-swift"
+    :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
+    :tag: build-78
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
 
 CHECKOUT OPTIONS:
+  BinanceChain:
+    :git: https://bitbucket.org/tangem/swiftbinancechain.git
+    :tag: 0.0.7
+  BitcoinCore.swift:
+    :git: https://bitbucket.org/tangem/bitcoincore.git
+    :tag: 0.0.2
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
-    :tag: 0.3.11
+    :tag: 0.3.12
+  TangemSdk:
+    :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
+    :tag: build-78
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -298,6 +310,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: d42d1aa1a30eda6e8133524beb1f34584508c585
+PODFILE CHECKSUM: 7436f87c8566180697a719cc0911b68a2783d5d9
 
 COCOAPODS: 1.10.0
