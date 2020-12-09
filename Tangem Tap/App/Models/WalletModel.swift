@@ -16,26 +16,7 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var balanceViewModel: BalanceViewModel!
     @Published var rates: [String: [String: Decimal]] = [:]
 
-    weak var ratesService: CoinMarketCapService! {
-        didSet {
-            ratesService
-                .$selectedCurrencyCodePublished
-                .dropFirst()
-                .sink {[unowned self] _ in
-                    self.loadRates()
-                }
-                .store(in: &bag)
-        }
-    }
-    
-//    var selectedCurrency: String  {
-//        get { ratesService.selectedCurrencyCode }
-//        set {
-//            ratesService.selectedCurrencyCode = newValue
-//            loadRates()
-//        }
-//    }
-    
+    weak var ratesService: CoinMarketCapService!
     var txSender: TransactionSender { walletManager as! TransactionSender }
     var wallet: Wallet { walletManager.wallet }
     
@@ -43,8 +24,10 @@ class WalletModel: ObservableObject, Identifiable {
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
-    init(walletManager: WalletManager) {
+    init(walletManager: WalletManager, ratesService: CoinMarketCapService) {
         self.walletManager = walletManager
+        self.ratesService = ratesService
+        
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
             .debounce(for: 0.3, scheduler: DispatchQueue.main)
@@ -60,6 +43,14 @@ class WalletModel: ObservableObject, Identifiable {
                     self.updateTimer = nil
                 }
             })
+            .store(in: &bag)
+        
+        self.ratesService
+            .$selectedCurrencyCodePublished
+            .dropFirst()
+            .sink {[unowned self] _ in
+                self.loadRates()
+            }
             .store(in: &bag)
     }
     
