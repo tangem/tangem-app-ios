@@ -18,24 +18,15 @@ class AppFeaturesService {
         
         if let blockhainName = card.cardData?.blockchainName,
            blockhainName.lowercased() == "btc" {
-            return .exceptPayId
+            return .allExceptPayReceive
         }
         
 //        if let productMask = card.cardData?.productMask, //todo for twins
 //           productMask.contains(.twin) {
-//            return .exceptPayId
+//            return .allExceptPayReceive
 //        }
         
         return .all
-    }
-    
-    
-    func isPayIDSupported(for card: Card) -> Bool {
-        if getFeatures(for: card).contains(.payID) {
-            return true
-        }
-        
-        return false
     }
     
     func isTopupSupported(for card: Card) -> Bool {
@@ -49,7 +40,8 @@ class AppFeaturesService {
 
 
 enum AppFeature: String, Option {
-    case payID
+    case payIDReceive
+    case payIDSend
     case topup
     case pins
     case linkedTerminal
@@ -64,9 +56,9 @@ extension Set where Element == AppFeature {
         return Set()
     }
     
-    static var exceptPayId: Set<AppFeature> {
+    static var allExceptPayReceive: Set<AppFeature> {
         var features = all
-        features.remove(.payID)
+        features.remove(.payIDReceive)
         return features
     }
 }
