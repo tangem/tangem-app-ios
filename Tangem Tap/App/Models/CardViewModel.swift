@@ -115,6 +115,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadPayIDInfo () {
+        guard featuresService.getFeatures(for: cardInfo.card).contains(.payIDReceive) else {
+            return
+        }
+        
         payIDService?
             .loadPayIDInfo(for: cardInfo.card)
             .receive(on: DispatchQueue.main)
@@ -132,17 +136,18 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func createPayID(_ payIDString: String, completion: @escaping (Result<Void, Error>) -> Void) { //todo: move to payidservice
-        guard !payIDString.isEmpty,
-            let cid = cardInfo.card.cardId,
-            let cardPublicKey = cardInfo.card.cardPublicKey,
-            let payIdService = self.payIDService,
-            let address = state.wallet?.address  else {
-                completion(.failure(PayIdError.unknown))
-                return
+        guard featuresService.getFeatures(for: cardInfo.card).contains(.payIDReceive),
+              !payIDString.isEmpty,
+              let cid = cardInfo.card.cardId,
+              let payIDService = self.payIDService,
+              let cardPublicKey = cardInfo.card.cardPublicKey,
+              let address = state.wallet?.address  else {
+            completion(.failure(PayIdError.unknown))
+            return
         }
 
         let fullPayIdString = payIDString + "$payid.tangem.com"
-        payIdService.createPayId(cid: cid, key: cardPublicKey,
+        payIDService.createPayId(cid: cid, key: cardPublicKey,
                                  payId: fullPayIdString,
                                  address: address) { [weak self] result in
             switch result {
