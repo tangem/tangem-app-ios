@@ -141,9 +141,6 @@ struct CreatePayIdResponse: Codable {
 
 class PayIDService {
     let network: PayIdNetwork
-    //injected
-    var featuresService: AppFeaturesService!
-    
     let payIdProvider = MoyaProvider<PayIdTarget>(/*plugins: [NetworkLoggerPlugin()]*/)
     
     internal init(network: PayIdNetwork) {
@@ -190,8 +187,7 @@ class PayIDService {
     
     
     func loadPayIDInfo (for card: Card) -> AnyPublisher<PayIdStatus, Error> {
-        guard featuresService.isPayIDSupported(for: card),
-              let cid = card.cardId,
+        guard let cid = card.cardId,
               let key = card.cardPublicKey else {
             return Just(.notSupported)
                 .setFailureType(to: Error.self)
