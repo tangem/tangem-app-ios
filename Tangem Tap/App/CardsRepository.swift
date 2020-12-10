@@ -14,7 +14,7 @@ struct CardInfo {
     var card: Card
     var verificationState: VerifyCardState?
     var artworkInfo: ArtworkInfo?
-	let twinCardInfo: TwinCardInfo?
+	var twinCardInfo: TwinCardInfo?
 }
 
 enum ScanResult: Equatable {
