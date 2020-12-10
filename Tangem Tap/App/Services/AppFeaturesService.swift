@@ -21,10 +21,9 @@ class AppFeaturesService {
             return .allExceptPayReceive
         }
         
-//        if let productMask = card.cardData?.productMask, //todo for twins
-//           productMask.contains(.twin) {
-//            return .allExceptPayReceive
-//        }
+		if card.isTwinCard {
+            return .allExceptPayReceive
+        }
         
         return .all
     }
