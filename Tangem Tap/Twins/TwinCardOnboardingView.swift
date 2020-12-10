@@ -24,13 +24,9 @@ struct TwinCardOnboardingView: View {
 	
 	var body: some View {
 		ZStack {
-			
 			VStack {
-				ZStack(alignment: .bottomLeading) {
-					Image(viewModel.state.backgroundName)
-						.resizable()
-						.frame(width: screenSize.width, height: backgroundHeight)
-						.scaledToFill()
+				ZStack(alignment: .bottom) {
+					TwinOnboardingBackground(colorSet: viewModel.state.backgroundColorSet)
 					VStack(spacing: 30) {
 						Image(uiImage: viewModel.firstTwinImage)
 							.resizable()
@@ -47,7 +43,7 @@ struct TwinCardOnboardingView: View {
 							.offset(x: -9)
 							.rotationEffect(.init(degrees: -22))
 					}
-					.offset(y: -84)
+					.offset(y: -70)
 					.frame(maxWidth: screenSize.width, alignment: .leading)
 					
 				}
@@ -56,9 +52,13 @@ struct TwinCardOnboardingView: View {
 				Spacer()
 			}
 			.clipped()
-			.edgesIgnoringSafeArea(.all)
+			.edgesIgnoringSafeArea(.top)
 			content()
+				.frame(width: UIScreen.main.bounds.width)
 		}
+		.frame(width: UIScreen.main.bounds.width)
+		.clipped()
+		.edgesIgnoringSafeArea(.top)
 		.navigationBarTitle("")
 		.navigationBarHidden(true)
 		.background(Color(.tangemTapBgGray2).edgesIgnoringSafeArea(.all))
@@ -151,6 +151,6 @@ struct TwinCardOnboardingView_Previews: PreviewProvider {
 //		TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(isFromMain: false))
 		TwinCardOnboardingView(viewModel: assembly.makeTwinCardWarningViewModel())
 			.environmentObject(assembly.navigationCoordinator)
-			.previewGroup(devices: [.iPhone11ProMax])
+			.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
 	}
 }
