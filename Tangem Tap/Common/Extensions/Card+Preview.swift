@@ -35,7 +35,7 @@ extension Card {
              {
               "cardData" : {
                 "batchId" : "FFFF",
-                "blockchainName" : "ETH",
+                "blockchainName" : "BTC",
                 "issuerName" : "TANGEM SDK",
                 "manufactureDateTime" : "Mar 16, 2020",
                 "manufacturerSignature" : "E4A2403C60F6C468D7ED50E3BE3AF903AF3C6A2A6ABA2F8369584C91E15F42DAF90E4F9ABFBA1E5FBB3965CA30FC2C4F57CC34C8460B6E12D5CDBEBB1838D5C7",
