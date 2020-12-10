@@ -230,8 +230,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
             switch result {
             case .success(let response):
-                self.cardInfo.card = self.cardInfo.card.updating(with: response)
-                self.updateState()
+				self.update(withCreateWaletResponse: response)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.log(error: error)
@@ -255,6 +254,14 @@ class CardViewModel: Identifiable, ObservableObject {
             }
         }
     }
+	
+	func update(withCreateWaletResponse response: CreateWalletResponse) {
+		cardInfo.card = cardInfo.card.updating(with: response)
+		if cardInfo.card.isTwinCard {
+			cardInfo.twinCardInfo?.pairPublicKey = nil
+		}
+		updateState()
+	}
     
     private func updateCurrentSecOption() {
         if !(cardInfo.card.isPin1Default ?? true) {
