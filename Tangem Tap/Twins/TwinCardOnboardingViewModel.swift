@@ -36,6 +36,13 @@ class TwinCardOnboardingViewModel: ViewModel {
 				return "onboarding_warning"
 			}
 		}
+		
+		var backgroundColorSet: TwinOnboardingBackground.ColorSet {
+			switch self {
+			case .onboarding: return .gray
+			case .warning: return .orange
+			}
+		}
 	}
 	
 	weak var navigation: NavigationCoordinator!
