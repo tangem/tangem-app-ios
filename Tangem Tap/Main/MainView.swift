@@ -148,19 +148,19 @@ struct MainView: View {
                                          EmptyView()
                                     }
                                 }
-                                AddressDetailView(showCreatePayID: self.$viewModel.navigation.showCreatePayID,
-                                                  showQr: self.$viewModel.navigation.showQRAddress,
+								AddressDetailView(showCreatePayID: self.$navigation.showCreatePayID,
+												  showQr: self.$navigation.showQRAddress,
                                                   selectedAddressIndex: self.$viewModel.selectedAddressIndex,
                                                   cardViewModel: self.viewModel.state.cardModel!)
                                 
                                 EmptyView()
-                                    .sheet(isPresented: self.$viewModel.navigation.showCreatePayID, content: {
+									.sheet(isPresented: self.$navigation.showCreatePayID, content: {
                                         CreatePayIdView(cardId: self.viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
                                                         cardViewModel: self.viewModel.state.cardModel!)
                                     })
                                 
                                 EmptyView()
-                                    .sheet(isPresented: self.$viewModel.navigation.showQRAddress) {
+                                    .sheet(isPresented: self.$navigation.showQRAddress) {
                                         // VStack {
                                         //    Spacer()
                                         QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.viewModel.state.wallet!.blockchain.displayName),
@@ -189,7 +189,7 @@ struct MainView: View {
 															 title: "wallet_button_topup",
 															 image: "arrow.up") {
 									if self.viewModel.topupURL != nil {
-										self.viewModel.navigation.showTopup = true
+										self.navigation.showTopup = true
 									}
 									
 								}
@@ -211,7 +211,7 @@ struct MainView: View {
                         }
                         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
                         .disabled(!self.viewModel.canSend)
-                        .sheet(isPresented: $viewModel.navigation.showSend) {
+                        .sheet(isPresented: $navigation.showSend) {
                             SendView(viewModel: self.viewModel.assembly.makeSendViewModel(
                                         with: self.viewModel.amountToSend!,
                                         card: self.viewModel.state.cardModel!), onSuccess: {
@@ -225,7 +225,7 @@ struct MainView: View {
                                 }
                             })
                         }
-                        .actionSheet(isPresented: self.$viewModel.navigation.showSendChoise) {
+                        .actionSheet(isPresented: self.$navigation.showSendChoise) {
                             ActionSheet(title: Text("wallet_choice_wallet_option_title"),
                                         message: nil,
                                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
