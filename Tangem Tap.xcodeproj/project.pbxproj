@@ -111,7 +111,20 @@
 		B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
+		B072A72F257A119700C5029C /* features_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72C257A119700C5029C /* features_dev.json */; };
+		B072A730257A119700C5029C /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
+		B072A731257A119700C5029C /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
 		B0917297256D6CCF001B626F /* NavigationButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0917296256D6CCF001B626F /* NavigationButton.swift */; };
+		B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
+		B09FC1B1257DFB6E009524D4 /* RemoteConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* RemoteConfigManager.swift */; };
+		B09FC1BE257DFB8E009524D4 /* features_firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D188257DED8D00A3AB98 /* features_firebase.json */; };
+		B09FC1BF257DFB8E009524D4 /* features_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72C257A119700C5029C /* features_dev.json */; };
+		B09FC1C0257DFB8E009524D4 /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
+		B09FC1C1257DFB8E009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
+		B09FC1C2257DFB8E009524D4 /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
+		B09FC1C6257DFB92009524D4 /* features_firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D188257DED8D00A3AB98 /* features_firebase.json */; };
+		B09FC1C7257DFB92009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
+		B0A0A2DC25825E8A005FC94D /* TwinOnboardingBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A2DB25825E8A005FC94D /* TwinOnboardingBackground.swift */; };
 		B0A943532564E85800A7958E /* TwinsWalletCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */; };
 		B0A9435B2564E87F00A7958E /* TwinsWalletCreationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9435A2564E87F00A7958E /* TwinsWalletCreationViewModel.swift */; };
 		B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */; };
@@ -124,18 +137,6 @@
 		B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
 		B0CCA71A2568F307009325E3 /* NavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7192568F307009325E3 /* NavigationBar.swift */; };
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
-		B072A72F257A119700C5029C /* features_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72C257A119700C5029C /* features_dev.json */; };
-		B072A730257A119700C5029C /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
-		B072A731257A119700C5029C /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
-		B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
-		B09FC1B1257DFB6E009524D4 /* RemoteConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* RemoteConfigManager.swift */; };
-		B09FC1BE257DFB8E009524D4 /* features_firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D188257DED8D00A3AB98 /* features_firebase.json */; };
-		B09FC1BF257DFB8E009524D4 /* features_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72C257A119700C5029C /* features_dev.json */; };
-		B09FC1C0257DFB8E009524D4 /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
-		B09FC1C1257DFB8E009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
-		B09FC1C2257DFB8E009524D4 /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
-		B09FC1C6257DFB92009524D4 /* features_firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D188257DED8D00A3AB98 /* features_firebase.json */; };
-		B09FC1C7257DFB92009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
 		B0E1008C257A4C2D00E8AB94 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E058F24FEA3F200F04DE1 /* AppConfig.swift */; };
 		B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B0E1D17D257DE79000A3AB98 /* RemoteConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* RemoteConfigManager.swift */; };
@@ -272,7 +273,11 @@
 		B03ACAC82567CFFF00F5D269 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		B046EE172578D38E00EA38A5 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsUtils.swift; sourceTree = "<group>"; };
+		B072A72C257A119700C5029C /* features_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_dev.json; sourceTree = "<group>"; };
+		B072A72D257A119700C5029C /* features_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_prod.json; sourceTree = "<group>"; };
+		B072A72E257A119700C5029C /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_dev.json; sourceTree = "<group>"; };
 		B0917296256D6CCF001B626F /* NavigationButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButton.swift; sourceTree = "<group>"; };
+		B0A0A2DB25825E8A005FC94D /* TwinOnboardingBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinOnboardingBackground.swift; sourceTree = "<group>"; };
 		B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationView.swift; sourceTree = "<group>"; };
 		B0A9435A2564E87F00A7958E /* TwinsWalletCreationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationViewModel.swift; sourceTree = "<group>"; };
 		B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationService.swift; sourceTree = "<group>"; };
@@ -285,9 +290,6 @@
 		B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+PreviewDevice.swift"; sourceTree = "<group>"; };
 		B0CCA7192568F307009325E3 /* NavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBar.swift; sourceTree = "<group>"; };
 		B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsCreateWalletTask.swift; sourceTree = "<group>"; };
-		B072A72C257A119700C5029C /* features_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_dev.json; sourceTree = "<group>"; };
-		B072A72D257A119700C5029C /* features_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_prod.json; sourceTree = "<group>"; };
-		B072A72E257A119700C5029C /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_dev.json; sourceTree = "<group>"; };
 		B0E1D170257DE4DF00A3AB98 /* config_prod.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = config_prod.json; sourceTree = "<group>"; };
 		B0E1D174257DE75D00A3AB98 /* KeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysManager.swift; sourceTree = "<group>"; };
 		B0E1D17C257DE79000A3AB98 /* RemoteConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteConfigManager.swift; sourceTree = "<group>"; };
@@ -645,25 +647,6 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
-		B07826652562913D00395918 /* Twins */ = {
-			isa = PBXGroup;
-			children = (
-				B0A943512564E82D00A7958E /* TwinsWalletCreation */,
-				B0C8A0CE2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift */,
-				B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */,
-			);
-			path = Twins;
-			sourceTree = "<group>";
-		};
-		B0A943512564E82D00A7958E /* TwinsWalletCreation */ = {
-			isa = PBXGroup;
-			children = (
-				B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */,
-				B0A9435A2564E87F00A7958E /* TwinsWalletCreationViewModel.swift */,
-			);
-			path = TwinsWalletCreation;
-						sourceTree = "<group>";
-		};
 		B072A728257A118200C5029C /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -677,6 +660,26 @@
 				B0E1D188257DED8D00A3AB98 /* features_firebase.json */,
 			);
 			path = Config;
+			sourceTree = "<group>";
+		};
+		B07826652562913D00395918 /* Twins */ = {
+			isa = PBXGroup;
+			children = (
+				B0A943512564E82D00A7958E /* TwinsWalletCreation */,
+				B0C8A0CE2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift */,
+				B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */,
+				B0A0A2DB25825E8A005FC94D /* TwinOnboardingBackground.swift */,
+			);
+			path = Twins;
+			sourceTree = "<group>";
+		};
+		B0A943512564E82D00A7958E /* TwinsWalletCreation */ = {
+			isa = PBXGroup;
+			children = (
+				B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */,
+				B0A9435A2564E87F00A7958E /* TwinsWalletCreationViewModel.swift */,
+			);
+			path = TwinsWalletCreation;
 			sourceTree = "<group>";
 		};
 		BBA154748909F0AB4121528D /* Pods */ = {
@@ -1038,6 +1041,7 @@
 				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */,
+				B0A0A2DC25825E8A005FC94D /* TwinOnboardingBackground.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
