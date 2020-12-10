@@ -34,6 +34,8 @@ enum PreviewDeviceType: String, Identifiable {
 	case iPhone12Mini = "iPhone 12 mini"
 	case iPhone11Pro = "iPhone 11 Pro"
 	case iPhone11ProMax = "iPhone 11 Pro Max"
+	case iPhone12Pro = "iPhone 12 Pro"
+	case iPhone12ProMax = "iPhone 12 Pro Max"
 }
 
 extension View {
