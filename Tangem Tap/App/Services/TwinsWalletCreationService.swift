@@ -16,7 +16,6 @@ class TwinsWalletCreationService {
 		case first, second, third, done
 	}
 	
-//	static let twinFileName = "twin"
 	static let twinFileName = "TwinPublicKey"
 	
 	private let scanMessageKey = "twins_scan_twin_with_number"
@@ -90,6 +89,7 @@ class TwinsWalletCreationService {
 		tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: Message(header: nil, body: String(format: scanMessageKey.localized, firstTwinCid))) { (result) in
 			switch result {
 			case .success(let response):
+				self.cardsRepository.lastScanResult.cardModel?.update(withCreateWaletResponse: response)
 				self.firstTwinPublicKey = response.walletPublicKey
 				self.step.send(.second)
 			case .failure(let error):
