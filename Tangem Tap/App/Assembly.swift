@@ -264,13 +264,14 @@ class Assembly {
 extension Assembly {
     static var previewAssembly: Assembly = {
         let assembly = Assembly()
-        let ci = CardInfo(card: Card.testTwinCard,
+		let card = Card.testTwinCard
+        let ci = CardInfo(card: card,
                           verificationState: nil,
 						  artworkInfo: nil,
 						  twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
         let vm = assembly.makeCardModel(from: ci)!
         let scanResult = ScanResult.card(model: vm)
-        assembly.cardsRepository.cards[Card.testCard.cardId!] = scanResult
+        assembly.cardsRepository.cards[card.cardId!] = scanResult
 		assembly.cardsRepository.lastScanResult = scanResult
         return assembly
     }()
