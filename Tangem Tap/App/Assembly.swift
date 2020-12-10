@@ -82,7 +82,7 @@ class Assembly {
 		if card.isTwinCard {
 			if let pairKey = cardInfo.twinCardInfo?.pairPublicKey,
 			   let walletManager = walletManagerFactory.makeMultisigWallet(from: card, with: pairKey) {
-				let wm = WalletModel(walletManager: walletManager)
+				let wm = WalletModel(walletManager: walletManager, ratesService: ratesService)
 				wm.ratesService = ratesService
 				return wm
 			} else {
