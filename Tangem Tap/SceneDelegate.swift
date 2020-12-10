@@ -13,8 +13,7 @@ import TangemSdk
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    
-    var sdkService = TangemSdkService()
+    let assembly = Assembly()
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -22,9 +21,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
         // Create the SwiftUI view that provides the window contents.
-       
-        sdkService.ratesService = CoinMarketCapService(apiKey: sdkService.config.coinMarketCapApiKey)
-        let contentView = ReadView(viewModel: ReadViewModel(sdkService: sdkService))
+		assembly.userPrefsService.numberOfLaunches += 1
+		print("Launch number:", assembly.userPrefsService.numberOfLaunches)
+     
+        let contentView = ReadView(viewModel: assembly.makeReadViewModel())
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
