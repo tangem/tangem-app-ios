@@ -10,16 +10,11 @@ import Foundation
 import SwiftUI
 import TangemSdk
 
-enum PayIdStatus {
-    case notCreated
-    case created(payId: String)
-    case notSupported
-}
-
 struct AddressDetailView: View {
-    @State private(set) var showQr: Bool = false
     @Binding var showCreatePayID: Bool
-    @EnvironmentObject var cardViewModel: CardViewModel
+    @Binding var showQr: Bool
+    @Binding var selectedAddressIndex: Int
+    var cardViewModel: CardViewModel
     
     var showPayIdBlock: Bool {
         switch cardViewModel.payId {
@@ -39,6 +34,15 @@ struct AddressDetailView: View {
         }
     }
     
+    var showAddressSelector: Bool {
+        if cardViewModel.state.walletModel == nil {
+            return false
+        }
+        
+        let addressesCount = cardViewModel.state.wallet?.addresses.count ?? 1
+        return addressesCount > 1
+    }
+    
     var payIdText: String {
         if case let .created(text) = cardViewModel.payId {
             return text
@@ -47,16 +51,36 @@ struct AddressDetailView: View {
         }
     }
     
+    var pickerViews: [Text] {
+        var views = [Text]()
+        for (index, address) in cardViewModel.state.wallet!.addresses.enumerated() {
+            let textView = Text(address.localizedName).tag(index) as! Text
+            views.append(textView)
+        }
+        
+        return views
+    }
+    
     var body: some View {
         VStack(spacing: 0.0) {
+            if showAddressSelector {
+                Picker("", selection: $selectedAddressIndex) {
+                    ForEach(0..<cardViewModel.state.wallet!.addresses.count) {
+                        Text(cardViewModel.state.walletModel!.displayAddressName(for: $0))
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+            }
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(AddressFormatter(address: cardViewModel.wallet?.address ?? "").truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
+                    Text(AddressFormatter(address: cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex)).truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .lineLimit(1)
                         .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
-                        if let url = self.cardViewModel.wallet?.exploreUrl {
+                        if let url = self.cardViewModel.state.walletModel?.exploreURL(for: selectedAddressIndex) {
                             UIApplication.shared.open(url, options: [:], completionHandler: nil)
                         }
                     }) {
@@ -74,9 +98,7 @@ struct AddressDetailView: View {
                 }
                 Spacer()
                 Button(action: {
-                    if let address = self.cardViewModel.wallet?.address {
-                        UIPasteboard.general.string = address
-                    }
+                        UIPasteboard.general.string = cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex)
                 }) {
                     ZStack {
                         Circle()
@@ -88,7 +110,9 @@ struct AddressDetailView: View {
                     }
                 }
                 Button(action: {
-                    self.showQr = true
+                    if self.cardViewModel.state.wallet != nil {
+                        self.showQr = true
+                    }
                 }) {
                     ZStack {
                         Circle()
@@ -98,16 +122,6 @@ struct AddressDetailView: View {
                             .font(Font.system(size: 17.0, weight: .light, design: .default))
                             .foregroundColor(Color.tangemTapGrayDark6)
                     }
-                }
-                .sheet(isPresented: $showQr) {
-                    // VStack {
-                    //    Spacer()
-                    QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.cardViewModel.wallet!.blockchain.displayName),
-                        shareString: self.cardViewModel.wallet!.shareString)
-                        .transition(AnyTransition.move(edge: .bottom))
-                    //   Spacer()
-                    // }
-                    // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
                 }
             }
             .padding(.horizontal, 24.0)
@@ -121,7 +135,7 @@ struct AddressDetailView: View {
                     Image ("payId")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 58.0, height: 18.0)
+                        .frame(width: 96.0, height: 19.0)
                     Spacer(minLength: 8)
                     
                     if !isPayIdCreated {
@@ -163,14 +177,18 @@ struct AddressDetailView: View {
 }
 
 struct AddressDetailView_Previews: PreviewProvider {
-    @State static var cardViewModel = CardViewModel(card: Card.testCard)
+    @State static var cardViewModel = CardViewModel.previewCardViewModel
     @State static var showPayID = false
+    @State static var showQR = false
+    @State static var addressIndex = 0
     
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
-            AddressDetailView(showCreatePayID: $showPayID)
-            .environmentObject(cardViewModel)
+            AddressDetailView(showCreatePayID: $showPayID,
+                              showQr: $showQR,
+                              selectedAddressIndex: $addressIndex,
+                              cardViewModel: cardViewModel)
         }
     }
 }
