@@ -11,7 +11,6 @@ import TangemSdk
 extension Card {
 	var isTwinCard: Bool {
 		cardData?.productMask?.contains(.twinCard) ?? false
-//		|| TwinCardSeries.series(for: cardId) != nil
 	}
 	
 	var twinNumber: Int {
