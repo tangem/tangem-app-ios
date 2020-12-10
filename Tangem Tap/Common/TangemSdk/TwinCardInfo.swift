@@ -36,5 +36,5 @@ struct TwinCardInfo {
 	let cid: String
 	let series: TwinCardSeries?
 	let pairCid: String?
-	let pairPublicKey: Data?
+	var pairPublicKey: Data?
 }
