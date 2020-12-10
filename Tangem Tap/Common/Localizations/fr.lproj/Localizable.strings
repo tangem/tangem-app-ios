@@ -93,7 +93,7 @@
 
 "wallet_address_button_explore" = "Explorer l'adresse";
 
-"wallet_address_button_create_payid" = "Créer PayID";
+"wallet_address_button_create_payid" = "Créer PayString";
 
 
 
@@ -101,28 +101,30 @@
 "wallet_qr_title_format" = "Portefeuille %@";
 
 
-"wallet_create_payid" = "Créer PayID";
+"wallet_create_payid" = "Créer PayString";
 
 "wallet_create_payid_card_format" = "Carte: %@";
 
-"wallet_create_payid_hint" = "Dénomination PayID";
+"wallet_create_payid_hint" = "Dénomination PayString";
 
 "wallet_create_payid_domain" = "$payid.tangem.com"; // intraduisible
 
 "wallet_create_payid_button_title" = "Créer";
 
-"wallet_create_payid_info" = "Votre PayID est une information qui vous est propre, comme un numéro de téléphone, une adresse du courrier électronique ou un ABN.";
+"wallet_create_payid_info" = "Votre PayString est une information qui vous est propre, comme un numéro de téléphone, une adresse du courrier électronique ou un ABN.";
 
-"wallet_create_payid_success_message" = "PayID a été créé avec succès et copié dans le presse-papiers";
+"wallet_create_payid_success_message" = "PayString a été créé avec succès et copié dans le presse-papiers";
 
-"wallet_create_payid_error_message" = "Mauvaise réponse lors de la création de PayID";
+"wallet_create_payid_error_message" = "Mauvaise réponse lors de la création de PayString";
 
-"wallet_create_payid_error_already_created" = "Ce PayID existe déjà. Essayez une autre variante.";
+"wallet_create_payid_error_already_created" = "Ce PayString existe déjà. Essayez une autre variante.";
 
 "wallet_button_topup" = "Recharge du portefeuille";
 
 
-"send_destination_hint" = "Adresse ou PayID";
+"send_destination_hint" = "Adresse ou PayString";
+
+"send_destination_hint_address" = "Adresse";
 
 "send_title" = "Envoyer";
 
@@ -229,7 +231,7 @@
 
 
 
-"payid_service_error_loading" = "PayID incorrect";
+"payid_service_error_loading" = "PayString incorrect";
 
 
 
@@ -287,14 +289,14 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "common_accept" = "J'accepte";
 
 
-"send_error_payid_verification_failed" = "La vérification de PayID a échoué";
-"send_error_payid_unsupported_by_blockchain" = "PayID non pris en charge par la blockchain";
-"send_error_payid_not_registered" = "PayID non enregistré";
-"send_error_payid_request_failed" = "La demande de PayID a échoué";
+"send_error_payid_verification_failed" = "La vérification de PayString a échoué";
+"send_error_payid_unsupported_by_blockchain" = "PayString non pris en charge par la blockchain";
+"send_error_payid_not_registered" = "PayString non enregistré";
+"send_error_payid_request_failed" = "La demande de PayString a échoué";
 "send_error_address_same_as_wallet" = "L’adresse est la même que celle de votre portefeuille";
 
 "wallet_notification_address_copied" = "L’adresse a été copiée avec succès";
-"wallet_create_payid_empty" = "Saisissez d’abord le PayID requis";
+"wallet_create_payid_empty" = "Saisissez d’abord le PayString requis";
 "initial_message_scan_header" = "Posez pour scanner";
 "initial_message_tap_header" = "Posez la carte";
 "details_notification_erase_wallet_not_possible" = "Votre solde sur ce portefeuille n'est pas nul, ou vous avez des transactions non confirmées. Impossible de supprimer la fonction du portefeuille";

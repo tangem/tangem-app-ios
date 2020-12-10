@@ -92,33 +92,35 @@
 
 "wallet_address_button_explore" = "Adresse erkunden";
 
-"wallet_address_button_create_payid" = "PayID erstellen";
+"wallet_address_button_create_payid" = "PayString erstellen";
 
 
 "wallet_qr_title_format" = "%@ Wallet";
 
 
-"wallet_create_payid" = "PayID erstellen";
+"wallet_create_payid" = "PayString erstellen";
 
 "wallet_create_payid_card_format" = "Karte: %@";
 
-"wallet_create_payid_hint" = "PayID Name";
+"wallet_create_payid_hint" = "PayString Name";
 
 "wallet_create_payid_domain" = "$payid.tangem.com";
 
 "wallet_create_payid_button_title" = "Erstellen";
 
-"wallet_create_payid_info" = "PayID sind Ihre einzigartigen Identifikationsdaten wie Telefonnummer, E-Mail-Adresse oder ABN.";
+"wallet_create_payid_info" = "PayString sind Ihre einzigartigen Identifikationsdaten wie Telefonnummer, E-Mail-Adresse oder ABN.";
 
-"wallet_create_payid_success_message" = "Ihre PayID wurde erfolgreich erstellt und zum Clipboard kopiert";
+"wallet_create_payid_success_message" = "Ihre PayString wurde erfolgreich erstellt und zum Clipboard kopiert";
 
-"wallet_create_payid_error_message" = "Fehlerantwort beim Erstellen der PayID";
+"wallet_create_payid_error_message" = "Fehlerantwort beim Erstellen der PayString";
 
-"wallet_create_payid_error_already_created" = "Diese PayID existiert bereits. Versuchen Sie mit einer anderen erneut.";
+"wallet_create_payid_error_already_created" = "Diese PayString existiert bereits. Versuchen Sie mit einer anderen erneut.";
 
 
 
-"send_destination_hint" = "Adresse oder PayID";
+"send_destination_hint" = "Adresse oder PayString";
+
+"send_destination_hint_address" = "Adresse";
 
 "send_title" = "Absenden";
 
@@ -223,7 +225,7 @@
 
 
 
-"payid_service_error_loading" = "Ungültige PayId";
+"payid_service_error_loading" = "Ungültige PayString";
 
 
 
@@ -282,14 +284,14 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 
 "common_accept" = "Akzeptieren";
 
-"send_error_payid_verification_failed" = "Verifikation der PayID ist fehlgeschlagen";
-"send_error_payid_unsupported_by_blockchain" = "PayID wird von der Blockchain nicht unterstützt";
-"send_error_payid_not_registered" = "PayID ist nicht registriert";
-"send_error_payid_request_failed" = "PayID-Anfrage ist fehlgeschlagen";
+"send_error_payid_verification_failed" = "Verifikation der PayString ist fehlgeschlagen";
+"send_error_payid_unsupported_by_blockchain" = "PayString wird von der Blockchain nicht unterstützt";
+"send_error_payid_not_registered" = "PayString ist nicht registriert";
+"send_error_payid_request_failed" = "PayString-Anfrage ist fehlgeschlagen";
 "send_error_address_same_as_wallet" = "Die Adresse stimmt mit der Adresse Ihrer Brieftasche überein";
 
 "wallet_notification_address_copied" = "Die Adresse wurde erfolgreich kopiert";
-"wallet_create_payid_empty" = "Zuerst geben Sie die gewünschte PayID ein";
+"wallet_create_payid_empty" = "Zuerst geben Sie die gewünschte PayString ein";
 "initial_message_scan_header" = "Legen Sie die Karte zum Scannen an";
 "initial_message_tap_header" = "Legen Sie die Karte an";
 "details_notification_erase_wallet_not_possible" = "Ihr Kontostand in dieser Brieftasche ist nicht Null, oder Sie haben unbestätigte Transaktionen. Es ist unmöglich die Funktion der Brieftasche zu löschen.";
