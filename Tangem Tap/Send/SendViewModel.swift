@@ -366,7 +366,7 @@ class SendViewModel: ViewModel {
     
     func validateAddress(_ address: String) -> Bool {
         return walletModel.wallet.blockchain.validate(address: address)
-            && address != walletModel.wallet.address
+			&& !walletModel.wallet.addresses.contains(where: { $0.value == address })
     }
     
     
