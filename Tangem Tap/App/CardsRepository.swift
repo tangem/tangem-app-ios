@@ -92,9 +92,7 @@ class CardsRepository {
 				Analytics.logScan(card: response.card)
 				
                 let res = processScanResponse(response)
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-					completion(.success(res))
-				}
+				completion(.success(res))
             }
         }
     }
