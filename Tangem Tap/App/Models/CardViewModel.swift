@@ -88,6 +88,20 @@ class CardViewModel: Identifiable, ObservableObject {
             return false
         }
     }
+	
+	var isTwinCard: Bool {
+		cardInfo.card.isTwinCard
+	}
+	
+	var canRecreateTwinCard: Bool {
+		guard isTwinCard && cardInfo.twinCardInfo?.series != nil && config.isEnableTwinCreation else { return false }
+		
+		if case .empty = state {
+			return false
+		}
+		
+		return true
+	}
     
     var canManageSecurity: Bool {
         cardInfo.card.isPin1Default != nil &&
@@ -222,8 +236,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
             switch result {
             case .success(let response):
-                self.cardInfo.card = self.cardInfo.card.updating(with: response)
-                self.updateState()
+				self.update(withCreateWaletResponse: response)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.log(error: error)
@@ -247,6 +260,14 @@ class CardViewModel: Identifiable, ObservableObject {
             }
         }
     }
+	
+	func update(withCreateWaletResponse response: CreateWalletResponse) {
+		cardInfo.card = cardInfo.card.updating(with: response)
+		if cardInfo.card.isTwinCard {
+			cardInfo.twinCardInfo?.pairPublicKey = nil
+		}
+		updateState()
+	}
     
     private func updateCurrentSecOption() {
         if !(cardInfo.card.isPin1Default ?? true) {
@@ -260,7 +281,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func updateState() {
-        if let wm = self.assembly.makeWalletModel(from: cardInfo.card) {
+        if let wm = self.assembly.makeWalletModel(from: cardInfo) {
             self.state = .loaded(walletModel: wm)
         } else {
             self.state = .empty
