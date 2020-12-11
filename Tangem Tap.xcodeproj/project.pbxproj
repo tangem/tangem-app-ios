@@ -58,7 +58,6 @@
 		5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
 		5D9141EC24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
 		5D9141ED24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
-		5D93731F2515400B00809A70 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D93731E2515400B00809A70 /* Storage.swift */; };
 		5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */; };
 		5D958E1624F51402006BD932 /* NavigationConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D958E1524F51402006BD932 /* NavigationConfigurator.swift */; };
 		5D9DCAD3255172520059799C /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAD2255172520059799C /* NavigationCoordinator.swift */; };
@@ -114,6 +113,7 @@
 		B072A72F257A119700C5029C /* features_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72C257A119700C5029C /* features_dev.json */; };
 		B072A730257A119700C5029C /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
 		B072A731257A119700C5029C /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
+		B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B082E922255A8EF000A0CEA9 /* StorageType.swift */; };
 		B0917297256D6CCF001B626F /* NavigationButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0917296256D6CCF001B626F /* NavigationButton.swift */; };
 		B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B09FC1B1257DFB6E009524D4 /* RemoteConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* RemoteConfigManager.swift */; };
@@ -124,6 +124,7 @@
 		B09FC1C2257DFB8E009524D4 /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
 		B09FC1C6257DFB92009524D4 /* features_firebase.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D188257DED8D00A3AB98 /* features_firebase.json */; };
 		B09FC1C7257DFB92009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
+		B0A0A19125822EFF005FC94D /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A19025822EFF005FC94D /* Storage.swift */; };
 		B0A0A2DC25825E8A005FC94D /* TwinOnboardingBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A2DB25825E8A005FC94D /* TwinOnboardingBackground.swift */; };
 		B0A943532564E85800A7958E /* TwinsWalletCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */; };
 		B0A9435B2564E87F00A7958E /* TwinsWalletCreationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9435A2564E87F00A7958E /* TwinsWalletCreationViewModel.swift */; };
@@ -213,7 +214,6 @@
 		5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Bold.ttf"; sourceTree = "<group>"; };
 		5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Regular.ttf"; sourceTree = "<group>"; };
 		5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Light.ttf"; sourceTree = "<group>"; };
-		5D93731E2515400B00809A70 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		5D958E1524F51402006BD932 /* NavigationConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationConfigurator.swift; sourceTree = "<group>"; };
 		5D9DCAD2255172520059799C /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
@@ -276,6 +276,8 @@
 		B072A72C257A119700C5029C /* features_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_dev.json; sourceTree = "<group>"; };
 		B072A72D257A119700C5029C /* features_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_prod.json; sourceTree = "<group>"; };
 		B072A72E257A119700C5029C /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_dev.json; sourceTree = "<group>"; };
+		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
+		B0A0A19025822EFF005FC94D /* Storage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		B0917296256D6CCF001B626F /* NavigationButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButton.swift; sourceTree = "<group>"; };
 		B0A0A2DB25825E8A005FC94D /* TwinOnboardingBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinOnboardingBackground.swift; sourceTree = "<group>"; };
 		B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationView.swift; sourceTree = "<group>"; };
@@ -593,9 +595,9 @@
 				5D383E3C24D95B6B00C9BFF6 /* Localizations */,
 				5D9141C524D8A42600EB52C0 /* Fonts */,
 				5DBBAB0924D853A000E78F1C /* Extensions */,
+				B082E91E255A8E7800A0CEA9 /* Storage */,
 				5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */,
 				5DD4CB5324FAEE8B008F23CC /* CardIdFormatter.swift */,
-				5D93731E2515400B00809A70 /* Storage.swift */,
 				5DA3A2EC251B589E009A8E08 /* AlertManager.swift */,
 				5D119E84256BF1E50046CAD2 /* Option.swift */,
 			);
@@ -660,6 +662,15 @@
 				B0E1D188257DED8D00A3AB98 /* features_firebase.json */,
 			);
 			path = Config;
+			sourceTree = "<group>";
+		};
+		B082E91E255A8E7800A0CEA9 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				B0A0A19025822EFF005FC94D /* Storage.swift */,
+				B082E922255A8EF000A0CEA9 /* StorageType.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		B07826652562913D00395918 /* Twins */ = {
@@ -1021,6 +1032,7 @@
 				5DFCCB6F24C3728E0014A293 /* MainView.swift in Sources */,
 				B0C87B482566492000F861DE /* TwinCardInfo.swift in Sources */,
 				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
+				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */,
 				B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */,
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
@@ -1061,6 +1073,7 @@
 				5D9DCB0C255199AA0059799C /* SecurityManagementViewModel.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
 				5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */,
+				B0A0A19125822EFF005FC94D /* Storage.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
