@@ -28,7 +28,11 @@ class DetailsViewModel: ViewModel {
     }
     
     @Published var navigation: NavigationCoordinator!
-    @Published private(set) var cardModel: CardViewModel
+	@Published private(set) var cardModel: CardViewModel
+	
+	var isTwinCard: Bool {
+		cardModel.isTwinCard
+	}
     
     private var bag = Set<AnyCancellable>()
     
