@@ -24,7 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		assembly.userPrefsService.numberOfLaunches += 1
 		print("Launch number:", assembly.userPrefsService.numberOfLaunches)
      
-        let contentView = ReadView(viewModel: assembly.makeReadViewModel())
+		let contentView = ReadView(viewModel: assembly.makeReadViewModel()).environmentObject(assembly.navigationCoordinator)
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
