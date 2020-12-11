@@ -14,11 +14,13 @@ struct CardInfo {
     var card: Card
     var verificationState: VerifyCardState?
     var artworkInfo: ArtworkInfo?
+	var twinCardInfo: TwinCardInfo?
 }
 
 enum ScanResult: Equatable {
     case card(model: CardViewModel)
     case unsupported
+	case notScannedYet
     
     var wallet: Wallet? {
         switch self {
@@ -48,15 +50,14 @@ enum ScanResult: Equatable {
     }
 
     static func == (lhs: ScanResult, rhs: ScanResult) -> Bool {
-        if case .card = lhs, case .card = rhs {
-            return true
-        }
-
-        if case .unsupported = lhs, case .unsupported = rhs {
-            return true
-        }
-
-        return false
+		switch (lhs, rhs) {
+		
+		case (.card, .card): return true
+		case (.unsupported, .unsupported): return true
+		case (.notScannedYet, .notScannedYet): return true
+		default:
+			return false
+		}
     }
 }
 
@@ -66,6 +67,13 @@ class CardsRepository {
     weak var featuresService: AppFeaturesService!
     
     var cards = [String: ScanResult]()
+	var lastScanResult: ScanResult = .notScannedYet
+	
+	private let twinCardFileDecoder: TwinCardFileDecoder
+	
+	init(twinCardFileDecoder: TwinCardFileDecoder) {
+		self.twinCardFileDecoder = twinCardFileDecoder
+	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
@@ -76,29 +84,57 @@ class CardsRepository {
                 Analytics.log(error: error)
                 completion(.failure(error))
             case .success(let response):
-                guard response.card.cardId != nil else {
-                    completion(.failure(TangemSdkError.unknownError))
-                    return
-                }
-                
-                Analytics.logScan(card: response.card)
-                
-                let cardInfo = CardInfo(card: response.card,
-                                        verificationState: response.verifyResponse.verificationState,
-                                        artworkInfo: response.verifyResponse.artworkInfo)
-                
-               
-                if !self.featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
-                    self.tangemSdk.config.linkedTerminal = false
-                }
-                
-                let cm = self.assembly.makeCardModel(from: cardInfo)
-                let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
-                self.cards[cardInfo.card.cardId!] = res
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    completion(.success(res))
-                }
+				guard response.card.cardId != nil else {
+					completion(.failure(TangemSdkError.unknownError))
+					return
+				}
+				
+				Analytics.logScan(card: response.card)
+				
+                let res = processScanResponse(response)
+				completion(.success(res))
             }
         }
     }
+	
+	@discardableResult
+	func processScanResponse(_ response: TapScanTaskResponse) -> ScanResult {
+		let cardInfo = CardInfo(card: response.card,
+								verificationState: response.verifyResponse.verificationState,
+								artworkInfo: response.verifyResponse.artworkInfo,
+								twinCardInfo: self.decodeTwinFile(from: response))
+		
+	   
+		if !self.featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
+			self.tangemSdk.config.linkedTerminal = false
+		}
+		
+		let cm = self.assembly.makeCardModel(from: cardInfo)
+		let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
+		self.cards[cardInfo.card.cardId!] = res
+		self.lastScanResult = res
+		return res
+	}
+	
+	private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
+		guard
+			response.card.isTwinCard,
+			let cardId = response.card.cardId
+			else { return nil }
+		
+		var pairPublicKey: Data?
+		for file in response.files {
+			do {
+				let twinFile = try twinCardFileDecoder.decode(file)
+				if twinFile.fileTypeName == TwinsWalletCreationService.twinFileName {
+					pairPublicKey = twinFile.publicKey
+					break
+				}
+			} catch {
+				print("File doesn't contain twin card dara")
+			}
+		}
+		return TwinCardInfo(cid: cardId, series: TwinCardSeries.series(for: response.card.cardId), pairCid: TwinCardsUtils.makePairCid(for: cardId), pairPublicKey: pairPublicKey)
+	}
+	
 }
