@@ -282,9 +282,9 @@ class SendViewModel: ViewModel {
             .filter { $0 }
             .combineLatest($validatedDestination.compactMap { $0 }, $isFeeIncluded)
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
-            .flatMap {[unowned self] _ , dest, includeFee -> AnyPublisher<[Amount], Never> in
+            .flatMap { [unowned self] _, dest, includeFee -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.txSender.getFee(amount: self.amountToSend, destination: dest, includeFee: includeFee)
+				return self.walletModel.txSender.getFee(amount: self.amountToSend, destination: dest, includeFee: includeFee)
                     .catch { error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
@@ -366,7 +366,7 @@ class SendViewModel: ViewModel {
     
     func validateAddress(_ address: String) -> Bool {
         return walletModel.wallet.blockchain.validate(address: address)
-            && address != walletModel.wallet.address
+			&& !walletModel.wallet.addresses.contains(where: { $0.value == address })
     }
     
     
@@ -452,6 +452,7 @@ class SendViewModel: ViewModel {
         if let payIdTag = self.validatedTag {
             tx.params = XRPTransactionParams.destinationTag(value: payIdTag)
         }
+
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         walletModel.txSender.send(tx, signer: signer)
