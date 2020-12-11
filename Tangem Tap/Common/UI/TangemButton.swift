@@ -26,7 +26,9 @@ struct TangemButton: View {
                     ActivityIndicatorView()
                 } else {
                     Text(title)
-                    Image(image)
+					if !image.isEmpty {
+						Image(image)
+					}
                 }
             }
             .padding(.horizontal, 16)
