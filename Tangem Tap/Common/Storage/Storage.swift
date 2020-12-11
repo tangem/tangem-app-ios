@@ -8,18 +8,15 @@
 
 import Foundation
 
-
-import Foundation
-
 @propertyWrapper
 struct Storage<T> {
     let key: String
     let defaultValue: T
-
-    init(_ key: String, defaultValue: T) {
-        self.key = key
-        self.defaultValue = defaultValue
-    }
+	
+	init(type: StorageType, defaultValue: T) {
+		key = type.rawValue
+		self.defaultValue = defaultValue
+	}
 
     var wrappedValue: T {
         get {
