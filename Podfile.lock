@@ -99,7 +99,7 @@ PODS:
     - GoogleUtilities/Network (~> 7.0)
     - "GoogleUtilities/NSData+zlib (~> 7.0)"
     - nanopb (~> 2.30906.0)
-  - GoogleDataTransport (8.0.1):
+  - GoogleDataTransport (8.1.0):
     - nanopb (~> 2.30906.0)
   - GoogleUtilities/AppDelegateSwizzler (7.1.1):
     - GoogleUtilities/Environment
@@ -179,16 +179,16 @@ PODS:
 DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
-  - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.1`)
-  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-43`)"
+  - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.3`)
+  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-44`)"
   - EFQRCode
   - Firebase/Analytics
   - Firebase/Crashlytics
   - Firebase/RemoteConfig
-  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.8`)
+  - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.12`)
   - Moya
   - SwiftyJSON
-  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-71`)"
+  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-79`)"
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.4`)
 
 SPEC REPOS:
@@ -236,16 +236,16 @@ EXTERNAL SOURCES:
     :tag: 0.0.7
   BitcoinCore.swift:
     :git: https://bitbucket.org/tangem/bitcoincore.git
-    :tag: 0.0.1
+    :tag: 0.0.3
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-43
+    :tag: build-44
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
-    :tag: 0.3.8
+    :tag: 0.3.12
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-71
+    :tag: build-79
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -256,16 +256,16 @@ CHECKOUT OPTIONS:
     :tag: 0.0.7
   BitcoinCore.swift:
     :git: https://bitbucket.org/tangem/bitcoincore.git
-    :tag: 0.0.1
+    :tag: 0.0.3
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-43
+    :tag: build-44
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
-    :tag: 0.3.8
+    :tag: 0.3.12
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-71
+    :tag: build-79
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -288,7 +288,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 9ab3a9a6522e687f59ff9bcfd92949ac85073f3c
   FirebaseRemoteConfig: 73cad38920c491ea81c5c66f9e94a87f265b85a4
   GoogleAppMeasurement: 57a0df93dc2feb5176b1bac06012dbd725191ba5
-  GoogleDataTransport: e4085e6762f36a6141738f46b0153473ce57fb18
+  GoogleDataTransport: 116c84c4bdeb76be2a7a46de51244368f9794eab
   GoogleUtilities: 3dc4ff0d5e4840e2fa8eef0889620e8c33d4218c
   GRDB.swift: 8cc3ab7c8b8b4ac1761deb8dca4b51c1c9d429f8
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
@@ -314,6 +314,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 6f1c2862f9a04e12a808a69d240a2ec97dfe96fb
+PODFILE CHECKSUM: 8490bed5afce639de2cdb5228974a3f64f6b8a14
 
 COCOAPODS: 1.10.0

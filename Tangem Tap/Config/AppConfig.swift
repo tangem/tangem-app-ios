@@ -30,6 +30,10 @@ struct AppConfig {
 		remoteConfig.features.isWalletPayIdEnabled
 	}
 	
+	var isEnableTwinCreation: Bool {
+		remoteConfig.features.isCreatingTwinCardsAllowed
+	}
+	
 	private let remoteConfig = RemoteConfigManager()
 	private let keysManager: KeysManager!
     
