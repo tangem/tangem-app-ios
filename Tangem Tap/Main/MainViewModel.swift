@@ -41,6 +41,11 @@ class MainViewModel: ViewModel {
             bind()
         }
     }
+	
+	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
+	private var validatedSignedHashesCards: [String]
+	
+	private var hashesCountSubscription: AnyCancellable?
     
     public var canCreateWallet: Bool {
         if let state = state.cardModel?.state,
@@ -279,7 +284,7 @@ class MainViewModel: ViewModel {
         if card.cardType != .release {
             error = AlertManager().getAlert(.devCard, for: card)
         } else {
-            error = AlertManager().getAlert(.untrustedCard, for: card)
+            validateHashesCount()
         }
     }
     
@@ -291,6 +296,40 @@ class MainViewModel: ViewModel {
         assembly.reset()
     }
 	
+	private func validateHashesCount() {
+		guard let card = state.card else { return }
+		
+		if card.isTwinCard { return }
+		
+		guard let cardId = card.cardId else { return }
+		
+		if validatedSignedHashesCards.contains(cardId) { return }
+		
+		guard
+			let validator = state.cardModel?.state.walletModel?.walletManager as? SignatureCountValidator
+		else { return }
+		
+		hashesCountSubscription?.cancel()
+		hashesCountSubscription = validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
+			.receive(on: RunLoop.main)
+			.sink(receiveCompletion: { [unowned self] failure in
+				defer { self.validatedSignedHashesCards.append(cardId) }
+				switch failure {
+				case .finished:
+					return
+				case .failure(let error):
+					switch error {
+					case BlockchainSdkError.signatureCountNotMatched:
+						self.error = AlertManager().getAlert(.untrustedCard, for: card)
+					case BlockchainSdkError.notImplemented:
+						return
+					default:
+						self.error = error.alertBinder
+					}
+				}
+			}, receiveValue: { _ in })
+	}
+		
 	private func showTwinCardOnboardingIfNeeded() -> Bool {
 		guard let model = state.cardModel, model.isTwinCard else { return false }
 		
