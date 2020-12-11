@@ -25,8 +25,7 @@ class ReadViewModel: ViewModel {
     @Published var isLoading: Bool = false
     @Published var scanError: AlertBinder?
     var shopURL = URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!
-    
-    
+	
     @Storage("tangem_tap_first_time_scan", defaultValue: true)
     private var firstTimeScan: Bool
     
@@ -51,9 +50,13 @@ class ReadViewModel: ViewModel {
         cardsRepository.scan { [weak self] scanResult in
             guard let self = self else { return }
             switch scanResult {
-            case .success:
+			case .success:
                 if self.userPrefsService.isTermsOfServiceAccepted {
-                    self.navigation.openMain = true
+					if self.userPrefsService.isTwinCardOnboardingWasDisplayed {
+						self.navigation.openMain = true
+					} else {
+						self.navigation.readOpenTwinCardOnboarding = true
+					}
                 } else {
                     self.navigation.openDisclaimer = true
                 }
