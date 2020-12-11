@@ -274,11 +274,11 @@ class MainViewModel: ViewModel {
             return
         }
         
-//        if card.cardType != .release {
-//            error = AlertManager().getAlert(.devCard, for: card)
-//        } else {
+        if card.cardType != .release {
+            error = AlertManager().getAlert(.devCard, for: card)
+        } else {
             validateHashesCount()
-//        }
+        }
     }
     
     func onAppear() {
@@ -291,7 +291,7 @@ class MainViewModel: ViewModel {
 		guard
 			let card = state.card,
 			let cardId = card.cardId,
-//			!validatedSignedHashesCards.contains(cardId),
+			!validatedSignedHashesCards.contains(cardId),
 			let validator = state.cardModel?.state.walletModel?.walletManager as? SignatureCountValidator
 		else { return }
 		
@@ -299,7 +299,7 @@ class MainViewModel: ViewModel {
 		hashesCountSubscription = validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
 			.receive(on: RunLoop.main)
 			.sink(receiveCompletion: { [unowned self] failure in
-//				defer { self.validatedSignedHashesCards.append(cardId) }
+				defer { self.validatedSignedHashesCards.append(cardId) }
 				switch failure {
 				case .finished:
 					return
