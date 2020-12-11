@@ -26,7 +26,7 @@ class ReadViewModel: ViewModel {
     @Published var scanError: AlertBinder?
     var shopURL = URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!
 	
-    @Storage("tangem_tap_first_time_scan", defaultValue: true)
+	@Storage(type: StorageType.firstTimeScan, defaultValue: true)
     private var firstTimeScan: Bool
     
     private var bag = Set<AnyCancellable>()
