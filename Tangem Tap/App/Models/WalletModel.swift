@@ -35,13 +35,13 @@ class WalletModel: ObservableObject, Identifiable {
             .sink(receiveValue: {[unowned self] wallet in
                 print("wallet received")
                 self.updateBalanceViewModel(with: wallet, state: self.state)
-                if wallet.hasPendingTx {
-                    if self.updateTimer == nil {
-                        self.startUpdatingTimer()
-                    }
-                } else {
+//                if wallet.hasPendingTx {
+//                    if self.updateTimer == nil {
+//                        self.startUpdatingTimer()
+//                    }
+//                } else {
                     self.updateTimer = nil
-                }
+//                }
             })
             .store(in: &bag)
         
