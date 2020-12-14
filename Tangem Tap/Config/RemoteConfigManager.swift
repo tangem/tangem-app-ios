@@ -9,6 +9,11 @@
 import Foundation
 import FirebaseRemoteConfig
 
+enum RemoteConfigKeys: String {
+	case features = "features_"
+	case warnings = "warnings_"
+}
+
 class RemoteConfigManager {
 	
 	struct TapFeatures: Decodable {
@@ -45,21 +50,15 @@ class RemoteConfigManager {
 	}
 	
 	private func setupFeatures() {
-		var key: String = "features_"
-		#if DEBUG
-		key.append("dev")
-		#elseif FIREBASE
-		key.append("firebase")
-		#else
-		key.append("prod")
-		#endif
-		let json = config[key].dataValue
-		let decoder = JSONDecoder()
-		if let features = try? decoder.decode(TapFeatures.self, from: json) {
+		if let features = FirebaseJsonConfigFetcher.fetch(from: config, type: TapFeatures.self, with: .features) {
 			print("Features config from Firebase successflly parsed")
 			self.features = features
 		}
 		print("App features config updated")
+	}
+	
+	private func fetchWarnings() {
+		
 	}
 }
 
