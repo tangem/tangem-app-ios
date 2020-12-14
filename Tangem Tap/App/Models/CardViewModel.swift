@@ -79,7 +79,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 return false
             }
             
-            if !walletModel.wallet.isEmptyAmount || walletModel.wallet.hasPendingTx {
+            if !walletModel.wallet.isEmpty || walletModel.wallet.hasPendingTx {
                 return false
             }
             
@@ -88,6 +88,20 @@ class CardViewModel: Identifiable, ObservableObject {
             return false
         }
     }
+	
+	var isTwinCard: Bool {
+		cardInfo.card.isTwinCard
+	}
+	
+	var canRecreateTwinCard: Bool {
+		guard isTwinCard && cardInfo.twinCardInfo?.series != nil && config.isEnableTwinCreation else { return false }
+		
+		if case .empty = state {
+			return false
+		}
+		
+		return true
+	}
     
     var canManageSecurity: Bool {
         cardInfo.card.isPin1Default != nil &&
@@ -107,6 +121,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadPayIDInfo () {
+        guard featuresService.getFeatures(for: cardInfo.card).contains(.payIDReceive) else {
+            return
+        }
+        
         payIDService?
             .loadPayIDInfo(for: cardInfo.card)
             .receive(on: DispatchQueue.main)
@@ -124,17 +142,18 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func createPayID(_ payIDString: String, completion: @escaping (Result<Void, Error>) -> Void) { //todo: move to payidservice
-        guard !payIDString.isEmpty,
-            let cid = cardInfo.card.cardId,
-            let cardPublicKey = cardInfo.card.cardPublicKey,
-            let payIdService = self.payIDService,
-            let address = state.wallet?.address  else {
-                completion(.failure(PayIdError.unknown))
-                return
+        guard featuresService.getFeatures(for: cardInfo.card).contains(.payIDReceive),
+              !payIDString.isEmpty,
+              let cid = cardInfo.card.cardId,
+              let payIDService = self.payIDService,
+              let cardPublicKey = cardInfo.card.cardPublicKey,
+              let address = state.wallet?.address  else {
+            completion(.failure(PayIdError.unknown))
+            return
         }
 
         let fullPayIdString = payIDString + "$payid.tangem.com"
-        payIdService.createPayId(cid: cid, key: cardPublicKey,
+        payIDService.createPayId(cid: cid, key: cardPublicKey,
                                  payId: fullPayIdString,
                                  address: address) { [weak self] result in
             switch result {
@@ -217,8 +236,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
             switch result {
             case .success(let response):
-                self.cardInfo.card = self.cardInfo.card.updating(with: response)
-                self.updateState()
+				self.update(withCreateWaletResponse: response)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.log(error: error)
@@ -242,6 +260,14 @@ class CardViewModel: Identifiable, ObservableObject {
             }
         }
     }
+	
+	func update(withCreateWaletResponse response: CreateWalletResponse) {
+		cardInfo.card = cardInfo.card.updating(with: response)
+		if cardInfo.card.isTwinCard {
+			cardInfo.twinCardInfo?.pairPublicKey = nil
+		}
+		updateState()
+	}
     
     private func updateCurrentSecOption() {
         if !(cardInfo.card.isPin1Default ?? true) {
@@ -255,7 +281,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func updateState() {
-        if let wm = self.assembly.makeWalletModel(from: cardInfo.card) {
+        if let wm = self.assembly.makeWalletModel(from: cardInfo) {
             self.state = .loaded(walletModel: wm)
         } else {
             self.state = .empty
