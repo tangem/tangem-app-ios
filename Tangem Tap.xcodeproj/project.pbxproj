@@ -277,8 +277,8 @@
 		B072A72D257A119700C5029C /* features_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_prod.json; sourceTree = "<group>"; };
 		B072A72E257A119700C5029C /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_dev.json; sourceTree = "<group>"; };
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
-		B0A0A19025822EFF005FC94D /* Storage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		B0917296256D6CCF001B626F /* NavigationButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationButton.swift; sourceTree = "<group>"; };
+		B0A0A19025822EFF005FC94D /* Storage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		B0A0A2DB25825E8A005FC94D /* TwinOnboardingBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinOnboardingBackground.swift; sourceTree = "<group>"; };
 		B0A943522564E85800A7958E /* TwinsWalletCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationView.swift; sourceTree = "<group>"; };
 		B0A9435A2564E87F00A7958E /* TwinsWalletCreationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationViewModel.swift; sourceTree = "<group>"; };
@@ -664,15 +664,6 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
-		B082E91E255A8E7800A0CEA9 /* Storage */ = {
-			isa = PBXGroup;
-			children = (
-				B0A0A19025822EFF005FC94D /* Storage.swift */,
-				B082E922255A8EF000A0CEA9 /* StorageType.swift */,
-			);
-			path = Storage;
-			sourceTree = "<group>";
-		};
 		B07826652562913D00395918 /* Twins */ = {
 			isa = PBXGroup;
 			children = (
@@ -682,6 +673,15 @@
 				B0A0A2DB25825E8A005FC94D /* TwinOnboardingBackground.swift */,
 			);
 			path = Twins;
+			sourceTree = "<group>";
+		};
+		B082E91E255A8E7800A0CEA9 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				B0A0A19025822EFF005FC94D /* Storage.swift */,
+				B082E922255A8EF000A0CEA9 /* StorageType.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		B0A943512564E82D00A7958E /* TwinsWalletCreation */ = {
@@ -721,6 +721,7 @@
 				5D3F77BF24BF56D800E8695B /* Frameworks */,
 				5D3F77C024BF56D800E8695B /* Resources */,
 				78515DF22ED176E83FF382BF /* [CP] Embed Pods Frameworks */,
+				5DDE02EC25878DCE007161C9 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -895,6 +896,25 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		5DDE02EC25878DCE007161C9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
+		};
 		5E095AC3A2954CFAB66C1261 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1005,7 +1025,6 @@
 				5D384B9624FD51CB00C2C92C /* DetailsView.swift in Sources */,
 				B0C04BBE2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift in Sources */,
 				5DF612A424E6E3E2001BF301 /* AddressDetailsView.swift in Sources */,
-				5D93731F2515400B00809A70 /* Storage.swift in Sources */,
 				B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */,
 				5D80ED422550172A0008DEF0 /* UIApplication+.swift in Sources */,
 				B0CCA71A2568F307009325E3 /* NavigationBar.swift in Sources */,
