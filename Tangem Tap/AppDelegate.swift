@@ -51,14 +51,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
 		FirebaseApp.configure()
-        #if DEBUG
-        Firebase.Analytics.setAnalyticsCollectionEnabled(false)
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
-        #else
-//        Firebase.Analytics.setAnalyticsCollectionEnabled(utils.isAnalytycsEnabled) //[REDACTED_TODO_COMMENT]
-//        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(utils.isAnalytycsEnabled)
-        #endif
-        
         return true
     }
 
