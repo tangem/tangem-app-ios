@@ -9,6 +9,12 @@
 import Foundation
 
 class UserPrefsService {
-    @Storage("tangem_tap_terms_of_service_accepted", defaultValue: false)
+	@Storage(type: StorageType.termsOfServiceAccepted, defaultValue: false)
     var isTermsOfServiceAccepted: Bool
+	
+	@Storage(type: StorageType.twinCardOnboardingDisplayed, defaultValue: false)
+	var isTwinCardOnboardingWasDisplayed: Bool
+
+	@Storage(type: StorageType.numberOfAppLaunches, defaultValue: 0)
+	var numberOfLaunches: Int
 }
