@@ -35,6 +35,10 @@ class AppFeaturesService {
 			features.remove(.payIDSend)
 		}
 		
+		if !config.isEnableTwinCreation {
+			features.remove(.twinCreation)
+		}
+		
 		if !config.isEnableMoonPay {
 			features.remove(.topup)
 		}
@@ -57,6 +61,7 @@ enum AppFeature: String, Option {
     case payIDSend
     case topup
     case pins
+	case twinCreation
     case linkedTerminal
 }
 
