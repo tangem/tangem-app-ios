@@ -70,6 +70,7 @@ class SendViewModel: ViewModel {
     @Published var canFiatCalculation: Bool = true
     @Published var oldCardAlert: AlertBinder?
     @Published var isFeeLoading: Bool = false
+	@Published var memo: String = ""
     
     @Published var sendError: AlertBinder?
     
