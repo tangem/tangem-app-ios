@@ -13,10 +13,11 @@ class RemoteConfigManager {
 	
 	struct TapFeatures: Decodable {
 		let isWalletPayIdEnabled: Bool
+		let isSendingToPayIdEnabled: Bool
 		let isTopUpEnabled: Bool
 		let isCreatingTwinCardsAllowed: Bool
 		
-		static let `default` = TapFeatures(isWalletPayIdEnabled: true, isTopUpEnabled: true, isCreatingTwinCardsAllowed: false)
+		static let `default` = TapFeatures(isWalletPayIdEnabled: true, isSendingToPayIdEnabled: true, isTopUpEnabled: true, isCreatingTwinCardsAllowed: false)
 	}
 	
 	private let config: RemoteConfig
