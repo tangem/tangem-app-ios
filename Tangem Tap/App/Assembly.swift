@@ -107,7 +107,7 @@ class Assembly {
         vm.config = config
         vm.assembly = self
         vm.tangemSdk = tangemSdk
-		if (config.isWalletPayIdEnabled || config.isSendingPayIdEnabled), let payIdService = PayIDService.make(from: blockchain) {
+		if (config.isWalletPayIdEnabled || config.isSendingToPayIdEnabled), let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
         vm.update()
