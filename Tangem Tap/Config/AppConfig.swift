@@ -8,6 +8,7 @@
 
 import Foundation
 import FirebaseRemoteConfig
+import BlockchainSdk
 
 struct AppConfig {
     var coinMarketCapApiKey: String {
@@ -32,6 +33,12 @@ struct AppConfig {
 	
 	var isEnableTwinCreation: Bool {
 		remoteConfig.features.isCreatingTwinCardsAllowed
+	}
+	
+	var blockchainConfig: BlockchainSdkConfig {
+		BlockchainSdkConfig(blockchairApiKey: keysManager.keys.blockchairApiKey,
+							blockcypherTokens: keysManager.keys.blockcypherTokens,
+							infuraProjectId: keysManager.keys.infuraProjectId)
 	}
 	
 	private let remoteConfig = RemoteConfigManager()
