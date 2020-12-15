@@ -305,9 +305,16 @@ class MainViewModel: ViewModel {
 		
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
+		func showUntrustedCardAlert() {
+			error = AlertManager().getAlert(.untrustedCard, for: card)
+		}
+		
 		guard
 			let validator = state.cardModel?.state.walletModel?.walletManager as? SignatureCountValidator
-		else { return }
+		else {
+			showUntrustedCardAlert()
+			return
+		}
 		
 		hashesCountSubscription?.cancel()
 		hashesCountSubscription = validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
@@ -320,7 +327,7 @@ class MainViewModel: ViewModel {
 				case .failure(let error):
 					switch error {
 					case BlockchainSdkError.signatureCountNotMatched:
-						self.error = AlertManager().getAlert(.untrustedCard, for: card)
+						showUntrustedCardAlert()
 					case BlockchainSdkError.notImplemented:
 						return
 					default:
