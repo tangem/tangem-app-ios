@@ -35,7 +35,25 @@ class RemoteConfigManager {
 		#endif
 		config.configSettings = settings
 		features = .default
-		fetch()
+		fetchLocalFeaturesConfig()
+//		fetch()
+	}
+	
+	private func fetchLocalFeaturesConfig() {
+		let suffix: String
+		#if DEBUG
+		suffix = "dev"
+		#else
+		suffix = "prod"
+		#endif
+		let decoder = JSONDecoder()
+		guard
+			let path = Bundle.main.url(forResource: "features_\(suffix)", withExtension: "json"),
+			let features = try? decoder.decode(TapFeatures.self, from: Data(contentsOf: path)) else {
+			self.features = .default
+			return
+		}
+		self.features = features
 	}
 	
 	private func fetch() {
