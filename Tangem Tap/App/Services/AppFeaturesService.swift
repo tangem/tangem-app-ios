@@ -31,7 +31,7 @@ class AppFeaturesService {
 			features.remove(.payIDReceive)
         }
 		
-		if !config.isSendingPayIdEnabled {
+		if !config.isSendingToPayIdEnabled {
 			features.remove(.payIDSend)
 		}
 		
