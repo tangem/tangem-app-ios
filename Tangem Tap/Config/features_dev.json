@@ -1,6 +1,6 @@
 {
-	"isWalletPayIdEnabled": false,
-	"isSendingToPayIdEnabled": false,
+	"isWalletPayIdEnabled": true,
+	"isSendingToPayIdEnabled": true,
 	"isTopUpEnabled": true,
 	"isCreatingTwinCardsAllowed": true
 }
