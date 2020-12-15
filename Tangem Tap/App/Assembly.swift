@@ -22,7 +22,7 @@ class Assembly {
     lazy var ratesService = CoinMarketCapService(apiKey: config.coinMarketCapApiKey)
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = TmpNetworkService()
-    lazy var walletManagerFactory = WalletManagerFactory()
+	lazy var walletManagerFactory = WalletManagerFactory(config: config.blockchainConfig)
     lazy var featuresService = AppFeaturesService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
@@ -81,7 +81,7 @@ class Assembly {
 		let card = cardInfo.card
 		if card.isTwinCard {
 			if let pairKey = cardInfo.twinCardInfo?.pairPublicKey,
-			   let walletManager = walletManagerFactory.makeMultisigWallet(from: card, with: pairKey) {
+			   let walletManager = walletManagerFactory.makeWalletManager(from: card, pairKey: pairKey) {
 				let wm = WalletModel(walletManager: walletManager, ratesService: ratesService)
 				wm.ratesService = ratesService
 				return wm
