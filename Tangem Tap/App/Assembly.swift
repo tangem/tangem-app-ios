@@ -23,7 +23,7 @@ class Assembly {
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = TmpNetworkService()
 	lazy var walletManagerFactory = WalletManagerFactory(config: config.blockchainConfig)
-    lazy var featuresService = AppFeaturesService()
+	lazy var featuresService = AppFeaturesService(config: config)
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -107,7 +107,7 @@ class Assembly {
         vm.config = config
         vm.assembly = self
         vm.tangemSdk = tangemSdk
-        if config.isEnablePayID, let payIdService = PayIDService.make(from: blockchain) {
+		if (config.isWalletPayIdEnabled || config.isSendingPayIdEnabled), let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
         vm.update()
