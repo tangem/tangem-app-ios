@@ -10,22 +10,36 @@ import Foundation
 import TangemSdk
 
 class AppFeaturesService {
+	
+	let config: AppConfig
+	
+	init(config: AppConfig) {
+		self.config = config
+	}
+	
     func getFeatures(for card: Card) -> AppFeatures {
         if let issuerName = card.cardData?.issuerName,
            issuerName.lowercased() == "start2coin" {
             return .none
         }
         
-        if let blockhainName = card.cardData?.blockchainName,
-           blockhainName.lowercased() == "btc" {
-            return .allExceptPayReceive
+		var features = AppFeatures.all
+		
+        if card.cardData?.blockchainName?.lowercased() == "btc" ||
+			card.isTwinCard ||
+			!config.isWalletPayIdEnabled {
+			features.remove(.payIDReceive)
         }
+		
+		if !config.isSendingPayIdEnabled {
+			features.remove(.payIDSend)
+		}
+		
+		if !config.isEnableMoonPay {
+			features.remove(.topup)
+		}
         
-		if card.isTwinCard {
-            return .allExceptPayReceive
-        }
-        
-        return .all
+        return features
     }
     
     func isTopupSupported(for card: Card) -> Bool {
@@ -47,19 +61,25 @@ enum AppFeature: String, Option {
 }
 
 extension Set where Element == AppFeature {
-    static var all: Set<AppFeature> {
+    static var all: AppFeatures {
         return Set(Element.allCases)
     }
     
-    static var none: Set<AppFeature> {
+    static var none: AppFeatures {
         return Set()
     }
     
-    static var allExceptPayReceive: Set<AppFeature> {
+    static var allExceptPayReceive: AppFeatures {
         var features = all
         features.remove(.payIDReceive)
         return features
     }
+	
+	static func allExcept(_ set: AppFeatures) -> AppFeatures {
+		var features = all
+		set.forEach { features.remove($0) }
+		return features
+	}
 }
 
 typealias AppFeatures = Set<AppFeature>
