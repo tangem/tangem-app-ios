@@ -113,6 +113,7 @@ struct CustomTextField: UIViewRepresentable {
     var handleKeyboard : Bool = false
     var actionButton : String? =  nil
     var keyboard : UIKeyboardType = .default
+	var clearButtonMode: UITextField.ViewMode = .never
     var textColor: UIColor = UIColor.tangemTapGrayDark4
     var font: UIFont = UIFont.systemFont(ofSize: 16.0)
     let placeholder: String
@@ -133,6 +134,7 @@ struct CustomTextField: UIViewRepresentable {
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.required, for: .vertical)
+		textField.clearButtonMode = clearButtonMode
         var toolbarItems =  [UIBarButtonItem]()
         if handleKeyboard {
         toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
