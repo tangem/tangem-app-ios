@@ -104,10 +104,10 @@ class Assembly {
         
         let vm = CardViewModel(cardInfo: info)
         vm.featuresService = featuresService
-        vm.config = config
         vm.assembly = self
         vm.tangemSdk = tangemSdk
-		if (config.isWalletPayIdEnabled || config.isSendingToPayIdEnabled), let payIdService = PayIDService.make(from: blockchain) {
+		let features = featuresService.getFeatures(for: info.card)
+		if (features.contains(.payIDReceive) || features.contains(.payIDSend)), let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
         vm.update()
