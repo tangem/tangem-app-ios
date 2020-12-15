@@ -31,7 +31,7 @@ struct AppConfig {
 		remoteConfig.features.isWalletPayIdEnabled
 	}
 	
-	var isSendingPayIdEnabled: Bool {
+	var isSendingToPayIdEnabled: Bool {
 		remoteConfig.features.isSendingToPayIdEnabled
 	}
 	
