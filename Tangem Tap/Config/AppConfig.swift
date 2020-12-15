@@ -27,8 +27,12 @@ struct AppConfig {
 		remoteConfig.features.isTopUpEnabled
     }
     
-    var isEnablePayID: Bool {
+    var isWalletPayIdEnabled: Bool {
 		remoteConfig.features.isWalletPayIdEnabled
+	}
+	
+	var isSendingPayIdEnabled: Bool {
+		remoteConfig.features.isSendingToPayIdEnabled
 	}
 	
 	var isEnableTwinCreation: Bool {
