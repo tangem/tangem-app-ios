@@ -88,6 +88,7 @@ struct TwinCardOnboardingView: View {
 					Spacer()
 					if isFromMain {
 						button
+							.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
 							.padding(buttonEdgeInsets)
 					} else {
 						NavigationButton(button: button,
