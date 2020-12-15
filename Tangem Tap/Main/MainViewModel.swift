@@ -242,6 +242,7 @@ class MainViewModel: ViewModel {
 		} else {
 			self.isCreatingWallet = true
 			cardModel.createWallet() { [weak self] result in
+				defer { self?.isCreatingWallet = false }
 				switch result {
 				case .success:
 					break
@@ -251,7 +252,6 @@ class MainViewModel: ViewModel {
 					}
 					self?.error = error.alertBinder
 				}
-				self?.isCreatingWallet = false
 			}
 		}
     }
