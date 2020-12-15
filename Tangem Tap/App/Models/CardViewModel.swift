@@ -17,7 +17,6 @@ class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
     weak var featuresService: AppFeaturesService!
     var payIDService: PayIDService? = nil
-    var config: AppConfig!
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly! {
         didSet {
@@ -94,7 +93,7 @@ class CardViewModel: Identifiable, ObservableObject {
 	}
 	
 	var canRecreateTwinCard: Bool {
-		guard isTwinCard && cardInfo.twinCardInfo?.series != nil && config.isEnableTwinCreation else { return false }
+		guard isTwinCard && cardInfo.twinCardInfo?.series != nil && featuresService.getFeatures(for: cardInfo.card).contains(.twinCreation) else { return false }
 		
 		if case .empty = state {
 			return false
@@ -108,7 +107,7 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInfo.card.isPin2Default != nil
     }
     
-    var canTopup: Bool { config.isEnableMoonPay && featuresService.isTopupSupported(for: cardInfo.card) }
+    var canTopup: Bool { featuresService.isTopupSupported(for: cardInfo.card) }
     
     public private(set) var cardInfo: CardInfo
     
