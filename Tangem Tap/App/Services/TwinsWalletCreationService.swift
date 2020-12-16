@@ -33,6 +33,7 @@ class TwinsWalletCreationService {
 	
 	private(set) var step = CurrentValueSubject<CreationStep, Never>(.first)
 	private(set) var occuredError = PassthroughSubject<Error, Never>()
+	private(set) var isServiceBusy = CurrentValueSubject<Bool, Never>(false)
 	
 	/// Determines is user start twin wallet creation from Twin card with first number
 	var isStartedFromFirstNumber: Bool {
@@ -60,6 +61,7 @@ class TwinsWalletCreationService {
 	}
 	
 	func executeCurrentStep() {
+		isServiceBusy.send(true)
 		switch step.value {
 		case .first:
 			createWalletOnFirstCard()
@@ -95,6 +97,7 @@ class TwinsWalletCreationService {
 			case .failure(let error):
 				self.occuredError.send(error)
 			}
+			self.isServiceBusy.send(false)
 		}
 	}
 	
@@ -116,6 +119,7 @@ class TwinsWalletCreationService {
 				case .failure(let error):
 					self.occuredError.send(error)
 				}
+				self.isServiceBusy.send(false)
 			}
 		case .failure(let error):
 			occuredError.send(error)
@@ -142,6 +146,7 @@ class TwinsWalletCreationService {
 				case .failure(let error):
 					self.occuredError.send(error)
 				}
+				self.isServiceBusy.send(false)
 			}
 		case .failure(let error):
 			occuredError.send(error)
