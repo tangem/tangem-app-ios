@@ -21,6 +21,7 @@ class Tangem_TapTests: XCTestCase {
 
 	func testParseConfig() throws {
 		XCTAssertNoThrow(try KeysManager())
+        XCTAssertNoThrow(try FeaturesConfigManager())
 	}
 	
     func testExample() throws {
