@@ -128,7 +128,7 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.getShareString(for: wallet.addresses[index].value)
     }
     
-    func exploreURL(for index: Int) -> URL {
+    func exploreURL(for index: Int) -> URL? {
         wallet.getExploreURL(for: wallet.addresses[index].value)
     }
     
