@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 class KeysManager {
 	
@@ -19,7 +20,21 @@ class KeysManager {
 		let infuraProjectId: String
 	}
 	
-	private(set) var keys: Keys
+	private let keys: Keys
+	
+	var coinMarketKey: String {
+		keys.coinMarketCapKey
+	}
+	
+	var moonPayKeys: MoonPayKeys {
+		MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
+	}
+	
+	var blockchainConfig: BlockchainSdkConfig {
+		BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
+							blockcypherTokens: keys.blockcypherTokens,
+							infuraProjectId: keys.infuraProjectId)
+	}
 	
 	init() throws {
 		let suffix: String
