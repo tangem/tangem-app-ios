@@ -9,6 +9,11 @@
 import Foundation
 import BlockchainSdk
 
+struct MoonPayKeys {
+	let apiKey: String
+	let secretApiKey: String
+}
+
 class KeysManager {
 	
 	struct Keys: Decodable {
