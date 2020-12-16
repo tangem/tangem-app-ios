@@ -51,7 +51,7 @@ class SendViewModel: ViewModel {
     }
 
     var isPayIdSupported: Bool {
-        featuresService.getFeatures(for: cardViewModel.cardInfo.card).contains(.payIDSend)
+        featuresService.canSendToPayId
             && cardViewModel.payIDService != nil
     }
     
