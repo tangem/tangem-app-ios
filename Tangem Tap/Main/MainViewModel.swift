@@ -217,6 +217,7 @@ class MainViewModel: ViewModel {
 			guard let self = self else { return }
             switch scanResult {
             case .success(let state):
+                self.selectedAddressIndex = 0
                 self.state = state
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
