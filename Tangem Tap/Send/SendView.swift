@@ -186,12 +186,10 @@ struct SendView: View {
                             if self.viewModel.isNetworkFeeBlockOpen {
                                 VStack(spacing: 16.0) {
                                     if self.viewModel.shoudShowFeeSelector {
-                                        Picker("", selection: self.$viewModel.selectedFeeLevel) {
-                                            Text("send_fee_picker_low").tag(0)
-                                            Text("send_fee_picker_normal").tag(1)
-                                            Text("send_fee_picker_priority").tag(2)
-                                        }
-                                        .pickerStyle(SegmentedPickerStyle())
+                                        PickerView(contents: ["send_fee_picker_low".localized,
+                                                              "send_fee_picker_normal".localized,
+                                                              "send_fee_picker_priority".localized],
+                                                   selection: self.$viewModel.selectedFeeLevel)
                                     }
                                     if self.viewModel.shoudShowFeeIncludeSelector {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
@@ -282,6 +280,7 @@ struct SendView: View {
         }
     }
 }
+
 
 struct ExtractView_Previews: PreviewProvider {
     static var previews: some View {
