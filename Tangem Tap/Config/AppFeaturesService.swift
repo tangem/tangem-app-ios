@@ -11,7 +11,7 @@ import TangemSdk
 
 class AppFeaturesService {
 	
-	let configManager = FeaturesConfigManager()
+	let configManager = try! FeaturesConfigManager()
 	
 	private var features = AppFeatures.all
 	
