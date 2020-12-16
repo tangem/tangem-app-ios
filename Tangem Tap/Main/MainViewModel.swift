@@ -324,15 +324,8 @@ class MainViewModel: ViewModel {
 				switch failure {
 				case .finished:
 					return
-				case .failure(let error):
-					switch error {
-					case BlockchainSdkError.signatureCountNotMatched:
-						showUntrustedCardAlert()
-					case BlockchainSdkError.notImplemented:
-						return
-					default:
-						self.error = error.alertBinder
-					}
+				case .failure:
+					showUntrustedCardAlert()
 				}
 			}, receiveValue: { _ in })
 	}
