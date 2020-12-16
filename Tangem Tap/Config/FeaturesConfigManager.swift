@@ -59,6 +59,7 @@ class FeaturesConfigManager {
 	private func fetch() {
 		config.fetchAndActivate { [weak self] (status, error) in
 			guard let self = self else { return }
+            
 			self.setupFeatures()
 		}
 	}
