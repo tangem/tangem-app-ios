@@ -10,11 +10,6 @@ import Foundation
 import CryptoKit
 import Alamofire
 
-struct MoonPayKeys {
-	let apiKey: String
-	let secretApiKey: String
-}
-
 class TopupService {    
 	private let keys: MoonPayKeys
 	
