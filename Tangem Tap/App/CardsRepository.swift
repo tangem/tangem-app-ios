@@ -104,8 +104,9 @@ class CardsRepository {
 								artworkInfo: response.verifyResponse.artworkInfo,
 								twinCardInfo: self.decodeTwinFile(from: response))
 		
+		self.featuresService.setupFeatures(for: response.card)
 	   
-		if !self.featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
+		if !self.featuresService.linkedTerminal {
 			self.tangemSdk.config.linkedTerminal = false
 		}
 		
