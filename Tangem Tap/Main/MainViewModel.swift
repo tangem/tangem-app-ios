@@ -19,7 +19,6 @@ class MainViewModel: ViewModel {
     
 	var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    var config: AppConfig!
     
     var amountToSend: Amount? = nil
     var persistentBag = Set<AnyCancellable>()
