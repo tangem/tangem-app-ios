@@ -58,6 +58,8 @@ class TwinsWalletCreationViewModel: ViewModel {
 	@Published var firstTwinCardImage: UIImage = UIImage()
 	@Published var secondTwinCardImage: UIImage = UIImage()
 	
+	@Published var isCreationServiceBusy: Bool
+	
 	var title: String { String(format: "details_twins_recreate_title_format".localized, walletCreationService.stepCardNumber) }
 	var buttonTitle: LocalizedStringKey { LocalizedStringKey(String(format: "details_twins_recreate_button_format".localized, walletCreationService.stepCardNumber)) }
 	
@@ -72,12 +74,17 @@ class TwinsWalletCreationViewModel: ViewModel {
 	
 	var walletCreationService: TwinsWalletCreationService
 	
-	private var bag = Set<AnyCancellable>()
+	private var stepSubscription: AnyCancellable?
+	private var errorSubscription: AnyCancellable?
+	
+	private var imageLoadingBag = Set<AnyCancellable>()
+	private var creationServiceBag = Set<AnyCancellable>()
 	
 	init(isRecreatingWallet: Bool, walletCreationService: TwinsWalletCreationService, imageLoaderService: ImageLoaderService) {
 		self.isRecreatingWallet = isRecreatingWallet
 		self.walletCreationService = walletCreationService
 		self.imageLoaderService = imageLoaderService
+		isCreationServiceBusy = walletCreationService.isServiceBusy.value
 		loadImages()
 	}
 	
@@ -86,17 +93,21 @@ class TwinsWalletCreationViewModel: ViewModel {
 	}
 	
 	func onDismiss() {
+		error = nil
 		walletCreationService.resetSteps()
+		isDismissing = false
+		creationServiceBag.removeAll()
 	}
 	
 	func onAppear() {
+		bind()
 		if isFirstTimeAppeared { return }
 		isFirstTimeAppeared = true
 		error = nil
-		bind()
 	}
 	
 	private func bind() {
+		creationServiceBag.removeAll()
 		walletCreationService.step
 			.receive(on: DispatchQueue.main)
 			.sink(receiveValue: { [weak self] in
@@ -106,7 +117,7 @@ class TwinsWalletCreationViewModel: ViewModel {
 					self?.step = .uiStep(from: $0)
 				}
 			})
-			.store(in: &bag)
+			.store(in: &creationServiceBag)
 		
 		walletCreationService.occuredError
 			.receive(on: DispatchQueue.main)
@@ -119,7 +130,13 @@ class TwinsWalletCreationViewModel: ViewModel {
 			.sink(receiveValue: { [weak self] in
 				self?.error = $0.alertBinder
 			})
-			.store(in: &bag)
+			.store(in: &creationServiceBag)
+		walletCreationService.isServiceBusy
+			.receive(on: DispatchQueue.main)
+			.sink(receiveValue: {
+				self.isCreationServiceBusy = $0
+			})
+			.store(in: &creationServiceBag)
 	}
 	
 	private func loadImages() {
@@ -129,14 +146,14 @@ class TwinsWalletCreationViewModel: ViewModel {
 				  receiveValue: { [weak self] image in
 					self?.firstTwinCardImage = image
 				  })
-			.store(in: &bag)
+			.store(in: &imageLoadingBag)
 		imageLoaderService.backedLoadImage(.twinCardTwo)
 			.receive(on: DispatchQueue.main)
 			.sink(receiveCompletion: { _ in },
 				  receiveValue: { [weak self] image in
 					self?.secondTwinCardImage = image
 				  })
-			.store(in: &bag)
+			.store(in: &imageLoadingBag)
 	}
 	
 	private func done() {
