@@ -74,9 +74,6 @@ class TwinsWalletCreationViewModel: ViewModel {
 	
 	var walletCreationService: TwinsWalletCreationService
 	
-	private var stepSubscription: AnyCancellable?
-	private var errorSubscription: AnyCancellable?
-	
 	private var imageLoadingBag = Set<AnyCancellable>()
 	private var creationServiceBag = Set<AnyCancellable>()
 	
