@@ -19,7 +19,6 @@ class MainViewModel: ViewModel {
     
 	var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    var config: AppConfig!
     
     var amountToSend: Amount? = nil
     var persistentBag = Set<AnyCancellable>()
@@ -218,6 +217,7 @@ class MainViewModel: ViewModel {
 			guard let self = self else { return }
             switch scanResult {
             case .success(let state):
+                self.selectedAddressIndex = 0
                 self.state = state
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
@@ -324,15 +324,8 @@ class MainViewModel: ViewModel {
 				switch failure {
 				case .finished:
 					return
-				case .failure(let error):
-					switch error {
-					case BlockchainSdkError.signatureCountNotMatched:
-						showUntrustedCardAlert()
-					case BlockchainSdkError.notImplemented:
-						return
-					default:
-						self.error = error.alertBinder
-					}
+				case .failure:
+					showUntrustedCardAlert()
 				}
 			}, receiveValue: { _ in })
 	}
