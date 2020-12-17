@@ -76,12 +76,7 @@ struct SendView: View {
 									}
 								   }, message: self.viewModel.destinationHint?.message ?? " " ,
 								   isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
-					TextInputField(placeholder: "Memo",
-								   text: self.$viewModel.memo,
-								   keyboardType: UIKeyboardType.numberPad,
-								   clearButtonMode: .whileEditing,
-								   message: nil,
-								   isErrorMessage: false)
+					additionalInputFields
                     Group {
                         HStack {
                             CustomTextField(text: self.$viewModel.amountText,
@@ -240,6 +235,30 @@ struct SendView: View {
         }
         .onAppear() {
             self.viewModel.onAppear()
+        }
+    }
+    
+    private var additionalInputFields: some View {
+        switch viewModel.additionalInputFields {
+        case .memo:
+            return
+                TextInputField(placeholder: "memo",
+                               text: self.$viewModel.memo,
+                               keyboardType: UIKeyboardType.numberPad,
+                               clearButtonMode: .whileEditing,
+                               message: nil,
+                               isErrorMessage: false)
+                .toAnyView()
+        case .destinationTag:
+            return TextInputField(placeholder: "destination_tag",
+                                  text: self.$viewModel.destinationTagStr,
+                                  keyboardType: .numberPad,
+                                  clearButtonMode: .whileEditing,
+                                  message: nil,
+                                  isErrorMessage: false)
+                .toAnyView()
+        default:
+            return EmptyView().toAnyView()
         }
     }
 }
