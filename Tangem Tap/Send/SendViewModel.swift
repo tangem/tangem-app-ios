@@ -55,6 +55,14 @@ class SendViewModel: ViewModel {
             && cardViewModel.payIDService != nil
     }
     
+    var hasAdditionalInputFields: Bool {
+        additionalInputFields != .none
+    }
+    
+    var additionalInputFields: SendAdditionalFields {
+        .fields(for: cardViewModel.cardInfo.card)
+    }
+    
     @Published var isNetworkFeeBlockOpen: Bool = false
     
     //MARK: Output
@@ -70,7 +78,11 @@ class SendViewModel: ViewModel {
     @Published var canFiatCalculation: Bool = true
     @Published var oldCardAlert: AlertBinder?
     @Published var isFeeLoading: Bool = false
+    
 	@Published var memo: String = ""
+    @Published var memoHint: TextHint? = nil
+    @Published var destinationTagStr: String = ""
+    @Published var destinationTagHint: TextHint? = nil
     
     @Published var sendError: AlertBinder?
     
@@ -120,7 +132,9 @@ class SendViewModel: ViewModel {
     @Published private var amountValidated: Bool = false
     @Published private var amountToSend: Amount
     
-    private var validatedTag: String? = nil
+    @Published private var validatedXrpDestinationTag: UInt32? = nil
+    
+    private var validatedPayIdTag: String? = nil
     
     init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner) {
         self.signer = signer
@@ -345,6 +359,25 @@ class SendViewModel: ViewModel {
                 self.transaction = tx
             }
             .store(in: &bag)
+        
+        $destinationTagStr
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .sink(receiveValue: { [unowned self] destTagStr in
+                print("New destination tag input", destTagStr)
+                guard let tag = UInt32(destTagStr) else {
+                    self.validatedXrpDestinationTag = nil
+                    return
+                }
+                self.validatedXrpDestinationTag = tag
+            })
+            .store(in: &bag)
+        
+        $memo
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .sink(receiveValue: { [unowned self] memo in
+                print("New memo input", memo)
+            })
+            .store(in: &bag)
     }
     
     func onAppear() {
@@ -373,7 +406,7 @@ class SendViewModel: ViewModel {
     
     func validateDestination(_ destination: String) {
         validatedDestination = nil
-        validatedTag = nil
+        validatedPayIdTag = nil
         destinationHint = nil
         
         if destination.isEmpty {
@@ -388,7 +421,7 @@ class SendViewModel: ViewModel {
                     if let address = resolvedDetails.address,
                        self?.validateAddress(address) ?? false {
                         self?.validatedDestination = resolvedDetails.address
-                        self?.validatedTag = resolvedDetails.tag
+                        self?.validatedPayIdTag = resolvedDetails.tag
                         self?.destinationHint = TextHint(isError: false,
                                                          message: address)
                     } else {
@@ -450,7 +483,7 @@ class SendViewModel: ViewModel {
             return
         }
         
-        if let payIdTag = self.validatedTag {
+        if let payIdTag = self.validatedPayIdTag {
             tx.params = XRPTransactionParams.destinationTag(payIdTag)
         }
 
