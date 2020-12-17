@@ -91,6 +91,29 @@ class CardViewModel: Identifiable, ObservableObject {
 	var isTwinCard: Bool {
 		cardInfo.card.isTwinCard
 	}
+    
+    var canCreateTwinCard: Bool {
+        guard
+            isTwinCard,
+            let twinInfo = cardInfo.twinCardInfo,
+            twinInfo.series != nil
+        else { return false }
+        
+        if case .empty = state {
+            
+            if cardInfo.card.status == .empty {
+                return true
+            }
+            
+            if twinInfo.pairPublicKey != nil {
+                return false
+            }
+            
+            return true
+        } else {
+            return false
+        }
+    }
 	
 	var canRecreateTwinCard: Bool {
 		guard isTwinCard && cardInfo.twinCardInfo?.series != nil && featuresService.canCreateTwin else { return false }
