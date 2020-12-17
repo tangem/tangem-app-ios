@@ -129,6 +129,10 @@ class MainViewModel: ViewModel {
 	var isTwinCard: Bool {
 		state.cardModel?.isTwinCard ?? false
 	}
+    
+    var canCreateTwinWallet: Bool {
+        state.cardModel?.canCreateTwinCard ?? false
+    }
 
     func bind() {
         bag = Set<AnyCancellable>()
