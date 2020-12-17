@@ -36,6 +36,9 @@ class MainViewModel: ViewModel {
     @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var state: ScanResult = .unsupported {
+        willSet {
+            bag = Set<AnyCancellable>()
+        }
         didSet {
             bind()
         }
@@ -135,9 +138,6 @@ class MainViewModel: ViewModel {
     }
 
     func bind() {
-        bag = Set<AnyCancellable>()
-        
-        
         state.cardModel?
             .objectWillChange
             .receive(on: RunLoop.main)
