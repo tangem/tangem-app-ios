@@ -111,6 +111,7 @@
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B0608D35258794EC006CE2A9 /* TextInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0608D34258794EC006CE2A9 /* TextInputField.swift */; };
 		B0608D46258795D0006CE2A9 /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0608D45258795D0006CE2A9 /* CircleActionButton.swift */; };
+		B0654374258B30A20006F338 /* SendAdditionalFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0654373258B30A20006F338 /* SendAdditionalFields.swift */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
 		B072A72F257A119700C5029C /* features_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72C257A119700C5029C /* features_dev.json */; };
 		B072A730257A119700C5029C /* features_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72D257A119700C5029C /* features_prod.json */; };
@@ -276,6 +277,7 @@
 		B046EE172578D38E00EA38A5 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B0608D34258794EC006CE2A9 /* TextInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputField.swift; sourceTree = "<group>"; };
 		B0608D45258795D0006CE2A9 /* CircleActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleActionButton.swift; sourceTree = "<group>"; };
+		B0654373258B30A20006F338 /* SendAdditionalFields.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAdditionalFields.swift; sourceTree = "<group>"; };
 		B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsUtils.swift; sourceTree = "<group>"; };
 		B072A72C257A119700C5029C /* features_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_dev.json; sourceTree = "<group>"; };
 		B072A72D257A119700C5029C /* features_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = features_prod.json; sourceTree = "<group>"; };
@@ -637,6 +639,7 @@
 				5DFCCB7324C3819A0014A293 /* SendView.swift */,
 				5DFCCB7524C381A70014A293 /* SendViewModel.swift */,
 				5DCC20BC2500FC58007B467E /* QRScannerView.swift */,
+				B0654373258B30A20006F338 /* SendAdditionalFields.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -1013,6 +1016,7 @@
 				5DD4CB4F24FAAB1A008F23CC /* UIResponder+Current.swift in Sources */,
 				5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */,
 				B0A943532564E85800A7958E /* TwinsWalletCreationView.swift in Sources */,
+				B0654374258B30A20006F338 /* SendAdditionalFields.swift in Sources */,
 				5DB862B8252396CD00566AA0 /* DefaultSigner.swift in Sources */,
 				5DD966F925499E8B006070F3 /* WebView.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
