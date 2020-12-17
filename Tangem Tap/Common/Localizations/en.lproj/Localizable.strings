@@ -168,9 +168,13 @@
 "send_balance_subtitle_format" = "Balance: %@";
 "send_transaction_success" = "Transaction has been successfully signed and sent to the blockchain node. Wallet balance will be updated in a while";
 
-"destination_tag" = "Destination Tag";
+"send_extras_hint_destination_tag" = "Destination Tag";
 
-"memo" = "Memo";
+"send_extras_hint_memo" = "Memo";
+
+"invalid_memo_id" = "Invalid Memo Id. It won't be added to transaction";
+
+"invalid_destination_tag" = "Invalid Destination Tag. It won't be added to transaction";
 
 // MARK: - Details
 
