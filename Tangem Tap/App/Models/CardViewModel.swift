@@ -167,6 +167,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         payIDService?
             .loadPayIDInfo(for: cardInfo.card)
+            .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                     switch completion {
