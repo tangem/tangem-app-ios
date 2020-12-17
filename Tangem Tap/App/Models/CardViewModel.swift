@@ -91,6 +91,29 @@ class CardViewModel: Identifiable, ObservableObject {
 	var isTwinCard: Bool {
 		cardInfo.card.isTwinCard
 	}
+    
+    var canCreateTwinCard: Bool {
+        guard
+            isTwinCard,
+            let twinInfo = cardInfo.twinCardInfo,
+            twinInfo.series != nil
+        else { return false }
+        
+        if case .empty = state {
+            
+            if cardInfo.card.status == .empty {
+                return true
+            }
+            
+            if twinInfo.pairPublicKey != nil {
+                return false
+            }
+            
+            return true
+        } else {
+            return false
+        }
+    }
 	
 	var canRecreateTwinCard: Bool {
 		guard isTwinCard && cardInfo.twinCardInfo?.series != nil && featuresService.canCreateTwin else { return false }
@@ -98,6 +121,24 @@ class CardViewModel: Identifiable, ObservableObject {
 		if case .empty = state {
 			return false
 		}
+        
+        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+            return false
+        }
+        
+        if case let .loaded(walletModel) = state {
+            if !walletModel.wallet.isEmpty || walletModel.wallet.hasPendingTx {
+                return false
+            }
+            
+            switch walletModel.state {
+            case .failed, .loading: return false
+            case .noAccount: return true
+            default:
+                break
+            }
+            
+        }
 		
 		return true
 	}
