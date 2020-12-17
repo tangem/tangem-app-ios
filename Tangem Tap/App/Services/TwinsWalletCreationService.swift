@@ -108,22 +108,22 @@ class TwinsWalletCreationService {
 			return
 		}
 		
-		switch twinFileToWrite(publicKey: firstTwinKey) {
-		case .success(let file):
-			let task = TwinsCreateWalletTask(targetCid: secondTwinCid, fileToWrite: file)
-			tangemSdk.startSession(with: task, cardId: secondTwinCid, initialMessage: Message(header: nil, body: String(format: scanMessageKey.localized, secondTwinCid))) { (result) in
-				switch result {
-				case .success(let response):
-					self.secondTwinPublicKey = response.walletPublicKey
-					self.step.send(.third)
-				case .failure(let error):
-					self.occuredError.send(error)
-				}
-				self.isServiceBusy.send(false)
-			}
-		case .failure(let error):
-			occuredError.send(error)
-		}
+//		switch twinFileToWrite(publicKey: firstTwinKey) {
+//		case .success(let file):
+        let task = TwinsCreateWalletTask(targetCid: secondTwinCid, fileToWrite: firstTwinKey)
+        tangemSdk.startSession(with: task, cardId: secondTwinCid, initialMessage: Message(header: nil, body: String(format: scanMessageKey.localized, secondTwinCid))) { (result) in
+            switch result {
+            case .success(let response):
+                self.secondTwinPublicKey = response.walletPublicKey
+                self.step.send(.third)
+            case .failure(let error):
+                self.occuredError.send(error)
+            }
+            self.isServiceBusy.send(false)
+        }
+//		case .failure(let error):
+//			occuredError.send(error)
+//		}
 		
 	}
 	
@@ -134,23 +134,23 @@ class TwinsWalletCreationService {
 			return
 		}
 		
-		switch twinFileToWrite(publicKey: secondTwinKey) {
-		case .success(let file):
-			let task = TwinsFinalizeWalletCreationTask(fileToWrite: file)
-			tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: Message(header: nil, body: String(format: scanMessageKey.localized, firstTwinCid))) { [weak self] (result) in
-				guard let self = self else { return }
-				switch result {
-				case .success(let response):
-					self.cardsRepository.processScanResponse(response)
-					self.step.send(.done)
-				case .failure(let error):
-					self.occuredError.send(error)
-				}
-				self.isServiceBusy.send(false)
-			}
-		case .failure(let error):
-			occuredError.send(error)
-		}
+//		switch twinFileToWrite(publicKey: secondTwinKey) {
+//		case .success(let file):
+        let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey)
+        tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: Message(header: nil, body: String(format: scanMessageKey.localized, firstTwinCid))) { [weak self] (result) in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                self.cardsRepository.processScanResponse(response)
+                self.step.send(.done)
+            case .failure(let error):
+                self.occuredError.send(error)
+            }
+            self.isServiceBusy.send(false)
+        }
+//		case .failure(let error):
+//			occuredError.send(error)
+//		}
 	}
 	
 	private func twinFileToWrite(publicKey: Data) -> Result<Data, Error> {
