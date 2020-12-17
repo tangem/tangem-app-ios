@@ -98,6 +98,24 @@ class CardViewModel: Identifiable, ObservableObject {
 		if case .empty = state {
 			return false
 		}
+        
+        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+            return false
+        }
+        
+        if case let .loaded(walletModel) = state {
+            if !walletModel.wallet.isEmpty || walletModel.wallet.hasPendingTx {
+                return false
+            }
+            
+            switch walletModel.state {
+            case .failed, .loading: return false
+            case .noAccount: return true
+            default:
+                break
+            }
+            
+        }
 		
 		return true
 	}
