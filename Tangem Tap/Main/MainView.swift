@@ -294,7 +294,7 @@ struct MainView: View {
 			return NavigationButton(button: longButton,
 							 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
 															isActive: $navigation.showTwinsWalletCreation))
-				.disabled(!(self.viewModel.canCreateWallet || self.viewModel.state.cardModel?.canRecreateTwinCard ?? false))
+				.disabled(!self.viewModel.canCreateTwinWallet)
 				.toAnyView()
 		} else {
 			return longButton
