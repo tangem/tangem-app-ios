@@ -129,8 +129,8 @@ struct TwinsWalletCreationView: View {
 			} else {
 				self.navigation.detailsShowTwinsRecreateWarning = false
 			}
-		} else if self.navigation.showTwinsWalletCreation {
-			self.navigation.showTwinsWalletCreation = false
+		} else if self.navigation.showTwinsWalletWarning {
+			self.navigation.showTwinsWalletWarning = false
 		}
 	}
 }
