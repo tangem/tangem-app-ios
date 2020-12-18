@@ -15,6 +15,10 @@ class TwinsCreateWalletTask: CardSessionRunnable {
     
 	var requiresPin2: Bool { true }
 	
+    deinit {
+        print("Twins create wallet task deinited")
+    }
+    
 	private let targetCid: String
 	private var fileToWrite: Data?
 	
