@@ -287,8 +287,8 @@ struct MainView: View {
 		
 		if viewModel.isTwinCard {
 			return NavigationButton(button: longButton,
-							 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
-															isActive: $navigation.showTwinsWalletCreation))
+                                    navigationLink: NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: false)),
+                                                                   isActive: $navigation.showTwinsWalletWarning))
 				.disabled(!self.viewModel.canCreateTwinWallet)
 				.toAnyView()
 		} else {
