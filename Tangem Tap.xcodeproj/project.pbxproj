@@ -82,7 +82,7 @@
 		5DD4CB4F24FAAB1A008F23CC /* UIResponder+Current.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4C24FAAB1A008F23CC /* UIResponder+Current.swift */; };
 		5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */; };
 		5DD4CB5224FAE4B9008F23CC /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5124FAE4B9008F23CC /* CustomTextField.swift */; };
-		5DD4CB5424FAEE8B008F23CC /* CardIdFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5324FAEE8B008F23CC /* CardIdFormatter.swift */; };
+		5DD4CB5424FAEE8B008F23CC /* TapCardIdFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5324FAEE8B008F23CC /* TapCardIdFormatter.swift */; };
 		5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD6DF20251E018A00F2693E /* AlertCardView.swift */; };
 		5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */; };
 		5DD966F925499E8B006070F3 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD966F825499E8B006070F3 /* WebView.swift */; };
@@ -241,7 +241,7 @@
 		5DD4CB4C24FAAB1A008F23CC /* UIResponder+Current.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIResponder+Current.swift"; sourceTree = "<group>"; };
 		5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardHeightPublisher.swift; sourceTree = "<group>"; };
 		5DD4CB5124FAE4B9008F23CC /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
-		5DD4CB5324FAEE8B008F23CC /* CardIdFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardIdFormatter.swift; sourceTree = "<group>"; };
+		5DD4CB5324FAEE8B008F23CC /* TapCardIdFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapCardIdFormatter.swift; sourceTree = "<group>"; };
 		5DD6DF20251E018A00F2693E /* AlertCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCardView.swift; sourceTree = "<group>"; };
 		5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerticalAlignment+.swift"; sourceTree = "<group>"; };
 		5DD966F825499E8B006070F3 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
@@ -602,7 +602,7 @@
 				5DBBAB0924D853A000E78F1C /* Extensions */,
 				B082E91E255A8E7800A0CEA9 /* Storage */,
 				5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */,
-				5DD4CB5324FAEE8B008F23CC /* CardIdFormatter.swift */,
+				5DD4CB5324FAEE8B008F23CC /* TapCardIdFormatter.swift */,
 				5DA3A2EC251B589E009A8E08 /* AlertManager.swift */,
 				5D119E84256BF1E50046CAD2 /* Option.swift */,
 			);
@@ -1083,7 +1083,7 @@
 				5D9DCB06255193C30059799C /* UserPrefsService.swift in Sources */,
 				5D9DCAD3255172520059799C /* NavigationCoordinator.swift in Sources */,
 				B0A9435B2564E87F00A7958E /* TwinsWalletCreationViewModel.swift in Sources */,
-				5DD4CB5424FAEE8B008F23CC /* CardIdFormatter.swift in Sources */,
+				5DD4CB5424FAEE8B008F23CC /* TapCardIdFormatter.swift in Sources */,
 				B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
