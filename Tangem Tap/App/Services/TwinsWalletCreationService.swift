@@ -84,6 +84,7 @@ class TwinsWalletCreationService {
     
     func resetSteps() {
         step = CurrentValueSubject<CreationStep, Never>(.first)
+        isServiceBusy.send(false)
     }
     
     private func createWalletOnFirstCard() {
