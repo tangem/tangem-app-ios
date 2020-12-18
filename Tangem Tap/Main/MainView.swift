@@ -153,13 +153,13 @@ struct MainView: View {
                                                   selectedAddressIndex: self.$viewModel.selectedAddressIndex,
                                                   cardViewModel: self.viewModel.state.cardModel!)
                                 
-                                EmptyView()
+                                Color.clear.frame(width: 1, height: 1, alignment: .center)
 									.sheet(isPresented: self.$navigation.showCreatePayID, content: {
                                         CreatePayIdView(cardId: self.viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
                                                         cardViewModel: self.viewModel.state.cardModel!)
                                     })
                                 
-                                EmptyView()
+                                Color.clear.frame(width: 1, height: 1, alignment: .center)
                                     .sheet(isPresented: self.$navigation.showQRAddress) {
                                         // VStack {
                                         //    Spacer()
