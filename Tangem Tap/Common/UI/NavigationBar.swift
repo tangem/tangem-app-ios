@@ -99,6 +99,19 @@ extension NavigationBar where LeftButtons == EmptyView {
 	}
 }
 
+extension NavigationBar where RightButtons == EmptyView {
+    init(
+        title: LocalizedStringKey,
+        settings: Settings = .init(),
+        @ViewBuilder leftButtons: () -> LeftButtons
+    ) {
+        rightButtons = EmptyView()
+        self.leftButtons = leftButtons()
+        self.title = title
+        self.settings = settings
+    }
+}
+
 extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyView {
 	init(
 		title: LocalizedStringKey,
