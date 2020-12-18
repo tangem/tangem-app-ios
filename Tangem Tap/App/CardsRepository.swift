@@ -121,7 +121,10 @@ class CardsRepository {
 		guard
 			response.card.isTwinCard,
 			let cardId = response.card.cardId
-			else { return nil }
+        else {
+            tangemSdk.config.cardIdDisplayedNumbersCount = nil
+            return nil
+        }
 		
 		var pairPublicKey: Data?
         let fullData = response.twinIssuerData
@@ -145,6 +148,8 @@ class CardsRepository {
 //				print("File doesn't contain twin card dara")
 //			}
 //		}
+        
+        tangemSdk.config.cardIdDisplayedNumbersCount = 4
 		return TwinCardInfo(cid: cardId, series: TwinCardSeries.series(for: response.card.cardId), pairCid: TwinCardsUtils.makePairCid(for: cardId), pairPublicKey: pairPublicKey)
 	}
 	
