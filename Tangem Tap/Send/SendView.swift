@@ -258,8 +258,17 @@ struct SendView: View {
                                          title: "wallet_button_send",
                                          image: "arrow.right") {
                                 self.viewModel.send() {
-                                self.presentationMode.wrappedValue.dismiss()
-                                self.onSuccess()
+                                    DispatchQueue.main.async {
+                                        let alert = Alert(title: Text("common_success"),
+                                                          message: Text("send_transaction_success"),
+                                                          dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                                              action: {
+                                                                                                presentationMode.wrappedValue.dismiss()
+                                                                                                onSuccess()
+                                                                                              }))
+                                        
+                                        self.viewModel.sendError = AlertBinder(alert: alert)
+                                    }                               
                             }
                         }.buttonStyle(TangemButtonStyle(color: .green,
                                                        isDisabled: !self.viewModel.isSendEnabled))
