@@ -99,7 +99,7 @@ struct TwinCardOnboardingView: View {
 					}
 				}
 			}.toAnyView()
-		case .warning:
+		case .warning(let isRecreating):
 			return VStack {
 				Spacer()
 				VStack {
@@ -111,7 +111,7 @@ struct TwinCardOnboardingView: View {
 							Text("common_warning")
 								.font(.system(size: 30, weight: .bold))
 						}
-						Text("details_twins_recreate_warning")
+                        Text(isRecreating ? "details_twins_recreate_warning" : "details_twins_create_warning")
 							.foregroundColor(.tangemTapGrayDark3)
 					}
 					.font(.system(size: 13, weight: .regular))
@@ -123,12 +123,11 @@ struct TwinCardOnboardingView: View {
 									 title: "common_back",
 									 image: "", action: {
 										self.presentationMode.wrappedValue.dismiss()
-//										self.navigation.detailsShowTwinsRecreateWarning = false
 									 })
 							.buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
 						NavigationButton(button: button,
-										 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: true)),
-																		isActive: $navigation.onboardingOpenTwinCardWalletCreation))
+										 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: isRecreating)),
+																		isActive:  $navigation.onboardingOpenTwinCardWalletCreation))
 							.buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
 					}
 					.padding(buttonEdgeInsets)
@@ -150,7 +149,7 @@ struct TwinCardOnboardingView_Previews: PreviewProvider {
 	static let assembly = Assembly.previewAssembly
 	static var previews: some View {
 //		TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(isFromMain: false))
-		TwinCardOnboardingView(viewModel: assembly.makeTwinCardWarningViewModel())
+        TwinCardOnboardingView(viewModel: assembly.makeTwinCardWarningViewModel(isRecreating: true))
 			.environmentObject(assembly.navigationCoordinator)
 			.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
 	}
