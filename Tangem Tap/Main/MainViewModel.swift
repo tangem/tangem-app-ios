@@ -242,7 +242,7 @@ class MainViewModel: ViewModel {
         }
 		
 		if cardModel.isTwinCard {
-			navigation.showTwinsWalletCreation = true
+			navigation.showTwinsWalletWarning = true
 		} else {
 			self.isCreatingWallet = true
 			cardModel.createWallet() { [weak self] result in
