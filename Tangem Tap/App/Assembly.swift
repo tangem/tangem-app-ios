@@ -184,12 +184,13 @@ class Assembly {
 	
 	func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
 		let scanResult = cardsRepository.lastScanResult
-		let twinPairCid = scanResult.cardModel?.cardInfo.twinCardInfo?.pairCid
-		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid ?? "", isFromMain: isFromMain))
+        let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
+        let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series?.pair.number ?? 1)
+		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
 	}
 	
-	func makeTwinCardWarningViewModel() -> TwinCardOnboardingViewModel {
-		makeTwinCardOnboardingViewModel(state: .warning)
+    func makeTwinCardWarningViewModel(isRecreating: Bool) -> TwinCardOnboardingViewModel {
+        makeTwinCardOnboardingViewModel(state: .warning(isRecreating: isRecreating))
 	}
 	
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
