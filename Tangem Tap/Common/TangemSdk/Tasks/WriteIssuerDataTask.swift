@@ -11,6 +11,8 @@ import TangemSdk
 class WriteIssuerDataTask: CardSessionRunnable {
     typealias CommandResponse = WriteIssuerDataResponse
     
+    var message: Message? { Message(header: "twin_process_creating_wallet".localized) }
+    
     private let pairPubKey: Data
     private let keys: KeyPair
     
