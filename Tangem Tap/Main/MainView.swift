@@ -217,16 +217,7 @@ struct MainView: View {
                         .sheet(isPresented: $navigation.showSend) {
                             SendView(viewModel: self.viewModel.assembly.makeSendViewModel(
                                         with: self.viewModel.amountToSend!,
-                                        card: self.viewModel.state.cardModel!), onSuccess: {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                    let alert = Alert(title: Text("common_success"),
-                                                      message: Text("send_transaction_success"),
-                                                      dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                                          action: {}))
-                                    
-                                    self.viewModel.error = AlertBinder(alert: alert)
-                                }
-                            })
+                                        card: self.viewModel.state.cardModel!), onSuccess: {})
                         }
                         .actionSheet(isPresented: self.$navigation.showSendChoise) {
                             ActionSheet(title: Text("wallet_choice_wallet_option_title"),
