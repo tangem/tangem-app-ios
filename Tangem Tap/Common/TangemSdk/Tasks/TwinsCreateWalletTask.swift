@@ -11,6 +11,8 @@ import TangemSdk
 class TwinsCreateWalletTask: CardSessionRunnable {
 	typealias CommandResponse = CreateWalletResponse
 	
+    var message: Message? { Message(header: "twin_process_preparing_card".localized) }
+    
 	var requiresPin2: Bool { true }
 	
 	private let targetCid: String
@@ -22,6 +24,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
 	
 	func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
+        session.viewDelegate.showAlertMessage("twin_process_preparing_card".localized)
 		if session.environment.card?.status == .empty {
             createWallet(in: session, completion: completion)
 		} else {
@@ -72,6 +75,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	private func writePublicKeyFile(fileToWrite: Data, walletResponse: CreateWalletResponse, in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
 //		let writeFileCommand = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: fileToWrite))
         let task = WriteIssuerDataTask(pairPubKey: fileToWrite, keys: SignerUtils.signerKeys)
+        session.viewDelegate.showAlertMessage("twin_process_creating_wallet".localized)
         task.run(in: session) { (response) in
             switch response {
             case .success:
