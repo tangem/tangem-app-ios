@@ -31,6 +31,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var showCreatePayID = false
     @Published var showTopup = false
 	@Published var showTwinCardOnboarding = false
+    @Published var showTwinsWalletWarning = false
 	@Published var showTwinsWalletCreation = false
     @Published var showQRAddress = false
     
