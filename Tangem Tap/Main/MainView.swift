@@ -136,7 +136,10 @@ struct MainView: View {
                             ForEach(self.pendingTransactionViews) { $0 }
                             
                             if self.shouldShowEmptyView {
-                                 ErrorView(title: "wallet_error_empty_card".localized, subtitle: "wallet_error_empty_card_subtitle".localized)
+                                ErrorView(
+                                    title: viewModel.isTwinCard ? "wallet_error_empty_twin_card".localized : "wallet_error_empty_card".localized,
+                                    subtitle: viewModel.isTwinCard ? "wallet_error_empty_twin_card_subtitle".localized : "wallet_error_empty_card_subtitle".localized
+                                )
                             } else {
                                 if self.shouldShowBalanceView {
                                     BalanceView(balanceViewModel: self.viewModel.state.cardModel!.state.walletModel!.balanceViewModel)
@@ -214,16 +217,7 @@ struct MainView: View {
                         .sheet(isPresented: $navigation.showSend) {
                             SendView(viewModel: self.viewModel.assembly.makeSendViewModel(
                                         with: self.viewModel.amountToSend!,
-                                        card: self.viewModel.state.cardModel!), onSuccess: {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                    let alert = Alert(title: Text("common_success"),
-                                                      message: Text("send_transaction_success"),
-                                                      dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                                          action: {}))
-                                    
-                                    self.viewModel.error = AlertBinder(alert: alert)
-                                }
-                            })
+                                        card: self.viewModel.state.cardModel!), onSuccess: {})
                         }
                         .actionSheet(isPresented: self.$navigation.showSendChoise) {
                             ActionSheet(title: Text("wallet_choice_wallet_option_title"),
@@ -283,8 +277,9 @@ struct MainView: View {
 	}
 	
 	var createWalletButton: some View {
+        let isTwin = viewModel.isTwinCard
 		let longButton = TangemLongButton(isLoading: self.viewModel.isCreatingWallet,
-										  title: "wallet_button_create_wallet",
+                                          title: isTwin ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
 										  image: "arrow.right") {
 			self.viewModel.createWallet()
 		}
@@ -292,8 +287,8 @@ struct MainView: View {
 		
 		if viewModel.isTwinCard {
 			return NavigationButton(button: longButton,
-							 navigationLink: NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly.makeTwinsWalletCreationViewModel(isRecreating: false)),
-															isActive: $navigation.showTwinsWalletCreation))
+                                    navigationLink: NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: false)),
+                                                                   isActive: $navigation.showTwinsWalletWarning))
 				.disabled(!self.viewModel.canCreateTwinWallet)
 				.toAnyView()
 		} else {
