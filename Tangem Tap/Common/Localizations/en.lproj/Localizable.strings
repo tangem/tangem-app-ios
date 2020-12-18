@@ -63,6 +63,8 @@
 
 "wallet_button_create_wallet" = "Create wallet";
 
+"wallet_button_create_twin_wallet" = "Create twin wallet";
+
 "wallet_title" = "Tangem Tap";
 
 "wallet_choice_wallet_option_title" = "Choice wallet option";
@@ -83,7 +85,11 @@
 
 "wallet_error_empty_card" = "Empty card";
 
+"wallet_error_empty_twin_card" = "Create twin wallet";
+
 "wallet_error_empty_card_subtitle" = "Create wallet to start using Tangem card";
+
+"wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
 
 "wallet_error_unsupported_blockchain" = "This card is not supported";
 
