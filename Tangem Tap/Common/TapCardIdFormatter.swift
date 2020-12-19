@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import TangemSdk
 
-
-struct CardIdFormatter {
+struct TapCardIdFormatter {
     let cid: String
 
     func formatted() -> String {
@@ -21,5 +21,12 @@ struct CardIdFormatter {
             }
         }
         return resultString
+    }
+}
+
+struct TapTwinCardIdFormatter {
+    static func format(cid: String, cardNumber: Int?) -> String {
+        let formatter = CardIdFormatter()
+        return formatter.crop(cid: cid, with: 4) + (cardNumber != nil ? " #\(cardNumber!)" : "")
     }
 }
