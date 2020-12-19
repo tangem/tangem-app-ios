@@ -33,12 +33,12 @@ struct TwinsWalletCreationView: View {
 						  settings: .init(horizontalPadding: 8),
 						  backAction: {
 							if self.viewModel.step == .first {
-								self.dismiss()
+								self.dismiss(isWalletCreated: false)
 							} else {
 								self.alert = AlertBinder(alert: Alert(title: Text("twins_creation_warning_title"),
 												   message: Text("twins_creation_warning_message"),
 								 primaryButton: Alert.Button.destructive(Text("common_ok"), action: {
-								   self.dismiss()
+								   self.dismiss(isWalletCreated: false)
 								 }),
 								 secondaryButton: Alert.Button.default(Text("common_cancel"))))
 							}
@@ -75,7 +75,7 @@ struct TwinsWalletCreationView: View {
 				Spacer()
 				HStack {
 					Spacer()
-					TangemLongButton(isLoading: false,
+					TangemLongButton(isLoading: self.viewModel.isCreationServiceBusy,
 									 title: viewModel.buttonTitle,
 									 image: "scan") {
 						withAnimation {
@@ -99,6 +99,9 @@ struct TwinsWalletCreationView: View {
 			if self.navigation.onboardingOpenTwinCardWalletCreation {
 				self.navigation.onboardingOpenTwinCardWalletCreation = false
 			}
+			if self.navigation.detailsShowTwinsRecreateWarning {
+				self.navigation.detailsShowTwinsRecreateWarning = false
+			}
 		})
 		.onAppear(perform: {
 			self.viewModel.onAppear()
@@ -111,20 +114,23 @@ struct TwinsWalletCreationView: View {
 				self.alert = AlertBinder(alert: Alert(title: Text("common_success"),
 													  message: Text("notification_twins_recreate_success"),
 									dismissButton: .default(Text("common_ok"), action: {
-									  self.dismiss()
+									  self.dismiss(isWalletCreated: true)
 									})))
 			}
 		})
 		.alert(item: $alert) { $0.alert }
     }
 	
-	private func dismiss() {
+	private func dismiss(isWalletCreated: Bool) {
 		viewModel.isDismissing = true
 		if self.navigation.detailsShowTwinsRecreateWarning {
-			self.navigation.detailsShowTwinsRecreateWarning = false
-
-		} else if self.navigation.showTwinsWalletCreation {
-			self.navigation.showTwinsWalletCreation = false
+			if isWalletCreated {
+				self.navigation.showSettings = false
+			} else {
+				self.navigation.detailsShowTwinsRecreateWarning = false
+			}
+		} else if self.navigation.showTwinsWalletWarning {
+			self.navigation.showTwinsWalletWarning = false
 		}
 	}
 }
