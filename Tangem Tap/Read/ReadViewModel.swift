@@ -25,9 +25,8 @@ class ReadViewModel: ViewModel {
     @Published var isLoading: Bool = false
     @Published var scanError: AlertBinder?
     var shopURL = URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!
-    
-    
-    @Storage("tangem_tap_first_time_scan", defaultValue: true)
+	
+	@Storage(type: StorageType.firstTimeScan, defaultValue: true)
     private var firstTimeScan: Bool
     
     private var bag = Set<AnyCancellable>()
@@ -51,19 +50,29 @@ class ReadViewModel: ViewModel {
         cardsRepository.scan { [weak self] scanResult in
             guard let self = self else { return }
             switch scanResult {
-            case .success:
-                if self.userPrefsService.isTermsOfServiceAccepted {
-                    self.navigation.openMain = true
-                } else {
-                    self.navigation.openDisclaimer = true
-                }
-                self.firstTimeScan = false
+			case .success(let result):
+				defer { self.firstTimeScan = false }
+				
+				guard self.userPrefsService.isTermsOfServiceAccepted else {
+					self.navigation.openDisclaimer = true
+					break
+				}
+				
+				guard
+					result.card?.isTwinCard ?? false,
+					!self.userPrefsService.isTwinCardOnboardingWasDisplayed
+				else {
+					self.navigation.openMain = true
+					break
+				}
+				
+				self.navigation.readOpenTwinCardOnboarding = true
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
                     self.scanError = error.alertBinder
                 }
             }
-             self.isLoading = false
+			self.isLoading = false
         }
     }
 }
