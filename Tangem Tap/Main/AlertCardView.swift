@@ -22,8 +22,8 @@ struct AlertCardView: View {
                 .font(Font.system(size: 13, weight: .regular, design: .default))
                 .foregroundColor(.tangemTapGrayDark)
                 .fixedSize(horizontal: false, vertical: true)
-            Spacer()
-                .frame(minWidth: 0, idealWidth: .infinity, maxWidth: .infinity, minHeight: 0, idealHeight: 0, maxHeight: 0, alignment: .center)
+//            Spacer()
+//                .frame(minWidth: 0, idealWidth: .infinity, maxWidth: .infinity, minHeight: 0, idealHeight: 0, maxHeight: 0, alignment: .center)
         }
             .padding(.horizontal, 24.0)
             .padding(.vertical, 16.0)
