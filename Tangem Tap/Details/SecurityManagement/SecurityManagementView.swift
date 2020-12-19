@@ -62,6 +62,8 @@ struct SecurityManagementRowView: View {
 
 struct SecurityManagementView: View {
     @ObservedObject var viewModel: SecurityManagementViewModel
+	@EnvironmentObject var navigation: NavigationCoordinator
+	
     var body: some View {
         VStack {
             List(SecurityManagementOption.allCases) { option in
@@ -84,17 +86,11 @@ struct SecurityManagementView: View {
             }
             .padding(.horizontal, 16.0)
             .padding(.bottom, 16.0)
-            
-            if viewModel.navigation.openWarning {
-                NavigationLink(destination: CardOperationView(title: viewModel.selectedOption.title,
-                                                              alert: "details_security_management_warning".localized,
-                                                              actionButtonPressed: viewModel.actionButtonPressedHandler),
-                               isActive: $viewModel.navigation.openWarning)
-                {
-                    EmptyView()
-                    
-                }
-            }
+			
+			NavigationLink(destination: CardOperationView(title: viewModel.selectedOption.title,
+														  alert: "details_security_management_warning".localized,
+														  actionButtonPressed: viewModel.actionButtonPressedHandler),
+						   isActive: $navigation.openWarning)
         }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_manage_security_title", displayMode: .inline)
