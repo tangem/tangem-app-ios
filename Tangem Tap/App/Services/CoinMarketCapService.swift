@@ -97,7 +97,7 @@ struct Status: Codable {
 }
 
 class CoinMarketCapService {
-    @Storage("tangem_tap_selected_currency_code", defaultValue: "USD")
+	@Storage(type: StorageType.selectedCurrencyCode, defaultValue: "USD")
     var selectedCurrencyCode: String {
         didSet {
             selectedCurrencyCodePublished = selectedCurrencyCode
