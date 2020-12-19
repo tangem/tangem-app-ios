@@ -6,6 +6,8 @@
   Copyright © 2020 Tangem AG. All rights reserved.
 */
 
+// MARK: - Common
+
 "common_success" = "Success";
 
 "common_error" = "Error";
@@ -26,7 +28,15 @@
 
 "common_camera_alert_button_settings" = "Settings";
 
+"common_accept" = "Accept";
 
+"common_start" = "Start";
+
+"common_cancel" = "Cancel";
+
+"common_back" = "Back";
+
+// MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
 "home_welcome_back" = "Welcome back to Tangem Tap. \nScan your card to start.";
@@ -41,6 +51,8 @@
 
 "home_button_scan" = "Scan card";
 
+// MARK: - Wallet
+
 "wallet_error_no_account_subtitle_format" = "Load %@+ %@ to create account";
 
 "wallet_button_scan" = "Scan";
@@ -50,6 +62,8 @@
 "wallet_button_topup" = "Top up";
 
 "wallet_button_create_wallet" = "Create wallet";
+
+"wallet_button_create_twin_wallet" = "Create twin wallet";
 
 "wallet_title" = "Tangem Tap";
 
@@ -71,7 +85,11 @@
 
 "wallet_error_empty_card" = "Empty card";
 
+"wallet_error_empty_twin_card" = "Create twin wallet";
+
 "wallet_error_empty_card_subtitle" = "Create wallet to start using Tangem card";
+
+"wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
 
 "wallet_error_unsupported_blockchain" = "This card is not supported";
 
@@ -119,7 +137,7 @@
 
 "wallet_create_payid_error_already_created" = "This PayString already exists. Try a different one.";
 
-
+// MARK: - Send
 
 "send_destination_hint" = "Address or PayString";
 
@@ -156,7 +174,7 @@
 "send_balance_subtitle_format" = "Balance: %@";
 "send_transaction_success" = "Transaction has been successfully signed and sent to the blockchain node. Wallet balance will be updated in a while";
 
-
+// MARK: - Details
 
 "details_title" = "Details";
 
@@ -201,6 +219,54 @@
 
 "details_manage_security_access_code_description" = "You will have to submit the correct access code before scanning the card";
 
+// MARK: - Twin Cards
+
+"twins_onboarding_title" = "Tangem Twin";
+
+"twins_onboarding_subtitle" = "One wallet. Two cards.";
+
+"twins_onboarding_description_format" = "This one that you are holding in your hands and the other one with number %@.\n\nBoth cards can be used to extract funds from this wallet.";
+
+"details_twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.\nThe wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
+"details_twins_create_warning" = "The wallet creation procedure consists of three steps. You must complete it to the end, otherwise the cards will not be paired and you will have to start from the beginning.";
+
+"details_twins_recreate_toolbar" = "Re-create wallet";
+"details_row_title_twins_create" = "Create wallet";
+
+
+"details_row_title_twins_recreate" = "Re-create twin wallet";
+
+
+"wallet_twins_chip_format" = "Card %d of 2";
+"details_twins_recreate_step_format" = "Step %d";
+"details_twins_recreate_title_format" = "Tap the #%d twin card";
+"details_twins_recreate_subtitle" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
+
+"details_twins_recreate_button_format" = "Tap the card #%d";
+
+"notification_twins_recreate_success" = "The twin address was successfully created";
+
+"twins_creation_warning_title" = "Cancel Twin Card creation?";
+"twins_creation_warning_message" = "You have already started the process of recreating twin wallet. If you interrupt it, you won't be able to use your twin cards until you start it again and complete recreating the wallet.";
+"twins_scan_twin_with_number" = "Hold your iPhone near the twin card with number %@";
+
+"twin_process_preparing_card" = "Preparing card";
+
+"twin_process_creating_wallet" = "Creating wallet";
+
+// old
+"twin_wallet_creation_step_title_first" = "1st step";
+"twin_wallet_creation_step_title_second" = "2nd step";
+"twin_wallet_creation_step_title_third" = "3rd step";
+
+"twin_wallet_creation_title_tap_first_twin" = "Tap #1 twin card";
+"twin_wallet_creation_title_tap_second_twin" = "Tap #2 twin card";
+
+"twin_wallet_creation_tap_first_card" = "Tap the card #1";
+"twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
+
+// MARK: - Alert
+
 "alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
 
 "alert_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
@@ -211,7 +277,7 @@
 
 "alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
 
-
+// MARK: - Initial message
 
 "initial_message_sign_header" = "Tap to sign";
 
@@ -293,6 +359,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "send_error_payid_unsupported_by_blockchain" = "PayString unsupported by blockchain";
 "send_error_payid_not_registered" = "PayString not registered";
 "send_error_payid_request_failed" = "PayString request failed";
+
 "send_error_address_same_as_wallet" = "Address is the same as your wallet address";
 
 "wallet_notification_address_copied" = "Address was successfully copied";
