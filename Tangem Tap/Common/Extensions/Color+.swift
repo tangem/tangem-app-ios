@@ -90,8 +90,12 @@ extension Color {
     //MARK: Background
     
     @nonobjc static var tangemTapBgGray: Color {
-        return Color("tangem_tap_bg_gray")
+		return Color(.tangemTapBgGray)
     }
+	
+	@nonobjc static var tangemTapBgGray2: Color {
+		return Color(.tangemTapBgGray2)
+	}
     
     @nonobjc static var tangemTapBg: Color {
         return Color("tangem_tap_bg")
@@ -102,6 +106,10 @@ extension Color {
     @nonobjc static var tangemTapBlueLight: Color {
         return Color("tangem_tap_blue_light")
     }
+	
+	@nonobjc static var tangemTapBlueLight2: Color {
+		return Color("tangem_tap_blue_light2")
+	}
 }
 
 extension UIColor {
@@ -109,6 +117,10 @@ extension UIColor {
     @nonobjc static var tangemTapBgGray: UIColor {
         return UIColor(named: "tangem_tap_bg_gray")!
     }
+	
+	@nonobjc static var tangemTapBgGray2: UIColor {
+		return UIColor(named: "tangem_tap_bg_gray2")!
+	}
     
     @nonobjc static var tangemTapGrayDark4: UIColor {
         return UIColor(named: "tangem_tap_gray_dark4")!
