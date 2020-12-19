@@ -186,12 +186,10 @@ struct SendView: View {
                             if self.viewModel.isNetworkFeeBlockOpen {
                                 VStack(spacing: 16.0) {
                                     if self.viewModel.shoudShowFeeSelector {
-                                        Picker("", selection: self.$viewModel.selectedFeeLevel) {
-                                            Text("send_fee_picker_low").tag(0)
-                                            Text("send_fee_picker_normal").tag(1)
-                                            Text("send_fee_picker_priority").tag(2)
-                                        }
-                                        .pickerStyle(SegmentedPickerStyle())
+                                        PickerView(contents: ["send_fee_picker_low".localized,
+                                                              "send_fee_picker_normal".localized,
+                                                              "send_fee_picker_priority".localized],
+                                                   selection: self.$viewModel.selectedFeeLevel)
                                     }
                                     if self.viewModel.shoudShowFeeIncludeSelector {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
@@ -260,8 +258,17 @@ struct SendView: View {
                                          title: "wallet_button_send",
                                          image: "arrow.right") {
                                 self.viewModel.send() {
-                                self.presentationMode.wrappedValue.dismiss()
-                                self.onSuccess()
+                                    DispatchQueue.main.async {
+                                        let alert = Alert(title: Text("common_success"),
+                                                          message: Text("send_transaction_success"),
+                                                          dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                                              action: {
+                                                                                                presentationMode.wrappedValue.dismiss()
+                                                                                                onSuccess()
+                                                                                              }))
+                                        
+                                        self.viewModel.sendError = AlertBinder(alert: alert)
+                                    }                               
                             }
                         }.buttonStyle(TangemButtonStyle(color: .green,
                                                        isDisabled: !self.viewModel.isSendEnabled))
@@ -282,6 +289,7 @@ struct SendView: View {
         }
     }
 }
+
 
 struct ExtractView_Previews: PreviewProvider {
     static var previews: some View {
