@@ -22,6 +22,7 @@ class SendViewModel: ViewModel {
     @Published var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
+    weak var featuresService: AppFeaturesService!
     
     @Published var showCameraDeniedAlert = false
     
@@ -50,7 +51,8 @@ class SendViewModel: ViewModel {
     }
 
     var isPayIdSupported: Bool {
-        cardViewModel.payIDService != nil
+        featuresService.canSendToPayId
+            && cardViewModel.payIDService != nil
     }
     
     @Published var isNetworkFeeBlockOpen: Bool = false
@@ -278,11 +280,11 @@ class SendViewModel: ViewModel {
         
         $amountValidated //update fee
             .filter { $0 }
-            .combineLatest($validatedDestination.compactMap { $0 })
+            .combineLatest($validatedDestination.compactMap { $0 }, $isFeeIncluded)
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
-            .flatMap { [unowned self] _, dest -> AnyPublisher<[Amount], Never> in
+            .flatMap { [unowned self] _, dest, includeFee -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.txSender.getFee(amount: self.amountToSend, destination: dest)
+				return self.walletModel.txSender.getFee(amount: self.amountToSend, destination: dest, includeFee: includeFee)
                     .catch { error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
@@ -364,7 +366,7 @@ class SendViewModel: ViewModel {
     
     func validateAddress(_ address: String) -> Bool {
         return walletModel.wallet.blockchain.validate(address: address)
-            && address != walletModel.wallet.address
+			&& !walletModel.wallet.addresses.contains(where: { $0.value == address })
     }
     
     
@@ -448,8 +450,9 @@ class SendViewModel: ViewModel {
         }
         
         if let payIdTag = self.validatedTag {
-            tx.infos[Transaction.InfoKey.destinationTag] = payIdTag
+            tx.params = XRPTransactionParams.destinationTag(payIdTag)
         }
+
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         walletModel.txSender.send(tx, signer: signer)
