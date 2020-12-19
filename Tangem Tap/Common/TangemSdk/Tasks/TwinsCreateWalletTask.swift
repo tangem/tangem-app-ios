@@ -11,8 +11,14 @@ import TangemSdk
 class TwinsCreateWalletTask: CardSessionRunnable {
 	typealias CommandResponse = CreateWalletResponse
 	
+    var message: Message? { Message(header: "twin_process_preparing_card".localized) }
+    
 	var requiresPin2: Bool { true }
 	
+    deinit {
+        print("Twins create wallet task deinited")
+    }
+    
 	private let targetCid: String
 	private var fileToWrite: Data?
 	
@@ -22,31 +28,32 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
 	
 	func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
+        session.viewDelegate.showAlertMessage("twin_process_preparing_card".localized)
 		if session.environment.card?.status == .empty {
-			deleteFile(in: session, completion: completion)
+            createWallet(in: session, completion: completion)
 		} else {
-			self.eraseWallet(in: session, completion: completion)
+			eraseWallet(in: session, completion: completion)
 		}
 	}
 	
-	private func deleteFile(at index: Int? = nil, in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
-		let deleteFile = DeleteFilesTask(filesToDelete: index == nil ? nil : [index!])
-		deleteFile.run(in: session) { (result) in
-			switch result {
-			case .success:
-				self.createWallet(in: session, completion: completion)
-			case .failure(let error):
-				completion(.failure(error))
-			}
-		}
-	}
+//	private func deleteFile(at index: Int? = nil, in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
+//		let deleteFile = DeleteFilesTask(filesToDelete: index == nil ? nil : [index!])
+//		deleteFile.run(in: session) { (result) in
+//			switch result {
+//			case .success:
+//				self.createWallet(in: session, completion: completion)
+//			case .failure(let error):
+//				completion(.failure(error))
+//			}
+//		}
+//	}
 	
 	private func eraseWallet(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
 		let erase = PurgeWalletCommand()
 		erase.run(in: session) { (result) in
 			switch result {
 			case .success:
-				self.deleteFile(in: session, completion: completion)
+                self.createWallet(in: session, completion: completion)
 			case .failure(let error):
 				completion(.failure(error))
 			}
@@ -70,15 +77,25 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
 	
 	private func writePublicKeyFile(fileToWrite: Data, walletResponse: CreateWalletResponse, in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
-		let writeFileCommand = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: fileToWrite))
-		writeFileCommand.run(in: session) { (response) in
-			switch response {
-			case .success:
-				completion(.success(walletResponse))
-			case .failure(let error):
-				completion(.failure(error))
-			}
-		}
+//		let writeFileCommand = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: fileToWrite))
+        let task = WriteIssuerDataTask(pairPubKey: fileToWrite, keys: SignerUtils.signerKeys)
+        session.viewDelegate.showAlertMessage("twin_process_creating_wallet".localized)
+        task.run(in: session) { (response) in
+            switch response {
+            case .success:
+                completion(.success(walletResponse))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+//		command.run(in: session) { (response) in
+//			switch response {
+//			case .success:
+//				completion(.success(walletResponse))
+//			case .failure(let error):
+//				completion(.failure(error))
+//			}
+//		}
 	}
 	
 }
