@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import TangemSdk
 import BlockchainSdk
 
 class DetailsViewModel: ViewModel {
@@ -28,7 +29,19 @@ class DetailsViewModel: ViewModel {
     }
     
     @Published var navigation: NavigationCoordinator!
-    @Published private(set) var cardModel: CardViewModel
+	@Published private(set) var cardModel: CardViewModel
+	
+	var isTwinCard: Bool {
+		cardModel.isTwinCard
+	}
+    
+    var cardCid: String {
+        guard let cardId = cardModel.cardInfo.card.cardId else { return "" }
+        
+        return isTwinCard ?
+            TapTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series?.number) :
+            TapCardIdFormatter(cid: cardId).formatted()
+    }
     
     private var bag = Set<AnyCancellable>()
     
