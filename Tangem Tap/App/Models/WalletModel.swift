@@ -15,50 +15,46 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
     @Published var rates: [String: [String: Decimal]] = [:]
-    weak var ratesService: CoinMarketCapService! {
-        didSet {
-            ratesService
-                .$selectedCurrencyCodePublished
-                .dropFirst()
-                .sink {[unowned self] _ in
-                    self.loadRates()
-                }
-                .store(in: &bag)
-        }
-    }
-    
-//    var selectedCurrency: String  {
-//        get { ratesService.selectedCurrencyCode }
-//        set {
-//            ratesService.selectedCurrencyCode = newValue
-//            loadRates()
-//        }
-//    }
-    
+
+    weak var ratesService: CoinMarketCapService!
     var txSender: TransactionSender { walletManager as! TransactionSender }
     var wallet: Wallet { walletManager.wallet }
+    
+    var addressNames: [String] {
+        wallet.addresses.map { $0.localizedName }
+    }
     
     let walletManager: WalletManager
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
-    init(walletManager: WalletManager) {
+    init(walletManager: WalletManager, ratesService: CoinMarketCapService) {
         self.walletManager = walletManager
+        self.ratesService = ratesService
+        
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[unowned self] wallet in
                 print("wallet received")
                 self.updateBalanceViewModel(with: wallet, state: self.state)
-                if wallet.hasPendingTx {
-                    if self.updateTimer == nil {
-                        self.startUpdatingTimer()
-                    }
-                } else {
+//                if wallet.hasPendingTx {
+//                    if self.updateTimer == nil {
+//                        self.startUpdatingTimer()
+//                    }
+//                } else {
                     self.updateTimer = nil
-                }
+//                }
             })
+            .store(in: &bag)
+        
+        self.ratesService
+            .$selectedCurrencyCodePublished
+            .dropFirst()
+            .sink {[unowned self] _ in
+                self.loadRates()
+            }
             .store(in: &bag)
     }
     
@@ -111,7 +107,7 @@ class WalletModel: ObservableObject, Identifiable {
     func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
-            return (value * rate).rounded(2)
+            return (value * rate).rounded(scale: 2)
         }
         return nil
     }
@@ -124,17 +120,29 @@ class WalletModel: ObservableObject, Identifiable {
         return nil
     }
     
+    func displayAddress(for index: Int) -> String {
+        wallet.addresses[index].value
+    }
+    
+    func shareAddressString(for index: Int) -> String {
+        wallet.getShareString(for: wallet.addresses[index].value)
+    }
+    
+    func exploreURL(for index: Int) -> URL? {
+        wallet.getExploreURL(for: wallet.addresses[index].value)
+    }
+    
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         let isLoading = state.error == nil && wallet.amounts.isEmpty
 
-        if let token = wallet.token {
+        if let token = walletManager.cardTokens.first {
             balanceViewModel = BalanceViewModel(isToken: true,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
                                                 isLoading: isLoading,
                                                 loadingError: state.error?.localizedDescription,
-                                                name: token.displayName,
-                                                fiatBalance: getFiatFormatted(for: wallet.amounts[.token]) ?? " ",
-                                                balance: wallet.amounts[.token]?.description ?? "-",
+                                                name: wallet.blockchain.tokenDisplayName,
+                                                fiatBalance: getFiatFormatted(for: wallet.amounts[.token(value: token)]) ?? " ",
+                                                balance: wallet.amounts[.token(value: token)]?.description ?? "-",
                                                 secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
                                                 secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
                                                 secondaryName: wallet.blockchain.displayName )
