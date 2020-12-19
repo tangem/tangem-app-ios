@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 class Assembly {
-    let config = AppConfig()
+	let keysManager = try! KeysManager()
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
@@ -19,17 +19,16 @@ class Assembly {
     }()
     
     lazy var navigationCoordinator = NavigationCoordinator()
-    lazy var ratesService = CoinMarketCapService(apiKey: config.coinMarketCapApiKey)
+	lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = TmpNetworkService()
-	lazy var walletManagerFactory = WalletManagerFactory(config: config.blockchainConfig)
-    lazy var featuresService = AppFeaturesService()
+	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
+	lazy var featuresService = AppFeaturesService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
     lazy var topupService: TopupService = {
-        let s = TopupService()
-        s.config = config
+		let s = TopupService(keys: keysManager.moonPayKeys)
         return s
     }()
     
@@ -68,7 +67,6 @@ class Assembly {
         }
         let vm =  MainViewModel()
         initialize(vm)
-        vm.config = config
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
         vm.topupService = topupService
@@ -104,10 +102,9 @@ class Assembly {
         
         let vm = CardViewModel(cardInfo: info)
         vm.featuresService = featuresService
-        vm.config = config
         vm.assembly = self
         vm.tangemSdk = tangemSdk
-        if config.isEnablePayID, let payIdService = PayIDService.make(from: blockchain) {
+		if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
         vm.update()
@@ -187,12 +184,13 @@ class Assembly {
 	
 	func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
 		let scanResult = cardsRepository.lastScanResult
-		let twinPairCid = scanResult.cardModel?.cardInfo.twinCardInfo?.pairCid
-		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid ?? "", isFromMain: isFromMain))
+        let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
+        let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series?.pair.number ?? 1)
+		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
 	}
 	
-	func makeTwinCardWarningViewModel() -> TwinCardOnboardingViewModel {
-		makeTwinCardOnboardingViewModel(state: .warning)
+    func makeTwinCardWarningViewModel(isRecreating: Bool) -> TwinCardOnboardingViewModel {
+        makeTwinCardOnboardingViewModel(state: .warning(isRecreating: isRecreating))
 	}
 	
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
