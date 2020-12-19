@@ -34,10 +34,12 @@ class AlertManager {
         }
     }
     
-    @Storage("tangem_tap_oldDeviceOldCard_shown", defaultValue: false)
+	
+	
+	@Storage(type: .oldDeviceOldCardAlert, defaultValue: false)
     private var oldDeviceOldCardShown: Bool
     
-    @Storage("tangem_tap_scanned_cards", defaultValue: [])
+	@Storage(type: .scannedCards, defaultValue: [])
     private var scannedCards: [String]
     
     func getAlert(_ alertType: AlertType, for card: Card) -> AlertBinder? {
