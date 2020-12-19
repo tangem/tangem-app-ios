@@ -11,6 +11,7 @@ import SwiftUI
 
 struct ReadView: View {
     @ObservedObject var viewModel: ReadViewModel
+	@EnvironmentObject var navigation: NavigationCoordinator
     
     var cardScale: CGFloat {
         switch viewModel.state {
@@ -22,7 +23,7 @@ struct ReadView: View {
     
     var cardOffsetX: CGFloat {
         switch viewModel.state {
-        case .read: return 0.25*CircleView.diameter
+        case .read: return 0.25 * CircleView.diameter
         case .ready: return -UIScreen.main.bounds.width*1.8
         case .welcome, .welcomeBack: return -UIScreen.main.bounds.width/4.0
         }
@@ -73,14 +74,14 @@ struct ReadView: View {
             VStack(alignment: .leading, spacing: 0) {
                 GeometryReader { geo in
                 ZStack {
-                    CircleView().offset(x: 0.1*CircleView.diameter, y: -0.1*CircleView.diameter)
+                    CircleView().offset(x: 0.1 * CircleView.diameter, y: -0.1 * CircleView.diameter)
                     CardRectView(withShadow: self.viewModel.state != .read)
                         .animation(.easeInOut)
                         .offset(x: self.cardOffsetX, y: self.cardOffsetY)
                         .scaleEffect(self.cardScale)
                     if self.viewModel.state == .read || self.viewModel.state == .ready  {
                         Image("iphone")
-                            .offset(x: 0.1*CircleView.diameter, y: 0.15*CircleView.diameter)
+                            .offset(x: 0.1 * CircleView.diameter, y: 0.15 * CircleView.diameter)
                             .transition(.offset(x: 400.0, y: 0.0))
                     }
                 }
@@ -104,8 +105,7 @@ struct ReadView: View {
                         TangemButton(isLoading: false,
                                      title: blackButtonTitleKey,
                                      image: "shopBag" ) {
-                            self.viewModel.objectWillChange.send()
-                            self.viewModel.navigation.openShop = true
+                            self.navigation.openShop = true
                         }.buttonStyle(TangemButtonStyle(color: .black))
                     } else {
                         Color.clear.frame(width: ButtonSize.small.value.width, height: ButtonSize.small.value.height)
@@ -131,28 +131,24 @@ struct ReadView: View {
             .edgesIgnoringSafeArea(.top)
             .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
             .alert(item: $viewModel.scanError) { $0.alert }
-            
-                if viewModel.navigation.openMain {
-                    NavigationLink(destination:
-                                    MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-                                   isActive: $viewModel.navigation.openMain) {
-                                    EmptyView()
-                    }
-                }
-                
-                if viewModel.navigation.openDisclaimer {
-                    NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
-                                   isActive: $viewModel.navigation.openDisclaimer) {
-                                      EmptyView()
-                    }
-                }
-                
-                NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
-                               isActive: $viewModel.navigation.openShop) {
-                    EmptyView()
-                }
+				
+				// MARK: - Navigation links
+				NavigationLink(destination:
+								MainView(viewModel: viewModel.assembly.makeMainViewModel()),
+							   isActive: $navigation.openMain)
+				
+				NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
+							   isActive: $navigation.openDisclaimer)
+				
+				NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
+							   isActive: $navigation.readOpenTwinCardOnboarding)
+				
+				NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
+							   isActive: $navigation.openShop)
+				// MARK: End Navigation -
             }
         }
+		.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
@@ -161,16 +157,17 @@ struct ReadView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-                .previewLayout(.fixed(width: 320.0, height: 568))
-                .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
-                .previewDisplayName("iPhone 7")
-            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
-                .previewDisplayName("iPhone 11 Pro Max")
-            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
-                .previewDisplayName("iPhone 11 Pro Max Dark")
-                .environment(\.colorScheme, .dark)
+				.deviceForPreview(.iPhone11Pro)
+//                .previewLayout(.fixed(width: 320.0, height: 568))
+//                .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
+//                .previewDisplayName("iPhone 7")
+//            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
+//                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
+//                .previewDisplayName("iPhone 11 Pro Max")
+//            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
+//                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
+//                .previewDisplayName("iPhone 11 Pro Max Dark")
+//                .environment(\.colorScheme, .dark)
             
         }
     }
