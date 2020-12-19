@@ -8,15 +8,18 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class NavigationCoordinator: ObservableObject {
     // MARK: ReadView
     @Published var openMain: Bool = false
     @Published var openShop: Bool = false
     @Published var openDisclaimer: Bool = false
+	@Published var readOpenTwinCardOnboarding = false
     
     // MARK: DisclaimerView
     @Published var openMainFromDisclaimer: Bool = false
+	@Published var openTwinCardOnboarding: Bool = false
     
     // MARK: SecurityManagementView
     @Published var openWarning: Bool = false
@@ -27,8 +30,18 @@ class NavigationCoordinator: ObservableObject {
     @Published var showSendChoise = false
     @Published var showCreatePayID = false
     @Published var showTopup = false
+	@Published var showTwinCardOnboarding = false
+    @Published var showTwinsWalletWarning = false
+	@Published var showTwinsWalletCreation = false
     @Published var showQRAddress = false
     
     // MARK: SendView
     @Published var showQR = false
+	
+	// MARK: TwinCardOnboardingView
+	@Published var onboardingOpenMain: Bool = false
+	@Published var onboardingOpenTwinCardWalletCreation: Bool = false
+	
+	// MARK: DetailsView
+	@Published var detailsShowTwinsRecreateWarning: Bool = false
 }
