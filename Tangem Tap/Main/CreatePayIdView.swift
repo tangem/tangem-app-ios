@@ -26,7 +26,7 @@ struct CreatePayIdView: View {
                     .font(Font.system(size: 30.0, weight: .bold, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark6)
                     .padding(.top, 22.0)
-                Text(String(format: NSLocalizedString("wallet_create_payid_card_format", comment: ""), CardIdFormatter(cid: cardId).formatted()))
+                Text(String(format: NSLocalizedString("wallet_create_payid_card_format", comment: ""), TapCardIdFormatter(cid: cardId).formatted()))
                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark)
                     .padding(.bottom, 22.0)
