@@ -42,6 +42,7 @@ struct CurrencySelectView: View {
                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
             }
         }
+		.navigationBarTitle("", displayMode: .inline)
         .onAppear {
             self.viewModel.onAppear()
         }
