@@ -19,7 +19,6 @@ class MainViewModel: ViewModel {
     
 	var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    var config: AppConfig!
     
     var amountToSend: Amount? = nil
     var persistentBag = Set<AnyCancellable>()
@@ -37,6 +36,9 @@ class MainViewModel: ViewModel {
     @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var state: ScanResult = .unsupported {
+        willSet {
+            bag = Set<AnyCancellable>()
+        }
         didSet {
             bind()
         }
@@ -130,11 +132,12 @@ class MainViewModel: ViewModel {
 	var isTwinCard: Bool {
 		state.cardModel?.isTwinCard ?? false
 	}
+    
+    var canCreateTwinWallet: Bool {
+        state.cardModel?.canCreateTwinCard ?? false
+    }
 
     func bind() {
-        bag = Set<AnyCancellable>()
-        
-        
         state.cardModel?
             .objectWillChange
             .receive(on: RunLoop.main)
@@ -218,6 +221,7 @@ class MainViewModel: ViewModel {
 			guard let self = self else { return }
             switch scanResult {
             case .success(let state):
+                self.selectedAddressIndex = 0
                 self.state = state
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
@@ -238,10 +242,11 @@ class MainViewModel: ViewModel {
         }
 		
 		if cardModel.isTwinCard {
-			navigation.showTwinsWalletCreation = true
+			navigation.showTwinsWalletWarning = true
 		} else {
 			self.isCreatingWallet = true
 			cardModel.createWallet() { [weak self] result in
+				defer { self?.isCreatingWallet = false }
 				switch result {
 				case .success:
 					break
@@ -251,7 +256,6 @@ class MainViewModel: ViewModel {
 					}
 					self?.error = error.alertBinder
 				}
-				self?.isCreatingWallet = false
 			}
 		}
     }
@@ -305,9 +309,16 @@ class MainViewModel: ViewModel {
 		
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
+		func showUntrustedCardAlert() {
+			error = AlertManager().getAlert(.untrustedCard, for: card)
+		}
+		
 		guard
 			let validator = state.cardModel?.state.walletModel?.walletManager as? SignatureCountValidator
-		else { return }
+		else {
+			showUntrustedCardAlert()
+			return
+		}
 		
 		hashesCountSubscription?.cancel()
 		hashesCountSubscription = validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
@@ -317,15 +328,8 @@ class MainViewModel: ViewModel {
 				switch failure {
 				case .finished:
 					return
-				case .failure(let error):
-					switch error {
-					case BlockchainSdkError.signatureCountNotMatched:
-						self.error = AlertManager().getAlert(.untrustedCard, for: card)
-					case BlockchainSdkError.notImplemented:
-						return
-					default:
-						self.error = error.alertBinder
-					}
+				case .failure:
+					showUntrustedCardAlert()
 				}
 			}, receiveValue: { _ in })
 	}
