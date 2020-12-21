@@ -60,10 +60,10 @@ struct DetailsView: View {
 			List {
 				Section(header: EmptyView().listRowInsets(EdgeInsets())) {
 						DetailsRowView(title: "details_row_title_cid".localized,
-									   subtitle: CardIdFormatter(cid: viewModel.cardModel.cardInfo.card.cardId ?? "").formatted())
+                                       subtitle: viewModel.cardCid)
 						DetailsRowView(title: "details_row_title_issuer".localized,
 									   subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
-					if viewModel.cardModel.cardInfo.card.walletSignedHashes != nil {
+                    if viewModel.cardModel.cardInfo.card.walletSignedHashes != nil, !viewModel.isTwinCard {
 							DetailsRowView(title: "details_row_title_signed_hashes".localized,
 										   subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
 															viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
@@ -101,7 +101,7 @@ struct DetailsView: View {
 					if viewModel.isTwinCard {
 						
 						NavigationLink(
-							destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel()),
+                            destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
 							isActive: $navigation.detailsShowTwinsRecreateWarning,
 							label: {
 								DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
