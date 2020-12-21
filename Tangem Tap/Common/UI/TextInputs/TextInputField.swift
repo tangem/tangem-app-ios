@@ -40,7 +40,7 @@ struct TextInputField<SupplementView: View>: View {
 									actionButtonTapped: Binding.constant(true),
 									handleKeyboard: true,
 									keyboard: keyboardType,
-									clearButtonMode: .never,
+									clearButtonMode: clearButtonMode,
 									textColor: UIColor.tangemTapGrayDark6,
 									font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
 									placeholder: placeholder)
