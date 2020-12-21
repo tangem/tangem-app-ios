@@ -176,7 +176,7 @@
 
 "send_extras_hint_destination_tag" = "Destination Tag";
 
-"send_extras_hint_memo" = "Memo";
+"send_extras_hint_memo" = "Memo Id";
 
 "invalid_memo_id" = "Invalid Memo Id. It won't be added to transaction";
 
