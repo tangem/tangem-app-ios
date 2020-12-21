@@ -76,7 +76,7 @@ struct SendView: View {
 									}
 								   }, message: self.viewModel.destinationHint?.message ?? " " ,
 								   isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
-					additionalInputFields
+                    additionalInputFields
                     Group {
                         HStack {
                             CustomTextField(text: self.$viewModel.amountText,
@@ -246,24 +246,23 @@ struct SendView: View {
     }
     
     private var additionalInputFields: some View {
-        switch viewModel.additionalInputFields {
-        case .memo:
+        switch (viewModel.additionalInputFields, viewModel.isAdditionalInputEnabled) {
+        case (.memo, true):
             return
                 TextInputField(placeholder: "send_extras_hint_memo".localized,
                                text: self.$viewModel.memo,
-                               keyboardType: UIKeyboardType.numberPad,
+                               keyboardType: .numberPad,
                                clearButtonMode: .whileEditing,
                                message: self.viewModel.memoHint?.message ?? "",
                                isErrorMessage: self.viewModel.memoHint?.isError ?? false)
                 .toAnyView()
-        case .destinationTag:
+        case (.destinationTag, true):
             return TextInputField(placeholder: "send_extras_hint_destination_tag".localized,
                                   text: self.$viewModel.destinationTagStr,
                                   keyboardType: .numberPad,
                                   clearButtonMode: .whileEditing,
-                                  message: nil,
-                                  isErrorMessage: false)
-                .disabled(!viewModel.isDestinationTagInputEnabled)
+                                  message: self.viewModel.destinationTagHint?.message ?? "",
+                                  isErrorMessage: self.viewModel.destinationTagHint?.isError ?? false)
                 .toAnyView()
         default:
             return EmptyView().toAnyView()
