@@ -17,7 +17,6 @@ class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
     weak var featuresService: AppFeaturesService!
     var payIDService: PayIDService? = nil
-    var config: AppConfig!
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly! {
         didSet {
@@ -31,12 +30,12 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canSetAccessCode: Bool {
        return (cardInfo.card.settingsMask?.contains(.allowSetPIN1) ?? false ) &&
-        featuresService.getFeatures(for: cardInfo.card).contains(.pins)
+			featuresService.canSetAccessCode
     }
     
     var canSetPasscode: Bool {
         return !(cardInfo.card.settingsMask?.contains(.prohibitDefaultPIN1) ?? false) &&
-             featuresService.getFeatures(for: cardInfo.card).contains(.pins)
+			featuresService.canSetPasscode
     }
     
     var canSetLongTap: Bool {
@@ -92,13 +91,54 @@ class CardViewModel: Identifiable, ObservableObject {
 	var isTwinCard: Bool {
 		cardInfo.card.isTwinCard
 	}
+    
+    var canCreateTwinCard: Bool {
+        guard
+            isTwinCard,
+            let twinInfo = cardInfo.twinCardInfo,
+            twinInfo.series != nil
+        else { return false }
+        
+        if case .empty = state {
+            
+            if cardInfo.card.status == .empty {
+                return true
+            }
+            
+            if twinInfo.pairPublicKey != nil {
+                return false
+            }
+            
+            return true
+        } else {
+            return false
+        }
+    }
 	
 	var canRecreateTwinCard: Bool {
-		guard isTwinCard && cardInfo.twinCardInfo?.series != nil && config.isEnableTwinCreation else { return false }
+		guard isTwinCard && cardInfo.twinCardInfo?.series != nil && featuresService.canCreateTwin else { return false }
 		
 		if case .empty = state {
 			return false
 		}
+        
+        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+            return false
+        }
+        
+        if case let .loaded(walletModel) = state {
+            if !walletModel.wallet.isEmpty || walletModel.wallet.hasPendingTx {
+                return false
+            }
+            
+            switch walletModel.state {
+            case .failed, .loading: return false
+            case .noAccount: return true
+            default:
+                break
+            }
+            
+        }
 		
 		return true
 	}
@@ -108,7 +148,7 @@ class CardViewModel: Identifiable, ObservableObject {
             cardInfo.card.isPin2Default != nil
     }
     
-    var canTopup: Bool { config.isEnableMoonPay && featuresService.isTopupSupported(for: cardInfo.card) }
+    var canTopup: Bool { featuresService.canTopup }
     
     public private(set) var cardInfo: CardInfo
     
@@ -121,12 +161,13 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadPayIDInfo () {
-        guard featuresService.getFeatures(for: cardInfo.card).contains(.payIDReceive) else {
+        guard featuresService.canReceiveToPayId else {
             return
         }
         
         payIDService?
             .loadPayIDInfo(for: cardInfo.card)
+            .subscribe(on: DispatchQueue.global())
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                     switch completion {
@@ -142,7 +183,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func createPayID(_ payIDString: String, completion: @escaping (Result<Void, Error>) -> Void) { //todo: move to payidservice
-        guard featuresService.getFeatures(for: cardInfo.card).contains(.payIDReceive),
+        guard featuresService.canReceiveToPayId,
               !payIDString.isEmpty,
               let cid = cardInfo.card.cardId,
               let payIDService = self.payIDService,

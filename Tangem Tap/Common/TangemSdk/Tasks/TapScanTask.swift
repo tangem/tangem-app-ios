@@ -16,12 +16,15 @@ enum ScanError: Error {
 struct TapScanTaskResponse: ResponseCodable {
     let card: Card
     let verifyResponse: VerifyCardResponse
-	let files: [File]
+    let twinIssuerData: Data
+//	let files: [File]
 	
-	internal init(card: Card, verifyResponse: VerifyCardResponse, files: [File] = []) {
+//	internal init(card: Card, verifyResponse: VerifyCardResponse, files: [File] = []) {
+    internal init(card: Card, verifyResponse: VerifyCardResponse, twinIssuerData: Data = Data()) {
 		self.card = card
 		self.verifyResponse = verifyResponse
-		self.files = files
+//		self.files = files
+        self.twinIssuerData = twinIssuerData
 	}
 }
 
@@ -75,26 +78,39 @@ final class TapScanTask: CardSessionRunnable {
         verifyCommand.run(in: session) { verifyResult in
             switch verifyResult {
             case .success(let verifyResponse):
-				if card.firmwareVersionValue ?? 0.0 >= 3.37, card.isTwinCard {
-					self.readFiles(card, verifyResponse: verifyResponse, session: session, completion: completion)
+				if card.isTwinCard {
+                    self.readTwinIssuerData(card, verifyResponse: verifyResponse, session: session, completion: completion)
+//					self.readFiles(card, verifyResponse: verifyResponse, session: session, completion: completion)
 				} else {
-					completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse)))
+                    completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse)))
 				}
             case .failure(let error):
                 completion(.failure(error))
             }
         }
     }
+    
+    private func readTwinIssuerData(_ card: Card, verifyResponse: VerifyCardResponse, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        let readIssuerDataCommand = ReadIssuerDataCommand(issuerPublicKey: SignerUtils.signerKeys.publicKey)
+        readIssuerDataCommand.run(in: session) { (result) in
+            switch result {
+            case .success(let response):
+                completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse, twinIssuerData: response.issuerData)))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
 	
-	private func readFiles(_ card: Card, verifyResponse: VerifyCardResponse, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-		let filesTask = ReadFilesTask(settings: .init(readPrivateFiles: false))
-		filesTask.run(in: session) { filesResponse in
-			switch filesResponse {
-			case .success(let filesResponse):
-				completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse, files: filesResponse.files)))
-			case .failure(let error):
-				completion(.failure(error))
-			}
-		}
-	}
+//	private func readFiles(_ card: Card, verifyResponse: VerifyCardResponse, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+//		let filesTask = ReadFilesTask(settings: .init(readPrivateFiles: false))
+//		filesTask.run(in: session) { filesResponse in
+//			switch filesResponse {
+//			case .success(let filesResponse):
+//				completion(.success(TapScanTaskResponse(card: card, verifyResponse: verifyResponse, files: filesResponse.files)))
+//			case .failure(let error):
+//				completion(.failure(error))
+//			}
+//		}
+//	}
 }
