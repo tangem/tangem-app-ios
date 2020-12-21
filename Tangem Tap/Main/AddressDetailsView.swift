@@ -64,12 +64,7 @@ struct AddressDetailView: View {
     var body: some View {
         VStack(spacing: 0.0) {
             if showAddressSelector {
-                Picker("", selection: $selectedAddressIndex) {
-                    ForEach(0..<cardViewModel.state.wallet!.addresses.count) {
-                        Text(cardViewModel.state.walletModel!.displayAddressName(for: $0))
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
+                PickerView(contents: cardViewModel.state.walletModel!.addressNames, selection: $selectedAddressIndex)
                 .padding(.horizontal, 24)
                 .padding(.top, 8)
             }

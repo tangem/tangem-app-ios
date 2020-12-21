@@ -12,24 +12,41 @@ import SwiftUI
 struct DisclaimerView: View {
     @ObservedObject var viewModel: DisclaimerViewModel
 	@EnvironmentObject var navigation: NavigationCoordinator
+    
+    @Environment(\.presentationMode) var presentationMode
 	
+    private let disclaimerTitle: LocalizedStringKey = "disclaimer_title"
+    
     var body: some View {
-        VStack(alignment: .trailing) {
-            ScrollView {
-                Text("disclaimer_text")
-                    .font(Font.system(size: 16, weight: .regular, design: .default))
-                    .foregroundColor(.tangemTapGrayDark2)
-                    .padding()
-            }
-            
+        VStack(alignment: .center) {
             if viewModel.state == .accept {
-				button
-                    .padding([.bottom, .trailing])
+                NavigationBar(title: disclaimerTitle, settings: .init(backgroundColor: .white), leftButtons: {
+                    EmptyView()
+                })
+            } else {
+                NavigationBar(title: disclaimerTitle, backAction: {
+                    self.presentationMode.wrappedValue.dismiss()
+                })
+            }
+            VStack(alignment: .trailing) {
+                
+                ScrollView {
+                    Text("disclaimer_text")
+                        .font(Font.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.tangemTapGrayDark2)
+                        .padding()
+                }
+                
+                if viewModel.state == .accept {
+                    button
+                        .padding([.bottom, .trailing])
+                }
             }
         }
         .foregroundColor(.tangemTapGrayDark6)
-		.navigationBarTitle("disclaimer_title", displayMode: .inline)
-        .navigationBarBackButtonHidden(viewModel.state == .accept)
+		.navigationBarTitle("", displayMode: .inline)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(true)
     }
 	
 	private var button: some View {
@@ -55,7 +72,9 @@ struct DisclaimerView: View {
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
+    static let navigation = NavigationCoordinator()
     static var previews: some View {
-		DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel())
+        DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel(with: .read))
+            .environmentObject(navigation)
     }
 }
