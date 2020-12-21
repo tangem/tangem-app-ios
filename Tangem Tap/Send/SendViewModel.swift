@@ -369,7 +369,6 @@ class SendViewModel: ViewModel {
             .removeDuplicates()
             .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [unowned self] destTagStr in
-                print("New destination tag input", destTagStr)
                 let tag = UInt32(destTagStr)
                 defer { self.validatedXrpDestinationTag = tag }
                 
@@ -387,7 +386,6 @@ class SendViewModel: ViewModel {
             .removeDuplicates()
             .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [unowned self] memo in
-                print("New memo input", memo)
                 let memoId = UInt64(memo)
                 defer { self.validatedMemoId = memoId }
                 
