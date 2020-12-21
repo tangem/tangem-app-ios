@@ -248,13 +248,12 @@ struct SendView: View {
     private var additionalInputFields: some View {
         switch (viewModel.additionalInputFields, viewModel.isAdditionalInputEnabled) {
         case (.memo, true):
-            return
-                TextInputField(placeholder: "send_extras_hint_memo".localized,
-                               text: self.$viewModel.memo,
-                               keyboardType: .numberPad,
-                               clearButtonMode: .whileEditing,
-                               message: self.viewModel.memoHint?.message ?? "",
-                               isErrorMessage: self.viewModel.memoHint?.isError ?? false)
+            return TextInputField(placeholder: "send_extras_hint_memo".localized,
+                                  text: self.$viewModel.memo,
+                                  keyboardType: .numberPad,
+                                  clearButtonMode: .whileEditing,
+                                  message: self.viewModel.memoHint?.message ?? "",
+                                  isErrorMessage: self.viewModel.memoHint?.isError ?? false)
                 .toAnyView()
         case (.destinationTag, true):
             return TextInputField(placeholder: "send_extras_hint_destination_tag".localized,
