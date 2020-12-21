@@ -104,8 +104,9 @@ class CardsRepository {
 								artworkInfo: response.verifyResponse.artworkInfo,
 								twinCardInfo: self.decodeTwinFile(from: response))
 		
+		self.featuresService.setupFeatures(for: response.card)
 	   
-		if !self.featuresService.getFeatures(for: response.card).contains(.linkedTerminal) {
+		if !self.featuresService.linkedTerminal {
 			self.tangemSdk.config.linkedTerminal = false
 		}
 		
@@ -120,20 +121,35 @@ class CardsRepository {
 		guard
 			response.card.isTwinCard,
 			let cardId = response.card.cardId
-			else { return nil }
+        else {
+            tangemSdk.config.cardIdDisplayedNumbersCount = nil
+            return nil
+        }
 		
 		var pairPublicKey: Data?
-		for file in response.files {
-			do {
-				let twinFile = try twinCardFileDecoder.decode(file)
-				if twinFile.fileTypeName == TwinsWalletCreationService.twinFileName {
-					pairPublicKey = twinFile.publicKey
-					break
-				}
-			} catch {
-				print("File doesn't contain twin card dara")
-			}
-		}
+        let fullData = response.twinIssuerData
+        if let walletPubKey = response.card.walletPublicKey, fullData.count == 129 {
+            let pairPubKey = fullData[0..<65]
+            let signature = fullData[65..<fullData.count]
+            if Secp256k1Utils.vefify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
+               pairPublicKey = pairPubKey
+            }
+        }
+        
+        
+//		for file in response.files {
+//			do {
+//				let twinFile = try twinCardFileDecoder.decode(file)
+//				if twinFile.fileTypeName == TwinsWalletCreationService.twinFileName {
+//					pairPublicKey = twinFile.publicKey
+//					break
+//				}
+//			} catch {
+//				print("File doesn't contain twin card dara")
+//			}
+//		}
+        
+        tangemSdk.config.cardIdDisplayedNumbersCount = 4
 		return TwinCardInfo(cid: cardId, series: TwinCardSeries.series(for: response.card.cardId), pairCid: TwinCardsUtils.makePairCid(for: cardId), pairPublicKey: pairPublicKey)
 	}
 	

@@ -12,7 +12,7 @@ import SwiftUI
 class TwinCardOnboardingViewModel: ViewModel {
 	
 	enum State: Equatable {
-		case onboarding(withPairCid: String, isFromMain: Bool), warning
+        case onboarding(withPairCid: String, isFromMain: Bool), warning(isRecreating: Bool)
 		
 		var backgroundName: String {
 			switch self {
