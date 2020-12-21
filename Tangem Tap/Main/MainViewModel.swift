@@ -177,7 +177,7 @@ class MainViewModel: ViewModel {
                 if let cardModel = self.state.cardModel, cardModel.state.canUpdate {
                     cardModel.update()
                 } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                         self.isRefreshing = false
                     }
                 }
@@ -223,13 +223,15 @@ class MainViewModel: ViewModel {
             case .success(let state):
                 self.selectedAddressIndex = 0
                 self.state = state
+                self.hashesCountSubscription?.cancel()
+                print("alert:::cancelled")
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
 					self.showUntrustedDisclaimerIfNeeded()
 				}
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
-                    self.error = error.alertBinder
+                    self.setError(error.alertBinder)
                 }
             }
             self.isScanning = false
@@ -254,7 +256,7 @@ class MainViewModel: ViewModel {
 					if case .userCancelled = error.toTangemSdkError() {
 						return
 					}
-					self?.error = error.alertBinder
+					self?.setError(error.alertBinder)
 				}
 			}
 		}
@@ -285,18 +287,21 @@ class MainViewModel: ViewModel {
             return
         }
         
+        guard self.error == nil else {
+            return
+        }
+        
         if card.cardType != .release {
-            error = AlertManager().getAlert(.devCard, for: card)
+            self.setError(AlertManager().getAlert(.devCard, for: card))
         } else {
             validateHashesCount()
         }
     }
     
     func onAppear() {
-		if !showTwinCardOnboardingIfNeeded() {
-			showUntrustedDisclaimerIfNeeded()
-		}
-		
+        if !self.showTwinCardOnboardingIfNeeded() {
+            self.showUntrustedDisclaimerIfNeeded()
+        }
         assembly.reset()
     }
 	
@@ -310,7 +315,7 @@ class MainViewModel: ViewModel {
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
 		func showUntrustedCardAlert() {
-			error = AlertManager().getAlert(.untrustedCard, for: card)
+			setError(AlertManager().getAlert(.untrustedCard, for: card))
 		}
 		
 		guard
@@ -320,10 +325,14 @@ class MainViewModel: ViewModel {
 			return
 		}
 		
-		hashesCountSubscription?.cancel()
 		hashesCountSubscription = validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
+            .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
 			.sink(receiveCompletion: { [unowned self] failure in
+                guard !self.isScanning && !self.navigation.showQRAddress && !self.navigation.showCreatePayID else {
+                    return
+                }
+                
 				defer { self.validatedSignedHashesCards.append(cardId) }
 				switch failure {
 				case .finished:
@@ -342,4 +351,13 @@ class MainViewModel: ViewModel {
 		navigation.showTwinCardOnboarding = true
 		return true
 	}
+    
+    private func setError(_ error: AlertBinder?)  {
+        if self.error != nil {
+            return
+        }
+
+        self.error = error
+        return
+    }
 }
