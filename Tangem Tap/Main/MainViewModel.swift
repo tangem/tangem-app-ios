@@ -177,7 +177,7 @@ class MainViewModel: ViewModel {
                 if let cardModel = self.state.cardModel, cardModel.state.canUpdate {
                     cardModel.update()
                 } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         self.isRefreshing = false
                     }
                 }
@@ -224,7 +224,6 @@ class MainViewModel: ViewModel {
                 self.selectedAddressIndex = 0
                 self.state = state
                 self.hashesCountSubscription?.cancel()
-                print("alert:::cancelled")
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
 					self.showUntrustedDisclaimerIfNeeded()
