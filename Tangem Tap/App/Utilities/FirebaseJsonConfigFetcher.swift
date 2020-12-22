@@ -8,9 +8,14 @@
 
 import FirebaseRemoteConfig
 
+enum FirebaseConfigKeys: String {
+    case features = "features_"
+    case warnings = "warnings_"
+}
+
 struct FirebaseJsonConfigFetcher {
 	
-	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, with key: RemoteConfigKeys) -> T? {
+	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, with key: FirebaseConfigKeys) -> T? {
 		fetch(from: config, type: type, with: key.rawValue)
 	}
 	
