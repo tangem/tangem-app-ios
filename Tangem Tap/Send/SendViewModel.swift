@@ -51,7 +51,7 @@ class SendViewModel: ViewModel {
     }
 
     var isPayIdSupported: Bool {
-        featuresService.getFeatures(for: cardViewModel.cardInfo.card).contains(.payIDSend)
+        featuresService.canSendToPayId
             && cardViewModel.payIDService != nil
     }
     
@@ -450,7 +450,7 @@ class SendViewModel: ViewModel {
         }
         
         if let payIdTag = self.validatedTag {
-            tx.params = XRPTransactionParams.destinationTag(value: payIdTag)
+            tx.params = XRPTransactionParams.destinationTag(payIdTag)
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
