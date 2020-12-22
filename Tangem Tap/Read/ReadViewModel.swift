@@ -50,23 +50,29 @@ class ReadViewModel: ViewModel {
         cardsRepository.scan { [weak self] scanResult in
             guard let self = self else { return }
             switch scanResult {
-			case .success:
-                if self.userPrefsService.isTermsOfServiceAccepted {
-					if self.userPrefsService.isTwinCardOnboardingWasDisplayed {
-						self.navigation.openMain = true
-					} else {
-						self.navigation.readOpenTwinCardOnboarding = true
-					}
-                } else {
-                    self.navigation.openDisclaimer = true
-                }
-                self.firstTimeScan = false
+			case .success(let result):
+				defer { self.firstTimeScan = false }
+				
+				guard self.userPrefsService.isTermsOfServiceAccepted else {
+					self.navigation.openDisclaimer = true
+					break
+				}
+				
+				guard
+					result.card?.isTwinCard ?? false,
+					!self.userPrefsService.isTwinCardOnboardingWasDisplayed
+				else {
+					self.navigation.openMain = true
+					break
+				}
+				
+				self.navigation.readOpenTwinCardOnboarding = true
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
                     self.scanError = error.alertBinder
                 }
             }
-             self.isLoading = false
+			self.isLoading = false
         }
     }
 }
