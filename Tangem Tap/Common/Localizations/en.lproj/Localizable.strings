@@ -63,6 +63,8 @@
 
 "wallet_button_create_wallet" = "Create wallet";
 
+"wallet_button_create_twin_wallet" = "Create twin wallet";
+
 "wallet_title" = "Tangem Tap";
 
 "wallet_choice_wallet_option_title" = "Choice wallet option";
@@ -83,7 +85,11 @@
 
 "wallet_error_empty_card" = "Empty card";
 
+"wallet_error_empty_twin_card" = "Create twin wallet";
+
 "wallet_error_empty_card_subtitle" = "Create wallet to start using Tangem card";
+
+"wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
 
 "wallet_error_unsupported_blockchain" = "This card is not supported";
 
@@ -221,7 +227,8 @@
 
 "twins_onboarding_description_format" = "This one that you are holding in your hands and the other one with number %@.\n\nBoth cards can be used to extract funds from this wallet.";
 
-"details_twins_recreate_warning" = "This action is irreversible. If, after deleting the old wallet, someone sends funds to it, then you will not be able to withdraw them.";
+"details_twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.\nThe wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
+"details_twins_create_warning" = "The wallet creation procedure consists of three steps. You must complete it to the end, otherwise the cards will not be paired and you will have to start from the beginning.";
 
 "details_twins_recreate_toolbar" = "Re-create wallet";
 "details_row_title_twins_create" = "Create wallet";
@@ -242,6 +249,10 @@
 "twins_creation_warning_title" = "Cancel Twin Card creation?";
 "twins_creation_warning_message" = "You have already started the process of recreating twin wallet. If you interrupt it, you won't be able to use your twin cards until you start it again and complete recreating the wallet.";
 "twins_scan_twin_with_number" = "Hold your iPhone near the twin card with number %@";
+
+"twin_process_preparing_card" = "Preparing card";
+
+"twin_process_creating_wallet" = "Creating wallet";
 
 // old
 "twin_wallet_creation_step_title_first" = "1st step";
