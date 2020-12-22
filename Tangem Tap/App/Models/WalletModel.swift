@@ -20,6 +20,10 @@ class WalletModel: ObservableObject, Identifiable {
     var txSender: TransactionSender { walletManager as! TransactionSender }
     var wallet: Wallet { walletManager.wallet }
     
+    var addressNames: [String] {
+        wallet.addresses.map { $0.localizedName }
+    }
+    
     let walletManager: WalletManager
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
@@ -30,18 +34,18 @@ class WalletModel: ObservableObject, Identifiable {
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[unowned self] wallet in
                 print("wallet received")
                 self.updateBalanceViewModel(with: wallet, state: self.state)
-                if wallet.hasPendingTx {
-                    if self.updateTimer == nil {
-                        self.startUpdatingTimer()
-                    }
-                } else {
+//                if wallet.hasPendingTx {
+//                    if self.updateTimer == nil {
+//                        self.startUpdatingTimer()
+//                    }
+//                } else {
                     self.updateTimer = nil
-                }
+//                }
             })
             .store(in: &bag)
         
@@ -120,15 +124,11 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.addresses[index].value
     }
     
-    func displayAddressName(for index: Int) -> String {
-        wallet.addresses[index].localizedName
-    }
-    
     func shareAddressString(for index: Int) -> String {
         wallet.getShareString(for: wallet.addresses[index].value)
     }
     
-    func exploreURL(for index: Int) -> URL {
+    func exploreURL(for index: Int) -> URL? {
         wallet.getExploreURL(for: wallet.addresses[index].value)
     }
     
