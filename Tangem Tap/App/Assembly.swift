@@ -21,7 +21,7 @@ class Assembly {
     lazy var navigationCoordinator = NavigationCoordinator()
 	lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
     lazy var userPrefsService = UserPrefsService()
-    lazy var networkService = TmpNetworkService()
+    lazy var networkService = NetworkService()
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
 	lazy var featuresService = AppFeaturesService()
     lazy var imageLoaderService: ImageLoaderService = {
