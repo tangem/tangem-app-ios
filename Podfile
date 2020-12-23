@@ -19,7 +19,7 @@ target 'Tangem Tap' do
   pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.4'
   #pod 'web3swift', :path => '../web3swift'
   #pod 'BitcoinCore.swift', :path => '../bitcoincore'
-  pod 'BitcoinCore.swift', :git => 'https://bitbucket.org/tangem/bitcoincore.git', :tag => '0.0.5'
+  pod 'BitcoinCore.swift', :git => 'https://bitbucket.org/tangem/bitcoincore.git', :tag => '0.0.6'
   pod 'Moya'
   pod 'EFQRCode'
   pod 'Firebase/Crashlytics'
