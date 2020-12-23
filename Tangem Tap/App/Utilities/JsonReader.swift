@@ -8,10 +8,9 @@
 
 import Foundation
 
-struct JsonFileReader {
+struct JsonReader {
     
     static func readBundleFile<T: Decodable>(with name: String, type: T.Type, shouldAddCompilationCondition: Bool = true) throws -> T {
-        let jsonDecorer = JSONDecoder()
         var suffix: String = ""
         if shouldAddCompilationCondition {
             #if DEBUG
@@ -24,7 +23,12 @@ struct JsonFileReader {
             throw NSError(domain: "Failed to find json file with name: \(name)", code: -9999, userInfo: nil)
         }
         
-        return try jsonDecorer.decode(type, from: Data(contentsOf: path))
+        return try readJsonData(Data(contentsOf: path), type: type)
+    }
+    
+    static func readJsonData<T: Decodable>(_ data: Data, type: T.Type) throws -> T {
+        let jsonDecorer = JSONDecoder()
+        return try jsonDecorer.decode(type, from: data)
     }
     
 }
