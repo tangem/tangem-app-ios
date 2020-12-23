@@ -12,10 +12,6 @@ import TangemSdk
 import BlockchainSdk
 import AVFoundation
 
-enum AdditionalSendViewInputs {
-	
-}
-
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -76,7 +72,29 @@ struct SendView: View {
 									}
 								   }, message: self.viewModel.destinationHint?.message ?? " " ,
 								   isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
-                    additionalInputFields
+                    
+                    if viewModel.isAdditionalInputEnabled {
+                        if case .memo = viewModel.additionalInputFields {
+                            TextInputField(placeholder: "send_extras_hint_memo".localized,
+                                           text: self.$viewModel.memo,
+                                           keyboardType: .numberPad,
+                                           clearButtonMode: .whileEditing,
+                                           message: self.viewModel.memoHint?.message ?? "",
+                                           isErrorMessage: self.viewModel.memoHint?.isError ?? false)
+                                .transition(.opacity)
+                        }
+                        
+                        if case .destinationTag = viewModel.additionalInputFields {
+                            TextInputField(placeholder: "send_extras_hint_destination_tag".localized,
+                                           text: self.$viewModel.destinationTagStr,
+                                           keyboardType: .numberPad,
+                                           clearButtonMode: .whileEditing,
+                                           message: self.viewModel.destinationTagHint?.message ?? "",
+                                           isErrorMessage: self.viewModel.destinationTagHint?.isError ?? false)
+                                .transition(.opacity)
+                        }
+                    }
+                    
                     Group {
                         HStack {
                             CustomTextField(text: self.$viewModel.amountText,
@@ -242,29 +260,6 @@ struct SendView: View {
         }
         .onAppear() {
             self.viewModel.onAppear()
-        }
-    }
-    
-    private var additionalInputFields: some View {
-        switch (viewModel.additionalInputFields, viewModel.isAdditionalInputEnabled) {
-        case (.memo, true):
-            return TextInputField(placeholder: "send_extras_hint_memo".localized,
-                                  text: self.$viewModel.memo,
-                                  keyboardType: .numberPad,
-                                  clearButtonMode: .whileEditing,
-                                  message: self.viewModel.memoHint?.message ?? "",
-                                  isErrorMessage: self.viewModel.memoHint?.isError ?? false)
-                .toAnyView()
-        case (.destinationTag, true):
-            return TextInputField(placeholder: "send_extras_hint_destination_tag".localized,
-                                  text: self.$viewModel.destinationTagStr,
-                                  keyboardType: .numberPad,
-                                  clearButtonMode: .whileEditing,
-                                  message: self.viewModel.destinationTagHint?.message ?? "",
-                                  isErrorMessage: self.viewModel.destinationTagHint?.isError ?? false)
-                .toAnyView()
-        default:
-            return EmptyView().toAnyView()
         }
     }
 }
