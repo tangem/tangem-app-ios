@@ -9,8 +9,8 @@
 import FirebaseRemoteConfig
 
 enum FirebaseConfigKeys: String {
-    case features = "features_"
-    case warnings = "warnings_"
+    case features = "features"
+    case warnings = "warnings"
 }
 
 struct FirebaseJsonConfigFetcher {
@@ -20,7 +20,7 @@ struct FirebaseJsonConfigFetcher {
 	}
 	
 	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, with key: String) -> T? {
-		var dataKey = key
+		var dataKey = key + "_"
 		#if DEBUG
 		dataKey.append("dev")
 		#elseif FIREBASE
@@ -29,8 +29,7 @@ struct FirebaseJsonConfigFetcher {
 		dataKey.append("prod")
 		#endif
 		let json = config[dataKey].dataValue
-		let decoder = JSONDecoder()
-		if let fetchedData = try? decoder.decode(type, from: json) {
+        if let fetchedData = try? JsonReader.readJsonData(json, type: type) {
 			print("Data ", type, " fetched from remote config successfully")
 			return fetchedData
 		}
