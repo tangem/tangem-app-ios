@@ -21,7 +21,7 @@ struct CardView: View {
 				Image(uiImage: image)
 					.resizable()
 					.aspectRatio(contentMode: .fit)
-					.frame(width: width, height: nil, alignment: .center)
+                    .frame(minWidth: width, maxWidth: width, minHeight: 190, alignment: .center)
 					.padding(.vertical, 16.0)
 			} else {
 				Color.tangemTapGrayLight4
