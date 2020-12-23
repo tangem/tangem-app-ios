@@ -23,6 +23,7 @@ class FeaturesConfigManager {
     private let config: RemoteConfig
     
     private(set) var features: TapFeatures
+    private(set) var warnings: [TapWarning] = []
     
     init() throws {
         config = RemoteConfig.remoteConfig()
@@ -34,7 +35,7 @@ class FeaturesConfigManager {
         settings.minimumFetchInterval = 3600
         #endif
         config.configSettings = settings
-        features = try JsonFileReader.readBundleFile(with: featuresFileName, type: TapFeatures.self)
+        features = try JsonReader.readBundleFile(with: featuresFileName, type: TapFeatures.self)
         //		fetch()
     }
     
@@ -47,21 +48,19 @@ class FeaturesConfigManager {
     }
     
     private func setupFeatures() {
-        var key: String = "features_"
-        #if DEBUG
-        key.append("dev")
-        #elseif FIREBASE
-        key.append("firebase")
-        #else
-        key.append("prod")
-        #endif
-        let json = config[key].dataValue
-        let decoder = JSONDecoder()
-        if let features = try? decoder.decode(TapFeatures.self, from: json) {
+        if let features = FirebaseJsonConfigFetcher.fetch(from: config, type: TapFeatures.self, with: .features) {
             print("Features config from Firebase successflly parsed")
             self.features = features
         }
         print("App features config updated")
+    }
+    
+    private func setupWarnings() {
+        guard let warnings = FirebaseJsonConfigFetcher.fetch(from: config, type: [TapWarning].self, with: .warnings) else {
+            return
+        }
+        
+        self.warnings = warnings
     }
 }
 
