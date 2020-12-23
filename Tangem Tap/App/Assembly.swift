@@ -261,15 +261,20 @@ class Assembly {
 extension Assembly {
     static var previewAssembly: Assembly = {
         let assembly = Assembly()
-		let card = Card.testTwinCard
-        let ci = CardInfo(card: card,
+        let twinCard = Card.testTwinCard
+        let ci = CardInfo(card: twinCard,
                           verificationState: nil,
-						  artworkInfo: nil,
-						  twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
+                          artworkInfo: nil,
+                          twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
         let vm = assembly.makeCardModel(from: ci)!
         let scanResult = ScanResult.card(model: vm)
-        assembly.cardsRepository.cards[card.cardId!] = scanResult
-		assembly.cardsRepository.lastScanResult = scanResult
+        assembly.cardsRepository.cards[twinCard.cardId!] = scanResult
+        let testCard = Card.testCard
+        let testCardCi = CardInfo(card: testCard, verificationState: nil, artworkInfo: nil, twinCardInfo: nil)
+        let testCardVm = assembly.makeCardModel(from: testCardCi)!
+        let testCardScan = ScanResult.card(model: testCardVm)
+        assembly.cardsRepository.cards[testCard.cardId!] = testCardScan
+        assembly.cardsRepository.lastScanResult = testCardScan
         return assembly
     }()
 }
