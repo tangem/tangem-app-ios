@@ -43,6 +43,9 @@ class MainViewModel: ViewModel {
             bind()
         }
     }
+    @Published var warnings: WarningsContainer = WarningsContainer(criticals: [WarningEvent.devCard.warning],
+                                                                   warnings: [],
+                                                                   infos: [WarningEvent.numberOfSignedHashesIncorrect.warning, WarningEvent.oldDeviceOldCard.warning])
 	
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
@@ -286,7 +289,9 @@ class MainViewModel: ViewModel {
         }
         
         if card.cardType != .release {
-            error = AlertManager().getAlert(.devCard, for: card)
+            guard let warning = WarningEventManager.instance.getAlert(.devCard, for: card) else { return }
+            
+            warnings.add(warning)
         } else {
             validateHashesCount()
         }
@@ -299,6 +304,17 @@ class MainViewModel: ViewModel {
 		
         assembly.reset()
     }
+    
+    func warningButtonAction(at index: Int, priority: WarningPriority) {
+        switch priority {
+        case .info:
+            warnings.infos.remove(at: index)
+        case .critical:
+            warnings.criticals.remove(at: index)
+        case .warning:
+            warnings.warnings.remove(at: index)
+        }
+    }
 	
 	private func validateHashesCount() {
 		guard let card = state.card else { return }
@@ -310,7 +326,9 @@ class MainViewModel: ViewModel {
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
 		func showUntrustedCardAlert() {
-			error = AlertManager().getAlert(.untrustedCard, for: card)
+            guard let warning = WarningEventManager.instance.getAlert(.numberOfSignedHashesIncorrect, for: card) else { return }
+            
+            warnings.add(warning)
 		}
 		
 		guard
