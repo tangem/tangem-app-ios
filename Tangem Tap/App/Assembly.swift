@@ -107,11 +107,10 @@ class Assembly {
 		if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
-        vm.update()
+        vm.updateState()
         return vm
     }
     
-
 	func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
 		// This is needed to prevent updating state of views that already in view hierarchy. Creating new model for each state
 		// not so good solution, but this crucial when creating Navigation link without condition closures and Navigation link
