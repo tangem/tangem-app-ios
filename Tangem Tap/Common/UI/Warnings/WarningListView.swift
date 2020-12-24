@@ -13,6 +13,8 @@ struct WarningsContainer {
     var warnings: [TapWarning]
     var infos: [TapWarning]
     
+    static let empty = WarningsContainer(criticals: [], warnings: [], infos: [])
+    
     mutating func add(_ warning: TapWarning) {
         switch warning.priority {
         case .critical: criticals.append(warning)
