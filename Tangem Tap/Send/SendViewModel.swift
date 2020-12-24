@@ -367,14 +367,13 @@ class SendViewModel: ViewModel {
             .removeDuplicates()
             .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [unowned self] destTagStr in
+                self.validatedXrpDestinationTag = nil
+                self.destinationHint = nil
+                
+                if destTagStr.isEmpty { return }
+                
                 let tag = UInt32(destTagStr)
-                defer { self.validatedXrpDestinationTag = tag }
-                
-                if destTagStr.isEmpty {
-                    self.destinationTagHint = nil
-                    return
-                }
-                
+                self.validatedXrpDestinationTag = tag
                 self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_error_invalid_destination_tag".localized) : nil
             })
             .store(in: &bag)
@@ -384,14 +383,13 @@ class SendViewModel: ViewModel {
             .removeDuplicates()
             .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [unowned self] memo in
+                self.validatedMemoId = nil
+                self.memoHint = nil
+                
+                if memo.isEmpty { return }
+                
                 let memoId = UInt64(memo)
-                defer { self.validatedMemoId = memoId }
-                
-                if memo.isEmpty {
-                    self.memoHint = nil
-                    return
-                }
-                
+                self.validatedMemoId = memoId
                 self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
             })
             .store(in: &bag)
