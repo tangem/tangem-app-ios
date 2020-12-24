@@ -57,9 +57,9 @@ class WarningEventManager {
             }
             
             let scannedCards = self.scannedCards
-            if scannedCards.contains(cid) {
-                return false
-            }
+//            if scannedCards.contains(cid) {
+//                return false
+//            }
             
             if signedHashes == 0 {
                 return false
@@ -74,9 +74,9 @@ class WarningEventManager {
             }
             
             let scannedCards = self.scannedCards
-            if scannedCards.contains(cid) {
-                return false
-            }
+//            if scannedCards.contains(cid) {
+//                return false
+//            }
             
             self.scannedCards = scannedCards + [cid]
             return true
