@@ -35,92 +35,66 @@ struct SendView: View {
                     }
                     .padding(.bottom)
                     .alert(item: self.$viewModel.oldCardAlert) { $0.alert }
-                    Group {
-                        HStack(alignment: .center) {
-                            VStack(alignment: .leading, spacing: 0.0) {
-								Text(!self.viewModel.destination.isEmpty ? self.addressHint : " ")
-                                    .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                    .foregroundColor(Color.tangemTapGrayDark)
-
-                                CustomTextField(text: self.$viewModel.destination,
-                                                isResponder:  Binding.constant(nil),
-                                                actionButtonTapped: Binding.constant(true),
-                                                handleKeyboard: true,
-                                                textColor: UIColor.tangemTapGrayDark6,
-                                                font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
-												placeholder: self.addressHint)
-                                
-//                                TextField("send_destination_hint",
-//                                          text: self.$viewModel.destination,
-//                                          onEditingChanged: { hz in
-//
-//                                }) {
-//
-//                                }
-//                                .truncationMode(.middle)
-//                                .disableAutocorrection(true)
-//                                .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                                //.alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
-                            }
-                            Spacer()
-                            Button(action: {
-                                self.viewModel.pasteClipboardTapped()
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .frame(width: 40.0, height: 40.0, alignment: .center)
-                                        .foregroundColor(Color.tangemTapBgGray)
-                                    Image (self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill")
-                                        .font(Font.system(size: 17.0, weight: .regular, design: .default))
-                                        .foregroundColor(Color.tangemTapGrayDark6)
-                                }
-                            }
-                            .disabled(self.viewModel.validatedClipboard == nil)
-                            //.alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
-                            Button(action: {
-                                if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-                                    self.viewModel.showCameraDeniedAlert = true
-                                } else {
-                                    self.viewModel.navigation.showQR = true
-                                }
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .frame(width: 40.0, height: 40.0, alignment: .center)
-                                        .foregroundColor(Color.tangemTapBgGray)
-                                    Image ("qrcode.viewfinder")
-                                        .font(Font.system(size: 22.0, weight: .regular, design: .default))
-                                        .foregroundColor(Color.tangemTapGrayDark6)
-                                    
-                                }
-                            }
-                            .sheet(isPresented: self.$viewModel.navigation.showQR) {
-                                QRScannerView(code: self.$viewModel.destination,
-                                              codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
-                                    .edgesIgnoringSafeArea(.all)
-                            }
-                            .alert(isPresented: self.$viewModel.showCameraDeniedAlert) {
-                                return Alert(title: Text("common_camera_denied_alert_title"),
-                                             message: Text("common_camera_denied_alert_message"),
-                                             primaryButton: Alert.Button.default(Text("common_camera_alert_button_settings"),
-                                                                                 action: {self.viewModel.openSystemSettings()}),
-                                             secondaryButton: Alert.Button.default(Text("common_ok"),
-                                                                                 action: {}))
-                            }
+					TextInputField(placeholder: self.addressHint,
+								   text: self.$viewModel.destination,
+								   suplementView: {
+									CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
+													   backgroundColor: .tangemTapBgGray,
+													   imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+													   isSystemImage: false,
+													   imageColor: .tangemTapGrayDark6)
+									.disabled(self.viewModel.validatedClipboard == nil)
+									CircleActionButton(
+										action: {
+											if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+												self.viewModel.showCameraDeniedAlert = true
+											} else {
+												self.viewModel.navigation.showQR = true
+											}
+										},
+										backgroundColor: .tangemTapBgGray,
+										imageName: "qrcode.viewfinder",
+										isSystemImage: false,
+										imageColor: .tangemTapGrayDark6
+									)
+									.sheet(isPresented: self.$viewModel.navigation.showQR) {
+										QRScannerView(code: self.$viewModel.destination,
+													  codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
+											.edgesIgnoringSafeArea(.all)
+									}
+									.alert(isPresented: self.$viewModel.showCameraDeniedAlert) {
+										return Alert(title: Text("common_camera_denied_alert_title"),
+													 message: Text("common_camera_denied_alert_message"),
+													 primaryButton: Alert.Button.default(Text("common_camera_alert_button_settings"),
+																						 action: {self.viewModel.openSystemSettings()}),
+													 secondaryButton: Alert.Button.default(Text("common_ok"),
+																						 action: {}))
+									}
+								   }, message: self.viewModel.destinationHint?.message ?? " " ,
+								   isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
+                    
+                    if viewModel.isAdditionalInputEnabled {
+                        if case .memo = viewModel.additionalInputFields {
+                            TextInputField(placeholder: "send_extras_hint_memo".localized,
+                                           text: self.$viewModel.memo,
+                                           keyboardType: .numberPad,
+                                           clearButtonMode: .whileEditing,
+                                           message: self.viewModel.memoHint?.message ?? "",
+                                           isErrorMessage: self.viewModel.memoHint?.isError ?? false)
+                                .transition(.opacity)
                         }
-                        Color.tangemTapGrayLight5
-                            .frame(width: nil, height: 1.0, alignment: .center)
-                            .padding(.top, 8.0)
-                            .padding(.bottom, 4.0)
                         
-                        HStack {
-                            Text(self.viewModel.destinationHint?.message ?? " " )
-                                .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                .foregroundColor((self.viewModel.destinationHint?.isError ?? false ) ?
-                                    Color.red : Color.tangemTapGrayDark)
-                            Spacer()
+                        if case .destinationTag = viewModel.additionalInputFields {
+                            TextInputField(placeholder: "send_extras_hint_destination_tag".localized,
+                                           text: self.$viewModel.destinationTagStr,
+                                           keyboardType: .numberPad,
+                                           clearButtonMode: .whileEditing,
+                                           message: self.viewModel.destinationTagHint?.message ?? "",
+                                           isErrorMessage: self.viewModel.destinationTagHint?.isError ?? false)
+                                .transition(.opacity)
                         }
                     }
+                    
                     Group {
                         HStack {
                             CustomTextField(text: self.$viewModel.amountText,
