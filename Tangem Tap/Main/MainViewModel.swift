@@ -43,9 +43,7 @@ class MainViewModel: ViewModel {
             bind()
         }
     }
-    @Published var warnings: WarningsContainer = WarningsContainer(criticals: [WarningEvent.devCard.warning],
-                                                                   warnings: [],
-                                                                   infos: [WarningEvent.numberOfSignedHashesIncorrect.warning, WarningEvent.oldDeviceOldCard.warning])
+    @Published var warnings: WarningsContainer = .empty
 	
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
@@ -224,6 +222,7 @@ class MainViewModel: ViewModel {
 			guard let self = self else { return }
             switch scanResult {
             case .success(let state):
+                self.warnings = .empty
                 self.selectedAddressIndex = 0
                 self.state = state
                 self.assembly.reset()
@@ -323,7 +322,7 @@ class MainViewModel: ViewModel {
 		
 		guard let cardId = card.cardId else { return }
 		
-		if validatedSignedHashesCards.contains(cardId) { return }
+//		if validatedSignedHashesCards.contains(cardId) { return }
 		
 		func showUntrustedCardAlert() {
             guard let warning = WarningEventManager.instance.getAlert(.numberOfSignedHashesIncorrect, for: card) else { return }
