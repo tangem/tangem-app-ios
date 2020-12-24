@@ -532,11 +532,11 @@ class SendViewModel: ViewModel {
         }
         
         if let destinationTag = self.validatedXrpDestinationTag {
-            tx.params = XRPTransactionParams.destinationTag("\(destinationTag)")
+            tx.params = XRPTransactionParams(destinationTag: destinationTag)
         }
         
         if let memo = self.validatedMemoId, isAdditionalInputEnabled {
-            tx.params = StellarTransactionParams.memo(.id(memo))
+            tx.params = StellarTransactionParams(memo: .id(memo))
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
