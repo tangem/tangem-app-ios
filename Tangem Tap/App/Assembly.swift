@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class Assembly {
 	let keysManager = try! KeysManager()
+    let configManager = try! FeaturesConfigManager()
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
@@ -23,7 +24,8 @@ class Assembly {
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = TmpNetworkService()
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
-	lazy var featuresService = AppFeaturesService()
+    lazy var featuresService = AppFeaturesService(configProvider: configManager)
+    lazy var warningsService = WarningsService(remoteWarningProvider: configManager)
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -33,7 +35,7 @@ class Assembly {
     }()
     
     lazy var cardsRepository: CardsRepository = {
-		let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder())
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         crepo.featuresService = featuresService
@@ -65,7 +67,7 @@ class Assembly {
 			restored.state = cardsRepository.lastScanResult
             return restored
         }
-        let vm =  MainViewModel()
+        let vm =  MainViewModel(warningsManager: warningsService)
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
