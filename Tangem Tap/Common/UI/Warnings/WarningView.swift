@@ -35,7 +35,7 @@ struct WarningView: View {
     var buttonAction: () -> Void = { }
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .leading) {
             warning.priority.backgroundColor
                 .cornerRadius(6)
             VStack(alignment: .leading, spacing: 0) {
@@ -71,7 +71,13 @@ struct WarningView: View {
 }
 
 struct WarningView_Previews: PreviewProvider {
-    @State static var warnings: [TapWarning] = [WarningEvent.devCard.warning, WarningEvent.numberOfSignedHashesIncorrect.warning, WarningEvent.oldDeviceOldCard.warning]
+    @State static var warnings: [TapWarning] = [
+        WarningEvent.numberOfSignedHashesIncorrect.warning,
+        TapWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent),
+        TapWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary),
+        TapWarning(title: "Attention!", message: "Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
+        
+    ]
     static var previews: some View {
         ScrollView {
             ForEach(Array(warnings.enumerated()), id: \.element) { (i, item) in
