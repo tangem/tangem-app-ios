@@ -121,16 +121,10 @@ struct MainView: View {
                                  width: geometry.size.width - 32,
                                  currentCardNumber: self.viewModel.cardNumber)
                         
-                        if self.shouldShowAlertView {
-                            AlertCardView(title: "common_warning".localized,
-                                          message: "alert_old_card".localized)
-                                .padding(.horizontal, 16.0)
-                        }
-                        
                         if self.isUnsupportdState {
                             ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
                         } else {
-                            WarningListView(warnings: self.$viewModel.warnings, warningButtonAction: {
+                            WarningListView(warnings: self.viewModel.warnings, warningButtonAction: {
                                 self.viewModel.warningButtonAction(at: $0, priority: $1)
                             })
                             
