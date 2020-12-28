@@ -70,9 +70,11 @@ class CardsRepository {
 	var lastScanResult: ScanResult = .notScannedYet
 	
 	private let twinCardFileDecoder: TwinCardFileDecoder
+    private let warningsConfigurator: WarningsConfigurator
 	
-	init(twinCardFileDecoder: TwinCardFileDecoder) {
+    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator) {
 		self.twinCardFileDecoder = twinCardFileDecoder
+        self.warningsConfigurator = warningsConfigurator
 	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
@@ -99,12 +101,14 @@ class CardsRepository {
 	
 	@discardableResult
 	func processScanResponse(_ response: TapScanTaskResponse) -> ScanResult {
-		let cardInfo = CardInfo(card: response.card,
+        let card = response.card
+		let cardInfo = CardInfo(card: card,
 								verificationState: response.verifyResponse.verificationState,
 								artworkInfo: response.verifyResponse.artworkInfo,
 								twinCardInfo: self.decodeTwinFile(from: response))
 		
-		self.featuresService.setupFeatures(for: response.card)
+		self.featuresService.setupFeatures(for: card)
+        self.warningsConfigurator.setupWarnings(for: card)
 	   
 		if !self.featuresService.linkedTerminal {
 			self.tangemSdk.config.linkedTerminal = false
