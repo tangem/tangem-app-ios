@@ -8,29 +8,8 @@
 
 import SwiftUI
 
-struct WarningsContainer {
-    var criticals: [TapWarning]
-    var warnings: [TapWarning]
-    var infos: [TapWarning]
-    
-    static let empty = WarningsContainer(criticals: [], warnings: [], infos: [])
-    
-    mutating func add(_ warning: TapWarning) {
-        switch warning.priority {
-        case .critical: criticals.append(warning)
-        case .warning: criticals.append(warning)
-        case .info: criticals.append(warning)
-        }
-    }
-    
-    mutating func add(_ warnings: [TapWarning]) {
-        warnings.forEach { add($0) }
-    }
-}
-
 struct WarningListView: View {
-    
-    @Binding var warnings: WarningsContainer
+    var warnings: WarningsContainer
     var warningButtonAction: (Int, WarningPriority) -> Void
     
     private let transition = AnyTransition.scale.combined(with: .opacity)
@@ -60,5 +39,37 @@ struct WarningListView: View {
         withAnimation {
             self.warningButtonAction(index, priority)
         }
+    }
+}
+
+struct WarningListView_Previews: PreviewProvider {
+    static let container: WarningsContainer = .init(
+        criticals: [ TapWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent)],
+        warnings: [TapWarning(title: "Attention!", message: "Something huuuuuge is going to happen!", priority: .warning, type: .permanent)],
+        infos: [TapWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary)]
+    )
+    
+    @ObservedObject static var warnings: WarningsContainer = container
+    static var previews: some View {
+        ScrollView {
+            WarningListView(warnings: warnings, warningButtonAction: { (index, priority) in
+                warningButtonAction(at: index, priority: priority)
+            })
+        }
+        
+    }
+    
+    static func warningButtonAction(at index: Int, priority: WarningPriority) {
+        let warning: TapWarning
+        switch priority {
+        case .info:
+            warning = warnings.infos[index]
+        case .critical:
+            warning = warnings.criticals[index]
+        case .warning:
+            warning = warnings.warnings[index]
+        }
+        
+        container.remove(warning)
     }
 }

@@ -15,11 +15,11 @@ enum FirebaseConfigKeys: String {
 
 struct FirebaseJsonConfigFetcher {
 	
-	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, with key: FirebaseConfigKeys) -> T? {
-		fetch(from: config, type: type, with: key.rawValue)
+	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, withKey key: FirebaseConfigKeys) -> T? {
+		fetch(from: config, type: type, withKey: key.rawValue)
 	}
 	
-	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, with key: String) -> T? {
+	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, withKey key: String) -> T? {
 		var dataKey = key + "_"
 		#if DEBUG
 		dataKey.append("dev")
@@ -29,11 +29,13 @@ struct FirebaseJsonConfigFetcher {
 		dataKey.append("prod")
 		#endif
 		let json = config[dataKey].dataValue
-        if let fetchedData = try? JsonReader.readJsonData(json, type: type) {
-			print("Data ", type, " fetched from remote config successfully")
-			return fetchedData
-		}
-		return nil
+        do {
+            return try JsonReader.readJsonData(json, type: type)
+        } catch {
+            print("Failed to fetch json from firebase. Reason:", error)
+            return nil
+        }
+		
 	}
 	
 }
