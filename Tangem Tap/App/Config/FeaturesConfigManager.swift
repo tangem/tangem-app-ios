@@ -9,14 +9,22 @@
 import Foundation
 import FirebaseRemoteConfig
 
-class FeaturesConfigManager {
-    
-    struct TapFeatures: Decodable {
-        let isWalletPayIdEnabled: Bool
-        let isSendingToPayIdEnabled: Bool
-        let isTopUpEnabled: Bool
-        let isCreatingTwinCardsAllowed: Bool
-    }
+protocol RemoteWarningProvider {
+    var warnings: [TapWarning] { get }
+}
+
+protocol FeaturesConfigProvider {
+    var features: TapFeatures { get }
+}
+
+struct TapFeatures: Decodable {
+    let isWalletPayIdEnabled: Bool
+    let isSendingToPayIdEnabled: Bool
+    let isTopUpEnabled: Bool
+    let isCreatingTwinCardsAllowed: Bool
+}
+
+class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
     
     private let featuresFileName = "features"
     
@@ -36,19 +44,20 @@ class FeaturesConfigManager {
         #endif
         config.configSettings = settings
         features = try JsonReader.readBundleFile(with: featuresFileName, type: TapFeatures.self)
-        //		fetch()
+        fetch()
     }
     
     private func fetch() {
         config.fetchAndActivate { [weak self] (status, error) in
             guard let self = self else { return }
             
-            self.setupFeatures()
+//            self.setupFeatures()
+            self.setupWarnings()
         }
     }
     
     private func setupFeatures() {
-        if let features = FirebaseJsonConfigFetcher.fetch(from: config, type: TapFeatures.self, with: .features) {
+        if let features = FirebaseJsonConfigFetcher.fetch(from: config, type: TapFeatures.self, withKey: .features) {
             print("Features config from Firebase successflly parsed")
             self.features = features
         }
@@ -56,11 +65,10 @@ class FeaturesConfigManager {
     }
     
     private func setupWarnings() {
-        guard let warnings = FirebaseJsonConfigFetcher.fetch(from: config, type: [TapWarning].self, with: .warnings) else {
+        guard let warnings = FirebaseJsonConfigFetcher.fetch(from: config, type: [RemoteTapWarning].self, withKey: .warnings) else {
             return
         }
         
-        self.warnings = warnings
+        self.warnings = TapWarning.fetch(remote: warnings)
     }
 }
-
