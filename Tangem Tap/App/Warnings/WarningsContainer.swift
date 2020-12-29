@@ -47,6 +47,25 @@ class WarningsContainer: ObservableObject {
         add(event.warning)
     }
     
+    func warning(at index: Int, with priority: WarningPriority) -> TapWarning? {
+        var warning: TapWarning?
+        switch priority {
+        case .info:
+            if index < infos.count {
+                warning = infos[index]
+            }
+        case .critical:
+            if index < criticals.count {
+                warning = criticals[index]
+            }
+        case .warning:
+            if index < warnings.count {
+                warning = warnings[index]
+            }
+        }
+        return warning
+    }
+    
     func remove(_ warning: TapWarning) {
         switch warning.priority {
         case .critical:
