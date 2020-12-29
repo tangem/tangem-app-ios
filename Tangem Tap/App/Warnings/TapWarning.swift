@@ -11,21 +11,6 @@ import SwiftUI
 
 enum WarningPriority: String, Decodable {
     case info, warning, critical
-    
-    var backgroundColor: Color {
-        switch self {
-        case .info: return .tangemTapGrayDark6
-        case .warning: return .tangemTapWarning
-        case .critical: return .tangemTapCritical
-        }
-    }
-    
-    var messageColor: Color {
-        switch self {
-        case .info: return .tangemTapGrayDark
-        default: return .white
-        }
-    }
 }
 
 enum WarningType: String, Decodable {
