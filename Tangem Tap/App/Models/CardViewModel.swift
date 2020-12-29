@@ -368,4 +368,9 @@ extension CardViewModel {
         let assembly = Assembly.previewAssembly
         return assembly.cardsRepository.cards[Card.testCardNoWallet.cardId!]!.cardModel!
     }
+	
+	static var previewTwinCardViewModel: CardViewModel {
+		let assembly = Assembly.previewAssembly
+		return assembly.cardsRepository.cards[Card.testTwinCard.cardId!]!.cardModel!
+	}
 }
