@@ -332,15 +332,8 @@ class MainViewModel: ViewModel {
     }
     
     func warningButtonAction(at index: Int, priority: WarningPriority) {
-        let warning: TapWarning
-        switch priority {
-        case .info:
-            warning = warnings.infos[index]
-        case .critical:
-            warning = warnings.criticals[index]
-        case .warning:
-            warning = warnings.warnings[index]
-        }
+        guard let warning = warnings.warning(at: index, with: priority) else { return }
+
         if let cardId = state.card?.cardId,
            case .numberOfSignedHashesIncorrect = warning.event {
             validatedSignedHashesCards.append(cardId)
