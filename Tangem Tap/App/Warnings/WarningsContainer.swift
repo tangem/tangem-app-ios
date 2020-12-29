@@ -10,9 +10,9 @@ import Foundation
 import Combine
 
 class WarningsContainer: ObservableObject {
-    var criticals: [TapWarning]
-    var warnings: [TapWarning]
-    var infos: [TapWarning]
+    @Published var criticals: [TapWarning]
+    @Published var warnings: [TapWarning]
+    @Published var infos: [TapWarning]
     
     init(criticals: [TapWarning] = [], warnings: [TapWarning] = [], infos: [TapWarning] = []) {
         self.criticals = criticals
