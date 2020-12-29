@@ -44,7 +44,14 @@ class WarningsService {
     }
     
     private func warningsForSend(for card: Card) -> WarningsContainer {
-        .init()
+        let container = WarningsContainer()
+        
+        addOldCardWarningIfNeeded(in: container, for: card)
+        
+        let remoteWarnings = self.remoteWarnings(for: card, location: .send)
+        container.add(remoteWarnings)
+        
+        return container
     }
     
     private func remoteWarnings(for card: Card, location: WarningsLocation) -> [TapWarning] {
