@@ -12,6 +12,7 @@ import Combine
 import EFQRCode
 import BlockchainSdk
 import TangemSdk
+import stellarsdk
 
 struct TextHint {
     let isError: Bool
@@ -55,6 +56,14 @@ class SendViewModel: ViewModel {
             && cardViewModel.payIDService != nil
     }
     
+    var hasAdditionalInputFields: Bool {
+        additionalInputFields != .none
+    }
+    
+    var additionalInputFields: SendAdditionalFields {
+        .fields(for: cardViewModel.cardInfo.card)
+    }
+    
     @Published var isNetworkFeeBlockOpen: Bool = false
     
     //MARK: Output
@@ -70,6 +79,14 @@ class SendViewModel: ViewModel {
     @Published var canFiatCalculation: Bool = true
     @Published var oldCardAlert: AlertBinder?
     @Published var isFeeLoading: Bool = false
+    
+    // MARK: Additional input
+    @Published var isAdditionalInputEnabled: Bool = false
+	@Published var memo: String = ""
+    @Published var memoHint: TextHint? = nil
+    @Published var validatedMemoId: UInt64? = nil
+    @Published var destinationTagStr: String = ""
+    @Published var destinationTagHint: TextHint? = nil
     
     @Published var sendError: AlertBinder?
     
@@ -119,7 +136,7 @@ class SendViewModel: ViewModel {
     @Published private var amountValidated: Bool = false
     @Published private var amountToSend: Amount
     
-    private var validatedTag: String? = nil
+    @Published private var validatedXrpDestinationTag: UInt32? = nil
     
     init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner) {
         self.signer = signer
@@ -344,6 +361,38 @@ class SendViewModel: ViewModel {
                 self.transaction = tx
             }
             .store(in: &bag)
+        
+        $destinationTagStr
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .sink(receiveValue: { [unowned self] destTagStr in
+                self.validatedXrpDestinationTag = nil
+                self.destinationHint = nil
+                
+                if destTagStr.isEmpty { return }
+                
+                let tag = UInt32(destTagStr)
+                self.validatedXrpDestinationTag = tag
+                self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_error_invalid_destination_tag".localized) : nil
+            })
+            .store(in: &bag)
+        
+        $memo
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .sink(receiveValue: { [unowned self] memo in
+                self.validatedMemoId = nil
+                self.memoHint = nil
+                
+                if memo.isEmpty { return }
+                
+                let memoId = UInt64(memo)
+                self.validatedMemoId = memoId
+                self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
+            })
+            .store(in: &bag)
     }
     
     func onAppear() {
@@ -372,8 +421,8 @@ class SendViewModel: ViewModel {
     
     func validateDestination(_ destination: String) {
         validatedDestination = nil
-        validatedTag = nil
         destinationHint = nil
+        isAdditionalInputEnabled = false
         
         if destination.isEmpty {
             return
@@ -387,25 +436,32 @@ class SendViewModel: ViewModel {
                     if let address = resolvedDetails.address,
                        self?.validateAddress(address) ?? false {
                         self?.validatedDestination = resolvedDetails.address
-                        self?.validatedTag = resolvedDetails.tag
+                        self?.validatedXrpDestinationTag = UInt32(resolvedDetails.tag ?? "")
                         self?.destinationHint = TextHint(isError: false,
                                                          message: address)
+                        self?.setAdditionalInputVisibility(for: address)
                     } else {
                         self?.destinationHint = TextHint(isError: true,
                                                          message: "send_validation_invalid_address".localized)
+                        self?.setAdditionalInputVisibility(for: nil)
+                        
                     }
                 case .failure(let error):
                     self?.destinationHint = TextHint(isError: true,
                                                      message: error.localizedDescription)
+                    self?.setAdditionalInputVisibility(for: nil)
                 }
+                
             }
             
         } else {
             if validateAddress(destination) {
                 validatedDestination = destination
+                setAdditionalInputVisibility(for: destination)
             } else {
                 destinationHint = TextHint(isError: true,
                                            message: "send_validation_invalid_address".localized)
+                setAdditionalInputVisibility(for: nil)
             }
         }
     }
@@ -444,13 +500,41 @@ class SendViewModel: ViewModel {
         return cleaned.remove(walletModel.wallet.blockchain.qrPrefix)
     }
     
+    func setAdditionalInputVisibility(for address: String?) {
+        let isInputEnabled: Bool
+        defer {
+            withAnimation {
+                isAdditionalInputEnabled = isInputEnabled
+            }
+        }
+        
+        guard let address = address else {
+            isInputEnabled = false
+            return
+        }
+        
+        switch additionalInputFields {
+        case .destinationTag:
+            let xrpXAddress = try? XRPAddress.decodeXAddress(xAddress: address)
+            isInputEnabled = xrpXAddress == nil
+        case .memo:
+            isInputEnabled = true
+        default:
+            isInputEnabled = false
+        }
+    }
+    
     func send(_ callback: @escaping () -> Void) {
         guard var tx = self.transaction else {
             return
         }
         
-        if let payIdTag = self.validatedTag {
-            tx.params = XRPTransactionParams.destinationTag(payIdTag)
+        if let destinationTag = self.validatedXrpDestinationTag {
+            tx.params = XRPTransactionParams(destinationTag: destinationTag)
+        }
+        
+        if let memo = self.validatedMemoId, isAdditionalInputEnabled {
+            tx.params = StellarTransactionParams(memo: .id(memo))
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
