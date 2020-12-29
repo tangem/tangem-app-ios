@@ -177,7 +177,7 @@ class Assembly {
             return restored
         }
         
-        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
+        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer, warningsManager: warningsService)
         initialize(vm)
         vm.ratesService = ratesService
         vm.featuresService = featuresService
