@@ -48,12 +48,24 @@ class MainViewModel: ViewModel {
             bind()
         }
     }
-    @ObservedObject var warnings: WarningsContainer = .init()
+    
+    @ObservedObject var warnings: WarningsContainer = .init() {
+        didSet {
+            warningsSubscription = warnings.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] in
+                    withAnimation {
+                        self?.objectWillChange.send()
+                    }
+                })
+        }
+    }
 	
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
 	
 	private var hashesCountSubscription: AnyCancellable?
+    private var warningsSubscription: AnyCancellable?
     
     public var canCreateWallet: Bool {
         if let state = state.cardModel?.state,
@@ -238,13 +250,14 @@ class MainViewModel: ViewModel {
                 self.fetchWarnings()
                 self.selectedAddressIndex = 0
                 self.state = state
+                self.hashesCountSubscription?.cancel()
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
 					self.showUntrustedDisclaimerIfNeeded()
 				}
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
-                    self.error = error.alertBinder
+                    self.setError(error.alertBinder)
                 }
             }
             self.isScanning = false
@@ -273,7 +286,7 @@ class MainViewModel: ViewModel {
 					if case .userCancelled = error.toTangemSdkError() {
 						return
 					}
-					self?.error = error.alertBinder
+					self?.setError(error.alertBinder)
 				}
 			}
 		}
@@ -334,7 +347,6 @@ class MainViewModel: ViewModel {
         }
         
         warningsManager.hideWarning(warning)
-        objectWillChange.send()
     }
     
     // MARK: - Private functions
@@ -349,8 +361,7 @@ class MainViewModel: ViewModel {
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
 		func showUntrustedCardAlert() {
-            warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
-            objectWillChange.send()
+            self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
 		}
 		
 		guard
@@ -360,8 +371,8 @@ class MainViewModel: ViewModel {
 			return
 		}
 		
-		hashesCountSubscription?.cancel()
 		hashesCountSubscription = validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
+            .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
 			.sink(receiveCompletion: { failure in
 				switch failure {
@@ -381,4 +392,13 @@ class MainViewModel: ViewModel {
 		navigation.showTwinCardOnboarding = true
 		return true
 	}
+    
+    private func setError(_ error: AlertBinder?)  {
+        if self.error != nil {
+            return
+        }
+
+        self.error = error
+        return
+    }
 }
