@@ -51,21 +51,21 @@ class MainViewModel: ViewModel {
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
-            warningsSubscription = warnings.objectWillChange
+            warnings.objectWillChange
                 .receive(on: DispatchQueue.main)
                 .sink(receiveValue: { [weak self] in
                     withAnimation {
                         self?.objectWillChange.send()
                     }
                 })
+                .store(in: &bag)
         }
     }
 	
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
-	
-	private var hashesCountSubscription: AnyCancellable?
-    private var warningsSubscription: AnyCancellable?
+    
+    private var isHashesCounted = false
     
     public var canCreateWallet: Bool {
         if let state = state.cardModel?.state,
@@ -250,7 +250,7 @@ class MainViewModel: ViewModel {
                 self.fetchWarnings()
                 self.selectedAddressIndex = 0
                 self.state = state
-                self.hashesCountSubscription?.cancel()
+                self.isHashesCounted = false
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
 					self.showUntrustedDisclaimerIfNeeded()
@@ -345,6 +345,8 @@ class MainViewModel: ViewModel {
     // MARK: - Private functions
 	
 	private func validateHashesCount() {
+        if isHashesCounted { return }
+        
 		guard let card = state.card else { return }
 		
 		if card.isTwinCard { return }
@@ -364,7 +366,9 @@ class MainViewModel: ViewModel {
 			return
 		}
 		
-		hashesCountSubscription = validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
+        isHashesCounted = true
+        
+		validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
             .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
 			.sink(receiveCompletion: { failure in
@@ -375,6 +379,7 @@ class MainViewModel: ViewModel {
 					showUntrustedCardAlert()
 				}
 			}, receiveValue: { _ in })
+            .store(in: &bag)
 	}
 		
 	private func showTwinCardOnboardingIfNeeded() -> Bool {
