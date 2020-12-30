@@ -39,15 +39,16 @@ class SendViewModel: ViewModel {
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
     
-    @ObservedObject var warnings = WarningsContainer(infos: [TapWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary, event: nil)]) {
+    @ObservedObject var warnings = WarningsContainer() {
         didSet {
-            warningsSubscription = warnings.objectWillChange
+            warnings.objectWillChange
                 .receive(on: DispatchQueue.main)
                 .sink(receiveValue: { [weak self] in
                     withAnimation {
                         self?.objectWillChange.send()
                     }
                 })
+                .store(in: &bag)
         }
     }
     
@@ -101,8 +102,6 @@ class SendViewModel: ViewModel {
     @Published var destinationTagStr: String = ""
     @Published var destinationTagHint: TextHint? = nil
     
-    
-    
     @Published var sendError: AlertBinder?
     
     var signer: TransactionSigner
@@ -152,8 +151,6 @@ class SendViewModel: ViewModel {
     @Published private var amountToSend: Amount
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
-    
-    private var warningsSubscription: AnyCancellable?
     
     init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
         self.signer = signer
