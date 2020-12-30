@@ -35,7 +35,7 @@ class WarningsService {
         
         addDevCardWarningIfNeeded(in: container, for: card)
         addOldCardWarning(in: container, for: card)
-        addOldCardWarningIfNeeded(in: container, for: card)
+        addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
         
         let remoteWarnings = self.remoteWarnings(for: card, location: .main)
         container.add(remoteWarnings)
@@ -46,7 +46,7 @@ class WarningsService {
     private func warningsForSend(for card: Card) -> WarningsContainer {
         let container = WarningsContainer()
         
-        addOldCardWarningIfNeeded(in: container, for: card)
+        addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
         
         let remoteWarnings = self.remoteWarnings(for: card, location: .send)
         container.add(remoteWarnings)
@@ -69,16 +69,16 @@ class WarningsService {
             return
         }
         
-        container.add(TapWarning(title: "common_warning".localized, message: "alert_developer_card".localized, priority: .critical, type: .permanent))
+        container.add(WarningsList.devCard)
     }
     
     private func addOldCardWarning(in container: WarningsContainer, for card: Card) {
         if card.canSign { return }
         
-        container.add(TapWarning(title: "common_warning".localized, message: "alert_old_card".localized, priority: .info, type: .permanent))
+        container.add(WarningsList.oldCard)
     }
     
-    private func addOldCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
+    private func addOldDeviceOldCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
         guard let fw = card.firmwareVersionValue else {
             return
         }
@@ -91,7 +91,7 @@ class WarningsService {
             return
         }
         
-        container.add(TapWarning(title: "common_warning".localized, message: "alert_old_device_this_card".localized, priority: .info, type: .permanent))
+        container.add(WarningsList.oldDeviceOldCard)
     }
     
 }
