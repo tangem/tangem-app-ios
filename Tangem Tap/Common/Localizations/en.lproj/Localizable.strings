@@ -113,6 +113,7 @@
 
 "wallet_address_button_create_payid" = "Create PayString";
 
+"wallet_warning_button_ok" = "Ok, Got it!";
 
 
 "wallet_qr_title_format" = "%@ wallet";
@@ -284,7 +285,7 @@
 
 "alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
 
-"alert_card_signed_transactions" = "Warning: This card has been already topped up and signed transactions in the past.\n        Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
+"alert_card_signed_transactions" = "This card has been already topped up and signed transactions in the past. Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
 
 "alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
 
