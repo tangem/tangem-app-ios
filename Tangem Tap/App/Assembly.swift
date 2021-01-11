@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class Assembly {
 	let keysManager = try! KeysManager()
+    let configManager = try! FeaturesConfigManager()
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
@@ -23,7 +24,8 @@ class Assembly {
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = NetworkService()
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
-	lazy var featuresService = AppFeaturesService()
+    lazy var featuresService = AppFeaturesService(configProvider: configManager)
+    lazy var warningsService = WarningsService(remoteWarningProvider: configManager)
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -33,7 +35,7 @@ class Assembly {
     }()
     
     lazy var cardsRepository: CardsRepository = {
-		let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder())
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         crepo.featuresService = featuresService
@@ -65,7 +67,7 @@ class Assembly {
 			restored.state = cardsRepository.lastScanResult
             return restored
         }
-        let vm =  MainViewModel()
+        let vm =  MainViewModel(warningsManager: warningsService)
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
@@ -174,7 +176,7 @@ class Assembly {
             return restored
         }
         
-        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
+        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer, warningsManager: warningsService)
         initialize(vm)
         vm.ratesService = ratesService
         vm.featuresService = featuresService
@@ -260,19 +262,20 @@ class Assembly {
 extension Assembly {
     static var previewAssembly: Assembly = {
         let assembly = Assembly()
-		let twinCard = Card.testTwinCard
+        let twinCard = Card.testTwinCard
         let ci = CardInfo(card: twinCard,
                           verificationState: nil,
-						  artworkInfo: nil,
-						  twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
+                          artworkInfo: nil,
+                          twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
         let vm = assembly.makeCardModel(from: ci)!
         let scanResult = ScanResult.card(model: vm)
         assembly.cardsRepository.cards[twinCard.cardId!] = scanResult
-		let testCard = Card.testCard
-		let testCardCi = CardInfo(card: testCard, verificationState: nil, artworkInfo: nil, twinCardInfo: nil)
-		let testCardVm = assembly.makeCardModel(from: testCardCi)!
-		assembly.cardsRepository.cards[testCard.cardId!] =  ScanResult.card(model: testCardVm)
-		assembly.cardsRepository.lastScanResult = scanResult
+        let testCard = Card.testCard
+        let testCardCi = CardInfo(card: testCard, verificationState: nil, artworkInfo: nil, twinCardInfo: nil)
+        let testCardVm = assembly.makeCardModel(from: testCardCi)!
+        let testCardScan = ScanResult.card(model: testCardVm)
+        assembly.cardsRepository.cards[testCard.cardId!] = testCardScan
+        assembly.cardsRepository.lastScanResult = testCardScan
         return assembly
     }()
 }
