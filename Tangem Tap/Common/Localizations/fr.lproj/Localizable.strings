@@ -207,7 +207,7 @@
 
 "alert_old_device_this_card" = "Vous pouvez rencontrer des problèmes NFC avec certains iPhone 7/7 + lors de l’extraction";
 
-"alert_card_signed_transactions" = "Attention: cette carte a déjà été rechargée et a signé des transactions avant. Envisagez la possibilité de retirer tous les fonds immédiatement si vous avez reçu cette carte d'une source non fiable.";
+"alert_card_signed_transactions" = "Cette carte a déjà été rechargée et a signé des transactions avant. Envisagez la possibilité de retirer tous les fonds immédiatement si vous avez reçu cette carte d'une source non fiable.";
 
 "alert_unsupported_card" = "Cette carte n'est pas conçue pour fonctionner avec Tangem Tap";
 
