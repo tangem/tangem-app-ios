@@ -25,9 +25,11 @@ class SendViewModel: ViewModel {
     weak var ratesService: CoinMarketCapService!
     weak var featuresService: AppFeaturesService!
     
+    private unowned let warningsManager: WarningsManager
+    
     @Published var showCameraDeniedAlert = false
     
-    //MARK: Input
+    // MARK: Input
     @Published var validatedClipboard: String? = nil
     @Published var destination: String = ""
     @Published var amountText: String = "0"
@@ -37,8 +39,20 @@ class SendViewModel: ViewModel {
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
     
+    @ObservedObject var warnings = WarningsContainer() {
+        didSet {
+            warnings.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] in
+                    withAnimation {
+                        self?.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
     
-    //MARK: UI
+    // MARK: UI
     var shoudShowFeeSelector: Bool {
         return walletModel.txSender.allowsFeeSelection
     }
@@ -66,7 +80,7 @@ class SendViewModel: ViewModel {
     
     @Published var isNetworkFeeBlockOpen: Bool = false
     
-    //MARK: Output
+    // MARK: Output
     @Published var destinationHint: TextHint? = nil
     @Published var amountHint: TextHint? = nil
     @Published var sendAmount: String = ""
@@ -138,10 +152,11 @@ class SendViewModel: ViewModel {
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
-    init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner) {
+    init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
         self.signer = signer
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
+        self.warningsManager = warningsManager
         let feeDummyAmount = Amount(with: walletModel.wallet.blockchain,
                                     address: walletModel.wallet.address,
                                     type: .coin,
@@ -397,8 +412,7 @@ class SendViewModel: ViewModel {
     
     func onAppear() {
         validateClipboard()
-        
-        oldCardAlert = AlertManager().getAlert(.oldDeviceOldCard, for: cardViewModel.cardInfo.card)
+        warnings = warningsManager.warnings(for: .send)
     }
     
     func validateClipboard() {
@@ -559,6 +573,12 @@ class SendViewModel: ViewModel {
                 self.cardViewModel.onSign(signResponse)
             })
             .store(in: &bag)
+    }
+    
+    func warningButtonAction(at index: Int, priority: WarningPriority) {
+        guard let warning = warnings.warning(at: index, with: priority) else { return }
+        
+        warningsManager.hideWarning(warning)
     }
     
     func openSystemSettings() {
