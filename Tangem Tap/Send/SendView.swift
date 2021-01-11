@@ -34,7 +34,14 @@ struct SendView: View {
                         Spacer()
                     }
                     .padding(.bottom)
-                    .alert(item: self.$viewModel.oldCardAlert) { $0.alert }
+                    WarningListView(warnings: viewModel.warnings, warningButtonAction: { (index, priority) in
+                        withAnimation {
+                            self.viewModel.warningButtonAction(at: index, priority: priority)
+                        }
+                    })
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, -20)
+                    .padding(.bottom, 16)
 					TextInputField(placeholder: self.addressHint,
 								   text: self.$viewModel.destination,
 								   suplementView: {
