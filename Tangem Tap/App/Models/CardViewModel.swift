@@ -39,17 +39,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canSign: Bool {
-        let isPin2Default = cardInfo.card.isPin2Default ?? true
-        let hasSmartSecurityDelay = cardInfo.card.settingsMask?.contains(.smartSecurityDelay) ?? false
-        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
-        
-        if let fw = cardInfo.card.firmwareVersionValue, fw < 2.28 {
-            if let securityDelay = cardInfo.card.pauseBeforePin2, securityDelay > 1500 && !canSkipSD {
-                return false
-            }
-        }
-        
-        return true
+        cardInfo.card.canSign
     }
     
     var canPurgeWallet: Bool {
