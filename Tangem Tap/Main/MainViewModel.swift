@@ -13,23 +13,28 @@ import BlockchainSdk
 import TangemSdk
 
 class MainViewModel: ViewModel {
+    
+    // MARK: Dependencies -
     weak var imageLoaderService: ImageLoaderService!
     weak var topupService: TopupService!
 	weak var userPrefsService: UserPrefsService!
+    weak var cardsRepository: CardsRepository!
     
 	var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
+    
+    private unowned var warningsManager: WarningsManager
+    
+    // MARK: Variables
     
     var amountToSend: Amount? = nil
     var persistentBag = Set<AnyCancellable>()
     var bag = Set<AnyCancellable>()
     var walletBag = Set<AnyCancellable>()
-    weak var cardsRepository: CardsRepository!
     
-    //Mark: Input
     @Published var isRefreshing = false
     
-    //Mark: Output
+    //MARK: - Output
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
@@ -43,11 +48,24 @@ class MainViewModel: ViewModel {
             bind()
         }
     }
+    
+    @ObservedObject var warnings: WarningsContainer = .init() {
+        didSet {
+            warnings.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] in
+                    withAnimation {
+                        self?.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
 	
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
-	
-	private var hashesCountSubscription: AnyCancellable?
+    
+    private var isHashesCounted = false
     
     public var canCreateWallet: Bool {
         if let state = state.cardModel?.state,
@@ -136,7 +154,15 @@ class MainViewModel: ViewModel {
     var canCreateTwinWallet: Bool {
         state.cardModel?.canCreateTwinCard ?? false
     }
+    
+    // MARK: Initialization
+    
+    init(warningsManager: WarningsManager) {
+        self.warningsManager = warningsManager
+    }
 
+    // MARK: - Functions
+    
     func bind() {
         state.cardModel?
             .objectWillChange
@@ -221,9 +247,10 @@ class MainViewModel: ViewModel {
 			guard let self = self else { return }
             switch scanResult {
             case .success(let state):
+                self.fetchWarnings()
                 self.selectedAddressIndex = 0
                 self.state = state
-                self.hashesCountSubscription?.cancel()
+                self.isHashesCounted = false
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
 					self.showUntrustedDisclaimerIfNeeded()
@@ -235,6 +262,10 @@ class MainViewModel: ViewModel {
             }
             self.isScanning = false
         }
+    }
+    
+    func fetchWarnings() {
+        self.warnings = self.warningsManager.warnings(for: .main)
     }
     
     func createWallet() {
@@ -286,25 +317,36 @@ class MainViewModel: ViewModel {
             return
         }
         
-        guard self.error == nil else {
-            return
-        }
-        
-        if card.cardType != .release {
-            self.setError(AlertManager().getAlert(.devCard, for: card))
-        } else {
+        if card.cardType == .release {
             validateHashesCount()
         }
     }
     
     func onAppear() {
-        if !self.showTwinCardOnboardingIfNeeded() {
-            self.showUntrustedDisclaimerIfNeeded()
-        }
+        fetchWarnings()
+		if !showTwinCardOnboardingIfNeeded() {
+			showUntrustedDisclaimerIfNeeded()
+		}
+		
         assembly.reset()
     }
+    
+    func warningButtonAction(at index: Int, priority: WarningPriority) {
+        guard let warning = warnings.warning(at: index, with: priority) else { return }
+
+        if let cardId = state.card?.cardId,
+           case .numberOfSignedHashesIncorrect = warning.event {
+            validatedSignedHashesCards.append(cardId)
+        }
+        
+        warningsManager.hideWarning(warning)
+    }
+    
+    // MARK: - Private functions
 	
 	private func validateHashesCount() {
+        if isHashesCounted { return }
+        
 		guard let card = state.card else { return }
 		
 		if card.isTwinCard { return }
@@ -314,7 +356,7 @@ class MainViewModel: ViewModel {
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
 		func showUntrustedCardAlert() {
-			setError(AlertManager().getAlert(.untrustedCard, for: card))
+            self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
 		}
 		
 		guard
@@ -324,22 +366,20 @@ class MainViewModel: ViewModel {
 			return
 		}
 		
-		hashesCountSubscription = validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
+        isHashesCounted = true
+        
+		validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
             .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
-			.sink(receiveCompletion: { [unowned self] failure in
-                guard !self.isScanning && !self.navigation.showQRAddress && !self.navigation.showCreatePayID else {
-                    return
-                }
-                
-				defer { self.validatedSignedHashesCards.append(cardId) }
+			.sink(receiveCompletion: { failure in
 				switch failure {
 				case .finished:
-					return
+					break
 				case .failure:
 					showUntrustedCardAlert()
 				}
 			}, receiveValue: { _ in })
+            .store(in: &bag)
 	}
 		
 	private func showTwinCardOnboardingIfNeeded() -> Bool {
