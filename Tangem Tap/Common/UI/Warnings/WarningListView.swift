@@ -16,7 +16,7 @@ struct WarningListView: View {
     private let transition = AnyTransition.scale.combined(with: .opacity)
     
     var body: some View {
-        VStack(spacing: spacing) {
+        Group {
             ForEach(Array(warnings.criticals.enumerated()), id: \.element) { (i, item) in
                 WarningView(warning: warnings.criticals[i]) {
                     self.buttonAction(at: i, priority: .critical)
