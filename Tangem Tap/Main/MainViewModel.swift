@@ -19,11 +19,10 @@ class MainViewModel: ViewModel {
     weak var topupService: TopupService!
 	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
+    weak var warningsManager: WarningsManager!
     
-	var navigation: NavigationCoordinator!
+	weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    
-    private unowned var warningsManager: WarningsManager
     
     // MARK: Variables
     
@@ -68,6 +67,10 @@ class MainViewModel: ViewModel {
     private var isHashesCounted = false
     
     public var canCreateWallet: Bool {
+        if isTwinCard {
+            return state.cardModel?.canCreateTwinCard ?? false
+        }
+        
         if let state = state.cardModel?.state,
            case .empty = state {
             return true
@@ -151,16 +154,6 @@ class MainViewModel: ViewModel {
 		state.cardModel?.isTwinCard ?? false
 	}
     
-    var canCreateTwinWallet: Bool {
-        state.cardModel?.canCreateTwinCard ?? false
-    }
-    
-    // MARK: Initialization
-    
-    init(warningsManager: WarningsManager) {
-        self.warningsManager = warningsManager
-    }
-
     // MARK: - Functions
     
     func bind() {
@@ -274,7 +267,7 @@ class MainViewModel: ViewModel {
         }
 		
 		if cardModel.isTwinCard {
-			navigation.showTwinsWalletWarning = true
+			navigation.mainToTwinsWalletWarning = true
 		} else {
 			self.isCreatingWallet = true
 			cardModel.createWallet() { [weak self] result in
@@ -300,7 +293,7 @@ class MainViewModel: ViewModel {
         let hasTokenAmounts = wallet.amounts.values.filter { $0.type.isToken && !$0.isEmpty }.count > 0
         
         if hasTokenAmounts {
-            navigation.showSendChoise = true
+            navigation.mainToSendChoise = true
         } else {
             amountToSend = Amount(with: wallet.amounts[.coin]!, value: 0)
             showSendScreen() 
@@ -309,7 +302,7 @@ class MainViewModel: ViewModel {
     
     func showSendScreen() {
         assembly.reset()
-        navigation.showSend = true
+        navigation.mainToSend = true
     }
     
     func showUntrustedDisclaimerIfNeeded() {
@@ -387,7 +380,7 @@ class MainViewModel: ViewModel {
 		
 		if userPrefsService.isTwinCardOnboardingWasDisplayed { return false }
 		
-		navigation.showTwinCardOnboarding = true
+		navigation.mainToTwinOnboarding = true
 		return true
 	}
     
