@@ -67,13 +67,14 @@ class Assembly {
 			restored.state = cardsRepository.lastScanResult
             return restored
         }
-        let vm =  MainViewModel(warningsManager: warningsService)
+        let vm =  MainViewModel()
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
         vm.topupService = topupService
         vm.state = cardsRepository.lastScanResult
 		vm.userPrefsService = userPrefsService
+        vm.warningsManager = warningsService
         return vm
     }
     
@@ -124,21 +125,21 @@ class Assembly {
 		let name = String(describing: DisclaimerViewModel.self) + "_\(state)"
 		let isTwin = cardsRepository.lastScanResult.cardModel?.isTwinCard ?? false
 		if let vm: DisclaimerViewModel = get(key: name) {
-			vm.isTwinCard = isTwin
-			vm.state = state
+            vm.isTwinCard = isTwin
 			return vm
 		}
 		
-		let vm = DisclaimerViewModel(isTwinCard: isTwin)
+		let vm = DisclaimerViewModel()
         vm.state = state
+        vm.isTwinCard = isTwin
         vm.userPrefsService = userPrefsService
 		initialize(vm, with: name)
         return vm
     }
     
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
-
         if let restored: DetailsViewModel = get() {
+            restored.cardModel = card
             return restored
         }
         
@@ -195,7 +196,7 @@ class Assembly {
 	}
 	
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
-		let key = String(describing: TwinCardOnboardingView.self) + "_" + state.storageKey
+		let key = String(describing: TwinCardOnboardingViewModel.self) + "_" + state.storageKey
 		if let vm: TwinCardOnboardingViewModel = get(key: key) {
 			return vm
 		}
@@ -207,8 +208,9 @@ class Assembly {
 	}
 	
 	func makeTwinsWalletCreationViewModel(isRecreating: Bool) -> TwinsWalletCreationViewModel {
-		let twinInfo = cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo!
-		twinsWalletCreationService.setupTwins(for: twinInfo)
+        if let twinInfo = cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo {
+            twinsWalletCreationService.setupTwins(for: twinInfo)
+        }
 		if let vm: TwinsWalletCreationViewModel = get() {
 			vm.walletCreationService = twinsWalletCreationService
 			return vm
@@ -232,10 +234,13 @@ class Assembly {
 	}
     
     public func reset() {
-        let mainKey = String(describing: type(of: MainViewModel.self))
-        let readKey = String(describing: type(of: ReadViewModel.self))
+        var persistentKeys = [String]()
+        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
+        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
+        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
+        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
         
-        let indicesToRemove = modelsStorage.keys.filter { $0 != mainKey && $0 != readKey }
+        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
         indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
     }
 	
