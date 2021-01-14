@@ -50,9 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITableView.appearance().tableFooterView = UIView()
         }
         
-        #if RELEASE
         FirebaseApp.configure()
-        #endif
         
         return true
     }
