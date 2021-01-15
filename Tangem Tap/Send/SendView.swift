@@ -56,7 +56,7 @@ struct SendView: View {
 											if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
 												self.viewModel.showCameraDeniedAlert = true
 											} else {
-												self.viewModel.navigation.showQR = true
+												self.viewModel.navigation.sendToQR = true
 											}
 										},
 										backgroundColor: .tangemTapBgGray,
@@ -64,7 +64,7 @@ struct SendView: View {
 										isSystemImage: false,
 										imageColor: .tangemTapGrayDark6
 									)
-									.sheet(isPresented: self.$viewModel.navigation.showQR) {
+									.sheet(isPresented: self.$viewModel.navigation.sendToQR) {
 										QRScannerView(code: self.$viewModel.destination,
 													  codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
 											.edgesIgnoringSafeArea(.all)
