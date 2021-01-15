@@ -35,9 +35,7 @@ struct WarningView: View {
     var buttonAction: () -> Void = { }
     
     var body: some View {
-        ZStack(alignment: .leading) {
-            warning.priority.backgroundColor
-                .cornerRadius(6)
+        HStack {
             VStack(alignment: .leading, spacing: 0) {
                 Text(warning.title)
                     .font(.system(size: 14, weight: .bold))
@@ -46,11 +44,11 @@ struct WarningView: View {
                     .foregroundColor(.white)
                 Text(warning.message)
                     .font(.system(size: 13, weight: .medium))
-                    .lineSpacing(8)
                     .fixedSize(horizontal: false, vertical: true)
+                    .lineSpacing(8)
                     .foregroundColor(warning.priority.messageColor)
                     .padding(.bottom, warning.type.isWithAction ? 8 : 16)
-                    
+                
                 if warning.type.isWithAction {
                     HStack {
                         Spacer()
@@ -63,10 +61,11 @@ struct WarningView: View {
                     .padding(EdgeInsets(top: 0, leading: 20, bottom: 16, trailing: 20))
                 }
             }
-            .padding(.horizontal, 20)
+            Spacer()
         }
-        .padding(.horizontal, 16)
-        
+        .padding(.horizontal, 20)
+        .background(warning.priority.backgroundColor)
+        .cornerRadius(6)
     }
 }
 
