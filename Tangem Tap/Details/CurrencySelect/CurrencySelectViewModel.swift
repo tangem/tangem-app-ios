@@ -12,8 +12,7 @@ import Combine
 class CurrencySelectViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
-    
-    @Published var navigation: NavigationCoordinator!
+    weak var navigation: NavigationCoordinator!
     
     @Published var loading: Bool = false
     @Published var currencies: [FiatCurrency] = []
