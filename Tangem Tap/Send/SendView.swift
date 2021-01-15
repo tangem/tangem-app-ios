@@ -114,7 +114,7 @@ struct SendView: View {
                                             textColor: UIColor.tangemTapGrayDark6,
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
                                             placeholder: "",
-                                            decimalCount: self.viewModel.cardViewModel.state.wallet?.blockchain.decimalCount)
+                                            decimalCount: self.viewModel.inputDecimalsCount)
                             Button(action: {
                                 self.viewModel.isFiatCalculation.toggle()
                             }) { HStack(alignment: .center, spacing: 8.0) {
