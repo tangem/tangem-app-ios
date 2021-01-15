@@ -50,8 +50,7 @@ class TwinsWalletCreationViewModel: ViewModel {
 			}
 		}
 	}
-	
-	@Published var navigation: NavigationCoordinator!
+
 	@Published var step: Step = .first
 	@Published var error: AlertBinder?
 	@Published var finishedWalletCreation: Bool = false
@@ -67,6 +66,7 @@ class TwinsWalletCreationViewModel: ViewModel {
 	
 	private var isFirstTimeAppeared: Bool = false
 	
+    weak var navigation: NavigationCoordinator!
 	weak var assembly: Assembly!
 	weak var imageLoaderService: ImageLoaderService!
 	
