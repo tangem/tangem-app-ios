@@ -183,7 +183,11 @@ class MainViewModel: ViewModel {
                         .map { $0.isLoading }
                         .filter { !$0 }
                         .receive(on: RunLoop.main)
-                        .assign(to: \.isRefreshing, on: self)
+                        .sink {[unowned self] isRefreshing in
+                            withAnimation {
+                            self.isRefreshing = isRefreshing
+                            }
+                        }
                         .store(in: &walletBag)
                 }
             }
@@ -197,7 +201,9 @@ class MainViewModel: ViewModel {
                     cardModel.update()
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.isRefreshing = false
+                        withAnimation {
+                            self.isRefreshing = false
+                        }
                     }
                 }
                 
