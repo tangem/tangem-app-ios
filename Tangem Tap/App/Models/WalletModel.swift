@@ -140,7 +140,7 @@ class WalletModel: ObservableObject, Identifiable {
                                                 hasTransactionInProgress: wallet.hasPendingTx,
                                                 isLoading: isLoading,
                                                 loadingError: state.error?.localizedDescription,
-                                                name: wallet.blockchain.tokenDisplayName,
+                                                name: wallet.amounts[.token(value: token)]?.currencySymbol ?? "",
                                                 fiatBalance: getFiatFormatted(for: wallet.amounts[.token(value: token)]) ?? " ",
                                                 balance: wallet.amounts[.token(value: token)]?.description ?? "-",
                                                 secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
