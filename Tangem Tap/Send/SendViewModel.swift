@@ -20,7 +20,7 @@ struct TextHint {
 }
 
 class SendViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
     weak var featuresService: AppFeaturesService!
