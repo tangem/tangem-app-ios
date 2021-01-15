@@ -40,7 +40,7 @@ class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
         #if DEBUG
         settings.minimumFetchInterval = 0
         #else
-        settings.minimumFetchInterval = 3600
+        settings.minimumFetchInterval = 1200
         #endif
         config.configSettings = settings
         features = try JsonReader.readBundleFile(with: featuresFileName, type: TapFeatures.self)
@@ -51,7 +51,7 @@ class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
         config.fetchAndActivate { [weak self] (status, error) in
             guard let self = self else { return }
             
-//            self.setupFeatures()
+            self.setupFeatures()
             self.setupWarnings()
         }
     }
