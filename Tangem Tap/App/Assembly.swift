@@ -184,7 +184,7 @@ class Assembly {
         return vm
     }
 	
-	func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
+    func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
 		let scanResult = cardsRepository.lastScanResult
         let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
         let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series?.pair.number ?? 1)
@@ -198,6 +198,7 @@ class Assembly {
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
 		let key = String(describing: TwinCardOnboardingViewModel.self) + "_" + state.storageKey
 		if let vm: TwinCardOnboardingViewModel = get(key: key) {
+            vm.state = state
 			return vm
 		}
 		
