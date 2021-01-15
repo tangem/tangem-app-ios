@@ -11,7 +11,7 @@ import SwiftUI
 
 struct ReadView: View {
     @ObservedObject var viewModel: ReadViewModel
-	@EnvironmentObject var navigation: NavigationCoordinator
+    @EnvironmentObject var navigation: NavigationCoordinator
     
     var cardScale: CGFloat {
         switch viewModel.state {
@@ -68,11 +68,29 @@ struct ReadView: View {
         }
     }
     
+    var navigationLinks: AnyView {
+        Group {
+            // MARK: - Navigation links
+            NavigationLink(destination:
+                            MainView(viewModel: viewModel.assembly.makeMainViewModel()),
+                           isActive: $navigation.readToMain)
+            
+            NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
+                           isActive: $navigation.readToDisclaimer)
+            
+            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
+                           isActive: $navigation.readToTwinOnboarding)
+            
+            NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
+                           isActive: $navigation.readToShop)
+        }.toAnyView()
+    }
+    
     var body: some View {
-        NavigationView {
-            ZStack {
-            VStack(alignment: .leading, spacing: 0) {
-                GeometryReader { geo in
+        VStack(alignment: .leading, spacing: 0) {
+            navigationLinks
+            
+            GeometryReader { geo in
                 ZStack {
                     CircleView().offset(x: 0.1 * CircleView.diameter, y: -0.1 * CircleView.diameter)
                     CardRectView(withShadow: self.viewModel.state != .read)
@@ -86,69 +104,51 @@ struct ReadView: View {
                     }
                 }
                 .frame(width: geo.size.width, height: geo.size.height)
+            }
+            .frame(minHeight: nil,
+                   idealHeight: 390,
+                   maxHeight: 390)
+            Spacer()
+            
+            Text(titleKey)
+                .font(Font.system(size: 29.0, weight: .light, design: .default))
+                .foregroundColor(Color.tangemTapGrayDark6)
+                .padding(.leading, 16)
+                .padding(.trailing, 50)
+            Spacer()
+            
+            HStack(spacing: 8.0) {
+                if viewModel.state == .welcome ||
+                    viewModel.state == .welcomeBack {
+                    TangemButton(isLoading: false,
+                                 title: blackButtonTitleKey,
+                                 image: "shopBag" ) {
+                        navigation.readToShop = true
+                    }.buttonStyle(TangemButtonStyle(color: .black))
+                } else {
+                    Color.clear.frame(width: ButtonSize.small.value.width, height: ButtonSize.small.value.height)
                 }
-                .frame(minHeight: nil,
-                       idealHeight: 390,
-                       maxHeight: 390)
-                Spacer()
-                
-                    Text(titleKey)
-                        .font(Font.system(size: 29.0, weight: .light, design: .default))
-                        .foregroundColor(Color.tangemTapGrayDark6)
-                        .padding(.leading, 16)
-                        .padding(.trailing, 50)
-                Spacer()
-                
-                HStack(spacing: 8.0) {
-                    if viewModel.state == .welcome ||
-                        viewModel.state == .welcomeBack {
-                        TangemButton(isLoading: false,
-                                     title: blackButtonTitleKey,
-                                     image: "shopBag" ) {
-                            self.navigation.openShop = true
-                        }.buttonStyle(TangemButtonStyle(color: .black))
-                    } else {
-                        Color.clear.frame(width: ButtonSize.small.value.width, height: ButtonSize.small.value.height)
-                    }
-                    TangemLongButton(isLoading: self.viewModel.isLoading,
+                TangemLongButton(isLoading: self.viewModel.isLoading,
                                  title: greenButtonTitleKey,
                                  image: "arrow.right") {
-                                    withAnimation {
-                                        self.viewModel.nextState()
-                                    }
-                                    switch self.viewModel.state {
-                                    case .read, .welcomeBack:
-                                        self.viewModel.scan()
-                                    default:
-                                        break
-                                    }
+                    withAnimation {
+                        self.viewModel.nextState()
                     }
-                    .buttonStyle(TangemButtonStyle(color: .green))
-                    Spacer()
+                    switch self.viewModel.state {
+                    case .read, .welcomeBack:
+                        self.viewModel.scan()
+                    default:
+                        break
+                    }
                 }
-                .padding([.leading, .bottom], 16.0)
+                .buttonStyle(TangemButtonStyle(color: .green))
+                Spacer()
             }
-            .edgesIgnoringSafeArea(.top)
-            .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
-            .alert(item: $viewModel.scanError) { $0.alert }
-				
-				// MARK: - Navigation links
-				NavigationLink(destination:
-								MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-							   isActive: $navigation.openMain)
-				
-				NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
-							   isActive: $navigation.openDisclaimer)
-				
-				NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
-							   isActive: $navigation.readOpenTwinCardOnboarding)
-				
-				NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
-							   isActive: $navigation.openShop)
-				// MARK: End Navigation -
-            }
+            .padding([.leading, .bottom], 16.0)
         }
-		.navigationViewStyle(StackNavigationViewStyle())
+        .edgesIgnoringSafeArea(.top)
+        .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
+        .alert(item: $viewModel.scanError) { $0.alert }
     }
 }
 
@@ -157,17 +157,8 @@ struct ReadView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-				.deviceForPreview(.iPhone11Pro)
-//                .previewLayout(.fixed(width: 320.0, height: 568))
-//                .previewDevice(PreviewDevice(rawValue: "iPhone 7"))
-//                .previewDisplayName("iPhone 7")
-//            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-//                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
-//                .previewDisplayName("iPhone 11 Pro Max")
-//            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-//                .previewDevice(PreviewDevice(rawValue: "iPhone 11 Pro Max"))
-//                .previewDisplayName("iPhone 11 Pro Max Dark")
-//                .environment(\.colorScheme, .dark)
+                .deviceForPreview(.iPhone11Pro)
+                .environmentObject(Assembly.previewAssembly.navigationCoordinator)
             
         }
     }
