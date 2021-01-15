@@ -178,7 +178,11 @@ struct TwinCardOnboardingView: View {
                     TangemButton(isLoading: false,
                                  title: "common_back",
                                  image: "", action: {
-                                    navigation.detailsToTwinsRecreateWarning = false
+                                    if !isRecreating {
+                                        navigation.mainToTwinsWalletWarning = false
+                                    } else {
+                                        navigation.detailsToTwinsRecreateWarning = false
+                                    }
                                  })
                         .buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
                     
