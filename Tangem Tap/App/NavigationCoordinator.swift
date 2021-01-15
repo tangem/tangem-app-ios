@@ -12,36 +12,112 @@ import Combine
 
 class NavigationCoordinator: ObservableObject {
     // MARK: ReadView
-    @Published var openMain: Bool = false
-    @Published var openShop: Bool = false
-    @Published var openDisclaimer: Bool = false
-	@Published var readOpenTwinCardOnboarding = false
-    
+    @Published var readToMain: Bool = false {
+        willSet {
+            print("nav: readToMain: \(newValue)")
+        }
+    }
+    @Published var readToShop: Bool = false {
+        willSet {
+            print("nav: readToShop: \(newValue)")
+        }
+    }
+    @Published var readToDisclaimer: Bool = false {
+        willSet {
+            print("nav: readToDisclaimer: \(newValue)")
+        }
+    }
+	@Published var readToTwinOnboarding = false {
+        willSet {
+            print("nav: readToTwinOnboarding: \(newValue)")
+        }
+    }
+     
     // MARK: DisclaimerView
-    @Published var openMainFromDisclaimer: Bool = false
-	@Published var openTwinCardOnboarding: Bool = false
+    @Published var disclaimerToMain: Bool = false {
+        willSet {
+            print("nav: disclaimerToMain: \(newValue)")
+        }
+    }
+    
+	@Published var disclaimerToTwinOnboarding: Bool = false {
+        willSet {
+            print("nav: disclaimerToTwinOnboarding: \(newValue)")
+        }
+    }
     
     // MARK: SecurityManagementView
-    @Published var openWarning: Bool = false
+    @Published var securityToWarning: Bool = false
+    {
+       willSet {
+           print("nav: securityToWarning: \(newValue)")
+       }
+   }
     
     // MARK: MainView
-    @Published var showSettings = false
-    @Published var showSend = false
-    @Published var showSendChoise = false
-    @Published var showCreatePayID = false
-    @Published var showTopup = false
-	@Published var showTwinCardOnboarding = false
-    @Published var showTwinsWalletWarning = false
-	@Published var showTwinsWalletCreation = false
-    @Published var showQRAddress = false
+    @Published var mainToSettings = false {
+        willSet {
+            print("nav: mainToSettings: \(newValue)")
+        }
+    }
+    
+    @Published var mainToSend = false {
+        willSet {
+            print("nav: mainToSend: \(newValue)")
+        }
+    }
+    
+    @Published var mainToSendChoise = false {
+        willSet {
+            print("nav: mainToSendChoise: \(newValue)")
+        }
+    }
+    @Published var mainToCreatePayID = false {
+        willSet {
+            print("nav: mainToCreatePayID: \(newValue)")
+        }
+    }
+    @Published var mainToTopup = false {
+        willSet {
+            print("nav: mainToTopup: \(newValue)")
+        }
+    }
+    @Published var mainToTwinOnboarding = false {
+        willSet {
+            print("nav: mainToTwinOnboarding: \(newValue)")
+        }
+    }
+    @Published var mainToTwinsWalletWarning = false {
+        willSet {
+            print("nav: mainToTwinsWalletWarning: \(newValue)")
+        }
+    }
+    @Published var mainToQR = false {
+        willSet {
+            print("nav: mainToQR: \(newValue)")
+        }
+    }
     
     // MARK: SendView
-    @Published var showQR = false
+    @Published var sendToQR = false {
+        willSet {
+            print("nav: sendToQR: \(newValue)")
+        }
+    }
 	
 	// MARK: TwinCardOnboardingView
-	@Published var onboardingOpenMain: Bool = false
-	@Published var onboardingOpenTwinCardWalletCreation: Bool = false
+	@Published var twinOnboardingToTwinWalletCreation: Bool = false  {
+        willSet {
+            print("nav: twinOnboardingToTwinWalletCreation: \(newValue)")
+        }
+    }
+    @Published var twinOnboardingToMain: Bool = false {
+        willSet {
+            print("nav: twinOnboardingToMain: \(newValue)")
+        }
+    }
 	
 	// MARK: DetailsView
-	@Published var detailsShowTwinsRecreateWarning: Bool = false
+    //All this stuff needed for fix permanent highlighting issues on ios 14
+    @Published var detailsToTwinsRecreateWarning: Bool = false //for back 
 }
