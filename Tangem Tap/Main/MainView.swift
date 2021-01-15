@@ -192,14 +192,9 @@ struct MainView: View {
                                 
                                 Color.clear.frame(width: 1, height: 1, alignment: .center)
                                     .sheet(isPresented: self.$navigation.mainToQR) {
-                                        // VStack {
-                                        //    Spacer()
                                         QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.viewModel.state.wallet!.blockchain.displayName),
                                                    shareString: self.viewModel.state.cardModel!.state.walletModel!.shareAddressString(for: self.viewModel.selectedAddressIndex))
                                             .transition(AnyTransition.move(edge: .bottom))
-                                        //   Spacer()
-                                        // }
-                                        // .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
                                     }
                             }
                         }
