@@ -183,7 +183,7 @@
 
 "details_row_title_erase_wallet" = "Annuler le portefeuille";
 
-
+"details_currency_search_placeholder" = "Recherche";
 
 "details_erase_wallet_warning" = "Cette action est irréversible. Si, après avoir annulé le portefeuille, quelqu'un lui envoie des fonds, vous ne pourrez pas les retirer.";
 
