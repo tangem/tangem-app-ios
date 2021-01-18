@@ -14,6 +14,8 @@
 
 "common_no" = "Non";
 
+"common_done" = "Exécuté";
+
 "common_continue" = "Continuer";
 
 "common_save_changes" = "Sauvegarder les modifications";
