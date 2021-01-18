@@ -419,6 +419,10 @@ class SendViewModel: ViewModel {
         warnings = warningsManager.warnings(for: .send)
     }
     
+    func onEnterForeground() {
+        validateClipboard()
+    }
+    
     func validateClipboard() {
         validatedClipboard = nil
         
