@@ -15,8 +15,14 @@ struct QRCodeView: View {
     let title: String
     let shareString: String
     @State var userBrightness: CGFloat = 0.5
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button("common_close") {
+                presentationMode.wrappedValue.dismiss()
+            }.padding()
+            Spacer()
         VStack {
             VStack(alignment: .center, spacing: 8.0) {
                 HStack {
@@ -37,13 +43,14 @@ struct QRCodeView: View {
             .padding(.all, 20.0)
         }
         .background(Color.white)
-            //.cornerRadius(20.0)
             .overlay(
                 RoundedRectangle(cornerRadius: 20.0)
                     .stroke(Color.tangemTapGrayDark, lineWidth: 1)
         )
             .padding(.horizontal, 12.0)
-            .onAppear {
+            Spacer()
+        }
+        .onAppear {
                 self.userBrightness = UIScreen.main.brightness
                 UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: 1.0)
         }
@@ -57,6 +64,7 @@ struct QRCodeView: View {
             self.userBrightness = UIScreen.main.brightness
             UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: 1.0)
         }
+        .navigationBarTitle("sdfasf")
     }
     
     
@@ -73,12 +81,12 @@ struct QRCodeView: View {
 
 struct QRCodeView_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            Spacer()
+       // VStack {
+        //    Spacer()
             QRCodeView(title: "Bitcoin Wallet",
                        shareString: "asdjfhaskjfwjb5khjv3kv3lb535345435cdgdcgdgjshdgjkewk345t3")
-            Spacer()
-        }
-        .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
+        //    Spacer()
+       // }
+      //  .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
     }
 }
