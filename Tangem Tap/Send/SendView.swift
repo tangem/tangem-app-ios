@@ -66,7 +66,7 @@ struct SendView: View {
                                         imageColor: .tangemTapGrayDark6
                                     )
                                     .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
-                                        QRScannerView(code: self.$viewModel.destination,
+                                        QRScanView(code: self.$viewModel.destination,
                                                       codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
                                             .edgesIgnoringSafeArea(.all)
                                     }
