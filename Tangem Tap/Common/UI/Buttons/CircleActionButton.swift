@@ -16,6 +16,7 @@ struct CircleActionButton: View {
 	let imageName: String
 	let isSystemImage: Bool
 	let imageColor: Color
+    var isDisabled = false
 	
     var body: some View {
 		Button(action: action, label: {
@@ -32,6 +33,7 @@ struct CircleActionButton: View {
 				}
 				.font(Font.system(size: 17.0, weight: .regular, design: .default))
 				.foregroundColor(imageColor)
+                .overlay( !isDisabled ? Color.clear : Color.white.opacity(0.4))
 			}
 		})
     }
