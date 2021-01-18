@@ -63,7 +63,7 @@ struct WarningView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 24)
         .background(warning.priority.backgroundColor)
         .cornerRadius(6)
     }
