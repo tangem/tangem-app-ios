@@ -78,6 +78,10 @@ class SendViewModel: ViewModel {
         .fields(for: cardViewModel.cardInfo.card)
     }
     
+    var inputDecimalsCount: Int? {
+        isFiatCalculation ? 2 : cardViewModel.state.wallet?.blockchain.decimalCount
+    }
+    
     @Published var isNetworkFeeBlockOpen: Bool = false
     
     // MARK: Output
