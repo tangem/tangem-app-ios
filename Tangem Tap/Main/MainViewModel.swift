@@ -246,9 +246,9 @@ class MainViewModel: ViewModel {
 			guard let self = self else { return }
             switch scanResult {
             case .success(let state):
-                self.fetchWarnings()
                 self.selectedAddressIndex = 0
                 self.state = state
+                self.fetchWarnings()
                 self.isHashesCounted = false
                 self.assembly.reset()
 				if !self.showTwinCardOnboardingIfNeeded() {
