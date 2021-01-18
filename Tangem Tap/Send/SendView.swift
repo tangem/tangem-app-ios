@@ -49,7 +49,8 @@ struct SendView: View {
                                                        backgroundColor: .tangemTapBgGray,
                                                        imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
                                                        isSystemImage: false,
-                                                       imageColor: .tangemTapGrayDark6)
+                                                       imageColor: .tangemTapGrayDark6,
+                                                       isDisabled: self.viewModel.validatedClipboard == nil)
                                         .disabled(self.viewModel.validatedClipboard == nil)
                                     CircleActionButton(
                                         action: {
