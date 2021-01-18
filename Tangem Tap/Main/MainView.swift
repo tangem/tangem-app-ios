@@ -264,13 +264,13 @@ struct MainView: View {
         .navigationBarHidden(isNavBarHidden)
         .ignoresKeyboard()
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-                    .filter {_ in !self.navigation.mainToSettings
-                        && !self.navigation.mainToSend
-                        && !self.navigation.mainToCreatePayID
+                    .filter {_ in !navigation.mainToSettings
+                        && !navigation.mainToSend
+                        && navigation.mainToCreatePayID
                     }
                     .delay(for: 0.3, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
-            self.viewModel.state.cardModel?.update()
+            viewModel.state.cardModel?.update()
         }
         .alert(item: $viewModel.error) { $0.alert }
     }
