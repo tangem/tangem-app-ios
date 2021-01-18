@@ -57,11 +57,15 @@ struct FiatResponse: Codable {
     let data: [FiatCurrency]
 }
 
-struct FiatCurrency: Codable, Identifiable {
+struct FiatCurrency: Codable, Identifiable, CustomStringConvertible {
     let id: Int
     let name: String
     let sign: String
     let symbol: String
+    
+    var description: String {
+        "\(name) (\(symbol)) - \(sign)"
+    }
 }
 
 struct RateInfoResponse: Codable {
