@@ -17,7 +17,7 @@ struct CustomTextField: UIViewRepresentable {
         @Binding var isResponder : Bool?
         @Binding var actionButtonTapped: Bool
         let placeholder: String
-        let decimalCount: Int?
+        var decimalCount: Int?
         let defaultStringToClear: String?
         
         init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
@@ -177,7 +177,7 @@ struct CustomTextField: UIViewRepresentable {
     
     func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
         uiView.text = text
-        
+        context.coordinator.decimalCount = decimalCount
         if isResponder ?? false {
             DispatchQueue.main.async {
                 uiView.becomeFirstResponder()
