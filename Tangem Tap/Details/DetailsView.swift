@@ -45,6 +45,20 @@ struct HeaderView: View {
     }
 }
 
+struct FooterView: View {
+    var text: String
+    var body: some View {
+        HStack {
+            Text(text)
+                .font(.footnote)
+                .foregroundColor(.tangemTapGrayDark)
+                .padding()
+        }
+        .background(Color.tangemTapBgGray)
+        .listRowInsets(EdgeInsets())
+    }
+}
+
 struct DetailsDestination: Identifiable {
     let id: Int
     let destination: AnyView
@@ -88,10 +102,10 @@ struct DetailsView: View {
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
             }
             
-            Section(header: HeaderView(text: "details_section_title_card".localized)) {
-//                NavigationLink(destination:CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel())) {
-//                                    DetailsRowView(title: "details_row_title_validate".localized, subtitle: "")
-//                                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+            Section(header: HeaderView(text: "details_section_title_card".localized),
+                    footer: !viewModel.isTwinCard && !viewModel.cardModel.canPurgeWallet ?
+                        FooterView(text: "details_notification_erase_wallet_not_possible".localized).toAnyView()
+                        : EmptyView().toAnyView()) {
                 
                 NavigationLink(destination: SecurityManagementView(viewModel:
                                                                     viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
@@ -111,7 +125,6 @@ struct DetailsView: View {
                     .disabled(!viewModel.cardModel.canRecreateTwinCard)
                     
                 } else {
-                    
                     NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
                                                                   buttonTitle: "details_row_title_erase_wallet",
                                                                   alert: "details_erase_wallet_warning".localized,
@@ -124,6 +137,7 @@ struct DetailsView: View {
                     .disabled(!viewModel.cardModel.canPurgeWallet)
                 }
             }
+            
             Section(header: Color.tangemTapBgGray
                         .listRowInsets(EdgeInsets())) {
                 EmptyView()
