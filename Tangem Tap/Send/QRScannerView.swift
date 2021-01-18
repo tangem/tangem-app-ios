@@ -11,6 +11,29 @@ import UIKit
 import AVFoundation
 import SwiftUI
 
+struct QRScanView: View {
+    @Binding var code: String
+    var codeMapper: ((String) -> String)? = nil
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button("common_done") {
+                presentationMode.wrappedValue.dismiss()
+            }.padding()
+            QRScannerView(code: $code, codeMapper: codeMapper)
+                .edgesIgnoringSafeArea(.bottom)
+        }
+    }
+}
+
+struct QRScanView_Previews: PreviewProvider {
+    @State static var code: String = "asdfaf"
+    static var previews: some View {
+        QRScanView(code: $code)
+    }
+}
+
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
     var codeMapper: ((String) -> String)? = nil
