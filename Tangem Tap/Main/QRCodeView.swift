@@ -19,40 +19,40 @@ struct QRCodeView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Button("common_close") {
+            Button("common_done") {
                 presentationMode.wrappedValue.dismiss()
             }.padding()
             Spacer()
-        VStack {
-            VStack(alignment: .center, spacing: 8.0) {
-                HStack {
-                    Text(title)
-                        .font(Font.system(size: 30.0, weight: .bold, design: .default) )
-                        .foregroundColor(Color.tangemTapGrayDark6)
-                    Spacer()
+            VStack {
+                VStack(alignment: .center, spacing: 8.0) {
+                    HStack {
+                        Text(title)
+                            .font(Font.system(size: 30.0, weight: .bold, design: .default) )
+                            .foregroundColor(Color.tangemTapGrayDark6)
+                        Spacer()
+                    }
+                    Image(uiImage: self.getQrCodeImage(width: 300.0, height: 300.0))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .padding(.all, 20.0)
+                    Text(shareString)
+                        .font(Font.system(size: 13.0, weight: .regular, design: .default) )
+                        .foregroundColor(Color.tangemTapGrayDark)
+                        .multilineTextAlignment(.center)
                 }
-                Image(uiImage: self.getQrCodeImage(width: 300.0, height: 300.0))
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .padding(.all, 20.0)
-                Text(shareString)
-                    .font(Font.system(size: 13.0, weight: .regular, design: .default) )
-                    .foregroundColor(Color.tangemTapGrayDark)
-                    .multilineTextAlignment(.center)
+                .padding(.all, 20.0)
             }
-            .padding(.all, 20.0)
-        }
-        .background(Color.white)
+            .background(Color.white)
             .overlay(
                 RoundedRectangle(cornerRadius: 20.0)
                     .stroke(Color.tangemTapGrayDark, lineWidth: 1)
-        )
+            )
             .padding(.horizontal, 12.0)
             Spacer()
         }
         .onAppear {
-                self.userBrightness = UIScreen.main.brightness
-                UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: 1.0)
+            self.userBrightness = UIScreen.main.brightness
+            UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: 1.0)
         }
         .onWillDisappear {
             UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: self.userBrightness)
@@ -81,12 +81,7 @@ struct QRCodeView: View {
 
 struct QRCodeView_Previews: PreviewProvider {
     static var previews: some View {
-       // VStack {
-        //    Spacer()
-            QRCodeView(title: "Bitcoin Wallet",
-                       shareString: "asdjfhaskjfwjb5khjv3kv3lb535345435cdgdcgdgjshdgjkewk345t3")
-        //    Spacer()
-       // }
-      //  .background(Color(red: 0, green: 0, blue: 0, opacity: 0.74))
+        QRCodeView(title: "Bitcoin Wallet",
+                   shareString: "asdjfhaskjfwjb5khjv3kv3lb535345435cdgdcgdgjshdgjkewk345t3")
     }
 }
