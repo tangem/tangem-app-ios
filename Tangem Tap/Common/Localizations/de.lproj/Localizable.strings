@@ -12,6 +12,8 @@
 
 "common_ok" = "OK";
 
+"common_done" = "Erledigt";
+
 "common_no" = "Nein";
 
 "common_continue" = "Fortsetzen";
@@ -177,7 +179,7 @@
 
 "details_row_title_erase_wallet" = "Wallet löschen";
 
-
+"details_currency_search_placeholder" = "Suche";
 
 "details_erase_wallet_warning" = "Dieser Vorgang ist irriversibel. Wenn jemand nach dem Löschen des Wallets Geld überweist, können Sie es nicht mehr abheben.";
 
@@ -201,7 +203,7 @@
 
 "alert_old_device_this_card" = "Sie können NFC-Probleme mit einigen iPhone 7/7+ während der Extraktion haben";
 
-"alert_card_signed_transactions" = "Warnung: Diese Karte wurde früher bereits aufgeladen und Transaktionen wurden damit signiert.\n Ziehen Sie eine sofortige Auszahlung aller Beträge in Betracht, wenn Sie diese Karte von einer nicht vertrauenswürdigen Quelle erhalten haben.";
+"alert_card_signed_transactions" = "Diese Karte wurde früher bereits aufgeladen und Transaktionen wurden damit signiert. Ziehen Sie eine sofortige Auszahlung aller Beträge in Betracht, wenn Sie diese Karte von einer nicht vertrauenswürdigen Quelle erhalten haben.";
 
 "alert_unsupported_card" = "Diese Karte ist für die Zusammenarbeit mit Tangem Tap nicht geeignet";
 
