@@ -12,6 +12,8 @@
 
 "common_ok" = "OK";
 
+"common_done" = "Fatto";
+
 "common_no" = "No";
 
 "common_save_changes" = "Mantieni le modifiche";
@@ -183,7 +185,7 @@
 
 "details_row_title_erase_wallet" = "Cancella il portafoglio";
 
-
+"details_currency_search_placeholder" = "Cerca";
 
 "details_erase_wallet_warning" = "Questa azione è irreversibile. Se dopo aver eliminato il portafoglio qualcuno invia dei fondi, non potrai ritirarli.";
 
@@ -233,7 +235,6 @@
 
 
 "payid_service_error_loading" = "PayString non valido";
-
 
 "disclaimer_text" = "NOTA LEGALE
 
