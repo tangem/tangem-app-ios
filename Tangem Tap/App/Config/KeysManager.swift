@@ -44,7 +44,7 @@ class KeysManager {
     }
     
     init() throws {
-        keys = try JsonFileReader.readBundleFile(with: keysFileName, type: Keys.self)
+        keys = try JsonReader.readBundleFile(with: keysFileName, type: Keys.self)
         if keys.blockchairApiKey.isEmpty ||
             keys.blockcypherTokens.isEmpty ||
             keys.infuraProjectId.isEmpty {

@@ -18,11 +18,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var featuresService: AppFeaturesService!
     var payIDService: PayIDService? = nil
     weak var tangemSdk: TangemSdk!
-    weak var assembly: Assembly! {
-        didSet {
-            updateState()
-        }
-    }
+    weak var assembly: Assembly!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -43,17 +39,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canSign: Bool {
-        let isPin2Default = cardInfo.card.isPin2Default ?? true
-        let hasSmartSecurityDelay = cardInfo.card.settingsMask?.contains(.smartSecurityDelay) ?? false
-        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
-        
-        if let fw = cardInfo.card.firmwareVersionValue, fw < 2.28 {
-            if let securityDelay = cardInfo.card.pauseBeforePin2, securityDelay > 1500 && !canSkipSD {
-                return false
-            }
-        }
-        
-        return true
+        cardInfo.card.canSign
     }
     
     var canPurgeWallet: Bool {
@@ -310,6 +296,16 @@ class CardViewModel: Identifiable, ObservableObject {
 		updateState()
 	}
     
+    func updateState() {
+        if let wm = self.assembly.makeWalletModel(from: cardInfo) {
+            self.state = .loaded(walletModel: wm)
+        } else {
+            self.state = .empty
+        }
+        
+        update()
+    }
+    
     private func updateCurrentSecOption() {
         if !(cardInfo.card.isPin1Default ?? true) {
             self.currentSecOption = .accessCode
@@ -319,16 +315,6 @@ class CardViewModel: Identifiable, ObservableObject {
         else {
             self.currentSecOption = .longTap
         }
-    }
-    
-    private func updateState() {
-        if let wm = self.assembly.makeWalletModel(from: cardInfo) {
-            self.state = .loaded(walletModel: wm)
-        } else {
-            self.state = .empty
-        }
-        
-        update()
     }
 }
 
@@ -378,4 +364,9 @@ extension CardViewModel {
         let assembly = Assembly.previewAssembly
         return assembly.cardsRepository.cards[Card.testCardNoWallet.cardId!]!.cardModel!
     }
+	
+	static var previewTwinCardViewModel: CardViewModel {
+		let assembly = Assembly.previewAssembly
+		return assembly.cardsRepository.cards[Card.testTwinCard.cardId!]!.cardModel!
+	}
 }
