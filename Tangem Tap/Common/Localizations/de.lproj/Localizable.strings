@@ -12,6 +12,8 @@
 
 "common_ok" = "OK";
 
+"common_done" = "Erledigt";
+
 "common_no" = "Nein";
 
 "common_continue" = "Fortsetzen";
@@ -177,7 +179,7 @@
 
 "details_row_title_erase_wallet" = "Wallet löschen";
 
-
+"details_currency_search_placeholder" = "Suche";
 
 "details_erase_wallet_warning" = "Dieser Vorgang ist irriversibel. Wenn jemand nach dem Löschen des Wallets Geld überweist, können Sie es nicht mehr abheben.";
 
