@@ -14,6 +14,8 @@
 
 "common_ok" = "OK";
 
+"common_done" = "Done";
+
 "common_no" = "No";
 
 "common_continue" = "Continue";
@@ -214,7 +216,7 @@
 
 "details_row_title_erase_wallet" = "Erase wallet";
 
-
+"details_currency_search_placeholder" = "Search";
 
 "details_erase_wallet_warning" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
 
