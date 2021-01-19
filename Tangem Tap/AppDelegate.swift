@@ -49,8 +49,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // To remove only extra separators below the list:
             UITableView.appearance().tableFooterView = UIView()
         }
-
-		FirebaseApp.configure()
+        
+        #if RELEASE
+        FirebaseApp.configure()
+        #endif
+        
         return true
     }
 
