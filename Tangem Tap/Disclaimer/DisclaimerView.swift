@@ -11,64 +11,62 @@ import SwiftUI
 
 struct DisclaimerView: View {
     @ObservedObject var viewModel: DisclaimerViewModel
-	@EnvironmentObject var navigation: NavigationCoordinator
+    @EnvironmentObject var navigation: NavigationCoordinator
     
     @Environment(\.presentationMode) var presentationMode
-	
+    
     private let disclaimerTitle: LocalizedStringKey = "disclaimer_title"
     
+    var navigationLinks: AnyView {
+        Group {
+            if viewModel.state == .accept { //prevent reuse shared navigation state
+                NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
+                               isActive: $navigation.disclaimerToTwinOnboarding)
+                  
+                NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
+                               isActive: $navigation.disclaimerToMain)
+            }
+        }.toAnyView()
+    }
+    
+    var isNavBarHidden: Bool { //prevent navbar glitches
+        if viewModel.state == .accept  && navigation.disclaimerToTwinOnboarding {
+           return true //hide navbar when navigate to twin onboarding
+        }
+    
+        return false
+    }
+    
     var body: some View {
-        VStack(alignment: .center) {
+        VStack(alignment: .trailing) {
+            ScrollView {
+                Text("disclaimer_text")
+                    .font(Font.system(size: 16, weight: .regular, design: .default))
+                    .foregroundColor(.tangemTapGrayDark2)
+                    .padding()
+            }
+            
             if viewModel.state == .accept {
-                NavigationBar(title: disclaimerTitle, settings: .init(backgroundColor: .white), leftButtons: {
-                    EmptyView()
-                })
-            } else {
-                NavigationBar(title: disclaimerTitle, backAction: {
-                    self.presentationMode.wrappedValue.dismiss()
-                })
+                button
+                    .padding([.bottom, .trailing])
             }
-            VStack(alignment: .trailing) {
-                
-                ScrollView {
-                    Text("disclaimer_text")
-                        .font(Font.system(size: 16, weight: .regular, design: .default))
-                        .foregroundColor(.tangemTapGrayDark2)
-                        .padding()
-                }
-                
-                if viewModel.state == .accept {
-                    button
-                        .padding([.bottom, .trailing])
-                }
-            }
+            
+            navigationLinks
         }
         .foregroundColor(.tangemTapGrayDark6)
-		.navigationBarTitle("", displayMode: .inline)
-        .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(true)
+        .navigationBarTitle("disclaimer_title")
+        .navigationBarBackButtonHidden(viewModel.state == .accept)
+        .navigationBarHidden(isNavBarHidden)
     }
-	
-	private var button: some View {
-		let button = TangemLongButton(isLoading: false,
-					 title: "common_accept",
-					 image: "arrow.right") {
-			self.viewModel.accept()
-		}
-		.buttonStyle(TangemButtonStyle(color: .green))
-		
-		if viewModel.isTwinCard && !navigation.openMainFromDisclaimer {
-			return NavigationButton(button: button,
-									navigationLink: NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
-														   isActive: $navigation.openTwinCardOnboarding))
-				.toAnyView()
-		} else {
-			return NavigationButton(button: button,
-							 navigationLink: NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-															isActive: $navigation.openMainFromDisclaimer))
-				.toAnyView()
-		}
-	}
+    
+    private var button: some View {
+        TangemLongButton(isLoading: false,
+                         title: "common_accept",
+                         image: "arrow.right") {
+            self.viewModel.accept()
+        }
+        .buttonStyle(TangemButtonStyle(color: .green))
+    }
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
