@@ -12,7 +12,7 @@ import TangemSdk
 import Combine
 
 class ReadViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     
     //injected
@@ -25,8 +25,8 @@ class ReadViewModel: ViewModel {
     @Published var isLoading: Bool = false
     @Published var scanError: AlertBinder?
     var shopURL = URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")!
-	
-	@Storage(type: StorageType.firstTimeScan, defaultValue: true)
+    
+    @Storage(type: StorageType.firstTimeScan, defaultValue: true)
     private var firstTimeScan: Bool
     
     private var bag = Set<AnyCancellable>()
@@ -49,30 +49,32 @@ class ReadViewModel: ViewModel {
         self.isLoading = true
         cardsRepository.scan { [weak self] scanResult in
             guard let self = self else { return }
+            
+            defer { self.isLoading = false }
             switch scanResult {
-			case .success(let result):
-				defer { self.firstTimeScan = false }
-				
-				guard self.userPrefsService.isTermsOfServiceAccepted else {
-					self.navigation.openDisclaimer = true
-					break
-				}
-				
-				guard
-					result.card?.isTwinCard ?? false,
-					!self.userPrefsService.isTwinCardOnboardingWasDisplayed
-				else {
-					self.navigation.openMain = true
-					break
-				}
-				
-				self.navigation.readOpenTwinCardOnboarding = true
+            case .success(let result):
+                defer {
+                    self.firstTimeScan = false
+                }
+                
+                guard self.userPrefsService.isTermsOfServiceAccepted else {
+                    self.navigation.readToDisclaimer = true
+                    break
+                }
+                
+                guard result.card?.isTwinCard ?? false,
+                      !self.userPrefsService.isTwinCardOnboardingWasDisplayed else {
+                    self.navigation.readToMain = true
+                    break
+                }
+                
+                self.navigation.readToTwinOnboarding = true
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
                     self.scanError = error.alertBinder
                 }
             }
-			self.isLoading = false
+
         }
     }
 }
