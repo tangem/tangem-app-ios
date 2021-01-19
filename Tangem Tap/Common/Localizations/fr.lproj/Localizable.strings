@@ -14,6 +14,8 @@
 
 "common_no" = "Non";
 
+"common_done" = "Exécuté";
+
 "common_continue" = "Continuer";
 
 "common_save_changes" = "Sauvegarder les modifications";
@@ -181,7 +183,7 @@
 
 "details_row_title_erase_wallet" = "Annuler le portefeuille";
 
-
+"details_currency_search_placeholder" = "Recherche";
 
 "details_erase_wallet_warning" = "Cette action est irréversible. Si, après avoir annulé le portefeuille, quelqu'un lui envoie des fonds, vous ne pourrez pas les retirer.";
 
@@ -207,7 +209,7 @@
 
 "alert_old_device_this_card" = "Vous pouvez rencontrer des problèmes NFC avec certains iPhone 7/7 + lors de l’extraction";
 
-"alert_card_signed_transactions" = "Attention: cette carte a déjà été rechargée et a signé des transactions avant. Envisagez la possibilité de retirer tous les fonds immédiatement si vous avez reçu cette carte d'une source non fiable.";
+"alert_card_signed_transactions" = "Cette carte a déjà été rechargée et a signé des transactions avant. Envisagez la possibilité de retirer tous les fonds immédiatement si vous avez reçu cette carte d'une source non fiable.";
 
 "alert_unsupported_card" = "Cette carte n'est pas conçue pour fonctionner avec Tangem Tap";
 
