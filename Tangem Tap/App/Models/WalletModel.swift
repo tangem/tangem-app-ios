@@ -16,7 +16,7 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var balanceViewModel: BalanceViewModel!
     @Published var rates: [String: [String: Decimal]] = [:]
 
-    weak var ratesService: CoinMarketCapService!
+    var ratesService: CoinMarketCapService
     var txSender: TransactionSender { walletManager as! TransactionSender }
     var wallet: Wallet { walletManager.wallet }
     
@@ -167,7 +167,7 @@ class WalletModel: ObservableObject, Identifiable {
             .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
             .reduce(into: [String: Decimal](), { $0[$1.0] = $1.1 })
         
-        ratesService?
+        ratesService
             .loadRates(for: currenciesToExchange)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { completion in
