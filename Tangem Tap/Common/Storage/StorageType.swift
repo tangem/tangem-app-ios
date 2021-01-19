@@ -17,4 +17,5 @@ enum StorageType: String {
 	case validatedSignedHashesCards = "tangem_tap_validated_signed_hashes_cards"
 	case twinCardOnboardingDisplayed = "tangem_tap_twin_card_onboarding_displayed"
 	case numberOfAppLaunches = "tangem_tap_number_of_launches"
+    case readWarningHashes = "tangem_tap_read_warnings"
 }
