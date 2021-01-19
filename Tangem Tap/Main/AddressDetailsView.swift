@@ -92,32 +92,23 @@ struct AddressDetailView: View {
                     }
                 }
                 Spacer()
-                Button(action: {
-                        UIPasteboard.general.string = cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex)
-                }) {
-                    ZStack {
-                        Circle()
-                            .frame(width: 46.0, height: 46.0, alignment: .center)
-                            .foregroundColor(Color.tangemTapBgGray)
-                        Image ("square.on.square")
-                            .font(Font.system(size: 17.0, weight: .light, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark6)
-                    }
-                }
-                Button(action: {
-                    if self.cardViewModel.state.wallet != nil {
-                        self.showQr = true
-                    }
-                }) {
-                    ZStack {
-                        Circle()
-                            .frame(width: 46.0, height: 46.0, alignment: .center)
-                            .foregroundColor(Color.tangemTapBgGray)
-                        Image ("qrcode")
-                            .font(Font.system(size: 17.0, weight: .light, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark6)
-                    }
-                }
+                CircleActionButton(action: {  UIPasteboard.general.string = cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex) },
+                                   backgroundColor: .tangemTapBgGray,
+                                   imageName: "square.on.square",
+                                   isSystemImage: false,
+                                   imageColor: .tangemTapGrayDark6,
+                                   withVerification: true,
+                                   isDisabled: false)
+                
+                CircleActionButton(action: {
+                                    if self.cardViewModel.state.wallet != nil {
+                                        self.showQr = true
+                                    }},
+                                   backgroundColor: .tangemTapBgGray,
+                                   imageName: "qrcode",
+                                   isSystemImage: false,
+                                   imageColor: .tangemTapGrayDark6,
+                                   isDisabled: false)
             }
             .padding(.horizontal, 24.0)
             .padding(.vertical, 16.0)
