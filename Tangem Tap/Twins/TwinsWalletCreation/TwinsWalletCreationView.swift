@@ -21,12 +21,9 @@ struct SimpleProgressBar: View {
 }
 
 struct TwinsWalletCreationView: View {
-	
 	@EnvironmentObject var navigation: NavigationCoordinator
 	@ObservedObject var viewModel: TwinsWalletCreationViewModel
-	
-	@State var alert: AlertBinder?
-	
+    @Environment(\.presentationMode) var presentationMode
     var body: some View {
 		VStack(spacing: 0) {
 			NavigationBar(title: viewModel.isRecreatingWallet ? "details_twins_recreate_toolbar" : "details_row_title_twins_create",
@@ -35,7 +32,7 @@ struct TwinsWalletCreationView: View {
 							if self.viewModel.step == .first {
 								self.dismiss(isWalletCreated: false)
 							} else {
-								self.alert = AlertBinder(alert: Alert(title: Text("twins_creation_warning_title"),
+                                self.viewModel.error = AlertBinder(alert: Alert(title: Text("twins_creation_warning_title"),
 												   message: Text("twins_creation_warning_message"),
 								 primaryButton: Alert.Button.destructive(Text("common_ok"), action: {
 								   self.dismiss(isWalletCreated: false)
@@ -52,7 +49,7 @@ struct TwinsWalletCreationView: View {
 					SimpleProgressBar(isSelected: viewModel.step >= .second)
 					SimpleProgressBar(isSelected: viewModel.step >= .third)
 				}
-				.animation(.easeOut)
+				//.animation(.easeOut)
 				.transition(.opacity)
 				.frame(height: 3)
 				ZStack {
@@ -89,50 +86,48 @@ struct TwinsWalletCreationView: View {
 			.padding(.horizontal, 24)
 			.background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
 			.foregroundColor(.tangemTapGrayDark6)
-			.navigationBarTitle("")
-			.navigationBarBackButtonHidden(true)
-			.navigationBarHidden(true)
 		}
 		.onDisappear(perform: {
 			guard self.viewModel.isDismissing else { return }
 			self.viewModel.onDismiss()
-			if self.navigation.onboardingOpenTwinCardWalletCreation {
-				self.navigation.onboardingOpenTwinCardWalletCreation = false
-			}
-			if self.navigation.detailsShowTwinsRecreateWarning {
-				self.navigation.detailsShowTwinsRecreateWarning = false
-			}
+            
+            //important to reset dropped link to false
+            navigation.twinOnboardingToTwinWalletCreation = false
+            if viewModel.finishedWalletCreation {
+                navigation.detailsToTwinsRecreateWarning = false
+            }
 		})
 		.onAppear(perform: {
 			self.viewModel.onAppear()
 		})
-		.onReceive(viewModel.$error, perform: { error in
-			self.alert = error
-		})
 		.onReceive(viewModel.$finishedWalletCreation, perform: { isWalletsCreated in
 			if isWalletsCreated {
-				self.alert = AlertBinder(alert: Alert(title: Text("common_success"),
+                self.viewModel.error = AlertBinder(alert: Alert(title: Text("common_success"),
 													  message: Text("notification_twins_recreate_success"),
 									dismissButton: .default(Text("common_ok"), action: {
 									  self.dismiss(isWalletCreated: true)
 									})))
 			}
 		})
-		.alert(item: $alert) { $0.alert }
+        .alert(item: $viewModel.error) { $0.alert }
+        .navigationBarTitle("")
+        .navigationBarHidden(true)
     }
 	
-	private func dismiss(isWalletCreated: Bool) {
-		viewModel.isDismissing = true
-		if self.navigation.detailsShowTwinsRecreateWarning {
-			if isWalletCreated {
-				self.navigation.showSettings = false
-			} else {
-				self.navigation.detailsShowTwinsRecreateWarning = false
-			}
-		} else if self.navigation.showTwinsWalletWarning {
-			self.navigation.showTwinsWalletWarning = false
-		}
-	}
+    private func dismiss(isWalletCreated: Bool) {
+        viewModel.isDismissing = true
+        
+        if navigation.mainToTwinsWalletWarning { //if create wallet from main
+            navigation.mainToTwinsWalletWarning = false //skip warning screen
+        } else { //if recreate wallet from details
+            if isWalletCreated {
+                navigation.mainToSettings = false //back directly to main screen
+            } else {
+                navigation.detailsToTwinsRecreateWarning = false //skip warning screen
+            }
+        }
+    
+    }
 }
 
 struct TwinsWalletCreationView_Previews: PreviewProvider {
