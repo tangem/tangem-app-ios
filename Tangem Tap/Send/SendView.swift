@@ -17,12 +17,12 @@ struct SendView: View {
     @Environment(\.presentationMode) var presentationMode
     let onSuccess: () -> Void
     
-	private var addressHint: String {
-		viewModel.isPayIdSupported ?
-			"send_destination_hint".localized :
-			"send_destination_hint_address".localized
-	}
-	
+    private var addressHint: String {
+        viewModel.isPayIdSupported ?
+            "send_destination_hint".localized :
+            "send_destination_hint_address".localized
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
@@ -42,43 +42,44 @@ struct SendView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, -20)
                     .padding(.bottom, 16)
-					TextInputField(placeholder: self.addressHint,
-								   text: self.$viewModel.destination,
-								   suplementView: {
-									CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
-													   backgroundColor: .tangemTapBgGray,
-													   imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
-													   isSystemImage: false,
-													   imageColor: .tangemTapGrayDark6)
-									.disabled(self.viewModel.validatedClipboard == nil)
-									CircleActionButton(
-										action: {
-											if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-												self.viewModel.showCameraDeniedAlert = true
-											} else {
-												self.viewModel.navigation.sendToQR = true
-											}
-										},
-										backgroundColor: .tangemTapBgGray,
-										imageName: "qrcode.viewfinder",
-										isSystemImage: false,
-										imageColor: .tangemTapGrayDark6
-									)
-									.sheet(isPresented: self.$viewModel.navigation.sendToQR) {
-										QRScannerView(code: self.$viewModel.destination,
-													  codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
-											.edgesIgnoringSafeArea(.all)
-									}
-									.alert(isPresented: self.$viewModel.showCameraDeniedAlert) {
-										return Alert(title: Text("common_camera_denied_alert_title"),
-													 message: Text("common_camera_denied_alert_message"),
-													 primaryButton: Alert.Button.default(Text("common_camera_alert_button_settings"),
-																						 action: {self.viewModel.openSystemSettings()}),
-													 secondaryButton: Alert.Button.default(Text("common_ok"),
-																						 action: {}))
-									}
-								   }, message: self.viewModel.destinationHint?.message ?? " " ,
-								   isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
+                    TextInputField(placeholder: self.addressHint,
+                                   text: self.$viewModel.destination,
+                                   suplementView: {
+                                    CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
+                                                       backgroundColor: .tangemTapBgGray,
+                                                       imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+                                                       isSystemImage: false,
+                                                       imageColor: .tangemTapGrayDark6,
+                                                       isDisabled: self.viewModel.validatedClipboard == nil)
+                                        .disabled(self.viewModel.validatedClipboard == nil)
+                                    CircleActionButton(
+                                        action: {
+                                            if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+                                                self.viewModel.showCameraDeniedAlert = true
+                                            } else {
+                                                self.viewModel.navigation.sendToQR = true
+                                            }
+                                        },
+                                        backgroundColor: .tangemTapBgGray,
+                                        imageName: "qrcode.viewfinder",
+                                        isSystemImage: false,
+                                        imageColor: .tangemTapGrayDark6
+                                    )
+                                    .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
+                                        QRScanView(code: self.$viewModel.destination,
+                                                      codeMapper: {self.viewModel.stripBlockchainPrefix($0)})
+                                            .edgesIgnoringSafeArea(.all)
+                                    }
+                                    .alert(isPresented: self.$viewModel.showCameraDeniedAlert) {
+                                        return Alert(title: Text("common_camera_denied_alert_title"),
+                                                     message: Text("common_camera_denied_alert_message"),
+                                                     primaryButton: Alert.Button.default(Text("common_camera_alert_button_settings"),
+                                                                                         action: {self.viewModel.openSystemSettings()}),
+                                                     secondaryButton: Alert.Button.default(Text("common_ok"),
+                                                                                           action: {}))
+                                    }
+                                   }, message: self.viewModel.destinationHint?.message ?? " " ,
+                                   isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
                     
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
@@ -121,12 +122,12 @@ struct SendView: View {
                                 Text(self.viewModel.currencyUnit)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
                                 Image("arrow.up.arrow.down")
                                     .font(Font.system(size: 17.0, weight: .regular, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
-                                }
+                                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                            }
                             }
                             .disabled(!self.viewModel.canFiatCalculation)
                         }
@@ -138,7 +139,7 @@ struct SendView: View {
                             Text(self.viewModel.amountHint?.message ?? " " )
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                 .foregroundColor((self.viewModel.amountHint?.isError ?? false ) ?
-                                    Color.red : Color.tangemTapGrayDark)
+                                                    Color.red : Color.tangemTapGrayDark)
                             Spacer()
                             Text(self.viewModel.walletTotalBalanceFormatted)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
@@ -176,7 +177,7 @@ struct SendView: View {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
                                             Text("send_fee_include_description")
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                                 .foregroundColor(Color.tangemTapGrayDark6)
+                                                .foregroundColor(Color.tangemTapGrayDark6)
                                         }
                                     }
                                 }
@@ -206,9 +207,9 @@ struct SendView: View {
                                     .offset(x: 8)
                             } else {
                                 Text(self.viewModel.sendFee)
-                                .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark)
-                                .frame(height: 20)
+                                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                                    .foregroundColor(Color.tangemTapGrayDark)
+                                    .frame(height: 20)
                             }
                         }
                         Color.tangemTapGrayLight5
@@ -238,23 +239,23 @@ struct SendView: View {
                         TangemLongButton(isLoading: false,
                                          title: "wallet_button_send",
                                          image: "arrow.right") {
-                                self.viewModel.send() {
-                                    DispatchQueue.main.async {
-                                        let alert = Alert(title: Text("common_success"),
-                                                          message: Text("send_transaction_success"),
-                                                          dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                                              action: {
-                                                                                                presentationMode.wrappedValue.dismiss()
-                                                                                                onSuccess()
-                                                                                              }))
-                                        
-                                        self.viewModel.sendError = AlertBinder(alert: alert)
-                                    }                               
+                            self.viewModel.send() {
+                                DispatchQueue.main.async {
+                                    let alert = Alert(title: Text("common_success"),
+                                                      message: Text("send_transaction_success"),
+                                                      dismissButton: Alert.Button.default(Text("common_ok"),
+                                                                                          action: {
+                                                                                            presentationMode.wrappedValue.dismiss()
+                                                                                            onSuccess()
+                                                                                          }))
+                                    
+                                    self.viewModel.sendError = AlertBinder(alert: alert)
+                                }
                             }
                         }.buttonStyle(TangemButtonStyle(color: .green,
-                                                       isDisabled: !self.viewModel.isSendEnabled))
-                            .disabled(!self.viewModel.isSendEnabled)
-                            .alert(item: self.$viewModel.sendError) { $0.alert }
+                                                        isDisabled: !self.viewModel.isSendEnabled))
+                        .disabled(!self.viewModel.isSendEnabled)
+                        .alert(item: self.$viewModel.sendError) { $0.alert }
                     }
                     .padding(.top, 16.0)
                 }
@@ -267,6 +268,10 @@ struct SendView: View {
         }
         .onAppear() {
             self.viewModel.onAppear()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+                    .receive(on: DispatchQueue.main)) { _ in
+            viewModel.onEnterForeground()
         }
     }
 }
