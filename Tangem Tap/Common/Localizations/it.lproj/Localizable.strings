@@ -161,7 +161,9 @@
 "send_balance_subtitle_format" = "Saldo: %@";
 "send_transaction_success" = "La transazione è stata firmata con successo e inviata al nodo blockchain. Il saldo del portafoglio verrà aggiornato dopo un po' di tempo";
 
+"send_extras_hint_destination_tag" = "Destination Tag";
 
+"send_extras_hint_memo" = "Memo Id";
 
 "details_title" = "Requisiti";
 
@@ -292,6 +294,8 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "send_error_payid_not_registered" = "PayString non registrato";
 "send_error_payid_request_failed" = "Richiesta PayString fallita";
 "send_error_address_same_as_wallet" = "L'indirizzo corrisponde all'indirizzo del tuo portafoglio";
+"send_error_invalid_memo_id" = "Invalid Memo Id. It won't be added to transaction";
+"send_error_invalid_destination_tag" = "Invalid Destination Tag. It won't be added to transaction";
 "wallet_notification_address_copied" = "L'indirizzo è stato copiato con successo";
 "wallet_create_payid_empty" = "Inserire prima il PayString desiderato";
 "initial_message_scan_header" = "Avvicina per scansionare";
