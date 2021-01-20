@@ -157,7 +157,9 @@
 "send_balance_subtitle_format" = "Solde : %@";
 "send_transaction_success" = "La transaction a été signée avec succès et envoyée au nœud de blockchain. Le solde du portefeuille sera mis à jour après un certain temps";
 
+"send_extras_hint_destination_tag" = "Destination Tag";
 
+"send_extras_hint_memo" = "Memo Id";
 
 "details_title" = "Référénces";
 
@@ -294,7 +296,8 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "send_error_payid_not_registered" = "PayString non enregistré";
 "send_error_payid_request_failed" = "La demande de PayString a échoué";
 "send_error_address_same_as_wallet" = "L’adresse est la même que celle de votre portefeuille";
-
+"send_error_invalid_memo_id" = "Invalid Memo Id. It won't be added to transaction";
+"send_error_invalid_destination_tag" = "Invalid Destination Tag. It won't be added to transaction";
 "wallet_notification_address_copied" = "L’adresse a été copiée avec succès";
 "wallet_create_payid_empty" = "Saisissez d’abord le PayString requis";
 "initial_message_scan_header" = "Posez pour scanner";
