@@ -96,9 +96,9 @@
 
 "wallet_address_button_create_payid" = "PayString erstellen";
 
+"wallet_warning_button_ok" = "OK, ich hab's!";
 
 "wallet_qr_title_format" = "%@ Wallet";
-
 
 "wallet_create_payid" = "PayString erstellen";
 
