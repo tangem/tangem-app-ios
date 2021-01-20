@@ -92,13 +92,11 @@
 "wallet_pending_tx_sending" = "Envoi ";
 "wallet_pending_tx_sending_address_format" = " jusqu’à %с ";
 
-
 "wallet_address_button_explore" = "Explorer l'adresse";
 
 "wallet_address_button_create_payid" = "Créer PayString";
 
-
-
+"wallet_warning_button_ok" = "Ok, je l'ai!";
 
 "wallet_qr_title_format" = "Portefeuille %@";
 

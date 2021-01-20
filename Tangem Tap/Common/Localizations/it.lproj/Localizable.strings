@@ -95,7 +95,7 @@
 
 "wallet_address_button_create_payid" = "Crea PayString";
 
-
+"wallet_warning_button_ok" = "Ok, ho capito!";
 
 "wallet_qr_title_format" = "portafoglio %@";
 
