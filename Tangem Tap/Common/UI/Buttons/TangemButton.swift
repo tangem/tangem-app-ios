@@ -62,6 +62,7 @@ struct TangemVerticalButton: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 20, height: 20)
                     Text(title)
+                        .padding(.horizontal, 8)
                 }
             }
             .padding(.vertical, 8)
@@ -111,7 +112,7 @@ struct TangemButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             TangemButton(isLoading: false,
-                         title: "wallet_button_scan",
+                         title: "Recharge de portefeuille",
                          image: "scan") {}
                 .buttonStyle(TangemButtonStyle(color: .black))
             
@@ -127,7 +128,7 @@ struct TangemButton_Previews: PreviewProvider {
                     .buttonStyle(TangemButtonStyle(color: .green))
                 
                 TangemVerticalButton(isLoading: false,
-                                     title: "wallet_button_scan",
+                                     title: "Recharge de portefeuille",
                                      image: "arrow.up") {}
                     .buttonStyle(TangemButtonStyle(color: .green))
             }
