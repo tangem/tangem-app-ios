@@ -42,6 +42,22 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.canSign
     }
     
+    var purgeWalletProhibitedDescription: String? {
+        if isTwinCard {
+            return nil
+        }
+        
+        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+            return TangemSdkError.purgeWalletProhibited.localizedDescription
+        }
+        
+        if !canPurgeWallet {
+            return "details_notification_erase_wallet_not_possible".localized
+        }
+        
+        return nil
+    }
+    
     var canPurgeWallet: Bool {
         if let status = cardInfo.card.status, status == .empty {
             return false
