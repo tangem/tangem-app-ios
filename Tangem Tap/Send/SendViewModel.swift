@@ -458,7 +458,7 @@ class SendViewModel: ViewModel {
                     if let address = resolvedDetails.address,
                        self?.validateAddress(address) ?? false {
                         self?.validatedDestination = resolvedDetails.address
-                        self?.validatedXrpDestinationTag = UInt32(resolvedDetails.tag ?? "")
+                        self?.destinationTagStr = resolvedDetails.tag ?? ""
                         self?.destinationHint = TextHint(isError: false,
                                                          message: address)
                         self?.setAdditionalInputVisibility(for: address)
