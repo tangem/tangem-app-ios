@@ -139,7 +139,7 @@ PODS:
     - PromiseKit/CorePromise
   - PromisesObjC (1.2.11)
   - secp256k1.swift (0.1.4)
-  - Sodium (0.9.1)
+  - Sodium (0.9.0)
   - Starscream (3.1.1)
   - stellar-ios-mac-sdk (1.9.3)
   - SwiftCBOR (0.4.3)
@@ -273,7 +273,7 @@ SPEC CHECKSUMS:
   PromiseKit: 9616b0afef31eae56ab9ce044c8ec2b8612a15cd
   PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
-  Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
+  Sodium: 8106500200d1a80021cb9ea069ba0ea71fc26291
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
   stellar-ios-mac-sdk: 1fc610689e83cd5a26260da55f718c401f7e6d96
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
