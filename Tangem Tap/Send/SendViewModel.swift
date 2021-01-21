@@ -169,6 +169,7 @@ class SendViewModel: ViewModel {
         
         fillTotalBlockWithDefaults()
         bind()
+        setupWarnings()
     }
     
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
@@ -416,7 +417,7 @@ class SendViewModel: ViewModel {
     
     func onAppear() {
         validateClipboard()
-        warnings = warningsManager.warnings(for: .send)
+        setupWarnings()
     }
     
     func onEnterForeground() {
@@ -595,5 +596,9 @@ class SendViewModel: ViewModel {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }
+    }
+    
+    private func setupWarnings() {
+        warnings = warningsManager.warnings(for: .send)
     }
 }
