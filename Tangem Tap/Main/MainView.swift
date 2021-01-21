@@ -94,26 +94,62 @@ struct MainView: View {
     }
     
     var scanButton: some View {
-        TangemVerticalButton(isLoading: viewModel.isScanning,
-                             title: "wallet_button_scan",
-                             image: "scan") {
+        let scanAction = {
             withAnimation {
                 self.viewModel.scan()
             }
         }
-        .buttonStyle(TangemButtonStyle(color: .black))
+        
+        let button = viewModel.canTopup && !viewModel.canCreateWallet ?
+            TangemVerticalButton(isLoading: viewModel.isScanning,
+                                 title: "wallet_button_scan",
+                                 image: "scan") { scanAction()}
+            .toAnyView() :
+            TangemButton(isLoading: viewModel.isScanning,
+                         title: "wallet_button_scan",
+                         image: "scan") {scanAction()}
+            .toAnyView()
+        
+        return button
+            .buttonStyle(TangemButtonStyle(color: .black))
     }
     
     var createWalletButton: some View {
         TangemLongButton(isLoading: viewModel.isCreatingWallet,
                          title: viewModel.isTwinCard ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
-                         image: "arrow.right") {
-            viewModel.createWallet()
-        }
-        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canCreateWallet))
-        .disabled(!viewModel.canCreateWallet)
+                         image: "arrow.right") { viewModel.createWallet()  }
+            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canCreateWallet))
+            .disabled(!viewModel.canCreateWallet)
     }
     
+    var sendButton: some View {
+        let action = { viewModel.sendTapped() }
+        
+        let button = viewModel.canTopup ?
+            TangemVerticalButton(isLoading: false,
+                                 title: "wallet_button_send",
+                                 image: "arrow.right") { action() }
+            .toAnyView() :
+            TangemLongButton(isLoading: false,
+                             title: "wallet_button_send",
+                             image: "arrow.right") { action() }
+            .toAnyView()
+        
+        return button
+            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
+            .disabled(!self.viewModel.canSend)
+    }
+    
+    var topupButton: some View {
+        TangemVerticalButton(isLoading: false,
+                             title: "wallet_button_topup",
+                             image: "arrow.up") {
+            if self.viewModel.topupURL != nil {
+                self.navigation.mainToTopup = true
+            }
+        }
+        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
+    }
     var navigationLinks: AnyView {
         Group {
             NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
@@ -201,47 +237,8 @@ struct MainView: View {
                     }
                 }
             }
-            HStack(alignment: .center, spacing: 8.0) {
-                
-                scanButton
-                
-                if self.viewModel.state.cardModel != nil {
-                    if viewModel.canCreateWallet {
-                        createWalletButton
-                    } else {
-                        if self.viewModel.state.cardModel!.canTopup {
-                            TangemVerticalButton(isLoading: false,
-                                                 title: "wallet_button_topup",
-                                                 image: "arrow.up") {
-                                if self.viewModel.topupURL != nil {
-                                    self.navigation.mainToTopup = true
-                                }
-                            }
-                            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
-                        }
-                        TangemVerticalButton(isLoading: false,
-                                             title: "wallet_button_send",
-                                             image: "arrow.right") {
-                            self.viewModel.sendTapped()
-                        }
-                        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
-                        .disabled(!self.viewModel.canSend)
-                        .sheet(isPresented: $navigation.mainToSend) {
-                            SendView(viewModel: self.viewModel.assembly.makeSendViewModel(
-                                        with: self.viewModel.amountToSend!,
-                                        card: self.viewModel.state.cardModel!), onSuccess: {})
-                        }
-                        .actionSheet(isPresented: self.$navigation.mainToSendChoise) {
-                            ActionSheet(title: Text("wallet_choice_wallet_option_title"),
-                                        message: nil,
-                                        buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
-                            
-                        }
-                    }
-                }
-                
-            }
-            .padding(.top, 8)
+             bottomButtons
+            .padding([.top, .leading, .trailing], 8)
             .padding(.bottom, 16.0)
         }
         .navigationBarBackButtonHidden(true)
@@ -274,6 +271,33 @@ struct MainView: View {
         }
         .alert(item: $viewModel.error) { $0.alert }
     }
+    
+    var bottomButtons: some View {
+        HStack(alignment: .center) {
+            scanButton
+            
+            if viewModel.canCreateWallet {
+                createWalletButton
+            } else {
+                if viewModel.canTopup {
+                    topupButton
+                }
+                
+                sendButton
+                    .sheet(isPresented: $navigation.mainToSend) {
+                        SendView(viewModel: self.viewModel.assembly.makeSendViewModel(
+                                    with: self.viewModel.amountToSend!,
+                                    card: self.viewModel.state.cardModel!), onSuccess: {})
+                    }
+                    .actionSheet(isPresented: self.$navigation.mainToSendChoise) {
+                        ActionSheet(title: Text("wallet_choice_wallet_option_title"),
+                                    message: nil,
+                                    buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+                        
+                    }
+            }
+        }
+    }
 }
 
 struct MainView_Previews: PreviewProvider {
@@ -282,6 +306,7 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
                 .environmentObject(Assembly.previewAssembly.navigationCoordinator)
         }
-        .deviceForPreview(.iPhone12Pro)
+        .previewGroup()
+        .environment(\.locale, .init(identifier: "en"))
     }
 }
