@@ -119,7 +119,7 @@
 
 "wallet_create_payid_error_already_created" = "Ce PayString existe déjà. Essayez une autre variante.";
 
-"wallet_button_topup" = "Recharge du portefeuille";
+"wallet_button_topup" = "Top up";
 
 
 "send_destination_hint" = "Adresse ou PayString";
