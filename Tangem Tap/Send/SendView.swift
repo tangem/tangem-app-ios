@@ -40,7 +40,6 @@ struct SendView: View {
                         }
                     })
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, -20)
                     .padding(.bottom, 16)
                     TextInputField(placeholder: self.addressHint,
                                    text: self.$viewModel.destination,
