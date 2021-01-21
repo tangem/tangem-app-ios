@@ -57,7 +57,7 @@ struct WarningView: View {
                             .foregroundColor(.white)
                     })
                 }
-                .padding(EdgeInsets(top: 0, leading: 20, bottom: 16, trailing: 20))
+                .padding(EdgeInsets(top: 0, leading: 20, bottom: 16, trailing: 0))
             }
             Color.clear.frame(height: 0, alignment: .center)
         }
