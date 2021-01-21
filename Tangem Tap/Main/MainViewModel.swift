@@ -79,6 +79,10 @@ class MainViewModel: ViewModel {
         return false
     }
     
+    var canTopup: Bool {
+        return state.cardModel?.canTopup ?? false
+    }
+    
     var topupURL: URL? {
         if let wallet = state.wallet {
             return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
