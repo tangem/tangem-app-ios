@@ -34,14 +34,6 @@ struct SendView: View {
                         Spacer()
                     }
                     .padding(.bottom)
-                    WarningListView(warnings: viewModel.warnings, warningButtonAction: { (index, priority) in
-                        withAnimation {
-                            self.viewModel.warningButtonAction(at: index, priority: priority)
-                        }
-                    })
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, -20)
-                    .padding(.bottom, 16)
                     TextInputField(placeholder: self.addressHint,
                                    text: self.$viewModel.destination,
                                    suplementView: {
@@ -234,6 +226,13 @@ struct SendView: View {
                                 .foregroundColor(Color.tangemTapGrayDark)
                         }
                     }
+                    WarningListView(warnings: viewModel.warnings, warningButtonAction: { (index, priority) in
+                        withAnimation {
+                            self.viewModel.warningButtonAction(at: index, priority: priority)
+                        }
+                    })
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
                         TangemLongButton(isLoading: false,
