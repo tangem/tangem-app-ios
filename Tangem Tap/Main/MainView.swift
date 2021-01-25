@@ -263,7 +263,11 @@ struct MainView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                     .filter {_ in !navigation.mainToSettings
                         && !navigation.mainToSend
-                        && navigation.mainToCreatePayID
+                        && !navigation.mainToCreatePayID
+                        && !navigation.mainToSendChoise
+                        && !navigation.mainToTopup
+                        && !navigation.mainToTwinOnboarding
+                        && !navigation.mainToTwinsWalletWarning
                     }
                     .delay(for: 0.3, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
