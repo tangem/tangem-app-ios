@@ -42,10 +42,17 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.canSign
     }
     
+    var hasWallet: Bool {
+        if case .loaded = state { return true }
+        return false
+    }
+    
     var purgeWalletProhibitedDescription: String? {
         if isTwinCard {
             return nil
         }
+        
+        guard hasWallet else { return nil }
         
         if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
             return TangemSdkError.purgeWalletProhibited.localizedDescription
@@ -320,6 +327,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         update()
+        objectWillChange.send()
     }
     
     private func updateCurrentSecOption() {
