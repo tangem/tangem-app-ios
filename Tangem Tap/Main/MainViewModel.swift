@@ -370,6 +370,11 @@ class MainViewModel: ViewModel {
                 self.objectWillChange.send()
             }
 		}
+        
+        guard
+            let numberOfSignedHashes = card.walletSignedHashes,
+            numberOfSignedHashes > 0
+        else { return }
 		
 		guard
 			let validator = state.cardModel?.state.walletModel?.walletManager as? SignatureCountValidator
@@ -378,7 +383,7 @@ class MainViewModel: ViewModel {
 			return
 		}
         
-		validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
+		validator.validateSignatureCount(signedHashes: numberOfSignedHashes)
             .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
 			.sink(receiveCompletion: { [weak self] failure in
