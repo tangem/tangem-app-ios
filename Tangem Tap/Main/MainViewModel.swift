@@ -395,7 +395,7 @@ class MainViewModel: ViewModel {
 				}
                 self?.isHashesCounted = true
 			}, receiveValue: { _ in })
-            .store(in: &persistentBag)
+            .store(in: &bag)
 	}
 		
 	private func showTwinCardOnboardingIfNeeded() -> Bool {
