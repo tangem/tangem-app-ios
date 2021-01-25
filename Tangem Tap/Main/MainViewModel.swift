@@ -268,6 +268,7 @@ class MainViewModel: ViewModel {
     }
     
     func fetchWarnings() {
+        print("\n\nMain view model fetching warnings\n\n\n")
         self.warnings = self.warningsManager.warnings(for: .main)
     }
     
@@ -348,10 +349,15 @@ class MainViewModel: ViewModel {
     // MARK: - Private functions
 	
 	private func validateHashesCount() {
+        guard let card = state.card else { return }
+        
+        guard state.cardModel?.hasWallet ?? false else {
+            warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
+            return
+        }
+        
         if isHashesCounted { return }
         
-		guard let card = state.card else { return }
-		
 		if card.isTwinCard { return }
 		
 		guard let cardId = card.cardId else { return }
