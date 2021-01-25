@@ -255,7 +255,7 @@ class Assembly {
     }
 	
 	private func store<T>(_ object: T, with key: String) {
-		print(key)
+		//print(key)
 		modelsStorage[key] = object
 	}
     
