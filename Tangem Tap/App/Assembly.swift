@@ -64,7 +64,9 @@ class Assembly {
     
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
-			restored.state = cardsRepository.lastScanResult
+            if restored.state != cardsRepository.lastScanResult {
+                restored.state = cardsRepository.lastScanResult
+            }
             return restored
         }
         let vm =  MainViewModel()
