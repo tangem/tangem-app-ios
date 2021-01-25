@@ -44,7 +44,7 @@ class WalletModel: ObservableObject, Identifiable {
 //                        self.startUpdatingTimer()
 //                    }
 //                } else {
-                    self.updateTimer = nil
+//                    self.updateTimer = nil
 //                }
             })
             .store(in: &bag)
@@ -185,7 +185,7 @@ class WalletModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
     
-    private func startUpdatingTimer() {
+    func startUpdatingTimer() {
         updateTimer = Timer.TimerPublisher(interval: 10.0,
                                            tolerance: 0.1,
                                            runLoop: .main,
