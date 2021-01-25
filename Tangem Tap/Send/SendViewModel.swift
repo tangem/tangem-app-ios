@@ -178,9 +178,8 @@ class SendViewModel: ViewModel {
     }
     
     private func fillTotalBlockWithDefaults() {
-        //let sendDummyAmount = Amount(with: self.amountToSend, value: 0)
-        self.sendAmount = "-" //getDescription(for: sendDummyAmount)
-        self.sendTotal = "-" // amountToSend.type == .coin ? getDescription(for: sendDummyAmount) : "-"
+        self.sendAmount = "-"
+        self.sendTotal = "-"
         self.sendTotalSubtitle = ""
     }
     
