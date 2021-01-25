@@ -64,7 +64,11 @@ class Assembly {
     
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
-			restored.state = cardsRepository.lastScanResult
+            let restoredCid = restored.state.card?.cardId ?? ""
+            let newCid = cardsRepository.lastScanResult.card?.cardId ?? ""
+            if restoredCid != newCid {
+                restored.state = cardsRepository.lastScanResult
+            }
             return restored
         }
         let vm =  MainViewModel()
@@ -72,9 +76,9 @@ class Assembly {
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
         vm.topupService = topupService
-        vm.state = cardsRepository.lastScanResult
 		vm.userPrefsService = userPrefsService
         vm.warningsManager = warningsService
+        vm.state = cardsRepository.lastScanResult
         return vm
     }
     
@@ -251,7 +255,7 @@ class Assembly {
     }
 	
 	private func store<T>(_ object: T, with key: String) {
-		print(key)
+		//print(key)
 		modelsStorage[key] = object
 	}
     
