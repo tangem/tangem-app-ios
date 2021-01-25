@@ -38,6 +38,7 @@ class MainViewModel: ViewModel {
     @Published var selectedAddressIndex: Int = 0
     @Published var state: ScanResult = .unsupported {
         willSet {
+            print("⚠️ Reset bag")
             bag = Set<AnyCancellable>()
         }
         didSet {
@@ -193,6 +194,7 @@ class MainViewModel: ViewModel {
             .store(in: &bag)
         
         $state
+            .filter { $0.cardModel != nil }
             .sink {[unowned  self] _ in
                 self.selectedAddressIndex = 0
                 self.fetchWarnings()
@@ -268,7 +270,7 @@ class MainViewModel: ViewModel {
     }
     
     func fetchWarnings() {
-        print("\n\nMain view model fetching warnings\n\n\n")
+        print("⚠️ Main view model fetching warnings")
         self.warnings = self.warningsManager.warnings(for: .main)
     }
     
@@ -394,6 +396,7 @@ class MainViewModel: ViewModel {
 					showUntrustedCardAlert()
 				}
                 self?.isHashesCounted = true
+                print("⚠️ Hashes counted")
 			}, receiveValue: { _ in })
             .store(in: &bag)
 	}
