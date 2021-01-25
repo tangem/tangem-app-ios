@@ -364,7 +364,6 @@ class MainViewModel: ViewModel {
 		func showUntrustedCardAlert() {
             withAnimation {
                 self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
-                self.objectWillChange.send()
             }
 		}
         
@@ -383,6 +382,9 @@ class MainViewModel: ViewModel {
 		validator.validateSignatureCount(signedHashes: numberOfSignedHashes)
             .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
+            .handleEvents(receiveCancel: {
+                print("⚠️ Hash counter subscription cancelled")
+            })
 			.sink(receiveCompletion: { [weak self] failure in
 				switch failure {
 				case .finished:
