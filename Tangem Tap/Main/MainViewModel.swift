@@ -329,11 +329,6 @@ class MainViewModel: ViewModel {
     }
     
     func onAppear() {
-        fetchWarnings()
-		if !showTwinCardOnboardingIfNeeded() {
-			showUntrustedDisclaimerIfNeeded()
-		}
-		
         assembly.reset()
     }
     
