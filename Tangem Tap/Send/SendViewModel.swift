@@ -388,7 +388,7 @@ class SendViewModel: ViewModel {
             .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [unowned self] destTagStr in
                 self.validatedXrpDestinationTag = nil
-                self.destinationHint = nil
+                self.destinationTagHint = nil
                 
                 if destTagStr.isEmpty { return }
                 
