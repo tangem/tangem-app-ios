@@ -365,7 +365,10 @@ class MainViewModel: ViewModel {
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
 		func showUntrustedCardAlert() {
-            self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
+            withAnimation {
+                self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
+                self.objectWillChange.send()
+            }
 		}
 		
 		guard
@@ -374,21 +377,20 @@ class MainViewModel: ViewModel {
 			showUntrustedCardAlert()
 			return
 		}
-		
-        isHashesCounted = true
         
 		validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
             .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
-			.sink(receiveCompletion: { failure in
+			.sink(receiveCompletion: { [weak self] failure in
 				switch failure {
 				case .finished:
 					break
 				case .failure:
 					showUntrustedCardAlert()
 				}
+                self?.isHashesCounted = true
 			}, receiveValue: { _ in })
-            .store(in: &bag)
+            .store(in: &persistentBag)
 	}
 		
 	private func showTwinCardOnboardingIfNeeded() -> Bool {
