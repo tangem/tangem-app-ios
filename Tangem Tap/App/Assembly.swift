@@ -72,9 +72,9 @@ class Assembly {
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
         vm.topupService = topupService
-        vm.state = cardsRepository.lastScanResult
 		vm.userPrefsService = userPrefsService
         vm.warningsManager = warningsService
+        vm.state = cardsRepository.lastScanResult
         return vm
     }
     
