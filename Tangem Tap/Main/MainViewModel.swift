@@ -268,6 +268,7 @@ class MainViewModel: ViewModel {
     }
     
     func fetchWarnings() {
+        print("\n\nMain view model fetching warnings\n\n\n")
         self.warnings = self.warningsManager.warnings(for: .main)
     }
     
@@ -348,10 +349,15 @@ class MainViewModel: ViewModel {
     // MARK: - Private functions
 	
 	private func validateHashesCount() {
+        guard let card = state.card else { return }
+        
+        guard state.cardModel?.hasWallet ?? false else {
+            warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
+            return
+        }
+        
         if isHashesCounted { return }
         
-		guard let card = state.card else { return }
-		
 		if card.isTwinCard { return }
 		
 		guard let cardId = card.cardId else { return }
@@ -359,8 +365,16 @@ class MainViewModel: ViewModel {
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
 		func showUntrustedCardAlert() {
-            self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
+            withAnimation {
+                self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
+                self.objectWillChange.send()
+            }
 		}
+        
+        guard
+            let numberOfSignedHashes = card.walletSignedHashes,
+            numberOfSignedHashes > 0
+        else { return }
 		
 		guard
 			let validator = state.cardModel?.state.walletModel?.walletManager as? SignatureCountValidator
@@ -368,21 +382,20 @@ class MainViewModel: ViewModel {
 			showUntrustedCardAlert()
 			return
 		}
-		
-        isHashesCounted = true
         
-        validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
+		validator.validateSignatureCount(signedHashes: numberOfSignedHashes)
             .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
-			.sink(receiveCompletion: { failure in
+			.sink(receiveCompletion: { [weak self] failure in
 				switch failure {
 				case .finished:
 					break
 				case .failure:
 					showUntrustedCardAlert()
 				}
+                self?.isHashesCounted = true
 			}, receiveValue: { _ in })
-            .store(in: &bag)
+            .store(in: &persistentBag)
 	}
 		
 	private func showTwinCardOnboardingIfNeeded() -> Bool {
