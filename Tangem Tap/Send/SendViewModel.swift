@@ -451,7 +451,8 @@ class SendViewModel: ViewModel {
             return
         }
         
-        if let payIdService = cardViewModel.payIDService,
+        if isPayIdSupported,
+           let payIdService = cardViewModel.payIDService,
            payIdService.validate(destination) {
             payIdService.resolve(destination) {[weak self] result in
                 switch result {
