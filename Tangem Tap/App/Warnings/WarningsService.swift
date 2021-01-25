@@ -17,6 +17,7 @@ protocol WarningsManager: class {
     func warnings(for location: WarningsLocation) -> WarningsContainer
     func addWarning(for event: WarningEvent)
     func hideWarning(_ warning: TapWarning)
+    func hideWarning(for event: WarningEvent)
 }
 
 class WarningsService {
@@ -119,6 +120,11 @@ extension WarningsService: WarningsManager {
     func hideWarning(_ warning: TapWarning) {
         mainWarnings.remove(warning)
         sendWarnings.remove(warning)
+    }
+    
+    func hideWarning(for event: WarningEvent) {
+        mainWarnings.removeWarning(for: event)
+        sendWarnings.removeWarning(for: event)
     }
 }
 
