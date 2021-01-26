@@ -321,6 +321,17 @@ class CardViewModel: Identifiable, ObservableObject {
 		updateState()
 	}
     
+    func update(with cardInfo: CardInfo) -> Bool {
+        guard cardInfo.card.cardId == cardInfo.card.cardId else {
+            return false
+        }
+        
+        self.cardInfo = cardInfo
+        
+        updateState()
+        return true
+    }
+    
     func updateState() {
         if let wm = self.assembly.makeWalletModel(from: cardInfo) {
             self.state = .loaded(walletModel: wm)
