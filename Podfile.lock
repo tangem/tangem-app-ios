@@ -141,7 +141,7 @@ PODS:
   - secp256k1.swift (0.1.4)
   - Sodium (0.9.1)
   - Starscream (3.1.1)
-  - stellar-ios-mac-sdk (1.9.3)
+  - stellar-ios-mac-sdk (1.9.4)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.0.3)
   - SwiftProtobuf (1.14.0)
@@ -161,8 +161,8 @@ PODS:
 DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
-  - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.12`)
-  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-65`)"
+  - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.13`)
+  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-66`)"
   - EFQRCode
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -212,10 +212,10 @@ EXTERNAL SOURCES:
     :tag: 0.0.7
   BitcoinCore.swift:
     :git: https://bitbucket.org/tangem/bitcoincore.git
-    :tag: 0.0.12
+    :tag: 0.0.13
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-65
+    :tag: build-66
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
@@ -232,10 +232,10 @@ CHECKOUT OPTIONS:
     :tag: 0.0.7
   BitcoinCore.swift:
     :git: https://bitbucket.org/tangem/bitcoincore.git
-    :tag: 0.0.12
+    :tag: 0.0.13
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-65
+    :tag: build-66
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
@@ -275,7 +275,7 @@ SPEC CHECKSUMS:
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
-  stellar-ios-mac-sdk: 1fc610689e83cd5a26260da55f718c401f7e6d96
+  stellar-ios-mac-sdk: d621bb6406d7c1f28fd33abd65a1d769309781b6
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftProtobuf: ed465ed18402f998fd117f631da27e0168e6b59c
@@ -284,6 +284,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: ce80a516af28c9c32b4e13049f7d7ccee534e459
+PODFILE CHECKSUM: c03827cb3325f67c97e34230dba4b1b61011c28d
 
 COCOAPODS: 1.10.0
