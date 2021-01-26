@@ -113,6 +113,10 @@ class CardsRepository {
 		if !self.featuresService.linkedTerminal {
 			self.tangemSdk.config.linkedTerminal = false
 		}
+        
+        if lastScanResult.cardModel?.update(with: cardInfo) ?? false {
+            return lastScanResult
+        }
 		
 		let cm = self.assembly.makeCardModel(from: cardInfo)
 		let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
