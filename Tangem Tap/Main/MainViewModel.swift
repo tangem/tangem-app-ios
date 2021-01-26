@@ -39,6 +39,7 @@ class MainViewModel: ViewModel {
     @Published var state: ScanResult = .unsupported {
         willSet {
             print("⚠️ Reset bag")
+            image = nil
             bag = Set<AnyCancellable>()
         }
         didSet {
