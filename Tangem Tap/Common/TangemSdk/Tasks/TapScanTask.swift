@@ -29,7 +29,11 @@ struct TapScanTaskResponse: ResponseCodable {
 }
 
 final class TapScanTask: CardSessionRunnable {
-    let excludeBatches = ["0027", "0030", "0031"]
+    let excludeBatches = ["0027",
+                          "0030",
+                          "0031", //tags
+                          "0079" //TOTHEMOON
+    ]
     
     var needPreflightRead: Bool {
         return false
