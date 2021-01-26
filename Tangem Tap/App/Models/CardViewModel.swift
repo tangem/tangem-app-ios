@@ -301,7 +301,9 @@ class CardViewModel: Identifiable, ObservableObject {
                                                       body: "initial_message_purge_wallet_body".localized)) {[unowned self] result in
             switch result {
             case .success(let response):
-                self.cardInfo.card = self.cardInfo.card.updating(with: response)
+                var card = self.cardInfo.card.updating(with: response)
+                card.walletSignedHashes = nil
+                self.cardInfo.card = card
                 self.updateState()
                 completion(.success(()))
             case .failure(let error):
@@ -318,6 +320,17 @@ class CardViewModel: Identifiable, ObservableObject {
 		}
 		updateState()
 	}
+    
+    func update(with cardInfo: CardInfo) -> Bool {
+        guard cardInfo.card.cardId == cardInfo.card.cardId else {
+            return false
+        }
+        
+        self.cardInfo = cardInfo
+        
+        updateState()
+        return true
+    }
     
     func updateState() {
         if let wm = self.assembly.makeWalletModel(from: cardInfo) {
