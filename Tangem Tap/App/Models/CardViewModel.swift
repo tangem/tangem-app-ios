@@ -340,7 +340,6 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         update()
-        objectWillChange.send()
     }
     
     private func updateCurrentSecOption() {
