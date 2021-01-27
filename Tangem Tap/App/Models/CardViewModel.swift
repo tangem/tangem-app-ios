@@ -181,11 +181,13 @@ class CardViewModel: Identifiable, ObservableObject {
             .sink(receiveCompletion: { completion in
                     switch completion {
                     case .failure(let error):
+                        print("payid load failed")
                         Analytics.log(error: error)
                         print(error.localizedDescription)
                     case .finished:
                         break
                     }}){ [unowned self] status in
+                print("payid loaded")
                 self.payId = status
             }
             .store(in: &bag)
@@ -321,15 +323,9 @@ class CardViewModel: Identifiable, ObservableObject {
 		updateState()
 	}
     
-    func update(with cardInfo: CardInfo) -> Bool {
-        guard cardInfo.card.cardId == cardInfo.card.cardId else {
-            return false
-        }
-        
+    func update(with cardInfo: CardInfo) {
         self.cardInfo = cardInfo
-        
         updateState()
-        return true
     }
     
     func updateState() {
