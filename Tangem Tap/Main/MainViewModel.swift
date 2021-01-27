@@ -51,9 +51,9 @@ class MainViewModel: ViewModel {
         didSet {
             warnings.objectWillChange
                 .receive(on: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] in
+                .sink(receiveValue: { [unowned self] in
                     withAnimation {
-                        self?.objectWillChange.send()
+                        self.objectWillChange.send()
                     }
                 })
                 .store(in: &bag)
@@ -163,8 +163,8 @@ class MainViewModel: ViewModel {
             .compactMap { $0.cardModel }
             .flatMap {$0.objectWillChange }
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
+            .sink { [unowned self] in
+                self.objectWillChange.send()
             }
             .store(in: &bag)
         
@@ -174,8 +174,8 @@ class MainViewModel: ViewModel {
             .compactMap { $0.walletModel }
             .flatMap { $0.objectWillChange }
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
+            .sink { [unowned self] in
+                self.objectWillChange.send()
             }
             .store(in: &bag)
         
