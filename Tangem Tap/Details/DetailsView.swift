@@ -48,11 +48,12 @@ struct HeaderView: View {
 struct FooterView: View {
     var text: String
     var body: some View {
-        HStack {
+        VStack(alignment: .leading) {
             Text(text)
                 .font(.footnote)
                 .foregroundColor(.tangemTapGrayDark)
                 .padding()
+            Color.clear.frame(height: 0)
         }
         .background(Color.tangemTapBgGray)
         .listRowInsets(EdgeInsets())
@@ -76,7 +77,8 @@ struct DetailsView: View {
                                subtitle: viewModel.cardCid)
                 DetailsRowView(title: "details_row_title_issuer".localized,
                                subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
-                if viewModel.cardModel.cardInfo.card.walletSignedHashes != nil, !viewModel.isTwinCard {
+                if viewModel.hasWallet, !viewModel.isTwinCard,
+                   viewModel.cardModel.cardInfo.card.walletSignedHashes != nil {
                     DetailsRowView(title: "details_row_title_signed_hashes".localized,
                                    subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
                                                     viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
@@ -103,9 +105,7 @@ struct DetailsView: View {
             }
             
             Section(header: HeaderView(text: "details_section_title_card".localized),
-                    footer: !viewModel.isTwinCard && !viewModel.cardModel.canPurgeWallet ?
-                        FooterView(text: "details_notification_erase_wallet_not_possible".localized).toAnyView()
-                        : EmptyView().toAnyView()) {
+                    footer: footerView) {
                 
                 NavigationLink(destination: SecurityManagementView(viewModel:
                                                                     viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
@@ -154,11 +154,20 @@ struct DetailsView: View {
             }
         }
     }
+    
+    var footerView: AnyView {
+        if let purgeWalletProhibitedDescription = viewModel.cardModel.purgeWalletProhibitedDescription {
+            return  FooterView(text: purgeWalletProhibitedDescription).toAnyView()
+        }
+        
+        return EmptyView().toAnyView()
+    }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
             .environmentObject(Assembly.previewAssembly.navigationCoordinator)
+            .previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
     }
 }

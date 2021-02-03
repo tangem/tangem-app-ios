@@ -40,6 +40,10 @@ class DetailsViewModel: ViewModel {
         }
     }
 	
+    var hasWallet: Bool {
+        cardModel.hasWallet
+    }
+    
 	var isTwinCard: Bool {
 		cardModel.isTwinCard
 	}
