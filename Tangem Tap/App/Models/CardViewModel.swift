@@ -42,6 +42,29 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.canSign
     }
     
+    var hasWallet: Bool {
+        if case .loaded = state { return true }
+        return false
+    }
+    
+    var purgeWalletProhibitedDescription: String? {
+        if isTwinCard {
+            return nil
+        }
+        
+        guard hasWallet else { return nil }
+        
+        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+            return TangemSdkError.purgeWalletProhibited.localizedDescription
+        }
+        
+        if !canPurgeWallet {
+            return "details_notification_erase_wallet_not_possible".localized
+        }
+        
+        return nil
+    }
+    
     var canPurgeWallet: Bool {
         if let status = cardInfo.card.status, status == .empty {
             return false
@@ -158,11 +181,13 @@ class CardViewModel: Identifiable, ObservableObject {
             .sink(receiveCompletion: { completion in
                     switch completion {
                     case .failure(let error):
+                        print("payid load failed")
                         Analytics.log(error: error)
                         print(error.localizedDescription)
                     case .finished:
                         break
                     }}){ [unowned self] status in
+                print("payid loaded")
                 self.payId = status
             }
             .store(in: &bag)
@@ -278,7 +303,9 @@ class CardViewModel: Identifiable, ObservableObject {
                                                       body: "initial_message_purge_wallet_body".localized)) {[unowned self] result in
             switch result {
             case .success(let response):
-                self.cardInfo.card = self.cardInfo.card.updating(with: response)
+                var card = self.cardInfo.card.updating(with: response)
+                card.walletSignedHashes = nil
+                self.cardInfo.card = card
                 self.updateState()
                 completion(.success(()))
             case .failure(let error):
@@ -296,6 +323,11 @@ class CardViewModel: Identifiable, ObservableObject {
 		updateState()
 	}
     
+    func update(with cardInfo: CardInfo) {
+        self.cardInfo = cardInfo
+        updateState()
+    }
+    
     func updateState() {
         if let wm = self.assembly.makeWalletModel(from: cardInfo) {
             self.state = .loaded(walletModel: wm)
@@ -304,6 +336,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         update()
+        objectWillChange.send()
     }
     
     private func updateCurrentSecOption() {
