@@ -48,16 +48,7 @@ struct BalanceView: View {
         VStack(alignment: .leading, spacing: 0) {
             
             Color.clear.frame(height: 16)
-            
-            if balanceViewModel.isToken {
-                Text("wallet_balance_token_title")
-                    .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                    .lineLimit(1)
-                    .foregroundColor(Color.tangemTapGrayDark)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 8)
-            }
-            
+
             HStack(alignment: .firstTextBaseline) {
                 Text(balanceViewModel.name)
                     .font(Font.system(size: 20.0, weight: .bold, design: .default))
@@ -77,7 +68,7 @@ struct BalanceView: View {
             }
             .padding(.horizontal, 24.0)
             .padding(.bottom, 8)
-
+            
             
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                 Image(balanceViewModel.loadingError == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
@@ -96,7 +87,7 @@ struct BalanceView: View {
                             .layoutPriority(1)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(accentColor)
-                        .fixedSize(horizontal: false, vertical: true)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 Spacer()
@@ -120,27 +111,21 @@ struct BalanceView: View {
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .lineLimit(1)
                     Spacer()
-                    Text(balanceViewModel.secondaryBalance)
-                        .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                        .foregroundColor(Color.tangemTapGrayDark6)
-                        .lineLimit(1)
-                    
-                }
-                .padding(.horizontal, 24.0)
-                
-                if !balanceViewModel.secondaryFiatBalance.isEmpty {
-                    HStack {
-                        Spacer()
+                    VStack(alignment: .trailing, spacing: 8) {
+                        Text(balanceViewModel.secondaryBalance)
+                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark6)
+                            .lineLimit(1)
                         Text(balanceViewModel.secondaryFiatBalance)
                             .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .lineLimit(1)
                             .foregroundColor(Color.tangemTapGrayDark)
                     }
-                    .padding(.horizontal, 24.0)
-                    .padding(.top, 8)
+                    
                 }
+                .padding(.horizontal, 24.0)
                 
-                  Color.clear.frame(height: 16)
+                Color.clear.frame(height: 16)
             }
         }
         .background(Color.white)
@@ -150,9 +135,9 @@ struct BalanceView: View {
 
 struct BalanceView_Previews: PreviewProvider {
     static var previews: some View {
-        Group {
-            ZStack {
-                Color.tangemTapBgGray
+        ZStack {
+            Color.tangemTapBgGray
+            VStack {
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
                                                                hasTransactionInProgress: false,
                                                                isLoading: false,
@@ -162,10 +147,19 @@ struct BalanceView_Previews: PreviewProvider {
                                                                balance: "0.00000348573986753845001 BTC",
                                                                secondaryBalance: "", secondaryFiatBalance: "",
                                                                secondaryName: ""))
-                 .padding(.horizontal, 16)
-            }
-            ZStack {
-                Color.tangemTapBgGray
+                    .padding(.horizontal, 16)
+                
+                BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
+                                                               hasTransactionInProgress: false,
+                                                               isLoading: true,
+                                                               loadingError: nil,
+                                                               name: "Ethereum smart contract token",
+                                                               fiatBalance: "$3.45",
+                                                               balance: "0.00000348573986753845001 BTC",
+                                                               secondaryBalance: "", secondaryFiatBalance: "",
+                                                               secondaryName: ""))
+                    .padding(.horizontal, 16)
+                
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: false,
                                                                isLoading: false,
@@ -177,9 +171,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                secondaryFiatBalance: "",
                                                                secondaryName: "Bitcoin"))
                     .padding(.horizontal, 16)
-            }
-            ZStack {
-                Color.tangemTapBgGray
+                
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: true,
                                                                isLoading: false,
@@ -190,7 +182,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                secondaryBalance: "19 BTC",
                                                                secondaryFiatBalance: "10 USD",
                                                                secondaryName: "Bitcoin"))
-                 .padding(.horizontal, 16)
+                    .padding(.horizontal, 16)
             }
         }
     }

@@ -29,14 +29,9 @@ struct WebViewContainer: View {
     }
     
     var body: some View {
-		VStack(spacing: 0) {
-			NavigationBar(title: title, backAction: { self.presentationMode.wrappedValue.dismiss() })
-			WebView(url: url, urlActions: urlActions)
-		}
-		.navigationBarTitle("", displayMode: .inline)
-		.navigationBarHidden(true)
-		.background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
-//		.navigationBarBackButtonHidden(false)
+        WebView(url: url, urlActions: urlActions)
+            .navigationBarTitle(title, displayMode: .inline)
+            .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
     }
 }
 
