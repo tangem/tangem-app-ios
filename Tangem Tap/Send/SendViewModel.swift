@@ -12,6 +12,7 @@ import Combine
 import EFQRCode
 import BlockchainSdk
 import TangemSdk
+import stellarsdk
 
 struct TextHint {
     let isError: Bool
@@ -19,14 +20,16 @@ struct TextHint {
 }
 
 class SendViewModel: ViewModel {
-    @Published var navigation: NavigationCoordinator!
+    weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
     weak var featuresService: AppFeaturesService!
     
+    private unowned let warningsManager: WarningsManager
+    
     @Published var showCameraDeniedAlert = false
     
-    //MARK: Input
+    // MARK: Input
     @Published var validatedClipboard: String? = nil
     @Published var destination: String = ""
     @Published var amountText: String = "0"
@@ -36,8 +39,20 @@ class SendViewModel: ViewModel {
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
     
+    @ObservedObject var warnings = WarningsContainer() {
+        didSet {
+            warnings.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] in
+                    withAnimation {
+                        self?.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
     
-    //MARK: UI
+    // MARK: UI
     var shoudShowFeeSelector: Bool {
         return walletModel.txSender.allowsFeeSelection
     }
@@ -55,9 +70,21 @@ class SendViewModel: ViewModel {
             && cardViewModel.payIDService != nil
     }
     
+    var hasAdditionalInputFields: Bool {
+        additionalInputFields != .none
+    }
+    
+    var additionalInputFields: SendAdditionalFields {
+        .fields(for: cardViewModel.cardInfo.card)
+    }
+    
+    var inputDecimalsCount: Int? {
+        isFiatCalculation ? 2 : cardViewModel.state.wallet?.blockchain.decimalCount
+    }
+    
     @Published var isNetworkFeeBlockOpen: Bool = false
     
-    //MARK: Output
+    // MARK: Output
     @Published var destinationHint: TextHint? = nil
     @Published var amountHint: TextHint? = nil
     @Published var sendAmount: String = ""
@@ -70,6 +97,14 @@ class SendViewModel: ViewModel {
     @Published var canFiatCalculation: Bool = true
     @Published var oldCardAlert: AlertBinder?
     @Published var isFeeLoading: Bool = false
+    
+    // MARK: Additional input
+    @Published var isAdditionalInputEnabled: Bool = false
+	@Published var memo: String = ""
+    @Published var memoHint: TextHint? = nil
+    @Published var validatedMemoId: UInt64? = nil
+    @Published var destinationTagStr: String = ""
+    @Published var destinationTagHint: TextHint? = nil
     
     @Published var sendError: AlertBinder?
     
@@ -119,12 +154,13 @@ class SendViewModel: ViewModel {
     @Published private var amountValidated: Bool = false
     @Published private var amountToSend: Amount
     
-    private var validatedTag: String? = nil
+    @Published private var validatedXrpDestinationTag: UInt32? = nil
     
-    init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner) {
+    init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
         self.signer = signer
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
+        self.warningsManager = warningsManager
         let feeDummyAmount = Amount(with: walletModel.wallet.blockchain,
                                     address: walletModel.wallet.address,
                                     type: .coin,
@@ -133,6 +169,7 @@ class SendViewModel: ViewModel {
         
         fillTotalBlockWithDefaults()
         bind()
+        setupWarnings()
     }
     
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
@@ -141,9 +178,8 @@ class SendViewModel: ViewModel {
     }
     
     private func fillTotalBlockWithDefaults() {
-        //let sendDummyAmount = Amount(with: self.amountToSend, value: 0)
-        self.sendAmount = "-" //getDescription(for: sendDummyAmount)
-        self.sendTotal = "-" // amountToSend.type == .coin ? getDescription(for: sendDummyAmount) : "-"
+        self.sendAmount = "-"
+        self.sendTotal = "-"
         self.sendTotalSubtitle = ""
     }
     
@@ -344,12 +380,47 @@ class SendViewModel: ViewModel {
                 self.transaction = tx
             }
             .store(in: &bag)
+        
+        $destinationTagStr
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .sink(receiveValue: { [unowned self] destTagStr in
+                self.validatedXrpDestinationTag = nil
+                self.destinationTagHint = nil
+                
+                if destTagStr.isEmpty { return }
+                
+                let tag = UInt32(destTagStr)
+                self.validatedXrpDestinationTag = tag
+                self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_error_invalid_destination_tag".localized) : nil
+            })
+            .store(in: &bag)
+        
+        $memo
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .sink(receiveValue: { [unowned self] memo in
+                self.validatedMemoId = nil
+                self.memoHint = nil
+                
+                if memo.isEmpty { return }
+                
+                let memoId = UInt64(memo)
+                self.validatedMemoId = memoId
+                self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
+            })
+            .store(in: &bag)
     }
     
     func onAppear() {
         validateClipboard()
-        
-        oldCardAlert = AlertManager().getAlert(.oldDeviceOldCard, for: cardViewModel.cardInfo.card)
+        setupWarnings()
+    }
+    
+    func onEnterForeground() {
+        validateClipboard()
     }
     
     func validateClipboard() {
@@ -372,14 +443,15 @@ class SendViewModel: ViewModel {
     
     func validateDestination(_ destination: String) {
         validatedDestination = nil
-        validatedTag = nil
         destinationHint = nil
+        isAdditionalInputEnabled = false
         
         if destination.isEmpty {
             return
         }
         
-        if let payIdService = cardViewModel.payIDService,
+        if isPayIdSupported,
+           let payIdService = cardViewModel.payIDService,
            payIdService.validate(destination) {
             payIdService.resolve(destination) {[weak self] result in
                 switch result {
@@ -387,25 +459,32 @@ class SendViewModel: ViewModel {
                     if let address = resolvedDetails.address,
                        self?.validateAddress(address) ?? false {
                         self?.validatedDestination = resolvedDetails.address
-                        self?.validatedTag = resolvedDetails.tag
+                        self?.destinationTagStr = resolvedDetails.tag ?? ""
                         self?.destinationHint = TextHint(isError: false,
                                                          message: address)
+                        self?.setAdditionalInputVisibility(for: address)
                     } else {
                         self?.destinationHint = TextHint(isError: true,
                                                          message: "send_validation_invalid_address".localized)
+                        self?.setAdditionalInputVisibility(for: nil)
+                        
                     }
                 case .failure(let error):
                     self?.destinationHint = TextHint(isError: true,
                                                      message: error.localizedDescription)
+                    self?.setAdditionalInputVisibility(for: nil)
                 }
+                
             }
             
         } else {
             if validateAddress(destination) {
                 validatedDestination = destination
+                setAdditionalInputVisibility(for: destination)
             } else {
                 destinationHint = TextHint(isError: true,
                                            message: "send_validation_invalid_address".localized)
+                setAdditionalInputVisibility(for: nil)
             }
         }
     }
@@ -444,13 +523,41 @@ class SendViewModel: ViewModel {
         return cleaned.remove(walletModel.wallet.blockchain.qrPrefix)
     }
     
+    func setAdditionalInputVisibility(for address: String?) {
+        let isInputEnabled: Bool
+        defer {
+            withAnimation {
+                isAdditionalInputEnabled = isInputEnabled
+            }
+        }
+        
+        guard let address = address else {
+            isInputEnabled = false
+            return
+        }
+        
+        switch additionalInputFields {
+        case .destinationTag:
+            let xrpXAddress = try? XRPAddress.decodeXAddress(xAddress: address)
+            isInputEnabled = xrpXAddress == nil
+        case .memo:
+            isInputEnabled = true
+        default:
+            isInputEnabled = false
+        }
+    }
+    
     func send(_ callback: @escaping () -> Void) {
         guard var tx = self.transaction else {
             return
         }
         
-        if let payIdTag = self.validatedTag {
-            tx.params = XRPTransactionParams.destinationTag(payIdTag)
+        if let destinationTag = self.validatedXrpDestinationTag {
+            tx.params = XRPTransactionParams(destinationTag: destinationTag)
+        }
+        
+        if let memo = self.validatedMemoId, isAdditionalInputEnabled {
+            tx.params = StellarTransactionParams(memo: .id(memo))
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -467,6 +574,7 @@ class SendViewModel: ViewModel {
                     Analytics.log(error: error)
                     self.sendError = error.detailedError.alertBinder
                 } else {
+                    walletModel.startUpdatingTimer()
                     Analytics.logTx(blockchainName: self.cardViewModel.cardInfo.card.cardData?.blockchainName)
                     callback()
                 }
@@ -477,11 +585,21 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
     }
     
+    func warningButtonAction(at index: Int, priority: WarningPriority) {
+        guard let warning = warnings.warning(at: index, with: priority) else { return }
+        
+        warningsManager.hideWarning(warning)
+    }
+    
     func openSystemSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }
+    }
+    
+    private func setupWarnings() {
+        warnings = warningsManager.warnings(for: .send)
     }
 }

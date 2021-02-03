@@ -11,7 +11,7 @@ import SwiftUI
 import Combine
 
 class SecurityManagementViewModel: ViewModel {
-    var navigation: NavigationCoordinator!
+    weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     var bag = Set<AnyCancellable>()
     
@@ -40,7 +40,7 @@ class SecurityManagementViewModel: ViewModel {
     func onTap() {
         switch selectedOption {
         case .accessCode, .passCode:
-            navigation.openWarning = true
+            navigation.securityToWarning = true
         case .longTap:
             isLoading = true
             cardViewModel.changeSecOption(.longTap) { result in
