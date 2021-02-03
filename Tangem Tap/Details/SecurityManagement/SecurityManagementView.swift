@@ -90,7 +90,7 @@ struct SecurityManagementView: View {
 			NavigationLink(destination: CardOperationView(title: viewModel.selectedOption.title,
 														  alert: "details_security_management_warning".localized,
 														  actionButtonPressed: viewModel.actionButtonPressedHandler),
-						   isActive: $navigation.openWarning)
+						   isActive: $navigation.securityToWarning)
         }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_manage_security_title", displayMode: .inline)
