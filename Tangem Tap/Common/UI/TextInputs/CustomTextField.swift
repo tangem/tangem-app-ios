@@ -17,7 +17,7 @@ struct CustomTextField: UIViewRepresentable {
         @Binding var isResponder : Bool?
         @Binding var actionButtonTapped: Bool
         let placeholder: String
-        let decimalCount: Int?
+        var decimalCount: Int?
         let defaultStringToClear: String?
         
         init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
@@ -113,6 +113,7 @@ struct CustomTextField: UIViewRepresentable {
     var handleKeyboard : Bool = false
     var actionButton : String? =  nil
     var keyboard : UIKeyboardType = .default
+	var clearButtonMode: UITextField.ViewMode = .never
     var textColor: UIColor = UIColor.tangemTapGrayDark4
     var font: UIFont = UIFont.systemFont(ofSize: 16.0)
     let placeholder: String
@@ -133,6 +134,7 @@ struct CustomTextField: UIViewRepresentable {
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.required, for: .vertical)
+		textField.clearButtonMode = clearButtonMode
         var toolbarItems =  [UIBarButtonItem]()
         if handleKeyboard {
         toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
@@ -175,7 +177,7 @@ struct CustomTextField: UIViewRepresentable {
     
     func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
         uiView.text = text
-        
+        context.coordinator.decimalCount = decimalCount
         if isResponder ?? false {
             DispatchQueue.main.async {
                 uiView.becomeFirstResponder()
