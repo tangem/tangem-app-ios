@@ -18,11 +18,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var featuresService: AppFeaturesService!
     var payIDService: PayIDService? = nil
     weak var tangemSdk: TangemSdk!
-    weak var assembly: Assembly! {
-        didSet {
-            updateState()
-        }
-    }
+    weak var assembly: Assembly!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -43,17 +39,30 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canSign: Bool {
-        let isPin2Default = cardInfo.card.isPin2Default ?? true
-        let hasSmartSecurityDelay = cardInfo.card.settingsMask?.contains(.smartSecurityDelay) ?? false
-        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
-        
-        if let fw = cardInfo.card.firmwareVersionValue, fw < 2.28 {
-            if let securityDelay = cardInfo.card.pauseBeforePin2, securityDelay > 1500 && !canSkipSD {
-                return false
-            }
+        cardInfo.card.canSign
+    }
+    
+    var hasWallet: Bool {
+        if case .loaded = state { return true }
+        return false
+    }
+    
+    var purgeWalletProhibitedDescription: String? {
+        if isTwinCard {
+            return nil
         }
         
-        return true
+        guard hasWallet else { return nil }
+        
+        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+            return TangemSdkError.purgeWalletProhibited.localizedDescription
+        }
+        
+        if !canPurgeWallet {
+            return "details_notification_erase_wallet_not_possible".localized
+        }
+        
+        return nil
     }
     
     var canPurgeWallet: Bool {
@@ -172,11 +181,13 @@ class CardViewModel: Identifiable, ObservableObject {
             .sink(receiveCompletion: { completion in
                     switch completion {
                     case .failure(let error):
+                        print("payid load failed")
                         Analytics.log(error: error)
                         print(error.localizedDescription)
                     case .finished:
                         break
                     }}){ [unowned self] status in
+                print("payid loaded")
                 self.payId = status
             }
             .store(in: &bag)
@@ -292,7 +303,9 @@ class CardViewModel: Identifiable, ObservableObject {
                                                       body: "initial_message_purge_wallet_body".localized)) {[unowned self] result in
             switch result {
             case .success(let response):
-                self.cardInfo.card = self.cardInfo.card.updating(with: response)
+                var card = self.cardInfo.card.updating(with: response)
+                card.walletSignedHashes = nil
+                self.cardInfo.card = card
                 self.updateState()
                 completion(.success(()))
             case .failure(let error):
@@ -310,6 +323,22 @@ class CardViewModel: Identifiable, ObservableObject {
 		updateState()
 	}
     
+    func update(with cardInfo: CardInfo) {
+        self.cardInfo = cardInfo
+        updateState()
+    }
+    
+    func updateState() {
+        if let wm = self.assembly.makeWalletModel(from: cardInfo) {
+            self.state = .loaded(walletModel: wm)
+        } else {
+            self.state = .empty
+        }
+        
+        update()
+        objectWillChange.send()
+    }
+    
     private func updateCurrentSecOption() {
         if !(cardInfo.card.isPin1Default ?? true) {
             self.currentSecOption = .accessCode
@@ -319,16 +348,6 @@ class CardViewModel: Identifiable, ObservableObject {
         else {
             self.currentSecOption = .longTap
         }
-    }
-    
-    private func updateState() {
-        if let wm = self.assembly.makeWalletModel(from: cardInfo) {
-            self.state = .loaded(walletModel: wm)
-        } else {
-            self.state = .empty
-        }
-        
-        update()
     }
 }
 
@@ -378,4 +397,9 @@ extension CardViewModel {
         let assembly = Assembly.previewAssembly
         return assembly.cardsRepository.cards[Card.testCardNoWallet.cardId!]!.cardModel!
     }
+	
+	static var previewTwinCardViewModel: CardViewModel {
+		let assembly = Assembly.previewAssembly
+		return assembly.cardsRepository.cards[Card.testTwinCard.cardId!]!.cardModel!
+	}
 }
