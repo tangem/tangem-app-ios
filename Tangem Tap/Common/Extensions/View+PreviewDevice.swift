@@ -9,24 +9,16 @@
 import SwiftUI
 
 extension View {
-	func previewGroup() -> some View {
-		Group {
-			self.deviceForPreview(.iPhone7)
-			self.deviceForPreview(.iPhone11Pro)
-			self.deviceForPreview(.iPhone11ProMax)
-		}
-	}
-	
-	func previewGroup(devices: [PreviewDeviceType]) -> some View {
-		Group {
-			ForEach(devices) {
-				self.deviceForPreview($0)
-			}
-		}
-	}
+    func previewGroup(devices: [PreviewDeviceType] = PreviewDeviceType.allCases) -> some View {
+        Group {
+            ForEach(devices) {
+                self.deviceForPreview($0)
+            }
+        }
+    }
 }
 
-enum PreviewDeviceType: String, Identifiable {
+enum PreviewDeviceType: String, Identifiable, CaseIterable {
 	var id: UUID { UUID() }
 	
 	case iPhone7 = "iPhone 7"
