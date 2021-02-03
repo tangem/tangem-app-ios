@@ -92,69 +92,27 @@ class CardsRepository {
 				}
 				
 				Analytics.logScan(card: response.card)
-				
-                let res = processScanResponse(response)
-				completion(.success(res))
+				completion(.success(processScan(response.getCardInfo())))
             }
         }
     }
-	
-	@discardableResult
-	func processScanResponse(_ response: TapScanTaskResponse) -> ScanResult {
-        let card = response.card
-		let cardInfo = CardInfo(card: card,
-								verificationState: response.verifyResponse.verificationState,
-								artworkInfo: response.verifyResponse.artworkInfo,
-								twinCardInfo: self.decodeTwinFile(from: response))
-		
-		self.featuresService.setupFeatures(for: card)
-        self.warningsConfigurator.setupWarnings(for: card)
+
+	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
+        self.featuresService.setupFeatures(for: cardInfo.card)
+        self.warningsConfigurator.setupWarnings(for: cardInfo.card)
 	   
 		if !self.featuresService.linkedTerminal {
 			self.tangemSdk.config.linkedTerminal = false
 		}
-		
+        
+        if cardInfo.card.isTwinCard {
+            tangemSdk.config.cardIdDisplayedNumbersCount = 4
+        }
+        
 		let cm = self.assembly.makeCardModel(from: cardInfo)
 		let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
 		self.cards[cardInfo.card.cardId!] = res
 		self.lastScanResult = res
 		return res
 	}
-	
-	private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
-		guard
-			response.card.isTwinCard,
-			let cardId = response.card.cardId
-        else {
-            tangemSdk.config.cardIdDisplayedNumbersCount = nil
-            return nil
-        }
-		
-		var pairPublicKey: Data?
-        let fullData = response.twinIssuerData
-        if let walletPubKey = response.card.walletPublicKey, fullData.count == 129 {
-            let pairPubKey = fullData[0..<65]
-            let signature = fullData[65..<fullData.count]
-            if Secp256k1Utils.vefify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
-               pairPublicKey = pairPubKey
-            }
-        }
-        
-        
-//		for file in response.files {
-//			do {
-//				let twinFile = try twinCardFileDecoder.decode(file)
-//				if twinFile.fileTypeName == TwinsWalletCreationService.twinFileName {
-//					pairPublicKey = twinFile.publicKey
-//					break
-//				}
-//			} catch {
-//				print("File doesn't contain twin card dara")
-//			}
-//		}
-        
-        tangemSdk.config.cardIdDisplayedNumbersCount = 4
-		return TwinCardInfo(cid: cardId, series: TwinCardSeries.series(for: response.card.cardId), pairCid: TwinCardsUtils.makePairCid(for: cardId), pairPublicKey: pairPublicKey)
-	}
-	
 }

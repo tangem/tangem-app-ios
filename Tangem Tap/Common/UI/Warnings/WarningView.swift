@@ -35,33 +35,31 @@ struct WarningView: View {
     var buttonAction: () -> Void = { }
     
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(warning.title)
-                    .font(.system(size: 14, weight: .bold))
-                    .padding(.top, 16)
-                    .padding(.bottom, 8)
-                    .foregroundColor(.white)
-                Text(warning.message)
-                    .font(.system(size: 13, weight: .medium))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineSpacing(8)
-                    .foregroundColor(warning.priority.messageColor)
-                    .padding(.bottom, warning.type.isWithAction ? 8 : 16)
-                
-                if warning.type.isWithAction {
-                    HStack {
-                        Spacer()
-                        Button(action: buttonAction, label: {
-                            Text("wallet_warning_button_ok")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white)
-                        })
-                    }
-                    .padding(EdgeInsets(top: 0, leading: 20, bottom: 16, trailing: 20))
+        VStack(alignment: .leading, spacing: 0) {
+            Text(warning.title)
+                .font(.system(size: 14, weight: .bold))
+                .padding(.top, 16)
+                .padding(.bottom, 8)
+                .foregroundColor(.white)
+            Text(warning.message)
+                .font(.system(size: 13, weight: .medium))
+                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(8)
+                .foregroundColor(warning.priority.messageColor)
+                .padding(.bottom, warning.type.isWithAction ? 8 : 16)
+            
+            if warning.type.isWithAction {
+                HStack {
+                    Spacer()
+                    Button(action: buttonAction, label: {
+                        Text("wallet_warning_button_ok")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+                    })
                 }
+                .padding(EdgeInsets(top: 0, leading: 20, bottom: 16, trailing: 0))
             }
-            Spacer()
+            Color.clear.frame(height: 0, alignment: .center)
         }
         .padding(.horizontal, 24)
         .background(warning.priority.backgroundColor)
