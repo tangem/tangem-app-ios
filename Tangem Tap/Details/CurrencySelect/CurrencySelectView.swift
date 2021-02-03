@@ -13,36 +13,46 @@ import Combine
 struct CurrencySelectView: View {
     @ObservedObject var viewModel: CurrencySelectViewModel
     @Environment(\.presentationMode) var presentationMode
-
-   // [REDACTED_USERNAME] private var selected: String = ""
+    
+    @State private var searchText: String = ""
+    
     var body: some View {
         VStack {
             if viewModel.loading {
-            ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark)
+                ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark)
             } else {
-                List (viewModel.currencies) { currency in
-                    HStack {
-                        Text("\(currency.name) (\(currency.symbol)) - \(currency.sign)")
-                            .font(.system(size: 16, weight: .regular, design: .default))
-                            .foregroundColor(.tangemTapGrayDark6)
-                        Spacer()
-                        if self.viewModel.ratesService.selectedCurrencyCode == currency.symbol {
-                            Image("checkmark.circle")
-                                .font(.system(size: 18, weight: .regular, design: .default))
-                                .foregroundColor(Color.tangemTapGreen)
+                VStack {
+                    SearchBar(text: $searchText, placeholder: "Search")
+                    List {
+                        ForEach(
+                            viewModel.currencies.filter {
+                                searchText.isEmpty ||
+                                    $0.description.localizedStandardContains(searchText)
+                            }) { currency in
+                            HStack {
+                                Text(currency.description)
+                                    .font(.system(size: 16, weight: .regular, design: .default))
+                                    .foregroundColor(.tangemTapGrayDark6)
+                                Spacer()
+                                if self.viewModel.ratesService.selectedCurrencyCode == currency.symbol {
+                                    Image("checkmark.circle")
+                                        .font(.system(size: 18, weight: .regular, design: .default))
+                                        .foregroundColor(Color.tangemTapGreen)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                self.viewModel.objectWillChange.send()
+                                self.viewModel.ratesService.selectedCurrencyCode = currency.symbol
+                            }
                         }
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        self.viewModel.objectWillChange.send()
-                        self.viewModel.ratesService.selectedCurrencyCode = currency.symbol
-                       // self.selected = currency.symbol
-                    }
+                    
                 }
                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
             }
         }
-		.navigationBarTitle("", displayMode: .inline)
+        .navigationBarTitle("details_row_title_currency", displayMode: .inline)
         .onAppear {
             self.viewModel.onAppear()
         }
