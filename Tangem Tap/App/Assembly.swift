@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class Assembly {
 	let keysManager = try! KeysManager()
+    let configManager = try! FeaturesConfigManager()
     
     lazy var tangemSdk: TangemSdk = {
         let sdk = TangemSdk()
@@ -23,7 +24,8 @@ class Assembly {
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = NetworkService()
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
-	lazy var featuresService = AppFeaturesService()
+    lazy var featuresService = AppFeaturesService(configProvider: configManager)
+    lazy var warningsService = WarningsService(remoteWarningProvider: configManager)
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -33,7 +35,7 @@ class Assembly {
     }()
     
     lazy var cardsRepository: CardsRepository = {
-		let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder())
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         crepo.featuresService = featuresService
@@ -62,7 +64,11 @@ class Assembly {
     
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
-			restored.state = cardsRepository.lastScanResult
+            let restoredCid = restored.state.card?.cardId ?? ""
+            let newCid = cardsRepository.lastScanResult.card?.cardId ?? ""
+            if restoredCid != newCid {
+                restored.state = cardsRepository.lastScanResult
+            }
             return restored
         }
         let vm =  MainViewModel()
@@ -70,8 +76,9 @@ class Assembly {
         vm.cardsRepository = cardsRepository
         vm.imageLoaderService = imageLoaderService
         vm.topupService = topupService
-        vm.state = cardsRepository.lastScanResult
 		vm.userPrefsService = userPrefsService
+        vm.warningsManager = warningsService
+        vm.state = cardsRepository.lastScanResult
         return vm
     }
     
@@ -107,11 +114,10 @@ class Assembly {
 		if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
-        vm.update()
+        vm.updateState()
         return vm
     }
     
-
 	func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
 		// This is needed to prevent updating state of views that already in view hierarchy. Creating new model for each state
 		// not so good solution, but this crucial when creating Navigation link without condition closures and Navigation link
@@ -123,21 +129,21 @@ class Assembly {
 		let name = String(describing: DisclaimerViewModel.self) + "_\(state)"
 		let isTwin = cardsRepository.lastScanResult.cardModel?.isTwinCard ?? false
 		if let vm: DisclaimerViewModel = get(key: name) {
-			vm.isTwinCard = isTwin
-			vm.state = state
+            vm.isTwinCard = isTwin
 			return vm
 		}
 		
-		let vm = DisclaimerViewModel(isTwinCard: isTwin)
+		let vm = DisclaimerViewModel()
         vm.state = state
+        vm.isTwinCard = isTwin
         vm.userPrefsService = userPrefsService
 		initialize(vm, with: name)
         return vm
     }
     
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
-
         if let restored: DetailsViewModel = get() {
+            restored.cardModel = card
             return restored
         }
         
@@ -175,14 +181,14 @@ class Assembly {
             return restored
         }
         
-        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer)
+        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer, warningsManager: warningsService)
         initialize(vm)
         vm.ratesService = ratesService
         vm.featuresService = featuresService
         return vm
     }
 	
-	func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
+    func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
 		let scanResult = cardsRepository.lastScanResult
         let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
         let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series?.pair.number ?? 1)
@@ -194,8 +200,9 @@ class Assembly {
 	}
 	
 	func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
-		let key = String(describing: TwinCardOnboardingView.self) + "_" + state.storageKey
+		let key = String(describing: TwinCardOnboardingViewModel.self) + "_" + state.storageKey
 		if let vm: TwinCardOnboardingViewModel = get(key: key) {
+            vm.state = state
 			return vm
 		}
 		
@@ -206,8 +213,9 @@ class Assembly {
 	}
 	
 	func makeTwinsWalletCreationViewModel(isRecreating: Bool) -> TwinsWalletCreationViewModel {
-		let twinInfo = cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo!
-		twinsWalletCreationService.setupTwins(for: twinInfo)
+        if let twinInfo = cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo {
+            twinsWalletCreationService.setupTwins(for: twinInfo)
+        }
 		if let vm: TwinsWalletCreationViewModel = get() {
 			vm.walletCreationService = twinsWalletCreationService
 			return vm
@@ -231,10 +239,13 @@ class Assembly {
 	}
     
     public func reset() {
-        let mainKey = String(describing: type(of: MainViewModel.self))
-        let readKey = String(describing: type(of: ReadViewModel.self))
+        var persistentKeys = [String]()
+        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
+        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
+        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
+        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
         
-        let indicesToRemove = modelsStorage.keys.filter { $0 != mainKey && $0 != readKey }
+        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
         indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
     }
 	
@@ -244,7 +255,7 @@ class Assembly {
     }
 	
 	private func store<T>(_ object: T, with key: String) {
-		print(key)
+		//print(key)
 		modelsStorage[key] = object
 	}
     
@@ -261,15 +272,20 @@ class Assembly {
 extension Assembly {
     static var previewAssembly: Assembly = {
         let assembly = Assembly()
-		let card = Card.testTwinCard
-        let ci = CardInfo(card: card,
+        let twinCard = Card.testTwinCard
+        let ci = CardInfo(card: twinCard,
                           verificationState: nil,
-						  artworkInfo: nil,
-						  twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
+                          artworkInfo: nil,
+                          twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
         let vm = assembly.makeCardModel(from: ci)!
         let scanResult = ScanResult.card(model: vm)
-        assembly.cardsRepository.cards[card.cardId!] = scanResult
-		assembly.cardsRepository.lastScanResult = scanResult
+        assembly.cardsRepository.cards[twinCard.cardId!] = scanResult
+        let testCard = Card.testCard
+        let testCardCi = CardInfo(card: testCard, verificationState: nil, artworkInfo: nil, twinCardInfo: nil)
+        let testCardVm = assembly.makeCardModel(from: testCardCi)!
+        let testCardScan = ScanResult.card(model: testCardVm)
+        assembly.cardsRepository.cards[testCard.cardId!] = testCardScan
+        assembly.cardsRepository.lastScanResult = testCardScan
         return assembly
     }()
 }
