@@ -14,7 +14,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     let assembly = Assembly()
-    
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
@@ -24,7 +24,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		assembly.userPrefsService.numberOfLaunches += 1
 		print("Launch number:", assembly.userPrefsService.numberOfLaunches)
      
-		let contentView = ReadView(viewModel: assembly.makeReadViewModel()).environmentObject(assembly.navigationCoordinator)
+        let vm = assembly.makeReadViewModel()
+        let contentView = ContentView() { ReadView(viewModel: vm) }
+            .environmentObject(assembly.navigationCoordinator)
+            
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
