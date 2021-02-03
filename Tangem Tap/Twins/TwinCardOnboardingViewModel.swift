@@ -12,7 +12,8 @@ import SwiftUI
 class TwinCardOnboardingViewModel: ViewModel {
 	
 	enum State: Equatable {
-        case onboarding(withPairCid: String, isFromMain: Bool), warning(isRecreating: Bool)
+        case onboarding(withPairCid: String, isFromMain: Bool)
+        case warning(isRecreating: Bool)
 		
 		var backgroundName: String {
 			switch self {
@@ -30,10 +31,10 @@ class TwinCardOnboardingViewModel: ViewModel {
 		
 		var storageKey: String {
 			switch self {
-			case let .onboarding(withPairCid, isFromMain):
-				return "onboarding_\(withPairCid)_\(isFromMain)"
-			case .warning:
-				return "onboarding_warning"
+			case let .onboarding(_, isFromMain):
+				return "onboarding_\(isFromMain)"
+			case .warning(let isRecreating):
+				return "onboarding_warning_\(isRecreating)"
 			}
 		}
 		
@@ -43,6 +44,33 @@ class TwinCardOnboardingViewModel: ViewModel {
 			case .warning: return .orange
 			}
 		}
+        
+        var isRecreating: Bool {
+            switch self {
+            case .warning(let isRecreating):
+                return isRecreating
+            default:
+                return false
+            }
+        }
+        
+        var isWarning: Bool {
+            switch self {
+            case .warning:
+                return true
+            default:
+                return false
+            }
+        }
+        
+        var isFromMain: Bool {
+            switch self {
+            case let .onboarding(_, isFromMain):
+                return isFromMain
+            default:
+                return false
+            }
+        }
 	}
 	
 	weak var navigation: NavigationCoordinator!
@@ -54,7 +82,7 @@ class TwinCardOnboardingViewModel: ViewModel {
 	@Published var secondTwinImage: UIImage = UIImage()
 	
 	var state: State
-	
+	var appeared = false
 	private var bag = Set<AnyCancellable>()
 	
 	init(state: State, imageLoader: ImageLoaderService) {
@@ -86,14 +114,21 @@ class TwinCardOnboardingViewModel: ViewModel {
 	func buttonAction() {
 		switch state {
 		case .onboarding(_, let isFromMain):
-			if navigation.showTwinCardOnboarding {
-				navigation.showTwinCardOnboarding = false
+			if navigation.mainToTwinOnboarding {
+				navigation.mainToTwinOnboarding = false
 			} else if !isFromMain {
-				navigation.onboardingOpenMain = true
+				navigation.twinOnboardingToMain = true
 			}
 			userPrefsService.isTwinCardOnboardingWasDisplayed = true
 		case .warning:
-			navigation.onboardingOpenTwinCardWalletCreation = true
+            if #available(iOS 14.0, *) {
+                self.navigation.twinOnboardingToTwinWalletCreation = true
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    //fix navbar blink on ios 13
+                    self.navigation.twinOnboardingToTwinWalletCreation = true
+                }
+            }
 		}
 	}
 	
