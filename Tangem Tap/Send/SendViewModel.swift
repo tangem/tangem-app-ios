@@ -169,6 +169,7 @@ class SendViewModel: ViewModel {
         
         fillTotalBlockWithDefaults()
         bind()
+        setupWarnings()
     }
     
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
@@ -177,9 +178,8 @@ class SendViewModel: ViewModel {
     }
     
     private func fillTotalBlockWithDefaults() {
-        //let sendDummyAmount = Amount(with: self.amountToSend, value: 0)
-        self.sendAmount = "-" //getDescription(for: sendDummyAmount)
-        self.sendTotal = "-" // amountToSend.type == .coin ? getDescription(for: sendDummyAmount) : "-"
+        self.sendAmount = "-"
+        self.sendTotal = "-"
         self.sendTotalSubtitle = ""
     }
     
@@ -387,7 +387,7 @@ class SendViewModel: ViewModel {
             .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [unowned self] destTagStr in
                 self.validatedXrpDestinationTag = nil
-                self.destinationHint = nil
+                self.destinationTagHint = nil
                 
                 if destTagStr.isEmpty { return }
                 
@@ -416,7 +416,7 @@ class SendViewModel: ViewModel {
     
     func onAppear() {
         validateClipboard()
-        warnings = warningsManager.warnings(for: .send)
+        setupWarnings()
     }
     
     func onEnterForeground() {
@@ -450,7 +450,8 @@ class SendViewModel: ViewModel {
             return
         }
         
-        if let payIdService = cardViewModel.payIDService,
+        if isPayIdSupported,
+           let payIdService = cardViewModel.payIDService,
            payIdService.validate(destination) {
             payIdService.resolve(destination) {[weak self] result in
                 switch result {
@@ -458,7 +459,7 @@ class SendViewModel: ViewModel {
                     if let address = resolvedDetails.address,
                        self?.validateAddress(address) ?? false {
                         self?.validatedDestination = resolvedDetails.address
-                        self?.validatedXrpDestinationTag = UInt32(resolvedDetails.tag ?? "")
+                        self?.destinationTagStr = resolvedDetails.tag ?? ""
                         self?.destinationHint = TextHint(isError: false,
                                                          message: address)
                         self?.setAdditionalInputVisibility(for: address)
@@ -573,6 +574,7 @@ class SendViewModel: ViewModel {
                     Analytics.log(error: error)
                     self.sendError = error.detailedError.alertBinder
                 } else {
+                    walletModel.startUpdatingTimer()
                     Analytics.logTx(blockchainName: self.cardViewModel.cardInfo.card.cardData?.blockchainName)
                     callback()
                 }
@@ -595,5 +597,9 @@ class SendViewModel: ViewModel {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }
+    }
+    
+    private func setupWarnings() {
+        warnings = warningsManager.warnings(for: .send)
     }
 }
