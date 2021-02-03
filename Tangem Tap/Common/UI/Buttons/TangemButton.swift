@@ -26,6 +26,8 @@ struct TangemButton: View {
                     ActivityIndicatorView()
                 } else {
                     Text(title)
+                        .fontWeight(.bold)
+                        .font(.system(size: 15))
 					if !image.isEmpty {
 						Image(image)
 					}
@@ -54,6 +56,7 @@ struct TangemVerticalButton: View {
                 self.action()
             }
         }, label:  {
+            
             VStack(alignment: .center, spacing:0) {
                 if isLoading {
                     ActivityIndicatorView()
@@ -62,12 +65,15 @@ struct TangemVerticalButton: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 20, height: 20)
                     Text(title)
+                        .fontWeight(.bold)
+                        .font(.system(size: 15))
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.all, 8)
             .frame(minWidth: ButtonSize.smallVertical.value.width,
-                   maxWidth: .infinity,
+                   maxWidth: ButtonSize.smallVertical.value.width,
                    minHeight: ButtonSize.smallVertical.value.height,
+                   idealHeight: ButtonSize.smallVertical.value.height,
                    maxHeight: ButtonSize.smallVertical.value.height,
                    alignment: .center)
             .fixedSize()
@@ -92,13 +98,15 @@ struct TangemLongButton: View {
                     ActivityIndicatorView()
                 } else {
                     Text(title)
+                        .fontWeight(.bold)
+                        .font(.system(size: 15))
                     Spacer()
                     Image(image)
                 }
             }
             .padding(.horizontal, 16)
             .frame(minWidth: ButtonSize.big.value.width,
-                   maxWidth: .infinity,
+                   maxWidth: ButtonSize.big.value.width,
                    minHeight: ButtonSize.big.value.height,
                    maxHeight: ButtonSize.big.value.height,
                    alignment: .center)
@@ -111,33 +119,39 @@ struct TangemButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             TangemButton(isLoading: false,
-                         title: "wallet_button_scan",
+                         title: "Recharge de portefeuille",
                          image: "scan") {}
                 .buttonStyle(TangemButtonStyle(color: .black))
-            
-            HStack {
-                TangemVerticalButton(isLoading: false,
-                                     title: "wallet_button_scan",
-                                     image: "scan") {}
-                    .buttonStyle(TangemButtonStyle(color: .green))
-                
-                TangemVerticalButton(isLoading: false,
-                                     title: "wallet_button_scan",
-                                     image: "arrow.right") {}
-                    .buttonStyle(TangemButtonStyle(color: .green))
-                
-                TangemVerticalButton(isLoading: false,
-                                     title: "wallet_button_scan",
-                                     image: "arrow.up") {}
-                    .buttonStyle(TangemButtonStyle(color: .green))
-            }
-           
             
             TangemLongButton(isLoading: false,
                              title: "wallet_button_scan",
                              image: "scan") {}
                 .buttonStyle(TangemButtonStyle(color: .black))
             
+                HStack {
+                    TangemVerticalButton(isLoading: true,
+                                         title: "wallet_button_send",
+                                         image: "scan") {}
+                        .buttonStyle(TangemButtonStyle(color: .green))
+                        .layoutPriority(0)
+                    
+                    TangemVerticalButton(isLoading: false,
+                                         title: "wallet_button_topup",
+                                         image: "arrow.up") {}
+                        .buttonStyle(TangemButtonStyle(color: .green))
+                        .layoutPriority(1)
+                    TangemVerticalButton(isLoading: false,
+                                         title: "wallet_button_scan",
+                                         image: "arrow.right") {}
+                        .buttonStyle(TangemButtonStyle(color: .green))
+                        .layoutPriority(0)
+                }
+                .padding(.horizontal, 8)
+            
+            
+            
         }
+        .environment(\.locale, .init(identifier: "fr"))
+        .previewGroup()
     }
 }
