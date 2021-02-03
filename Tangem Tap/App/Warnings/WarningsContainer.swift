@@ -76,4 +76,10 @@ class WarningsContainer: ObservableObject {
             infos.removeAll(where: { $0 == warning })
         }
     }
+    
+    func removeWarning(for event: WarningEvent) {
+        criticals.removeAll(where: { $0.event == event })
+        warnings.removeAll(where: { $0.event == event })
+        infos.removeAll(where: { $0.event == event })
+    }
 }
