@@ -27,10 +27,7 @@ class MainViewModel: ViewModel {
     // MARK: Variables
     
     var amountToSend: Amount? = nil
-    var persistentBag = Set<AnyCancellable>()
-    var bag = Set<AnyCancellable>()
-    var walletBag = Set<AnyCancellable>()
-    
+    private var bag = Set<AnyCancellable>()
     @Published var isRefreshing = false
     
     //MARK: - Output
@@ -41,6 +38,8 @@ class MainViewModel: ViewModel {
     @Published var selectedAddressIndex: Int = 0
     @Published var state: ScanResult = .unsupported {
         willSet {
+            print("⚠️ Reset bag")
+            image = nil
             bag = Set<AnyCancellable>()
         }
         didSet {
@@ -52,9 +51,9 @@ class MainViewModel: ViewModel {
         didSet {
             warnings.objectWillChange
                 .receive(on: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] in
+                .sink(receiveValue: { [unowned self] in
                     withAnimation {
-                        self?.objectWillChange.send()
+                        self.objectWillChange.send()
                     }
                 })
                 .store(in: &bag)
@@ -77,6 +76,10 @@ class MainViewModel: ViewModel {
         }
         
         return false
+    }
+    
+    var canTopup: Bool {
+        return state.cardModel?.canTopup ?? false
     }
     
     var topupURL: URL? {
@@ -155,58 +158,52 @@ class MainViewModel: ViewModel {
 	}
     
     // MARK: - Functions
-    
     func bind() {
-        state.cardModel?
-            .objectWillChange
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap {$0.objectWillChange }
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
+            .sink { [unowned self] in
+                self.objectWillChange.send()
             }
             .store(in: &bag)
         
-        state.cardModel?
-            .$state
-            .map { $0.walletModel }
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$state }
+            .compactMap { $0.walletModel }
+            .flatMap { $0.objectWillChange }
             .receive(on: RunLoop.main)
-            .sink { [unowned self] walletModel in
-                self.walletBag = Set<AnyCancellable>()
-                if let walletModel = walletModel {
-                    walletModel.objectWillChange
-                        .receive(on: RunLoop.main)
-                        .sink { [unowned self] in
-                            self.objectWillChange.send()
-                        }
-                        .store(in: &self.walletBag)
-                    
-                    walletModel.$state
-                        .map { $0.isLoading }
-                        .filter { !$0 }
-                        .receive(on: RunLoop.main)
-                        .sink {[unowned self] isRefreshing in
-                            withAnimation {
-                            self.isRefreshing = isRefreshing
-                            }
-                        }
-                        .store(in: &walletBag)
+            .sink { [unowned self] in
+                self.objectWillChange.send()
+            }
+            .store(in: &bag)
+        
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$state }
+            .compactMap { $0.walletModel }
+            .flatMap { $0.$state }
+            .map { $0.isLoading }
+            .filter { !$0 }
+            .receive(on: RunLoop.main)
+            .sink {[unowned self] isRefreshing in
+                withAnimation {
+                self.isRefreshing = isRefreshing
                 }
             }
             .store(in: &bag)
         
-        $isRefreshing
-            .removeDuplicates()
-            .filter { $0 }
-            .sink{ [unowned self] _ in
-                if let cardModel = self.state.cardModel, cardModel.state.canUpdate {
-                    cardModel.update()
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation {
-                            self.isRefreshing = false
-                        }
-                    }
+        $state
+            .filter { $0.cardModel != nil }
+            .sink {[unowned  self] _ in
+                self.selectedAddressIndex = 0
+                self.fetchWarnings()
+                self.isHashesCounted = false
+                self.assembly.reset()
+                if !self.showTwinCardOnboardingIfNeeded() {
+                    self.showUntrustedDisclaimerIfNeeded()
                 }
-                
             }
             .store(in: &bag)
         
@@ -238,6 +235,23 @@ class MainViewModel: ViewModel {
                 self.image = image
             }
             .store(in: &bag)
+        
+        $isRefreshing
+            .removeDuplicates()
+            .filter { $0 }
+            .sink{ [unowned self] _ in
+                if let cardModel = self.state.cardModel, cardModel.state.canUpdate {
+                    cardModel.update()
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation {
+                            self.isRefreshing = false
+                        }
+                    }
+                }
+                
+            }
+            .store(in: &bag)
     }
     
     func scan() {
@@ -246,14 +260,7 @@ class MainViewModel: ViewModel {
 			guard let self = self else { return }
             switch scanResult {
             case .success(let state):
-                self.selectedAddressIndex = 0
                 self.state = state
-                self.fetchWarnings()
-                self.isHashesCounted = false
-                self.assembly.reset()
-				if !self.showTwinCardOnboardingIfNeeded() {
-					self.showUntrustedDisclaimerIfNeeded()
-				}
             case .failure(let error):
                 if case .unknownError = error.toTangemSdkError() {
                     self.setError(error.alertBinder)
@@ -264,6 +271,7 @@ class MainViewModel: ViewModel {
     }
     
     func fetchWarnings() {
+        print("⚠️ Main view model fetching warnings")
         self.warnings = self.warningsManager.warnings(for: .main)
     }
     
@@ -322,11 +330,6 @@ class MainViewModel: ViewModel {
     }
     
     func onAppear() {
-        fetchWarnings()
-		if !showTwinCardOnboardingIfNeeded() {
-			showUntrustedDisclaimerIfNeeded()
-		}
-		
         assembly.reset()
     }
     
@@ -344,10 +347,15 @@ class MainViewModel: ViewModel {
     // MARK: - Private functions
 	
 	private func validateHashesCount() {
+        guard let card = state.card else { return }
+        
+        guard state.cardModel?.hasWallet ?? false else {
+            warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
+            return
+        }
+        
         if isHashesCounted { return }
         
-		guard let card = state.card else { return }
-		
 		if card.isTwinCard { return }
 		
 		guard let cardId = card.cardId else { return }
@@ -355,8 +363,15 @@ class MainViewModel: ViewModel {
 		if validatedSignedHashesCards.contains(cardId) { return }
 		
 		func showUntrustedCardAlert() {
-            self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
+            withAnimation {
+                self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
+            }
 		}
+        
+        guard
+            let numberOfSignedHashes = card.walletSignedHashes,
+            numberOfSignedHashes > 0
+        else { return }
 		
 		guard
 			let validator = state.cardModel?.state.walletModel?.walletManager as? SignatureCountValidator
@@ -364,19 +379,22 @@ class MainViewModel: ViewModel {
 			showUntrustedCardAlert()
 			return
 		}
-		
-        isHashesCounted = true
         
-		validator.validateSignatureCount(signedHashes: card.walletSignedHashes ?? 0)
+		validator.validateSignatureCount(signedHashes: numberOfSignedHashes)
             .subscribe(on: DispatchQueue.global())
 			.receive(on: RunLoop.main)
-			.sink(receiveCompletion: { failure in
+            .handleEvents(receiveCancel: {
+                print("⚠️ Hash counter subscription cancelled")
+            })
+			.sink(receiveCompletion: { [weak self] failure in
 				switch failure {
 				case .finished:
 					break
 				case .failure:
 					showUntrustedCardAlert()
 				}
+                self?.isHashesCounted = true
+                print("⚠️ Hashes counted")
 			}, receiveValue: { _ in })
             .store(in: &bag)
 	}
