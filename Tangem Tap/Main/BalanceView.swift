@@ -149,6 +149,17 @@ struct BalanceView_Previews: PreviewProvider {
                                                                secondaryName: ""))
                     .padding(.horizontal, 16)
                 
+                BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
+                                                               hasTransactionInProgress: false,
+                                                               isLoading: true,
+                                                               loadingError: nil,
+                                                               name: "Ethereum smart contract token",
+                                                               fiatBalance: "$3.45",
+                                                               balance: "0.00000348573986753845001 BTC",
+                                                               secondaryBalance: "", secondaryFiatBalance: "",
+                                                               secondaryName: ""))
+                    .padding(.horizontal, 16)
+                
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: false,
                                                                isLoading: false,
