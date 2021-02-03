@@ -28,8 +28,53 @@ struct TapScanTaskResponse: ResponseCodable {
 	}
 }
 
+extension TapScanTaskResponse {
+    private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
+        guard card.isTwinCard, let cardId = response.card.cardId else {
+            return nil
+        }
+        
+        var pairPublicKey: Data?
+        let fullData = twinIssuerData
+        if let walletPubKey = card.walletPublicKey, fullData.count == 129 {
+            let pairPubKey = fullData[0..<65]
+            let signature = fullData[65..<fullData.count]
+            if Secp256k1Utils.vefify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
+               pairPublicKey = pairPubKey
+            }
+        }
+        
+        
+//        for file in response.files {
+//            do {
+//                let twinFile = try twinCardFileDecoder.decode(file)
+//                if twinFile.fileTypeName == TwinsWalletCreationService.twinFileName {
+//                    pairPublicKey = twinFile.publicKey
+//                    break
+//                }
+//            } catch {
+//                print("File doesn't contain twin card dara")
+//            }
+//        }
+    
+        return TwinCardInfo(cid: cardId, series: TwinCardSeries.series(for: card.cardId), pairCid: TwinCardsUtils.makePairCid(for: cardId), pairPublicKey: pairPublicKey)
+    }
+    
+    func getCardInfo() -> CardInfo {
+        let cardInfo = CardInfo(card: card,
+                                verificationState: verifyResponse.verificationState,
+                                artworkInfo: verifyResponse.artworkInfo,
+                                twinCardInfo: decodeTwinFile(from: self))
+        return cardInfo
+    }
+}
+
 final class TapScanTask: CardSessionRunnable {
-    let excludeBatches = ["0027", "0030", "0031"]
+    let excludeBatches = ["0027",
+                          "0030",
+                          "0031", //tags
+                          "0079" //TOTHEMOON
+    ]
     
     var needPreflightRead: Bool {
         return false
