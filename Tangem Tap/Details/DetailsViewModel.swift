@@ -14,9 +14,9 @@ import BlockchainSdk
 
 class DetailsViewModel: ViewModel {
     weak var assembly: Assembly!
+    weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
-    weak var ratesService: CoinMarketCapService!
-    {
+    weak var ratesService: CoinMarketCapService! {
         didSet {
             ratesService
                 .$selectedCurrencyCodePublished
@@ -28,9 +28,22 @@ class DetailsViewModel: ViewModel {
         }
     }
     
-    @Published var navigation: NavigationCoordinator!
-	@Published private(set) var cardModel: CardViewModel
+
+    @Published var cardModel: CardViewModel! {
+        didSet {
+            cardModel.objectWillChange
+                .receive(on: RunLoop.main)
+                .sink { [weak self] in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &bag)
+        }
+    }
 	
+    var hasWallet: Bool {
+        cardModel.hasWallet
+    }
+    
 	var isTwinCard: Bool {
 		cardModel.isTwinCard
 	}
@@ -47,12 +60,7 @@ class DetailsViewModel: ViewModel {
     
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
-        cardModel.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &bag)
+        
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
