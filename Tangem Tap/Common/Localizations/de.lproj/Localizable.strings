@@ -12,6 +12,8 @@
 
 "common_ok" = "OK";
 
+"common_done" = "Erledigt";
+
 "common_no" = "Nein";
 
 "common_continue" = "Fortsetzen";
@@ -94,9 +96,9 @@
 
 "wallet_address_button_create_payid" = "PayString erstellen";
 
+"wallet_warning_button_ok" = "OK, ich hab's!";
 
 "wallet_qr_title_format" = "%@ Wallet";
-
 
 "wallet_create_payid" = "PayString erstellen";
 
@@ -154,6 +156,10 @@
 "send_transaction_success" = "Die Transaktion wurde erfolgreich signiert und an den Blockchain-Knoten gesendet. Die Walletbilanz wird aktualisiert";
 
 
+"send_extras_hint_destination_tag" = "Destination Tag";
+
+"send_extras_hint_memo" = "Memo Id";
+
 
 "details_title" = "Details";
 
@@ -177,7 +183,7 @@
 
 "details_row_title_erase_wallet" = "Wallet löschen";
 
-
+"details_currency_search_placeholder" = "Suche";
 
 "details_erase_wallet_warning" = "Dieser Vorgang ist irriversibel. Wenn jemand nach dem Löschen des Wallets Geld überweist, können Sie es nicht mehr abheben.";
 
@@ -201,7 +207,7 @@
 
 "alert_old_device_this_card" = "Sie können NFC-Probleme mit einigen iPhone 7/7+ während der Extraktion haben";
 
-"alert_card_signed_transactions" = "Warnung: Diese Karte wurde früher bereits aufgeladen und Transaktionen wurden damit signiert.\n Ziehen Sie eine sofortige Auszahlung aller Beträge in Betracht, wenn Sie diese Karte von einer nicht vertrauenswürdigen Quelle erhalten haben.";
+"alert_card_signed_transactions" = "Diese Karte wurde früher bereits aufgeladen und Transaktionen wurden damit signiert. Ziehen Sie eine sofortige Auszahlung aller Beträge in Betracht, wenn Sie diese Karte von einer nicht vertrauenswürdigen Quelle erhalten haben.";
 
 "alert_unsupported_card" = "Diese Karte ist für die Zusammenarbeit mit Tangem Tap nicht geeignet";
 
@@ -289,7 +295,8 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "send_error_payid_not_registered" = "PayString ist nicht registriert";
 "send_error_payid_request_failed" = "PayString-Anfrage ist fehlgeschlagen";
 "send_error_address_same_as_wallet" = "Die Adresse stimmt mit der Adresse Ihrer Brieftasche überein";
-
+"send_error_invalid_memo_id" = "Invalid Memo Id. It won't be added to transaction";
+"send_error_invalid_destination_tag" = "Invalid Destination Tag. It won't be added to transaction";
 "wallet_notification_address_copied" = "Die Adresse wurde erfolgreich kopiert";
 "wallet_create_payid_empty" = "Zuerst geben Sie die gewünschte PayString ein";
 "initial_message_scan_header" = "Legen Sie die Karte zum Scannen an";
