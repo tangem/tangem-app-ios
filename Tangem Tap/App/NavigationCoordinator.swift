@@ -12,36 +12,36 @@ import Combine
 
 class NavigationCoordinator: ObservableObject {
     // MARK: ReadView
-    @Published var openMain: Bool = false
-    @Published var openShop: Bool = false
-    @Published var openDisclaimer: Bool = false
-	@Published var readOpenTwinCardOnboarding = false
+    @Published var readToMain: Bool = false
+    @Published var readToShop: Bool = false
+    @Published var readToDisclaimer: Bool = false
+    @Published var readToTwinOnboarding = false
     
     // MARK: DisclaimerView
-    @Published var openMainFromDisclaimer: Bool = false
-	@Published var openTwinCardOnboarding: Bool = false
+    @Published var disclaimerToMain: Bool = false
+    @Published var disclaimerToTwinOnboarding: Bool = false
     
     // MARK: SecurityManagementView
-    @Published var openWarning: Bool = false
+    @Published var securityToWarning: Bool = false
     
     // MARK: MainView
-    @Published var showSettings = false
-    @Published var showSend = false
-    @Published var showSendChoise = false
-    @Published var showCreatePayID = false
-    @Published var showTopup = false
-	@Published var showTwinCardOnboarding = false
-    @Published var showTwinsWalletWarning = false
-	@Published var showTwinsWalletCreation = false
-    @Published var showQRAddress = false
+    @Published var mainToSettings = false
+    @Published var mainToSend = false
+    @Published var mainToSendChoise = false
+    @Published var mainToCreatePayID = false
+    @Published var mainToTopup = false
+    @Published var mainToTwinOnboarding = false
+    @Published var mainToTwinsWalletWarning = false
+    @Published var mainToQR = false
     
     // MARK: SendView
-    @Published var showQR = false
-	
-	// MARK: TwinCardOnboardingView
-	@Published var onboardingOpenMain: Bool = false
-	@Published var onboardingOpenTwinCardWalletCreation: Bool = false
-	
-	// MARK: DetailsView
-	@Published var detailsShowTwinsRecreateWarning: Bool = false
+    @Published var sendToQR = false
+    
+    // MARK: TwinCardOnboardingView
+    @Published var twinOnboardingToTwinWalletCreation: Bool = false
+    @Published var twinOnboardingToMain: Bool = false
+    
+    // MARK: DetailsView
+    //All this stuff needed for fix permanent highlighting issues on ios 14
+    @Published var detailsToTwinsRecreateWarning: Bool = false //for back 
 }
