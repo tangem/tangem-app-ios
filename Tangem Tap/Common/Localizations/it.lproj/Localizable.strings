@@ -12,6 +12,8 @@
 
 "common_ok" = "OK";
 
+"common_done" = "Fatto";
+
 "common_no" = "No";
 
 "common_save_changes" = "Mantieni le modifiche";
@@ -93,7 +95,7 @@
 
 "wallet_address_button_create_payid" = "Crea PayString";
 
-
+"wallet_warning_button_ok" = "Ok, ho capito!";
 
 "wallet_qr_title_format" = "portafoglio %@";
 
@@ -159,7 +161,9 @@
 "send_balance_subtitle_format" = "Saldo: %@";
 "send_transaction_success" = "La transazione è stata firmata con successo e inviata al nodo blockchain. Il saldo del portafoglio verrà aggiornato dopo un po' di tempo";
 
+"send_extras_hint_destination_tag" = "Destination Tag";
 
+"send_extras_hint_memo" = "Memo Id";
 
 "details_title" = "Requisiti";
 
@@ -183,7 +187,7 @@
 
 "details_row_title_erase_wallet" = "Cancella il portafoglio";
 
-
+"details_currency_search_placeholder" = "Cerca";
 
 "details_erase_wallet_warning" = "Questa azione è irreversibile. Se dopo aver eliminato il portafoglio qualcuno invia dei fondi, non potrai ritirarli.";
 
@@ -208,7 +212,7 @@
 
 "alert_old_device_this_card"="Potresti riscontrare problemi con l'NFC su alcuni iPhone 7/7 + durante la rimozione";
 
-"alert_card_signed_transactions" = "Attenzione: questa scheda è già stata ricaricata e ha firmato transazioni in passato. Valuta la possibilità di prelevare immediatamente tutti i fondi se hai ricevuto questa scheda da una fonte inaffidabile.";
+"alert_card_signed_transactions" = "Questa scheda è già stata ricaricata e ha firmato transazioni in passato. Valuta la possibilità di prelevare immediatamente tutti i fondi se hai ricevuto questa scheda da una fonte inaffidabile.";
 
 "alert_unsupported_card" = "Questa scheda non è progettata per funzionare con Tangem Tap";
 
@@ -233,7 +237,6 @@
 
 
 "payid_service_error_loading" = "PayString non valido";
-
 
 "disclaimer_text" = "NOTA LEGALE
 
@@ -291,6 +294,8 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "send_error_payid_not_registered" = "PayString non registrato";
 "send_error_payid_request_failed" = "Richiesta PayString fallita";
 "send_error_address_same_as_wallet" = "L'indirizzo corrisponde all'indirizzo del tuo portafoglio";
+"send_error_invalid_memo_id" = "Invalid Memo Id. It won't be added to transaction";
+"send_error_invalid_destination_tag" = "Invalid Destination Tag. It won't be added to transaction";
 "wallet_notification_address_copied" = "L'indirizzo è stato copiato con successo";
 "wallet_create_payid_empty" = "Inserire prima il PayString desiderato";
 "initial_message_scan_header" = "Avvicina per scansionare";
