@@ -31,6 +31,11 @@ class SecurityManagementViewModel: ViewModel {
     @Published var selectedOption: SecurityManagementOption = .longTap
     @Published var isLoading: Bool = false
     
+    var secOptions: [SecurityManagementOption] {
+        cardViewModel.currentSecOption != .longTap ?
+            [.longTap, cardViewModel.currentSecOption] : [.longTap]
+    }
+    
     var actionButtonPressedHandler: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void {
         return { completion in
             self.cardViewModel.changeSecOption(self.selectedOption,
