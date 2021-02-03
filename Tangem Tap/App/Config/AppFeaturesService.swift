@@ -11,9 +11,12 @@ import TangemSdk
 
 class AppFeaturesService {
 	
-	let configManager = try! FeaturesConfigManager()
-	
+    private let configProvider: FeaturesConfigProvider
 	private var features = AppFeatures.all
+    
+    init(configProvider: FeaturesConfigProvider) {
+        self.configProvider = configProvider
+    }
 	
 	func setupFeatures(for card: Card) {
 		features = getFeatures(for: card)
@@ -26,22 +29,23 @@ class AppFeaturesService {
         }
         
 		var features = AppFeatures.all
+        let configFeatures = configProvider.features
 		
         if card.cardData?.blockchainName?.lowercased() == "btc" ||
 			card.isTwinCard ||
-			!configManager.features.isWalletPayIdEnabled {
+			!configFeatures.isWalletPayIdEnabled {
 			features.remove(.payIDReceive)
         }
 		
-		if !configManager.features.isSendingToPayIdEnabled {
+		if !configFeatures.isSendingToPayIdEnabled {
 			features.remove(.payIDSend)
 		}
 		
-		if !configManager.features.isCreatingTwinCardsAllowed {
+		if !configFeatures.isCreatingTwinCardsAllowed {
 			features.remove(.twinCreation)
 		}
 		
-		if !configManager.features.isTopUpEnabled {
+		if !configFeatures.isTopUpEnabled {
 			features.remove(.topup)
 		}
         
