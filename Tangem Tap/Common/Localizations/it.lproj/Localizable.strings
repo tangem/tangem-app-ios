@@ -216,7 +216,7 @@
 
 "alert_unsupported_card" = "Questa scheda non è progettata per funzionare con Tangem Tap";
 
-"alert_developer_card" = "La scheda che hai scansionato è una scheda di sviluppo. Non utilizzarla come strumento di pagamento";
+"alert_developer_card" = "La scheda che hai scansionato è una scheda di sviluppo. Non utilizzarla come strumento di pagamento.";
 
 "alert_old_card" = "Le schede emesse prima di settembre 2019 non possono attualmente essere utilizzate con un iPhone. Stiamo lavorando a stretto contatto con Apple per renderle disponibili nelle future versioni di iOS. ";
 
