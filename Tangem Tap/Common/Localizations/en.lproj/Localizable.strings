@@ -291,7 +291,7 @@
 
 "alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
 
-"alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment";
+"alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 
 "alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
 
