@@ -10,6 +10,14 @@ import Foundation
 import SwiftUI
 import TangemSdk
 
+struct TokenBalanceView: View {
+    var tokenViewModel: TokenBalanceViewModel
+    
+    var body: some View {
+        Text(tokenViewModel.name)
+    }
+}
+
 struct BalanceView: View {
     var balanceViewModel: BalanceViewModel
     
