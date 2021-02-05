@@ -93,7 +93,20 @@ class Assembly {
 			pairKey = savedPairKey
 		}
 		
-        guard let walletManager = walletManagerFactory.makeWalletManager(from: card, pairKey: pairKey) else {
+        // ETH public key 04ecde9f7584d27e5914652487e2668a8d26c63d550cebc67b61c0b9a5cf80cb5b63fd7f2dc3ef4a7304678e4a918838659672063a115b133126165bc88147e685
+        
+        var tokens: [Token]? = nil
+        if card.walletPublicKey?.hex == "04ecde9f7584d27e5914652487e2668a8d26c63d550cebc67b61c0b9a5cf80cb5b63fd7f2dc3ef4a7304678e4a918838659672063a115b133126165bc88147e685" {
+            tokens = [
+                Token(symbol: "DAI", contractAddress: "0x6b175474e89094c44da98b954eedeac495271d0f", decimalCount: 18),
+                Token(symbol: "USDC", contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", decimalCount: 6)
+            ]
+        }
+        
+//        Erc20Token(name: "DAI", coin: "DAI", contractAddress: try! Address(hex: "0x6b175474e89094c44da98b954eedeac495271d0f"), decimal: 18),
+//        Erc20Token(name: "USD Coin", coin: "USDC", contractAddress: try! Address(hex: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"), decimal: 6),
+        
+        guard let walletManager = walletManagerFactory.makeWalletManager(from: card, tokens: tokens, pairKey: pairKey) else {
             return nil
         }
 		
@@ -272,20 +285,29 @@ class Assembly {
 extension Assembly {
     static var previewAssembly: Assembly = {
         let assembly = Assembly()
-        let twinCard = Card.testTwinCard
-        let ci = CardInfo(card: twinCard,
-                          verificationState: nil,
-                          artworkInfo: nil,
-                          twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
-        let vm = assembly.makeCardModel(from: ci)!
-        let scanResult = ScanResult.card(model: vm)
-        assembly.cardsRepository.cards[twinCard.cardId!] = scanResult
-        let testCard = Card.testCard
-        let testCardCi = CardInfo(card: testCard, verificationState: nil, artworkInfo: nil, twinCardInfo: nil)
-        let testCardVm = assembly.makeCardModel(from: testCardCi)!
-        let testCardScan = ScanResult.card(model: testCardVm)
-        assembly.cardsRepository.cards[testCard.cardId!] = testCardScan
-        assembly.cardsRepository.lastScanResult = testCardScan
+        
+        // Twin card
+        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
+        
+        // Bitcoin old test card
+        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
+        
+        // ETH pigeon card
+        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
+        
+        // Which card data should be displayed in preview?
+        assembly.cardsRepository.lastScanResult = ethCardScan
         return assembly
     }()
+    
+    private static func scanResult(for card: Card, assembly: Assembly, twinCardInfo: TwinCardInfo? = nil) -> ScanResult {
+        let ci = CardInfo(card: card,
+                          verificationState: nil,
+                          artworkInfo: nil,
+                          twinCardInfo: twinCardInfo)
+        let vm = assembly.makeCardModel(from: ci)!
+        let scanResult = ScanResult.card(model: vm)
+        assembly.cardsRepository.cards[card.cardId!] = scanResult
+        return scanResult
+    }
 }
