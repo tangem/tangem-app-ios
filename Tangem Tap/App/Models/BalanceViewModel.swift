@@ -20,3 +20,10 @@ struct BalanceViewModel {
     let secondaryFiatBalance: String
     let secondaryName: String
 }
+
+struct TokenBalanceViewModel {
+    let name: String
+    let tokenName: String
+    let balance: String
+    let fiatBalance: String
+}
