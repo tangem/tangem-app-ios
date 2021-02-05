@@ -21,7 +21,7 @@ struct BalanceViewModel {
     let secondaryName: String
 }
 
-struct TokenBalanceViewModel {
+struct TokenBalanceViewModel: Hashable {
     let name: String
     let tokenName: String
     let balance: String
