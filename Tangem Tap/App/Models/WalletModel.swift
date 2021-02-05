@@ -14,7 +14,7 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
-    @Published var tokensViewModels: [TokenBalanceViewModel] = []
+    var tokensViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: [String: Decimal]] = [:]
 
     var ratesService: CoinMarketCapService
@@ -147,6 +147,7 @@ class WalletModel: ObservableObject, Identifiable {
                                                 secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
                                                 secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
                                                 secondaryName: wallet.blockchain.displayName )
+            tokensViewModels = []
         } else {
             balanceViewModel = BalanceViewModel(isToken: false,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
@@ -158,6 +159,7 @@ class WalletModel: ObservableObject, Identifiable {
                                                 secondaryBalance: "-",
                                                 secondaryFiatBalance: " ",
                                                 secondaryName: "-")
+            loadErc20Tokens()
         }
     }
     
