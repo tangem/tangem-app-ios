@@ -14,6 +14,7 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
+    @Published var tokensViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: [String: Decimal]] = [:]
 
     var ratesService: CoinMarketCapService
@@ -183,6 +184,11 @@ class WalletModel: ObservableObject, Identifiable {
                 self.updateBalanceViewModel(with: self.wallet, state: self.state)
             }
             .store(in: &bag)
+    }
+    
+    private func loadErc20Tokens() {
+        self.tokensViewModels = []
+        
     }
     
     func startUpdatingTimer() {
