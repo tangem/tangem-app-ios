@@ -14,12 +14,33 @@ struct TokenBalanceView: View {
     var tokenViewModel: TokenBalanceViewModel
     
     var body: some View {
-        Text(tokenViewModel.name)
+        VStack {
+            HStack {
+                Text(tokenViewModel.name)
+                Spacer()
+                Text(tokenViewModel.balance + " " + tokenViewModel.tokenName)
+            }
+            .font(.system(size: 13, weight: .medium))
+            .foregroundColor(.tangemTapGrayDark6)
+            .padding(.bottom, 2)
+            HStack {
+                Spacer()
+                Text(tokenViewModel.fiatBalance)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.tangemTapGrayDark)
+            }
+            .padding(.bottom, 4)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Color.tangemTapGrayLight6)
+        .cornerRadius(6)
     }
 }
 
 struct BalanceView: View {
     var balanceViewModel: BalanceViewModel
+    var tokensViewModels: [TokenBalanceViewModel]
     
     var blockchainText: String {
         if balanceViewModel.loadingError != nil {
@@ -134,6 +155,14 @@ struct BalanceView: View {
                 .padding(.horizontal, 24.0)
                 
                 Color.clear.frame(height: 16)
+            } else if tokensViewModels.count > 0 {
+                VStack(spacing: 8) {
+                    ForEach(tokensViewModels, id: \.hashValue) { token in
+                        TokenBalanceView(tokenViewModel: token)
+                    }
+                    .padding(.horizontal)
+                }
+                .padding(.bottom, 16)
             }
         }
         .background(Color.white)
@@ -142,6 +171,13 @@ struct BalanceView: View {
 }
 
 struct BalanceView_Previews: PreviewProvider {
+    
+    static let tokens = [
+        TokenBalanceViewModel(name: "Dai", tokenName: "DAI", balance: "3523.2543", fiatBalance: "$3558.48"),
+        TokenBalanceViewModel(name: "Sushi", tokenName: "SUSHI", balance: "10.0", fiatBalance: "$156.3"),
+        TokenBalanceViewModel(name: "USD Coin", tokenName: "USDC", balance: "650.5232543", fiatBalance: "$649,43")
+    ]
+//    static let tokens: [TokenBalanceViewModel] = []
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
@@ -154,7 +190,8 @@ struct BalanceView_Previews: PreviewProvider {
                                                                fiatBalance: "$3.45",
                                                                balance: "0.00000348573986753845001 BTC",
                                                                secondaryBalance: "", secondaryFiatBalance: "",
-                                                               secondaryName: ""))
+                                                               secondaryName: ""),
+                            tokensViewModels: tokens)
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
@@ -165,7 +202,8 @@ struct BalanceView_Previews: PreviewProvider {
                                                                fiatBalance: "$3.45",
                                                                balance: "0.00000348573986753845001 BTC",
                                                                secondaryBalance: "", secondaryFiatBalance: "",
-                                                               secondaryName: ""))
+                                                               secondaryName: ""),
+                            tokensViewModels: tokens)
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
@@ -177,7 +215,8 @@ struct BalanceView_Previews: PreviewProvider {
                                                                balance: "-",
                                                                secondaryBalance: "-",
                                                                secondaryFiatBalance: "",
-                                                               secondaryName: "Bitcoin"))
+                                                               secondaryName: "Bitcoin"),
+                            tokensViewModels: tokens)
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
@@ -189,7 +228,8 @@ struct BalanceView_Previews: PreviewProvider {
                                                                balance: "10 BTCA",
                                                                secondaryBalance: "19 BTC",
                                                                secondaryFiatBalance: "10 USD",
-                                                               secondaryName: "Bitcoin"))
+                                                               secondaryName: "Bitcoin"),
+                            tokensViewModels: tokens)
                     .padding(.horizontal, 16)
             }
         }
