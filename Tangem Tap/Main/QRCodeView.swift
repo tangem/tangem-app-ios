@@ -42,7 +42,7 @@ struct QRCodeView: View {
                 
                 if shouldDismiss {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        self.viewControllerHolder?.dismiss(animated: true, completion: nil)
+                        self.viewControllerHolder?.presentedViewController?.dismiss(animated: true, completion: nil)
                     }
                 }
             }
@@ -79,26 +79,28 @@ struct QRCodeView: View {
         .padding(.horizontal, 12.0)
         .background(Color.clear)
         .onAppear {
-            self.userBrightness = UIScreen.main.brightness
+            userBrightness = UIScreen.main.brightness
             UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: 1.0)
             withAnimation(Animation.easeInOut(duration: 0.2))  {
                 offset = CGSize.zero
                 opacity = 1
             }
         }
+        .onDisappear {
+            
+        }
         .onWillDisappear {
-            UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: self.userBrightness)
+            UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: userBrightness)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-            UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: self.userBrightness)
+            UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: userBrightness)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-            self.userBrightness = UIScreen.main.brightness
+            userBrightness = UIScreen.main.brightness
             UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: 1.0)
         }
         .edgesIgnoringSafeArea(.all)
         .background(Color.clear)
-       
     }
     
     
