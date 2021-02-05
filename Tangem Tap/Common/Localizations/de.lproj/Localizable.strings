@@ -217,7 +217,7 @@
 
 "alert_unsupported_card" = "Diese Karte ist für die Zusammenarbeit mit Tangem Tap nicht geeignet";
 
-"alert_developer_card" = "Die von Ihnen gescannte Karte ist eine Entwicklungskarte. Akzeptieren Sie sie nicht als Zahlungsmittel";
+"alert_developer_card" = "Die von Ihnen gescannte Karte ist eine Entwicklungskarte. Akzeptieren Sie sie nicht als Zahlungsmittel.";
 
 "alert_old_card" = "Die vor September 2019 ausgestellten Karten können mit iPhone momentan nicht extrahiert werden. Wir arbeiten eng mit Apple zusammen, damit es in den nächsten Versionen von iOS möglich wäre.";
 
