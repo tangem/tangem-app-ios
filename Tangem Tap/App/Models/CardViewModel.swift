@@ -389,17 +389,23 @@ extension CardViewModel {
 
 extension CardViewModel {
     static var previewCardViewModel: CardViewModel {
-        let assembly = Assembly.previewAssembly
-        return assembly.cardsRepository.cards[Card.testCard.cardId!]!.cardModel!
+        viewModel(for: Card.testCard)
     }
     
     static var previewCardViewModelNoWallet: CardViewModel {
-        let assembly = Assembly.previewAssembly
-        return assembly.cardsRepository.cards[Card.testCardNoWallet.cardId!]!.cardModel!
+        viewModel(for: Card.testCardNoWallet)
     }
 	
 	static var previewTwinCardViewModel: CardViewModel {
-		let assembly = Assembly.previewAssembly
-		return assembly.cardsRepository.cards[Card.testTwinCard.cardId!]!.cardModel!
+		viewModel(for: Card.testTwinCard)
 	}
+    
+    static var previewEthCardViewModel: CardViewModel {
+        viewModel(for: Card.testEthCard)
+    }
+    
+    private static func viewModel(for card: Card) -> CardViewModel {
+        let assembly = Assembly.previewAssembly
+        return assembly.cardsRepository.cards[card.cardId!]!.cardModel!
+    }
 }
