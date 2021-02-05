@@ -173,7 +173,7 @@ struct SendView: View {
                                         }
                                     }
                                 }
-                                .padding(.top, 8.0)
+                                .padding(.vertical, 8.0)
                                 .transition(.opacity)
                             }
                         }
