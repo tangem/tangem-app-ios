@@ -371,8 +371,6 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 
 "disclaimer_title" = "Terms of service";
 
-"common_accept" = "Accept";
-
 "wallet_notification_address_copied" = "Address was successfully copied";
 "wallet_create_payid_empty" = "Enter desired PayString first";
 
