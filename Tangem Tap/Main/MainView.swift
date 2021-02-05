@@ -206,7 +206,10 @@ struct MainView: View {
                                 )
                             } else {
                                 if self.shouldShowBalanceView {
-                                    BalanceView(balanceViewModel: self.viewModel.state.cardModel!.state.walletModel!.balanceViewModel)
+                                    BalanceView(
+                                        balanceViewModel: self.viewModel.state.cardModel!.state.walletModel!.balanceViewModel,
+                                        tokensViewModels: self.viewModel.state.cardModel!.state.walletModel!.tokensViewModels
+                                    )
                                         .padding(.horizontal, 16.0)
                                 } else {
                                     if self.noAccountView != nil {
