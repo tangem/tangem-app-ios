@@ -26,8 +26,6 @@ struct TangemButton: View {
                     ActivityIndicatorView()
                 } else {
                     Text(title)
-                        .fontWeight(.bold)
-                        .font(.system(size: 15))
 					if !image.isEmpty {
 						Image(image)
 					}
@@ -65,8 +63,6 @@ struct TangemVerticalButton: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 20, height: 20)
                     Text(title)
-                        .fontWeight(.bold)
-                        .font(.system(size: 15))
                 }
             }
             .padding(.all, 8)
@@ -98,8 +94,6 @@ struct TangemLongButton: View {
                     ActivityIndicatorView()
                 } else {
                     Text(title)
-                        .fontWeight(.bold)
-                        .font(.system(size: 15))
                     Spacer()
                     Image(image)
                 }
