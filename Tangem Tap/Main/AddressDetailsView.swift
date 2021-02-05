@@ -70,9 +70,10 @@ struct AddressDetailView: View {
             }
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(AddressFormatter(address: cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex)).truncated(prefixLimit: 12, suffixLimit: 4, delimiter: "**** ****"))
+                    Text(cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex))
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .lineLimit(1)
+                        .truncationMode(.middle)
                         .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
                         if let url = self.cardViewModel.state.walletModel?.exploreURL(for: selectedAddressIndex) {
@@ -175,6 +176,6 @@ struct AddressDetailView_Previews: PreviewProvider {
                               showQr: $showQR,
                               selectedAddressIndex: $addressIndex,
                               cardViewModel: cardViewModel)
-        }
+        }.previewGroup()
     }
 }
