@@ -22,7 +22,7 @@ struct CurrencySelectView: View {
                 ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark)
             } else {
                 VStack {
-                    SearchBar(text: $searchText, placeholder: "Search")
+                    SearchBar(text: $searchText, placeholder: "common_search".localized)
                     List {
                         ForEach(
                             viewModel.currencies.filter {
