@@ -13,6 +13,7 @@ struct TangemButton: View {
     let isLoading: Bool    
     let title: LocalizedStringKey
     let image: String
+    var size: ButtonSize = .small
     let action: () -> Void
     
     var body: some View {
@@ -32,10 +33,10 @@ struct TangemButton: View {
                 }
             }
             .padding(.horizontal, 16)
-            .frame(minWidth: ButtonSize.small.value.width,
+            .frame(minWidth: size.value.width,
                    maxWidth: .infinity,
-                   minHeight: ButtonSize.small.value.height,
-                   maxHeight: ButtonSize.small.value.height,
+                   minHeight: size.value.height,
+                   maxHeight: size.value.height,
                    alignment: .center)
             .fixedSize()
         })
