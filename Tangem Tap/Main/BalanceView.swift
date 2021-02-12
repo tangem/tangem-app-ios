@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemSdk
+import BlockchainSdk
 
 struct TokenBalanceView: View {
     var tokenViewModel: TokenBalanceViewModel
@@ -18,7 +19,7 @@ struct TokenBalanceView: View {
             HStack {
                 Text(tokenViewModel.name)
                 Spacer()
-                Text(tokenViewModel.balance + " " + tokenViewModel.tokenName)
+                Text(tokenViewModel.balance)
             }
             .font(.system(size: 13, weight: .medium))
             .foregroundColor(.tangemTapGrayDark6)
@@ -157,7 +158,7 @@ struct BalanceView: View {
                 Color.clear.frame(height: 16)
             } else if tokensViewModels.count > 0 {
                 VStack(spacing: 8) {
-                    ForEach(tokensViewModels, id: \.hashValue) { token in
+                    ForEach(tokensViewModels, id: \.tokenName) { token in
                         TokenBalanceView(tokenViewModel: token)
                     }
                     .padding(.horizontal)
@@ -173,11 +174,9 @@ struct BalanceView: View {
 struct BalanceView_Previews: PreviewProvider {
     
     static let tokens = [
-        TokenBalanceViewModel(name: "Dai", tokenName: "DAI", balance: "3523.2543", fiatBalance: "$3558.48"),
-        TokenBalanceViewModel(name: "Sushi", tokenName: "SUSHI", balance: "10.0", fiatBalance: "$156.3"),
-        TokenBalanceViewModel(name: "USD Coin", tokenName: "USDC", balance: "650.5232543", fiatBalance: "$649,43")
+        TokenBalanceViewModel(token: Token(name: "SushiSwap", symbol: "SUSHI", contractAddress: "", decimalCount: 18), balance: "163.7425436", fiatBalance: "$ 2241.31")
     ]
-//    static let tokens: [TokenBalanceViewModel] = []
+    
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
