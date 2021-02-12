@@ -42,9 +42,14 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.canSign
     }
     
+    var walletModel: WalletModel? {
+        guard case let .loaded(walletModel) = state else { return nil }
+        
+        return walletModel
+    }
+    
     var hasWallet: Bool {
-        if case .loaded = state { return true }
-        return false
+        walletModel != nil
     }
     
     var purgeWalletProhibitedDescription: String? {
