@@ -9,12 +9,14 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import Combine
 
 struct CardInfo {
     var card: Card
     var verificationState: VerifyCardState?
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
+    var managedTokens: [Token] = []
 }
 
 enum ScanResult: Equatable {
@@ -71,14 +73,19 @@ class CardsRepository {
 	
 	private let twinCardFileDecoder: TwinCardFileDecoder
     private let warningsConfigurator: WarningsConfigurator
+    private let managedTokensLoader: TokensLoader
+    
+    private var bag = Set<AnyCancellable>()
 	
-    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator) {
+    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator, managedTokensLoader: TokensLoader) {
 		self.twinCardFileDecoder = twinCardFileDecoder
         self.warningsConfigurator = warningsConfigurator
+        self.managedTokensLoader = managedTokensLoader
 	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
+        bag = []
         tangemSdk.config = Config()
         tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
@@ -109,10 +116,14 @@ class CardsRepository {
             tangemSdk.config.cardIdDisplayedNumbersCount = 4
         }
         
-		let cm = self.assembly.makeCardModel(from: cardInfo)
-		let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
-		self.cards[cardInfo.card.cardId!] = res
-		self.lastScanResult = res
-		return res
+        let savedTokens = managedTokensLoader.loadTokens(for: cardInfo.card.cardId ?? "", blockchainSymbol: cardInfo.card.blockchain?.currencySymbol ?? "")
+        
+        var cardInfoTokens = cardInfo
+        cardInfoTokens.managedTokens = savedTokens
+        let cm = self.assembly.makeCardModel(from: cardInfoTokens)
+        let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
+        self.cards[cardInfoTokens.card.cardId!] = res
+        self.lastScanResult = res
+        return res
 	}
 }
