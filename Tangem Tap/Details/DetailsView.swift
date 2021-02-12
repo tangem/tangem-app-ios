@@ -31,32 +31,42 @@ struct DetailsRowView: View {
 
 struct HeaderView: View {
     var text: String
+    var additionalTopPadding: CGFloat = 0
     var body: some View {
         HStack {
             Text(text)
                 .font(.headline)
                 .foregroundColor(.tangemTapBlue)
-                .padding()
+                .padding(16)
             Spacer()
         }
-        .padding(.top, 24.0)
+        .padding(.top, additionalTopPadding)
         .background(Color.tangemTapBgGray)
-        .listRowInsets(EdgeInsets())
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
     }
 }
 
 struct FooterView: View {
-    var text: String
+    var text: String = ""
+    var additionalBottomPadding: CGFloat = 0
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(text)
-                .font(.footnote)
-                .foregroundColor(.tangemTapGrayDark)
-                .padding()
-            Color.clear.frame(height: 0)
+        if text.isEmpty {
+            Color.tangemTapBgGray
+                .listRowBackground(Color.tangemTapBgGray)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .frame(height: 0)
+        } else {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(text)
+                    .font(.footnote)
+                    .foregroundColor(.tangemTapGrayDark)
+                    .padding()
+                    .padding(.bottom, additionalBottomPadding)
+                Color.clear.frame(height: 0)
+            }
+            .background(Color.tangemTapBgGray)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         }
-        .background(Color.tangemTapBgGray)
-        .listRowInsets(EdgeInsets())
     }
 }
 
@@ -72,7 +82,7 @@ struct DetailsView: View {
     
     var body: some View {
         List {
-            Section(header: EmptyView().listRowInsets(EdgeInsets())) {
+            Section(header: EmptyView().listRowInsets(EdgeInsets()), footer: FooterView()) {
                 DetailsRowView(title: "details_row_title_cid".localized,
                                subtitle: viewModel.cardCid)
                 DetailsRowView(title: "details_row_title_issuer".localized,
@@ -85,7 +95,7 @@ struct DetailsView: View {
                 }
             }
             
-            Section(header: HeaderView(text: "details_section_title_settings".localized)) {
+            Section(header: HeaderView(text: "details_section_title_settings".localized), footer: FooterView()) {
                 NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
                                tag: "currency", selection: $selection) {
                     DetailsRowView(title: "details_row_title_currency".localized,
@@ -138,6 +148,20 @@ struct DetailsView: View {
                 }
             }
             
+            if let wallet = viewModel.cardModel.walletModel, wallet.canManageTokens {
+                Section(header: HeaderView(text: "details_section_title_blockchain".localized), footer: FooterView(text: "", additionalBottomPadding: 40)) {
+                    NavigationLink(
+                        destination: ManageTokensView(viewModel: viewModel.assembly.makeManageTokensViewModel(with: wallet)),
+                        isActive: $navigation.detailsToManageTokens,
+                        label: {
+                            DetailsRowView(title: "details_row_title_manage_tokens".localized, subtitle: "")
+                        }
+                    )
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                }
+            }
+            
+            
             Section(header: Color.tangemTapBgGray
                         .listRowInsets(EdgeInsets())) {
                 EmptyView()
@@ -168,6 +192,6 @@ struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
             .environmentObject(Assembly.previewAssembly.navigationCoordinator)
-            .previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
+            .previewGroup(devices: [.iPhone8Plus])
     }
 }
