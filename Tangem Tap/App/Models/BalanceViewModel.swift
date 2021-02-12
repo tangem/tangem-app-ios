@@ -20,10 +20,3 @@ struct BalanceViewModel {
     let secondaryFiatBalance: String
     let secondaryName: String
 }
-
-struct TokenBalanceViewModel: Hashable {
-    let name: String
-    let tokenName: String
-    let balance: String
-    let fiatBalance: String
-}
