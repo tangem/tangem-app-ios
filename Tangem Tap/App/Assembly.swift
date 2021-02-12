@@ -26,6 +26,7 @@ class Assembly {
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager)
+    lazy var tokensService: TokenManager = TokenManagerFactory.manager()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -35,7 +36,7 @@ class Assembly {
     }()
     
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService)
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService, managedTokensLoader: tokensService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         crepo.featuresService = featuresService
@@ -93,24 +94,11 @@ class Assembly {
 			pairKey = savedPairKey
 		}
 		
-        // ETH public key 04ecde9f7584d27e5914652487e2668a8d26c63d550cebc67b61c0b9a5cf80cb5b63fd7f2dc3ef4a7304678e4a918838659672063a115b133126165bc88147e685
-        
-        var tokens: [Token]? = nil
-        if card.walletPublicKey?.hex == "04ecde9f7584d27e5914652487e2668a8d26c63d550cebc67b61c0b9a5cf80cb5b63fd7f2dc3ef4a7304678e4a918838659672063a115b133126165bc88147e685" {
-            tokens = [
-                Token(symbol: "DAI", contractAddress: "0x6b175474e89094c44da98b954eedeac495271d0f", decimalCount: 18),
-                Token(symbol: "USDC", contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", decimalCount: 6)
-            ]
-        }
-        
-//        Erc20Token(name: "DAI", coin: "DAI", contractAddress: try! Address(hex: "0x6b175474e89094c44da98b954eedeac495271d0f"), decimal: 18),
-//        Erc20Token(name: "USD Coin", coin: "USDC", contractAddress: try! Address(hex: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"), decimal: 6),
-        
-        guard let walletManager = walletManagerFactory.makeWalletManager(from: card, tokens: tokens, pairKey: pairKey) else {
+        guard let walletManager = walletManagerFactory.makeWalletManager(from: card, tokens: cardInfo.managedTokens.map { $0 }, pairKey: pairKey) else {
             return nil
         }
 		
-		return WalletModel(walletManager: walletManager, ratesService: ratesService)
+        return WalletModel(walletManager: walletManager, ratesService: ratesService, tokensService: TokensServiceFactory.service(for: card, tokensService: tokensService))
     }
     
     func makeCardModel(from info: CardInfo) -> CardViewModel? {
@@ -154,6 +142,8 @@ class Assembly {
         return vm
     }
     
+    // MARK: Details
+    
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
         if let restored: DetailsViewModel = get() {
             restored.cardModel = card
@@ -186,6 +176,35 @@ class Assembly {
         let vm =  CurrencySelectViewModel()
         initialize(vm)
         vm.ratesService = ratesService
+        return vm
+    }
+    
+    func makeManageTokensViewModel(with wallet: WalletModel) -> ManageTokensViewModel {
+        if let restored: ManageTokensViewModel = get() {
+            return restored
+        }
+        
+        let vm = ManageTokensViewModel(walletModel: wallet)
+        initialize(vm)
+        return vm
+    }
+    
+    func makeAddTokensViewModel(for wallet: WalletModel) -> AddNewTokensViewModel {
+        if let restored: AddNewTokensViewModel = get() {
+            return restored
+        }
+        
+        let vm = AddNewTokensViewModel(walletModel: wallet)
+        initialize(vm)
+        return vm
+    }
+    
+    func makeAddCustomTokenViewModel(for wallet: WalletModel) -> AddCustomTokenViewModel {
+        if let restored: AddCustomTokenViewModel = get() {
+            return restored
+        }
+        let vm = AddCustomTokenViewModel(walletModel: wallet)
+        initialize(vm)
         return vm
     }
     
