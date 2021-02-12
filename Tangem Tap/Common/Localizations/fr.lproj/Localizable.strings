@@ -28,6 +28,12 @@
 
 "common_back" = "Back";
 
+"common_add" = "Add";
+
+"common_remove" = "Remove";
+
+"common_search" = "Search";
+
 "common_camera_denied_alert_title" = "L’accès à la caméra est refusé";
 
 "common_camera_denied_alert_message" = "Vous n'avez pas octroyé l’accès à votre caméra, veuillez modifier vos paramètres de confidentialité";
@@ -187,6 +193,10 @@
 "details_row_title_manage_security" = "Gestion de la sécurité";
 
 "details_row_title_erase_wallet" = "Annuler le portefeuille";
+
+"details_section_title_blockchain" = "Blockchain";
+
+"details_row_title_manage_tokens" = "Manage tokens";
 
 "details_currency_search_placeholder" = "Recherche";
 
@@ -359,3 +369,28 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "wallet_button_create_twin_wallet" = "Create twin wallet";
 "wallet_error_empty_twin_card" = "Create twin wallet";
 "wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
+
+// MARK: - Manages tokens
+
+"manage_tokens_no_tokens" = "No tokens yet";
+"manage_tokens_section_title_added_tokens" = "Added tokens";
+"manage_tokens_alert_remove_token_title" = "Remove %@ token";
+"manage_tokens_alert_remove_token_message" = "Are you sure you want to remove this token?";
+
+"add_tokens_title" = "Add token";
+"add_custom" = "Add Custom";
+"add_token_section_title_custom_tokens" = "Custom tokens";
+"add_token_section_title_popular_tokens" = "Popular tokens";
+
+"add_custom_token_title" = "Add custom token";
+
+"custom_token_creation_error_empty_fields" = "Please, fill all fields";
+"custom_token_creation_error_wrong_decimals" = "Entered number is not a valid decimals number";
+
+"custom_token_name_input_title" = "Name";
+"custom_token_token_symbol_input_title" = "Token symbol";
+"custom_token_contract_address_input_title" = "Contract address";
+"custom_token_decimals_input_title" = "Decimals";
+
+"custom_token_name_input_placeholder" = "ex. USD Coin";
+"custom_token_token_symbol_input_placeholder" = "ex. USDC";
