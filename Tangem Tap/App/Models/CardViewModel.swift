@@ -19,6 +19,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var payIDService: PayIDService? = nil
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
+    weak var warningsConfigurator: WarningsConfigurator!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -305,6 +306,7 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success(let response):
                 var card = self.cardInfo.card.updating(with: response)
                 card.walletSignedHashes = nil
+                self.warningsConfigurator.setupWarnings(for: card)
                 self.cardInfo.card = card
                 self.updateState()
                 completion(.success(()))
@@ -316,10 +318,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 	
 	func update(withCreateWaletResponse response: CreateWalletResponse) {
-		cardInfo.card = cardInfo.card.updating(with: response)
-		if cardInfo.card.isTwinCard {
+        let card = cardInfo.card.updating(with: response)
+		cardInfo.card = card
+		if card.isTwinCard {
 			cardInfo.twinCardInfo?.pairPublicKey = nil
 		}
+        warningsConfigurator.setupWarnings(for: card)
 		updateState()
 	}
     
