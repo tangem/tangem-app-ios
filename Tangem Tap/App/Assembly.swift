@@ -111,6 +111,7 @@ class Assembly {
         vm.featuresService = featuresService
         vm.assembly = self
         vm.tangemSdk = tangemSdk
+        vm.warningsConfigurator = warningsService
 		if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
