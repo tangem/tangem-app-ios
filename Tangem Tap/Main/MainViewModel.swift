@@ -51,9 +51,9 @@ class MainViewModel: ViewModel {
         didSet {
             warnings.objectWillChange
                 .receive(on: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] in
+                .sink(receiveValue: { [unowned self] in
                     withAnimation {
-                        self?.objectWillChange.send()
+                        self.objectWillChange.send()
                     }
                 })
                 .store(in: &bag)
@@ -163,11 +163,8 @@ class MainViewModel: ViewModel {
             .compactMap { $0.cardModel }
             .flatMap {$0.objectWillChange }
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                print("⚠️ Card model will change")
-                self?.fetchWarnings()
-                self?.showUntrustedDisclaimerIfNeeded()
-                self?.objectWillChange.send()
+            .sink { [unowned self] in
+                self.objectWillChange.send()
             }
             .store(in: &bag)
         
@@ -177,9 +174,8 @@ class MainViewModel: ViewModel {
             .compactMap { $0.walletModel }
             .flatMap { $0.objectWillChange }
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                print("⚠️ Wallet model will change")
-                self?.objectWillChange.send()
+            .sink { [unowned self] in
+                self.objectWillChange.send()
             }
             .store(in: &bag)
         
@@ -192,7 +188,6 @@ class MainViewModel: ViewModel {
             .filter { !$0 }
             .receive(on: RunLoop.main)
             .sink {[unowned self] isRefreshing in
-                print("⚠️ Is refreshing changed")
                 withAnimation {
                     self.isRefreshing = isRefreshing
                 }
@@ -202,7 +197,6 @@ class MainViewModel: ViewModel {
         $state
             .filter { $0.cardModel != nil }
             .sink {[unowned  self] _ in
-                print("⚠️ Not nil card model setup")
                 self.selectedAddressIndex = 0
                 self.fetchWarnings()
                 self.isHashesCounted = false
