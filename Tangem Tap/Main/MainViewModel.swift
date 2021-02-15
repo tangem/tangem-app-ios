@@ -164,6 +164,7 @@ class MainViewModel: ViewModel {
             .flatMap {$0.objectWillChange }
             .receive(on: RunLoop.main)
             .sink { [unowned self] in
+                print("‼️ Card model will change")
                 self.objectWillChange.send()
             }
             .store(in: &bag)
@@ -175,7 +176,18 @@ class MainViewModel: ViewModel {
             .flatMap { $0.objectWillChange }
             .receive(on: RunLoop.main)
             .sink { [unowned self] in
+                print("⚠️ Wallet model will change")
                 self.objectWillChange.send()
+            }
+            .store(in: &bag)
+        
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$state }
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] state in
+                print("🌀 Card model state updated")
+                self.fetchWarnings()
             }
             .store(in: &bag)
         
@@ -188,6 +200,7 @@ class MainViewModel: ViewModel {
             .filter { !$0 }
             .receive(on: RunLoop.main)
             .sink {[unowned self] isRefreshing in
+                print("♻️ Wallet model loading state changed")
                 withAnimation {
                     self.isRefreshing = isRefreshing
                 }
@@ -197,8 +210,8 @@ class MainViewModel: ViewModel {
         $state
             .filter { $0.cardModel != nil }
             .sink {[unowned  self] _ in
+                print("✅ Receive new card model")
                 self.selectedAddressIndex = 0
-                self.fetchWarnings()
                 self.isHashesCounted = false
                 self.assembly.reset()
                 if !self.showTwinCardOnboardingIfNeeded() {
