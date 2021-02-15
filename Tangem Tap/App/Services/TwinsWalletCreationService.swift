@@ -140,9 +140,10 @@ class TwinsWalletCreationService {
         let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey)
         tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] (result) in
             guard let self = self else { return }
+            
             switch result {
             case .success(let response):
-                self.cardsRepository.processScanResponse(response)
+                self.cardsRepository.lastScanResult.cardModel?.update(with: response.getCardInfo())
                 self.step.send(.done)
             case .failure(let error):
                 self.occuredError.send(error)
