@@ -15,6 +15,7 @@ import Combine
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
+    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
@@ -225,21 +226,14 @@ struct MainView: View {
                                         CreatePayIdView(cardId: self.viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
                                                         cardViewModel: self.viewModel.state.cardModel!)
                                     })
-                                
-                                Color.clear.frame(width: 1, height: 1, alignment: .center)
-                                    .sheet(isPresented: self.$navigation.mainToQR) {
-                                        QRCodeView(title: String(format: "wallet_qr_title_format".localized, self.viewModel.state.wallet!.blockchain.displayName),
-                                                   shareString: self.viewModel.state.cardModel!.state.walletModel!.shareAddressString(for: self.viewModel.selectedAddressIndex))
-                                            .transition(AnyTransition.move(edge: .bottom))
-                                    }
                             }
                         }
                     }
                 }
             }
-             bottomButtons
-            .padding([.top, .leading, .trailing], 8)
-            .padding(.bottom, 16.0)
+            bottomButtons
+                .padding([.top, .leading, .trailing], 8)
+                .padding(.bottom, 16.0)
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(viewModel.navigation.mainToSettings || viewModel.navigation.mainToTopup ? "" : "wallet_title", displayMode: .inline)
@@ -273,6 +267,19 @@ struct MainView: View {
                     .receive(on: DispatchQueue.main)) { _ in
             viewModel.state.cardModel?.update()
         }
+        .onReceive(navigation
+                    .$mainToQR
+                    .filter { $0 }
+                    .removeDuplicates()
+                    .receive(on: DispatchQueue.main),
+                   perform: { _ in
+                    navigation.mainToQR = false
+                    let qrView = QRCodeView(title: String(format: "wallet_qr_title_format".localized, viewModel.state.wallet!.blockchain.displayName),
+                                            shareString: viewModel.state.cardModel!.state.walletModel!.shareAddressString(for: viewModel.selectedAddressIndex))
+                    
+                    viewControllerHolder?.present(style: .overCurrentContext,
+                                                  transitionStyle: .crossDissolve) { qrView }
+                   })
         .alert(item: $viewModel.error) { $0.alert }
     }
     
