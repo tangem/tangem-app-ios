@@ -171,7 +171,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadPayIDInfo () {
-        guard featuresService.canReceiveToPayId else {
+        guard featuresService?.canReceiveToPayId ?? false else {
             return
         }
         
