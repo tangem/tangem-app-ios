@@ -41,7 +41,7 @@ struct TokenBalanceView: View {
 
 struct BalanceView: View {
     var balanceViewModel: BalanceViewModel
-    var tokensViewModels: [TokenBalanceViewModel]
+    var tokenViewModels: [TokenBalanceViewModel]
     
     var blockchainText: String {
         if balanceViewModel.loadingError != nil {
@@ -156,9 +156,9 @@ struct BalanceView: View {
                 .padding(.horizontal, 24.0)
                 
                 Color.clear.frame(height: 16)
-            } else if tokensViewModels.count > 0 {
+            } else if tokenViewModels.count > 0 {
                 VStack(spacing: 8) {
-                    ForEach(tokensViewModels, id: \.tokenName) { token in
+                    ForEach(tokenViewModels, id: \.tokenName) { token in
                         TokenBalanceView(tokenViewModel: token)
                     }
                     .padding(.horizontal)
@@ -190,7 +190,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                balance: "0.00000348573986753845001 BTC",
                                                                secondaryBalance: "", secondaryFiatBalance: "",
                                                                secondaryName: ""),
-                            tokensViewModels: tokens)
+                            tokenViewModels: tokens)
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
@@ -202,7 +202,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                balance: "0.00000348573986753845001 BTC",
                                                                secondaryBalance: "", secondaryFiatBalance: "",
                                                                secondaryName: ""),
-                            tokensViewModels: tokens)
+                            tokenViewModels: tokens)
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
@@ -215,7 +215,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                secondaryBalance: "-",
                                                                secondaryFiatBalance: "",
                                                                secondaryName: "Bitcoin"),
-                            tokensViewModels: tokens)
+                            tokenViewModels: tokens)
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
@@ -228,7 +228,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                secondaryBalance: "19 BTC",
                                                                secondaryFiatBalance: "10 USD",
                                                                secondaryName: "Bitcoin"),
-                            tokensViewModels: tokens)
+                            tokenViewModels: tokens)
                     .padding(.horizontal, 16)
             }
         }
