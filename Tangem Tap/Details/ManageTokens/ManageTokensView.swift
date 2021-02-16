@@ -20,7 +20,7 @@ struct ManageTokensView: View {
     var body: some View {
         ZStack {
             Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)
-            if viewModel.walletModel.tokensViewModels.count == 0 {
+            if viewModel.walletModel.tokenViewModels.count == 0 {
                 VStack(spacing: 29) {
                     Image("no_tokens")
                     Text("manage_tokens_no_tokens")
@@ -31,7 +31,7 @@ struct ManageTokensView: View {
             } else {
                 List {
                     Section(header: HeaderView(text: "manage_tokens_section_title_added_tokens".localized, additionalTopPadding: 14)) {
-                        ForEach(viewModel.walletModel.tokensViewModels, id: \.id) { item in
+                        ForEach(viewModel.walletModel.tokenViewModels, id: \.id) { item in
                             AddedManagedTokenView(token: item, removeTokenAction: {
                                 tokenToRemove = item
                             })
