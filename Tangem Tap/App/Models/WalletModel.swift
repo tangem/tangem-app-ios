@@ -14,11 +14,11 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
-    @Published var tokensViewModels: [TokenBalanceViewModel] = []
+    @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: [String: Decimal]] = [:]
 
     var ratesService: CoinMarketCapService
-    var tokensService: TokensService
+    var tokensService: TokensService?
     var txSender: TransactionSender { walletManager as! TransactionSender }
     var wallet: Wallet { walletManager.wallet }
     
@@ -26,15 +26,14 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.addresses.map { $0.localizedName }
     }
     
-    var tokens: [Token] { tokensService.cardTokens }
+    var tokens: [Token] { tokensService?.cardTokens ?? [] }
     var canManageTokens: Bool { walletManager.canManageTokens }
-    var tokenManager: BlockchainSdk.TokenManager? { walletManager as? BlockchainSdk.TokenManager }
     
     let walletManager: WalletManager
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
-    init(walletManager: WalletManager, ratesService: CoinMarketCapService, tokensService: TokensService) {
+    init(walletManager: WalletManager, ratesService: CoinMarketCapService, tokensService: TokensService?) {
         self.walletManager = walletManager
         self.ratesService = ratesService
         self.tokensService = tokensService
@@ -140,20 +139,22 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func addToken(_ token: Token) -> AnyPublisher<Amount, Error>? {
-        tokensService.addToken(token)
-        return tokenManager?.addToken(token)
+        return tokensService?.addToken(token)
             .map { [unowned self] in
                 self.updateTokensViewModels()
                 self.updateTokensRates([token])
                 return $0
             }
+            .mapError { [unowned self] error in
+                self.updateTokensViewModels()
+                return error
+            }
             .eraseToAnyPublisher()
     }
     
     func removeToken(_ token: Token) {
-        tokensService.removeToken(token)
-        tokenManager?.removeToken(token)
-        tokensViewModels.removeAll(where: { $0.token == token })
+        tokensService?.removeToken(token)
+        tokenViewModels.removeAll(where: { $0.token == token })
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
@@ -170,7 +171,7 @@ class WalletModel: ObservableObject, Identifiable {
                                                 secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
                                                 secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
                                                 secondaryName: wallet.blockchain.displayName )
-            tokensViewModels = []
+            tokenViewModels = []
         } else {
             balanceViewModel = BalanceViewModel(isToken: false,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
@@ -229,7 +230,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func updateTokensViewModels() {
-        tokensViewModels = walletManager.cardTokens.map {
+        tokenViewModels = walletManager.cardTokens.map {
             let amount = wallet.amounts[.token(value: $0)]
             return TokenBalanceViewModel(token: $0, balance: amount?.description ?? "-", fiatBalance: getFiatFormatted(for: amount) ?? " ")
         }
