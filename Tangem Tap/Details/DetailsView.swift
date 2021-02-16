@@ -152,12 +152,12 @@ struct DetailsView: View {
                 Section(header: HeaderView(text: "details_section_title_blockchain".localized), footer: FooterView(text: "", additionalBottomPadding: 40)) {
                     NavigationLink(
                         destination: ManageTokensView(viewModel: viewModel.assembly.makeManageTokensViewModel(with: wallet)),
-                        isActive: $navigation.detailsToManageTokens,
+                        tag: "manageTokens",
+                        selection: $selection,
                         label: {
                             DetailsRowView(title: "details_row_title_manage_tokens".localized, subtitle: "")
-                        }
-                    )
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                        })
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 }
             }
             
