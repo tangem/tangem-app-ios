@@ -10,30 +10,30 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-typealias TokenManager = TokensLoader & TokensPersistenceService
+typealias TokenPersistenceService = TokensLoader & TokensPersistenceController
 
 protocol TokensLoader: class {
     func loadTokens(for cardId: String, blockchainSymbol: String) -> [Token]
 }
 
-protocol TokensPersistenceService: class {
+protocol TokensPersistenceController: class {
     var savedTokens: [Token] { get }
     func addToken(_ token: Token)
     func removeToken(_ token: Token)
 }
 
-class TokenManagerFactory {
-    static func manager() -> TokenManager {
+class TokenPersistenceServiceFactory {
+    static func makeService() -> TokenPersistenceService {
         do {
-            return try ICloudTokensService()
+            return try ICloudTokenPersistenceService()
         } catch {
-            print("⚠️ Failed to instantiate iCloud tokens service. Reason:", error, "⚠️")
+            print("⚠️ Failed to instantiate iCloud token persistence manager. Reason:", error, "⚠️")
         }
-        return UserDefaultsTokensService()
+        return UserDefaultsTokenPersistenceService()
     }
 }
 
-class UserDefaultsTokensService: TokenManager {
+class UserDefaultsTokenPersistenceService: TokenPersistenceService {
     
     private(set) var savedTokens: [Token] = []
     
@@ -83,7 +83,7 @@ class UserDefaultsTokensService: TokenManager {
     }
 }
 
-class ICloudTokensService: TokenManager {
+class ICloudTokenPersistenceService: TokenPersistenceService {
     
     private let fileManager = FileManager.default
     private let jsonEncoder = JSONEncoder()
