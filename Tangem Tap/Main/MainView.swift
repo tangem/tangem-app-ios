@@ -320,7 +320,8 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
                 .environmentObject(Assembly.previewAssembly.navigationCoordinator)
         }
-        .previewGroup()
+        .previewGroup(devices: [.iPhone8Plus])
+        .navigationViewStyle(StackNavigationViewStyle())
         .environment(\.locale, .init(identifier: "en"))
     }
 }
