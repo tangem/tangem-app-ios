@@ -209,7 +209,7 @@ struct MainView: View {
                                 if self.shouldShowBalanceView {
                                     BalanceView(
                                         balanceViewModel: self.viewModel.state.cardModel!.state.walletModel!.balanceViewModel,
-                                        tokensViewModels: self.viewModel.state.cardModel!.state.walletModel!.tokensViewModels
+                                        tokenViewModels: self.viewModel.state.cardModel!.state.walletModel!.tokenViewModels
                                     )
                                         .padding(.horizontal, 16.0)
                                 } else {
