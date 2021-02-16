@@ -9,7 +9,6 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
-import Combine
 
 struct CardInfo {
     var card: Card
@@ -73,19 +72,16 @@ class CardsRepository {
 	
 	private let twinCardFileDecoder: TwinCardFileDecoder
     private let warningsConfigurator: WarningsConfigurator
-    private let managedTokensLoader: TokensLoader
-    
-    private var bag = Set<AnyCancellable>()
+    private let tokensLoader: TokensLoader
 	
-    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator, managedTokensLoader: TokensLoader) {
+    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator, tokensLoader: TokensLoader) {
 		self.twinCardFileDecoder = twinCardFileDecoder
         self.warningsConfigurator = warningsConfigurator
-        self.managedTokensLoader = managedTokensLoader
+        self.tokensLoader = tokensLoader
 	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        bag = []
         tangemSdk.config = Config()
         tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
@@ -116,7 +112,7 @@ class CardsRepository {
             tangemSdk.config.cardIdDisplayedNumbersCount = 4
         }
         
-        let savedTokens = managedTokensLoader.loadTokens(for: cardInfo.card.cardId ?? "", blockchainSymbol: cardInfo.card.blockchain?.currencySymbol ?? "")
+        let savedTokens = tokensLoader.loadTokens(for: cardInfo.card.cardId ?? "", blockchainSymbol: cardInfo.card.blockchain?.currencySymbol ?? "")
         
         var cardInfoTokens = cardInfo
         cardInfoTokens.managedTokens = savedTokens
