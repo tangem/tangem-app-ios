@@ -59,10 +59,11 @@ class AddCustomTokenViewModel: ViewModel {
         let token = Token(name: name, symbol: symbolName.uppercased(), contractAddress: contractAddress, decimalCount: Int(decim))
         walletModel.addToken(token)?
             .sink(receiveCompletion: { [weak self] result in
-                self?.isSavingToken = false
                 if case let .failure(error) = result {
-                    self?.error = error.alertBinder
+                    print("Failed to receive token balance. Error:", error)
                 }
+                self?.isSavingToken = false
+                self?.tokenSaved = true
             }, receiveValue: { [weak self] amount in
                 self?.isSavingToken = false
                 self?.tokenSaved = true
