@@ -9,76 +9,61 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import Combine
+
+class TokensServiceFactory {
+    static func makeService(for card: Card, persistenceService: TokensPersistenceController, tokenWalletManager: TokenManager?) -> TokensService? {
+        guard
+            let blockchain = card.blockchain,
+            let manager = tokenWalletManager
+        else { return nil }
+        
+        switch blockchain {
+        case .ethereum: return DefaultTokensService(provider: ERC20TokenProvider.instance, persistenceService: persistenceService, manager: manager)
+        default: return nil
+        }
+    }
+}
 
 protocol TokensService {
     var cardTokens: [Token] { get }
     var availableTokens: [Token] { get }
-    func addToken(_ token: Token)
+    func addToken(_ token: Token) -> AnyPublisher<Amount, Error>
     func removeToken(_ token: Token)
 }
 
-class ERC20TokensProvider {
+class DefaultTokensService {
     
-    private(set) var tokens: [Token] = []
+    private static var service: DefaultTokensService!
     
-    init() {
-        guard let url = Bundle.main.url(forResource: "erc20tokens", withExtension: "json") else {
-            print("Failed to find erc 20 tokens json file")
-            return
-        }
-        do {
-            let data = try Data(contentsOf: url)
-            tokens = try JSONDecoder().decode([Token].self, from: data)
-        } catch {
-            print("Failed to fetch erc20 tokens from \(url). Reason: \(error)")
-        }
-        
-    }
+    private let provider: TokenProvider
+    private let persistenceService: TokensPersistenceController
+    private let manager: TokenManager
     
-}
-
-class DefaultTokensService: TokensService {
-    var cardTokens: [Token] { [] }
-    var availableTokens: [Token] { [] }
-    func addToken(_ token: Token) { }
-    func removeToken(_ token: Token) { }
-}
-
-class EthereumTokensService {
-    
-    private static var service: EthereumTokensService!
-    
-    static func instance(tokenService: TokensPersistenceService) -> EthereumTokensService {
-        if service == nil || service.tokenPersistenceService === tokenService {
-            service = EthereumTokensService(tokensService: tokenService)
-        }
-        return service
-    }
-    
-    private let tokenProvider: ERC20TokensProvider
-    private let tokenPersistenceService: TokensPersistenceService
-    
-    private init(tokensService: TokensPersistenceService) {
-        tokenProvider = ERC20TokensProvider()
-        tokenPersistenceService = tokensService
+    fileprivate init(provider: TokenProvider, persistenceService: TokensPersistenceController, manager: TokenManager) {
+        self.provider = provider
+        self.persistenceService = persistenceService
+        self.manager = manager
     }
 }
 
-extension EthereumTokensService: TokensService {
+extension DefaultTokensService: TokensService {
     
     var cardTokens: [Token] {
-        tokenPersistenceService.savedTokens
+        persistenceService.savedTokens
     }
     
     var availableTokens: [Token] {
-        tokenProvider.tokens.filter { !tokenPersistenceService.savedTokens.contains($0) }
+        provider.tokens.filter { !persistenceService.savedTokens.contains($0) }
     }
     
-    func addToken(_ token: Token) {
-        tokenPersistenceService.addToken(token)
+    func addToken(_ token: Token) -> AnyPublisher<Amount, Error> {
+        persistenceService.addToken(token)
+        return manager.addToken(token)
     }
     
     func removeToken(_ token: Token) {
-        tokenPersistenceService.removeToken(token)
+        persistenceService.removeToken(token)
+        manager.removeToken(token)
     }
 }
