@@ -30,10 +30,8 @@ struct TokenBalanceView: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.tangemTapGrayDark)
             }
-            .padding(.bottom, 4)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(8)
         .background(Color.tangemTapGrayLight6)
         .cornerRadius(6)
     }
