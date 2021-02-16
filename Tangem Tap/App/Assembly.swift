@@ -26,7 +26,7 @@ class Assembly {
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager)
-    lazy var tokensService: TokenManager = TokenManagerFactory.manager()
+    lazy var tokenPersistenceService: TokenPersistenceService = TokenPersistenceServiceFactory.makeService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -36,7 +36,7 @@ class Assembly {
     }()
     
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService, managedTokensLoader: tokensService)
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService, tokensLoader: tokenPersistenceService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         crepo.featuresService = featuresService
@@ -98,7 +98,9 @@ class Assembly {
             return nil
         }
 		
-        return WalletModel(walletManager: walletManager, ratesService: ratesService, tokensService: TokensServiceFactory.service(for: card, tokensService: tokensService))
+        return WalletModel(walletManager: walletManager,
+                           ratesService: ratesService,
+                           tokensService: TokensServiceFactory.makeService(for: card, persistenceService: tokenPersistenceService, tokenWalletManager: walletManager as? TokenManager))
     }
     
     func makeCardModel(from info: CardInfo) -> CardViewModel? {

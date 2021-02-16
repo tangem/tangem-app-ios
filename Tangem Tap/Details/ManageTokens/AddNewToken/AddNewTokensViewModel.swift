@@ -31,7 +31,7 @@ class AddNewTokensViewModel: ViewModel {
     }
     
     func onAppear() {
-        availableTokens = walletModel.tokensService.availableTokens
+        availableTokens = walletModel.tokensService?.availableTokens ?? []
     }
     
     func addTokenToList(token: Token) {
