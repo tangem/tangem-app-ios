@@ -184,14 +184,18 @@ struct DetailsView: View {
             return  FooterView(text: purgeWalletProhibitedDescription).toAnyView()
         }
         
-        return EmptyView().toAnyView()
+        return FooterView().toAnyView()
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
-            .environmentObject(Assembly.previewAssembly.navigationCoordinator)
-            .previewGroup(devices: [.iPhone8Plus])
+        NavigationView {
+            DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
+                .environmentObject(Assembly.previewAssembly.navigationCoordinator)
+                .previewGroup(devices: [.iPhone8Plus])
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        
     }
 }
