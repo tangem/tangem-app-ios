@@ -102,8 +102,6 @@
 
 "wallet_address_button_create_payid" = "PayString erstellen";
 
-"wallet_warning_button_ok" = "OK, ich hab's!";
-
 "wallet_qr_title_format" = "%@ Wallet";
 
 "wallet_create_payid" = "PayString erstellen";
@@ -360,3 +358,7 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "wallet_button_create_twin_wallet" = "Create twin wallet";
 "wallet_error_empty_twin_card" = "Create twin wallet";
 "wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
+
+// MARK: - Warnings
+
+"warning_button_ok" = "OK, ich hab's!";
