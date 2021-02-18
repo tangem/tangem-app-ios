@@ -10,7 +10,7 @@ import SwiftUI
 
 struct WarningListView: View {
     var warnings: WarningsContainer
-    var warningButtonAction: (Int, WarningPriority) -> Void
+    var warningButtonAction: (Int, WarningPriority, WarningButton) -> Void
     var spacing: CGFloat = 10
     
     private let transition = AnyTransition.scale.combined(with: .opacity)
@@ -18,29 +18,29 @@ struct WarningListView: View {
     var body: some View {
         Group {
             ForEach(Array(warnings.criticals.enumerated()), id: \.element) { (i, item) in
-                WarningView(warning: warnings.criticals[i]) {
-                    self.buttonAction(at: i, priority: .critical)
-                }
+                WarningView(warning: warnings.criticals[i], buttonAction: { b in
+                    self.buttonAction(at: i, priority: .critical, button: b)
+                })
                 .transition(transition)
             }
             ForEach(Array(warnings.warnings.enumerated()), id: \.element) { (i, item) in
-                WarningView(warning: warnings.warnings[i]) {
-                    self.buttonAction(at: i, priority: .warning)
-                }
+                WarningView(warning: warnings.warnings[i], buttonAction: { b in
+                    self.buttonAction(at: i, priority: .warning, button: b)
+                })
                 .transition(transition)
             }
             ForEach(Array(warnings.infos.enumerated()), id: \.element) { (i, item) in
-                WarningView(warning: warnings.infos[i]) {
-                    self.buttonAction(at: i, priority: .info)
-                }
+                WarningView(warning: warnings.infos[i], buttonAction: { b in
+                    self.buttonAction(at: i, priority: .info, button: b)
+                })
                 .transition(transition)
             }
         }
     }
     
-    private func buttonAction(at index: Int, priority: WarningPriority) {
+    private func buttonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         withAnimation {
-            self.warningButtonAction(index, priority)
+            self.warningButtonAction(index, priority, button)
         }
     }
 }
@@ -55,7 +55,7 @@ struct WarningListView_Previews: PreviewProvider {
     @ObservedObject static var warnings: WarningsContainer = container
     static var previews: some View {
         ScrollView {
-            WarningListView(warnings: warnings, warningButtonAction: { (index, priority) in
+            WarningListView(warnings: warnings, warningButtonAction: { (index, priority, button)  in
                 warningButtonAction(at: index, priority: priority)
             })
         }
