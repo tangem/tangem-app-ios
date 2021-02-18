@@ -11,6 +11,7 @@ import SwiftUI
 import TangemSdk
 import BlockchainSdk
 import Combine
+import MessageUI
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
@@ -180,6 +181,8 @@ struct MainView: View {
         return false
     }
     
+    @State var result: Result<MFMailComposeResult, Error>? = nil
+    
     var body: some View {
         VStack(spacing: 0) {
             navigationLinks
@@ -194,9 +197,12 @@ struct MainView: View {
                             ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
                         } else {
                             WarningListView(warnings: self.viewModel.warnings, warningButtonAction: {
-                                self.viewModel.warningButtonAction(at: $0, priority: $1)
+                                self.viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                             })
                             .padding(.horizontal, 16)
+                            .sheet(isPresented: $navigation.mainToSendEmail, content: {
+                                MailView(emailType: .negativeRateAppFeedback, result: $result)
+                            })
                             
                             ForEach(self.pendingTransactionViews) { $0 }
                             
