@@ -11,6 +11,7 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 import TangemSdk
+import MessageUI
 
 class MainViewModel: ViewModel {
     
@@ -20,6 +21,7 @@ class MainViewModel: ViewModel {
 	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
     weak var warningsManager: WarningsManager!
+    weak var rateAppController: RateAppController!
     
 	weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
@@ -333,14 +335,31 @@ class MainViewModel: ViewModel {
         assembly.reset()
     }
     
-    func warningButtonAction(at index: Int, priority: WarningPriority) {
+    // MARK: Warning action handler
+    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
-        if let cardId = state.card?.cardId,
-           case .numberOfSignedHashesIncorrect = warning.event {
-            validatedSignedHashesCards.append(cardId)
+        switch button {
+        case .okGotIt:
+            if let cardId = state.card?.cardId,
+               case .numberOfSignedHashesIncorrect = warning.event {
+                validatedSignedHashesCards.append(cardId)
+            }
+            
+        case .rateApp:
+            rateAppController.userReactToRateAppWarning(isPositive: true)
+            print("Rate app button tapped")
+        case .dismiss:
+            rateAppController.dismissRateAppWarning()
+            print("Dismiss button tapped")
+        case .reportProblem:
+            print("Device info\n" + DeviceInfoProvider.info())
+            if MFMailComposeViewController.canSendMail() {
+                navigation.mainToSendEmail = true
+            }
+//            rateAppController.userReactToRateAppWarning(isPositive: false)
+            print("Report problem button tapped")
         }
-        
         warningsManager.hideWarning(warning)
     }
     

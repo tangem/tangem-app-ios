@@ -115,9 +115,6 @@
 
 "wallet_address_button_create_payid" = "Create PayString";
 
-"wallet_warning_button_ok" = "Ok, Got it!";
-
-
 "wallet_qr_title_format" = "%@ wallet";
 
 
@@ -294,6 +291,17 @@
 "alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 
 "alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
+
+// MARK: - Warnings
+
+"warning_button_ok" = "Ok, Got it!";
+"warning_button_really_cool" = "Really cool";
+"warning_button_can_be_better" = "Can be better";
+
+"warning_rate_app_title" = "One question";
+
+"warning_rate_app_message" = "How do you like Tangem?";
+
 
 // MARK: - Initial message
 
