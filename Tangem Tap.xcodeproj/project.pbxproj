@@ -105,8 +105,8 @@
 		5DFCCB7624C381A70014A293 /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7524C381A70014A293 /* SendViewModel.swift */; };
 		5DFCCB7824C389740014A293 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7724C389740014A293 /* CardViewModel.swift */; };
 		5DFE855724EF051400194106 /* Error+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFE855624EF051400194106 /* Error+.swift */; };
-		B00D7150258A1B6C00A9442C /* JsonReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00D714F258A1B6C00A9442C /* JsonReader.swift */; };
-		B00D7154258A1CCC00A9442C /* JsonReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00D714F258A1B6C00A9442C /* JsonReader.swift */; };
+		B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00D714F258A1B6C00A9442C /* JsonUtils.swift */; };
+		B00D7154258A1CCC00A9442C /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00D714F258A1B6C00A9442C /* JsonUtils.swift */; };
 		B018F2FD2591FE8600D8F89A /* TapWarning.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018F2FC2591FE8600D8F89A /* TapWarning.swift */; };
 		B018F304259204A200D8F89A /* WarningEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018F303259204A200D8F89A /* WarningEvent.swift */; };
 		B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */; };
@@ -120,6 +120,7 @@
 		B0651737259CACD8001D966C /* WarningsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0651736259CACD8001D966C /* WarningsList.swift */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
 		B072A731257A119700C5029C /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
+		B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07AE16B25DD548A0045179A /* RateAppService.swift */; };
 		B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B082E922255A8EF000A0CEA9 /* StorageType.swift */; };
 		B09BB85E259A075600B92000 /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
 		B09BB85F259A075600B92000 /* TangemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB855259A075500B92000 /* TangemButton.swift */; };
@@ -160,6 +161,9 @@
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
 		B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B0E1D17D257DE79000A3AB98 /* FeaturesConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */; };
+		B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */; };
+		B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */; };
+		B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */; };
 		B0F920CC25932DCF007C176C /* WarningListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F920CB25932DCE007C176C /* WarningListView.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		E7B877C2D1F9ECC207398075 /* Pods_Tangem_Tap_Tangem_TapUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */; };
@@ -286,7 +290,7 @@
 		660C0A4ED84D5E9C3C8E3304 /* Pods-Tangem Tap-Tangem TapUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; sourceTree = "<group>"; };
 		8023B4C7AB7F8F722B1B6BAA /* Pods-Tangem TapTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.debug.xcconfig"; sourceTree = "<group>"; };
 		ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_Tap_Tangem_TapUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B00D714F258A1B6C00A9442C /* JsonReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonReader.swift; sourceTree = "<group>"; };
+		B00D714F258A1B6C00A9442C /* JsonUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonUtils.swift; sourceTree = "<group>"; };
 		B018F2FC2591FE8600D8F89A /* TapWarning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapWarning.swift; sourceTree = "<group>"; };
 		B018F303259204A200D8F89A /* WarningEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningEvent.swift; sourceTree = "<group>"; };
 		B022D30F253746C900D934D7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -301,6 +305,7 @@
 		B0651736259CACD8001D966C /* WarningsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsList.swift; sourceTree = "<group>"; };
 		B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsUtils.swift; sourceTree = "<group>"; };
 		B072A72E257A119700C5029C /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_dev.json; sourceTree = "<group>"; };
+		B07AE16B25DD548A0045179A /* RateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppService.swift; sourceTree = "<group>"; };
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
 		B09BB854259A075500B92000 /* CircleActionButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleActionButton.swift; sourceTree = "<group>"; };
 		B09BB855259A075500B92000 /* TangemButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemButton.swift; sourceTree = "<group>"; };
@@ -334,6 +339,9 @@
 		B0E1D170257DE4DF00A3AB98 /* config_prod.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = config_prod.json; sourceTree = "<group>"; };
 		B0E1D174257DE75D00A3AB98 /* KeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysManager.swift; sourceTree = "<group>"; };
 		B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesConfigManager.swift; sourceTree = "<group>"; };
+		B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailType.swift; sourceTree = "<group>"; };
+		B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailView.swift; sourceTree = "<group>"; };
+		B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfoProvider.swift; sourceTree = "<group>"; };
 		B0F920CB25932DCE007C176C /* WarningListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningListView.swift; sourceTree = "<group>"; };
 		B0FB98A42598D24300B769A3 /* Card+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+.swift"; sourceTree = "<group>"; };
 		B9F1CD10D9C48557C2894B61 /* Pods-Tangem Tap.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.debug.xcconfig"; sourceTree = "<group>"; };
@@ -418,6 +426,7 @@
 				5D79D3142555ABE700650DD7 /* ImageLoaderService.swift */,
 				5D39514C2556CDDF002CC452 /* TopupService.swift */,
 				B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */,
+				B07AE16B25DD548A0045179A /* RateAppService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -437,6 +446,7 @@
 		5D39515725597D89002CC452 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5D9DCADD2551744F0059799C /* ViewModel.swift */,
 				5DFCCB7724C389740014A293 /* CardViewModel.swift */,
 				5D39515825597DA5002CC452 /* WalletModel.swift */,
 				5D39516025597DB1002CC452 /* BalanceViewModel.swift */,
@@ -554,6 +564,7 @@
 				5D15F9E7258A522500392BA5 /* PickerView.swift */,
 				5D12D21225B60AA3006060A1 /* SearchBar.swift */,
 				5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */,
+				B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -567,10 +578,10 @@
 				B068A7E525678A6E00D28CD2 /* Utilities */,
 				B018F3022592046C00D8F89A /* Warnings */,
 				5D9DCAD2255172520059799C /* NavigationCoordinator.swift */,
-				5D9DCADD2551744F0059799C /* ViewModel.swift */,
 				5D9DCAE225517D450059799C /* Assembly.swift */,
 				5D9DCAEA25517FB50059799C /* CardsRepository.swift */,
 				5D1BCFB7259CDCCA00EDA274 /* ContentView.swift */,
+				B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -725,8 +736,9 @@
 				B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */,
 				B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */,
 				B0608CBD2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift */,
-				B00D714F258A1B6C00A9442C /* JsonReader.swift */,
+				B00D714F258A1B6C00A9442C /* JsonUtils.swift */,
 				B0323F2B258C041D005C7CD5 /* SignerUtils.swift */,
+				B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -1127,6 +1139,7 @@
 				5DD966F925499E8B006070F3 /* WebView.swift in Sources */,
 				B09BB861259A075600B92000 /* NavigationBar.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
+				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
@@ -1143,7 +1156,7 @@
 				5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */,
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
-				B00D7150258A1B6C00A9442C /* JsonReader.swift in Sources */,
+				B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
 				B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */,
 				B09BB863259A075600B92000 /* NavigationConfigurator.swift in Sources */,
@@ -1160,6 +1173,7 @@
 				5D9DCAE325517D450059799C /* Assembly.swift in Sources */,
 				5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */,
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
+				B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* SendView.swift in Sources */,
 				5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */,
 				5D5D013C25CC1F3900DA8616 /* TransparentModal.swift in Sources */,
@@ -1212,6 +1226,7 @@
 				B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
 				B0A0A2DC25825E8A005FC94D /* TwinOnboardingBackground.swift in Sources */,
+				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
@@ -1233,6 +1248,7 @@
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
 				5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */,
 				B0A0A19125822EFF005FC94D /* Storage.swift in Sources */,
+				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1241,7 +1257,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B00D7154258A1CCC00A9442C /* JsonReader.swift in Sources */,
+				B00D7154258A1CCC00A9442C /* JsonUtils.swift in Sources */,
 				B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */,
 				B09BB875259A085600B92000 /* FirebaseJsonConfigFetcher.swift in Sources */,
 				5D3F77DD24BF56DC00E8695B /* Tangem_TapTests.swift in Sources */,
