@@ -101,8 +101,6 @@
 
 "wallet_address_button_create_payid" = "Créer PayString";
 
-"wallet_warning_button_ok" = "Ok, je l'ai!";
-
 "wallet_qr_title_format" = "Portefeuille %@";
 
 
@@ -359,3 +357,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "wallet_button_create_twin_wallet" = "Create twin wallet";
 "wallet_error_empty_twin_card" = "Create twin wallet";
 "wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
+
+// MARK: Warnings
+
+"warning_button_ok" = "Ok, je l'ai!";
