@@ -28,7 +28,11 @@
 
 "common_camera_alert_button_settings" = "Impostazioni";
 
+"common_start" = "Start";
 
+"common_cancel" = "Cancel";
+
+"common_back" = "Back";
 
 "home_welcome" = "Benvenuti in Tangem. Hai una delle nostre schede?";
 
@@ -302,3 +306,54 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "initial_message_tap_header" = "Avvicina la carta";
 "details_notification_erase_wallet_not_possible" = "Il tuo saldo su questo portafoglio non è pari a zero o hai transazioni non confermate. Non è possibile eliminare la funzione portafoglio.";
 "details_notification_security_option_already_active" = "E' l'opzione attualmente attiva";
+
+// MARK: - Twin Cards
+
+"twins_onboarding_title" = "Tangem Twin";
+
+"twins_onboarding_subtitle" = "One wallet. Two cards.";
+
+"twins_onboarding_description_format" = "This one that you are holding in your hands and the other one with number %@.\n\nBoth cards can be used to extract funds from this wallet.";
+
+"details_twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.\nThe wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
+"details_twins_create_warning" = "The wallet creation procedure consists of three steps. You must complete it to the end, otherwise the cards will not be paired and you will have to start from the beginning.";
+
+"details_twins_recreate_toolbar" = "Re-create wallet";
+"details_row_title_twins_create" = "Create wallet";
+
+
+"details_row_title_twins_recreate" = "Re-create twin wallet";
+
+
+"wallet_twins_chip_format" = "Card %d of 2";
+"details_twins_recreate_step_format" = "Step %d";
+"details_twins_recreate_title_format" = "Tap the #%d twin card";
+"details_twins_recreate_subtitle" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
+
+"details_twins_recreate_button_format" = "Tap the card #%d";
+
+"notification_twins_recreate_success" = "The twin address was successfully created";
+
+"twins_creation_warning_title" = "Cancel Twin Card creation?";
+"twins_creation_warning_message" = "You have already started the process of recreating twin wallet. If you interrupt it, you won't be able to use your twin cards until you start it again and complete recreating the wallet.";
+"twins_scan_twin_with_number" = "Hold your iPhone near the twin card with number %@";
+
+"twin_process_preparing_card" = "Preparing card";
+
+"twin_process_creating_wallet" = "Creating wallet";
+
+// old
+"twin_wallet_creation_step_title_first" = "1st step";
+"twin_wallet_creation_step_title_second" = "2nd step";
+"twin_wallet_creation_step_title_third" = "3rd step";
+
+"twin_wallet_creation_title_tap_first_twin" = "Tap #1 twin card";
+"twin_wallet_creation_title_tap_second_twin" = "Tap #2 twin card";
+
+"twin_wallet_creation_tap_first_card" = "Tap the card #1";
+"twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
+
+
+"wallet_button_create_twin_wallet" = "Create twin wallet";
+"wallet_error_empty_twin_card" = "Create twin wallet";
+"wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
