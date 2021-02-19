@@ -22,7 +22,7 @@ class ERC20TokenProvider: TokenProvider {
     static let instance = ERC20TokenProvider()
     
     private init() {
-        guard let tokens = try? JsonReader.readBundleFile(with: fileName, type: [Token].self, shouldAddCompilationCondition: false) else {
+        guard let tokens = try? JsonUtils.readBundleFile(with: fileName, type: [Token].self, shouldAddCompilationCondition: false) else {
             print("Failed to find erc 20 tokens json file")
             return
         }
