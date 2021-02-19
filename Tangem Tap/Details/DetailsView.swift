@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemSdk
+import MessageUI
 
 struct DetailsRowView: View {
     var title: String
@@ -138,6 +139,18 @@ struct DetailsView: View {
                 }
             }
             
+            Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView(text: ""), content: {
+                Button(action: {
+                    navigation.detailsToSendEmail = true
+                }, label: {
+                    Text("details_row_title_send_feedback".localized)
+                })
+                .frame(height: 44)
+                .sheet(isPresented: $navigation.detailsToSendEmail, content: {
+                    MailView(dataCollector: viewModel.dataCollector, emailType: EmailType.appFeedback)
+                })
+            })
+            
             Section(header: Color.tangemTapBgGray
                         .listRowInsets(EdgeInsets())) {
                 EmptyView()
@@ -168,6 +181,6 @@ struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
             .environmentObject(Assembly.previewAssembly.navigationCoordinator)
-            .previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
+            .previewGroup(devices: [.iPhone8Plus])
     }
 }
