@@ -207,11 +207,15 @@
 
 "details_section_title_card" = "Card";
 
+"details_section_title_app" = "App";
+
 "details_row_title_validate" = "Validate card";
 
 "details_row_title_manage_security" = "Manage Security";
 
 "details_row_title_erase_wallet" = "Erase wallet";
+
+"details_row_title_send_feedback" = "Send feedback";
 
 "details_currency_search_placeholder" = "Search";
 
@@ -291,6 +295,15 @@
 "alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 
 "alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
+
+"alert_app_feedback_sent_title" = "Feedback successfully sent";
+"alert_app_feedback_sent_message" = "Thank you for your feedback";
+
+"alert_negative_app_rate_sent_title" = "Your suggestions were sent";
+"alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
+
+"alert_failed_to_send_email_title" = "Failed to send email";
+"alert_failed_to_send_email_message" = "Reason: %@";
 
 // MARK: - Warnings
 
