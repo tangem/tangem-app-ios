@@ -39,6 +39,8 @@ class DetailsViewModel: ViewModel {
                 .store(in: &bag)
         }
     }
+    
+    var dataCollector: SimpleFeedbackDataCollector
 	
     var hasWallet: Bool {
         cardModel.hasWallet
@@ -58,9 +60,9 @@ class DetailsViewModel: ViewModel {
     
     private var bag = Set<AnyCancellable>()
     
-    init(cardModel: CardViewModel) {
+    init(cardModel: CardViewModel, dataCollector: SimpleFeedbackDataCollector) {
         self.cardModel = cardModel
-        
+        self.dataCollector = dataCollector
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
