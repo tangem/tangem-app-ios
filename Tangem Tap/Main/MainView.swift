@@ -181,8 +181,6 @@ struct MainView: View {
         return false
     }
     
-    @State var result: Result<MFMailComposeResult, Error>? = nil
-    
     var body: some View {
         VStack(spacing: 0) {
             navigationLinks
@@ -201,7 +199,7 @@ struct MainView: View {
                             })
                             .padding(.horizontal, 16)
                             .sheet(isPresented: $navigation.mainToSendEmail, content: {
-                                MailView(emailType: .negativeRateAppFeedback, result: $result)
+                                MailView(dataCollector: viewModel.negativeFeedbackDataCollector, emailType: .negativeRateAppFeedback)
                             })
                             
                             ForEach(self.pendingTransactionViews) { $0 }
