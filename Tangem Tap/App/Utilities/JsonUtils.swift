@@ -1,5 +1,5 @@
 //
-//  JsonFileReader.swift
+//  JsonUtils.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct JsonReader {
+struct JsonUtils {
     
     static func readBundleFile<T: Decodable>(with name: String, type: T.Type, shouldAddCompilationCondition: Bool = true) throws -> T {
         var suffix: String = ""
@@ -29,6 +29,11 @@ struct JsonReader {
     static func readJsonData<T: Decodable>(_ data: Data, type: T.Type) throws -> T {
         let jsonDecorer = JSONDecoder()
         return try jsonDecorer.decode(type, from: data)
+    }
+    
+    static func writeJsonToData<T: Encodable>(_ info: T) throws -> Data {
+        let jsonEncoder = JSONEncoder()
+        return try jsonEncoder.encode(info)
     }
     
 }
