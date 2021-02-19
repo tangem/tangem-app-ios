@@ -26,6 +26,9 @@ class MainViewModel: ViewModel {
 	weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     
+    var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
+    var failedCardScanDataCollector: FailedCardScanDataCollector!
+    
     // MARK: Variables
     
     var amountToSend: Amount? = nil
