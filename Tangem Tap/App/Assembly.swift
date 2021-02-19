@@ -13,9 +13,12 @@ import BlockchainSdk
 class Assembly {
 	let keysManager = try! KeysManager()
     let configManager = try! FeaturesConfigManager()
+    let logger = Logger()
     
     lazy var tangemSdk: TangemSdk = {
-        let sdk = TangemSdk()
+        var config = Config()
+        config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
+        let sdk = TangemSdk(config: config)
         return sdk
     }()
     
@@ -82,6 +85,10 @@ class Assembly {
         vm.warningsManager = warningsService
         vm.state = cardsRepository.lastScanResult
         vm.rateAppController = rateAppService
+        
+        vm.negativeFeedbackDataCollector = NegativeFeedbackDataCollector(cardRepository: cardsRepository)
+        vm.failedCardScanDataCollector = FailedCardScanDataCollector(logger: logger)
+        
         return vm
     }
     
@@ -152,7 +159,7 @@ class Assembly {
             return restored
         }
         
-        let vm =  DetailsViewModel(cardModel: card)
+        let vm =  DetailsViewModel(cardModel: card, dataCollector: SimpleFeedbackDataCollector(cardModel: card))
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.ratesService = ratesService
