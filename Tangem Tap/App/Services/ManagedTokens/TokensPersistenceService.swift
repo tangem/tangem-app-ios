@@ -86,8 +86,6 @@ class UserDefaultsTokenPersistenceService: TokenPersistenceService {
 class ICloudTokenPersistenceService: TokenPersistenceService {
     
     private let fileManager = FileManager.default
-    private let jsonEncoder = JSONEncoder()
-    private let jsonDecoder = JSONDecoder()
     private let documentsFolderName = "Documents"
     private let fileName = "tokens_"
     private let documentType = "json"
@@ -134,7 +132,7 @@ class ICloudTokenPersistenceService: TokenPersistenceService {
         var tokens: [Token] = []
         do {
             let data = try Data(contentsOf: documentPath)
-            tokens = try jsonDecoder.decode([Token].self, from: data)
+            tokens = try JsonUtils.readJsonData(data, type: [Token].self)
         } catch {
             print("Failed to receive tokens from iCloud. Reason:", error)
         }
@@ -166,8 +164,8 @@ class ICloudTokenPersistenceService: TokenPersistenceService {
             fileManager.createFile(atPath: documentPath.path, contents: nil, attributes: [:])
         }
         
-        let data = try! jsonEncoder.encode(savedTokens)
         do {
+            let data = try JsonUtils.writeJsonToData(savedTokens)
             try data.write(to: documentPath)
         } catch {
             print("Faield to write tokens to iCloud storage. Reason:", error)
