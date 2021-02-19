@@ -30,7 +30,7 @@ struct FirebaseJsonConfigFetcher {
 		#endif
 		let json = config[dataKey].dataValue
         do {
-            return try JsonReader.readJsonData(json, type: type)
+            return try JsonUtils.readJsonData(json, type: type)
         } catch {
             print("Failed to fetch json from firebase. Reason:", error)
             return nil
