@@ -19,6 +19,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var payIDService: PayIDService? = nil
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
+    weak var warningsConfigurator: WarningsConfigurator!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -42,9 +43,14 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.canSign
     }
     
+    var walletModel: WalletModel? {
+        guard case let .loaded(walletModel) = state else { return nil }
+        
+        return walletModel
+    }
+    
     var hasWallet: Bool {
-        if case .loaded = state { return true }
-        return false
+        walletModel != nil
     }
     
     var purgeWalletProhibitedDescription: String? {
@@ -170,7 +176,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func loadPayIDInfo () {
-        guard featuresService.canReceiveToPayId else {
+        guard featuresService?.canReceiveToPayId ?? false else {
             return
         }
         
@@ -305,6 +311,7 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success(let response):
                 var card = self.cardInfo.card.updating(with: response)
                 card.walletSignedHashes = nil
+                self.warningsConfigurator.setupWarnings(for: card)
                 self.cardInfo.card = card
                 self.updateState()
                 completion(.success(()))
@@ -316,10 +323,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 	
 	func update(withCreateWaletResponse response: CreateWalletResponse) {
-		cardInfo.card = cardInfo.card.updating(with: response)
-		if cardInfo.card.isTwinCard {
+        let card = cardInfo.card.updating(with: response)
+		cardInfo.card = card
+		if card.isTwinCard {
 			cardInfo.twinCardInfo?.pairPublicKey = nil
 		}
+        warningsConfigurator.setupWarnings(for: card)
 		updateState()
 	}
     
@@ -336,7 +345,6 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         update()
-        objectWillChange.send()
     }
     
     private func updateCurrentSecOption() {
@@ -389,17 +397,23 @@ extension CardViewModel {
 
 extension CardViewModel {
     static var previewCardViewModel: CardViewModel {
-        let assembly = Assembly.previewAssembly
-        return assembly.cardsRepository.cards[Card.testCard.cardId!]!.cardModel!
+        viewModel(for: Card.testCard)
     }
     
     static var previewCardViewModelNoWallet: CardViewModel {
-        let assembly = Assembly.previewAssembly
-        return assembly.cardsRepository.cards[Card.testCardNoWallet.cardId!]!.cardModel!
+        viewModel(for: Card.testCardNoWallet)
     }
 	
 	static var previewTwinCardViewModel: CardViewModel {
-		let assembly = Assembly.previewAssembly
-		return assembly.cardsRepository.cards[Card.testTwinCard.cardId!]!.cardModel!
+		viewModel(for: Card.testTwinCard)
 	}
+    
+    static var previewEthCardViewModel: CardViewModel {
+        viewModel(for: Card.testEthCard)
+    }
+    
+    private static func viewModel(for card: Card) -> CardViewModel {
+        let assembly = Assembly.previewAssembly
+        return assembly.cardsRepository.cards[card.cardId!]!.cardModel!
+    }
 }
