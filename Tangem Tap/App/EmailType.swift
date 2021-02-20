@@ -68,7 +68,7 @@ struct EmailCollectedData {
 }
 
 enum EmailCollectedDataType {
-    case logs, card(CardData), send(SendData), wallet(WalletData)
+    case logs, card(CardData), send(SendData), wallet(WalletData), error
     
     enum CardData: String {
         case cardId = "Card ID", firmwareVersion = "Firmware version", blockchain, token
@@ -88,6 +88,7 @@ enum EmailCollectedDataType {
         case .card(let data): return data.rawValue.capitalizingFirstLetter() + ": "
         case .send(let data): return data.rawValue.capitalizingFirstLetter() + ": "
         case .wallet(let data): return data.rawValue + ": "
+        case .error: return "Error: "
         }
     }
 }
