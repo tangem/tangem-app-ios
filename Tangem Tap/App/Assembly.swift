@@ -188,6 +188,7 @@ class Assembly {
         return vm
     }
     
+    // MARK: Send view model
     func makeSendViewModel(with amount: Amount, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
@@ -197,6 +198,7 @@ class Assembly {
         initialize(vm)
         vm.ratesService = ratesService
         vm.featuresService = featuresService
+        vm.dataCollector = SendScreenDataCollector(sendViewModel: vm, logger: logger)
         return vm
     }
 	
