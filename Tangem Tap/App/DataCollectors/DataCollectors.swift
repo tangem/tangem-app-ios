@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import BlockchainSdk
 
 protocol EmailDataCollector {
     var dataForEmail: String { get }
@@ -24,11 +25,9 @@ extension EmailDataCollector {
             EmailCollectedData(type: .card(.blockchain), data: card.cardData?.blockchainName ?? "")
         ]
     }
-}
-
-class CollectedForEmailDataFormatter {
-    static func formatData(_ data: [EmailCollectedData]) -> String {
-        data.reduce("", { $0 + $1.type.title + $1.data + "\n" })
+    
+    fileprivate func formatData(_ data: [EmailCollectedData], appendDeviceInfo: Bool = true) -> String {
+        data.reduce("", { $0 + $1.type.title + $1.data + "\n" }) + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
     }
 }
 
@@ -39,34 +38,16 @@ struct NegativeFeedbackDataCollector: EmailDataCollector {
     var dataForEmail: String {
         guard let card = cardRepository.lastScanResult.card else { return "" }
         
-        return CollectedForEmailDataFormatter.formatData([
-            .init(type: .card(.cardId), data: card.cardId ?? ""),
-            .init(type: .card(.blockchain), data: card.cardData?.blockchainName ?? ""),
-        ]) + DeviceInfoProvider.info()
+        return formatData(collectData(from: card))
     }
 }
 
-class FailedCardScanDataCollector: EmailDataCollector {
-    
-    var logger: Logger
-    
-    var dataForEmail: String {
-        "----------\n" + DeviceInfoProvider.info()
-    }
-    
-    var attachment: Data? {
-        logger.scanLogFileData
-    }
-    
-    init(logger: Logger) {
-        self.logger = logger
-    }
-}
 
 struct SendScreenDataCollector: EmailDataCollector {
     
     unowned var sendViewModel: SendViewModel
-    let logger: Logger
+    
+    var lastError: Error? = nil
     
     var dataForEmail: String {
         let card = sendViewModel.cardViewModel.cardInfo.card
@@ -76,18 +57,16 @@ struct SendScreenDataCollector: EmailDataCollector {
         }
         
         data.append(contentsOf: [
-            EmailCollectedData(type: .error, data: sendViewModel.sendError?.error?.localizedDescription ?? "Unknown error"),
+            EmailCollectedData(type: .error, data: lastError?.localizedDescription ?? "Unknown error"),
             EmailCollectedData(type: .send(.sourceAddress), data: sendViewModel.walletModel.wallet.address),
             EmailCollectedData(type: .send(.destinationAddress), data: sendViewModel.destination),
             EmailCollectedData(type: .send(.amount), data: sendViewModel.amountText),
             EmailCollectedData(type: .send(.fee), data: sendViewModel.sendFee),
         ])
         
-        return CollectedForEmailDataFormatter.formatData(data)
-            + DeviceInfoProvider.info()
+        return formatData(data)
     }
     
-// Transaction HEX:
 }
 
 struct SimpleFeedbackDataCollector: EmailDataCollector {
@@ -120,7 +99,6 @@ struct SimpleFeedbackDataCollector: EmailDataCollector {
             }
         }
         
-        return CollectedForEmailDataFormatter.formatData(dataToFormat)
-            + DeviceInfoProvider.info()
+        return formatData(dataToFormat)
     }
 }
