@@ -208,7 +208,10 @@ struct MainView: View {
                                 )
                             } else {
                                 if self.shouldShowBalanceView {
-                                    BalanceView(balanceViewModel: self.viewModel.state.cardModel!.state.walletModel!.balanceViewModel)
+                                    BalanceView(
+                                        balanceViewModel: self.viewModel.state.cardModel!.state.walletModel!.balanceViewModel,
+                                        tokenViewModels: self.viewModel.state.cardModel!.state.walletModel!.tokenViewModels
+                                    )
                                         .padding(.horizontal, 16.0)
                                 } else {
                                     if self.noAccountView != nil {
@@ -338,7 +341,8 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
                 .environmentObject(Assembly.previewAssembly.navigationCoordinator)
         }
-        .previewGroup()
+        .previewGroup(devices: [.iPhone8Plus])
+        .navigationViewStyle(StackNavigationViewStyle())
         .environment(\.locale, .init(identifier: "en"))
     }
 }
