@@ -59,7 +59,7 @@ class Assembly {
             return restored
         }
         
-        let vm =  ReadViewModel()
+        let vm =  ReadViewModel(failedCardScanTracker: FailedCardScanTracker(logger: logger))
         initialize(vm)
         vm.userPrefsService = userPrefsService
         vm.cardsRepository = cardsRepository
@@ -87,7 +87,7 @@ class Assembly {
         vm.rateAppController = rateAppService
         
         vm.negativeFeedbackDataCollector = NegativeFeedbackDataCollector(cardRepository: cardsRepository)
-        vm.failedCardScanDataCollector = FailedCardScanDataCollector(logger: logger)
+        vm.failedCardScanTracker = FailedCardScanTracker(logger: logger)
         
         return vm
     }
@@ -198,7 +198,7 @@ class Assembly {
         initialize(vm)
         vm.ratesService = ratesService
         vm.featuresService = featuresService
-        vm.dataCollector = SendScreenDataCollector(sendViewModel: vm, logger: logger)
+        vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
         return vm
     }
 	
