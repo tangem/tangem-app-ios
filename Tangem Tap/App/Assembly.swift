@@ -29,6 +29,7 @@ class Assembly {
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
+    lazy var tokenPersistenceService: TokenPersistenceService = ICloudTokenPersistenceService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -39,7 +40,7 @@ class Assembly {
     lazy var rateAppService: RateAppService = RateAppService(userPrefsService: userPrefsService)
     
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService)
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService, tokensLoader: tokenPersistenceService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         crepo.featuresService = featuresService
@@ -104,11 +105,13 @@ class Assembly {
 			pairKey = savedPairKey
 		}
 		
-        guard let walletManager = walletManagerFactory.makeWalletManager(from: card, pairKey: pairKey) else {
+        guard let walletManager = walletManagerFactory.makeWalletManager(from: card, tokens: cardInfo.managedTokens.map { $0 }, pairKey: pairKey) else {
             return nil
         }
 		
-		return WalletModel(walletManager: walletManager, ratesService: ratesService)
+        return WalletModel(walletManager: walletManager,
+                           ratesService: ratesService,
+                           tokensService: TokensServiceFactory.makeService(for: card, persistenceService: tokenPersistenceService, tokenWalletManager: walletManager as? TokenManager))
     }
     
     // MARK: Card model
@@ -123,6 +126,7 @@ class Assembly {
         vm.featuresService = featuresService
         vm.assembly = self
         vm.tangemSdk = tangemSdk
+        vm.warningsConfigurator = warningsService
 		if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
@@ -152,6 +156,8 @@ class Assembly {
 		initialize(vm, with: name)
         return vm
     }
+    
+    // MARK: Details
     
     func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
         if let restored: DetailsViewModel = get() {
@@ -189,6 +195,35 @@ class Assembly {
     }
     
     // MARK: Send view model
+    func makeManageTokensViewModel(with wallet: WalletModel) -> ManageTokensViewModel {
+        if let restored: ManageTokensViewModel = get() {
+            return restored
+        }
+        
+        let vm = ManageTokensViewModel(walletModel: wallet)
+        initialize(vm)
+        return vm
+    }
+    
+    func makeAddTokensViewModel(for wallet: WalletModel) -> AddNewTokensViewModel {
+        if let restored: AddNewTokensViewModel = get() {
+            return restored
+        }
+        
+        let vm = AddNewTokensViewModel(walletModel: wallet)
+        initialize(vm)
+        return vm
+    }
+    
+    func makeAddCustomTokenViewModel(for wallet: WalletModel) -> AddCustomTokenViewModel {
+        if let restored: AddCustomTokenViewModel = get() {
+            return restored
+        }
+        let vm = AddCustomTokenViewModel(walletModel: wallet)
+        initialize(vm)
+        return vm
+    }
+    
     func makeSendViewModel(with amount: Amount, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
@@ -288,20 +323,29 @@ class Assembly {
 extension Assembly {
     static var previewAssembly: Assembly = {
         let assembly = Assembly()
-        let twinCard = Card.testTwinCard
-        let ci = CardInfo(card: twinCard,
-                          verificationState: nil,
-                          artworkInfo: nil,
-                          twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
-        let vm = assembly.makeCardModel(from: ci)!
-        let scanResult = ScanResult.card(model: vm)
-        assembly.cardsRepository.cards[twinCard.cardId!] = scanResult
-        let testCard = Card.testCard
-        let testCardCi = CardInfo(card: testCard, verificationState: nil, artworkInfo: nil, twinCardInfo: nil)
-        let testCardVm = assembly.makeCardModel(from: testCardCi)!
-        let testCardScan = ScanResult.card(model: testCardVm)
-        assembly.cardsRepository.cards[testCard.cardId!] = testCardScan
-        assembly.cardsRepository.lastScanResult = testCardScan
+        
+        // Twin card
+        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
+        
+        // Bitcoin old test card
+        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
+        
+        // ETH pigeon card
+        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
+        
+        // Which card data should be displayed in preview?
+        assembly.cardsRepository.lastScanResult = ethCardScan
         return assembly
     }()
+    
+    private static func scanResult(for card: Card, assembly: Assembly, twinCardInfo: TwinCardInfo? = nil) -> ScanResult {
+        let ci = CardInfo(card: card,
+                          verificationState: nil,
+                          artworkInfo: nil,
+                          twinCardInfo: twinCardInfo)
+        let vm = assembly.makeCardModel(from: ci)!
+        let scanResult = ScanResult.card(model: vm)
+        assembly.cardsRepository.cards[card.cardId!] = scanResult
+        return scanResult
+    }
 }
