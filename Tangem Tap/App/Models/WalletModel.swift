@@ -14,9 +14,11 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
+    @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: [String: Decimal]] = [:]
 
     var ratesService: CoinMarketCapService
+    var tokensService: TokensService?
     var txSender: TransactionSender { walletManager as! TransactionSender }
     var wallet: Wallet { walletManager.wallet }
     
@@ -24,13 +26,17 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.addresses.map { $0.localizedName }
     }
     
+    var tokens: [Token] { tokensService?.cardTokens ?? [] }
+    var canManageTokens: Bool { walletManager.canManageTokens }
+    
     let walletManager: WalletManager
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
-    init(walletManager: WalletManager, ratesService: CoinMarketCapService) {
+    init(walletManager: WalletManager, ratesService: CoinMarketCapService, tokensService: TokensService?) {
         self.walletManager = walletManager
         self.ratesService = ratesService
+        self.tokensService = tokensService
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
@@ -67,7 +73,7 @@ class WalletModel: ObservableObject, Identifiable {
 
         walletManager.update { result in
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else {return}
+                guard let self = self else { return }
                 
                 if case let .failure(error) = result {
                     if case let .noAccount(noAccountMessage) = (error as? WalletError) {
@@ -132,10 +138,29 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.getExploreURL(for: wallet.addresses[index].value)
     }
     
+    func addToken(_ token: Token) -> AnyPublisher<Amount, Error>? {
+        return tokensService?.addToken(token)
+            .map { [unowned self] in
+                self.updateTokensViewModels()
+                self.updateTokensRates([token])
+                return $0
+            }
+            .mapError { [unowned self] error in
+                self.updateTokensViewModels()
+                return error
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func removeToken(_ token: Token) {
+        tokensService?.removeToken(token)
+        tokenViewModels.removeAll(where: { $0.token == token })
+    }
+    
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         let isLoading = state.error == nil && wallet.amounts.isEmpty
 
-        if let token = walletManager.cardTokens.first {
+        if !walletManager.canManageTokens, let token = walletManager.cardTokens.first {
             balanceViewModel = BalanceViewModel(isToken: true,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
                                                 isLoading: isLoading,
@@ -146,6 +171,7 @@ class WalletModel: ObservableObject, Identifiable {
                                                 secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
                                                 secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
                                                 secondaryName: wallet.blockchain.displayName )
+            tokenViewModels = []
         } else {
             balanceViewModel = BalanceViewModel(isToken: false,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
@@ -157,6 +183,7 @@ class WalletModel: ObservableObject, Identifiable {
                                                 secondaryBalance: "-",
                                                 secondaryFiatBalance: " ",
                                                 secondaryName: "-")
+            updateTokensViewModels()
         }
     }
     
@@ -167,6 +194,10 @@ class WalletModel: ObservableObject, Identifiable {
             .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
             .reduce(into: [String: Decimal](), { $0[$1.0] = $1.1 })
         
+        loadRates(for: currenciesToExchange, shouldAppendResults: false)
+    }
+    
+    private func loadRates(for currenciesToExchange: [String: Decimal], shouldAppendResults: Bool) {
         ratesService
             .loadRates(for: currenciesToExchange)
             .receive(on: RunLoop.main)
@@ -179,10 +210,30 @@ class WalletModel: ObservableObject, Identifiable {
                     break
                 }
             }) {[unowned self] rates in
-                self.rates = rates
-                self.updateBalanceViewModel(with: self.wallet, state: self.state)
+                if shouldAppendResults {
+                    self.rates.merge(rates) { (_, new) in new }
+                    self.updateTokensViewModels()
+                } else {
+                    self.rates = rates
+                    self.updateBalanceViewModel(with: self.wallet, state: self.state)
+                }
+                
             }
             .store(in: &bag)
+    }
+    
+    private func updateTokensRates(_ tokens: [Token]) {
+        let cardTokens = tokens.map { ($0.symbol, Decimal(1.0)) }
+            .reduce(into: [String:Decimal](), { $0[$1.0] = $1.1 })
+        
+        loadRates(for: cardTokens, shouldAppendResults: true)
+    }
+    
+    private func updateTokensViewModels() {
+        tokenViewModels = walletManager.cardTokens.map {
+            let amount = wallet.amounts[.token(value: $0)]
+            return TokenBalanceViewModel(token: $0, balance: amount?.description ?? "-", fiatBalance: getFiatFormatted(for: amount) ?? " ")
+        }
     }
     
     func startUpdatingTimer() {
