@@ -37,6 +37,7 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: SendView
     @Published var sendToQR = false
+    @Published var sendToSendEmail = false
     
     // MARK: TwinCardOnboardingView
     @Published var twinOnboardingToTwinWalletCreation: Bool = false
