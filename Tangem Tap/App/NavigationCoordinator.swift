@@ -16,6 +16,8 @@ class NavigationCoordinator: ObservableObject {
     @Published var readToShop: Bool = false
     @Published var readToDisclaimer: Bool = false
     @Published var readToTwinOnboarding = false
+    @Published var readToTroubleshootingScan = false
+    @Published var readToSendEmail: Bool = false
     
     // MARK: DisclaimerView
     @Published var disclaimerToMain: Bool = false
@@ -33,7 +35,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToTwinOnboarding = false
     @Published var mainToTwinsWalletWarning = false
     @Published var mainToQR = false
-    @Published var mainToSendEmail = false
+    @Published var mainToTroubleshootingScan = false
     
     // MARK: SendView
     @Published var sendToQR = false
