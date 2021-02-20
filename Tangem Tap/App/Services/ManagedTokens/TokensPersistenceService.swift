@@ -22,67 +22,6 @@ protocol TokensPersistenceController: class {
     func removeToken(_ token: Token)
 }
 
-class TokenPersistenceServiceFactory {
-    static func makeService() -> TokenPersistenceService {
-        do {
-            return try ICloudTokenPersistenceService()
-        } catch {
-            print("⚠️ Failed to instantiate iCloud token persistence manager. Reason:", error, "⚠️")
-        }
-        return UserDefaultsTokenPersistenceService()
-    }
-}
-
-class UserDefaultsTokenPersistenceService: TokenPersistenceService {
-    
-    private(set) var savedTokens: [Token] = []
-    
-    private var tokens: [Token] = [] {
-        didSet {
-            savedTokens = tokens
-            let data = try! jsonEncoder.encode(tokens)
-            userDefaults.set(data, forKey: key)
-        }
-    }
-    
-    private let userDefaults: UserDefaults = .standard
-    private let jsonEncoder: JSONEncoder = .init()
-    private let jsonDecoder: JSONDecoder = .init()
-    private let tokensPrefix = "tokens_for_"
-    private var key: String { tokensPrefix + blockchainName + "_" + cardId }
-    
-    private var blockchainName = ""
-    private var cardId: String = ""
-    
-    fileprivate init() {}
-    
-    func loadTokens(for cardId: String, blockchainSymbol: String) -> [Token] {
-        var tokens = self.tokens
-        
-        self.cardId = cardId
-        self.blockchainName = blockchainSymbol.lowercased()
-        
-        if !cardId.isEmpty, let data = userDefaults.data(forKey: key) {
-            tokens = (try? jsonDecoder.decode([Token].self, from: data)) ?? []
-        }
-        self.tokens = tokens
-        
-        return tokens
-    }
-    
-    func addToken(_ token: Token) {
-        if tokens.contains(token) { return }
-        
-        tokens.append(token)
-    }
-    
-    func removeToken(_ token: Token) {
-        guard let index = tokens.firstIndex(of: token) else { return }
-        
-        tokens.remove(at: index)
-    }
-}
-
 class ICloudTokenPersistenceService: TokenPersistenceService {
     
     private let fileManager = FileManager.default
@@ -95,25 +34,23 @@ class ICloudTokenPersistenceService: TokenPersistenceService {
     
     private(set) var savedTokens = [Token]()
     
-    private var containerUrl: URL? {
-        fileManager.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent(documentsFolderName)
+    private var containerUrl: URL {
+        fileManager.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent(documentsFolderName) ??
+            fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
-    private var folderPath: URL? {
-        blockchainName.isEmpty ? containerUrl : containerUrl?.appendingPathComponent(blockchainName)
+    private var folderPath: URL {
+        blockchainName.isEmpty ? containerUrl : containerUrl.appendingPathComponent(blockchainName)
     }
     
     private var documentPath: URL {
-        return folderPath?.appendingPathComponent(fileName + cardId).appendingPathExtension(documentType) ?? URL(string: "")!
+        return folderPath.appendingPathComponent(fileName + cardId).appendingPathExtension(documentType)
     }
     
-    fileprivate init() throws {
-        guard let url = self.containerUrl else {
-            throw TapError.iCloudNotAvailable
-        }
-        if !fileManager.fileExists(atPath: url.path, isDirectory: nil) {
+    init() {
+        if !fileManager.fileExists(atPath: containerUrl.path, isDirectory: nil) {
             do {
-                try fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+                try fileManager.createDirectory(at: containerUrl, withIntermediateDirectories: true, attributes: nil)
             }
             catch {
                 print(error.localizedDescription)
@@ -157,8 +94,8 @@ class ICloudTokenPersistenceService: TokenPersistenceService {
     }
     
     private func saveTokens() {
-        if let folderUrl = folderPath, !fileManager.fileExists(atPath: folderUrl.path, isDirectory: nil) {
-            try? fileManager.createDirectory(at: folderUrl, withIntermediateDirectories: true, attributes: nil)
+        if !fileManager.fileExists(atPath: folderPath.path, isDirectory: nil) {
+            try? fileManager.createDirectory(at: folderPath, withIntermediateDirectories: true, attributes: nil)
         }
         if !fileManager.fileExists(atPath: documentPath.path) {
             fileManager.createFile(atPath: documentPath.path, contents: nil, attributes: [:])
