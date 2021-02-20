@@ -13,6 +13,7 @@ enum ButtonSize: CGFloat {
     case small
     case big
     case smallVertical
+    case thinHorizontal
     
     var value: CGSize {
         switch self {
@@ -22,6 +23,8 @@ enum ButtonSize: CGFloat {
             return CGSize(width: 200.0, height: 56.0)
         case .smallVertical:
             return CGSize(width: 100.0, height: 56.0)
+        case .thinHorizontal:
+            return CGSize(width: 109, height: 32)
         }
     }
 }
@@ -29,6 +32,23 @@ enum ButtonSize: CGFloat {
 enum ButtonColorStyle {
     case green
     case black
+    case gray
+    
+    var defaultColor: Color {
+        switch self {
+        case .green: return .tangemTapGreen
+        case .black: return .tangemTapGrayDark6
+        case .gray: return .tangemTapGrayLight4
+        }
+    }
+    
+    var pressedColor: Color {
+        switch self {
+        case .green: return .tangemTapGreen1
+        case .black: return .tangemTapGrayDark6
+        case .gray: return .tangemTapGrayDark
+        }
+    }
 }
 
 struct TangemButtonStyle: ButtonStyle {
@@ -42,8 +62,9 @@ struct TangemButtonStyle: ButtonStyle {
             .foregroundColor(Color.white)
             .background(
                 configuration.isPressed ?
-                (color == .green ? Color.tangemTapGreen1 : Color.tangemTapGrayDark4) :
-                (color == .green ? Color.tangemTapGreen : Color.tangemTapGrayDark6))
+                    color.pressedColor :
+                    color.defaultColor
+                )
             .cornerRadius(8)
             .overlay( !isDisabled ? Color.clear : Color.white.opacity(0.4))
     }
