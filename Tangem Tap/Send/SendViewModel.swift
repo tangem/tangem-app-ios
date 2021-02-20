@@ -25,7 +25,7 @@ class SendViewModel: ViewModel {
     weak var ratesService: CoinMarketCapService!
     weak var featuresService: AppFeaturesService!
     
-    var dataCollector: SendScreenDataCollector!
+    var emailDataCollector: SendScreenDataCollector!
     
     private unowned let warningsManager: WarningsManager
     
@@ -579,6 +579,7 @@ class SendViewModel: ViewModel {
                         return
                     }
                     Analytics.log(error: error)
+                    emailDataCollector.lastError = error
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
