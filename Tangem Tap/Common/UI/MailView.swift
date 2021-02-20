@@ -57,7 +57,7 @@ struct MailView: UIViewControllerRepresentable {
     func makeUIViewController(context: UIViewControllerRepresentableContext<MailView>) -> MFMailComposeViewController {
         let vc = MFMailComposeViewController()
         vc.mailComposeDelegate = context.coordinator
-        vc.setToRecipients(["andoran90@gmail.com"])
+        vc.setToRecipients(["support@tangem.com"])
         vc.setSubject(emailType.emailSubject)
         var messageBody = "\n" + emailType.emailPreface
         messageBody.append("\n\n\n")
