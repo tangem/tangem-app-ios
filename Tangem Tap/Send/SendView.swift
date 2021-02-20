@@ -237,9 +237,6 @@ struct SendView: View {
                     .padding(.bottom, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        TangemVerticalButton(isLoading: false, title: "Generate error", image: "", action: {
-                            viewModel.sendError = "Failed to send tx".alertBinder
-                        }).buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
                         TangemLongButton(isLoading: false,
                                          title: "wallet_button_send",
                                          image: "arrow.right") {
@@ -260,23 +257,15 @@ struct SendView: View {
                                                         isDisabled: !self.viewModel.isSendEnabled))
                         .disabled(!self.viewModel.isSendEnabled)
                         .sheet(isPresented: $navigation.sendToSendEmail, content: {
-                            MailView(dataCollector: viewModel.dataCollector, emailType: .failedToSendTx)
+                            MailView(dataCollector: viewModel.emailDataCollector, emailType: .failedToSendTx)
                         })
                         .alert(item: self.$viewModel.sendError) { binder in
-                            guard let error = binder.error else {
-                                return binder.alert
-                            }
-                            
-                            if let moyaError = error as? MoyaError {
-                                return moyaError.detailedError.alert
-                            }
-                            
-                            return Alert(title: Text("alert_failed_to_send_transaction_title".localized),
-                                         message: Text(String(format: "alert_failed_to_send_transaction_message".localized, error.localizedDescription)),
-                                         primaryButton: .default(Text("common_ok".localized)),
-                                         secondaryButton: .default(Text("Send feedback"), action: {
-                                            navigation.sendToSendEmail = true
-                                         }))
+                            Alert(title: Text("alert_failed_to_send_transaction_title"),
+                                  message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
+                                  primaryButton: .default(Text("common_no")),
+                                  secondaryButton: .default(Text("alert_button_send_feedback"), action: {
+                                    navigation.sendToSendEmail = true
+                                  }))
                         }
                     }
                     .padding(.top, 16.0)
