@@ -30,6 +30,10 @@ struct MailView: UIViewControllerRepresentable {
         func mailComposeController(_ controller: MFMailComposeViewController,
                                    didFinishWith result: MFMailComposeResult,
                                    error: Error?) {
+            guard result == .sent || result == .failed else {
+                $presentation.wrappedValue.dismiss()
+                return
+            }
             let title = error == nil ? emailType.sentEmailAlertTitle : emailType.failedToSendAlertTitle
             let message = error == nil ? emailType.sentEmailAlertMessage : emailType.failedToSendAlertMessage(error)
             let alert = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
