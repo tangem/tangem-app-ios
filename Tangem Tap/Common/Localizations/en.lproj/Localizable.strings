@@ -308,6 +308,13 @@
 "alert_failed_to_send_transaction_title" = "Failed to send transaction";
 "alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to send feedback?";
 
+"alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
+"alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
+
+"alert_button_try_again" = "Try again";
+"alert_button_request_support" = "Request support";
+"alert_button_send_feedback" = "Send feedback";
+
 // MARK: - Warnings
 
 "warning_button_ok" = "Ok, Got it!";
