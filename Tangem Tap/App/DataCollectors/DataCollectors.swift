@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 protocol EmailDataCollector {
     var dataForEmail: String { get }
@@ -15,6 +16,14 @@ protocol EmailDataCollector {
 
 extension EmailDataCollector {
     var attachment: Data? { nil }
+    
+    fileprivate func collectData(from card: Card) -> [EmailCollectedData] {
+        [
+            EmailCollectedData(type: .card(.cardId), data: card.cardId ?? ""),
+            EmailCollectedData(type: .card(.firmwareVersion), data: card.firmwareVersion?.version ?? ""),
+            EmailCollectedData(type: .card(.blockchain), data: card.cardData?.blockchainName ?? "")
+        ]
+    }
 }
 
 class CollectedForEmailDataFormatter {
@@ -46,7 +55,7 @@ class FailedCardScanDataCollector: EmailDataCollector {
     }
     
     var attachment: Data? {
-        logger.logFileData
+        logger.scanLogFileData
     }
     
     init(logger: Logger) {
@@ -55,9 +64,30 @@ class FailedCardScanDataCollector: EmailDataCollector {
 }
 
 struct SendScreenDataCollector: EmailDataCollector {
+    
+    unowned var sendViewModel: SendViewModel
+    let logger: Logger
+    
     var dataForEmail: String {
-        ""
+        let card = sendViewModel.cardViewModel.cardInfo.card
+        var data = collectData(from: card)
+        if let token = sendViewModel.amountToSend.type.token {
+            data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
+        }
+        
+        data.append(contentsOf: [
+            EmailCollectedData(type: .error, data: sendViewModel.sendError?.error?.localizedDescription ?? "Unknown error"),
+            EmailCollectedData(type: .send(.sourceAddress), data: sendViewModel.walletModel.wallet.address),
+            EmailCollectedData(type: .send(.destinationAddress), data: sendViewModel.destination),
+            EmailCollectedData(type: .send(.amount), data: sendViewModel.amountText),
+            EmailCollectedData(type: .send(.fee), data: sendViewModel.sendFee),
+        ])
+        
+        return CollectedForEmailDataFormatter.formatData(data)
+            + DeviceInfoProvider.info()
     }
+    
+// Transaction HEX:
 }
 
 struct SimpleFeedbackDataCollector: EmailDataCollector {
@@ -67,12 +97,8 @@ struct SimpleFeedbackDataCollector: EmailDataCollector {
     var dataForEmail: String {
         let card = cardModel.cardInfo.card
         
-        var dataToFormat = [
-            EmailCollectedData(type: .card(.cardId), data: card.cardId ?? ""),
-            EmailCollectedData(type: .card(.firmwareVersion), data: card.firmwareVersion?.version ?? ""),
-            EmailCollectedData(type: .card(.blockchain), data: card.cardData?.blockchainName ?? ""),
-            EmailCollectedData(type: .wallet(.signedHashes), data: "\(card.walletSignedHashes ?? 0)")
-        ]
+        var dataToFormat = collectData(from: card)
+        dataToFormat.append(EmailCollectedData(type: .wallet(.signedHashes), data: "\(card.walletSignedHashes ?? 0)"))
         
         if case let .loaded(walletModel) = cardModel.state {
             if walletModel.addressNames.count > 1 {
