@@ -34,6 +34,12 @@
 
 "common_camera_alert_button_settings" = "Einstellungen";
 
+"common_add" = "Add";
+
+"common_remove" = "Remove";
+
+"common_search" = "Search";
+
 "home_welcome" = "Willkommen bei Tangem. Haben Sie eine dieser Karten?";
 
 "home_welcome_back" = "Willkommen bei Tangem Tap. Scannen Sie Ihre Karten um zu starten.";
@@ -189,6 +195,9 @@
 
 "details_row_title_erase_wallet" = "Wallet löschen";
 
+"details_section_title_blockchain" = "Blockchain";
+
+"details_row_title_manage_tokens" = "Manage tokens";
 "details_currency_search_placeholder" = "Suche";
 
 "details_erase_wallet_warning" = "Dieser Vorgang ist irriversibel. Wenn jemand nach dem Löschen des Wallets Geld überweist, können Sie es nicht mehr abheben.";
@@ -360,3 +369,28 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "wallet_button_create_twin_wallet" = "Create twin wallet";
 "wallet_error_empty_twin_card" = "Create twin wallet";
 "wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
+
+// MARK: - Manages tokens
+
+"manage_tokens_no_tokens" = "No tokens yet";
+"manage_tokens_section_title_added_tokens" = "Added tokens";
+"manage_tokens_alert_remove_token_title" = "Remove %@ token";
+"manage_tokens_alert_remove_token_message" = "Are you sure you want to remove this token?";
+
+"add_tokens_title" = "Add token";
+"add_custom" = "Add Custom";
+"add_token_section_title_custom_tokens" = "Custom tokens";
+"add_token_section_title_popular_tokens" = "Popular tokens";
+
+"add_custom_token_title" = "Add custom token";
+
+"custom_token_creation_error_empty_fields" = "Please, fill all fields";
+"custom_token_creation_error_wrong_decimals" = "Entered number is not a valid decimals number";
+
+"custom_token_name_input_title" = "Name";
+"custom_token_token_symbol_input_title" = "Token symbol";
+"custom_token_contract_address_input_title" = "Contract address";
+"custom_token_decimals_input_title" = "Decimals";
+
+"custom_token_name_input_placeholder" = "ex. USD Coin";
+"custom_token_token_symbol_input_placeholder" = "ex. USDC";
