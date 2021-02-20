@@ -15,6 +15,19 @@ import MessageUI
 
 class MainViewModel: ViewModel {
     
+    enum EmailFeedbackCase: Int, Identifiable {
+        var id: Int { rawValue }
+        
+        case negativeFeedback, scanTroubleshooting
+        
+        var emailType: EmailType {
+            switch self {
+            case .negativeFeedback: return .negativeRateAppFeedback
+            case .scanTroubleshooting: return .failedToScanCard
+            }
+        }
+    }
+    
     // MARK: Dependencies -
     weak var imageLoaderService: ImageLoaderService!
     weak var topupService: TopupService!
@@ -27,7 +40,7 @@ class MainViewModel: ViewModel {
     weak var assembly: Assembly!
     
     var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
-    var failedCardScanDataCollector: FailedCardScanDataCollector!
+    var failedCardScanTracker: FailedCardScanTracker!
     
     // MARK: Variables
     
@@ -51,6 +64,7 @@ class MainViewModel: ViewModel {
             bind()
         }
     }
+    @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -259,6 +273,7 @@ class MainViewModel: ViewModel {
             .store(in: &bag)
     }
     
+    // MARK: Scan
     func scan() {
         self.isScanning = true
         cardsRepository.scan { [weak self] scanResult in
@@ -266,9 +281,16 @@ class MainViewModel: ViewModel {
             switch scanResult {
             case .success(let state):
                 self.state = state
+                self.failedCardScanTracker.resetCounter()
             case .failure(let error):
-                if case .unknownError = error.toTangemSdkError() {
-                    self.setError(error.alertBinder)
+                self.failedCardScanTracker.recordFailure()
+                
+                if self.failedCardScanTracker.shouldDisplayAlert {
+                    self.navigation.mainToTroubleshootingScan = true
+                } else {
+                    if case .unknownError = error.toTangemSdkError() {
+                        self.setError(error.alertBinder)
+                    }
                 }
             }
             self.isScanning = false
@@ -351,17 +373,11 @@ class MainViewModel: ViewModel {
             
         case .rateApp:
             rateAppController.userReactToRateAppWarning(isPositive: true)
-            print("Rate app button tapped")
         case .dismiss:
             rateAppController.dismissRateAppWarning()
-            print("Dismiss button tapped")
         case .reportProblem:
-            print("Device info\n" + DeviceInfoProvider.info())
-            if MFMailComposeViewController.canSendMail() {
-                navigation.mainToSendEmail = true
-            }
-//            rateAppController.userReactToRateAppWarning(isPositive: false)
-            print("Report problem button tapped")
+            rateAppController.userReactToRateAppWarning(isPositive: false)
+            emailFeedbackCase = .negativeFeedback
         }
         warningsManager.hideWarning(warning)
     }
