@@ -26,7 +26,7 @@ class Assembly {
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager)
-    lazy var tokenPersistenceService: TokenPersistenceService = TokenPersistenceServiceFactory.makeService()
+    lazy var tokenPersistenceService: TokenPersistenceService = ICloudTokenPersistenceService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
