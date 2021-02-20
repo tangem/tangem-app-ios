@@ -31,9 +31,9 @@ struct JsonUtils {
         return try jsonDecorer.decode(type, from: data)
     }
     
-    static func writeJson<T: Encodable>(_ encodable: T) throws -> Data {
+    static func writeJsonToData<T: Encodable>(_ info: T) throws -> Data {
         let jsonEncoder = JSONEncoder()
-        return try jsonEncoder.encode(encodable)
+        return try jsonEncoder.encode(info)
     }
     
 }
