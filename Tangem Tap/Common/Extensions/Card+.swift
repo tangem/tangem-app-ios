@@ -7,6 +7,7 @@
 //
 
 import TangemSdk
+import BlockchainSdk
 
 extension Card {
     var canSign: Bool {
@@ -21,6 +22,15 @@ extension Card {
         }
         
         return true
+    }
+    
+    var blockchain: Blockchain? {
+        guard
+            let name = cardData?.blockchainName,
+            let curve = curve
+        else { return nil }
+        
+        return Blockchain.from(blockchainName: name, curve: curve)
     }
 }
 
