@@ -21,35 +21,27 @@ class Logger: TangemSdkLogger {
         fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("scanLogs.txt")
     }
     
-    private var txLogsFileUrl: URL {
-        fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("txLogs.txt")
-    }
-    
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss:SSS"
         return formatter
     }()
     
-    private var hashesToSign: [Data]?
-    private var txHex: String?
+    private var isRecordingLogs: Bool = false
     
     init() {
-        clearLogFile()
-    }
-    
-    func log(_ message: String, level: Log.Level) {
-        if let handle = try? FileHandle(forWritingTo: scanLogsFileUrl) {
-            handle.seekToEndOfFile()
-            handle.write(message.data(using: .utf8)!)
-            handle.closeFile()
-        } else {
-            try? "\(self.dateFormatter.string(from: Date())): \(message)".data(using: .utf8)?.write(to: scanLogsFileUrl)
-        }
-    }
-    
-    func clearLogFile() {
         try? fileManager.removeItem(at: scanLogsFileUrl)
     }
     
+    func log(_ message: String, level: Log.Level) {
+        let formattedMessage = "\(self.dateFormatter.string(from: Date())): \(message)\n"
+        let messageData = formattedMessage.data(using: .utf8)!
+        if let handle = try? FileHandle(forWritingTo: scanLogsFileUrl) {
+            handle.seekToEndOfFile()
+            handle.write(messageData)
+            handle.closeFile()
+        } else {
+            try? messageData.write(to: scanLogsFileUrl)
+        }
+    }
 }
