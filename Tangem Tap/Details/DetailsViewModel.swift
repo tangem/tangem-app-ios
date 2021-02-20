@@ -89,13 +89,13 @@ class DetailsViewModel: ViewModel {
     }
     
     private func regionCode(for cid: String) -> String? {
-        let cidPrefix = cid.prefix(4)
+        let cidPrefix = cid.prefix(1)
         switch cidPrefix {
-        case "1234":
+        case "0":
             return "fr"
-        case "1235":
+        case "1":
             return "ch"
-        case "1236":
+        case "2":
             return "at"
         default:
             return nil
