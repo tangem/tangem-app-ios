@@ -11,7 +11,6 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 import TangemSdk
-import MessageUI
 
 class MainViewModel: ViewModel {
     
