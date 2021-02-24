@@ -259,10 +259,10 @@ struct SendView: View {
                         .alert(item: self.$viewModel.sendError) { binder in
                             Alert(title: Text("alert_failed_to_send_transaction_title"),
                                   message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
-                                  primaryButton: .default(Text("common_no")),
-                                  secondaryButton: .default(Text("alert_button_send_feedback"), action: {
+                                  primaryButton: .default(Text("alert_button_send_feedback"), action: {
                                     navigation.sendToSendEmail = true
-                                  }))
+                                  }),
+                                  secondaryButton: .default(Text("common_no")))
                         }
                     }
                     .padding(.top, 16.0)
