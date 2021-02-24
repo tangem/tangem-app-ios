@@ -21,9 +21,6 @@ class UserPrefsService {
     @Storage(type: StorageType.didUserRespondToRateApp, defaultValue: false)
     var didUserRespondToRateApp: Bool
     
-    @Storage(type: StorageType.firstRateAppLaunchCounterPoint, defaultValue: nil)
-    var firstRateAppLaunchCounterPoint: Int?
-    
     @Storage(type: StorageType.dismissRateAppAtLaunch, defaultValue: nil)
     var dismissRateAppAtLaunch: Int?
 }
