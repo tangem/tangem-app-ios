@@ -228,10 +228,8 @@ struct SendView: View {
                                 .foregroundColor(Color.tangemTapGrayDark)
                         }
                     }
-                    WarningListView(warnings: viewModel.warnings, warningButtonAction: { (index, priority, _) in
-                        withAnimation {
-                            self.viewModel.warningButtonAction(at: index, priority: priority)
-                        }
+                    WarningListView(warnings: viewModel.warnings, warningButtonAction: {
+                        self.viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                     })
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 16)
