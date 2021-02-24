@@ -11,7 +11,7 @@ import TangemSdk
 
 class Logger: TangemSdkLogger {
     
-    let fileManager = FileManager.default
+    private let fileManager = FileManager.default
     
     var scanLogFileData: Data? {
         try? Data(contentsOf: scanLogsFileUrl)
@@ -36,10 +36,10 @@ class Logger: TangemSdkLogger {
     func log(_ message: String, level: Log.Level) {
         let formattedMessage = "\(self.dateFormatter.string(from: Date())): \(message)\n"
         let messageData = formattedMessage.data(using: .utf8)!
-        if let handle = try? FileHandle(forWritingTo: scanLogsFileUrl) {
-            handle.seekToEndOfFile()
-            handle.write(messageData)
-            handle.closeFile()
+        if let handler = try? FileHandle(forWritingTo: scanLogsFileUrl) {
+            handler.seekToEndOfFile()
+            handler.write(messageData)
+            handler.closeFile()
         } else {
             try? messageData.write(to: scanLogsFileUrl)
         }
