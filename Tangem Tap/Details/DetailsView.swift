@@ -124,6 +124,17 @@ struct DetailsView: View {
                     MailView(dataCollector: viewModel.dataCollector, emailType: EmailType.appFeedback)
                 })
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                
+                if let cardTouURL = viewModel.cardTouURL {
+                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
+                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                   tag: "card_tou", selection: $selection) {
+                        DetailsRowView(title: "details_row_title_card_tou".localized,
+                                       subtitle: "")
+                        
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                }
             }
             
             Section(header: HeaderView(text: "details_section_title_card".localized),
