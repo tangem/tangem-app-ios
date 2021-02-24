@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MessageUI
 
 enum EmailType {
     case negativeRateAppFeedback, failedToScanCard, failedToSendTx, appFeedback
