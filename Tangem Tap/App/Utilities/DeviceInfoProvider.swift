@@ -34,7 +34,7 @@ struct DeviceInfoProvider {
                 str += device.systemName + " " + device.systemVersion
             case .appVersion:
                 let bundle = Bundle.main
-                str += (bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "") + " " + "(\(bundle.infoDictionary?["CFBundleVersion"] as? String ?? ""))"
+                str += (bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "") + " (\(bundle.infoDictionary?["CFBundleVersion"] as? String ?? ""))"
             }
             str += "\n"
             return str
