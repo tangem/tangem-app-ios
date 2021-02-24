@@ -165,7 +165,7 @@ class Assembly {
             return restored
         }
         
-        let vm =  DetailsViewModel(cardModel: card, dataCollector: SimpleFeedbackDataCollector(cardModel: card))
+        let vm =  DetailsViewModel(cardModel: card, dataCollector: DetailsFeedbackDataCollector(cardModel: card))
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.ratesService = ratesService
