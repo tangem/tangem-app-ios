@@ -32,13 +32,8 @@ class RateAppService: RateAppChecker, RateAppController {
         }
         let numberOfLaunches = userPrefsService.numberOfLaunches
 
-        guard let firstRateAppLaunchCounterPoint = userPrefsService.firstRateAppLaunchCounterPoint else {
-            userPrefsService.firstRateAppLaunchCounterPoint = numberOfLaunches - 1
-            return
-        }
-
         guard let dismissAtLaunch = userPrefsService.dismissRateAppAtLaunch else {
-            shouldShowRateAppWarning = (numberOfLaunches - firstRateAppLaunchCounterPoint) >= 3
+            shouldShowRateAppWarning = numberOfLaunches >= 3
             return
         }
 
