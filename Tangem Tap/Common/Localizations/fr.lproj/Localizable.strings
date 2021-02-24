@@ -428,3 +428,5 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 
 "custom_token_name_input_placeholder" = "ex. USD Coin";
 "custom_token_token_symbol_input_placeholder" = "ex. USDC";
+
+"details_row_title_card_tou" = "Card terms of use";
