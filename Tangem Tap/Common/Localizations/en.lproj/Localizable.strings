@@ -294,7 +294,7 @@
 "twin_wallet_creation_tap_first_card" = "Tap the card #1";
 "twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
 
-// MARK: - Manages tokens
+// MARK: - Managed tokens
 
 "manage_tokens_no_tokens" = "No tokens yet";
 "manage_tokens_section_title_added_tokens" = "Added tokens";

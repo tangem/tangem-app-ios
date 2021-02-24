@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 import TangemSdk
-import MessageUI
 
 struct DetailsRowView: View {
     var title: String
@@ -96,7 +95,7 @@ struct DetailsView: View {
                 }
             }
             
-            Section(header: HeaderView(text: "details_section_title_settings".localized), footer: FooterView()) {
+            Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
                 NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
                                tag: "currency", selection: $selection) {
                     DetailsRowView(title: "details_row_title_currency".localized,
@@ -113,6 +112,18 @@ struct DetailsView: View {
                     
                 }
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                Button(action: {
+                    navigation.detailsToSendEmail = true
+                }, label: {
+                    Text("details_row_title_send_feedback".localized)
+                        .font(.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.tangemTapGrayDark6)
+                })
+                .frame(height: 50)
+                .sheet(isPresented: $navigation.detailsToSendEmail, content: {
+                    MailView(dataCollector: viewModel.dataCollector, emailType: EmailType.appFeedback)
+                })
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             }
             
             Section(header: HeaderView(text: "details_section_title_card".localized),
@@ -148,18 +159,6 @@ struct DetailsView: View {
                     .disabled(!viewModel.cardModel.canPurgeWallet)
                 }
             }
-            
-            Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView(), content: {
-                Button(action: {
-                    navigation.detailsToSendEmail = true
-                }, label: {
-                    Text("details_row_title_send_feedback".localized)
-                })
-                .frame(height: 44)
-                .sheet(isPresented: $navigation.detailsToSendEmail, content: {
-                    MailView(dataCollector: viewModel.dataCollector, emailType: EmailType.appFeedback)
-                })
-            })
             
             if let wallet = viewModel.cardModel.walletModel, wallet.canManageTokens {
                 Section(header: HeaderView(text: "details_section_title_blockchain".localized), footer: FooterView(text: "", additionalBottomPadding: 40)) {
