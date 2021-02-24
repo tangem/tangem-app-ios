@@ -16,6 +16,10 @@ class Analytics {
         case cardIsScanned = "card_is_scanned"
         case transactionIsSent = "transaction_is_sent"
         case readyToScan = "ready_to_scan"
+        case displayRateAppWarning = "rate_app_warning_displayed"
+        case negativeRateAppFeedback = "negative_rate_app_feedback"
+        case positiveRateAppFeedback = "positive_rate_app_feedback"
+        case dismissRateAppWarning = "dismiss_rate_app_warning"
     }
     
     enum ParameterKey: String {
