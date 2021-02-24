@@ -412,3 +412,5 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 
 "details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Delete Wallet function not possible.";
 "details_notification_security_option_already_active" = "This is the currently active option";
+
+"details_row_title_card_tou" = "Card terms of use";
