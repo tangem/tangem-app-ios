@@ -13,7 +13,6 @@ import SwiftUI
 
 struct QRScanView: View {
     @Binding var code: String
-    var codeMapper: ((String) -> String)? = nil
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -21,7 +20,7 @@ struct QRScanView: View {
             Button("common_done") {
                 presentationMode.wrappedValue.dismiss()
             }.padding()
-            QRScannerView(code: $code, codeMapper: codeMapper)
+            QRScannerView(code: $code)
                 .edgesIgnoringSafeArea(.bottom)
         }
     }
@@ -36,7 +35,6 @@ struct QRScanView_Previews: PreviewProvider {
 
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
-    var codeMapper: ((String) -> String)? = nil
     @Environment(\.presentationMode) var presentationMode
     
     func makeUIView(context: Context) -> UIQRScannerView {
@@ -50,17 +48,15 @@ struct QRScannerView: UIViewRepresentable {
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(code: $code, codeMapper: codeMapper, presentationMode: presentationMode)
+        Coordinator(code: $code, presentationMode: presentationMode)
     }
     
     class Coordinator: NSObject, QRScannerViewDelegate {
         @Binding var code: String
-        var codeMapper: ((String) -> String)? = nil
         @Binding var presentationMode: PresentationMode
         
-        init(code: Binding<String>, codeMapper:((String) -> String)?, presentationMode: Binding<PresentationMode>){
+        init(code: Binding<String>, presentationMode: Binding<PresentationMode>){
             self._code = code
-            self.codeMapper = codeMapper
             self._presentationMode = presentationMode
         }
         
@@ -70,11 +66,7 @@ struct QRScannerView: UIViewRepresentable {
         
         func qrScanningSucceededWithCode(_ str: String?) {
             if let str = str {
-                if let codeMapper = codeMapper {
-                    self.code = codeMapper(str)
-                } else {
-                    self.code = str
-                }
+                self.code = str
             }
             presentationMode.dismiss()
         }
