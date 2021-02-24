@@ -87,7 +87,7 @@ struct WarningView: View {
                                 .foregroundColor(.white)
                         })
                         .frame(height: 24)
-                        if warningButtons.count > 1, item.offset % 2 == 0 {
+                        if warningButtons.count > 1, item.offset < warningButtons.count - 1 {
                             Color.tangemTapGrayDark5
                                 .frame(width: 1, height: 16)
                                 .padding(.horizontal, 30)
