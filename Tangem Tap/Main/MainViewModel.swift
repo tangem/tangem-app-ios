@@ -384,10 +384,13 @@ class MainViewModel: ViewModel {
             }
             
         case .rateApp:
+            Analytics.log(event: .positiveRateAppFeedback)
             rateAppController.userReactToRateAppWarning(isPositive: true)
         case .dismiss:
+            Analytics.log(event: .dismissRateAppWarning)
             rateAppController.dismissRateAppWarning()
         case .reportProblem:
+            Analytics.log(event: .negativeRateAppFeedback)
             rateAppController.userReactToRateAppWarning(isPositive: false)
             emailFeedbackCase = .negativeFeedback
         }
