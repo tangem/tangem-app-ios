@@ -69,7 +69,7 @@ struct SendScreenDataCollector: EmailDataCollector {
     
 }
 
-struct SimpleFeedbackDataCollector: EmailDataCollector {
+struct DetailsFeedbackDataCollector: EmailDataCollector {
     
     unowned var cardModel: CardViewModel
     
