@@ -19,6 +19,5 @@ enum StorageType: String {
 	case numberOfAppLaunches = "tangem_tap_number_of_launches"
     case readWarningHashes = "tangem_tap_read_warnings"
     case didUserRespondToRateApp = "tangem_tap_rate_app_responded"
-    case firstRateAppLaunchCounterPoint = "tangem_tap_rate_app_counter_starting_point"
     case dismissRateAppAtLaunch = "tangem_tap_dismiss_rate_app_at_launch_number"
 }
