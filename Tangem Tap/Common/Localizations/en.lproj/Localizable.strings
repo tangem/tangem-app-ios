@@ -331,7 +331,7 @@
 
 "alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
 
-"alert_app_feedback_sent_title" = "Feedback successfully sent";
+"alert_app_feedback_sent_title" = "Sent successfully";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
 
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
@@ -340,7 +340,7 @@
 "alert_failed_to_send_email_title" = "Failed to send email";
 "alert_failed_to_send_email_message" = "Reason: %@";
 
-"alert_failed_to_send_transaction_title" = "Failed to send transaction";
+"alert_failed_to_send_transaction_title" = "Can't send a transaction";
 "alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to send feedback?";
 
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
@@ -353,7 +353,7 @@
 // MARK: - Warnings
 
 "warning_button_ok" = "Ok, Got it!";
-"warning_button_really_cool" = "Really cool";
+"warning_button_really_cool" = "Really cool!";
 "warning_button_can_be_better" = "Can be better";
 
 "warning_rate_app_title" = "One question";
