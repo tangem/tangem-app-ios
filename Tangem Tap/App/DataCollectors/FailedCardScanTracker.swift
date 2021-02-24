@@ -10,7 +10,7 @@ import Foundation
 
 class FailedCardScanTracker: EmailDataCollector {
     
-    var logger: Logger
+    private var logger: Logger
     
     var dataForEmail: String {
         "----------\n" + DeviceInfoProvider.info()
