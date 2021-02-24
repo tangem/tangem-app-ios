@@ -40,6 +40,7 @@ class WarningsService {
         addOldCardWarning(in: container, for: card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
         if rateAppChecker.shouldShowRateAppWarning {
+            Analytics.log(event: .displayRateAppWarning)
             container.add(WarningEvent.rateApp.warning)
         }
         
