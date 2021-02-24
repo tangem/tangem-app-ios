@@ -40,6 +40,7 @@ class SendViewModel: ViewModel {
     @Published var selectedFeeLevel: Int = 1
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
+    @Published var scannedQRCode: String = ""
     
     @ObservedObject var warnings = WarningsContainer() {
         didSet {
@@ -415,6 +416,24 @@ class SendViewModel: ViewModel {
                 self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
             })
             .store(in: &bag)
+        
+        $scannedQRCode
+            .dropFirst()
+            .sink {[unowned self] qrCodeString in
+                let withoutPrefix = qrCodeString.remove(self.walletModel.wallet.blockchain.qrPrefix)
+                let splitted = withoutPrefix.split(separator: "?")
+                self.destination = splitted.first.map { String($0) } ?? withoutPrefix
+                if splitted.count > 1 {
+                    let queryItems = splitted[1].lowercased().split(separator: "&")
+                    for queryItem in queryItems {
+                        if queryItem.contains("amount") {
+                            self.amountText = queryItem.replacingOccurrences(of: "amount=", with: "")
+                            break
+                        }
+                    }
+                }
+            }
+            .store(in: &bag)
     }
     
     func onAppear() {
@@ -522,11 +541,6 @@ class SendViewModel: ViewModel {
         if let validatedClipboard = self.validatedClipboard {
             destination = validatedClipboard
         }
-    }
-    
-    func stripBlockchainPrefix(_ string: String) -> String {
-        let cleaned = string.split(separator: "?").first.map { String($0) } ?? string
-        return cleaned.remove(walletModel.wallet.blockchain.qrPrefix)
     }
     
     func setAdditionalInputVisibility(for address: String?) {
