@@ -236,7 +236,7 @@
 
 "alert_old_card" = "Les cartes Tangem émises avant septembre 2019 ne peuvent actuellement pas être extraites à l'aide de l'iPhone. Nous travaillons activement avec Apple pour rendre cela possible dans les futures versions d'iOS.";
 
-"alert_app_feedback_sent_title" = "Feedback successfully sent";
+"alert_app_feedback_sent_title" = "Sent successfully";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
 
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
@@ -245,7 +245,7 @@
 "alert_failed_to_send_email_title" = "Failed to send email";
 "alert_failed_to_send_email_message" = "Reason: %@";
 
-"alert_failed_to_send_transaction_title" = "Failed to send transaction";
+"alert_failed_to_send_transaction_title" = "Can't send a transaction";
 "alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to send feedback?";
 
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
@@ -397,7 +397,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 
 "warning_button_ok" = "Ok, je l'ai!";
 
-"warning_button_really_cool" = "Really cool";
+"warning_button_really_cool" = "Really cool!";
 "warning_button_can_be_better" = "Can be better";
 
 "warning_rate_app_title" = "One question";
