@@ -593,7 +593,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
     }
     
-    func warningButtonAction(at index: Int, priority: WarningPriority) {
+    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
         
         warningsManager.hideWarning(warning)
