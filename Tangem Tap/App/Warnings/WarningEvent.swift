@@ -29,7 +29,7 @@ enum WarningEvent: String, Decodable {
     
     var buttons: [WarningButton] {
         switch self {
-        case .numberOfSignedHashesIncorrect: return []
+        case .numberOfSignedHashesIncorrect: return [.okGotIt]
         case .rateApp: return [.reportProblem, .rateApp]
         }
     }
