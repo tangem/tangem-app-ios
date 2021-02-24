@@ -82,7 +82,7 @@ struct DetailsView: View {
     
     var body: some View {
         List {
-            Section(header: EmptyView().listRowInsets(EdgeInsets()), footer: FooterView()) {
+            Section(header: HeaderView(text: "details_section_title_card".localized), footer: footerView) {
                 DetailsRowView(title: "details_row_title_cid".localized,
                                subtitle: viewModel.cardCid)
                 DetailsRowView(title: "details_row_title_issuer".localized,
@@ -92,6 +92,36 @@ struct DetailsView: View {
                     DetailsRowView(title: "details_row_title_signed_hashes".localized,
                                    subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
                                                     viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
+                }
+                
+                NavigationLink(destination: SecurityManagementView(viewModel:
+                                                                    viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
+                               tag: "secManagement", selection: $selection) {
+                    DetailsRowView(title: "details_row_title_manage_security".localized,
+                                   subtitle: viewModel.cardModel.currentSecOption.title)
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                .disabled(!viewModel.cardModel.canManageSecurity)
+                
+                if viewModel.isTwinCard {
+                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
+                                   isActive: $navigation.detailsToTwinsRecreateWarning){
+                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                    .disabled(!viewModel.cardModel.canRecreateTwinCard)
+                    
+                } else {
+                    NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
+                                                                  buttonTitle: "details_row_title_erase_wallet",
+                                                                  alert: "details_erase_wallet_warning".localized,
+                                                                  actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
+                    ),
+                    tag: "cardOp", selection: $selection) {
+                        DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                    .disabled(!viewModel.cardModel.canPurgeWallet)
                 }
             }
             
@@ -137,40 +167,6 @@ struct DetailsView: View {
                 }
             }
             
-            Section(header: HeaderView(text: "details_section_title_card".localized),
-                    footer: footerView) {
-                
-                NavigationLink(destination: SecurityManagementView(viewModel:
-                                                                    viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
-                               tag: "secManagement", selection: $selection) {
-                    DetailsRowView(title: "details_row_title_manage_security".localized,
-                                   subtitle: viewModel.cardModel.currentSecOption.title)
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.cardModel.canManageSecurity)
-                
-                if viewModel.isTwinCard {
-                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
-                                   isActive: $navigation.detailsToTwinsRecreateWarning){
-                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
-                    }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                    .disabled(!viewModel.cardModel.canRecreateTwinCard)
-                    
-                } else {
-                    NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
-                                                                  buttonTitle: "details_row_title_erase_wallet",
-                                                                  alert: "details_erase_wallet_warning".localized,
-                                                                  actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
-                    ),
-                    tag: "cardOp", selection: $selection) {
-                        DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
-                    }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                    .disabled(!viewModel.cardModel.canPurgeWallet)
-                }
-            }
-            
             if let wallet = viewModel.cardModel.walletModel, wallet.canManageTokens {
                 Section(header: HeaderView(text: "details_section_title_blockchain".localized), footer: FooterView(text: "", additionalBottomPadding: 40)) {
                     NavigationLink(
@@ -189,7 +185,6 @@ struct DetailsView: View {
                 EmptyView()
             }
         }
-        .padding(.top, 16)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
