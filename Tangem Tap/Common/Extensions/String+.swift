@@ -22,8 +22,8 @@ extension String {
     }
     
     func remove(contentsOf strings: [String]) -> String {
-        var result = self
-        strings.forEach { result = result.remove($0) }
-        return result
+        strings.reduce(into: self, {
+            $0 = $0.remove($1)
+        })
     }
 }
