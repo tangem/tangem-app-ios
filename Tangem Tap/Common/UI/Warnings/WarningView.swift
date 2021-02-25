@@ -51,11 +51,11 @@ struct WarningView: View {
                     })
                     .offset(x: 6)
                 }
-                
             }
             Text(warning.message)
                 .font(.system(size: 13, weight: .medium))
                 .fixedSize(horizontal: false, vertical: true)
+                .frame(minHeight: warning.type.isWithAction ? 35 : 0, alignment: .topLeading)
                 .lineSpacing(8)
                 .foregroundColor(warning.priority.messageColor)
                 .padding(.bottom, warning.type.isWithAction ? 8 : 16)
