@@ -20,4 +20,10 @@ extension String {
         
         return self
     }
+    
+    func remove(contentsOf strings: [String]) -> String {
+        var result = self
+        strings.forEach { result = result.remove($0) }
+        return result
+    }
 }
