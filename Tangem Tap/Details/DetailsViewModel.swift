@@ -91,7 +91,7 @@ class DetailsViewModel: ViewModel {
     }
     
     private func regionCode(for cid: String) -> String? {
-        let cidPrefix = cid.prefix(1)
+        let cidPrefix = cid[cid.index(cid.startIndex, offsetBy: 1)]
         switch cidPrefix {
         case "0":
             return "fr"
