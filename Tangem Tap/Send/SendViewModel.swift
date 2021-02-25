@@ -417,7 +417,7 @@ class SendViewModel: ViewModel {
         $scannedQRCode
             .dropFirst()
             .sink {[unowned self] qrCodeString in
-                let withoutPrefix = qrCodeString.remove(self.walletModel.wallet.blockchain.qrPrefix)
+                let withoutPrefix = qrCodeString.remove(contentsOf: self.walletModel.wallet.blockchain.qrPrefixes)
                 let splitted = withoutPrefix.split(separator: "?")
                 self.destination = splitted.first.map { String($0) } ?? withoutPrefix
                 if splitted.count > 1 {
