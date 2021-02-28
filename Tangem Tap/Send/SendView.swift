@@ -281,7 +281,7 @@ struct ExtractView_Previews: PreviewProvider {
         SendView(viewModel: Assembly.previewAssembly.makeSendViewModel(with: Amount(with: Blockchain.ethereum(testnet: false),
                                                                                     address: "adsfafa",
                                                                                     type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
-                                                                                    value: 0.0),
+                                                                                    value: 0.0), walletIndex: 0,
                                                                        card: CardViewModel.previewEthCardViewModel),
                  onSuccess: {})
     }
