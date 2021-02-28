@@ -26,7 +26,8 @@ class Assembly {
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager)
-    lazy var tokenPersistenceService: TokenPersistenceService = ICloudTokenPersistenceService()
+    lazy var persistentStorage = PersistentStorage()
+    lazy var walletItemsRepository = WalletItemsRepository(persistanceStorage: persistentStorage)
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -36,10 +37,10 @@ class Assembly {
     }()
     
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService, tokensLoader: tokenPersistenceService)
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder())
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
-        crepo.featuresService = featuresService
+        crepo.onScan = onScan
         return crepo
     }()
 	
@@ -83,7 +84,34 @@ class Assembly {
         return vm
     }
     
-    func makeWalletModel(from cardInfo: CardInfo) -> WalletModel? {
+    func makeTokenDetailsViewModel(with card: CardViewModel, blockchain: Blockchain, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
+        let vm =  TokenDetailsViewModel(blockchain: blockchain, amountType: amountType)
+        initialize(vm)
+        vm.card = card
+        vm.topupService = topupService
+        return vm
+    }
+    
+    func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain], tokens: [Token]) -> [WalletModel]? {
+        guard let walletPublicKey = cardInfo.card.walletPublicKey,
+              let cardId = cardInfo.card.cardId else {
+            return nil
+        }
+        
+        let walletManagers = blockchains.map { walletManagerFactory.makeWalletManager(from: $0,
+                                                                                      walletPublicKey: walletPublicKey,
+                                                                                      cardId: cardId,
+                                                                                      walletPairPublicKey: nil,
+                                                                                      tokens: tokens,
+                                                                                      canManageTokens: true)}
+        
+        let models = walletManagers.map { WalletModel(walletManager: $0,
+                                                      ratesService: ratesService,
+                                                      walletItemsRepository: walletItemsRepository)}
+        return models
+    }
+    
+    func makeWalletModel(from cardInfo: CardInfo) -> [WalletModel]? {
 		let card = cardInfo.card
 		var pairKey: Data? = nil
 		if card.isTwinCard {
@@ -94,13 +122,26 @@ class Assembly {
 			pairKey = savedPairKey
 		}
 		
-        guard let walletManager = walletManagerFactory.makeWalletManager(from: card, tokens: cardInfo.managedTokens.map { $0 }, pairKey: pairKey) else {
-            return nil
+        let savedBlockchains = walletItemsRepository.walletItems.compactMap { $0.blockchain }
+        let savedTokens = walletItemsRepository.walletItems.compactMap { $0.token }
+        
+        if cardInfo.isMultiWallet && savedBlockchains.count > 0 {
+            return makeWalletModels(from: cardInfo, blockchains: savedBlockchains, tokens: savedTokens)
+        } else {
+            guard let walletManager = walletManagerFactory.makeWalletManager(from: card,
+                                                                             tokens: savedTokens,
+                                                                             pairKey: pairKey) else {
+                return nil
+            }
+            
+            if cardInfo.isMultiWallet {
+                walletItemsRepository.append(.blockchain(walletManager.wallet.blockchain))
+            }
+            
+            return [WalletModel(walletManager: walletManager,
+                               ratesService: ratesService,
+                               walletItemsRepository: walletItemsRepository)]
         }
-		
-        return WalletModel(walletManager: walletManager,
-                           ratesService: ratesService,
-                           tokensService: TokensServiceFactory.makeService(for: card, persistenceService: tokenPersistenceService, tokenWalletManager: walletManager as? TokenManager))
     }
     
     func makeCardModel(from info: CardInfo) -> CardViewModel? {
@@ -115,6 +156,7 @@ class Assembly {
         vm.assembly = self
         vm.tangemSdk = tangemSdk
         vm.warningsConfigurator = warningsService
+        vm.walletItemsRepository = walletItemsRepository
 		if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService
         }
@@ -182,23 +224,24 @@ class Assembly {
         return vm
     }
     
-    func makeManageTokensViewModel(with wallet: WalletModel) -> ManageTokensViewModel {
-        if let restored: ManageTokensViewModel = get() {
-            return restored
-        }
-        
-        let vm = ManageTokensViewModel(walletModel: wallet)
-        initialize(vm)
-        return vm
-    }
+//    func makeManageTokensViewModel(with walletModels: [WalletModel]) -> ManageTokensViewModel {
+//        if let restored: ManageTokensViewModel = get() {
+//            return restored
+//        }
+//
+//        let vm = ManageTokensViewModel(walletModels: walletModels)
+//        initialize(vm)
+//        return vm
+//    }
     
-    func makeAddTokensViewModel(for wallet: WalletModel) -> AddNewTokensViewModel {
+    func makeAddTokensViewModel(for cardModel: CardViewModel) -> AddNewTokensViewModel {
         if let restored: AddNewTokensViewModel = get() {
             return restored
         }
         
-        let vm = AddNewTokensViewModel(walletModel: wallet)
+        let vm = AddNewTokensViewModel(cardModel: cardModel)
         initialize(vm)
+        vm.walletItemsRepository = walletItemsRepository
         return vm
     }
     
@@ -211,12 +254,12 @@ class Assembly {
         return vm
     }
     
-    func makeSendViewModel(with amount: Amount, card: CardViewModel) -> SendViewModel {
+    func makeSendViewModel(with amount: Amount, walletIndex: Int, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
         }
         
-        let vm = SendViewModel(amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer, warningsManager: warningsService)
+        let vm = SendViewModel(walletIndex: walletIndex, amountToSend: amount, cardViewModel: card, signer: tangemSdk.signer, warningsManager: warningsService)
         initialize(vm)
         vm.ratesService = ratesService
         vm.featuresService = featuresService
@@ -302,6 +345,20 @@ class Assembly {
 	private func get<T>(key: String) -> T? {
 		modelsStorage[key] as? T
 	}
+    
+    private func onScan(_ cardInfo: CardInfo) {
+        featuresService.setupFeatures(for: cardInfo.card)
+        warningsService.setupWarnings(for: cardInfo.card)
+        walletItemsRepository.setCard(cardInfo.card.cardId ?? "")
+        
+        if !featuresService.linkedTerminal {
+            tangemSdk.config.linkedTerminal = false
+        }
+        
+        if cardInfo.card.isTwinCard {
+            tangemSdk.config.cardIdDisplayedNumbersCount = 4
+        }
+    }
 }
 
 extension Assembly {
