@@ -33,6 +33,8 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToTwinOnboarding = false
     @Published var mainToTwinsWalletWarning = false
     @Published var mainToQR = false
+    @Published var mainToTokenDetails = false
+    @Published var mainToAddTokens: Bool = false
     
     // MARK: SendView
     @Published var sendToQR = false
@@ -49,4 +51,8 @@ class NavigationCoordinator: ObservableObject {
     // MARK: Manage tokens
     @Published var manageTokensToAddNewTokens = false
     @Published var addNewTokensToCreateCustomToken = false
+    
+    // MARK: TokenDetailsView
+    @Published var detailsToTopup = false
+    @Published var detailsToSend = false
 }

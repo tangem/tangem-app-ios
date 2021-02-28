@@ -13,31 +13,45 @@ import BlockchainSdk
 class AddNewTokensViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
+    weak var walletItemsRepository: WalletItemsRepository!
     
-    @Published var availableTokens: [Token] = []
+    var availableBlockchains: [Blockchain]  { get { walletItemsRepository.supportedWalletItems.blockchains.map {$0} } }
+    var availableTokens: [Token]  { get { walletItemsRepository.supportedWalletItems.erc20Tokens.map {$0} } }
     
     @Published var searchText: String = ""
-    
     @Published private(set) var tokensToSave: Set<Token> = []
     @Published private(set) var pendingTokensUpdate: Set<Token> = []
     @Published var error: AlertBinder?
     
     private var bag: Set<AnyCancellable> = []
     
-    let walletModel: WalletModel
+    let cardModel: CardViewModel
     
-    init(walletModel: WalletModel) {
-        self.walletModel = walletModel
+    init(cardModel: CardViewModel) {
+        self.cardModel = cardModel
     }
     
-    func onAppear() {
-        availableTokens = walletModel.tokensService?.availableTokens ?? []
+    func addBlockchain(_ blockchain: Blockchain) {
+        cardModel.addBlockchain(blockchain)
+    }
+    
+    func removeBlockchain(_ blockchain: Blockchain) {
+        cardModel.removeBlockchain(blockchain)
+    }
+    
+    func isAdded(_ token: Token) -> Bool {
+        walletItemsRepository.walletItems.contains(where: { $0.token == token })
+    }
+    
+    func isAdded(_ blockchain: Blockchain) -> Bool {
+        cardModel.wallets!.contains(where: { $0.blockchain == blockchain })
     }
     
     func addTokenToList(token: Token) {
         pendingTokensUpdate.insert(token)
         tokensToSave.insert(token)
-        walletModel.addToken(token)?
+        
+        cardModel.erc20TokenWalletModel.addToken(token)?
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
                 if case let .failure(error) = completion {
