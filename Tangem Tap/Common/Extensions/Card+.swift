@@ -32,5 +32,10 @@ extension Card {
         
         return Blockchain.from(blockchainName: name, curve: curve)
     }
+    
+    var isTestnet: Bool {
+        return blockchain?.isTestnet ?? false
+    }
+
 }
 
