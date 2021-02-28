@@ -20,4 +20,10 @@ extension String {
         
         return self
     }
+    
+    func remove(contentsOf strings: [String]) -> String {
+        strings.reduce(into: self, {
+            $0 = $0.remove($1)
+        })
+    }
 }
