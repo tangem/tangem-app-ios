@@ -79,7 +79,7 @@ class SendViewModel: ViewModel {
     }
     
     var inputDecimalsCount: Int? {
-        isFiatCalculation ? 2 : cardViewModel.state.wallet?.blockchain.decimalCount
+        isFiatCalculation ? 2 : walletModel.wallet.blockchain.decimalCount
     }
     
     @Published var isNetworkFeeBlockOpen: Bool = false
@@ -119,7 +119,7 @@ class SendViewModel: ViewModel {
                 }
                 .store(in: &bag)
             
-            cardViewModel.state.walletModel!
+            walletModel
                 .objectWillChange
                 .receive(on: RunLoop.main)
                 .sink { [weak self] in
@@ -129,7 +129,7 @@ class SendViewModel: ViewModel {
         }
     }
     
-    var walletModel: WalletModel { cardViewModel.state.walletModel! }
+    var walletModel: WalletModel { cardViewModel.walletModels![walletIndex] }
     
     var bag = Set<AnyCancellable>()
     
@@ -156,8 +156,11 @@ class SendViewModel: ViewModel {
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
-    init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
+    private var walletIndex: Int
+    
+    init(walletIndex: Int, amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
         self.signer = signer
+        self.walletIndex = walletIndex
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
