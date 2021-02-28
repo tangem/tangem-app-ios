@@ -15,22 +15,16 @@ struct CardInfo {
     var verificationState: VerifyCardState?
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
-    var managedTokens: [Token] = []
+    
+    var isMultiWallet: Bool {
+        return true //todo
+    }
 }
 
 enum ScanResult: Equatable {
     case card(model: CardViewModel)
     case unsupported
 	case notScannedYet
-    
-    var wallet: Wallet? {
-        switch self {
-        case .card(let model):
-            return model.state.wallet
-        default:
-            return nil
-        }
-    }
     
     var cardModel: CardViewModel? {
         switch self {
@@ -65,19 +59,15 @@ enum ScanResult: Equatable {
 class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
-    weak var featuresService: AppFeaturesService!
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
-	
+    var onScan: ((CardInfo) -> Void)? = nil
+    
 	private let twinCardFileDecoder: TwinCardFileDecoder
-    private let warningsConfigurator: WarningsConfigurator
-    private let tokensLoader: TokensLoader
 	
-    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator, tokensLoader: TokensLoader) {
+    init(twinCardFileDecoder: TwinCardFileDecoder) {
 		self.twinCardFileDecoder = twinCardFileDecoder
-        self.warningsConfigurator = warningsConfigurator
-        self.tokensLoader = tokensLoader
 	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
@@ -101,25 +91,12 @@ class CardsRepository {
     }
 
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
-        self.featuresService.setupFeatures(for: cardInfo.card)
-        self.warningsConfigurator.setupWarnings(for: cardInfo.card)
-	   
-		if !self.featuresService.linkedTerminal {
-			self.tangemSdk.config.linkedTerminal = false
-		}
+        onScan?(cardInfo)
         
-        if cardInfo.card.isTwinCard {
-            tangemSdk.config.cardIdDisplayedNumbersCount = 4
-        }
-        
-        let savedTokens = tokensLoader.loadTokens(for: cardInfo.card.cardId ?? "", blockchainSymbol: cardInfo.card.blockchain?.currencySymbol ?? "")
-        
-        var cardInfoTokens = cardInfo
-        cardInfoTokens.managedTokens = savedTokens
-        let cm = self.assembly.makeCardModel(from: cardInfoTokens)
-        let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
-        self.cards[cardInfoTokens.card.cardId!] = res
-        self.lastScanResult = res
-        return res
+        let cm = assembly.makeCardModel(from: cardInfo)
+        let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
+        cards[cardInfo.card.cardId!] = result
+        lastScanResult = result
+        return result
 	}
 }
