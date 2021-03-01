@@ -23,6 +23,7 @@ class TwinsWalletCreationService {
     private let tangemSdk: TangemSdk
     private let twinFileEncoder: TwinCardFileEncoder
     private let cardsRepository: CardsRepository
+    private unowned var validatedCardsService: ValidatedCardsService
     
     private var firstTwinCid: String = ""
     private var secondTwinCid: String = ""
@@ -54,10 +55,11 @@ class TwinsWalletCreationService {
         }
     }
     
-    init(tangemSdk: TangemSdk, twinFileEncoder: TwinCardFileEncoder, cardsRepository: CardsRepository) {
+    init(tangemSdk: TangemSdk, twinFileEncoder: TwinCardFileEncoder, cardsRepository: CardsRepository, validatedCardsService: ValidatedCardsService) {
         self.tangemSdk = tangemSdk
         self.twinFileEncoder = twinFileEncoder
         self.cardsRepository = cardsRepository
+        self.validatedCardsService = validatedCardsService
     }
     
     func executeCurrentStep() {
@@ -137,7 +139,7 @@ class TwinsWalletCreationService {
         
         //		switch twinFileToWrite(publicKey: secondTwinKey) {
         //		case .success(let file):
-        let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey)
+        let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey, validatedCardsService: validatedCardsService)
         tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] (result) in
             guard let self = self else { return }
             
