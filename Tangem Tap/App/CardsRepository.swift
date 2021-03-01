@@ -12,7 +12,6 @@ import BlockchainSdk
 
 struct CardInfo {
     var card: Card
-    var verificationState: VerifyCardState?
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
     var managedTokens: [Token] = []
@@ -73,17 +72,19 @@ class CardsRepository {
 	private let twinCardFileDecoder: TwinCardFileDecoder
     private let warningsConfigurator: WarningsConfigurator
     private let tokensLoader: TokensLoader
+    private let cardValidator: ValidatedCardsService
 	
-    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator, tokensLoader: TokensLoader) {
+    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator, tokensLoader: TokensLoader, cardValidator: ValidatedCardsService) {
 		self.twinCardFileDecoder = twinCardFileDecoder
         self.warningsConfigurator = warningsConfigurator
         self.tokensLoader = tokensLoader
+        self.cardValidator = cardValidator
 	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         tangemSdk.config = Config()
-        tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
+        tangemSdk.startSession(with: TapScanTask(validatedCardsService: cardValidator)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.log(error: error)
@@ -96,6 +97,18 @@ class CardsRepository {
 				
 				Analytics.logScan(card: response.card)
 				completion(.success(processScan(response.getCardInfo())))
+            }
+        }
+    }
+    
+    func checkPin(_ completion: @escaping (Result<CheckPinResponse, Error>) -> Void) {
+        tangemSdk.startSession(with: CheckPinCommand()) { (result) in
+            switch result {
+            case .success(let resp):
+                self.lastScanResult.cardModel?.updatePins(with: resp)
+                completion(.success(resp))
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
     }
@@ -120,6 +133,14 @@ class CardsRepository {
         let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
         self.cards[cardInfoTokens.card.cardId!] = res
         self.lastScanResult = res
+        tangemSdk.getCardInfo(cardId: cardInfo.card.cardId ?? "", cardPublicKey: cardInfo.card.cardPublicKey ?? Data()) { (result) in
+            guard
+                case let .success(info) = result,
+                let artwork = info.artwork
+            else { return }
+            
+            cm?.updateArtwork(artwork)
+        }
         return res
 	}
 }
