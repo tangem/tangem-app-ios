@@ -13,9 +13,12 @@ import BlockchainSdk
 class Assembly {
 	let keysManager = try! KeysManager()
     let configManager = try! FeaturesConfigManager()
+    let logger = Logger()
     
     lazy var tangemSdk: TangemSdk = {
-        let sdk = TangemSdk()
+        var config = Config()
+        config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
+        let sdk = TangemSdk(config: config)
         return sdk
     }()
     
@@ -25,7 +28,7 @@ class Assembly {
     lazy var networkService = NetworkService()
 	lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
-    lazy var warningsService = WarningsService(remoteWarningProvider: configManager)
+    lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
     lazy var tokenPersistenceService: TokenPersistenceService = ICloudTokenPersistenceService()
     lazy var keychainService = ValidatedCardsService()
     lazy var imageLoaderService: ImageLoaderService = {
@@ -35,6 +38,7 @@ class Assembly {
 		let s = TopupService(keys: keysManager.moonPayKeys)
         return s
     }()
+    lazy var rateAppService: RateAppService = RateAppService(userPrefsService: userPrefsService)
     
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService, tokensLoader: tokenPersistenceService, cardValidator: keychainService)
@@ -58,13 +62,14 @@ class Assembly {
             return restored
         }
         
-        let vm =  ReadViewModel()
+        let vm =  ReadViewModel(failedCardScanTracker: FailedCardScanTracker(logger: logger))
         initialize(vm)
         vm.userPrefsService = userPrefsService
         vm.cardsRepository = cardsRepository
         return vm
     }
     
+    // MARK: Main view model
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
             let restoredCid = restored.state.card?.cardId ?? ""
@@ -82,9 +87,15 @@ class Assembly {
 		vm.userPrefsService = userPrefsService
         vm.warningsManager = warningsService
         vm.state = cardsRepository.lastScanResult
+        vm.rateAppController = rateAppService
+        
+        vm.negativeFeedbackDataCollector = NegativeFeedbackDataCollector(cardRepository: cardsRepository)
+        vm.failedCardScanTracker = FailedCardScanTracker(logger: logger)
+        
         return vm
     }
     
+    // MARK: Wallet model
     func makeWalletModel(from cardInfo: CardInfo) -> WalletModel? {
 		let card = cardInfo.card
 		var pairKey: Data? = nil
@@ -105,6 +116,7 @@ class Assembly {
                            tokensService: TokensServiceFactory.makeService(for: card, persistenceService: tokenPersistenceService, tokenWalletManager: walletManager as? TokenManager))
     }
     
+    // MARK: Card model
     func makeCardModel(from info: CardInfo) -> CardViewModel? {
         guard let blockchainName = info.card.cardData?.blockchainName,
               let curve = info.card.curve,
@@ -155,7 +167,7 @@ class Assembly {
             return restored
         }
         
-        let vm =  DetailsViewModel(cardModel: card)
+        let vm =  DetailsViewModel(cardModel: card, dataCollector: DetailsFeedbackDataCollector(cardModel: card))
         initialize(vm)
         vm.cardsRepository = cardsRepository
         vm.ratesService = ratesService
@@ -184,6 +196,7 @@ class Assembly {
         return vm
     }
     
+    // MARK: Send view model
     func makeManageTokensViewModel(with wallet: WalletModel) -> ManageTokensViewModel {
         if let restored: ManageTokensViewModel = get() {
             return restored
@@ -222,6 +235,7 @@ class Assembly {
         initialize(vm)
         vm.ratesService = ratesService
         vm.featuresService = featuresService
+        vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
         return vm
     }
 	
@@ -263,6 +277,19 @@ class Assembly {
 		return vm
 	}
     
+    public func reset() {
+        var persistentKeys = [String]()
+        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
+        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
+        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
+        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
+        
+        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
+        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
+    }
+    
+    // MARK: - Private funcs
+    
     private func initialize<V: ViewModel>(_ vm: V) {
         vm.navigation = navigationCoordinator
         vm.assembly = self
@@ -274,17 +301,6 @@ class Assembly {
 		vm.assembly = self
 		store(vm, with: key)
 	}
-    
-    public func reset() {
-        var persistentKeys = [String]()
-        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
-        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
-        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
-        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
-        
-        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
-        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
-    }
 	
     private func store<T>(_ object: T ) {
         let key = String(describing: type(of: T.self))
