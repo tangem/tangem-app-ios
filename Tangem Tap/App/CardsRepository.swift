@@ -12,7 +12,6 @@ import BlockchainSdk
 
 struct CardInfo {
     var card: Card
-    var verificationState: VerifyCardState?
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
     
@@ -65,15 +64,17 @@ class CardsRepository {
     var onScan: ((CardInfo) -> Void)? = nil
     
 	private let twinCardFileDecoder: TwinCardFileDecoder
+    private let cardValidator: ValidatedCardsService
 	
-    init(twinCardFileDecoder: TwinCardFileDecoder) {
+    init(twinCardFileDecoder: TwinCardFileDecoder, cardValidator: ValidatedCardsService) {
 		self.twinCardFileDecoder = twinCardFileDecoder
+        self.cardValidator = cardValidator
 	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         tangemSdk.config = assembly.sdkConfig
-        tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
+        tangemSdk.startSession(with: TapScanTask(validatedCardsService: cardValidator)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.log(error: error)
@@ -97,6 +98,7 @@ class CardsRepository {
         let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
         cards[cardInfo.card.cardId!] = result
         lastScanResult = result
+        cm?.getCardInfo()
         return result
 	}
 }
