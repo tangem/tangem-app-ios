@@ -71,7 +71,7 @@ struct AddNewTokensView: View {
                 
                 Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized)) {
                     ForEach(viewModel.availableTokens.filter {
-                                searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) }) { token in
+                                searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
                         PresetTokenView(isAdded: viewModel.isAdded(token),
                                         isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
                                         symbol: token.symbol,
