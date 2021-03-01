@@ -11,6 +11,7 @@ import SwiftUI
 import TangemSdk
 import BlockchainSdk
 import Combine
+import MessageUI
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
@@ -200,7 +201,7 @@ struct MainView: View {
                             ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
                         } else {
                             WarningListView(warnings: self.viewModel.warnings, warningButtonAction: {
-                                self.viewModel.warningButtonAction(at: $0, priority: $1)
+                                self.viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                             })
                             .padding(.horizontal, 16)
                             
@@ -267,6 +268,25 @@ struct MainView: View {
                     }
                 }
             }
+            Color.clear
+                .frame(width: 0.5, height: 0.5)
+                .sheet(item: $viewModel.emailFeedbackCase) { emailCase -> MailView in
+                    let dataCollector: EmailDataCollector
+                    switch emailCase {
+                    case .negativeFeedback:
+                        dataCollector = viewModel.negativeFeedbackDataCollector
+                    case .scanTroubleshooting:
+                        dataCollector = viewModel.failedCardScanTracker
+                    }
+                    return MailView(dataCollector: dataCollector, emailType: emailCase.emailType)
+                }
+            ScanTroubleshootingView(isPresented: $navigation.mainToTroubleshootingScan) {
+                self.viewModel.scan()
+            } requestSupportAction: {
+                self.viewModel.failedCardScanTracker.resetCounter()
+                self.viewModel.emailFeedbackCase = .scanTroubleshooting
+            }
+
             bottomButtons
                 .padding([.top, .leading, .trailing], 8)
                 .padding(.bottom, 16.0)
@@ -338,6 +358,8 @@ struct MainView: View {
                                         with: self.viewModel.amountToSend!,
                                         walletIndex: 0,
                                         card: self.viewModel.state.cardModel!), onSuccess: {})
+                                                                    .environmentObject(navigation) // Fix for crash (Fatal error: No ObservableObject of type NavigationCoordinator found.) which appearse time to time. May be some bug with environment object O_o
+                                        
                         }
                         .actionSheet(isPresented: self.$navigation.mainToSendChoise) {
                             ActionSheet(title: Text("wallet_choice_wallet_option_title"),
@@ -346,6 +368,7 @@ struct MainView: View {
                             
                         }
                 }
+
             }
         }
     }
