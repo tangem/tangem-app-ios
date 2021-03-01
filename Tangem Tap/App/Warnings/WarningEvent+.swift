@@ -13,6 +13,8 @@ extension WarningEvent {
         switch self {
         case .numberOfSignedHashesIncorrect:
             return WarningsList.numberOfSignedHashesIncorrect
+        case .rateApp:
+            return WarningsList.rateApp
         }
     }
 }
