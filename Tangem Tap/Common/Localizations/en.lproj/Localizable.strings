@@ -1,6 +1,6 @@
 /* 
   Localizable.strings
-  Tangem Tap
+  Tangem
 
   Created by Alexander Osokin on 04.08.2020.
   Copyright © 2020 Tangem AG. All rights reserved.
@@ -47,7 +47,7 @@
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
-"home_welcome_back" = "Welcome back to Tangem Tap. \nScan your card to start.";
+"home_welcome_back" = "Welcome back to Tangem. \nScan your card to start.";
 
 "home_button_yes" = "Yes! Scan it.";
 
@@ -73,7 +73,7 @@
 
 "wallet_button_create_twin_wallet" = "Create twin wallet";
 
-"wallet_title" = "Tangem Tap";
+"wallet_title" = "Tangem";
 
 "wallet_choice_wallet_option_title" = "Choice wallet option";
 
@@ -325,7 +325,7 @@
 
 "alert_card_signed_transactions" = "This card has been already topped up and signed transactions in the past. Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
 
-"alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
+"alert_unsupported_card" = "This card it is not designed to work with Tangem";
 
 "alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 
@@ -380,7 +380,7 @@
 
 "disclaimer_text" = "Legal Disclaimer
 
-1.  Tangem Tap application (Software)
+1.  Tangem application (Software)
  
 The Software is intended for usage only with Tangem hardware wallets (Cards) via NFC interface. The Software DOES NOT:
  
