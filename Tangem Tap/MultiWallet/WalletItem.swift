@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemSdk
 
-struct WalletItemModel: Identifiable {
+struct WalletItemViewModel: Identifiable {
     var id = UUID()
     let hasTransactionInProgress: Bool
     let isLoading: Bool
@@ -22,10 +22,10 @@ struct WalletItemModel: Identifiable {
     var amountType: Amount.AmountType = .coin
     let blockchain: Blockchain
 
-    static let `default` = WalletItemModel(id: UUID(), hasTransactionInProgress: false, isLoading: false, loadingError: nil, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchain: .bitcoin(testnet: false))
+    static let `default` = WalletItemViewModel(id: UUID(), hasTransactionInProgress: false, isLoading: false, loadingError: nil, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchain: .bitcoin(testnet: false))
 }
 
-extension WalletItemModel {
+extension WalletItemViewModel {
     init(from balanceViewModel: BalanceViewModel, rate: String, blockchain: Blockchain) {
         hasTransactionInProgress = balanceViewModel.hasTransactionInProgress
         isLoading = balanceViewModel.isLoading
