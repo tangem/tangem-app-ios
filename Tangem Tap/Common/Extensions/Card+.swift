@@ -11,12 +11,13 @@ import BlockchainSdk
 
 extension Card {
     var canSign: Bool {
-        let isPin2Default = self.isPin2Default ?? true
-        let hasSmartSecurityDelay = settingsMask?.contains(.smartSecurityDelay) ?? false
-        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
+//        let isPin2Default = self.isPin2Default ?? true
+//        let hasSmartSecurityDelay = settingsMask?.contains(.smartSecurityDelay) ?? false
+//        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
         
         if let fw = firmwareVersionValue, fw < 2.28 {
-            if let securityDelay = pauseBeforePin2, securityDelay > 1500 && !canSkipSD {
+            if let securityDelay = pauseBeforePin2, securityDelay > 1500 {
+//                && !canSkipSD {
                 return false
             }
         }
@@ -31,6 +32,15 @@ extension Card {
         else { return nil }
         
         return Blockchain.from(blockchainName: name, curve: curve)
+    }
+    
+    var cardValidationData: (cid: String, pubKey: String)? {
+        guard
+            let cid = cardId,
+            let pubKey = cardPublicKey?.asHexString()
+        else { return nil }
+        
+        return (cid, pubKey)
     }
 }
 
