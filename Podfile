@@ -12,10 +12,9 @@ target 'Tangem Tap' do
   pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.7'
   #pod 'BinanceChain', :path => '../swiftbinancechain'
   pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.12'
-  #pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-97'
-  pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :branch => 'CSS-102_verificatoin_refactoring'
+  pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-98'
   #pod 'TangemSdk', :path => '../card-sdk-swift'
-  pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-72'
+  pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-73'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.4'
   #pod 'web3swift', :path => '../web3swift'
@@ -27,6 +26,7 @@ target 'Tangem Tap' do
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
+  pod 'DeviceGuru'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
