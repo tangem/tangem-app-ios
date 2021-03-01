@@ -1,6 +1,6 @@
 /* 
   Localizable.strings
-  Tangem Tap
+  Tangem
 
   Created by Alexander Osokin on 04.08.2020.
   Copyright © 2020 Tangem AG. All rights reserved.
@@ -42,7 +42,7 @@
 
 "home_welcome" = "Benvenuti in Tangem. Hai una delle nostre schede?";
 
-"home_welcome_back" = "Benevenuti di nuovo su Tangem Tap. Scansiona la tua carta per iniziare.";
+"home_welcome_back" = "Benevenuti di nuovo su Tangem. Scansiona la tua carta per iniziare.";
 "home_button_yes" = "Si! Scansiona carta.";
 
 "home_button_shop" = "Shop";
@@ -61,7 +61,7 @@
 
 "wallet_button_create_wallet" = "Crea portafoglio";
 
-"wallet_title" = "Tangem Tap";
+"wallet_title" = "Tangem";
 
 "wallet_choice_wallet_option_title" = "Scegli l'opzione del portafoglio";
 
@@ -233,7 +233,7 @@
 
 "alert_card_signed_transactions" = "Questa carta è già stata ricaricata e ha firmato transazioni in passato. Valuta la possibilità di prelevare immediatamente tutti i fondi se hai ricevuto questa carta da una fonte inaffidabile.";
 
-"alert_unsupported_card" = "Questa carta non è progettata per funzionare con Tangem Tap";
+"alert_unsupported_card" = "Questa carta non è progettata per funzionare con Tangem";
 
 "alert_developer_card" = "La carta che hai scansionato è una carta di sviluppo. Non utilizzarla come strumento di pagamento";
 
@@ -278,7 +278,7 @@
 
 "disclaimer_text" = "NOTA LEGALE
 
-App Tangem Tap (software)
+App Tangem (software)
 
 Il software può essere utilizzato solo con i portafogli hardware Tangem (schede) tramite l'interfaccia NFC. Il software NON esegue le seguenti operazioni:
 
