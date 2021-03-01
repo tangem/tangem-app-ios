@@ -72,7 +72,7 @@ class CardsRepository {
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        tangemSdk.config = Config()
+        tangemSdk.config = assembly.sdkConfig
         tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
             case .failure(let error):
