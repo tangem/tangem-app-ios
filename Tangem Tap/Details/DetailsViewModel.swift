@@ -39,6 +39,8 @@ class DetailsViewModel: ViewModel {
                 .store(in: &bag)
         }
     }
+    
+    var dataCollector: DetailsFeedbackDataCollector
 	
     var hasWallet: Bool {
         cardModel.hasWallet
@@ -112,9 +114,9 @@ class DetailsViewModel: ViewModel {
     
     private var bag = Set<AnyCancellable>()
     
-    init(cardModel: CardViewModel) {
+    init(cardModel: CardViewModel, dataCollector: DetailsFeedbackDataCollector) {
         self.cardModel = cardModel
-        
+        self.dataCollector = dataCollector
     }
     
     func checkPin(_ completion: @escaping () -> Void) {
