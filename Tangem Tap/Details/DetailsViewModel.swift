@@ -119,6 +119,17 @@ class DetailsViewModel: ViewModel {
         self.dataCollector = dataCollector
     }
     
+    func checkPin(_ completion: @escaping () -> Void) {
+        cardModel.checkPin { result in
+            switch result {
+            case .success:
+                completion()
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
         cardModel.purgeWallet() {result in
             switch result {
