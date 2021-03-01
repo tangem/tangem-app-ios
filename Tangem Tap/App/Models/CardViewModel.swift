@@ -239,6 +239,20 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.walletSignedHashes = signResponse.walletSignedHashes
     }
     
+    func checkPin(_ completion: @escaping (Result<CheckPinResponse, Error>) -> Void) {
+        tangemSdk.startSession(with: CheckPinCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
+            switch result {
+            case .success(let resp):
+                self?.cardInfo.card.isPin1Default = resp.isPin1Default
+                self?.cardInfo.card.isPin2Default = resp.isPin2Default
+                self?.updateCurrentSecOption()
+                completion(.success(resp))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
     func changeSecOption(_ option: SecurityManagementOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
@@ -338,12 +352,6 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func updateArtwork(_ artwork: ArtworkInfo) {
         cardInfo.artworkInfo = artwork
-    }
-    
-    func updatePins(with response: CheckPinResponse) {
-        cardInfo.card.isPin1Default = response.isPin1Default
-        cardInfo.card.isPin2Default = response.isPin2Default
-        updateCurrentSecOption()
     }
     
     func updateState() {
