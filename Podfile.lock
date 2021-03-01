@@ -121,6 +121,7 @@ PODS:
   - HDWalletKit (0.3.5):
     - CryptoSwift
     - secp256k1.swift
+  - KeychainSwift (19.0.0)
   - Moya (14.0.0):
     - Moya/Core (= 14.0.0)
   - Moya/Core (14.0.0):
@@ -174,9 +175,10 @@ DEPENDENCIES:
   - Firebase/Crashlytics
   - Firebase/RemoteConfig
   - HDWalletKit (from `https://bitbucket.org/tangem/hdwallet.git`, tag `0.3.12`)
+  - KeychainSwift (~> 19.0)
   - Moya
   - SwiftyJSON
-  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-96`)"
+  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-98`)"
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.4`)
 
 SPEC REPOS:
@@ -198,6 +200,7 @@ SPEC REPOS:
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleUtilities
+    - KeychainSwift
     - Moya
     - nanopb
     - ObjcExceptionBridging
@@ -228,7 +231,7 @@ EXTERNAL SOURCES:
     :tag: 0.3.12
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-96
+    :tag: build-98
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -248,7 +251,7 @@ CHECKOUT OPTIONS:
     :tag: 0.3.12
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-96
+    :tag: build-98
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -275,6 +278,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 116c84c4bdeb76be2a7a46de51244368f9794eab
   GoogleUtilities: 3dc4ff0d5e4840e2fa8eef0889620e8c33d4218c
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
+  KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
   Moya: 5b45dacb75adb009f97fde91c204c1e565d31916
   nanopb: 1bf24dd71191072e120b83dd02d08f3da0d65e53
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
@@ -292,6 +296,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: e373af668fa10700a199fd00e2d409c0b2ac7450
+PODFILE CHECKSUM: cb65f22eb3d8446e96f2fd37d26bdb10fb9856b0
 
 COCOAPODS: 1.10.1
