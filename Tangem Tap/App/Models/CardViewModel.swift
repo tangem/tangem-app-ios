@@ -25,10 +25,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
-
-    var isMultiWallet: Bool {
-        return cardInfo.isMultiWallet
-    }
+    @Published public private(set) var cardInfo: CardInfo
     
     var erc20TokenWalletModel: WalletModel {
         get {
@@ -48,6 +45,10 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var wallets: [Wallet]? {
         return walletModels?.map { $0.wallet }
+    }
+    
+    var isMultiWallet: Bool {
+        return cardInfo.isMultiWallet
     }
     
     var canSetAccessCode: Bool {
@@ -163,8 +164,6 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canTopup: Bool { featuresService.canTopup }
     
-    public private(set) var cardInfo: CardInfo
-    
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag =  Set<AnyCancellable>()
     
@@ -237,6 +236,20 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func onSign(_ signResponse: SignResponse) {
         cardInfo.card.walletSignedHashes = signResponse.walletSignedHashes
+    }
+    
+    func checkPin(_ completion: @escaping (Result<CheckPinResponse, Error>) -> Void) {
+        tangemSdk.startSession(with: CheckPinCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
+            switch result {
+            case .success(let resp):
+                self?.cardInfo.card.isPin1Default = resp.isPin1Default
+                self?.cardInfo.card.isPin2Default = resp.isPin2Default
+                self?.updateCurrentSecOption()
+                completion(.success(resp))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
     
     func changeSecOption(_ option: SecurityManagementOption, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -317,6 +330,15 @@ class CardViewModel: Identifiable, ObservableObject {
             case .failure(let error):
                 Analytics.log(error: error)
                 completion(.failure(error))
+            }
+        }
+    }
+    
+    func getCardInfo() {
+        tangemSdk.getCardInfo(cardId: cardInfo.card.cardId ?? "", cardPublicKey: cardInfo.card.cardPublicKey ?? Data()) {[weak self] result in
+            if case let .success(info) = result,
+               let artwork = info.artwork {
+                self?.cardInfo.artworkInfo = artwork
             }
         }
     }
