@@ -121,9 +121,6 @@
 
 "wallet_address_button_create_payid" = "Create PayString";
 
-"wallet_warning_button_ok" = "Ok, Got it!";
-
-
 "wallet_qr_title_format" = "%@ wallet";
 
 
@@ -216,11 +213,17 @@
 
 "details_section_title_card" = "Card";
 
+"details_section_title_app" = "App";
+
 "details_row_title_validate" = "Validate card";
 
 "details_row_title_manage_security" = "Manage Security";
 
 "details_row_title_erase_wallet" = "Erase wallet";
+
+"details_row_title_send_feedback" = "Send feedback";
+
+"details_currency_search_placeholder" = "Search";
 
 "details_section_title_blockchain" = "Blockchain";
 
@@ -291,7 +294,7 @@
 "twin_wallet_creation_tap_first_card" = "Tap the card #1";
 "twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
 
-// MARK: - Manages tokens
+// MARK: - Managed tokens
 
 "manage_tokens_no_tokens" = "No tokens yet";
 "manage_tokens_section_title_added_tokens" = "Added tokens";
@@ -328,6 +331,36 @@
 "alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 
 "alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
+
+"alert_app_feedback_sent_title" = "Sent successfully";
+"alert_app_feedback_sent_message" = "Thank you for your feedback";
+
+"alert_negative_app_rate_sent_title" = "Your suggestions were sent";
+"alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
+
+"alert_failed_to_send_email_title" = "Failed to send email";
+"alert_failed_to_send_email_message" = "Reason: %@";
+
+"alert_failed_to_send_transaction_title" = "Can't send a transaction";
+"alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to send feedback?";
+
+"alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
+"alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
+
+"alert_button_try_again" = "Try again";
+"alert_button_request_support" = "Request support";
+"alert_button_send_feedback" = "Send feedback";
+
+// MARK: - Warnings
+
+"warning_button_ok" = "Ok, Got it!";
+"warning_button_really_cool" = "Really cool!";
+"warning_button_can_be_better" = "Can be better";
+
+"warning_rate_app_title" = "One question";
+
+"warning_rate_app_message" = "How do you like Tangem?";
+
 
 // MARK: - Initial message
 
