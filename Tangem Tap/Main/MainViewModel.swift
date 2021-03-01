@@ -14,15 +14,32 @@ import TangemSdk
 
 class MainViewModel: ViewModel {
     
+    enum EmailFeedbackCase: Int, Identifiable {
+        var id: Int { rawValue }
+        
+        case negativeFeedback, scanTroubleshooting
+        
+        var emailType: EmailType {
+            switch self {
+            case .negativeFeedback: return .negativeRateAppFeedback
+            case .scanTroubleshooting: return .failedToScanCard
+            }
+        }
+    }
+    
     // MARK: Dependencies -
     weak var imageLoaderService: ImageLoaderService!
     weak var topupService: TopupService!
 	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
     weak var warningsManager: WarningsManager!
+    weak var rateAppController: RateAppController!
     
 	weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
+    
+    var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
+    var failedCardScanTracker: FailedCardScanTracker!
     
     // MARK: Variables
     
@@ -46,6 +63,7 @@ class MainViewModel: ViewModel {
             bind()
         }
     }
+    @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -267,6 +285,7 @@ class MainViewModel: ViewModel {
             .store(in: &bag)
     }
     
+    // MARK: Scan
     func scan() {
         self.isScanning = true
         cardsRepository.scan { [weak self] scanResult in
@@ -274,9 +293,16 @@ class MainViewModel: ViewModel {
             switch scanResult {
             case .success(let state):
                 self.state = state
+                self.failedCardScanTracker.resetCounter()
             case .failure(let error):
-                if case .unknownError = error.toTangemSdkError() {
-                    self.setError(error.alertBinder)
+                self.failedCardScanTracker.recordFailure()
+                
+                if self.failedCardScanTracker.shouldDisplayAlert {
+                    self.navigation.mainToTroubleshootingScan = true
+                } else {
+                    if case .unknownError = error.toTangemSdkError() {
+                        self.setError(error.alertBinder)
+                    }
                 }
             }
             self.isScanning = false
@@ -346,14 +372,28 @@ class MainViewModel: ViewModel {
         assembly.reset()
     }
     
-    func warningButtonAction(at index: Int, priority: WarningPriority) {
+    // MARK: Warning action handler
+    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
-        if let cardId = state.card?.cardId,
-           case .numberOfSignedHashesIncorrect = warning.event {
-            validatedSignedHashesCards.append(cardId)
+        switch button {
+        case .okGotIt:
+            if let cardId = state.card?.cardId,
+               case .numberOfSignedHashesIncorrect = warning.event {
+                validatedSignedHashesCards.append(cardId)
+            }
+            
+        case .rateApp:
+            Analytics.log(event: .positiveRateAppFeedback)
+            rateAppController.userReactToRateAppWarning(isPositive: true)
+        case .dismiss:
+            Analytics.log(event: .dismissRateAppWarning)
+            rateAppController.dismissRateAppWarning()
+        case .reportProblem:
+            Analytics.log(event: .negativeRateAppFeedback)
+            rateAppController.userReactToRateAppWarning(isPositive: false)
+            emailFeedbackCase = .negativeFeedback
         }
-        
         warningsManager.hideWarning(warning)
     }
     
