@@ -24,6 +24,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
+    @Published public private(set) var cardInfo: CardInfo
     
     var canSetAccessCode: Bool {
        return (cardInfo.card.settingsMask?.contains(.allowSetPIN1) ?? false ) &&
@@ -165,8 +166,6 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canTopup: Bool { featuresService.canTopup }
     
-    public private(set) var cardInfo: CardInfo
-    
     private var bag =  Set<AnyCancellable>()
     
     init(cardInfo: CardInfo) {
@@ -238,6 +237,20 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func onSign(_ signResponse: SignResponse) {
         cardInfo.card.walletSignedHashes = signResponse.walletSignedHashes
+    }
+    
+    func checkPin(_ completion: @escaping (Result<CheckPinResponse, Error>) -> Void) {
+        tangemSdk.startSession(with: CheckPinCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
+            switch result {
+            case .success(let resp):
+                self?.cardInfo.card.isPin1Default = resp.isPin1Default
+                self?.cardInfo.card.isPin2Default = resp.isPin2Default
+                self?.updateCurrentSecOption()
+                completion(.success(resp))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
     
     func changeSecOption(_ option: SecurityManagementOption, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -335,6 +348,10 @@ class CardViewModel: Identifiable, ObservableObject {
     func update(with cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         updateState()
+    }
+    
+    func updateArtwork(_ artwork: ArtworkInfo) {
+        cardInfo.artworkInfo = artwork
     }
     
     func updateState() {
