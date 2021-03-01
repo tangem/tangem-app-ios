@@ -21,6 +21,14 @@ extension String {
         return self
     }
     
+    func capitalizingFirstLetter() -> String {
+        return prefix(1).capitalized + dropFirst()
+    }
+
+    mutating func capitalizeFirstLetter() {
+        self = self.capitalizingFirstLetter()
+    }
+    
     func remove(contentsOf strings: [String]) -> String {
         strings.reduce(into: self, {
             $0 = $0.remove($1)
