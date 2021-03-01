@@ -16,10 +16,10 @@ class TokenDetailsViewModel: ViewModel {
     
     var card: CardViewModel! {
         didSet {
-           bind()
+            bind()
         }
     }
-
+    
     var wallet: Wallet? {
         return walletModel?.wallet
     }
@@ -37,13 +37,13 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     var canTopup: Bool {
-         card.canTopup
+        card.canTopup
     }
     
     var topupURL: URL? {
         if let wallet = wallet {
             return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
-                                     walletAddress: wallet.address)
+                                            walletAddress: wallet.address)
         }
         return nil
     }
@@ -56,7 +56,7 @@ class TokenDetailsViewModel: ViewModel {
         guard card.canSign else {
             return false
         }
-
+        
         return wallet?.canSend ?? false
     }
     
@@ -98,6 +98,36 @@ class TokenDetailsViewModel: ViewModel {
             .receive(on: RunLoop.main)
             .sink { [weak self] in
                 self?.objectWillChange.send()
+            }
+            .store(in: &bag)
+        
+        $isRefreshing
+            .removeDuplicates()
+            .filter { $0 }
+            .sink{ [unowned self] _ in
+                if card.state.canUpdate {
+                    card.update()
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation {
+                            self.isRefreshing = false
+                        }
+                    }
+                }
+                
+            }
+            .store(in: &bag)
+        
+        walletModel?
+            .$state
+            .map{ $0.isLoading }
+            .filter { !$0 }
+            .receive(on: RunLoop.main)
+            .sink {[unowned self] _ in
+                print("♻️ Wallet model loading state changed")
+                withAnimation {
+                    self.isRefreshing = false
+                }
             }
             .store(in: &bag)
     }
