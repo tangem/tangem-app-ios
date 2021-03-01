@@ -11,10 +11,12 @@ import SwiftUI
 import TangemSdk
 import BlockchainSdk
 import AVFoundation
+import Moya
 
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var navigation: NavigationCoordinator
     let onSuccess: () -> Void
     
     private var addressHint: String {
@@ -225,10 +227,8 @@ struct SendView: View {
                                 .foregroundColor(Color.tangemTapGrayDark)
                         }
                     }
-                    WarningListView(warnings: viewModel.warnings, warningButtonAction: { (index, priority) in
-                        withAnimation {
-                            self.viewModel.warningButtonAction(at: index, priority: priority)
-                        }
+                    WarningListView(warnings: viewModel.warnings, warningButtonAction: {
+                        self.viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                     })
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 16)
@@ -247,13 +247,23 @@ struct SendView: View {
                                                                                             onSuccess()
                                                                                           }))
                                     
-                                    self.viewModel.sendError = AlertBinder(alert: alert)
+                                    self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
                                 }
                             }
                         }.buttonStyle(TangemButtonStyle(color: .green,
                                                         isDisabled: !self.viewModel.isSendEnabled))
                         .disabled(!self.viewModel.isSendEnabled)
-                        .alert(item: self.$viewModel.sendError) { $0.alert }
+                        .sheet(isPresented: $navigation.sendToSendEmail, content: {
+                            MailView(dataCollector: viewModel.emailDataCollector, emailType: .failedToSendTx)
+                        })
+                        .alert(item: self.$viewModel.sendError) { binder in
+                            Alert(title: Text("alert_failed_to_send_transaction_title"),
+                                  message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
+                                  primaryButton: .default(Text("alert_button_send_feedback"), action: {
+                                    navigation.sendToSendEmail = true
+                                  }),
+                                  secondaryButton: .default(Text("common_no")))
+                        }
                     }
                     .padding(.top, 16.0)
                 }
