@@ -14,7 +14,7 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
-    @Published var walletItems: [WalletItemModel] = []
+    @Published var walletItems: [WalletItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: [String: Decimal]] = [:]
 
@@ -263,12 +263,12 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func updateWalletItems() {
-        let blockchainItem = WalletItemModel(from: balanceViewModel,
+        let blockchainItem = WalletItemViewModel(from: balanceViewModel,
                                              rate: getRateFormatted(for: .coin),
                                              blockchain: wallet.blockchain)
         
         let tokenItems = tokenViewModels.map {
-            WalletItemModel(from: balanceViewModel,
+            WalletItemViewModel(from: balanceViewModel,
                             tokenBalanceViewModel: $0,
                             rate: getRateFormatted(for: .token(value: $0.token)),
                             blockchain: wallet.blockchain)
