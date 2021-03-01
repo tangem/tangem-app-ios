@@ -24,6 +24,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
+    @Published public private(set) var cardInfo: CardInfo
     
     var canSetAccessCode: Bool {
        return (cardInfo.card.settingsMask?.contains(.allowSetPIN1) ?? false ) &&
@@ -164,8 +165,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canTopup: Bool { featuresService.canTopup }
-    
-    public private(set) var cardInfo: CardInfo
     
     private var bag =  Set<AnyCancellable>()
     
@@ -335,6 +334,16 @@ class CardViewModel: Identifiable, ObservableObject {
     func update(with cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         updateState()
+    }
+    
+    func updateArtwork(_ artwork: ArtworkInfo) {
+        cardInfo.artworkInfo = artwork
+    }
+    
+    func updatePins(with response: CheckPinResponse) {
+        cardInfo.card.isPin1Default = response.isPin1Default
+        cardInfo.card.isPin2Default = response.isPin2Default
+        updateCurrentSecOption()
     }
     
     func updateState() {
