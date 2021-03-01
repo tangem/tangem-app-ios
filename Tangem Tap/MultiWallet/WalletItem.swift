@@ -79,7 +79,7 @@ enum WalletItem: Codable, Hashable {
         } else if let token = try? container.decode(Token.self) {
             self = .token(token)
         } else {
-            throw TangemSdkError.decodingFailed
+            throw BlockchainSdkError.decodingFailed
         }
     }
     
