@@ -13,7 +13,7 @@ enum ScanError: Error {
     case wrongState
 }
 
-struct TapScanTaskResponse: ResponseCodable {
+struct TapScanTaskResponse: JSONStringConvertible {
     let card: Card
     let verifyResponse: VerifyCardResponse
     let twinIssuerData: Data
