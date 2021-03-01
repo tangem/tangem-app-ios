@@ -26,9 +26,11 @@ class WarningsService {
     private var sendWarnings: WarningsContainer = .init()
     
     private let remoteWarningProvider: RemoteWarningProvider
+    private let rateAppChecker: RateAppChecker
     
-    init(remoteWarningProvider: RemoteWarningProvider) {
+    init(remoteWarningProvider: RemoteWarningProvider, rateAppChecker: RateAppChecker) {
         self.remoteWarningProvider = remoteWarningProvider
+        self.rateAppChecker = rateAppChecker
     }
     
     private func warningsForMain(for card: Card) -> WarningsContainer {
@@ -37,6 +39,10 @@ class WarningsService {
         addDevCardWarningIfNeeded(in: container, for: card)
         addOldCardWarning(in: container, for: card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
+        if rateAppChecker.shouldShowRateAppWarning {
+            Analytics.log(event: .displayRateAppWarning)
+            container.add(WarningEvent.rateApp.warning)
+        }
         
         let remoteWarnings = self.remoteWarnings(for: card, location: .main)
         container.add(remoteWarnings)
