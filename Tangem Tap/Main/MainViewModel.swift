@@ -238,8 +238,7 @@ class MainViewModel: ViewModel {
             }
             .store(in: &bag)
         
-        $state
-            .compactMap { $0.cardModel?.cardInfo }
+        state.cardModel?.$cardInfo
             .tryMap { cardInfo -> (String, Data, ArtworkInfo?) in
                 if let cid = cardInfo.card.cardId,
                    let key = cardInfo.card.cardPublicKey  {
