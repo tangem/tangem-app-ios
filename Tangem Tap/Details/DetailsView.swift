@@ -35,9 +35,14 @@ struct DetailsDestination: Identifiable {
 }
 
 struct DetailsView: View {
+    private enum NavigationTag: String {
+        case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens
+    }
+    
     @ObservedObject var viewModel: DetailsViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
-    @State var selection: String? = nil //fix remain highlited bug on ios14
+    
+    @State private var selection: NavigationTag? = nil //fix remain highlited bug on ios14
     
     var body: some View {
         List {
@@ -53,14 +58,25 @@ struct DetailsView: View {
                                                     viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
                 }
                 
-                NavigationLink(destination: SecurityManagementView(viewModel:
-                                                                    viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
-                               tag: "secManagement", selection: $selection) {
-                    DetailsRowView(title: "details_row_title_manage_security".localized,
-                                   subtitle: viewModel.cardModel.currentSecOption.title)
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.cardModel.canManageSecurity)
+                Button(action: {
+                    viewModel.checkPin {
+                        selection = .securityManagement
+                    }
+                }, label: {
+                    Text("details_row_title_manage_security")
+                        .font(.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.tangemTapGrayDark6)
+                })
+                .background(
+                    NavigationLink(
+                        destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
+                        tag: NavigationTag.securityManagement,
+                        selection: $selection,
+                        label: { EmptyView() })
+                        .disabled(true)
+                )
+                .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 
                 if viewModel.isTwinCard {
                     NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
@@ -76,7 +92,7 @@ struct DetailsView: View {
                                                                   alert: "details_erase_wallet_warning".localized,
                                                                   actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
                     ),
-                    tag: "cardOp", selection: $selection) {
+                    tag: NavigationTag.cardOperation, selection: $selection) {
                         DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
@@ -86,7 +102,7 @@ struct DetailsView: View {
             
             Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
                 NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
-                               tag: "currency", selection: $selection) {
+                               tag: NavigationTag.currency, selection: $selection) {
                     DetailsRowView(title: "details_row_title_currency".localized,
                                    subtitle: viewModel.ratesService.selectedCurrencyCode)
                     
@@ -95,7 +111,7 @@ struct DetailsView: View {
                 
                 NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
                                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                               tag: "disclaimer", selection: $selection) {
+                               tag: NavigationTag.disclaimer, selection: $selection) {
                     DetailsRowView(title: "disclaimer_title".localized,
                                    subtitle: "")
                     
@@ -117,7 +133,7 @@ struct DetailsView: View {
                 if let cardTouURL = viewModel.cardTouURL {
                     NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
                                     .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                                   tag: "card_tou", selection: $selection) {
+                                   tag: NavigationTag.cardTermsOfUse, selection: $selection) {
                         DetailsRowView(title: "details_row_title_card_tou".localized,
                                        subtitle: "")
                         
