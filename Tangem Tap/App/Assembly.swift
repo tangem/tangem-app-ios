@@ -30,6 +30,7 @@ class Assembly {
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
     lazy var tokenPersistenceService: TokenPersistenceService = ICloudTokenPersistenceService()
+    lazy var keychainService = ValidatedCardsService()
     lazy var imageLoaderService: ImageLoaderService = {
         return ImageLoaderService(networkService: networkService)
     }()
@@ -40,7 +41,7 @@ class Assembly {
     lazy var rateAppService: RateAppService = RateAppService(userPrefsService: userPrefsService)
     
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService, tokensLoader: tokenPersistenceService)
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), warningsConfigurator: warningsService, tokensLoader: tokenPersistenceService, cardValidator: keychainService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         crepo.featuresService = featuresService
@@ -50,7 +51,8 @@ class Assembly {
 	lazy var twinsWalletCreationService = {
 		TwinsWalletCreationService(tangemSdk: tangemSdk,
 								   twinFileEncoder: TwinCardTlvFileEncoder(),
-								   cardsRepository: cardsRepository)
+                                   cardsRepository: cardsRepository,
+                                   validatedCardsService: keychainService)
 	}()
     
     private var modelsStorage = [String : Any]()
@@ -340,7 +342,6 @@ extension Assembly {
     
     private static func scanResult(for card: Card, assembly: Assembly, twinCardInfo: TwinCardInfo? = nil) -> ScanResult {
         let ci = CardInfo(card: card,
-                          verificationState: nil,
                           artworkInfo: nil,
                           twinCardInfo: twinCardInfo)
         let vm = assembly.makeCardModel(from: ci)!
