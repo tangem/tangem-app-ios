@@ -98,40 +98,7 @@ struct DetailsView: View {
                                    subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
                                                     viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
                 }
-            }
-            
-            Section(header: HeaderView(text: "details_section_title_settings".localized), footer: FooterView()) {
-                NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
-                               tag: NavigationTag.currency, selection: $selection) {
-                    DetailsRowView(title: "details_row_title_currency".localized,
-                                   subtitle: viewModel.ratesService.selectedCurrencyCode)
-                    
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
-                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                               tag: NavigationTag.disclaimer, selection: $selection) {
-                    DetailsRowView(title: "disclaimer_title".localized,
-                                   subtitle: "")
-                    
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                
-                if let cardTouURL = viewModel.cardTouURL {
-                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
-                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                                   tag: NavigationTag.cardTermsOfUse, selection: $selection) {
-                        DetailsRowView(title: "details_row_title_card_tou".localized,
-                                       subtitle: "")
-                        
-                    }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                }
-            }
-            
-            Section(header: HeaderView(text: "details_section_title_card".localized),
-                    footer: footerView) {
                 Button(action: {
                     viewModel.checkPin {
                         selection = .securityManagement
@@ -176,7 +143,7 @@ struct DetailsView: View {
             
             Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
                 NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
-                               tag: "currency", selection: $selection) {
+                               tag: NavigationTag.currency, selection: $selection) {
                     DetailsRowView(title: "details_row_title_currency".localized,
                                    subtitle: viewModel.ratesService.selectedCurrencyCode)
                     
@@ -185,7 +152,7 @@ struct DetailsView: View {
                 
                 NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
                                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                               tag: "disclaimer", selection: $selection) {
+                               tag: NavigationTag.disclaimer, selection: $selection) {
                     DetailsRowView(title: "disclaimer_title".localized,
                                    subtitle: "")
                     
@@ -207,7 +174,7 @@ struct DetailsView: View {
                 if let cardTouURL = viewModel.cardTouURL {
                     NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
                                     .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                                   tag: "card_tou", selection: $selection) {
+                                   tag: NavigationTag.cardTermsOfUse, selection: $selection) {
                         DetailsRowView(title: "details_row_title_card_tou".localized,
                                        subtitle: "")
                         
