@@ -120,7 +120,7 @@ class DetailsViewModel: ViewModel {
     }
     
     func checkPin(_ completion: @escaping () -> Void) {
-        cardsRepository.checkPin { result in
+        cardModel.checkPin { result in
             switch result {
             case .success:
                 completion()
