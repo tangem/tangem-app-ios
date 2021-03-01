@@ -25,6 +25,8 @@ class SendViewModel: ViewModel {
     weak var ratesService: CoinMarketCapService!
     weak var featuresService: AppFeaturesService!
     
+    var emailDataCollector: SendScreenDataCollector!
+    
     private unowned let warningsManager: WarningsManager
     
     @Published var showCameraDeniedAlert = false
@@ -153,7 +155,7 @@ class SendViewModel: ViewModel {
     //MARK: Private
     @Published private var validatedDestination: String? = nil
     @Published private var amountValidated: Bool = false
-    @Published private var amountToSend: Amount
+    @Published private(set) var amountToSend: Amount
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
@@ -187,6 +189,7 @@ class SendViewModel: ViewModel {
         self.sendTotalSubtitle = ""
     }
     
+    // MARK: - Subscriptions
     func bind() {
         bag = Set<AnyCancellable>()
         
@@ -205,19 +208,54 @@ class SendViewModel: ViewModel {
             }
             .store(in: &bag)
         
-        $maxAmountTapped //handle max amount tap
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
-            .dropFirst()
-            .sink { [unowned self] _ in
-                self.amountToSend = self.walletModel.wallet.amounts[self.amountToSend.type]!
-                self.amountText = self.walletTotalBalanceDecimals
-                
-                withAnimation {
-                    self.isFeeIncluded = true
-                    self.isNetworkFeeBlockOpen = true
-                }        }
+        $transaction
+            .combineLatest($isFiatCalculation)
+            .debounce(for: 0.3, scheduler: RunLoop.main)
+            //update total block
+            .sink { [unowned self] tx, isFiatCalculation in
+                if let tx = tx {
+                    self.isSendEnabled = true
+                    let totalAmount = tx.amount + tx.fee
+                    var totalFiatAmount: Decimal? = nil
+                    
+                    if let famount = self.walletModel.getFiat(for: tx.amount), let ffee = self.walletModel.getFiat(for: tx.fee) {
+                        totalFiatAmount = famount + ffee
+                    }
+                    
+                    let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesService.selectedCurrencyCode)
+                    
+                    if isFiatCalculation {
+                        self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount) ?? ""
+                        self.sendTotal = totalFiatAmountFormatted ?? "-"
+                        self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
+                            String(format: "send_total_subtitle_format".localized, totalAmount.description) :
+                            String(format: "send_total_subtitle_asset_format".localized,
+                                   tx.amount.description,
+                                   tx.fee.description)
+                    } else {
+                        self.sendAmount = tx.amount.description
+                        self.sendTotal =  (tx.amount + tx.fee).description
+                        self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
+                                                                                                 totalFiatAmountFormatted!,
+                                                                                                 self.walletModel.getFiatFormatted(for: tx.fee)!)
+                    }
+                } else {
+                    self.fillTotalBlockWithDefaults()
+                    self.isSendEnabled = false
+                }
+            }
             .store(in: &bag)
         
+        $isFiatCalculation //handle conversion
+            .filter {[unowned self] _ in self.amountToSend.value != 0 }
+            .sink { [unowned self] value in
+                self.amountText = value ? self.walletModel.getFiat(for: self.amountToSend)?.description
+                    ?? ""
+                    : self.amountToSend.value.description
+            }
+            .store(in: &bag)
+        
+        // MARK: Amount
         $amountText
             .removeDuplicates()
             .combineLatest($isFiatCalculation)
@@ -261,63 +299,6 @@ class SendViewModel: ViewModel {
             }
             .store(in: &bag)
         
-        $selectedFee //update fee label
-            .combineLatest($isFiatCalculation)
-            .debounce(for: 0.3, scheduler: RunLoop.main)
-            .sink{ [unowned self] newAmount, isFiat in
-                let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, address: self.walletModel.wallet.address, type: .coin, value: 0)
-                self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
-            }
-            .store(in: &bag)
-        
-        
-        $isFiatCalculation //handle conversion
-            .filter {[unowned self] _ in self.amountToSend.value != 0 }
-            .sink { [unowned self] value in
-                self.amountText = value ? self.walletModel.getFiat(for: self.amountToSend)?.description
-                    ?? ""
-                    : self.amountToSend.value.description
-            }
-            .store(in: &bag)
-        
-        $transaction
-            .combineLatest($isFiatCalculation)
-            .debounce(for: 0.3, scheduler: RunLoop.main)
-            //update total block
-            .sink { [unowned self] tx, isFiatCalculation in
-                if let tx = tx {
-                    self.isSendEnabled = true
-                    let totalAmount = tx.amount + tx.fee
-                    var totalFiatAmount: Decimal? = nil
-                    
-                    if let famount = self.walletModel.getFiat(for: tx.amount), let ffee = self.walletModel.getFiat(for: tx.fee) {
-                        totalFiatAmount = famount + ffee
-                    }
-                    
-                    let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesService.selectedCurrencyCode)
-                    
-                    if isFiatCalculation {
-                        self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount) ?? ""
-                        self.sendTotal = totalFiatAmountFormatted ?? "-"
-                        self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
-                            String(format: "send_total_subtitle_format".localized, totalAmount.description) :
-                            String(format: "send_total_subtitle_asset_format".localized,
-                                   tx.amount.description,
-                                   tx.fee.description)
-                    } else {
-                        self.sendAmount = tx.amount.description
-                        self.sendTotal =  (tx.amount + tx.fee).description
-                        self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
-                                                                                                 totalFiatAmountFormatted!,
-                                                                                                 self.walletModel.getFiatFormatted(for: tx.fee)!)
-                    }
-                } else {
-                    self.fillTotalBlockWithDefaults()
-                    self.isSendEnabled = false
-                }
-            }
-            .store(in: &bag)
-        
         $amountValidated //update fee
             .filter { $0 }
             .combineLatest($validatedDestination.compactMap { $0 }, $isFeeIncluded)
@@ -340,20 +321,6 @@ class SendViewModel: ViewModel {
                 self.fees = fees
             })
             .store(in: &bag)
-        
-        
-        $fees //handle fee selection
-            .combineLatest($selectedFeeLevel)
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
-            .sink{ [unowned self] fees, level in
-                if fees.isEmpty {
-                    self.selectedFee = nil
-                } else {
-                    self.selectedFee = fees.count > 1 ? fees[self.selectedFeeLevel] : fees.first!
-                }
-            }
-            .store(in: &bag)
-        
         
         $amountValidated
             .combineLatest($validatedDestination,
@@ -385,6 +352,42 @@ class SendViewModel: ViewModel {
             }
             .store(in: &bag)
         
+        $maxAmountTapped //handle max amount tap
+            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .dropFirst()
+            .sink { [unowned self] _ in
+                self.amountToSend = self.walletModel.wallet.amounts[self.amountToSend.type]!
+                self.amountText = self.walletTotalBalanceDecimals
+                
+                withAnimation {
+                    self.isFeeIncluded = true
+                    self.isNetworkFeeBlockOpen = true
+                }        }
+            .store(in: &bag)
+        
+        // MARK: Fee
+        $fees //handle fee selection
+            .combineLatest($selectedFeeLevel)
+            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .sink{ [unowned self] fees, level in
+                if fees.isEmpty {
+                    self.selectedFee = nil
+                } else {
+                    self.selectedFee = fees.count > 1 ? fees[self.selectedFeeLevel] : fees.first!
+                }
+            }
+            .store(in: &bag)
+        
+        $selectedFee //update fee label
+            .combineLatest($isFiatCalculation)
+            .debounce(for: 0.3, scheduler: RunLoop.main)
+            .sink{ [unowned self] newAmount, isFiat in
+                let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, address: self.walletModel.wallet.address, type: .coin, value: 0)
+                self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
+            }
+            .store(in: &bag)
+        
+        // MARK: Memo + destination tag
         $destinationTagStr
             .dropFirst()
             .removeDuplicates()
@@ -445,6 +448,7 @@ class SendViewModel: ViewModel {
         validateClipboard()
     }
     
+    // MARK: - Validation
     func validateClipboard() {
         validatedClipboard = nil
         
@@ -530,9 +534,11 @@ class SendViewModel: ViewModel {
                                                                     
                                                                    }))
             UIApplication.shared.endEditing()
-            self.sendError = AlertBinder(alert: alert)
+            self.sendError = AlertBinder(alert: alert, error: nil)
         }
     }
+    
+    // MARK: Validation end -
     
     func pasteClipboardTapped() {
         if let validatedClipboard = self.validatedClipboard {
@@ -564,6 +570,7 @@ class SendViewModel: ViewModel {
         }
     }
     
+    // MARK: - Send
     func send(_ callback: @escaping () -> Void) {
         guard var tx = self.transaction else {
             return
@@ -589,7 +596,8 @@ class SendViewModel: ViewModel {
                         return
                     }
                     Analytics.log(error: error)
-                    self.sendError = error.detailedError.alertBinder
+                    emailDataCollector.lastError = error
+                    self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
                     Analytics.logTx(blockchainName: self.cardViewModel.cardInfo.card.cardData?.blockchainName)
@@ -602,7 +610,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
     }
     
-    func warningButtonAction(at index: Int, priority: WarningPriority) {
+    func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
         
         warningsManager.hideWarning(warning)
