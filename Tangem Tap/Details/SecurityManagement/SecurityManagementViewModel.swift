@@ -18,10 +18,11 @@ class SecurityManagementViewModel: ViewModel {
     @Published var cardViewModel: CardViewModel! {
         didSet {
             selectedOption = cardViewModel.currentSecOption
-            cardViewModel.$cardInfo
+            cardViewModel.objectWillChange
                 .receive(on: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] _ in
+                .sink(receiveValue: { [weak self] in
                     self?.selectedOption = self?.cardViewModel.currentSecOption ?? .longTap
+                    self?.objectWillChange.send()
                 })
                 .store(in: &bag)
         }
