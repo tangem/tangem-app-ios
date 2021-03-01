@@ -680,7 +680,6 @@
 		5DF2522524F914C90015B429 /* TangemSdk */ = {
 			isa = PBXGroup;
 			children = (
-				B08C7415258BE8D100EFDAD0 /* Signers */,
 				B0296A83258BFBB400FC936E /* Tasks */,
 				B0C87B472566492000F861DE /* TwinCardInfo.swift */,
 				5DB862B7252396CD00566AA0 /* DefaultSigner.swift */,
@@ -853,13 +852,6 @@
 				B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */,
 			);
 			path = AddNewToken;
-			sourceTree = "<group>";
-		};
-		B08C7415258BE8D100EFDAD0 /* Signers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Signers;
 			sourceTree = "<group>";
 		};
 		B09BB853259A075500B92000 /* Buttons */ = {
