@@ -102,7 +102,7 @@ class CardsRepository {
     }
     
     func checkPin(_ completion: @escaping (Result<CheckPinResponse, Error>) -> Void) {
-        tangemSdk.startSession(with: CheckPinCommand()) { (result) in
+        tangemSdk.startSession(with: CheckPinCommand(), cardId: lastScanResult.card?.cardId) { (result) in
             switch result {
             case .success(let resp):
                 self.lastScanResult.cardModel?.updatePins(with: resp)
