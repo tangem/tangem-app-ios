@@ -142,6 +142,15 @@ struct ReadView: View {
                     }
                 }
                 .buttonStyle(TangemButtonStyle(color: .green))
+                .sheet(isPresented: $navigation.readToSendEmail, content: {
+                    MailView(dataCollector: viewModel.failedCardScanTracker, emailType: .failedToScanCard)
+                })
+                ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
+                    self.viewModel.scan()
+                } requestSupportAction: {
+                    self.viewModel.failedCardScanTracker.resetCounter()
+                    self.navigation.readToSendEmail = true
+                }
                 Spacer()
             }
             .padding([.leading, .bottom], 16.0)
