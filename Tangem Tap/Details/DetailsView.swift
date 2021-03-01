@@ -41,7 +41,7 @@ struct DetailsView: View {
     
     var body: some View {
         List {
-            Section(header: EmptyView().listRowInsets(EdgeInsets()), footer: FooterView()) {
+            Section(header: HeaderView(text: "details_section_title_card".localized), footer: footerView) {
                 DetailsRowView(title: "details_row_title_cid".localized,
                                subtitle: viewModel.cardCid)
                 DetailsRowView(title: "details_row_title_issuer".localized,
@@ -52,40 +52,6 @@ struct DetailsView: View {
                                    subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
                                                     viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
                 }
-            }
-            
-            Section(header: HeaderView(text: "details_section_title_settings".localized), footer: FooterView()) {
-                NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
-                               tag: "currency", selection: $selection) {
-                    DetailsRowView(title: "details_row_title_currency".localized,
-                                   subtitle: viewModel.ratesService.selectedCurrencyCode)
-                    
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                
-                NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
-                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                               tag: "disclaimer", selection: $selection) {
-                    DetailsRowView(title: "disclaimer_title".localized,
-                                   subtitle: "")
-                    
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                
-                if let cardTouURL = viewModel.cardTouURL {
-                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
-                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                                   tag: "card_tou", selection: $selection) {
-                        DetailsRowView(title: "details_row_title_card_tou".localized,
-                                       subtitle: "")
-                        
-                    }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                }
-            }
-            
-            Section(header: HeaderView(text: "details_section_title_card".localized),
-                    footer: footerView) {
                 
                 NavigationLink(destination: SecurityManagementView(viewModel:
                                                                     viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
@@ -118,10 +84,52 @@ struct DetailsView: View {
                 }
             }
             
-//            if let wallets = viewModel.cardModel.walletModels?.filter ({ $0.canManageTokens }) {
+            Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
+                NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
+                               tag: "currency", selection: $selection) {
+                    DetailsRowView(title: "details_row_title_currency".localized,
+                                   subtitle: viewModel.ratesService.selectedCurrencyCode)
+                    
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                
+                NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
+                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                               tag: "disclaimer", selection: $selection) {
+                    DetailsRowView(title: "disclaimer_title".localized,
+                                   subtitle: "")
+                    
+                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                Button(action: {
+                    navigation.detailsToSendEmail = true
+                }, label: {
+                    Text("details_row_title_send_feedback".localized)
+                        .font(.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.tangemTapGrayDark6)
+                })
+                .frame(height: 50)
+                .sheet(isPresented: $navigation.detailsToSendEmail, content: {
+                    MailView(dataCollector: viewModel.dataCollector, emailType: EmailType.appFeedback)
+                })
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                
+                if let cardTouURL = viewModel.cardTouURL {
+                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
+                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                   tag: "card_tou", selection: $selection) {
+                        DetailsRowView(title: "details_row_title_card_tou".localized,
+                                       subtitle: "")
+                        
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
+                }
+            }
+            
+//            if let wallet = viewModel.cardModel.walletModel, wallet.canManageTokens {
 //                Section(header: HeaderView(text: "details_section_title_blockchain".localized), footer: FooterView(text: "", additionalBottomPadding: 40)) {
 //                    NavigationLink(
-//                        destination: ManageTokensView(viewModel: viewModel.assembly.makeManageTokensViewModel(with: wallets)),
+//                        destination: ManageTokensView(viewModel: viewModel.assembly.makeManageTokensViewModel(with: wallet)),
 //                        tag: "manageTokens",
 //                        selection: $selection,
 //                        label: {
@@ -131,13 +139,11 @@ struct DetailsView: View {
 //                }
 //            }
             
-            
             Section(header: Color.tangemTapBgGray
                         .listRowInsets(EdgeInsets())) {
                 EmptyView()
             }
         }
-        .padding(.top, 16)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
@@ -209,7 +215,6 @@ struct SettingsView_Previews: PreviewProvider {
                 .previewGroup(devices: [.iPhone8Plus])
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        
     }
 }
 
