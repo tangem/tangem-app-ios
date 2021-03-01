@@ -100,18 +100,6 @@ class CardsRepository {
             }
         }
     }
-    
-    func checkPin(_ completion: @escaping (Result<CheckPinResponse, Error>) -> Void) {
-        tangemSdk.startSession(with: CheckPinCommand(), cardId: lastScanResult.card?.cardId) { (result) in
-            switch result {
-            case .success(let resp):
-                self.lastScanResult.cardModel?.updatePins(with: resp)
-                completion(.success(resp))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
 
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
         self.featuresService.setupFeatures(for: cardInfo.card)
