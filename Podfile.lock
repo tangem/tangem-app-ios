@@ -34,6 +34,11 @@ PODS:
     - TangemSdk
     - web3swift
   - CryptoSwift (1.3.8)
+  - DeviceGuru (7.0.1):
+    - DeviceGuru/DeviceGuru (= 7.0.1)
+  - DeviceGuru/DeviceGuru (7.0.1):
+    - DeviceGuru/Resources
+  - DeviceGuru/Resources (7.0.1)
   - EFQRCode (6.0.0):
     - swift_qrcodejs (~> 1.2.0)
   - Firebase/Analytics (7.3.0):
@@ -163,7 +168,8 @@ DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.13`)
-  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-72`)"
+  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-73`)"
+  - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -172,7 +178,7 @@ DEPENDENCIES:
   - KeychainSwift (~> 19.0)
   - Moya
   - SwiftyJSON
-  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, branch `CSS-102_verificatoin_refactoring`)"
+  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-98`)"
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.4`)
 
 SPEC REPOS:
@@ -181,6 +187,7 @@ SPEC REPOS:
     - AnyCodable-FlightSchool
     - BigInt
     - CryptoSwift
+    - DeviceGuru
     - EFQRCode
     - Firebase
     - FirebaseABTesting
@@ -218,13 +225,13 @@ EXTERNAL SOURCES:
     :tag: 0.0.13
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-72
+    :tag: build-73
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
-    :branch: CSS-102_verificatoin_refactoring
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
+    :tag: build-98
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -238,13 +245,13 @@ CHECKOUT OPTIONS:
     :tag: 0.0.13
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-72
+    :tag: build-73
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
-    :commit: 2ac1b13c946cc808688c23e3c95e7244d97228b7
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
+    :tag: build-98
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -257,6 +264,7 @@ SPEC CHECKSUMS:
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
   BlockchainSdk: da59ff083dc856929a14780763a2adeedb7f02aa
   CryptoSwift: 01b0f0cba1d5c212e5a335ff6c054fb75a204f00
+  DeviceGuru: 73d82f34cddee25d215b35eb4d094b7a44ec187a
   EFQRCode: 27f7ef4382159d79d583d839cdfc596b5ac98c9f
   Firebase: 26223c695fe322633274198cb19dca8cb7e54416
   FirebaseABTesting: 303b5366c0c75be479424e8935e2f475cf24ce21
@@ -288,6 +296,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 96ae703f70b1d000875fe8d635b6cf5336f46f36
+PODFILE CHECKSUM: cb65f22eb3d8446e96f2fd37d26bdb10fb9856b0
 
 COCOAPODS: 1.10.1
