@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 
 struct WalletsViewItem: View {
-    var item: WalletItemModel
+    var item: WalletItemViewModel
     
     var secondaryText: String {
         if item.loadingError != nil {
@@ -104,7 +104,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
         ZStack {
             Color.tangemTapBgGray
             VStack {
-                WalletsViewItem(item: WalletItemModel(hasTransactionInProgress: false,
+                WalletsViewItem(item: WalletItemViewModel(hasTransactionInProgress: false,
                                                       isLoading: false,
                                                       loadingError: nil,
                                                       name: "Ethereum smart contract token",
@@ -114,7 +114,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                                       blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemModel(
+                WalletsViewItem(item: WalletItemViewModel(
                                     hasTransactionInProgress: false,
                                     isLoading: true,
                                     loadingError: nil,
@@ -125,7 +125,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemModel(
+                WalletsViewItem(item: WalletItemViewModel(
                                     hasTransactionInProgress: false,
                                     isLoading: false,
                                     loadingError: "The internet connection appears to be offline",
@@ -136,7 +136,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemModel(
+                WalletsViewItem(item: WalletItemViewModel(
                                     hasTransactionInProgress: true,
                                     isLoading: false,
                                     loadingError: nil,
