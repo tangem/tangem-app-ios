@@ -40,7 +40,17 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var walletModels: [WalletModel]? {
-        return state.walletModels
+        return state.walletModels?.sorted(by: { lhs, rhs in
+            if lhs.wallet.blockchain == cardInfo.card.blockchain {
+                return true
+            }
+            
+            if rhs.wallet.blockchain == cardInfo.card.blockchain {
+                return false
+            }
+            
+            return lhs.getRate(for: .coin) > rhs.getRate(for: .coin)
+        })
     }
     
     var wallets: [Wallet]? {
