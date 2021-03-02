@@ -102,6 +102,16 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
+    func getRate(for amountType: Amount.AmountType) -> Decimal {
+        if let amount = wallet.amounts[amountType],
+           let quotes = rates[amount.currencySymbol],
+           let rate = quotes[ratesService.selectedCurrencyCode] {
+            return rate
+        }
+        
+        return 0
+    }
+    
     func getRateFormatted(for amountType: Amount.AmountType) -> String {
         var rateString = "-"
 
@@ -269,13 +279,16 @@ class WalletModel: ObservableObject, Identifiable {
         
         let tokenItems = tokenViewModels.map {
             WalletItemViewModel(from: balanceViewModel,
-                            tokenBalanceViewModel: $0,
-                            rate: getRateFormatted(for: .token(value: $0.token)),
-                            blockchain: wallet.blockchain)
-        }
+                                tokenBalanceViewModel: $0,
+                                rate: getRateFormatted(for: .token(value: $0.token)),
+                                blockchain: wallet.blockchain)
+        }.sorted(by: { lhs, rhs in
+            return lhs.rate > rhs.rate
+        })
         
         walletItems = [blockchainItem] + tokenItems
     }
+    
     
     func startUpdatingTimer() {
         updateTimer = Timer.TimerPublisher(interval: 10.0,
