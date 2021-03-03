@@ -257,12 +257,15 @@ struct SendView: View {
                             MailView(dataCollector: viewModel.emailDataCollector, emailType: .failedToSendTx)
                         })
                         .alert(item: self.$viewModel.sendError) { binder in
-                            Alert(title: Text("alert_failed_to_send_transaction_title"),
-                                  message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
-                                  primaryButton: .default(Text("alert_button_send_feedback"), action: {
-                                    navigation.sendToSendEmail = true
-                                  }),
-                                  secondaryButton: .default(Text("common_no")))
+                            if binder.error == nil {
+                                return binder.alert
+                            }
+                            return Alert(title: Text("alert_failed_to_send_transaction_title"),
+                                         message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
+                                         primaryButton: .default(Text("alert_button_send_feedback"), action: {
+                                            navigation.sendToSendEmail = true
+                                         }),
+                                         secondaryButton: .default(Text("common_no")))
                         }
                     }
                     .padding(.top, 16.0)
