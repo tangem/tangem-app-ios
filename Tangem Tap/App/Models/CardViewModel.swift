@@ -49,7 +49,11 @@ class CardViewModel: Identifiable, ObservableObject {
                 return false
             }
             
-            return lhs.fiatValue > rhs.fiatValue
+            if lhs.fiatValue > 0 && rhs.fiatValue > 0 {
+                return lhs.fiatValue > rhs.fiatValue
+            }
+            
+            return lhs.wallet.blockchain.displayName < rhs.wallet.blockchain.displayName
         })
     }
     
