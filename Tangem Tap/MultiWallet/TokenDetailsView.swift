@@ -95,7 +95,7 @@ struct TokenDetailsView: View {
         }, label: { Text("wallet_remove_token")
             .foregroundColor(Color.tangemTapGrayDark6)
         })
-        .disabled(!(viewModel.walletModel?.canCreateOrPurgeWallet ?? false))
+        .disabled(!viewModel.canDelete)
         .padding(0.0)
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
