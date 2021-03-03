@@ -50,7 +50,10 @@ struct TokenDetailsView: View {
             } else {
                 TangemLongButton(isLoading: false,
                                  title: "wallet_button_send",
-                                 image: "arrow.right") { navigation.detailsToSend = true }
+                                 image: "arrow.right") {
+                    viewModel.assembly.reset()
+                    navigation.detailsToSend = true
+                }
                     .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
                     .disabled(!self.viewModel.canSend)
             }
@@ -61,6 +64,7 @@ struct TokenDetailsView: View {
                             with: amountToSend,
                             walletIndex: 0,
                             card: viewModel.card), onSuccess: {})
+                            .environmentObject(navigation)
             }
         }
     }
