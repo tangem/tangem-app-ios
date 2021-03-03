@@ -12,9 +12,8 @@ import TangemSdk
 
 struct WalletItemViewModel: Identifiable {
     var id = UUID()
+    let state: WalletModel.State
     let hasTransactionInProgress: Bool
-    let isLoading: Bool
-    let loadingError: String?
     let name: String
     let fiatBalance: String
     let balance: String
@@ -22,15 +21,17 @@ struct WalletItemViewModel: Identifiable {
     var amountType: Amount.AmountType = .coin
     let blockchain: Blockchain
 
-    static let `default` = WalletItemViewModel(id: UUID(), hasTransactionInProgress: false, isLoading: false, loadingError: nil, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchain: .bitcoin(testnet: false))
+    static let `default` = WalletItemViewModel(id: UUID(), state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchain: .bitcoin(testnet: false))
 }
 
 extension WalletItemViewModel {
     init(from balanceViewModel: BalanceViewModel, rate: String, blockchain: Blockchain) {
         hasTransactionInProgress = balanceViewModel.hasTransactionInProgress
-        isLoading = balanceViewModel.isLoading
-        loadingError = balanceViewModel.loadingError
+        state = balanceViewModel.state
         name = balanceViewModel.name
+        if name == "" {
+            
+        }
         balance = balanceViewModel.balance
         fiatBalance = balanceViewModel.fiatBalance
         self.rate = rate
@@ -43,8 +44,7 @@ extension WalletItemViewModel {
          rate: String,
          blockchain: Blockchain) {
         hasTransactionInProgress = balanceViewModel.hasTransactionInProgress
-        isLoading = balanceViewModel.isLoading
-        loadingError = balanceViewModel.loadingError
+        state = balanceViewModel.state
         name = tokenBalanceViewModel.name
         balance = tokenBalanceViewModel.balance
         fiatBalance = tokenBalanceViewModel.fiatBalance
@@ -56,7 +56,7 @@ extension WalletItemViewModel {
 
 enum WalletItem: Codable, Hashable {
     case blockchain(Blockchain)
-    case token(Token)
+    case token(Token, Blockchain)
     
     var blockchain: Blockchain? {
         if case let .blockchain(blockchain) = self {
@@ -66,30 +66,39 @@ enum WalletItem: Codable, Hashable {
     }
     
     var token: Token? {
-        if case let .token(token) = self {
+        if case let .token(token, _) = self {
             return token
         }
         return nil
     }
     
+    var tokenItem: (Blockchain, Token)? {
+        if case let .token(token, blockchain) = self {
+            return (blockchain, token)
+        }
+        return nil
+    }
+    
     init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
+        var container = try decoder.unkeyedContainer()
         if let blockchain = try? container.decode(Blockchain.self) {
             self = .blockchain(blockchain)
-        } else if let token = try? container.decode(Token.self) {
-            self = .token(token)
+        } else if let token = try? container.decode(Token.self),
+                  let blockchain = try? container.decode(Blockchain.self){
+            self = .token(token, blockchain)
         } else {
             throw BlockchainSdkError.decodingFailed
         }
     }
     
     func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
+        var container = encoder.unkeyedContainer()
         switch self {
         case .blockchain(let blockhain):
             try container.encode(blockhain)
-        case .token(let token):
+        case .token(let token, let blockchain):
             try container.encode(token)
+            try container.encode(blockchain)
         }
     }
 }

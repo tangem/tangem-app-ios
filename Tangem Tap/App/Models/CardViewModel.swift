@@ -49,7 +49,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 return false
             }
             
-            return lhs.getRate(for: .coin) > rhs.getRate(for: .coin)
+            return lhs.fiatValue > rhs.fiatValue
         })
     }
     
@@ -386,9 +386,9 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let unusedBlockhains = walletItemsRepository.supportedWalletItems.blockchains.subtracting(currentBlockhains).map { $0 }
+        let unusedBlockhains = walletItemsRepository.supportedWalletItems.blockchains.subtracting(currentBlockhains).map { WalletItem.blockchain($0) }
         
-        if let walletModels = assembly.makeWalletModels(from: cardInfo, blockchains: unusedBlockhains, tokens: []) {
+        if let walletModels = assembly.makeWalletModels(from: cardInfo, items: unusedBlockhains) {
             searchBlockchainsCancellable =
                 Publishers.MergeMany(walletModels.map { $0.$state.dropFirst() })
                 .collect(walletModels.count)
@@ -401,16 +401,37 @@ class CardViewModel: Identifiable, ObservableObject {
     
     @discardableResult
     func addBlockchain(_ blockchain: Blockchain) -> WalletModel {
-        walletItemsRepository.append(.blockchain(blockchain))
-        let newWallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain], tokens: [])!.first!
+        let wi: WalletItem = .blockchain(blockchain)
+        walletItemsRepository.append(wi)
+        let newWallet = assembly.makeWalletModels(from: cardInfo, items: [wi])!.first!
         state = .loaded(walletModel: walletModels! + [newWallet])
         newWallet.update()
         return newWallet
     }
     
-    func removeBlockchain(_ blockchain: Blockchain)  {
+    func removeBlockchain(_ blockchain: Blockchain) {
+        guard canRemoveBlockchain(blockchain) else {
+            return
+        }
+        
         walletItemsRepository.remove(.blockchain(blockchain))
         state = .loaded(walletModel: walletModels!.filter { $0.wallet.blockchain != blockchain })
+    }
+    
+    func canRemoveBlockchain(_ blockchain: Blockchain) -> Bool {
+        guard cardInfo.card.blockchain != blockchain else {
+            return false
+        }
+        
+        if let walletModels = walletModels {
+            for walletModel in walletModels {
+                if !walletModel.canRemove(amountType: .coin) {
+                    return false
+                }
+            }
+        }
+        
+        return true
     }
     
     private func updateCurrentSecOption() {

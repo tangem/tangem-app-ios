@@ -15,7 +15,10 @@ struct WalletsViewItem: View {
     var item: WalletItemViewModel
     
     var secondaryText: String {
-        if item.loadingError != nil {
+        if item.state.isNoAccount {
+            return "wallet_error_no_account".localized
+        }
+        if item.state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
         }
         
@@ -23,23 +26,23 @@ struct WalletsViewItem: View {
             return  "wallet_balance_tx_in_progress".localized
         }
         
-        if item.isLoading {
-            return  "wallet_balance_loading".localized
+        if item.state.isLoading {
+            return "wallet_balance_loading".localized
         }
         
         return item.rate
     }
     
     var image: String {
-        item.loadingError == nil
+        item.state.errorDescription == nil
             && !item.hasTransactionInProgress
-            && !item.isLoading ? "checkmark.circle" : "exclamationmark.circle"
+            && !item.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
     }
     
     var accentColor: Color {
-        if item.loadingError == nil
+        if item.state.errorDescription == nil
             && !item.hasTransactionInProgress
-            && !item.isLoading {
+            && !item.state.isLoading {
             return .tangemTapGrayDark
         }
         return .tangemTapWarning
@@ -52,6 +55,7 @@ struct WalletsViewItem: View {
             
             HStack(alignment: .firstTextBaseline) {
                 Text(item.name)
+                    .layoutPriority(2)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
                 Text(item.balance)
@@ -68,7 +72,7 @@ struct WalletsViewItem: View {
             
             
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                if item.loadingError != nil  || item.hasTransactionInProgress {
+                if item.state.errorDescription != nil  || item.hasTransactionInProgress {
                     Image("exclamationmark.circle" )
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -77,8 +81,8 @@ struct WalletsViewItem: View {
                 VStack(alignment: .leading) {
                     Text(secondaryText)
                         .lineLimit(1)
-                    if item.loadingError != nil {
-                        Text(item.loadingError!)
+                    if item.state.errorDescription != nil {
+                        Text(item.state.errorDescription!)
                             .layoutPriority(1)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -104,20 +108,16 @@ struct WalletsViewItem_Previews: PreviewProvider {
         ZStack {
             Color.tangemTapBgGray
             VStack {
-                WalletsViewItem(item: WalletItemViewModel(hasTransactionInProgress: false,
-                                                      isLoading: false,
-                                                      loadingError: nil,
-                                                      name: "Ethereum smart contract token",
-                                                      fiatBalance: "$3.45",
-                                                      balance: "0.00000348573986753845001 BTC",
-                                                      rate: "1.5 USD",
-                                                      blockchain: .ethereum(testnet: false)))
+                WalletsViewItem(item: WalletItemViewModel(state: .idle, hasTransactionInProgress: false,
+                                                          name: "Ethereum smart contract token",
+                                                          fiatBalance: "$3.45",
+                                                          balance: "0.00000348573986753845001 BTC",
+                                                          rate: "1.5 USD",
+                                                          blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
                 
                 WalletsViewItem(item: WalletItemViewModel(
-                                    hasTransactionInProgress: false,
-                                    isLoading: true,
-                                    loadingError: nil,
+                                    state: .loading, hasTransactionInProgress: false,
                                     name: "Ethereum smart contract token",
                                     fiatBalance: "$3.45",
                                     balance: "0.00000348573986753845001 BTC",
@@ -126,10 +126,8 @@ struct WalletsViewItem_Previews: PreviewProvider {
                     .padding(.horizontal, 16)
                 
                 WalletsViewItem(item: WalletItemViewModel(
-                                    hasTransactionInProgress: false,
-                                    isLoading: false,
-                                    loadingError: "The internet connection appears to be offline",
-                                    name: "Ethereum smart contract token",
+                                    state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"), hasTransactionInProgress: false,
+                                     name: "Ethereum smart contract token",
                                     fiatBalance: " ",
                                     balance: "-",
                                     rate: "1.5 USD",
@@ -137,9 +135,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                     .padding(.horizontal, 16)
                 
                 WalletsViewItem(item: WalletItemViewModel(
-                                    hasTransactionInProgress: true,
-                                    isLoading: false,
-                                    loadingError: nil,
+                                    state: .idle, hasTransactionInProgress: true,
                                     name: "Bitcoin token",
                                     fiatBalance: "5 USD",
                                     balance: "10 BTCA",
