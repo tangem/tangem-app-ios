@@ -60,6 +60,18 @@ class TokenDetailsViewModel: ViewModel {
         return wallet?.canSend ?? false
     }
     
+    var canDelete: Bool {
+        guard let amount = amountToSend, let walletModel = self.walletModel else {
+            return false
+        }
+        
+        if amount.type == .coin {
+            return card.canRemoveBlockchain(walletModel.wallet.blockchain)
+        } else {
+            return walletModel.canRemove(amountType: amount.type)
+        }
+    }
+    
     var amountToSend: Amount? {
         wallet?.amounts[amountType]
     }
