@@ -194,7 +194,7 @@ class WalletModel: ObservableObject, Identifiable {
             return false
         }
         
-        if wallet.hasPendingTx(for: amountType) {
+        if wallet.hasPendingTx {
             return false
         }
         
