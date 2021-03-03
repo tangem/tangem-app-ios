@@ -108,18 +108,22 @@ class Assembly {
         return vm
     }
     
-    func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain], tokens: [Token]) -> [WalletModel]? {
+    func makeWalletModels(from cardInfo: CardInfo, items: [WalletItem]) -> [WalletModel]? {
         guard let walletPublicKey = cardInfo.card.walletPublicKey,
               let cardId = cardInfo.card.cardId else {
             return nil
         }
         
-        let walletManagers = blockchains.map { walletManagerFactory.makeWalletManager(from: $0,
-                                                                                      walletPublicKey: walletPublicKey,
-                                                                                      cardId: cardId,
-                                                                                      walletPairPublicKey: nil,
-                                                                                      tokens: tokens,
-                                                                                      canManageTokens: true)}
+        let blockchains = items.compactMap { $0.blockchain }
+        let tokenItems = items.compactMap ({ $0.tokenItem })
+        
+        let walletManagers = blockchains.map { blockchain in
+            walletManagerFactory.makeWalletManager(from: blockchain ,
+                walletPublicKey: walletPublicKey,
+                cardId: cardId,
+                walletPairPublicKey: nil,
+                tokens: tokenItems.filter({ $0.0 == blockchain }).compactMap { $0.1 } ,
+                canManageTokens: true)}
         
         let models = walletManagers.map { WalletModel(walletManager: $0,
                                                       ratesService: ratesService,
@@ -138,14 +142,11 @@ class Assembly {
 			pairKey = savedPairKey
 		}
 		
-        let savedBlockchains = walletItemsRepository.walletItems.compactMap { $0.blockchain }
-        let savedTokens = walletItemsRepository.walletItems.compactMap { $0.token }
-        
-        if cardInfo.isMultiWallet && savedBlockchains.count > 0 {
-            return makeWalletModels(from: cardInfo, blockchains: savedBlockchains, tokens: savedTokens)
+        if cardInfo.isMultiWallet && walletItemsRepository.walletItems.count > 0 {
+            return makeWalletModels(from: cardInfo, items: walletItemsRepository.walletItems)
         } else {
             guard let walletManager = walletManagerFactory.makeWalletManager(from: card,
-                                                                             tokens: savedTokens,
+                                                                             tokens: [],
                                                                              pairKey: pairKey) else {
                 return nil
             }
