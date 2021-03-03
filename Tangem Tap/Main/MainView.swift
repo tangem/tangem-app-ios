@@ -103,13 +103,18 @@ struct MainView: View {
         }
         
         let button = viewModel.canTopup && !viewModel.canCreateWallet ?
+            (viewModel.cardModel?.cardInfo.isMultiWallet ?? false) ?
+            TangemLongButton(isLoading: viewModel.isScanning,
+                             title: "wallet_button_scan",
+                             image: "scan") {scanAction()}
+            .toAnyView()
+            :
             TangemVerticalButton(isLoading: viewModel.isScanning,
                                  title: "wallet_button_scan",
                                  image: "scan") { scanAction()}
-            .toAnyView() :
-            TangemButton(isLoading: viewModel.isScanning,
-                         title: "wallet_button_scan",
-                         image: "scan") {scanAction()}
+            .toAnyView() : TangemButton(isLoading: viewModel.isScanning,
+                                        title: "wallet_button_scan",
+                                        image: "scan") {scanAction()}
             .toAnyView()
         
         return button
@@ -288,7 +293,8 @@ struct MainView: View {
             }
 
             bottomButtons
-                .padding([.top, .leading, .trailing], 8)
+                .padding(.top, 8)
+                .padding(.horizontal, 16)
                 .padding(.bottom, 16.0)
         }
         .navigationBarBackButtonHidden(true)
@@ -367,6 +373,8 @@ struct MainView: View {
                                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
                             
                         }
+                } else {
+                    Spacer()
                 }
 
             }
