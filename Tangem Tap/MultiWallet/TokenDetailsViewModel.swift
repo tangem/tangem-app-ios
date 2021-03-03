@@ -25,7 +25,7 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     var walletModel: WalletModel? {
-        return card.walletModels!.first(where: { $0.wallet.blockchain == blockchain })
+        return card.walletModels?.first(where: { $0.wallet.blockchain == blockchain })
     }
     
     var incomingTransactions: [BlockchainSdk.Transaction] {
