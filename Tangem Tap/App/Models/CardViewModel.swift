@@ -404,6 +404,8 @@ class CardViewModel: Identifiable, ObservableObject {
                     let notEmptyWallets = walletModels.filter { !$0.wallet.isEmpty }
                     self.state = .loaded(walletModel: self.walletModels! + notEmptyWallets)
                 })
+            
+            walletModels.forEach { $0.update() }
         }
     }
     
