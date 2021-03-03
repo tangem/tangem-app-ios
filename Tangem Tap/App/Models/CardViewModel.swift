@@ -384,6 +384,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func searchBlockchains() {
+        guard cardInfo.isMultiWallet else {
+            return
+        }
+        
         searchBlockchainsCancellable = nil
         
         guard let currentBlockhains = wallets?.map({ $0.blockchain }) else {
