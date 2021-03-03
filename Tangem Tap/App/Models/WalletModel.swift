@@ -39,6 +39,10 @@ class WalletModel: ObservableObject, Identifiable {
         return state.canCreateOrPurgeWallet
     }
     
+    var fiatValue: Decimal {
+        getFiat(for: wallet.amounts[.coin]) ?? 0
+    }
+    
     let walletManager: WalletManager
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
@@ -171,7 +175,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func addToken(_ token: Token) -> AnyPublisher<Amount, Error>? {
-        walletItemsRepository.append(.token(token))
+        walletItemsRepository.append(.token(token, walletManager.wallet.blockchain))
         return walletManager.addToken(token)
             .map {[weak self] in
                 self?.updateTokensViewModels()
@@ -185,20 +189,38 @@ class WalletModel: ObservableObject, Identifiable {
             .eraseToAnyPublisher()
     }
     
+    func canRemove(amountType: Amount.AmountType) -> Bool {
+        if let amount = wallet.amounts[amountType], !amount.isEmpty {
+            return false
+        }
+        
+        if wallet.hasPendingTx(for: amountType) {
+            return false
+        }
+        
+        if amountType == .coin && !tokens.isEmpty {
+            return false
+        }
+
+        return true
+    }
+    
+    
     func removeToken(_ token: Token) {
-        walletItemsRepository.remove(.token(token))
+        guard canRemove(amountType: .token(value: token)) else {
+            return
+        }
+        
+        walletItemsRepository.remove(.token(token, walletManager.wallet.blockchain))
         walletManager.removeToken(token)
         tokenViewModels.removeAll(where: { $0.token == token })
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
-        let isLoading = state.error == nil && wallet.amounts.isEmpty
-
         if !walletManager.canManageTokens, let token = walletManager.cardTokens.first {
             balanceViewModel = BalanceViewModel(isToken: true,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
-                                                isLoading: isLoading,
-                                                loadingError: state.error?.localizedDescription,
+                                                state: self.state,
                                                 name: wallet.amounts[.token(value: token)]?.currencySymbol ?? "",
                                                 fiatBalance: getFiatFormatted(for: wallet.amounts[.token(value: token)]) ?? " ",
                                                 balance: wallet.amounts[.token(value: token)]?.description ?? "-",
@@ -209,8 +231,7 @@ class WalletModel: ObservableObject, Identifiable {
         } else {
             balanceViewModel = BalanceViewModel(isToken: false,
                                                 hasTransactionInProgress: wallet.hasPendingTx,
-                                                isLoading: isLoading,
-                                                loadingError: state.error?.localizedDescription,
+                                                state: self.state,
                                                 name:  wallet.blockchain.displayName,
                                                 fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
                                                 balance: wallet.amounts[.coin]?.description ?? "-",
@@ -283,7 +304,7 @@ class WalletModel: ObservableObject, Identifiable {
                                 rate: getRateFormatted(for: .token(value: $0.token)),
                                 blockchain: wallet.blockchain)
         }.sorted(by: { lhs, rhs in
-            return lhs.rate > rhs.rate
+            return lhs.fiatBalance > rhs.fiatBalance
         })
         
         walletItems = [blockchainItem] + tokenItems
@@ -312,17 +333,37 @@ extension WalletModel {
         
         var isLoading: Bool {
             switch self {
-            case .loading:
+            case .loading, .created:
                 return true
             default:
                 return false
             }
         }
         
-        var error: Error? {
+        var isBlockchainUnreachable: Bool {
+            switch self {
+            case .failed:
+                return true
+            default:
+                return false
+            }
+        }
+        
+        var isNoAccount: Bool {
+            switch self {
+            case .noAccount:
+                return true
+            default:
+                return false
+            }
+        }
+        
+        var errorDescription: String? {
             switch self {
             case .failed(let error):
-                return error
+                return error.localizedDescription
+            case .noAccount(let message):
+                return message
             default:
                 return nil
             }
