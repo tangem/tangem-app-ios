@@ -304,7 +304,12 @@ class WalletModel: ObservableObject, Identifiable {
                                 rate: getRateFormatted(for: .token(value: $0.token)),
                                 blockchain: wallet.blockchain)
         }.sorted(by: { lhs, rhs in
-            return lhs.fiatBalance > rhs.fiatBalance
+            if let lhsFiat = getFiat(for: wallet.amounts[lhs.amountType]),
+               let rhsFiat = getFiat(for: wallet.amounts[rhs.amountType]) {
+                return lhsFiat > rhsFiat
+            }
+            
+            return lhs.name < rhs.name
         })
         
         walletItems = [blockchainItem] + tokenItems
