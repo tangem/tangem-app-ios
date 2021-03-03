@@ -247,6 +247,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $isFiatCalculation //handle conversion
+            .dropFirst()
             .filter {[unowned self] _ in self.amountToSend.value != 0 }
             .sink { [unowned self] value in
                 self.amountText = value ? self.walletModel.getFiat(for: self.amountToSend)?.description
