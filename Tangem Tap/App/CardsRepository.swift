@@ -16,6 +16,10 @@ struct CardInfo {
 	var twinCardInfo: TwinCardInfo?
     
     var isMultiWallet: Bool {
+        if card.isTwinCard {
+            return false
+        }
+        
         if let curve = card.curve, curve == .ed25519 {
             return false
         }
