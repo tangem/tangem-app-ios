@@ -21,7 +21,11 @@ struct BalanceAddressView: View {
     }
     
     var blockchainText: String {
-        if balanceViewModel.loadingError != nil {
+        if balanceViewModel.state.isNoAccount {
+            return "wallet_error_no_account".localized
+        }
+        
+        if balanceViewModel.state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
         }
         
@@ -29,7 +33,7 @@ struct BalanceAddressView: View {
             return  "wallet_balance_tx_in_progress".localized
         }
         
-        if balanceViewModel.isLoading {
+        if balanceViewModel.state.isLoading {
             return  "wallet_balance_loading".localized
         }
         
@@ -37,9 +41,9 @@ struct BalanceAddressView: View {
     }
     
     var image: String {
-        balanceViewModel.loadingError == nil
+        balanceViewModel.state.errorDescription == nil
             && !balanceViewModel.hasTransactionInProgress
-            && !balanceViewModel.isLoading ? "checkmark.circle" : "exclamationmark.circle"
+            && !balanceViewModel.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
     }
     
     var showAddressSelector: Bool {
@@ -47,9 +51,9 @@ struct BalanceAddressView: View {
     }
     
     var accentColor: Color {
-        if balanceViewModel.loadingError == nil
+        if balanceViewModel.state.errorDescription == nil
             && !balanceViewModel.hasTransactionInProgress
-            && !balanceViewModel.isLoading {
+            && !balanceViewModel.state.isLoading {
             return .tangemTapGreen
         }
         return .tangemTapWarning
@@ -72,7 +76,7 @@ struct BalanceAddressView: View {
                         .lineLimit(1)
                         .foregroundColor(Color.tangemTapGrayDark)
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                        Image(balanceViewModel.loadingError == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
+                        Image(balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .foregroundColor(accentColor)
@@ -83,8 +87,8 @@ struct BalanceAddressView: View {
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(accentColor)
                                 .lineLimit(1)
-                            if balanceViewModel.loadingError != nil {
-                                Text(balanceViewModel.loadingError!)
+                            if balanceViewModel.state.errorDescription != nil {
+                                Text(balanceViewModel.state.errorDescription!)
                                     .layoutPriority(1)
                                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                     .foregroundColor(accentColor)
@@ -185,8 +189,7 @@ struct BalanceAddressView_Previews: PreviewProvider {
         let vm = cardViewModel.walletModels!.first!
         vm.balanceViewModel = BalanceViewModel(isToken: false,
                                                hasTransactionInProgress: false,
-                                               isLoading: false,
-                                               loadingError: nil,
+                                               state: .idle,
                                                name: "Ethereum smart contract token",
                                                fiatBalance: "$3.45",
                                                balance: "0.67538451 BTC",
