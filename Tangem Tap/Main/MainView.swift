@@ -238,6 +238,7 @@ struct MainView: View {
                                         .sheet(isPresented: $navigation.mainToAddTokens, content: {
                                             NavigationView {
                                                 AddNewTokensView(viewModel: viewModel.assembly.makeAddTokensViewModel(for: viewModel.cardModel!))
+                                                    .environmentObject(navigation)
                                             }
                                         })
                                     
