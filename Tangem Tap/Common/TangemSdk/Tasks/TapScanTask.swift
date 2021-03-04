@@ -74,6 +74,8 @@ final class TapScanTask: CardSessionRunnable {
                           "0079" //TOTHEMOON
     ]
     
+    let excludeIssuers = ["TTM BANK"]
+    
     deinit {
         print("TapScanTask deinit")
     }
@@ -122,7 +124,10 @@ final class TapScanTask: CardSessionRunnable {
         if let batch = card.cardData?.batchId, self.excludeBatches.contains(batch) { //filter batch
             throw TangemSdkError.underlying(error: "alert_unsupported_card".localized)
         }
-
+        
+        if let issuer = card.cardData?.issuerName, excludeIssuers.contains(issuer) { //filter issuer
+            throw TangemSdkError.underlying(error: "alert_unsupported_card".localized)
+        }
     }
     
     private func checkWallet(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
