@@ -221,13 +221,11 @@ struct MainView: View {
                                 )
                             } else {
                                 if viewModel.cardModel!.isMultiWallet {
-                                    ForEach(viewModel.cardModel!.walletModels!) { walletModel in
-                                        ForEach(walletModel.walletItems) { walletItem in
-                                            WalletsViewItem(item: walletItem)
-                                                .onTapGesture {
-                                                    viewModel.onWalletTap(walletItem)
-                                                }
-                                        }
+                                    ForEach(viewModel.cardModel!.walletItemViewModels!) { item in
+                                        WalletsViewItem(item: item)
+                                            .onTapGesture {
+                                                viewModel.onWalletTap(item)
+                                            }
                                     }
                                     .padding(.horizontal, 16)
                                     
