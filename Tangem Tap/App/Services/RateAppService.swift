@@ -14,15 +14,25 @@ protocol RateAppChecker: class {
 }
 
 protocol RateAppController: class {
+    var shouldCheckBalanceForRateApp: Bool { get }
+    func registerPositiveBalanceDate()
     func dismissRateAppWarning()
     func userReactToRateAppWarning(isPositive: Bool)
 }
 
 class RateAppService: RateAppChecker, RateAppController {
     
+    var shouldCheckBalanceForRateApp: Bool {
+        !(userPrefsService.didUserRespondToRateApp ||
+            userPrefsService.positiveBalanceAppearanceLaunch != nil)
+    }
+    
     private unowned var userPrefsService: UserPrefsService
     
     private(set) var shouldShowRateAppWarning: Bool = false
+    
+    private let positiveBalanceTimeThreshold: TimeInterval = 3600 * 24 * 3
+    private let positiveBalanceLaunchThreshold: Int = 3
     
     init(userPrefsService: UserPrefsService) {
         self.userPrefsService = userPrefsService
@@ -32,8 +42,18 @@ class RateAppService: RateAppChecker, RateAppController {
         }
         let numberOfLaunches = userPrefsService.numberOfLaunches
 
+        guard
+            let positiveBalanceDate = userPrefsService.positiveBalanceAppearanceDate,
+            let positiveBalanceLaunch = userPrefsService.positiveBalanceAppearanceLaunch
+        else { return }
+        
+        guard
+            (Date().timeIntervalSince1970 - positiveBalanceDate.timeIntervalSince1970) > positiveBalanceTimeThreshold ||
+            (numberOfLaunches - positiveBalanceLaunch) >= positiveBalanceLaunchThreshold
+        else { return }
+        
         guard let dismissAtLaunch = userPrefsService.dismissRateAppAtLaunch else {
-            shouldShowRateAppWarning = numberOfLaunches >= 3
+            shouldShowRateAppWarning = true
             return
         }
 
@@ -49,6 +69,13 @@ class RateAppService: RateAppChecker, RateAppController {
         if isPositive {
             SKStoreReviewController.requestReview()
         }
+    }
+    
+    func registerPositiveBalanceDate() {
+        guard userPrefsService.positiveBalanceAppearanceDate == nil else { return }
+        
+        userPrefsService.positiveBalanceAppearanceDate = Date()
+        userPrefsService.positiveBalanceAppearanceLaunch = userPrefsService.numberOfLaunches
     }
     
 }
