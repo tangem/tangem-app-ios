@@ -71,7 +71,6 @@ final class TapScanTask: CardSessionRunnable {
     let excludeBatches = ["0027",
                           "0030",
                           "0031", //tags
-                          "0079" //TOTHEMOON
     ]
     
     let excludeIssuers = ["TTM BANK"]
