@@ -30,6 +30,11 @@ class WalletItemsRepository {
         save()
     }
     
+    func append(_ walletItems: [WalletItem]) {
+        self.walletItems.append(contentsOf: walletItems)
+        save()
+    }
+    
     func remove(_ walletItem: WalletItem) {
         walletItems.remove(walletItem)
         save()
