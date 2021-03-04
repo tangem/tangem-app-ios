@@ -303,14 +303,7 @@ class WalletModel: ObservableObject, Identifiable {
                                 tokenBalanceViewModel: $0,
                                 rate: getRateFormatted(for: .token(value: $0.token)),
                                 blockchain: wallet.blockchain)
-        }.sorted(by: { lhs, rhs in
-            if let lhsFiat = getFiat(for: wallet.amounts[lhs.amountType]),
-               let rhsFiat = getFiat(for: wallet.amounts[rhs.amountType]) {
-                return lhsFiat > rhsFiat
-            }
-            
-            return lhs.name < rhs.name
-        })
+        }
         
         walletItems = [blockchainItem] + tokenItems
     }
