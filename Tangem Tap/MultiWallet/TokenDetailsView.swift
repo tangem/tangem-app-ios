@@ -54,8 +54,8 @@ struct TokenDetailsView: View {
                     viewModel.assembly.reset()
                     navigation.detailsToSend = true
                 }
-                    .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
-                    .disabled(!self.viewModel.canSend)
+                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
+                .disabled(!self.viewModel.canSend)
             }
         }
         .sheet(isPresented: $navigation.detailsToSend) {
@@ -64,38 +64,42 @@ struct TokenDetailsView: View {
                             with: amountToSend,
                             walletIndex: 0,
                             card: viewModel.card), onSuccess: {})
-                            .environmentObject(navigation)
+                    .environmentObject(navigation)
             }
         }
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
-                VStack(spacing: 8.0) {
-                    ForEach(self.pendingTransactionViews) { $0 }
-                    
-                    if let walletModel = viewModel.walletModel {
-                        BalanceAddressView(walletModel: walletModel)
+        VStack(alignment: .leading, spacing: 8) {
+            navigationLinks
+            
+            Text(viewModel.title)
+                .font(Font.system(size: 36, weight: .bold, design: .default))
+            
+            GeometryReader { geometry in
+                RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
+                    VStack(spacing: 8.0) {
+                        ForEach(self.pendingTransactionViews) { $0 }
+                        
+                        if let walletModel = viewModel.walletModel {
+                            BalanceAddressView(walletModel: walletModel)
+                        }
+                        bottomButtons
+                            .padding(.top, 16)
                     }
-                    bottomButtons
-                        .padding(.top, 16)
-                    
-                    navigationLinks
                 }
-                .padding(.horizontal, 16)
             }
         }
+        .padding(.horizontal, 16)
         .padding(.bottom, 16.0)
         .navigationBarHidden(false)
         .navigationBarBackButtonHidden(false)
-        .navigationBarTitle(Text(viewModel.title), displayMode: .large)
         .navigationBarItems(trailing: Button(action: {
             presentationMode.wrappedValue.dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 viewModel.onRemove()
             }
-           
+            
         }, label: { Text("wallet_remove_token")
             .foregroundColor(viewModel.canDelete ? Color.tangemTapGrayDark6 : Color.tangemTapGrayDark4)
         })
@@ -103,24 +107,7 @@ struct TokenDetailsView: View {
         .padding(0.0)
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
-        .onAppear {
-          //  self.viewModel.onAppear()
-        }
         .ignoresKeyboard()
-//        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-//                    .filter {_ in !navigation.mainToSettings
-//                        && !navigation.mainToSend
-//                        && !navigation.mainToCreatePayID
-//                        && !navigation.mainToSendChoise
-//                        && !navigation.mainToTopup
-//                        && !navigation.mainToTwinOnboarding
-//                        && !navigation.mainToTwinsWalletWarning
-//                    }
-//                    .delay(for: 0.3, scheduler: DispatchQueue.global())
-//                    .receive(on: DispatchQueue.main)) { _ in
-//            viewModel.state.cardModel?.update()
-//        }
- //       .alert(item: $viewModel.error) { $0.alert }
     }
 }
 
@@ -131,6 +118,5 @@ struct TokenDetailsView_Previews: PreviewProvider {
                 .environmentObject(Assembly.previewAssembly.navigationCoordinator)
         }
         .previewGroup(devices: [.iPhone8Plus])
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
