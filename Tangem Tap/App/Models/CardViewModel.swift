@@ -40,21 +40,35 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var walletModels: [WalletModel]? {
-        return state.walletModels?.sorted(by: { lhs, rhs in
-            if lhs.wallet.blockchain == cardInfo.card.blockchain {
-                return true
-            }
-            
-            if rhs.wallet.blockchain == cardInfo.card.blockchain {
-                return false
-            }
-            
-            if lhs.fiatValue > 0 && rhs.fiatValue > 0 {
-                return lhs.fiatValue > rhs.fiatValue
-            }
-            
-            return lhs.wallet.blockchain.displayName < rhs.wallet.blockchain.displayName
-        })
+        return state.walletModels
+    }
+    
+    var walletItemViewModels: [WalletItemViewModel]? {
+        walletModels?
+            .flatMap ({ $0.walletItems })
+            .sorted(by: { lhs, rhs in
+                if lhs.blockchain == cardInfo.card.blockchain {
+                    return true
+                }
+                
+                if rhs.blockchain == cardInfo.card.blockchain {
+                    return false
+                }
+                
+                if lhs.fiatBalance != " " && rhs.fiatBalance == " " {
+                    return true
+                }
+                
+                if lhs.fiatBalance == " " && rhs.fiatBalance != " " {
+                    return false
+                }
+                
+                if lhs.fiatBalance != " " && rhs.fiatBalance != " " && lhs.fiatBalance != rhs.fiatBalance {
+                    return lhs.fiatBalance > rhs.fiatBalance
+                }
+                
+                return lhs.blockchain.displayName < rhs.blockchain.displayName
+            })
     }
     
     var wallets: [Wallet]? {
@@ -402,7 +416,10 @@ class CardViewModel: Identifiable, ObservableObject {
                 .collect(walletModels.count)
                 .sink(receiveValue: { [unowned self] _ in
                     let notEmptyWallets = walletModels.filter { !$0.wallet.isEmpty }
-                    self.state = .loaded(walletModel: self.walletModels! + notEmptyWallets)
+                    if notEmptyWallets.count > 0 {
+                        walletItemsRepository.append(notEmptyWallets.map({WalletItem.blockchain($0.wallet.blockchain)}))
+                        self.state = .loaded(walletModel: self.walletModels! + notEmptyWallets)
+                    }
                 })
             
             walletModels.forEach { $0.update() }
