@@ -174,6 +174,7 @@ class MainViewModel: ViewModel {
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
                 self.objectWillChange.send()
+                self.checkPositiveBalance()
             }
             .store(in: &bag)
         
@@ -383,6 +384,14 @@ class MainViewModel: ViewModel {
     }
 
     // MARK: - Private functions
+    
+    private func checkPositiveBalance() {
+        guard rateAppController.shouldCheckBalanceForRateApp else { return }
+        
+        guard cardModel?.walletModels?.first(where: { !$0.wallet.isEmpty }) != nil else { return }
+        
+        rateAppController.registerPositiveBalanceDate()
+    }
 	
 	private func validateHashesCount() {
         guard let card = state.card else { return }
