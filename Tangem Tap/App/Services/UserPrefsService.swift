@@ -23,4 +23,10 @@ class UserPrefsService {
     
     @Storage(type: StorageType.dismissRateAppAtLaunch, defaultValue: nil)
     var dismissRateAppAtLaunch: Int?
+    
+    @Storage(type: StorageType.positiveBalanceAppearanceDate, defaultValue: nil)
+    var positiveBalanceAppearanceDate: Date?
+    
+    @Storage(type: StorageType.positiveBalanceAppearanceLaunch, defaultValue: nil)
+    var positiveBalanceAppearanceLaunch: Int?
 }
