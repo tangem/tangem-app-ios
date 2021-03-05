@@ -153,6 +153,33 @@ class MainViewModel: ViewModel {
 		cardModel?.isTwinCard ?? false
 	}
     
+    var walletItemViewModels: [WalletItemViewModel]? {
+        guard let cardModel = cardModel else { return nil }
+        
+        return cardModel.walletModels?
+            .flatMap ({ $0.walletItems })
+            .sorted(by: { lhs, rhs in
+                if lhs.blockchain == cardModel.cardInfo.card.blockchain {
+                    if !lhs.amountType.isToken {
+                        return true
+                    }
+                }
+                
+                if rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                    if !rhs.amountType.isToken {
+                        return false
+                    }
+                }
+                
+                if lhs.fiatBalance != " " && rhs.fiatBalance != " " && lhs.fiatBalance != rhs.fiatBalance {
+                    return lhs.fiatBalance > rhs.fiatBalance
+                }
+                
+                print("\(lhs.name) -- \(rhs.name)")
+                return lhs.name < rhs.name
+            })
+    }
+    
     // MARK: - Functions
     func bind() {
         $state
@@ -196,7 +223,7 @@ class MainViewModel: ViewModel {
         }) {
             Publishers.MergeMany(loadingPublishers)
                 .collect(loadingPublishers.count)
-                .delay(for: 0.5, scheduler: DispatchQueue.global())
+                .delay(for: 0.3, scheduler: DispatchQueue.global())
                 .receive(on: RunLoop.main)
                 .sink {[unowned self] _ in
                     print("♻️ Wallet model loading state changed")
