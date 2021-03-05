@@ -236,6 +236,8 @@ struct ActivityRep: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIActivityIndicatorView, context: UIViewRepresentableContext<ActivityRep>) {
-        uiView.startAnimating()
+        if !uiView.isAnimating {
+            uiView.startAnimating()
+        }
     }
 }
