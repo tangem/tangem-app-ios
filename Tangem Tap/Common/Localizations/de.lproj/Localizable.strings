@@ -414,7 +414,7 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "manage_tokens_alert_remove_token_title" = "Remove %@ token";
 "manage_tokens_alert_remove_token_message" = "Are you sure you want to remove this token?";
 
-"add_tokens_title" = "Add token";
+"add_tokens_title" = "Add tokens";
 "add_custom" = "Add Custom";
 "add_token_section_title_custom_tokens" = "Custom tokens";
 "add_token_section_title_popular_tokens" = "Ethereum tokens";
