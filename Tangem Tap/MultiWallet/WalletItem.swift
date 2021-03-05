@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemSdk
+import SwiftUI
 
 struct WalletItemViewModel: Identifiable {
     var id = UUID()
@@ -22,6 +23,15 @@ struct WalletItemViewModel: Identifiable {
     let blockchain: Blockchain
 
     static let `default` = WalletItemViewModel(id: UUID(), state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchain: .bitcoin(testnet: false))
+    
+    var currencySymbol: String {
+        if amountType == .coin {
+            return blockchain.currencySymbol
+        } else if let token = amountType.token {
+            return token.symbol
+        }
+        return ""
+    }
 }
 
 extension WalletItemViewModel {
@@ -56,7 +66,7 @@ extension WalletItemViewModel {
 
 enum WalletItem: Codable, Hashable {
     case blockchain(Blockchain)
-    case token(Token, Blockchain)
+    case token(Token)
     
     var blockchain: Blockchain? {
         if case let .blockchain(blockchain) = self {
@@ -66,39 +76,30 @@ enum WalletItem: Codable, Hashable {
     }
     
     var token: Token? {
-        if case let .token(token, _) = self {
+        if case let .token(token) = self {
             return token
         }
         return nil
     }
     
-    var tokenItem: (Blockchain, Token)? {
-        if case let .token(token, blockchain) = self {
-            return (blockchain, token)
-        }
-        return nil
-    }
-    
     init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
+        let container = try decoder.singleValueContainer()
         if let blockchain = try? container.decode(Blockchain.self) {
             self = .blockchain(blockchain)
-        } else if let token = try? container.decode(Token.self),
-                  let blockchain = try? container.decode(Blockchain.self){
-            self = .token(token, blockchain)
+        } else if let token = try? container.decode(Token.self) {
+            self = .token(token)
         } else {
             throw BlockchainSdkError.decodingFailed
         }
     }
     
     func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
+        var container = encoder.singleValueContainer()
         switch self {
         case .blockchain(let blockhain):
             try container.encode(blockhain)
-        case .token(let token, let blockchain):
+        case .token(let token):
             try container.encode(token)
-            try container.encode(blockchain)
         }
     }
 }
