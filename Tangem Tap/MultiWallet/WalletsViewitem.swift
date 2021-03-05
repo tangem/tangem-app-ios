@@ -49,56 +49,63 @@ struct WalletsViewItem: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        HStack {
             
-            Color.clear.frame(height: 16)
-            
-            HStack(alignment: .firstTextBaseline) {
-                Text(item.name)
-                    .layoutPriority(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer()
-                Text(item.balance)
-                    .multilineTextAlignment(.trailing)
-                    .truncationMode(.middle)
-                    .fixedSize(horizontal: false, vertical: true)
+            if let imageName = item.blockchain.imageName {
+                Image(imageName)
             }
-            .lineLimit(2)
-            .minimumScaleFactor(0.8)
-            .foregroundColor(Color.tangemTapGrayDark6)
-            .font(Font.system(size: 17.0, weight: .medium, design: .default))
-            .padding(.horizontal, 24.0)
-            .padding(.bottom, 8)
             
-            
-            HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                if item.state.errorDescription != nil  || item.hasTransactionInProgress {
-                    Image("exclamationmark.circle" )
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 10.0, height: 10.0)
+            VStack(alignment: .leading, spacing: 0) {
+                
+                Color.clear.frame(height: 16)
+                
+                HStack(alignment: .firstTextBaseline) {
+                    Text(item.name)
+                        .layoutPriority(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
+                    Text(item.balance)
+                        .multilineTextAlignment(.trailing)
+                        .truncationMode(.middle)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                VStack(alignment: .leading) {
-                    Text(secondaryText)
-                        .lineLimit(1)
-                    if item.state.errorDescription != nil {
-                        Text(item.state.errorDescription!)
-                            .layoutPriority(1)
-                            .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .foregroundColor(Color.tangemTapGrayDark6)
+                .font(Font.system(size: 17.0, weight: .medium, design: .default))
+                .padding(.bottom, 8)
+                
+                
+                HStack(alignment: .firstTextBaseline, spacing: 5.0) {
+                    if item.state.errorDescription != nil  || item.hasTransactionInProgress {
+                        Image("exclamationmark.circle" )
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 10.0, height: 10.0)
                     }
+                    VStack(alignment: .leading) {
+                        Text(secondaryText)
+                            .lineLimit(1)
+                        if item.state.errorDescription != nil {
+                            Text(item.state.errorDescription!)
+                                .layoutPriority(1)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    Spacer()
+                    Text(item.fiatBalance)
+                        .lineLimit(1)
+                        .foregroundColor(Color.tangemTapGrayDark)
                 }
-                Spacer()
-                Text(item.fiatBalance)
-                    .lineLimit(1)
-                    .foregroundColor(Color.tangemTapGrayDark)
+                .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                .foregroundColor(accentColor)
+                .padding(.bottom, 16.0)
             }
-            .font(Font.system(size: 14.0, weight: .medium, design: .default))
-            .foregroundColor(accentColor)
-            .padding(.bottom, 16.0)
-            .padding(.horizontal, 24.0)
         }
+        .padding(.horizontal, 16.0)
         .background(Color.white)
         .cornerRadius(6.0)
+        .shadow(color: .tangemTapGrayLight5, radius: 2, x: 0, y: 1)
     }
 }
 
@@ -127,7 +134,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                 
                 WalletsViewItem(item: WalletItemViewModel(
                                     state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"), hasTransactionInProgress: false,
-                                     name: "Ethereum smart contract token",
+                                    name: "Ethereum smart contract token",
                                     fiatBalance: " ",
                                     balance: "-",
                                     rate: "1.5 USD",
