@@ -79,7 +79,7 @@ struct AddCustomTokenView: View {
 struct AddCustomTokenView_Previews: PreviewProvider {
     
     static let assembly = Assembly.previewAssembly
-    static let walletModel = assembly.makeWalletModel(from: assembly.cardsRepository.lastScanResult.cardModel!.cardInfo)!.first!
+    static let walletModel = assembly.makeWalletModel(from: assembly.cardsRepository.lastScanResult.cardModel!.cardInfo).first!
     
     static var previews: some View {
         AddCustomTokenView(viewModel: Assembly.previewAssembly.makeAddCustomTokenViewModel(for: walletModel))
