@@ -27,10 +27,6 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.addresses.map { $0.localizedName }
     }
     
-    var tokens: [Token] { walletItemsRepository.walletItems.compactMap { $0.token } }
-    
-    var canManageTokens: Bool { walletManager.canManageTokens }
-    
     var canCreateOrPurgeWallet: Bool {
         if !wallet.isEmpty || wallet.hasPendingTx {
             return false
@@ -44,10 +40,12 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     let walletManager: WalletManager
+    let cardInfo: CardInfo
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
-    init(walletManager: WalletManager, ratesService: CoinMarketCapService, walletItemsRepository: WalletItemsRepository) {
+    init(cardInfo: CardInfo, walletManager: WalletManager, ratesService: CoinMarketCapService, walletItemsRepository: WalletItemsRepository) {
+        self.cardInfo = cardInfo
         self.walletManager = walletManager
         self.ratesService = ratesService
         self.walletItemsRepository = walletItemsRepository
@@ -175,7 +173,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func addToken(_ token: Token) -> AnyPublisher<Amount, Error>? {
-        walletItemsRepository.append(.token(token, walletManager.wallet.blockchain))
+        walletItemsRepository.append(.token(token))
         return walletManager.addToken(token)
             .map {[weak self] in
                 self?.updateTokensViewModels()
@@ -190,6 +188,10 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func canRemove(amountType: Amount.AmountType) -> Bool {
+        if let token = amountType.token, token == cardInfo.card.token {
+            return false
+        }
+        
         if let amount = wallet.amounts[amountType], !amount.isEmpty {
             return false
         }
@@ -197,8 +199,8 @@ class WalletModel: ObservableObject, Identifiable {
         if wallet.hasPendingTx(for: amountType) {
             return false
         }
-        
-        if amountType == .coin && !tokens.isEmpty {
+    
+        if amountType == .coin && !wallet.isEmpty {
             return false
         }
 
@@ -211,36 +213,22 @@ class WalletModel: ObservableObject, Identifiable {
             return
         }
         
-        walletItemsRepository.remove(.token(token, walletManager.wallet.blockchain))
+        walletItemsRepository.remove(.token(token))
         walletManager.removeToken(token)
         tokenViewModels.removeAll(where: { $0.token == token })
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
-        if !walletManager.canManageTokens, let token = walletManager.cardTokens.first {
-            balanceViewModel = BalanceViewModel(isToken: true,
-                                                hasTransactionInProgress: wallet.hasPendingTx,
-                                                state: self.state,
-                                                name: wallet.amounts[.token(value: token)]?.currencySymbol ?? "",
-                                                fiatBalance: getFiatFormatted(for: wallet.amounts[.token(value: token)]) ?? " ",
-                                                balance: wallet.amounts[.token(value: token)]?.description ?? "-",
-                                                secondaryBalance: wallet.amounts[.coin]?.description ?? "-",
-                                                secondaryFiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? "",
-                                                secondaryName: wallet.blockchain.displayName )
-            tokenViewModels = []
-        } else {
-            balanceViewModel = BalanceViewModel(isToken: false,
-                                                hasTransactionInProgress: wallet.hasPendingTx,
-                                                state: self.state,
-                                                name:  wallet.blockchain.displayName,
-                                                fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
-                                                balance: wallet.amounts[.coin]?.description ?? "-",
-                                                secondaryBalance: "-",
-                                                secondaryFiatBalance: " ",
-                                                secondaryName: "-")
-            updateTokensViewModels()
-        }
-        
+        balanceViewModel = BalanceViewModel(isToken: false,
+                                            hasTransactionInProgress: wallet.hasPendingTx,
+                                            state: self.state,
+                                            name:  wallet.blockchain.displayName,
+                                            fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
+                                            balance: wallet.amounts[.coin]?.description ?? "-",
+                                            secondaryBalance: "-",
+                                            secondaryFiatBalance: " ",
+                                            secondaryName: "-")
+        updateTokensViewModels()
         updateWalletItems()
     }
     
