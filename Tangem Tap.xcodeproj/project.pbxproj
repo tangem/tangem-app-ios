@@ -100,6 +100,7 @@
 		5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */; };
 		5DD966F925499E8B006070F3 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD966F825499E8B006070F3 /* WebView.swift */; };
 		5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
+		5DEC50A525F160930022CE83 /* CircleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEC50A425F160930022CE83 /* CircleImageView.swift */; };
 		5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* TapScanTask.swift */; };
 		5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522824F93C2A0015B429 /* QRCodeView.swift */; };
 		5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522A24F9439D0015B429 /* UIImage+.swift */; };
@@ -107,7 +108,7 @@
 		5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */; };
 		5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */; };
 		5DF612A424E6E3E2001BF301 /* AddressDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */; };
-		5DFB499624E44BC90037E76F /* Cards.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DFB499524E44BC90037E76F /* Cards.xcassets */; };
+		5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DFB499524E44BC90037E76F /* Tokens.xcassets */; };
 		5DFB499824E54A340037E76F /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499724E54A340037E76F /* BalanceView.swift */; };
 		5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499924E554140037E76F /* Card+Preview.swift */; };
 		5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* ErrorView.swift */; };
@@ -314,6 +315,7 @@
 		5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerticalAlignment+.swift"; sourceTree = "<group>"; };
 		5DD966F825499E8B006070F3 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorView.swift; sourceTree = "<group>"; };
+		5DEC50A425F160930022CE83 /* CircleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleImageView.swift; sourceTree = "<group>"; };
 		5DF2522624F914E30015B429 /* TapScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapScanTask.swift; sourceTree = "<group>"; };
 		5DF2522824F93C2A0015B429 /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
 		5DF2522A24F9439D0015B429 /* UIImage+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+.swift"; sourceTree = "<group>"; };
@@ -321,7 +323,7 @@
 		5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTxView.swift; sourceTree = "<group>"; };
 		5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressFormatter.swift; sourceTree = "<group>"; };
 		5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressDetailsView.swift; sourceTree = "<group>"; };
-		5DFB499524E44BC90037E76F /* Cards.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Cards.xcassets; sourceTree = "<group>"; };
+		5DFB499524E44BC90037E76F /* Tokens.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Tokens.xcassets; sourceTree = "<group>"; };
 		5DFB499724E54A340037E76F /* BalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceView.swift; sourceTree = "<group>"; };
 		5DFB499924E554140037E76F /* Card+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+Preview.swift"; sourceTree = "<group>"; };
 		5DFB499B24E6BAF10037E76F /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
@@ -471,7 +473,7 @@
 		5D383E4224D9602700C9BFF6 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				5DFB499524E44BC90037E76F /* Cards.xcassets */,
+				5DFB499524E44BC90037E76F /* Tokens.xcassets */,
 				5D3F77CB24BF56DC00E8695B /* Assets.xcassets */,
 				5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */,
 			);
@@ -612,6 +614,7 @@
 				5D09382C25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift */,
 				5D6C128625E144DF0010A0C5 /* AddWalletView.swift */,
 				5D09383625EAB45C0049B8F0 /* WalletItem.swift */,
+				5DEC50A425F160930022CE83 /* CircleImageView.swift */,
 			);
 			path = MultiWallet;
 			sourceTree = "<group>";
@@ -1096,7 +1099,7 @@
 				B09FC1C7257DFB92009524D4 /* config_prod.json in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
-				5DFB499624E44BC90037E76F /* Cards.xcassets in Resources */,
+				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
 				5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
 				5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
@@ -1401,6 +1404,7 @@
 				B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */,
 				B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */,
 				B080766C25D11173006CF606 /* ManageTokensViewModel.swift in Sources */,
+				5DEC50A525F160930022CE83 /* CircleImageView.swift in Sources */,
 				5D1BCFB8259CDCCA00EDA274 /* ContentView.swift in Sources */,
 				5D9DCAEB25517FB50059799C /* CardsRepository.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
@@ -1602,7 +1606,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 223;
+				CURRENT_PROJECT_VERSION = 225;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -1628,7 +1632,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 223;
+				CURRENT_PROJECT_VERSION = 225;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -1802,7 +1806,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 223;
+				CURRENT_PROJECT_VERSION = 225;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
