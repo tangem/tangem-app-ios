@@ -108,57 +108,62 @@ class Assembly {
         return vm
     }
     
-    func makeWalletModels(from cardInfo: CardInfo, items: [WalletItem]) -> [WalletModel]? {
-        guard let walletPublicKey = cardInfo.card.walletPublicKey,
-              let cardId = cardInfo.card.cardId else {
-            return nil
-        }
-        
-        let blockchains = items.compactMap { $0.blockchain }
-        let tokenItems = items.compactMap ({ $0.tokenItem })
-        
-        let walletManagers = blockchains.map { blockchain in
-            walletManagerFactory.makeWalletManager(from: blockchain ,
-                walletPublicKey: walletPublicKey,
-                cardId: cardId,
-                walletPairPublicKey: nil,
-                tokens: tokenItems.filter({ $0.0 == blockchain }).compactMap { $0.1 } ,
-                canManageTokens: true)}
-        
-        let models = walletManagers.map { WalletModel(walletManager: $0,
+    func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
+        let walletManagers = walletManagerFactory.makeWalletManagers(from: cardInfo.card, blockchains: blockchains)
+        let models = walletManagers.map { WalletModel(cardInfo: cardInfo,
+                                                      walletManager: $0,
                                                       ratesService: ratesService,
-                                                      walletItemsRepository: walletItemsRepository)}
+                                                      walletItemsRepository: walletItemsRepository) }
         return models
     }
     
-    func makeWalletModel(from cardInfo: CardInfo) -> [WalletModel]? {
-		let card = cardInfo.card
-		var pairKey: Data? = nil
-		if card.isTwinCard {
-			guard let savedPairKey = cardInfo.twinCardInfo?.pairPublicKey else {
-				return nil
-			}
-			
-			pairKey = savedPairKey
-		}
-		
-        if cardInfo.isMultiWallet && walletItemsRepository.walletItems.count > 0 {
-            return makeWalletModels(from: cardInfo, items: walletItemsRepository.walletItems)
-        } else {
-            guard let walletManager = walletManagerFactory.makeWalletManager(from: card,
-                                                                             tokens: [],
-                                                                             pairKey: pairKey) else {
-                return nil
-            }
-            
-            if cardInfo.isMultiWallet {
-                walletItemsRepository.append(.blockchain(walletManager.wallet.blockchain))
-            }
-            
-            return [WalletModel(walletManager: walletManager,
-                               ratesService: ratesService,
-                               walletItemsRepository: walletItemsRepository)]
+    func makeWalletModel(from cardInfo: CardInfo) -> [WalletModel] {
+        return makeWallets(from: cardInfo).map {
+            WalletModel(cardInfo: cardInfo,
+                        walletManager: $0,
+                        ratesService: ratesService,
+                        walletItemsRepository: walletItemsRepository)
         }
+    }
+    
+    private func makeWallets(from cardInfo: CardInfo) -> [WalletManager] {
+        if cardInfo.card.isTwinCard,
+           let savedPairKey = cardInfo.twinCardInfo?.pairPublicKey,
+           let twinWalletManager = walletManagerFactory.makeTwinWalletManager(from: cardInfo.card, pairKey: savedPairKey) {
+            return [twinWalletManager]
+        }
+
+        if cardInfo.card.isMultiWallet && walletItemsRepository.walletItems.count > 0 {
+            return makeMultiwallet(from: cardInfo.card)
+        }
+        
+        if let cardWalletManager = walletManagerFactory.makeWalletManager(from: cardInfo.card) {
+            return [cardWalletManager]
+        }
+        
+        return []
+    }
+    
+    private func makeMultiwallet(from card: Card) -> [WalletManager] {
+        var walletManagers: [WalletManager] = .init()
+        
+        let erc20Tokens = walletItemsRepository.walletItems.compactMap { $0.token }
+        if !erc20Tokens.isEmpty {
+            if let ethereumWalletManager = walletManagerFactory.makeEthereumWalletManager(from: card, erc20Tokens: erc20Tokens) {
+                walletManagers.append(ethereumWalletManager)
+            }
+        }
+        
+        if walletManagers.first(where: { $0.wallet.blockchain == card.blockchain}) == nil,
+           let nativeWalletManager = walletManagerFactory.makeWalletManager(from: card) {
+            walletManagers.append(nativeWalletManager)
+        }
+        
+        let existingBlockchains = walletManagers.map { $0.wallet.blockchain }
+        let additionalBlockchains = walletItemsRepository.walletItems.compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
+        let additionalWalletManagers = walletManagerFactory.makeWalletManagers(from: card, blockchains: additionalBlockchains)
+        walletManagers.append(contentsOf: additionalWalletManagers)
+        return walletManagers
     }
     
     // MARK: Card model
