@@ -9,17 +9,43 @@
 import SwiftUI
 import BlockchainSdk
 
+//enum TokenImage {
+//    case image(String)
+//    case color(Color, String)
+//    
+//    var view: some View {
+//        switch self {
+//        case .image(let name):
+//            return Image(name)
+//        case .color(let color, let name):
+//            return Circle()
+//        }
+//    }
+//}
+
 struct PresetTokenView: View {
-    
     var isAdded: Bool
     var isLoading: Bool
     var name: String
     var symbol: String
+    var walletItem: WalletItem
     var addAction: () -> Void
     var removeAction: () -> Void
     
     var body: some View {
         HStack {
+            switch walletItem {
+            case .token(let token):
+                CircleImageView(name: token.name, color: token.color)
+            case .blockchain(let blockchain):
+                if let image = blockchain.imageName {
+                    Image(image)
+                } else {
+                    CircleImageView(name: blockchain.displayName,
+                                    color: Color.tangemTapGrayLight4)
+                }
+            }
+            
             VStack(alignment: .leading, spacing: 8) {
                 Text(name)
                     .font(.system(size: 17, weight: .medium))
@@ -47,10 +73,16 @@ struct AddNewTokensView: View {
     @State var searchText = ""
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("add_tokens_title")
+                .font(Font.system(size: 36, weight: .bold, design: .default))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
+            
             SearchBar(text: $searchText, placeholder: "common_search".localized)
-                .padding(.horizontal, 8)
                 .background(Color.white)
+                .padding(.horizontal, 8)
+            
             List {
                 Section(header: HeaderView(text: "add_token_section_title_blockchains".localized)) {
                     ForEach(viewModel.availableBlockchains.filter {
@@ -61,12 +93,12 @@ struct AddNewTokensView: View {
                                         isLoading: false,
                                         name: blockchain.displayName,
                                         symbol: blockchain.currencySymbol,
+                                        walletItem: .blockchain(blockchain),
                                         addAction: {
                             viewModel.addBlockchain(blockchain)
                         }, removeAction: {
                             viewModel.removeBlockchain(blockchain)
                         })                    }
-                    .frame(height: 52)
                 }
                 
                 Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized)) {
@@ -75,13 +107,13 @@ struct AddNewTokensView: View {
                         PresetTokenView(isAdded: viewModel.isAdded(token),
                                         isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
                                         symbol: token.symbol,
+                                        walletItem: .token(token),
                                         addAction: {
                             viewModel.addTokenToList(token: token)
                         }, removeAction: {
                             viewModel.removeTokenFromList(token: token)
                         })
                     }
-                    .frame(height: 52)
                 }
             }
         }
@@ -92,7 +124,6 @@ struct AddNewTokensView: View {
         })
         .alert(item: $viewModel.error, content: { $0.alert })
         .background(Color.white)
-        .navigationBarTitle("add_tokens_title", displayMode: .large)
 //        .navigationBarItems(
 //            trailing: Button("add_custom", action: {
 //                navigation.addNewTokensToCreateCustomToken = true
@@ -115,8 +146,8 @@ extension AddNewTokensView {
                 Text(text)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.tangemTapGrayDark)
-                    .padding(.top, 26)
-                    .padding(.leading, 16)
+                    .padding(.top, 16)
+                    .padding(.leading, 20)
                     .padding(.vertical, 5)
                 Spacer()
             }
@@ -132,9 +163,7 @@ struct AddNewTokensView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
 
     static var previews: some View {
-        NavigationView {
-            AddNewTokensView(viewModel: assembly.makeAddTokensViewModel(for: CardViewModel.previewCardViewModel))
-                .environmentObject(assembly.navigationCoordinator)
-        }
+        AddNewTokensView(viewModel: assembly.makeAddTokensViewModel(for: CardViewModel.previewCardViewModel))
+            .environmentObject(assembly.navigationCoordinator)
     }
 }
