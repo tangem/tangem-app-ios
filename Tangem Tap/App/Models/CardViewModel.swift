@@ -43,40 +43,12 @@ class CardViewModel: Identifiable, ObservableObject {
         return state.walletModels
     }
     
-    var walletItemViewModels: [WalletItemViewModel]? {
-        walletModels?
-            .flatMap ({ $0.walletItems })
-            .sorted(by: { lhs, rhs in
-                if lhs.blockchain == cardInfo.card.blockchain {
-                    return true
-                }
-                
-                if rhs.blockchain == cardInfo.card.blockchain {
-                    return false
-                }
-                
-                if lhs.fiatBalance != " " && rhs.fiatBalance == " " {
-                    return true
-                }
-                
-                if lhs.fiatBalance == " " && rhs.fiatBalance != " " {
-                    return false
-                }
-                
-                if lhs.fiatBalance != " " && rhs.fiatBalance != " " && lhs.fiatBalance != rhs.fiatBalance {
-                    return lhs.fiatBalance > rhs.fiatBalance
-                }
-                
-                return lhs.blockchain.displayName < rhs.blockchain.displayName
-            })
-    }
-    
     var wallets: [Wallet]? {
         return walletModels?.map { $0.wallet }
     }
     
     var isMultiWallet: Bool {
-        return cardInfo.isMultiWallet
+        return cardInfo.card.isMultiWallet
     }
     
     var canSetAccessCode: Bool {
@@ -387,18 +359,19 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func updateState() {
-        if let wm = self.assembly.makeWalletModel(from: cardInfo) {
-            self.state = .loaded(walletModel: wm)
-            searchBlockchains()
-        } else {
-            self.state = .empty
-        }
+        let models = self.assembly.makeWalletModel(from: cardInfo)
         
-        update()
+        if models.isEmpty {
+            self.state = .empty
+        } else {
+            self.state = .loaded(walletModel: models)
+            searchBlockchains()
+            update()
+        }
     }
     
     func searchBlockchains() {
-        guard cardInfo.isMultiWallet else {
+        guard cardInfo.card.isMultiWallet else {
             return
         }
         
@@ -408,29 +381,32 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let unusedBlockhains = walletItemsRepository.supportedWalletItems.blockchains.subtracting(currentBlockhains).map { WalletItem.blockchain($0) }
-        
-        if let walletModels = assembly.makeWalletModels(from: cardInfo, items: unusedBlockhains) {
-            searchBlockchainsCancellable =
-                Publishers.MergeMany(walletModels.map { $0.$state.dropFirst() })
-                .collect(walletModels.count)
-                .sink(receiveValue: { [unowned self] _ in
-                    let notEmptyWallets = walletModels.filter { !$0.wallet.isEmpty }
-                    if notEmptyWallets.count > 0 {
-                        walletItemsRepository.append(notEmptyWallets.map({WalletItem.blockchain($0.wallet.blockchain)}))
-                        self.state = .loaded(walletModel: self.walletModels! + notEmptyWallets)
-                    }
-                })
-            
-            walletModels.forEach { $0.update() }
+        let unusedBlockhains = walletItemsRepository.supportedWalletItems.blockchains.subtracting(currentBlockhains).map { $0 }
+        let models = assembly.makeWalletModels(from: cardInfo, blockchains: unusedBlockhains)
+        if models.isEmpty {
+            return
         }
+        
+        searchBlockchainsCancellable =
+            Publishers.MergeMany(models.map { $0.$state.dropFirst() })
+            .collect(models.count)
+            .sink(receiveValue: { [unowned self] _ in
+                let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
+                if notEmptyWallets.count > 0 {
+                    walletItemsRepository.append(notEmptyWallets.map({WalletItem.blockchain($0.wallet.blockchain)}))
+                    self.state = .loaded(walletModel: self.walletModels! + notEmptyWallets)
+                }
+            })
+        
+        models.forEach { $0.update() }
     }
     
     @discardableResult
     func addBlockchain(_ blockchain: Blockchain) -> WalletModel {
         let wi: WalletItem = .blockchain(blockchain)
         walletItemsRepository.append(wi)
-        let newWallet = assembly.makeWalletModels(from: cardInfo, items: [wi])!.first!
+        
+        let newWallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain]).first!
         state = .loaded(walletModel: walletModels! + [newWallet])
         newWallet.update()
         return newWallet
@@ -450,11 +426,9 @@ class CardViewModel: Identifiable, ObservableObject {
             return false
         }
         
-        if let walletModels = walletModels {
-            for walletModel in walletModels {
-                if !walletModel.canRemove(amountType: .coin) {
-                    return false
-                }
+        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain}) {
+            if !walletModel.canRemove(amountType: .coin) {
+                return false
             }
         }
         
