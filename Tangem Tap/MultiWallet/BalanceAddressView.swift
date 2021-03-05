@@ -16,10 +16,6 @@ struct BalanceAddressView: View {
     
     var balanceViewModel: BalanceViewModel { walletModel.balanceViewModel }
     
-    var blockhainImage: String {
-        return ""
-    }
-    
     var blockchainText: String {
         if balanceViewModel.state.isNoAccount {
             return "wallet_error_no_account".localized
@@ -98,9 +94,9 @@ struct BalanceAddressView: View {
                     }
                 }
                 Spacer()
-                Image(blockhainImage)
-                    .resizable()
-                    .frame(width: 40, height: 40)
+                if let blockchainImage = walletModel.wallet.blockchain.imageName {
+                    Image(blockchainImage)
+                }
             }
             
             if showAddressSelector {
