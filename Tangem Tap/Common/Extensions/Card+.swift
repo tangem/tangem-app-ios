@@ -25,20 +25,6 @@ extension Card {
         return true
     }
     
-    var blockchain: Blockchain? {
-        guard
-            let name = cardData?.blockchainName,
-            let curve = curve
-        else { return nil }
-        
-        return Blockchain.from(blockchainName: name, curve: curve)
-    }
-    
-    var isTestnet: Bool {
-        return blockchain?.isTestnet ?? false
-    }
-
-    
     var cardValidationData: (cid: String, pubKey: String)? {
         guard
             let cid = cardId,
@@ -46,6 +32,18 @@ extension Card {
         else { return nil }
         
         return (cid, pubKey)
+    }
+    
+    var isMultiWallet: Bool {
+        if isTwinCard {
+            return false
+        }
+        
+        if let curve = curve, curve == .ed25519 {
+            return false
+        }
+        
+        return true
     }
 }
 
