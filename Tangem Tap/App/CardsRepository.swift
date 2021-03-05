@@ -14,22 +14,6 @@ struct CardInfo {
     var card: Card
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
-    
-    var isMultiWallet: Bool {
-        if card.isTwinCard {
-            return false
-        }
-        
-        if let curve = card.curve, curve == .ed25519 {
-            return false
-        }
-        
-        if card.cardData?.tokenSymbol != nil {
-            return false
-        }
-        
-        return true //todo
-    }
 }
 
 enum ScanResult: Equatable {
