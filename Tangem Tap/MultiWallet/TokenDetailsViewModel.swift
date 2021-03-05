@@ -61,6 +61,10 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     var canDelete: Bool {
+        if case .noAccount = walletModel?.state {
+            return true
+        }
+        
         guard let amount = amountToSend, let walletModel = self.walletModel else {
             return false
         }
@@ -96,10 +100,15 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     func onRemove() {
-        if let amount = amountToSend, let walletModel = walletModel {
-            if amount.type == .coin {
+        if let walletModel = self.walletModel, case .noAccount = walletModel.state {
+            card.removeBlockchain(walletModel.wallet.blockchain)
+            return
+        }
+
+        if let walletModel = self.walletModel {
+            if amountType == .coin {
                 card.removeBlockchain(walletModel.wallet.blockchain)
-            } else if case let .token(token) = amount.type {
+            } else if case let .token(token) = amountType {
                 walletModel.removeToken(token)
             }
         }
