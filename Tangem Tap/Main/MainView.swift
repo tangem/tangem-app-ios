@@ -103,8 +103,8 @@ struct MainView: View {
         }
         
         let button = viewModel.canTopup && !viewModel.canCreateWallet ?
-            (viewModel.cardModel?.cardInfo.isMultiWallet ?? false) ?
-            TangemLongButton(isLoading: viewModel.isScanning,
+            (viewModel.cardModel?.isMultiWallet ?? false) ?
+            TangemButton(isLoading: viewModel.isScanning,
                              title: "wallet_button_scan",
                              image: "scan") {scanAction()}
             .toAnyView()
@@ -178,7 +178,7 @@ struct MainView: View {
             
             NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(with: viewModel.state.cardModel!,
                                                                                                                  blockchain: viewModel.selectedWallet.blockchain,
-                                                                                                                 amountType: viewModel.selectedWallet.amountType)),
+                                                                                                                 amountType: viewModel.selectedWallet.amountType)).environmentObject(navigation),
                 isActive: $navigation.mainToTokenDetails)
         }.toAnyView()
     }
@@ -221,7 +221,7 @@ struct MainView: View {
                                 )
                             } else {
                                 if viewModel.cardModel!.isMultiWallet {
-                                    ForEach(viewModel.cardModel!.walletItemViewModels!) { item in
+                                    ForEach(viewModel.walletItemViewModels!) { item in
                                         WalletsViewItem(item: item)
                                             .onTapGesture {
                                                 viewModel.onWalletTap(item)
@@ -233,11 +233,10 @@ struct MainView: View {
                                                     navigation.mainToAddTokens = true
                                     })
                                         .padding(.horizontal, 16)
+                                        .padding(.bottom, 8)
                                         .sheet(isPresented: $navigation.mainToAddTokens, content: {
-                                            NavigationView {
-                                                AddNewTokensView(viewModel: viewModel.assembly.makeAddTokensViewModel(for: viewModel.cardModel!))
-                                                    .environmentObject(navigation)
-                                            }
+                                            AddNewTokensView(viewModel: viewModel.assembly.makeAddTokensViewModel(for: viewModel.cardModel!))
+                                                .environmentObject(navigation)
                                         })
                                     
                                 } else {
@@ -294,7 +293,7 @@ struct MainView: View {
             bottomButtons
                 .padding(.top, 8)
                 .padding(.horizontal, 16)
-                .padding(.bottom, 16.0)
+                .padding(.bottom, 8.0)
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(navigation.mainToSettings || navigation.mainToTopup || navigation.mainToTokenDetails ? "" : "wallet_title", displayMode: .inline)
@@ -306,8 +305,7 @@ struct MainView: View {
             .foregroundColor(Color.tangemTapGrayDark6)
             .frame(width: 44.0, height: 44.0, alignment: .center)
             .offset(x: 10.0, y: 0.0)
-        })
-        .padding(0.0)
+        }).padding(0.0)
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
@@ -373,7 +371,7 @@ struct MainView: View {
                             
                         }
                 } else {
-                    Spacer()
+                    
                 }
 
             }
