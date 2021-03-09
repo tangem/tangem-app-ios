@@ -218,13 +218,21 @@ class WalletModel: ObservableObject, Identifiable {
         tokenViewModels.removeAll(where: { $0.token == token })
     }
     
+    func getBalance(for type: Amount.AmountType) -> String {
+        return wallet.amounts[type]?.description ?? "-"
+    }
+    
+    func getFiatBalance(for type: Amount.AmountType) -> String {
+        return getFiatFormatted(for: wallet.amounts[type]) ?? " "
+    }
+    
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         balanceViewModel = BalanceViewModel(isToken: false,
                                             hasTransactionInProgress: wallet.hasPendingTx,
                                             state: self.state,
                                             name:  wallet.blockchain.displayName,
-                                            fiatBalance: getFiatFormatted(for: wallet.amounts[.coin]) ?? " ",
-                                            balance: wallet.amounts[.coin]?.description ?? "-",
+                                            fiatBalance: getFiatBalance(for: .coin),
+                                            balance: getBalance(for: .coin),
                                             secondaryBalance: "-",
                                             secondaryFiatBalance: " ",
                                             secondaryName: "-")
@@ -276,8 +284,8 @@ class WalletModel: ObservableObject, Identifiable {
     
     private func updateTokensViewModels() {
         tokenViewModels = walletManager.cardTokens.map {
-            let amount = wallet.amounts[.token(value: $0)]
-            return TokenBalanceViewModel(token: $0, balance: amount?.description ?? "-", fiatBalance: getFiatFormatted(for: amount) ?? " ")
+            let type = Amount.AmountType.token(value: $0)
+            return TokenBalanceViewModel(token: $0, balance: getBalance(for: type), fiatBalance: getFiatBalance(for: type))
         }
     }
     
