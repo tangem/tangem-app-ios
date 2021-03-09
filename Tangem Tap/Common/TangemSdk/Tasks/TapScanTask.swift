@@ -72,9 +72,9 @@ extension TapScanTaskResponse {
 final class TapScanTask: CardSessionRunnable {
     let excludeBatches = ["0027",
                           "0030",
-                          "0031", //tags
-                          "0079" //TOTHEMOON
-    ]
+                          "0031"] //tangem tags
+    
+    let excludeIssuers = ["TTM BANK"]
     
     var needPreflightRead: Bool {
         return false
@@ -106,7 +106,12 @@ final class TapScanTask: CardSessionRunnable {
                     }
                 }
                 
-                if let batch = card.cardData?.batchId, self.excludeBatches.contains(batch) { //filter bach
+                if let batch = card.cardData?.batchId, self.excludeBatches.contains(batch) { //filter batch
+                    completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
+                    return
+                }
+                
+                if let issuer = card.cardData?.issuerName, self.excludeIssuers.contains(issuer) { //filter issuer name
                     completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
                     return
                 }
