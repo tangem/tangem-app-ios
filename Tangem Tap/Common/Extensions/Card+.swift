@@ -25,7 +25,7 @@ extension Card {
         return true
     }
     
-    var cardValidationData: (cid: String, pubKey: String)? {
+        var cardValidationData: (cid: String, pubKey: String)? {
         guard
             let cid = cardId,
             let pubKey = cardPublicKey?.asHexString()
