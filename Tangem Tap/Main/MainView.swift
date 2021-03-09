@@ -50,7 +50,7 @@ struct MainView: View {
     
     var isUnsupportdState: Bool {
         switch viewModel.state {
-        case .unsupported:
+        case .unsupported, .notScannedYet:
             return true
         default:
             return false
@@ -161,9 +161,15 @@ struct MainView: View {
     
     var navigationLinks: some View {
         Group {
-            NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
-                           isActive: $navigation.mainToSettings)
-            
+            if let cardModel = viewModel.state.cardModel {
+                NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: cardModel)),
+                               isActive: $navigation.mainToSettings)
+                
+                NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(with: cardModel,
+                                                                                                                     blockchain: viewModel.selectedWallet.blockchain,
+                                                                                                                     amountType: viewModel.selectedWallet.amountType)).environmentObject(navigation),
+                               isActive: $navigation.mainToTokenDetails)
+            }
             
             NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: false)),
                            isActive: $navigation.mainToTwinsWalletWarning)
@@ -176,11 +182,6 @@ struct MainView: View {
             
             NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
                            isActive: $navigation.mainToTwinOnboarding)
-            
-            NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(with: viewModel.state.cardModel!,
-                                                                                                                 blockchain: viewModel.selectedWallet.blockchain,
-                                                                                                                 amountType: viewModel.selectedWallet.amountType)).environmentObject(navigation),
-                isActive: $navigation.mainToTokenDetails)
         }
     }
     
@@ -351,7 +352,7 @@ struct MainView: View {
             if viewModel.canCreateWallet {
                 createWalletButton
             } else {
-                if !viewModel.cardModel!.isMultiWallet {
+                if let cardModel = viewModel.cardModel, !cardModel.isMultiWallet {
                     if viewModel.canTopup  {
                         topupButton
                     }
