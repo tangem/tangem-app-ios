@@ -17,7 +17,7 @@ struct DisclaimerView: View {
     
     private let disclaimerTitle: LocalizedStringKey = "disclaimer_title"
     
-    var navigationLinks: AnyView {
+    var navigationLinks: some View {
         Group {
             if viewModel.state == .accept { //prevent reuse shared navigation state
                 NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
@@ -26,7 +26,7 @@ struct DisclaimerView: View {
                 NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
                                isActive: $navigation.disclaimerToMain)
             }
-        }.toAnyView()
+        }
     }
     
     var isNavBarHidden: Bool { //prevent navbar glitches
