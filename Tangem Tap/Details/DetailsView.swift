@@ -29,11 +29,6 @@ struct DetailsRowView: View {
     }
 }
 
-struct DetailsDestination: Identifiable {
-    let id: Int
-    let destination: AnyView
-}
-
 struct DetailsView: View {
     private enum NavigationTag: String {
         case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens
@@ -171,12 +166,12 @@ struct DetailsView: View {
         }
     }
     
-    var footerView: AnyView {
+    var footerView: some View {
         if let purgeWalletProhibitedDescription = viewModel.cardModel.purgeWalletProhibitedDescription {
-            return  FooterView(text: purgeWalletProhibitedDescription).toAnyView()
+            return FooterView(text: purgeWalletProhibitedDescription)
         }
         
-        return FooterView().toAnyView()
+        return FooterView()
     }
 }
 
