@@ -25,14 +25,14 @@ struct TokenDetailsView: View {
         return incTx + outgTx
     }
     
-    var navigationLinks: AnyView {
+    var navigationLinks: some View {
         Group {
             NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                          closeUrl: viewModel.topupCloseUrl,
                                                          title: "wallet_button_topup")
                             .onDisappear { self.viewModel.card.update() },
                            isActive: $navigation.detailsToTopup)
-        }.toAnyView()
+        }
     }
     
     var bottomButtons: some View {
