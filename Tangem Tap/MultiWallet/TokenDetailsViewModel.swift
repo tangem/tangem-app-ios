@@ -90,10 +90,10 @@ class TokenDetailsViewModel: ViewModel {
     
     @Published var isRefreshing = false
     
+    public let amountType: Amount.AmountType
     private var bag = Set<AnyCancellable>()
     private let blockchain: Blockchain
-    private let amountType: Amount.AmountType
-    
+
     init(blockchain: Blockchain, amountType: Amount.AmountType) {
         self.blockchain = blockchain
         self.amountType = amountType
