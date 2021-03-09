@@ -357,7 +357,9 @@ class SendViewModel: ViewModel {
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .dropFirst()
             .sink { [unowned self] _ in
-                self.amountToSend = self.walletModel.wallet.amounts[self.amountToSend.type]!
+                guard let amount = self.walletModel.wallet.amounts[self.amountToSend.type] else { return  }
+                
+                self.amountToSend = amount
                 self.amountText = self.walletTotalBalanceDecimals
                 
                 withAnimation {
