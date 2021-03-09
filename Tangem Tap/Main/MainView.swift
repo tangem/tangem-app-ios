@@ -167,7 +167,7 @@ struct MainView: View {
                 
                 NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(with: cardModel,
                                                                                                                      blockchain: viewModel.selectedWallet.blockchain,
-                                                                                                                     amountType: viewModel.selectedWallet.amountType)).environmentObject(navigation),
+                                                                                                                     amountType: viewModel.selectedWallet.amountType)),
                                isActive: $navigation.mainToTokenDetails)
             }
             
