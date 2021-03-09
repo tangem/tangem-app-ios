@@ -67,37 +67,38 @@ struct WarningView: View {
         .cornerRadius(6)
     }
     
-    var buttons: some View {
-        if warning.type.isWithAction {
-            let warningButtons: [WarningButton]
-            if let buttons = warning.event?.buttons, buttons.count > 0 {
-                warningButtons = buttons
-            } else {
-                warningButtons = [.okGotIt]
-            }
-            return AnyView(
-                HStack(spacing: 0) {
-                    Spacer()
-                    ForEach(Array(warningButtons.enumerated()), id: \.element.id, content: { item in
-                        Button(action: {
-                            buttonAction(item.element)
-                        }, label: {
-                            Text(item.element.buttonTitle)
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white)
-                        })
-                        .frame(height: 24)
-                        if warningButtons.count > 1, item.offset < warningButtons.count - 1 {
-                            Color.tangemTapGrayDark5
-                                .frame(width: 1, height: 16)
-                                .padding(.horizontal, 30)
-                        }
-                    })
-                }
-                .padding(EdgeInsets(top: 0, leading: 20, bottom: 12, trailing: 0))
-            )
+    var warningButtons: [WarningButton] {
+        if let buttons = warning.event?.buttons, buttons.count > 0 {
+            return buttons
+        } else {
+           return [.okGotIt]
         }
-        return AnyView(EmptyView())
+    }
+    
+    @ViewBuilder var buttons: some View {
+        if warning.type.isWithAction {
+            HStack(spacing: 0) {
+                Spacer()
+                ForEach(Array(warningButtons.enumerated()), id: \.element.id, content: { item in
+                    Button(action: {
+                        buttonAction(item.element)
+                    }, label: {
+                        Text(item.element.buttonTitle)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+                    })
+                    .frame(height: 24)
+                    if warningButtons.count > 1, item.offset < warningButtons.count - 1 {
+                        Color.tangemTapGrayDark5
+                            .frame(width: 1, height: 16)
+                            .padding(.horizontal, 30)
+                    }
+                })
+            }
+            .padding(EdgeInsets(top: 0, leading: 20, bottom: 12, trailing: 0))
+        } else {
+            EmptyView()
+        }
     }
     
 }
