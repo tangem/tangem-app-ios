@@ -68,7 +68,7 @@ struct ReadView: View {
         }
     }
     
-    var navigationLinks: AnyView {
+    var navigationLinks: some View {
         Group {
             // MARK: - Navigation links
             NavigationLink(destination:
@@ -83,7 +83,7 @@ struct ReadView: View {
             
             NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
                            isActive: $navigation.readToShop)
-        }.toAnyView()
+        }
     }
     
     var body: some View {
