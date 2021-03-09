@@ -407,6 +407,7 @@ class MainViewModel: ViewModel {
     
     func  onWalletTap(_ walletItem: WalletItemViewModel) {
         selectedWallet = walletItem
+        assembly.reset()
         navigation.mainToTokenDetails = true
     }
 
