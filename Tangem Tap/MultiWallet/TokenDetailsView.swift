@@ -30,7 +30,7 @@ struct TokenDetailsView: View {
             NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                          closeUrl: viewModel.topupCloseUrl,
                                                          title: "wallet_button_topup")
-                            .onDisappear { self.viewModel.card.update() },
+                            .onDisappear { viewModel.card.update() },
                            isActive: $navigation.detailsToTopup)
         }
     }
@@ -54,7 +54,7 @@ struct TokenDetailsView: View {
                     viewModel.assembly.reset()
                     navigation.detailsToSend = true
                 }
-                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
+                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
                 .disabled(!self.viewModel.canSend)
             }
         }
@@ -82,7 +82,7 @@ struct TokenDetailsView: View {
                         ForEach(self.pendingTransactionViews) { $0 }
                         
                         if let walletModel = viewModel.walletModel {
-                            BalanceAddressView(walletModel: walletModel)
+                            BalanceAddressView(walletModel: walletModel, amountType: viewModel.amountType)
                         }
                         bottomButtons
                             .padding(.top, 16)
