@@ -95,30 +95,31 @@ struct MainView: View {
         return nil
     }
     
-    var scanButton: some View {
+    @ViewBuilder var scanButton: some View {
         let scanAction = {
             withAnimation {
                 self.viewModel.scan()
             }
         }
         
-        let button = viewModel.canTopup && !viewModel.canCreateWallet ?
-            (viewModel.cardModel?.isMultiWallet ?? false) ?
-            TangemButton(isLoading: viewModel.isScanning,
+        if viewModel.canTopup && !viewModel.canCreateWallet {
+            if  (viewModel.cardModel?.isMultiWallet ?? false) {
+                TangemButton(isLoading: viewModel.isScanning,
                              title: "wallet_button_scan",
                              image: "scan") {scanAction()}
-            .toAnyView()
-            :
-            TangemVerticalButton(isLoading: viewModel.isScanning,
-                                 title: "wallet_button_scan",
-                                 image: "scan") { scanAction()}
-            .toAnyView() : TangemButton(isLoading: viewModel.isScanning,
-                                        title: "wallet_button_scan",
-                                        image: "scan") {scanAction()}
-            .toAnyView()
-        
-        return button
-            .buttonStyle(TangemButtonStyle(color: .black))
+                    .buttonStyle(TangemButtonStyle(color: .black))
+            } else {
+                TangemVerticalButton(isLoading: viewModel.isScanning,
+                                     title: "wallet_button_scan",
+                                     image: "scan") { scanAction()}
+                    .buttonStyle(TangemButtonStyle(color: .black))
+            }
+        } else {
+            TangemButton(isLoading: viewModel.isScanning,
+                         title: "wallet_button_scan",
+                         image: "scan") {scanAction()}
+                .buttonStyle(TangemButtonStyle(color: .black))
+        }
     }
     
     var createWalletButton: some View {
@@ -129,22 +130,22 @@ struct MainView: View {
             .disabled(!viewModel.canCreateWallet)
     }
     
-    var sendButton: some View {
+    @ViewBuilder var sendButton: some View {
         let action = { viewModel.sendTapped() }
         
-        let button = viewModel.canTopup ?
+        if viewModel.canTopup {
             TangemVerticalButton(isLoading: false,
                                  title: "wallet_button_send",
                                  image: "arrow.right") { action() }
-            .toAnyView() :
+                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
+                .disabled(!self.viewModel.canSend)
+        } else {
             TangemLongButton(isLoading: false,
                              title: "wallet_button_send",
                              image: "arrow.right") { action() }
-            .toAnyView()
-        
-        return button
-            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
-            .disabled(!self.viewModel.canSend)
+                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
+                .disabled(!self.viewModel.canSend)
+        }
     }
     
     var topupButton: some View {
@@ -158,7 +159,7 @@ struct MainView: View {
         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
     }
     
-    var navigationLinks: AnyView {
+    var navigationLinks: some View {
         Group {
             NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
                            isActive: $navigation.mainToSettings)
@@ -180,7 +181,7 @@ struct MainView: View {
                                                                                                                  blockchain: viewModel.selectedWallet.blockchain,
                                                                                                                  amountType: viewModel.selectedWallet.amountType)).environmentObject(navigation),
                 isActive: $navigation.mainToTokenDetails)
-        }.toAnyView()
+        }
     }
     
     //prevent navbar glitches
