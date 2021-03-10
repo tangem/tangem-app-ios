@@ -175,7 +175,6 @@ class MainViewModel: ViewModel {
                     return lhs.fiatBalance > rhs.fiatBalance
                 }
                 
-                print("\(lhs.name) -- \(rhs.name)")
                 return lhs.name < rhs.name
             })
     }
