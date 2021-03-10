@@ -106,7 +106,7 @@ class CardsRepository {
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
         onScan?(cardInfo)
         
-        let cm = assembly.makeCardModel(from: cardInfo)
+        let cm = assembly.getCardModel(from: cardInfo)
         let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
         cards[cardInfo.card.cardId!] = result
         lastScanResult = result
