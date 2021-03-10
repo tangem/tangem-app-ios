@@ -46,7 +46,7 @@ class Assembly {
     lazy var rateAppService: RateAppService = RateAppService(userPrefsService: userPrefsService)
     
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), cardValidator: keychainService)
+        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), validatedCardsService: keychainService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = self
         crepo.onScan = onScan
@@ -179,6 +179,7 @@ class Assembly {
         vm.assembly = self
         vm.tangemSdk = tangemSdk
         vm.warningsConfigurator = warningsService
+        vm.warningsAppendor = warningsService
         vm.walletItemsRepository = walletItemsRepository
 		if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
             vm.payIDService = payIdService

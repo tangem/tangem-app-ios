@@ -441,7 +441,7 @@ class MainViewModel: ViewModel {
 		
 		func showUntrustedCardAlert() {
             withAnimation {
-                self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
+                self.warningsManager.appendWarning(for: .numberOfSignedHashesIncorrect)
             }
 		}
         
