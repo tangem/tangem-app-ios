@@ -15,8 +15,8 @@ class AddNewTokensViewModel: ViewModel {
     weak var navigation: NavigationCoordinator!
     weak var tokenItemsRepository: TokenItemsRepository!
     
-    var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedWalletItems.blockchains.map {$0} } }
-    var availableTokens: [Token]  { get { tokenItemsRepository.supportedWalletItems.erc20Tokens.map {$0} } }
+    var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains.map {$0} } }
+    var availableTokens: [Token]  { get { tokenItemsRepository.supportedItems.erc20Tokens.map {$0} } }
     
     @Published var searchText: String = ""
     @Published private(set) var tokensToSave: Set<Token> = []
@@ -40,7 +40,7 @@ class AddNewTokensViewModel: ViewModel {
     }
     
     func isAdded(_ token: Token) -> Bool {
-        tokenItemsRepository.walletItems.contains(where: { $0.token == token })
+        tokenItemsRepository.items.contains(where: { $0.token == token })
     }
     
     func isAdded(_ blockchain: Blockchain) -> Bool {
