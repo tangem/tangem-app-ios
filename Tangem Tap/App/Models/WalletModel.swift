@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
 import BlockchainSdk
 
@@ -224,6 +223,14 @@ class WalletModel: ObservableObject, Identifiable {
     
     func getFiatBalance(for type: Amount.AmountType) -> String {
         return getFiatFormatted(for: wallet.amounts[type]) ?? " "
+    }
+    
+    func getWalletItem(for type: Amount.AmountType) -> WalletItem {
+        if case let .token(token) = type {
+            return .token(token)
+        }
+        
+        return .blockchain(wallet.blockchain)
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
