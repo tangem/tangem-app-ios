@@ -18,14 +18,13 @@ struct DetailsRowView: View {
             Text(title)
                 .font(Font.system(size: 16.0, weight: .regular, design: .default))
                 .foregroundColor(.tangemTapGrayDark6)
-                .padding()
             Spacer()
             Text(subtitle)
                 .font(Font.system(size: 16.0, weight: .regular, design: .default))
                 .foregroundColor(.tangemTapGrayDark)
-                .padding()
         }
-        .listRowInsets(EdgeInsets())
+       // .padding(.leading)
+        //.listRowInsets(EdgeInsets())
     }
 }
 
@@ -70,15 +69,12 @@ struct DetailsView: View {
                         label: { EmptyView() })
                         .disabled(true)
                 )
-                .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
-                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 
                 if viewModel.isTwinCard {
                     NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
                                    isActive: $navigation.detailsToTwinsRecreateWarning){
                         DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
                     }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                     .disabled(!viewModel.cardModel.canRecreateTwinCard)
                     
                 } else {
@@ -90,7 +86,6 @@ struct DetailsView: View {
                     tag: NavigationTag.cardOperation, selection: $selection) {
                         DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
                     }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                     .disabled(!viewModel.cardModel.canPurgeWallet)
                 }
             }
@@ -102,7 +97,6 @@ struct DetailsView: View {
                                    subtitle: viewModel.ratesService.selectedCurrencyCode)
                     
                 }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
                 NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
                                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
@@ -111,7 +105,6 @@ struct DetailsView: View {
                                    subtitle: "")
                     
                 }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 Button(action: {
                     navigation.detailsToSendEmail = true
                 }, label: {
@@ -119,11 +112,9 @@ struct DetailsView: View {
                         .font(.system(size: 16, weight: .regular, design: .default))
                         .foregroundColor(.tangemTapGrayDark6)
                 })
-                .frame(height: 50)
                 .sheet(isPresented: $navigation.detailsToSendEmail, content: {
                     MailView(dataCollector: viewModel.dataCollector, emailType: EmailType.appFeedback)
                 })
-                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 
                 if let cardTouURL = viewModel.cardTouURL {
                     NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
@@ -133,23 +124,8 @@ struct DetailsView: View {
                                        subtitle: "")
                         
                     }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 }
             }
-            
-//            if let wallet = viewModel.cardModel.walletModel, wallet.canManageTokens {
-//                Section(header: HeaderView(text: "details_section_title_blockchain".localized), footer: FooterView(text: "", additionalBottomPadding: 40)) {
-//                    NavigationLink(
-//                        destination: ManageTokensView(viewModel: viewModel.assembly.makeManageTokensViewModel(with: wallet)),
-//                        tag: "manageTokens",
-//                        selection: $selection,
-//                        label: {
-//                            DetailsRowView(title: "details_row_title_manage_tokens".localized, subtitle: "")
-//                        })
-//                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-//                }
-//            }
-            
             Section(header: Color.tangemTapBgGray
                         .listRowInsets(EdgeInsets())) {
                 EmptyView()
@@ -189,7 +165,7 @@ extension DetailsView {
             }
             .padding(.top, additionalTopPadding)
             .background(Color.tangemTapBgGray)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 1, trailing: 0))
         }
     }
     
