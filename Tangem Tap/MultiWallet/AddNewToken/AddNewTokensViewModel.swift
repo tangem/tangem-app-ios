@@ -13,10 +13,10 @@ import BlockchainSdk
 class AddNewTokensViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var walletItemsRepository: WalletItemsRepository!
+    weak var tokenItemsRepository: TokenItemsRepository!
     
-    var availableBlockchains: [Blockchain]  { get { walletItemsRepository.supportedWalletItems.blockchains.map {$0} } }
-    var availableTokens: [Token]  { get { walletItemsRepository.supportedWalletItems.erc20Tokens.map {$0} } }
+    var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedWalletItems.blockchains.map {$0} } }
+    var availableTokens: [Token]  { get { tokenItemsRepository.supportedWalletItems.erc20Tokens.map {$0} } }
     
     @Published var searchText: String = ""
     @Published private(set) var tokensToSave: Set<Token> = []
@@ -40,7 +40,7 @@ class AddNewTokensViewModel: ViewModel {
     }
     
     func isAdded(_ token: Token) -> Bool {
-        walletItemsRepository.walletItems.contains(where: { $0.token == token })
+        tokenItemsRepository.walletItems.contains(where: { $0.token == token })
     }
     
     func isAdded(_ blockchain: Blockchain) -> Bool {
