@@ -22,7 +22,7 @@ struct PresetTokenView: View {
         HStack {
             walletItem.imageView
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(name)
                     .font(.system(size: 17, weight: .medium))
                     .foregroundColor(.tangemTapGrayDark6)
@@ -36,6 +36,7 @@ struct PresetTokenView: View {
                                 TangemButtonStyle(color: .gray, isDisabled: false) :
                                 TangemButtonStyle(color: .green, isDisabled: false))
         }
+        .padding(.vertical, 8)
     }
     
 }
