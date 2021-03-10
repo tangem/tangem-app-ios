@@ -167,7 +167,7 @@ struct ReadView_Previews: PreviewProvider {
         Group {
             ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
                 .deviceForPreview(.iPhone11Pro)
-                .environmentObject(Assembly.previewAssembly.navigationCoordinator)
+                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
             
         }
     }
