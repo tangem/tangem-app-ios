@@ -35,4 +35,8 @@ class ValidatedCardsService {
         keychain.set(data.pubKey, forKey: validatedCardPrefix + data.cid)
     }
     
+    func pubkey(for cid: String) -> String? {
+        keychain.get(validatedCardPrefix + cid)
+    }
+    
 }
