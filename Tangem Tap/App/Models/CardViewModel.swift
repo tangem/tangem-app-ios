@@ -342,13 +342,17 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Update
     
     func getCardInfo() {
+        guard cardInfo.card.cardType == .release else {
+            return
+        }
+        
         tangemSdk.getCardInfo(cardId: cardInfo.card.cardId ?? "", cardPublicKey: cardInfo.card.cardPublicKey ?? Data()) {[weak self] result in
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else { return }
 
                 self?.cardInfo.artworkInfo = artwork
-            case .failure(let error):
+            case .failure:
                 self?.warningsAppendor.appendWarning(for: WarningEvent.failedToValidateCard)
             }
         }
