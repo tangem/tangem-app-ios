@@ -20,6 +20,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
     weak var warningsConfigurator: WarningsConfigurator!
+    weak var warningsAppendor: WarningAppendor!
     weak var walletItemsRepository: WalletItemsRepository!
     
     @Published var state: State = .created
@@ -238,6 +239,8 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.walletSignedHashes = signResponse.walletSignedHashes
     }
     
+    // MARK: - Security
+    
     func checkPin(_ completion: @escaping (Result<CheckPinResponse, Error>) -> Void) {
         tangemSdk.startSession(with: CheckPinCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
             switch result {
@@ -300,6 +303,8 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
+    // MARK: - Wallet
+    
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
         tangemSdk.createWallet(cardId: cardInfo.card.cardId!,
                                initialMessage: Message(header: nil,
@@ -334,11 +339,17 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
+    // MARK: - Update
+    
     func getCardInfo() {
         tangemSdk.getCardInfo(cardId: cardInfo.card.cardId ?? "", cardPublicKey: cardInfo.card.cardPublicKey ?? Data()) {[weak self] result in
-            if case let .success(info) = result,
-               let artwork = info.artwork {
+            switch result {
+            case .success(let info):
+                guard let artwork = info.artwork else { return }
+
                 self?.cardInfo.artworkInfo = artwork
+            case .failure(let error):
+                self?.warningsAppendor.appendWarning(for: WarningEvent.failedToValidateCard)
             }
         }
     }
