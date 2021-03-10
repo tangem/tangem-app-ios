@@ -18,7 +18,7 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var rates: [String: [String: Decimal]] = [:]
 
     var ratesService: CoinMarketCapService
-    var walletItemsRepository: WalletItemsRepository
+    var tokenItemsRepository: TokenItemsRepository
     var txSender: TransactionSender { walletManager as! TransactionSender }
     var wallet: Wallet { walletManager.wallet }
     
@@ -43,11 +43,11 @@ class WalletModel: ObservableObject, Identifiable {
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
-    init(cardInfo: CardInfo, walletManager: WalletManager, ratesService: CoinMarketCapService, walletItemsRepository: WalletItemsRepository) {
+    init(cardInfo: CardInfo, walletManager: WalletManager, ratesService: CoinMarketCapService, tokenItemsRepository: TokenItemsRepository) {
         self.cardInfo = cardInfo
         self.walletManager = walletManager
         self.ratesService = ratesService
-        self.walletItemsRepository = walletItemsRepository
+        self.tokenItemsRepository = tokenItemsRepository
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
@@ -172,7 +172,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func addToken(_ token: Token) -> AnyPublisher<Amount, Error>? {
-        walletItemsRepository.append(.token(token))
+        tokenItemsRepository.append(.token(token))
         return walletManager.addToken(token)
             .map {[weak self] in
                 self?.updateTokensViewModels()
@@ -212,7 +212,7 @@ class WalletModel: ObservableObject, Identifiable {
             return
         }
         
-        walletItemsRepository.remove(.token(token))
+        tokenItemsRepository.remove(.token(token))
         walletManager.removeToken(token)
         tokenViewModels.removeAll(where: { $0.token == token })
     }

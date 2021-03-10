@@ -208,7 +208,7 @@ struct TwinCardOnboardingView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     static var previews: some View {
         TwinCardOnboardingView(viewModel: assembly.makeTwinCardWarningViewModel(isRecreating: true))
-            .environmentObject(assembly.navigationCoordinator)
+            .environmentObject(assembly.services.navigationCoordinator)
             .previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
     }
 }
