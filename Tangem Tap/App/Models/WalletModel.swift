@@ -248,7 +248,6 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func loadRates() {
-        rates = [:]
         let currenciesToExchange = walletManager.wallet.amounts
             .filter({ $0.key != .reserve }).values
             .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
@@ -270,6 +269,10 @@ class WalletModel: ObservableObject, Identifiable {
                     break
                 }
             }) {[unowned self] rates in
+                if self.rates.count > 0 && rates.count == 0 {
+                    return
+                }
+                
                 if shouldAppendResults {
                     self.rates.merge(rates) { (_, new) in new }
                     self.updateTokensViewModels()
@@ -335,6 +338,15 @@ extension WalletModel {
         var isLoading: Bool {
             switch self {
             case .loading, .created:
+                return true
+            default:
+                return false
+            }
+        }
+        
+        var isSuccesfullyLoaded: Bool {
+            switch self {
+            case .idle, .noAccount:
                 return true
             default:
                 return false
