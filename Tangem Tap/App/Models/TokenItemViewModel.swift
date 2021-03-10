@@ -31,7 +31,7 @@ struct TokenItemViewModel: Identifiable {
         return ""
     }
     
-    var walletItem: TokenItem {
+    var tokenItem: TokenItem {
         if case let .token(token) = amountType {
             return .token(token)
         }
