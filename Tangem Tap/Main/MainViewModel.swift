@@ -153,22 +153,44 @@ class MainViewModel: ViewModel {
 		cardModel?.isTwinCard ?? false
 	}
     
-    var walletItemViewModels: [TokenItemViewModel]? {
+    var tokenItemViewModels: [TokenItemViewModel]? {
         guard let cardModel = cardModel else { return nil }
         
         return cardModel.walletModels?
-            .flatMap ({ $0.walletItems })
+            .flatMap ({ $0.tokenItemViewModels })
             .sorted(by: { lhs, rhs in
-                if lhs.blockchain == cardModel.cardInfo.card.blockchain {
+                if lhs.blockchain == cardModel.cardInfo.card.blockchain && rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                    if lhs.amountType.isToken && rhs.amountType.isToken {
+                        if lhs.amountType.token == cardModel.cardInfo.card.token {
+                            return true
+                        }
+                        
+                        if rhs.amountType.token == cardModel.cardInfo.card.token {
+                            return false
+                        }
+                        
+                        if lhs.fiatBalance != " " && rhs.fiatBalance != " " && lhs.fiatBalance != rhs.fiatBalance {
+                            return lhs.fiatBalance > rhs.fiatBalance
+                        }
+                        
+                        return lhs.name < rhs.name
+                    }
+                    
                     if !lhs.amountType.isToken {
                         return true
                     }
-                }
-                
-                if rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                    
                     if !rhs.amountType.isToken {
                         return false
                     }
+                }
+                
+                if lhs.blockchain == cardModel.cardInfo.card.blockchain {
+                   return true
+                }
+                
+                if rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                    return false
                 }
                 
                 if lhs.fiatBalance != " " && rhs.fiatBalance != " " && lhs.fiatBalance != rhs.fiatBalance {
@@ -222,7 +244,7 @@ class MainViewModel: ViewModel {
         }) {
             Publishers.MergeMany(loadingPublishers)
                 .collect(loadingPublishers.count)
-                .delay(for: 0.3, scheduler: DispatchQueue.global())
+                .delay(for: 1, scheduler: DispatchQueue.global())
                 .receive(on: RunLoop.main)
                 .sink {[unowned self] _ in
                     print("♻️ Wallet model loading state changed")
@@ -404,8 +426,8 @@ class MainViewModel: ViewModel {
         warningsManager.hideWarning(warning)
     }
     
-    func  onWalletTap(_ walletItem: TokenItemViewModel) {
-        selectedWallet = walletItem
+    func  onWalletTap(_ tokenItem: TokenItemViewModel) {
+        selectedWallet = tokenItem
         assembly.reset()
         navigation.mainToTokenDetails = true
     }
