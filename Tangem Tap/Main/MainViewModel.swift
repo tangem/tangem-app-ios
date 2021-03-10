@@ -47,7 +47,7 @@ class MainViewModel: ViewModel {
     private var bag = Set<AnyCancellable>()
     @Published var isRefreshing = false
     
-    var selectedWallet: WalletItemViewModel = .default
+    var selectedWallet: TokenItemViewModel = .default
     //MARK: - Output
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
@@ -153,7 +153,7 @@ class MainViewModel: ViewModel {
 		cardModel?.isTwinCard ?? false
 	}
     
-    var walletItemViewModels: [WalletItemViewModel]? {
+    var walletItemViewModels: [TokenItemViewModel]? {
         guard let cardModel = cardModel else { return nil }
         
         return cardModel.walletModels?
@@ -404,7 +404,7 @@ class MainViewModel: ViewModel {
         warningsManager.hideWarning(warning)
     }
     
-    func  onWalletTap(_ walletItem: WalletItemViewModel) {
+    func  onWalletTap(_ walletItem: TokenItemViewModel) {
         selectedWallet = walletItem
         assembly.reset()
         navigation.mainToTokenDetails = true
