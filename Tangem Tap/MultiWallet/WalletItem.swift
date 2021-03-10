@@ -32,6 +32,14 @@ struct WalletItemViewModel: Identifiable {
         }
         return ""
     }
+    
+    var walletItem: WalletItem {
+        if case let .token(token) = amountType {
+            return .token(token)
+        }
+        
+        return .blockchain(blockchain)
+    }
 }
 
 extension WalletItemViewModel {
@@ -80,6 +88,20 @@ enum WalletItem: Codable, Hashable {
             return token
         }
         return nil
+    }
+    
+    @ViewBuilder var imageView: some View {
+        switch self {
+        case .token(let token):
+            CircleImageView(name: token.name, color: token.color)
+        case .blockchain(let blockchain):
+            if let image = blockchain.imageName {
+                Image(image)
+            } else {
+                CircleImageView(name: blockchain.displayName,
+                                color: Color.tangemTapGrayLight4)
+            }
+        }
     }
     
     init(from decoder: Decoder) throws {
