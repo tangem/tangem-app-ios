@@ -57,7 +57,9 @@ class CardsRepository {
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
-    var onScan: ((CardInfo) -> Void)? = nil
+    
+    var onWillScan: (() -> Void)? = nil
+    var onDidScan: ((CardInfo) -> Void)? = nil
     
 	private let twinCardFileDecoder: TwinCardFileDecoder
     private let validatedCardsService: ValidatedCardsService
@@ -69,7 +71,7 @@ class CardsRepository {
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        tangemSdk.config = assembly.sdkConfig
+        onWillScan?()
         tangemSdk.startSession(with: TapScanTask(validatedCardsService: validatedCardsService)) {[unowned self] result in
             switch result {
             case .failure(let error):
@@ -88,7 +90,7 @@ class CardsRepository {
     }
 
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
-        onScan?(cardInfo)
+        onDidScan?(cardInfo)
         
         let cm = assembly.makeCardModel(from: cardInfo)
         let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
