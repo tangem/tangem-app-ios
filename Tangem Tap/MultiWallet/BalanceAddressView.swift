@@ -67,18 +67,26 @@ struct BalanceAddressView: View {
         VStack {
             HStack (alignment: .top) {
                 VStack (alignment: .leading, spacing: 8) {
-                    Text(balance)
-                        .font(Font.system(size: 20.0, weight: .bold, design: .default))
-                        .foregroundColor(Color.tangemTapGrayDark6)
-                        .minimumScaleFactor(0.8)
-                        .multilineTextAlignment(.leading)
-                        .truncationMode(.middle)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(fiatBalance)
-                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                        .lineLimit(1)
-                        .foregroundColor(Color.tangemTapGrayDark)
+                    if let errorDescription = walletModel.state.errorDescription {
+                        Text(errorDescription)
+                            .layoutPriority(1)
+                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                            .foregroundColor(accentColor)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        Text(balance)
+                            .font(Font.system(size: 20.0, weight: .bold, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark6)
+                            .minimumScaleFactor(0.8)
+                            .multilineTextAlignment(.leading)
+                            .truncationMode(.middle)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(fiatBalance)
+                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                            .lineLimit(1)
+                            .foregroundColor(Color.tangemTapGrayDark)
+                    }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                         Image(image)
                             .resizable()
@@ -91,13 +99,6 @@ struct BalanceAddressView: View {
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(accentColor)
                                 .lineLimit(1)
-                            if let errorDescription = walletModel.state.errorDescription {
-                                Text(errorDescription)
-                                    .layoutPriority(1)
-                                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                    .foregroundColor(accentColor)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
                         }
                     }
                 }
@@ -190,13 +191,15 @@ struct BalanceAddressView_Previews: PreviewProvider {
     
     static var walletModel: WalletModel {
         let vm = cardViewModel.walletModels!.first!
+        vm.state = .failed(error: "Failed to load. Internet connection is unnreachable")
         vm.balanceViewModel = BalanceViewModel(isToken: false,
                                                hasTransactionInProgress: false,
                                                state: .idle,
                                                name: "Ethereum smart contract token",
                                                fiatBalance: "$3.45",
                                                balance: "0.67538451 BTC",
-                                               secondaryBalance: "", secondaryFiatBalance: "",
+                                               secondaryBalance: "",
+                                               secondaryFiatBalance: "",
                                                secondaryName: "")
         return vm
     }
