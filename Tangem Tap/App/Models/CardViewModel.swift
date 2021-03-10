@@ -401,7 +401,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let unusedBlockhains = tokenItemsRepository.supportedWalletItems.blockchains.subtracting(currentBlockhains).map { $0 }
+        let unusedBlockhains = tokenItemsRepository.supportedItems.blockchains.subtracting(currentBlockhains).map { $0 }
         let models = assembly.makeWalletModels(from: cardInfo, blockchains: unusedBlockhains)
         if models.isEmpty {
             return
