@@ -8,7 +8,7 @@
 
 import Foundation
 
-class WalletItemsRepository {
+class TokenItemsRepository {
     lazy var supportedWalletItems = SupportedWalletItems()
     
     private(set) var walletItems: [TokenItem] = []
