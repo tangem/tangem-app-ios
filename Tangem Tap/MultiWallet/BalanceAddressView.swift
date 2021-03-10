@@ -102,9 +102,8 @@ struct BalanceAddressView: View {
                     }
                 }
                 Spacer()
-                if let blockchainImage = walletModel.wallet.blockchain.imageName {
-                    Image(blockchainImage)
-                }
+                
+                walletModel.getWalletItem(for: amountType).imageView
             }
             
             if showAddressSelector {
