@@ -386,7 +386,7 @@ struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
-                .environmentObject(Assembly.previewAssembly.navigationCoordinator)
+                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
         }
         .previewGroup(devices: [.iPhone8Plus])
         .navigationViewStyle(StackNavigationViewStyle())
