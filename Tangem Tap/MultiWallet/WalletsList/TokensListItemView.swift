@@ -1,5 +1,5 @@
 //
-//  WalletsViewitem.swift
+//  TokensListItemView.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,8 +11,8 @@ import SwiftUI
 import TangemSdk
 import BlockchainSdk
 
-struct WalletsViewItem: View {
-    var item: WalletItemViewModel
+struct TokensListItemView: View {
+    var item: TokenItemViewModel
     
     var secondaryText: String {
         if item.state.isNoAccount {
@@ -101,7 +101,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
         ZStack {
             Color.tangemTapBgGray
             VStack {
-                WalletsViewItem(item: WalletItemViewModel(state: .idle, hasTransactionInProgress: false,
+                TokensListItemView(item: TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
                                                           name: "Ethereum ",
                                                           fiatBalance: "$3.45",
                                                           balance: "0.00000348501 BTC",
@@ -109,7 +109,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                                           blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemViewModel(
+                TokensListItemView(item: TokenItemViewModel(
                                     state: .loading, hasTransactionInProgress: false,
                                     name: "Ethereum smart contract token",
                                     fiatBalance: "$3.45",
@@ -118,7 +118,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemViewModel(
+                TokensListItemView(item: TokenItemViewModel(
                                     state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"), hasTransactionInProgress: false,
                                     name: "Ethereum smart contract token",
                                     fiatBalance: " ",
@@ -127,7 +127,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemViewModel(
+                TokensListItemView(item: TokenItemViewModel(
                                     state: .idle, hasTransactionInProgress: true,
                                     name: "Bitcoin token",
                                     fiatBalance: "5 USD",
