@@ -505,7 +505,6 @@
 			children = (
 				5D3951652559A859002CC452 /* CurrencySelect */,
 				5D9DCB0A255199810059799C /* SecurityManagement */,
-				B080766225D1114F006CF606 /* ManageTokens */,
 				5D384B9324FD51C000C2C92C /* DetailsViewModel.swift */,
 				5D384B9524FD51CB00C2C92C /* DetailsView.swift */,
 				5D43E2D62514D5B700697E5B /* CardOperationView.swift */,
@@ -610,11 +609,13 @@
 		5D6C127025E122CE0010A0C5 /* MultiWallet */ = {
 			isa = PBXGroup;
 			children = (
+				5DA7C00A25F8FA5200B6E309 /* TokenDetails */,
+				5DA7C00925F8FA2900B6E309 /* ManageTokens */,
 				5D6C128125E13DE10010A0C5 /* WalletsViewitem.swift */,
 				5D09380925E6AEB10049B8F0 /* BalanceAddressView.swift */,
 				5D09382725E7A2D80049B8F0 /* TokenDetailsView.swift */,
-				5D09382C25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift */,
-				5D6C128625E144DF0010A0C5 /* AddWalletView.swift */,
+				B08ACD8025D2BC2A007387BD /* AddNewToken */,
+				B0D76D4325D4E4400073FA98 /* AddCustomToken */,
 				5D09383625EAB45C0049B8F0 /* WalletItem.swift */,
 				5DEC50A425F160930022CE83 /* CircleImageView.swift */,
 			);
@@ -682,6 +683,24 @@
 				5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */,
 			);
 			path = SecurityManagement;
+			sourceTree = "<group>";
+		};
+		5DA7C00925F8FA2900B6E309 /* ManageTokens */ = {
+			isa = PBXGroup;
+			children = (
+				B080766325D11169006CF606 /* ManageTokensView.swift */,
+				B080766B25D11173006CF606 /* ManageTokensViewModel.swift */,
+			);
+			path = ManageTokens;
+			sourceTree = "<group>";
+		};
+		5DA7C00A25F8FA5200B6E309 /* TokenDetails */ = {
+			isa = PBXGroup;
+			children = (
+				5D09382C25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift */,
+				5D6C128625E144DF0010A0C5 /* AddWalletView.swift */,
+			);
+			path = TokenDetails;
 			sourceTree = "<group>";
 		};
 		5DBBAB0924D853A000E78F1C /* Extensions */ = {
@@ -870,18 +889,6 @@
 			path = Twins;
 			sourceTree = "<group>";
 		};
-		B080766225D1114F006CF606 /* ManageTokens */ = {
-			isa = PBXGroup;
-			children = (
-				B08ACD8025D2BC2A007387BD /* AddNewToken */,
-				B0D76D4325D4E4400073FA98 /* AddCustomToken */,
-				B080766325D11169006CF606 /* ManageTokensView.swift */,
-				B080766B25D11173006CF606 /* ManageTokensViewModel.swift */,
-				B0620D8425D11ADF00091A84 /* AddedManagedTokenView.swift */,
-			);
-			path = ManageTokens;
-			sourceTree = "<group>";
-		};
 		B082E91E255A8E7800A0CEA9 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
@@ -895,6 +902,7 @@
 		B08ACD8025D2BC2A007387BD /* AddNewToken */ = {
 			isa = PBXGroup;
 			children = (
+				B0620D8425D11ADF00091A84 /* AddedManagedTokenView.swift */,
 				B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */,
 				B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */,
 			);
