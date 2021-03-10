@@ -49,14 +49,11 @@ struct WalletsViewItem: View {
     }
     
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
             
             item.walletItem.imageView
 
             VStack(alignment: .leading, spacing: 0) {
-                
-                Color.clear.frame(height: 16)
-                
                 HStack(alignment: .firstTextBaseline) {
                     Text(item.name)
                         .layoutPriority(2)
@@ -84,11 +81,6 @@ struct WalletsViewItem: View {
                     VStack(alignment: .leading) {
                         Text(secondaryText)
                             .lineLimit(1)
-                        if item.state.errorDescription != nil {
-                            Text(item.state.errorDescription!)
-                                .layoutPriority(1)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
                     }
                     Spacer()
                     Text(item.fiatBalance)
@@ -97,10 +89,9 @@ struct WalletsViewItem: View {
                 }
                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                 .foregroundColor(accentColor)
-                .padding(.bottom, 16.0)
             }
         }
-        .padding(.horizontal, 16.0)
+        .padding(16.0)
         .background(Color.white)
         .cornerRadius(6.0)
         .shadow(color: .tangemTapGrayLight5, radius: 2, x: 0, y: 1)
@@ -134,7 +125,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"), hasTransactionInProgress: false,
                                     name: "Ethereum smart contract token",
                                     fiatBalance: " ",
-                                    balance: "-",
+                                    balance: " ",
                                     rate: "1.5 USD",
                                     blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
