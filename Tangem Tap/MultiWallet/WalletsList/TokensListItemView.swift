@@ -51,7 +51,7 @@ struct TokensListItemView: View {
     var body: some View {
         HStack(alignment: .top) {
             
-            item.walletItem.imageView
+            item.tokenItem.imageView
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .firstTextBaseline) {
