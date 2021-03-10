@@ -51,10 +51,8 @@ struct WalletsViewItem: View {
     var body: some View {
         HStack {
             
-            if let imageName = item.blockchain.imageName {
-                Image(imageName)
-            }
-            
+            item.walletItem.imageView
+
             VStack(alignment: .leading, spacing: 0) {
                 
                 Color.clear.frame(height: 16)
