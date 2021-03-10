@@ -53,7 +53,7 @@ struct WalletsViewItem: View {
             
             item.walletItem.imageView
 
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(item.name)
                         .layoutPriority(2)
@@ -68,7 +68,6 @@ struct WalletsViewItem: View {
                 .minimumScaleFactor(0.8)
                 .foregroundColor(Color.tangemTapGrayDark6)
                 .font(Font.system(size: 17.0, weight: .medium, design: .default))
-                .padding(.bottom, 8)
                 
                 
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
@@ -78,10 +77,8 @@ struct WalletsViewItem: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 10.0, height: 10.0)
                     }
-                    VStack(alignment: .leading) {
-                        Text(secondaryText)
-                            .lineLimit(1)
-                    }
+                    Text(secondaryText)
+                        .lineLimit(1)
                     Spacer()
                     Text(item.fiatBalance)
                         .lineLimit(1)
@@ -105,9 +102,9 @@ struct WalletsViewItem_Previews: PreviewProvider {
             Color.tangemTapBgGray
             VStack {
                 WalletsViewItem(item: WalletItemViewModel(state: .idle, hasTransactionInProgress: false,
-                                                          name: "Ethereum smart contract token",
+                                                          name: "Ethereum ",
                                                           fiatBalance: "$3.45",
-                                                          balance: "0.00000348573986753845001 BTC",
+                                                          balance: "0.00000348501 BTC",
                                                           rate: "1.5 USD",
                                                           blockchain: .ethereum(testnet: false)))
                     .padding(.horizontal, 16)
