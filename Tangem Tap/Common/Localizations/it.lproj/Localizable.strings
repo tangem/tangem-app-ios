@@ -403,6 +403,9 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 
 "warning_rate_app_message" = "How do you like Tangem?";
 
+"warning_failed_to_verify_card_title" = "Authenticity check failed";
+"warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
+
 // MARK: - Managed tokens
 
 "manage_tokens_no_tokens" = "No tokens yet";
