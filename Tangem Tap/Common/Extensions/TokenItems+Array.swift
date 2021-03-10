@@ -1,5 +1,5 @@
 //
-//  WalletItems+.swift
+//  TokenItems+Array.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -22,8 +22,8 @@ extension Array where Element == TokenItem {
         }
     }
     
-    mutating func remove(_ walletItem: TokenItem) {
-        if let index = firstIndex(where: { $0 == walletItem }) {
+    mutating func remove(_ tokenItem: TokenItem) {
+        if let index = firstIndex(where: { $0 == tokenItem }) {
             remove(at: index)
         }
     }
