@@ -9,20 +9,6 @@
 import SwiftUI
 import BlockchainSdk
 
-//enum TokenImage {
-//    case image(String)
-//    case color(Color, String)
-//    
-//    var view: some View {
-//        switch self {
-//        case .image(let name):
-//            return Image(name)
-//        case .color(let color, let name):
-//            return Circle()
-//        }
-//    }
-//}
-
 struct PresetTokenView: View {
     var isAdded: Bool
     var isLoading: Bool
@@ -34,17 +20,7 @@ struct PresetTokenView: View {
     
     var body: some View {
         HStack {
-            switch walletItem {
-            case .token(let token):
-                CircleImageView(name: token.name, color: token.color)
-            case .blockchain(let blockchain):
-                if let image = blockchain.imageName {
-                    Image(image)
-                } else {
-                    CircleImageView(name: blockchain.displayName,
-                                    color: Color.tangemTapGrayLight4)
-                }
-            }
+            walletItem.imageView
             
             VStack(alignment: .leading, spacing: 8) {
                 Text(name)
