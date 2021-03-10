@@ -60,17 +60,17 @@ class CardsRepository {
     var onScan: ((CardInfo) -> Void)? = nil
     
 	private let twinCardFileDecoder: TwinCardFileDecoder
-    private let cardValidator: ValidatedCardsService
+    private let validatedCardsService: ValidatedCardsService
 	
-    init(twinCardFileDecoder: TwinCardFileDecoder, cardValidator: ValidatedCardsService) {
+    init(twinCardFileDecoder: TwinCardFileDecoder, validatedCardsService: ValidatedCardsService) {
 		self.twinCardFileDecoder = twinCardFileDecoder
-        self.cardValidator = cardValidator
+        self.validatedCardsService = validatedCardsService
 	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         tangemSdk.config = assembly.sdkConfig
-        tangemSdk.startSession(with: TapScanTask(validatedCardsService: cardValidator)) {[unowned self] result in
+        tangemSdk.startSession(with: TapScanTask(validatedCardsService: validatedCardsService)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.log(error: error)
