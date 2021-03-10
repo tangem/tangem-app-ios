@@ -70,9 +70,9 @@ extension TapScanTaskResponse {
 final class TapScanTask: CardSessionRunnable {
     let excludeBatches = ["0027",
                           "0030",
-                          "0031", //tags
-                          "0079" //TOTHEMOON
-    ]
+                          "0031"] //tangem tags
+    
+    let excludeIssuers = ["TTM BANK"]
     
     deinit {
         print("TapScanTask deinit")
@@ -122,7 +122,10 @@ final class TapScanTask: CardSessionRunnable {
         if let batch = card.cardData?.batchId, self.excludeBatches.contains(batch) { //filter batch
             throw TangemSdkError.underlying(error: "alert_unsupported_card".localized)
         }
-
+        
+        if let issuer = card.cardData?.issuerName, self.excludeIssuers.contains(issuer) { //filter issuer name
+            throw TangemSdkError.underlying(error: "alert_unsupported_card".localized)
+        }
     }
     
     private func checkWallet(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
