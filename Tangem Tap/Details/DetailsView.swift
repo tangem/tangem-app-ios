@@ -198,7 +198,7 @@ struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
-                .environmentObject(Assembly.previewAssembly.navigationCoordinator)
+                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
                 .previewGroup(devices: [.iPhone8Plus])
         }
         .navigationViewStyle(StackNavigationViewStyle())
