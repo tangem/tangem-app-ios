@@ -14,13 +14,13 @@ fileprivate struct TokenView: View {
     var isLoading: Bool
     var name: String
     var symbol: String
-    var walletItem: TokenItem
+    var tokenItem: TokenItem
     var addAction: () -> Void
     var removeAction: () -> Void
     
     var body: some View {
         HStack {
-            walletItem.imageView
+            tokenItem.imageView
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(name)
@@ -70,7 +70,7 @@ struct AddNewTokensView: View {
                                   isLoading: false,
                                   name: blockchain.displayName,
                                   symbol: blockchain.currencySymbol,
-                                  walletItem: .blockchain(blockchain),
+                                  tokenItem: .blockchain(blockchain),
                                   addAction: {
                                     viewModel.addBlockchain(blockchain)
                                   }, removeAction: {
@@ -84,7 +84,7 @@ struct AddNewTokensView: View {
                         TokenView(isAdded: viewModel.isAdded(token),
                                   isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
                                   symbol: token.symbol,
-                                  walletItem: .token(token),
+                                  tokenItem: .token(token),
                                   addAction: {
                                     viewModel.addTokenToList(token: token)
                                   }, removeAction: {
