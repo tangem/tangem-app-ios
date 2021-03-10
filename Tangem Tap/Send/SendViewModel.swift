@@ -184,8 +184,8 @@ class SendViewModel: ViewModel {
     }
     
     private func fillTotalBlockWithDefaults() {
-        self.sendAmount = "-"
-        self.sendTotal = "-"
+        self.sendAmount = " "
+        self.sendTotal = " "
         self.sendTotalSubtitle = ""
     }
     
@@ -226,7 +226,7 @@ class SendViewModel: ViewModel {
                     
                     if isFiatCalculation {
                         self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount) ?? ""
-                        self.sendTotal = totalFiatAmountFormatted ?? "-"
+                        self.sendTotal = totalFiatAmountFormatted ?? " "
                         self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
                             String(format: "send_total_subtitle_format".localized, totalAmount.description) :
                             String(format: "send_total_subtitle_asset_format".localized,
@@ -235,7 +235,7 @@ class SendViewModel: ViewModel {
                     } else {
                         self.sendAmount = tx.amount.description
                         self.sendTotal =  (tx.amount + tx.fee).description
-                        self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
+                        self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? " " :  String(format: "send_total_subtitle_fiat_format".localized,
                                                                                                  totalFiatAmountFormatted!,
                                                                                                  self.walletModel.getFiatFormatted(for: tx.fee)!)
                     }
