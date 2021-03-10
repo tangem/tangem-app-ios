@@ -269,14 +269,14 @@ class Assembly {
         return vm
     }
     
-    func makeAddCustomTokenViewModel(for wallet: WalletModel) -> AddCustomTokenViewModel {
-        if let restored: AddCustomTokenViewModel = get() {
-            return restored
-        }
-        let vm = AddCustomTokenViewModel(walletModel: wallet)
-        initialize(vm)
-        return vm
-    }
+//    func makeAddCustomTokenViewModel(for wallet: WalletModel) -> AddCustomTokenViewModel {
+//        if let restored: AddCustomTokenViewModel = get() {
+//            return restored
+//        }
+//        let vm = AddCustomTokenViewModel(walletModel: wallet)
+//        initialize(vm)
+//        return vm
+//    }
     
     func makeSendViewModel(with amount: Amount, walletIndex: Int, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
