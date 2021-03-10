@@ -114,7 +114,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getRateFormatted(for amountType: Amount.AmountType) -> String {
-        var rateString = "-"
+        var rateString = ""
 
         if let amount = wallet.amounts[amountType],
            let quotes = rates[amount.currencySymbol],
@@ -218,11 +218,11 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getBalance(for type: Amount.AmountType) -> String {
-        return wallet.amounts[type]?.description ?? "-"
+        return wallet.amounts[type]?.description ?? ""
     }
     
     func getFiatBalance(for type: Amount.AmountType) -> String {
-        return getFiatFormatted(for: wallet.amounts[type]) ?? " "
+        return getFiatFormatted(for: wallet.amounts[type]) ?? ""
     }
     
     func getWalletItem(for type: Amount.AmountType) -> WalletItem {
@@ -240,9 +240,9 @@ class WalletModel: ObservableObject, Identifiable {
                                             name:  wallet.blockchain.displayName,
                                             fiatBalance: getFiatBalance(for: .coin),
                                             balance: getBalance(for: .coin),
-                                            secondaryBalance: "-",
-                                            secondaryFiatBalance: " ",
-                                            secondaryName: "-")
+                                            secondaryBalance: "",
+                                            secondaryFiatBalance: "",
+                                            secondaryName: "")
         updateTokensViewModels()
         updateWalletItems()
     }
