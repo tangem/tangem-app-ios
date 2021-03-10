@@ -13,17 +13,20 @@ struct Storage<T> {
     let key: String
     let defaultValue: T
 	
+    let defaults: UserDefaults
+    
 	init(type: StorageType, defaultValue: T) {
 		key = type.rawValue
 		self.defaultValue = defaultValue
+        defaults = UserDefaults(suiteName: "group.com.tangem.Tangem") ?? .standard
 	}
 
     var wrappedValue: T {
         get {
-            UserDefaults.standard.object(forKey: key) as? T ?? defaultValue
+            defaults.object(forKey: key) as? T ?? defaultValue
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: key)
+            defaults.set(newValue, forKey: key)
         }
     }
 }
