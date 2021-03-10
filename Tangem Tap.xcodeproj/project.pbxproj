@@ -52,6 +52,7 @@
 		5D6784D925EBA1D800149995 /* WalletItems+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784D825EBA1D800149995 /* WalletItems+.swift */; };
 		5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784E325EBC94B00149995 /* Blockchain+.swift */; };
 		5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */; };
+		5D6ABF6925F7D3DE0010C906 /* AmountType+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6ABF6825F7D3DE0010C906 /* AmountType+.swift */; };
 		5D6C128225E13DE10010A0C5 /* WalletsViewitem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128125E13DE10010A0C5 /* WalletsViewitem.swift */; };
 		5D6C128725E144DF0010A0C5 /* AddWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128625E144DF0010A0C5 /* AddWalletView.swift */; };
 		5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */; };
@@ -274,6 +275,7 @@
 		5D6784D825EBA1D800149995 /* WalletItems+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletItems+.swift"; sourceTree = "<group>"; };
 		5D6784E325EBC94B00149995 /* Blockchain+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Blockchain+.swift"; sourceTree = "<group>"; };
 		5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapSwitchTogglColoredToggleStyleeStyle.swift; sourceTree = "<group>"; };
+		5D6ABF6825F7D3DE0010C906 /* AmountType+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AmountType+.swift"; sourceTree = "<group>"; };
 		5D6C128125E13DE10010A0C5 /* WalletsViewitem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletsViewitem.swift; sourceTree = "<group>"; };
 		5D6C128625E144DF0010A0C5 /* AddWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWalletView.swift; sourceTree = "<group>"; };
 		5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectView.swift; sourceTree = "<group>"; };
@@ -706,6 +708,7 @@
 				5D09383125E7A9820049B8F0 /* Wallet+.swift */,
 				5D6784D825EBA1D800149995 /* WalletItems+.swift */,
 				5D6784E325EBC94B00149995 /* Blockchain+.swift */,
+				5D6ABF6825F7D3DE0010C906 /* AmountType+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1331,6 +1334,7 @@
 				5D9DCAF92551857D0059799C /* TangemSdk+.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */,
+				5D6ABF6925F7D3DE0010C906 /* AmountType+.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* TopupService.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B0FB98A52598D24300B769A3 /* Card+.swift in Sources */,
