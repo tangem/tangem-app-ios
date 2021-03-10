@@ -21,7 +21,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var assembly: Assembly!
     weak var warningsConfigurator: WarningsConfigurator!
     weak var warningsAppendor: WarningAppendor!
-    weak var walletItemsRepository: WalletItemsRepository!
+    weak var tokenItemsRepository: TokenItemsRepository!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -401,7 +401,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let unusedBlockhains = walletItemsRepository.supportedWalletItems.blockchains.subtracting(currentBlockhains).map { $0 }
+        let unusedBlockhains = tokenItemsRepository.supportedWalletItems.blockchains.subtracting(currentBlockhains).map { $0 }
         let models = assembly.makeWalletModels(from: cardInfo, blockchains: unusedBlockhains)
         if models.isEmpty {
             return
@@ -413,7 +413,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .sink(receiveValue: { [unowned self] _ in
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
                 if notEmptyWallets.count > 0 {
-                    walletItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain($0.wallet.blockchain)}))
+                    tokenItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain($0.wallet.blockchain)}))
                     self.state = .loaded(walletModel: self.walletModels! + notEmptyWallets)
                 }
             })
@@ -424,7 +424,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @discardableResult
     func addBlockchain(_ blockchain: Blockchain) -> WalletModel {
         let wi: TokenItem = .blockchain(blockchain)
-        walletItemsRepository.append(wi)
+        tokenItemsRepository.append(wi)
         
         let newWallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain]).first!
         state = .loaded(walletModel: walletModels! + [newWallet])
@@ -437,7 +437,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        walletItemsRepository.remove(.blockchain(blockchain))
+        tokenItemsRepository.remove(.blockchain(blockchain))
         state = .loaded(walletModel: walletModels!.filter { $0.wallet.blockchain != blockchain })
     }
     
@@ -523,6 +523,6 @@ extension CardViewModel {
     
     private static func viewModel(for card: Card) -> CardViewModel {
         let assembly = Assembly.previewAssembly
-        return assembly.cardsRepository.cards[card.cardId!]!.cardModel!
+        return assembly.services.cardsRepository.cards[card.cardId!]!.cardModel!
     }
 }
