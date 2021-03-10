@@ -70,8 +70,7 @@ extension TapScanTaskResponse {
 final class TapScanTask: CardSessionRunnable {
     let excludeBatches = ["0027",
                           "0030",
-                          "0031", //tags
-    ]
+                          "0031"] //tangem tags
     
     let excludeIssuers = ["TTM BANK"]
     
