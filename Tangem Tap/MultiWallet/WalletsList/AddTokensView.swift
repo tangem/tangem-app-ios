@@ -1,5 +1,5 @@
 //
-//  AddWalletView.swift
+//  AddTokensView.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct AddWalletView: View {
+struct AddTokensView: View {
     var action: () -> Void
     
     var body: some View {
@@ -30,11 +30,11 @@ struct AddWalletView: View {
     }
 }
 
-struct AddWalletView_Previews: PreviewProvider {
+struct AddTokensView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemTapGrayLight5
-            AddWalletView(action: {})
+            AddTokensView(action: {})
                 .padding()
         }
     }
