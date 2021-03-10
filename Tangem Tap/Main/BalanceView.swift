@@ -206,8 +206,8 @@ struct BalanceView_Previews: PreviewProvider {
                                                                state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: " ",
-                                                               balance: "-",
-                                                               secondaryBalance: "-",
+                                                               balance: " ",
+                                                               secondaryBalance: " ",
                                                                secondaryFiatBalance: "",
                                                                secondaryName: "Bitcoin"),
                             tokenViewModels: tokens)
