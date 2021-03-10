@@ -11,7 +11,7 @@ import Foundation
 class WalletItemsRepository {
     lazy var supportedWalletItems = SupportedWalletItems()
     
-    private(set) var walletItems: [WalletItem] = []
+    private(set) var walletItems: [TokenItem] = []
     private let persistanceStorage: PersistentStorage
     private var cardId: String = ""
     private var storageKey: PersistentStorageKey { .wallets(cid: cardId) }
@@ -25,17 +25,17 @@ class WalletItemsRepository {
         fetch()
     }
     
-    func append(_ walletItem: WalletItem) {
+    func append(_ walletItem: TokenItem) {
         walletItems.append(walletItem)
         save()
     }
     
-    func append(_ walletItems: [WalletItem]) {
+    func append(_ walletItems: [TokenItem]) {
         self.walletItems.append(contentsOf: walletItems)
         save()
     }
     
-    func remove(_ walletItem: WalletItem) {
+    func remove(_ walletItem: TokenItem) {
         walletItems.remove(walletItem)
         save()
     }
