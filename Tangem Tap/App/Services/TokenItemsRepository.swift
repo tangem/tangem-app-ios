@@ -1,5 +1,5 @@
 //
-//  WalletItemsService.swift
+//  TokenItemsRepository.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,9 +9,9 @@
 import Foundation
 
 class TokenItemsRepository {
-    lazy var supportedWalletItems = SupportedWalletItems()
+    lazy var supportedItems = SupportedTokenItems()
     
-    private(set) var walletItems: [TokenItem] = []
+    private(set) var items: [TokenItem] = []
     private let persistanceStorage: PersistentStorage
     private var cardId: String = ""
     private var storageKey: PersistentStorageKey { .wallets(cid: cardId) }
@@ -25,26 +25,26 @@ class TokenItemsRepository {
         fetch()
     }
     
-    func append(_ walletItem: TokenItem) {
-        walletItems.append(walletItem)
+    func append(_ tokenItem: TokenItem) {
+        items.append(tokenItem)
         save()
     }
     
-    func append(_ walletItems: [TokenItem]) {
-        self.walletItems.append(contentsOf: walletItems)
+    func append(_ tokenItems: [TokenItem]) {
+        self.items.append(contentsOf: tokenItems)
         save()
     }
     
-    func remove(_ walletItem: TokenItem) {
-        walletItems.remove(walletItem)
+    func remove(_ tokenItem: TokenItem) {
+        items.remove(tokenItem)
         save()
     }
     
     private func save() {
-        try? persistanceStorage.store(value: walletItems, for: storageKey)
+        try? persistanceStorage.store(value: items, for: storageKey)
     }
     
     private func fetch() {
-        walletItems = (try? persistanceStorage.value(for: storageKey)) ?? []
+        items = (try? persistanceStorage.value(for: storageKey)) ?? []
     }
 }
