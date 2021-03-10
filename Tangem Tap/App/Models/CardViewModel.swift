@@ -85,6 +85,11 @@ class CardViewModel: Identifiable, ObservableObject {
             return TangemSdkError.purgeWalletProhibited.localizedDescription
         }
         
+        if let walletModels = walletModels,
+           walletModels.filter({ !$0.state.isSuccesfullyLoaded }).count != 0  {
+            return nil
+        }
+        
         if !canPurgeWallet {
             return "details_notification_erase_wallet_not_possible".localized
         }
