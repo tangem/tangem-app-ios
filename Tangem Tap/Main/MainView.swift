@@ -224,14 +224,14 @@ struct MainView: View {
                             } else {
                                 if viewModel.cardModel!.isMultiWallet {
                                     ForEach(viewModel.walletItemViewModels!) { item in
-                                        WalletsViewItem(item: item)
+                                        TokensListItemView(item: item)
                                             .onTapGesture {
                                                 viewModel.onWalletTap(item)
                                             }
                                     }
                                     .padding(.horizontal, 16)
                                     
-                                    AddWalletView(action: {
+                                    AddTokensView(action: {
                                                     navigation.mainToAddTokens = true
                                     })
                                         .padding(.horizontal, 16)
