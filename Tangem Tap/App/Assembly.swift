@@ -162,7 +162,7 @@ class Assembly {
             return [twinWalletManager]
         }
 
-        if cardInfo.card.isMultiWallet && services.tokenItemsRepository.walletItems.count > 0 {
+        if cardInfo.card.isMultiWallet && services.tokenItemsRepository.items.count > 0 {
             return makeMultiwallet(from: cardInfo.card)
         }
         
@@ -176,7 +176,7 @@ class Assembly {
     private func makeMultiwallet(from card: Card) -> [WalletManager] {
         var walletManagers: [WalletManager] = .init()
         
-        let erc20Tokens = services.tokenItemsRepository.walletItems.compactMap { $0.token }
+        let erc20Tokens = services.tokenItemsRepository.items.compactMap { $0.token }
         if !erc20Tokens.isEmpty {
             if let ethereumWalletManager = services.walletManagerFactory.makeEthereumWalletManager(from: card, erc20Tokens: erc20Tokens) {
                 walletManagers.append(ethereumWalletManager)
@@ -189,7 +189,7 @@ class Assembly {
         }
         
         let existingBlockchains = walletManagers.map { $0.wallet.blockchain }
-        let additionalBlockchains = services.tokenItemsRepository.walletItems.compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
+        let additionalBlockchains = services.tokenItemsRepository.items.compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
         let additionalWalletManagers = services.walletManagerFactory.makeWalletManagers(from: card, blockchains: additionalBlockchains)
         walletManagers.append(contentsOf: additionalWalletManagers)
         return walletManagers
