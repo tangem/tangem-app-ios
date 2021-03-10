@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-extension Array where Element == WalletItem {
+extension Array where Element == TokenItem {
     mutating func remove(token: Token) {
         if let index = firstIndex(where: { $0.token == token }) {
             remove(at: index)
@@ -22,7 +22,7 @@ extension Array where Element == WalletItem {
         }
     }
     
-    mutating func remove(_ walletItem: WalletItem) {
+    mutating func remove(_ walletItem: TokenItem) {
         if let index = firstIndex(where: { $0 == walletItem }) {
             remove(at: index)
         }
