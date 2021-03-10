@@ -413,7 +413,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .sink(receiveValue: { [unowned self] _ in
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
                 if notEmptyWallets.count > 0 {
-                    walletItemsRepository.append(notEmptyWallets.map({WalletItem.blockchain($0.wallet.blockchain)}))
+                    walletItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain($0.wallet.blockchain)}))
                     self.state = .loaded(walletModel: self.walletModels! + notEmptyWallets)
                 }
             })
@@ -423,7 +423,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     @discardableResult
     func addBlockchain(_ blockchain: Blockchain) -> WalletModel {
-        let wi: WalletItem = .blockchain(blockchain)
+        let wi: TokenItem = .blockchain(blockchain)
         walletItemsRepository.append(wi)
         
         let newWallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain]).first!
