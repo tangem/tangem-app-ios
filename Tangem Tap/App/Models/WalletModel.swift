@@ -13,7 +13,7 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
-    @Published var walletItems: [TokenItemViewModel] = []
+    @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: [String: Decimal]] = [:]
 
@@ -225,7 +225,7 @@ class WalletModel: ObservableObject, Identifiable {
         return getFiatFormatted(for: wallet.amounts[type]) ?? ""
     }
     
-    func getWalletItem(for type: Amount.AmountType) -> TokenItem {
+    func getTokenItem(for type: Amount.AmountType) -> TokenItem {
         if case let .token(token) = type {
             return .token(token)
         }
@@ -244,7 +244,7 @@ class WalletModel: ObservableObject, Identifiable {
                                             secondaryFiatBalance: "",
                                             secondaryName: "")
         updateTokensViewModels()
-        updateWalletItems()
+        updateTokenItemViewModels()
     }
     
     private func loadRates() {
@@ -299,19 +299,19 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
-    private func updateWalletItems() {
+    private func updateTokenItemViewModels() {
         let blockchainItem = TokenItemViewModel(from: balanceViewModel,
                                              rate: getRateFormatted(for: .coin),
                                              blockchain: wallet.blockchain)
         
-        let tokenItems = tokenViewModels.map {
+        let items = tokenViewModels.map {
             TokenItemViewModel(from: balanceViewModel,
                                 tokenBalanceViewModel: $0,
                                 rate: getRateFormatted(for: .token(value: $0.token)),
                                 blockchain: wallet.blockchain)
         }
         
-        walletItems = [blockchainItem] + tokenItems
+        tokenItemViewModels = [blockchainItem] + items
     }
     
     
