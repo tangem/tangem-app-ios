@@ -1,5 +1,5 @@
 //
-//  CircleImageView.swift
+//  CircleImageTextView.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 
-struct CircleImageView: View {
+struct CircleImageTextView: View {
     let name: String
     let color: Color
     
@@ -29,6 +29,6 @@ struct CircleImageView: View {
 
 struct TokenImage_Previews: PreviewProvider {
     static var previews: some View {
-        CircleImageView(name: "Aave (OLD)", color: .gray)
+        CircleImageTextView(name: "Aave (OLD)", color: .gray)
     }
 }
