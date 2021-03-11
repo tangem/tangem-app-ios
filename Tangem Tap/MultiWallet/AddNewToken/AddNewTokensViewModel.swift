@@ -15,11 +15,10 @@ class AddNewTokensViewModel: ViewModel {
     weak var navigation: NavigationCoordinator!
     weak var tokenItemsRepository: TokenItemsRepository!
     
-    var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains.map {$0} } }
+    var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains.map {$0}.sorted(by: { $0.displayName < $1.displayName }) } }
     var availableTokens: [Token]  { get { tokenItemsRepository.supportedItems.erc20Tokens.map {$0} } }
     
     @Published var searchText: String = ""
-    @Published private(set) var tokensToSave: Set<Token> = []
     @Published private(set) var pendingTokensUpdate: Set<Token> = []
     @Published var error: AlertBinder?
     
@@ -49,8 +48,6 @@ class AddNewTokensViewModel: ViewModel {
     
     func addTokenToList(token: Token) {
         pendingTokensUpdate.insert(token)
-        tokensToSave.insert(token)
-        
         cardModel.erc20TokenWalletModel.addToken(token)?
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
@@ -58,7 +55,6 @@ class AddNewTokensViewModel: ViewModel {
                     print("Failed to add token to model", error)
                     self.error = error.alertBinder
                     self.pendingTokensUpdate.remove(token)
-                    self.tokensToSave.remove(token)
                 }
             }, receiveValue: { _ in
                 self.pendingTokensUpdate.remove(token)
@@ -67,12 +63,11 @@ class AddNewTokensViewModel: ViewModel {
     }
     
     func removeTokenFromList(token: Token) {
-        tokensToSave.remove(token)
+        cardModel.erc20TokenWalletModel.removeToken(token)
     }
     
     func clear() {
         searchText = ""
-        tokensToSave = []
         pendingTokensUpdate = []
         bag = []
     }
