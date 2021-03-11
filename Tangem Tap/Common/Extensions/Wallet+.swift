@@ -25,8 +25,8 @@ extension Wallet {
         }
     }
     
-    public var canSend: Bool {
-        if hasPendingTx {
+    public func canSend(amountType: Amount.AmountType) -> Bool {
+        if hasPendingTx(for: amountType) {
             return false
         }
         
@@ -35,6 +35,11 @@ extension Wallet {
         }
         
         if amounts.values.first(where: { $0.value > 0 }) == nil { //empty wallet
+            return false
+        }
+        
+        let amount = amounts[amountType]?.value ?? 0
+        if amount <= 0 {
             return false
         }
         
