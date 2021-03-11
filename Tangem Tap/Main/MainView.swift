@@ -223,7 +223,7 @@ struct MainView: View {
                                 )
                             } else {
                                 if viewModel.cardModel!.isMultiWallet {
-                                    ForEach(viewModel.tokenItemViewModels!) { item in
+                                    ForEach(viewModel.tokenItemViewModels) { item in
                                         TokensListItemView(item: item)
                                             .onTapGesture {
                                                 viewModel.onWalletTap(item)
