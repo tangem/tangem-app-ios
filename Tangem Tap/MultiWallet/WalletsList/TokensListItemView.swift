@@ -106,7 +106,9 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                                           fiatBalance: "$3.45",
                                                           balance: "0.00000348501 BTC",
                                                           rate: "1.5 USD",
-                                                          blockchain: .ethereum(testnet: false)))
+                                                          amountType: .coin,
+                                                          blockchain: .ethereum(testnet: false),
+                                                          fiatValue: 0))
                     .padding(.horizontal, 16)
                 
                 TokensListItemView(item: TokenItemViewModel(
@@ -115,7 +117,9 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     fiatBalance: "$3.45",
                                     balance: "0.00000348573986753845001 BTC",
                                     rate: "1.5 USD",
-                                    blockchain: .ethereum(testnet: false)))
+                                    amountType: .coin,
+                                    blockchain: .ethereum(testnet: false),
+                                    fiatValue: 0))
                     .padding(.horizontal, 16)
                 
                 TokensListItemView(item: TokenItemViewModel(
@@ -124,7 +128,9 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     fiatBalance: " ",
                                     balance: " ",
                                     rate: "1.5 USD",
-                                    blockchain: .ethereum(testnet: false)))
+                                    amountType: .coin,
+                                    blockchain: .ethereum(testnet: false),
+                                    fiatValue: 0))
                     .padding(.horizontal, 16)
                 
                 TokensListItemView(item: TokenItemViewModel(
@@ -133,7 +139,9 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     fiatBalance: "5 USD",
                                     balance: "10 BTCA",
                                     rate: "1.5 USD",
-                                    blockchain: .ethereum(testnet: false)))
+                                    amountType: .coin,
+                                    blockchain: .ethereum(testnet: false),
+                                    fiatValue: 0))
                     .padding(.horizontal, 16)
             }
         }

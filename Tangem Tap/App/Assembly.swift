@@ -13,21 +13,7 @@ import BlockchainSdk
 class ServicesAssembly {
     weak var assembly: Assembly!
     
-    let keysManager = try! KeysManager()
-    let configManager = try! FeaturesConfigManager()
     let logger = Logger()
-    
-    lazy var tangemSdk: TangemSdk = {
-        let sdk = TangemSdk()
-        return sdk
-    }()
-    
-    lazy var sdkConfig: Config = {
-        var config = Config()
-        config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
-        return config
-    }()
-    
     lazy var navigationCoordinator = NavigationCoordinator()
     lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
     lazy var userPrefsService = UserPrefsService()
@@ -38,17 +24,13 @@ class ServicesAssembly {
     lazy var persistentStorage = PersistentStorage()
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
     lazy var keychainService = ValidatedCardsService()
-    lazy var imageLoaderService: ImageLoaderService = {
-        return ImageLoaderService(networkService: networkService)
-    }()
-    lazy var topupService: TopupService = {
-        let s = TopupService(keys: keysManager.moonPayKeys)
-        return s
-    }()
-    lazy var rateAppService: RateAppService = RateAppService(userPrefsService: userPrefsService)
+    lazy var imageLoaderService: ImageLoaderService = ImageLoaderService(networkService: networkService)
+    lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
+    lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
+    lazy var tangemSdk: TangemSdk = .init()
     
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), validatedCardsService: keychainService)
+        let crepo = CardsRepository(validatedCardsService: keychainService)
         crepo.tangemSdk = tangemSdk
         crepo.assembly = assembly
         crepo.onDidScan = onDidScan
@@ -61,6 +43,15 @@ class ServicesAssembly {
                                    twinFileEncoder: TwinCardTlvFileEncoder(),
                                    cardsRepository: cardsRepository,
                                    validatedCardsService: keychainService)
+    }()
+    
+    private let keysManager = try! KeysManager()
+    private let configManager = try! FeaturesConfigManager()
+    
+    private lazy var defaultSdkConfig: Config = {
+        var config = Config()
+        config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
+        return config
     }()
     
     private func onDidScan(_ cardInfo: CardInfo) {
@@ -78,7 +69,7 @@ class ServicesAssembly {
     }
     
     private func onWillScan() {
-        tangemSdk.config = sdkConfig
+        tangemSdk.config = defaultSdkConfig
     }
 }
 
