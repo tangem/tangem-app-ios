@@ -134,7 +134,7 @@ class MainViewModel: ViewModel {
             return false
         }
         
-        return wallet.canSend
+        return wallet.canSend(amountType: .coin)
     }
     
     var incomingTransactions: [BlockchainSdk.Transaction] {
@@ -153,10 +153,11 @@ class MainViewModel: ViewModel {
 		cardModel?.isTwinCard ?? false
 	}
     
-    var tokenItemViewModels: [TokenItemViewModel]? {
-        guard let cardModel = cardModel else { return nil }
+    var tokenItemViewModels: [TokenItemViewModel] {
+        guard let cardModel = cardModel,
+              let walletModels = cardModel.walletModels else { return [] }
         
-        return cardModel.walletModels?
+        return walletModels
             .flatMap ({ $0.tokenItemViewModels })
             .sorted(by: { lhs, rhs in
                 if lhs.blockchain == cardModel.cardInfo.card.blockchain && rhs.blockchain == cardModel.cardInfo.card.blockchain {
@@ -164,40 +165,30 @@ class MainViewModel: ViewModel {
                         if lhs.amountType.token == cardModel.cardInfo.card.token {
                             return true
                         }
-                        
+
                         if rhs.amountType.token == cardModel.cardInfo.card.token {
                             return false
                         }
-                        
-                        if lhs.fiatBalance != " " && rhs.fiatBalance != " " && lhs.fiatBalance != rhs.fiatBalance {
-                            return lhs.fiatBalance > rhs.fiatBalance
-                        }
-                        
-                        return lhs.name < rhs.name
                     }
-                    
+
                     if !lhs.amountType.isToken {
                         return true
                     }
-                    
+
                     if !rhs.amountType.isToken {
                         return false
                     }
                 }
-                
+
                 if lhs.blockchain == cardModel.cardInfo.card.blockchain {
                    return true
                 }
-                
+
                 if rhs.blockchain == cardModel.cardInfo.card.blockchain {
                     return false
                 }
-                
-                if lhs.fiatBalance != " " && rhs.fiatBalance != " " && lhs.fiatBalance != rhs.fiatBalance {
-                    return lhs.fiatBalance > rhs.fiatBalance
-                }
-                
-                return lhs.name < rhs.name
+
+                return lhs < rhs
             })
     }
     
