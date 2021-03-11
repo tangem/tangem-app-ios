@@ -301,13 +301,15 @@ class WalletModel: ObservableObject, Identifiable {
     
     private func updateTokenItemViewModels() {
         let blockchainItem = TokenItemViewModel(from: balanceViewModel,
-                                             rate: getRateFormatted(for: .coin),
+                                                rate: getRateFormatted(for: .coin),
+                                                fiatValue: getFiat(for: wallet.amounts[.coin]) ?? 0,
                                              blockchain: wallet.blockchain)
         
         let items = tokenViewModels.map {
             TokenItemViewModel(from: balanceViewModel,
                                 tokenBalanceViewModel: $0,
                                 rate: getRateFormatted(for: .token(value: $0.token)),
+                                fiatValue:  getFiat(for: wallet.amounts[.token(value: $0.token)]) ?? 0,
                                 blockchain: wallet.blockchain)
         }
         
