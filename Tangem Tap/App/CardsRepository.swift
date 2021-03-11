@@ -61,11 +61,9 @@ class CardsRepository {
     var onWillScan: (() -> Void)? = nil
     var onDidScan: ((CardInfo) -> Void)? = nil
     
-	private let twinCardFileDecoder: TwinCardFileDecoder
     private let validatedCardsService: ValidatedCardsService
 	
-    init(twinCardFileDecoder: TwinCardFileDecoder, validatedCardsService: ValidatedCardsService) {
-		self.twinCardFileDecoder = twinCardFileDecoder
+    init(validatedCardsService: ValidatedCardsService) {
         self.validatedCardsService = validatedCardsService
 	}
     
