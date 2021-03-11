@@ -57,7 +57,7 @@ class TokenDetailsViewModel: ViewModel {
             return false
         }
         
-        return wallet?.canSend ?? false
+        return wallet?.canSend(amountType: self.amountType) ?? false
     }
     
     var canDelete: Bool {
