@@ -34,8 +34,20 @@ extension Card {
         return (cid, pubKey)
     }
     
+    var isStart2Coin: Bool {
+        if let issuerName = cardData?.issuerName,
+           issuerName.lowercased() == "start2coin" {
+            return true
+        }
+        return false
+    }
+    
     var isMultiWallet: Bool {
         if isTwinCard {
+            return false
+        }
+        
+        if isStart2Coin {
             return false
         }
         

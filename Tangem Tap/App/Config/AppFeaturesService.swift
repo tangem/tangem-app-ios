@@ -23,8 +23,7 @@ class AppFeaturesService {
 	}
 	
     private func getFeatures(for card: Card) -> AppFeatures {
-        if let issuerName = card.cardData?.issuerName,
-           issuerName.lowercased() == "start2coin" {
+        if card.isStart2Coin {
             return .none
         }
         
