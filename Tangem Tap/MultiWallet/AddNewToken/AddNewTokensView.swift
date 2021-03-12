@@ -31,10 +31,11 @@ fileprivate struct TokenView: View {
                     .foregroundColor(.tangemTapGrayDark)
             }
             Spacer()
-            TangemButton(isLoading: isLoading, title: isAdded ? "common_remove" : "common_add", image: "", size: .thinHorizontal, action: isAdded ? removeAction : addAction)
+            TangemButton(isLoading: isLoading, title: isAdded ? "common_added" : "common_add", image: "", size: .thinHorizontal, action: isAdded ? removeAction : addAction)
                 .buttonStyle(isAdded ?
-                                TangemButtonStyle(color: .gray, isDisabled: false) :
+                                TangemButtonStyle(color: .gray, isDisabled: true) :
                                 TangemButtonStyle(color: .green, isDisabled: false))
+                .disabled(isAdded)
         }
         .padding(.vertical, 8)
     }
@@ -73,9 +74,7 @@ struct AddNewTokensView: View {
                                   tokenItem: .blockchain(blockchain),
                                   addAction: {
                                     viewModel.addBlockchain(blockchain)
-                                  }, removeAction: {
-                                    viewModel.removeBlockchain(blockchain)
-                                  })                    }
+                                  }, removeAction: {})}
                 }
                 
                 Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized)) {
@@ -87,9 +86,7 @@ struct AddNewTokensView: View {
                                   tokenItem: .token(token),
                                   addAction: {
                                     viewModel.addTokenToList(token: token)
-                                  }, removeAction: {
-                                    viewModel.removeTokenFromList(token: token)
-                                  })
+                                  }, removeAction: { })
                     }
                 }
             }
