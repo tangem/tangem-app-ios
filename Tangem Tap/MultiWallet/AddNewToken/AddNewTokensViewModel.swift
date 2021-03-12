@@ -22,8 +22,6 @@ class AddNewTokensViewModel: ViewModel {
     @Published private(set) var pendingTokensUpdate: Set<Token> = []
     @Published var error: AlertBinder?
     
-    private var bag: Set<AnyCancellable> = []
-    
     let cardModel: CardViewModel
     
     init(cardModel: CardViewModel) {
@@ -32,10 +30,6 @@ class AddNewTokensViewModel: ViewModel {
     
     func addBlockchain(_ blockchain: Blockchain) {
         cardModel.addBlockchain(blockchain)
-    }
-    
-    func removeBlockchain(_ blockchain: Blockchain) {
-        cardModel.removeBlockchain(blockchain)
     }
     
     func isAdded(_ token: Token) -> Bool {
@@ -48,28 +42,21 @@ class AddNewTokensViewModel: ViewModel {
     
     func addTokenToList(token: Token) {
         pendingTokensUpdate.insert(token)
-        cardModel.erc20TokenWalletModel.addToken(token)?
-            .sink(receiveCompletion: { [weak self] completion in
-                guard let self = self else { return }
-                if case let .failure(error) = completion {
-                    print("Failed to add token to model", error)
-                    self.error = error.alertBinder
-                    self.pendingTokensUpdate.remove(token)
-                }
-            }, receiveValue: { _ in
+        cardModel.addToken(token) {[weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let token):
                 self.pendingTokensUpdate.remove(token)
-            })
-            .store(in: &bag)
-    }
-    
-    func removeTokenFromList(token: Token) {
-        cardModel.erc20TokenWalletModel.removeToken(token)
+            case .failure(let error):
+                self.error = error.alertBinder
+                self.pendingTokensUpdate.remove(token)
+            }
+        }
     }
     
     func clear() {
         searchText = ""
         pendingTokensUpdate = []
-        bag = []
     }
     
 }
