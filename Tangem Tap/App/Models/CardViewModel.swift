@@ -28,18 +28,6 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     @Published public private(set) var cardInfo: CardInfo
     
-    var erc20TokenWalletModel: WalletModel {
-        get {
-            if let ethWallet = walletModels!.first(where: {$0.wallet.blockchain == .ethereum(testnet: true)
-                                                                    || $0.wallet.blockchain == .ethereum(testnet: false)}) {
-                return ethWallet
-            }
-           
-            let newEthWallet = addBlockchain(.ethereum(testnet: cardInfo.card.isTestnet))
-            return newEthWallet
-        }
-    }
-    
     var walletModels: [WalletModel]? {
         return state.walletModels
     }
@@ -170,8 +158,15 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canTopup: Bool { featuresService.canTopup }
     
+    private var erc20TokenWalletModel: WalletModel? {
+        get {
+             walletModels?.first(where: {$0.wallet.blockchain == .ethereum(testnet: true)
+                                                                    || $0.wallet.blockchain == .ethereum(testnet: false)})
+        }
+    }
+    
     private var searchBlockchainsCancellable: AnyCancellable? = nil
-    private var bag =  Set<AnyCancellable>()
+    private var bag = Set<AnyCancellable>()
     
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
@@ -385,12 +380,12 @@ class CardViewModel: Identifiable, ObservableObject {
             self.state = .empty
         } else {
             self.state = .loaded(walletModel: models)
-            searchBlockchains()
+            searchTokens()
             update()
         }
     }
     
-    func searchBlockchains() {
+    private func searchBlockchains() {
         guard cardInfo.card.isMultiWallet else {
             return
         }
@@ -421,6 +416,48 @@ class CardViewModel: Identifiable, ObservableObject {
         models.forEach { $0.update() }
     }
     
+    private func searchTokens() {
+        var sholdAddWalletManager = false
+        var ethWalletModel = erc20TokenWalletModel
+        
+        if ethWalletModel == nil {
+            sholdAddWalletManager = true
+            ethWalletModel = assembly.makeWalletModels(from: cardInfo, blockchains: [.ethereum(testnet: cardInfo.card.isTestnet)]).first!
+        }
+        
+        (ethWalletModel!.walletManager as! TokenFinder).findErc20Tokens() { result in
+            switch result {
+            case .success(let isAdded):
+                if isAdded && sholdAddWalletManager {
+                    self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
+                    ethWalletModel!.update()
+                }
+            case .failure(let error):
+                print(error)
+            }
+            
+            self.searchBlockchains()
+        }
+    }
+    
+    func addToken(_ token: Token, completion: @escaping (Result<Token, Error>) -> Void) {
+        var ehhWalletModel = erc20TokenWalletModel
+        if ehhWalletModel == nil {
+            ehhWalletModel = addBlockchain(.ethereum(testnet: cardInfo.card.isTestnet))
+        }
+        
+        ehhWalletModel?.addToken(token)?
+            .sink(receiveCompletion: { addCompletion in
+                if case let .failure(error) = addCompletion {
+                    print("Failed to add token to model", error)
+                    completion(.failure(error))
+                }
+            }, receiveValue: { _ in
+                completion(.success(token))
+            })
+            .store(in: &bag)
+    }
+  
     @discardableResult
     func addBlockchain(_ blockchain: Blockchain) -> WalletModel {
         tokenItemsRepository.append(.blockchain(blockchain))
