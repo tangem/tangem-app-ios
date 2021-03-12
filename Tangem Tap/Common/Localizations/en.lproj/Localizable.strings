@@ -40,6 +40,8 @@
 
 "common_add" = "Add";
 
+"common_added" = "Added";
+
 "common_remove" = "Remove";
 
 "common_search" = "Search";
