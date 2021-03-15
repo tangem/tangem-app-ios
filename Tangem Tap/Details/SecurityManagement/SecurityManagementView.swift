@@ -63,10 +63,10 @@ struct SecurityManagementRowView: View {
 struct SecurityManagementView: View {
     @ObservedObject var viewModel: SecurityManagementViewModel
 	@EnvironmentObject var navigation: NavigationCoordinator
-	
+    
     var body: some View {
         VStack {
-            List(SecurityManagementOption.allCases) { option in
+            List(viewModel.secOptions) { option in
                 SecurityManagementRowView(selectedOption: self.$viewModel.selectedOption,
                                           option: option)
                     .environmentObject(self.viewModel.cardViewModel)
