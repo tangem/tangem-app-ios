@@ -21,12 +21,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
         // Create the SwiftUI view that provides the window contents.
-		assembly.userPrefsService.numberOfLaunches += 1
-		print("Launch number:", assembly.userPrefsService.numberOfLaunches)
+        assembly.services.userPrefsService.numberOfLaunches += 1
+        print("Launch number:", assembly.services.userPrefsService.numberOfLaunches)
      
         let vm = assembly.makeReadViewModel()
         let contentView = ContentView() { ReadView(viewModel: vm) }
-            .environmentObject(assembly.navigationCoordinator)
+            .environmentObject(assembly.services.navigationCoordinator)
             
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
