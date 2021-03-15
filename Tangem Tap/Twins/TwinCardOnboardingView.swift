@@ -21,7 +21,7 @@ struct TwinCardOnboardingView: View {
         screenSize.width * backHeightAspect
     }
     
-    var navigationLinks: AnyView {
+    var navigationLinks: some View {
         Group {
             if viewModel.state.isWarning { //activate link only if we need it, because of navigation issues with shared state
                 NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly
@@ -34,7 +34,7 @@ struct TwinCardOnboardingView: View {
                 }
             }
             
-        }.toAnyView()
+        }
     }
     
     @State var appeared = false //fix ios 13 bug. (navbar not dissapeared)
@@ -127,13 +127,13 @@ struct TwinCardOnboardingView: View {
         .navigationBarHidden(isNavBarHidden)
     }
     
-    private func content() -> some View {
+    @ViewBuilder private func content() -> some View {
         let buttonEdgeInsets = EdgeInsets(top: 0, leading: 30, bottom: 16, trailing: 30)
         let button = TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: { self.viewModel.buttonAction() })
         
         switch viewModel.state {
         case let .onboarding(pairCid, _):
-            return VStack {
+             VStack {
                 Spacer()
                 VStack(alignment: .leading, spacing: 16) {
                     Text("twins_onboarding_title")
@@ -154,9 +154,10 @@ struct TwinCardOnboardingView: View {
                         .padding(buttonEdgeInsets)
                     
                 }
-            }.toAnyView()
+            }
+            
         case .warning(let isRecreating):
-            return VStack {
+             VStack {
                 Spacer()
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
@@ -190,7 +191,7 @@ struct TwinCardOnboardingView: View {
                         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
                 }
                 .padding(buttonEdgeInsets)
-            }.toAnyView()
+            }
         }
     }
     
@@ -207,7 +208,7 @@ struct TwinCardOnboardingView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     static var previews: some View {
         TwinCardOnboardingView(viewModel: assembly.makeTwinCardWarningViewModel(isRecreating: true))
-            .environmentObject(assembly.navigationCoordinator)
+            .environmentObject(assembly.services.navigationCoordinator)
             .previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
     }
 }
