@@ -40,6 +40,8 @@
 
 "common_add" = "Add";
 
+"common_added" = "Added";
+
 "common_remove" = "Remove";
 
 "common_search" = "Search";
@@ -301,10 +303,11 @@
 "manage_tokens_alert_remove_token_title" = "Remove %@ token";
 "manage_tokens_alert_remove_token_message" = "Are you sure you want to remove this token?";
 
-"add_tokens_title" = "Add token";
+"add_tokens_title" = "Add tokens";
 "add_custom" = "Add Custom";
 "add_token_section_title_custom_tokens" = "Custom tokens";
-"add_token_section_title_popular_tokens" = "Popular tokens";
+"add_token_section_title_popular_tokens" = "Ethereum tokens";
+"add_token_section_title_blockchains" = "Blockchains";
 
 "add_custom_token_title" = "Add custom token";
 
@@ -359,6 +362,9 @@
 "warning_rate_app_title" = "One question";
 
 "warning_rate_app_message" = "How do you like Tangem?";
+
+"warning_failed_to_verify_card_title" = "Authenticity check failed";
+"warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
 
 
 // MARK: - Initial message
@@ -446,4 +452,11 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Delete Wallet function not possible.";
 "details_notification_security_option_already_active" = "This is the currently active option";
 
+
+"wallet_add_tokens" = "Add Tokens";
+"wallet_remove_token" = "Remove token";
+
 "details_row_title_card_tou" = "Card terms of use";
+
+"common_copy" = "Copy";
+"common_share" = "Share";
