@@ -12,7 +12,6 @@ import BlockchainSdk
 
 struct CardInfo {
     var card: Card
-    var verificationState: VerifyCardState?
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
 }
@@ -21,15 +20,6 @@ enum ScanResult: Equatable {
     case card(model: CardViewModel)
     case unsupported
 	case notScannedYet
-    
-    var wallet: Wallet? {
-        switch self {
-        case .card(let model):
-            return model.state.wallet
-        default:
-            return nil
-        }
-    }
     
     var cardModel: CardViewModel? {
         switch self {
@@ -64,23 +54,23 @@ enum ScanResult: Equatable {
 class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
-    weak var featuresService: AppFeaturesService!
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
+    
+    var onWillScan: (() -> Void)? = nil
+    var onDidScan: ((CardInfo) -> Void)? = nil
+    
+    private let validatedCardsService: ValidatedCardsService
 	
-	private let twinCardFileDecoder: TwinCardFileDecoder
-    private let warningsConfigurator: WarningsConfigurator
-	
-    init(twinCardFileDecoder: TwinCardFileDecoder, warningsConfigurator: WarningsConfigurator) {
-		self.twinCardFileDecoder = twinCardFileDecoder
-        self.warningsConfigurator = warningsConfigurator
+    init(validatedCardsService: ValidatedCardsService) {
+        self.validatedCardsService = validatedCardsService
 	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        tangemSdk.config = Config()
-        tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
+        onWillScan?()
+        tangemSdk.startSession(with: TapScanTask(validatedCardsService: validatedCardsService)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.log(error: error)
@@ -98,21 +88,13 @@ class CardsRepository {
     }
 
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
-        self.featuresService.setupFeatures(for: cardInfo.card)
-        self.warningsConfigurator.setupWarnings(for: cardInfo.card)
-	   
-		if !self.featuresService.linkedTerminal {
-			self.tangemSdk.config.linkedTerminal = false
-		}
+        onDidScan?(cardInfo)
         
-        if cardInfo.card.isTwinCard {
-            tangemSdk.config.cardIdDisplayedNumbersCount = 4
-        }
-        
-		let cm = self.assembly.makeCardModel(from: cardInfo)
-		let res: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
-		self.cards[cardInfo.card.cardId!] = res
-		self.lastScanResult = res
-		return res
+        let cm = assembly.makeCardModel(from: cardInfo)
+        let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
+        cards[cardInfo.card.cardId!] = result
+        lastScanResult = result
+        cm?.getCardInfo()
+        return result
 	}
 }
