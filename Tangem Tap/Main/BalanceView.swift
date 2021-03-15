@@ -42,7 +42,7 @@ struct BalanceView: View {
     var tokenViewModels: [TokenBalanceViewModel]
     
     var blockchainText: String {
-        if balanceViewModel.loadingError != nil {
+        if balanceViewModel.state.errorDescription != nil {
             return "wallet_balance_blockchain_unreachable".localized
         }
         
@@ -50,7 +50,7 @@ struct BalanceView: View {
             return  "wallet_balance_tx_in_progress".localized
         }
         
-        if balanceViewModel.isLoading {
+        if balanceViewModel.state.isLoading {
             return  "wallet_balance_loading".localized
         }
         
@@ -58,15 +58,15 @@ struct BalanceView: View {
     }
     
     var image: String {
-        balanceViewModel.loadingError == nil
+        balanceViewModel.state.errorDescription == nil
             && !balanceViewModel.hasTransactionInProgress
-            && !balanceViewModel.isLoading ? "checkmark.circle" : "exclamationmark.circle"
+            && !balanceViewModel.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
     }
     
     var accentColor: Color {
-        if balanceViewModel.loadingError == nil
+        if balanceViewModel.state.errorDescription == nil
             && !balanceViewModel.hasTransactionInProgress
-            && !balanceViewModel.isLoading {
+            && !balanceViewModel.state.isLoading {
             return .tangemTapGreen
         }
         return .tangemTapWarning
@@ -99,7 +99,7 @@ struct BalanceView: View {
             
             
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                Image(balanceViewModel.loadingError == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
+                Image(balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .foregroundColor(accentColor)
@@ -110,8 +110,8 @@ struct BalanceView: View {
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .foregroundColor(accentColor)
                         .lineLimit(1)
-                    if balanceViewModel.loadingError != nil {
-                        Text(balanceViewModel.loadingError!)
+                    if balanceViewModel.state.errorDescription != nil {
+                        Text(balanceViewModel.state.errorDescription!)
                             .layoutPriority(1)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .foregroundColor(accentColor)
@@ -181,8 +181,7 @@ struct BalanceView_Previews: PreviewProvider {
             VStack {
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
                                                                hasTransactionInProgress: false,
-                                                               isLoading: false,
-                                                               loadingError: nil,
+                                                               state: .idle,
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: "$3.45",
                                                                balance: "0.00000348573986753845001 BTC",
@@ -193,8 +192,7 @@ struct BalanceView_Previews: PreviewProvider {
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
                                                                hasTransactionInProgress: false,
-                                                               isLoading: true,
-                                                               loadingError: nil,
+                                                               state: .loading,
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: "$3.45",
                                                                balance: "0.00000348573986753845001 BTC",
@@ -205,12 +203,11 @@ struct BalanceView_Previews: PreviewProvider {
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: false,
-                                                               isLoading: false,
-                                                               loadingError: "The internet connection appears to be offline",
+                                                               state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: " ",
-                                                               balance: "-",
-                                                               secondaryBalance: "-",
+                                                               balance: " ",
+                                                               secondaryBalance: " ",
                                                                secondaryFiatBalance: "",
                                                                secondaryName: "Bitcoin"),
                             tokenViewModels: tokens)
@@ -218,8 +215,7 @@ struct BalanceView_Previews: PreviewProvider {
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: true,
-                                                               isLoading: false,
-                                                               loadingError: nil,
+                                                               state: .idle,
                                                                name: "Bitcoin token",
                                                                fiatBalance: "5 USD",
                                                                balance: "10 BTCA",
