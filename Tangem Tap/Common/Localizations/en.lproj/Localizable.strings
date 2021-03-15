@@ -1,6 +1,6 @@
 /* 
   Localizable.strings
-  Tangem Tap
+  Tangem
 
   Created by Alexander Osokin on 04.08.2020.
   Copyright © 2020 Tangem AG. All rights reserved.
@@ -38,10 +38,18 @@
 
 "common_back" = "Back";
 
+"common_add" = "Add";
+
+"common_added" = "Added";
+
+"common_remove" = "Remove";
+
+"common_search" = "Search";
+
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
-"home_welcome_back" = "Welcome back to Tangem Tap. \nScan your card to start.";
+"home_welcome_back" = "Welcome back to Tangem. \nScan your card to start.";
 
 "home_button_yes" = "Yes! Scan it.";
 
@@ -67,7 +75,7 @@
 
 "wallet_button_create_twin_wallet" = "Create twin wallet";
 
-"wallet_title" = "Tangem Tap";
+"wallet_title" = "Tangem";
 
 "wallet_choice_wallet_option_title" = "Choice wallet option";
 
@@ -114,9 +122,6 @@
 "wallet_address_button_explore" = "Explore address";
 
 "wallet_address_button_create_payid" = "Create PayString";
-
-"wallet_warning_button_ok" = "Ok, Got it!";
-
 
 "wallet_qr_title_format" = "%@ wallet";
 
@@ -210,13 +215,21 @@
 
 "details_section_title_card" = "Card";
 
+"details_section_title_app" = "App";
+
 "details_row_title_validate" = "Validate card";
 
 "details_row_title_manage_security" = "Manage Security";
 
 "details_row_title_erase_wallet" = "Erase wallet";
 
+"details_row_title_send_feedback" = "Send feedback";
+
 "details_currency_search_placeholder" = "Search";
+
+"details_section_title_blockchain" = "Blockchain";
+
+"details_row_title_manage_tokens" = "Manage tokens";
 
 "details_erase_wallet_warning" = "This action is irreversible. If, after deleting the wallet, someone sends funds to it, then you will not be able to withdraw them.";
 
@@ -283,17 +296,76 @@
 "twin_wallet_creation_tap_first_card" = "Tap the card #1";
 "twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
 
+// MARK: - Managed tokens
+
+"manage_tokens_no_tokens" = "No tokens yet";
+"manage_tokens_section_title_added_tokens" = "Added tokens";
+"manage_tokens_alert_remove_token_title" = "Remove %@ token";
+"manage_tokens_alert_remove_token_message" = "Are you sure you want to remove this token?";
+
+"add_tokens_title" = "Add tokens";
+"add_custom" = "Add Custom";
+"add_token_section_title_custom_tokens" = "Custom tokens";
+"add_token_section_title_popular_tokens" = "Ethereum tokens";
+"add_token_section_title_blockchains" = "Blockchains";
+
+"add_custom_token_title" = "Add custom token";
+
+"custom_token_creation_error_empty_fields" = "Please, fill all fields";
+"custom_token_creation_error_wrong_decimals" = "Entered number is not a valid decimals number";
+
+"custom_token_name_input_title" = "Name";
+"custom_token_token_symbol_input_title" = "Token symbol";
+"custom_token_contract_address_input_title" = "Contract address";
+"custom_token_decimals_input_title" = "Decimals";
+
+"custom_token_name_input_placeholder" = "ex. USD Coin";
+"custom_token_token_symbol_input_placeholder" = "ex. USDC";
+
 // MARK: - Alert
 
 "alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
 
 "alert_card_signed_transactions" = "This card has been already topped up and signed transactions in the past. Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
 
-"alert_unsupported_card" = "This card it is not designed to work with Tangem Tap";
+"alert_unsupported_card" = "This card it is not designed to work with Tangem";
 
-"alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment";
+"alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 
 "alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
+
+"alert_app_feedback_sent_title" = "Sent successfully";
+"alert_app_feedback_sent_message" = "Thank you for your feedback";
+
+"alert_negative_app_rate_sent_title" = "Your suggestions were sent";
+"alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
+
+"alert_failed_to_send_email_title" = "Failed to send email";
+"alert_failed_to_send_email_message" = "Reason: %@";
+
+"alert_failed_to_send_transaction_title" = "Can't send a transaction";
+"alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to send feedback?";
+
+"alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
+"alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
+
+"alert_button_try_again" = "Try again";
+"alert_button_request_support" = "Request support";
+"alert_button_send_feedback" = "Send feedback";
+
+// MARK: - Warnings
+
+"warning_button_ok" = "Ok, Got it!";
+"warning_button_really_cool" = "Really cool!";
+"warning_button_can_be_better" = "Can be better";
+
+"warning_rate_app_title" = "One question";
+
+"warning_rate_app_message" = "How do you like Tangem?";
+
+"warning_failed_to_verify_card_title" = "Authenticity check failed";
+"warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
+
 
 // MARK: - Initial message
 
@@ -314,7 +386,7 @@
 
 "disclaimer_text" = "Legal Disclaimer
 
-1.  Tangem Tap application (Software)
+1.  Tangem application (Software)
  
 The Software is intended for usage only with Tangem hardware wallets (Cards) via NFC interface. The Software DOES NOT:
  
@@ -380,4 +452,11 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Delete Wallet function not possible.";
 "details_notification_security_option_already_active" = "This is the currently active option";
 
+
+"wallet_add_tokens" = "Add Tokens";
+"wallet_remove_token" = "Remove token";
+
 "details_row_title_card_tou" = "Card terms of use";
+
+"common_copy" = "Copy";
+"common_share" = "Share";
