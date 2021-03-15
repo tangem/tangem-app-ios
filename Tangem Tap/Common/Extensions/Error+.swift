@@ -26,11 +26,12 @@ extension Error {
 struct AlertBinder: Identifiable {
     let id = UUID()
     let alert: Alert
+    var error: Error?
 }
 
 extension Error {
     var alertBinder: AlertBinder {
-        return AlertBinder(alert: alert)
+        return AlertBinder(alert: alert, error: self)
     }
     
     var alert: Alert {
