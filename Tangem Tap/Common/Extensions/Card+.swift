@@ -25,22 +25,37 @@ extension Card {
         return true
     }
     
-    var blockchain: Blockchain? {
-        guard
-            let name = cardData?.blockchainName,
-            let curve = curve
-        else { return nil }
-        
-        return Blockchain.from(blockchainName: name, curve: curve)
-    }
-    
-    var cardValidationData: (cid: String, pubKey: String)? {
+        var cardValidationData: (cid: String, pubKey: String)? {
         guard
             let cid = cardId,
             let pubKey = cardPublicKey?.asHexString()
         else { return nil }
         
         return (cid, pubKey)
+    }
+    
+    var isStart2Coin: Bool {
+        if let issuerName = cardData?.issuerName,
+           issuerName.lowercased() == "start2coin" {
+            return true
+        }
+        return false
+    }
+    
+    var isMultiWallet: Bool {
+        if isTwinCard {
+            return false
+        }
+        
+        if isStart2Coin {
+            return false
+        }
+        
+        if let curve = curve, curve == .ed25519 {
+            return false
+        }
+        
+        return true
     }
 }
 
