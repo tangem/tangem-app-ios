@@ -257,12 +257,15 @@ struct SendView: View {
                             MailView(dataCollector: viewModel.emailDataCollector, emailType: .failedToSendTx)
                         })
                         .alert(item: self.$viewModel.sendError) { binder in
-                            Alert(title: Text("alert_failed_to_send_transaction_title"),
-                                  message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
-                                  primaryButton: .default(Text("alert_button_send_feedback"), action: {
-                                    navigation.sendToSendEmail = true
-                                  }),
-                                  secondaryButton: .default(Text("common_no")))
+                            if binder.error == nil {
+                                return binder.alert
+                            }
+                            return Alert(title: Text("alert_failed_to_send_transaction_title"),
+                                         message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
+                                         primaryButton: .default(Text("alert_button_send_feedback"), action: {
+                                            navigation.sendToSendEmail = true
+                                         }),
+                                         secondaryButton: .default(Text("common_no")))
                         }
                     }
                     .padding(.top, 16.0)
@@ -290,7 +293,7 @@ struct ExtractView_Previews: PreviewProvider {
         SendView(viewModel: Assembly.previewAssembly.makeSendViewModel(with: Amount(with: Blockchain.ethereum(testnet: false),
                                                                                     address: "adsfafa",
                                                                                     type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
-                                                                                    value: 0.0),
+                                                                                    value: 0.0), walletIndex: 0,
                                                                        card: CardViewModel.previewEthCardViewModel),
                  onSuccess: {})
     }
