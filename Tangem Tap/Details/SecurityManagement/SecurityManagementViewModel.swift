@@ -19,17 +19,23 @@ class SecurityManagementViewModel: ViewModel {
         didSet {
             selectedOption = cardViewModel.currentSecOption
             cardViewModel.objectWillChange
-                          .receive(on: RunLoop.main)
-                          .sink { [weak self] in
-                              self?.objectWillChange.send()
-                      }
-                      .store(in: &bag)
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] in
+                    self?.selectedOption = self?.cardViewModel.currentSecOption ?? .longTap
+                    self?.objectWillChange.send()
+                })
+                .store(in: &bag)
         }
     }
     
     @Published var error: AlertBinder?
     @Published var selectedOption: SecurityManagementOption = .longTap
     @Published var isLoading: Bool = false
+    
+    var secOptions: [SecurityManagementOption] {
+        cardViewModel.currentSecOption != .longTap ?
+            [.longTap, cardViewModel.currentSecOption] : [.longTap]
+    }
     
     var actionButtonPressedHandler: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void {
         return { completion in
