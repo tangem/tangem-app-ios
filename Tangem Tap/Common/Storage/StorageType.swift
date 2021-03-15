@@ -20,4 +20,6 @@ enum StorageType: String {
     case readWarningHashes = "tangem_tap_read_warnings"
     case didUserRespondToRateApp = "tangem_tap_rate_app_responded"
     case dismissRateAppAtLaunch = "tangem_tap_dismiss_rate_app_at_launch_number"
+    case positiveBalanceAppearanceDate = "tangem_tap_positive_balace_appearance_date"
+    case positiveBalanceAppearanceLaunch = "tangem_tap_positive_balance_appearance_launch"
 }
