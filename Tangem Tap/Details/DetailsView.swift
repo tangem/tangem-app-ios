@@ -18,61 +18,29 @@ struct DetailsRowView: View {
             Text(title)
                 .font(Font.system(size: 16.0, weight: .regular, design: .default))
                 .foregroundColor(.tangemTapGrayDark6)
-                .padding()
             Spacer()
             Text(subtitle)
                 .font(Font.system(size: 16.0, weight: .regular, design: .default))
                 .foregroundColor(.tangemTapGrayDark)
-                .padding()
         }
-        .listRowInsets(EdgeInsets())
+       // .padding(.leading)
+        //.listRowInsets(EdgeInsets())
     }
-}
-
-struct HeaderView: View {
-    var text: String
-    var body: some View {
-        HStack {
-            Text(text)
-                .font(.headline)
-                .foregroundColor(.tangemTapBlue)
-                .padding()
-            Spacer()
-        }
-        .padding(.top, 24.0)
-        .background(Color.tangemTapBgGray)
-        .listRowInsets(EdgeInsets())
-    }
-}
-
-struct FooterView: View {
-    var text: String
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(text)
-                .font(.footnote)
-                .foregroundColor(.tangemTapGrayDark)
-                .padding()
-            Color.clear.frame(height: 0)
-        }
-        .background(Color.tangemTapBgGray)
-        .listRowInsets(EdgeInsets())
-    }
-}
-
-struct DetailsDestination: Identifiable {
-    let id: Int
-    let destination: AnyView
 }
 
 struct DetailsView: View {
+    private enum NavigationTag: String {
+        case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens
+    }
+    
     @ObservedObject var viewModel: DetailsViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
-    @State var selection: String? = nil //fix remain highlited bug on ios14
+    
+    @State private var selection: NavigationTag? = nil //fix remain highlited bug on ios14
     
     var body: some View {
         List {
-            Section(header: EmptyView().listRowInsets(EdgeInsets())) {
+            Section(header: HeaderView(text: "details_section_title_card".localized), footer: footerView) {
                 DetailsRowView(title: "details_row_title_cid".localized,
                                subtitle: viewModel.cardCid)
                 DetailsRowView(title: "details_row_title_issuer".localized,
@@ -83,56 +51,30 @@ struct DetailsView: View {
                                    subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
                                                     viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
                 }
-            }
-            
-            Section(header: HeaderView(text: "details_section_title_settings".localized)) {
-                NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
-                               tag: "currency", selection: $selection) {
-                    DetailsRowView(title: "details_row_title_currency".localized,
-                                   subtitle: viewModel.ratesService.selectedCurrencyCode)
-                    
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                 
-                NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
-                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                               tag: "disclaimer", selection: $selection) {
-                    DetailsRowView(title: "disclaimer_title".localized,
-                                   subtitle: "")
-                    
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                
-                if let cardTouURL = viewModel.cardTouURL {
-                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
-                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                                   tag: "card_tou", selection: $selection) {
-                        DetailsRowView(title: "details_row_title_card_tou".localized,
-                                       subtitle: "")
-                        
+                Button(action: {
+                    viewModel.checkPin {
+                        selection = .securityManagement
                     }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                }
-            }
-            
-            Section(header: HeaderView(text: "details_section_title_card".localized),
-                    footer: footerView) {
-                
-                NavigationLink(destination: SecurityManagementView(viewModel:
-                                                                    viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
-                               tag: "secManagement", selection: $selection) {
-                    DetailsRowView(title: "details_row_title_manage_security".localized,
-                                   subtitle: viewModel.cardModel.currentSecOption.title)
-                }
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
-                .disabled(!viewModel.cardModel.canManageSecurity)
+                }, label: {
+                    Text("details_row_title_manage_security")
+                        .font(.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.tangemTapGrayDark6)
+                })
+                .background(
+                    NavigationLink(
+                        destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
+                        tag: NavigationTag.securityManagement,
+                        selection: $selection,
+                        label: { EmptyView() })
+                        .disabled(true)
+                )
                 
                 if viewModel.isTwinCard {
                     NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
                                    isActive: $navigation.detailsToTwinsRecreateWarning){
                         DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
                     }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                     .disabled(!viewModel.cardModel.canRecreateTwinCard)
                     
                 } else {
@@ -141,20 +83,54 @@ struct DetailsView: View {
                                                                   alert: "details_erase_wallet_warning".localized,
                                                                   actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
                     ),
-                    tag: "cardOp", selection: $selection) {
+                    tag: NavigationTag.cardOperation, selection: $selection) {
                         DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
                     }
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 16))
                     .disabled(!viewModel.cardModel.canPurgeWallet)
                 }
             }
             
+            Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
+                NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
+                               tag: NavigationTag.currency, selection: $selection) {
+                    DetailsRowView(title: "details_row_title_currency".localized,
+                                   subtitle: viewModel.ratesService.selectedCurrencyCode)
+                    
+                }
+                
+                NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
+                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                               tag: NavigationTag.disclaimer, selection: $selection) {
+                    DetailsRowView(title: "disclaimer_title".localized,
+                                   subtitle: "")
+                    
+                }
+                Button(action: {
+                    navigation.detailsToSendEmail = true
+                }, label: {
+                    Text("details_row_title_send_feedback".localized)
+                        .font(.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.tangemTapGrayDark6)
+                })
+                .sheet(isPresented: $navigation.detailsToSendEmail, content: {
+                    MailView(dataCollector: viewModel.dataCollector, emailType: EmailType.appFeedback)
+                })
+                
+                if let cardTouURL = viewModel.cardTouURL {
+                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
+                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                   tag: NavigationTag.cardTermsOfUse, selection: $selection) {
+                        DetailsRowView(title: "details_row_title_card_tou".localized,
+                                       subtitle: "")
+                        
+                    }
+                }
+            }
             Section(header: Color.tangemTapBgGray
                         .listRowInsets(EdgeInsets())) {
                 EmptyView()
             }
         }
-        .padding(.top, 16)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
@@ -166,19 +142,66 @@ struct DetailsView: View {
         }
     }
     
-    var footerView: AnyView {
+    var footerView: some View {
         if let purgeWalletProhibitedDescription = viewModel.cardModel.purgeWalletProhibitedDescription {
-            return  FooterView(text: purgeWalletProhibitedDescription).toAnyView()
+            return FooterView(text: purgeWalletProhibitedDescription)
         }
         
-        return EmptyView().toAnyView()
+        return FooterView()
+    }
+}
+
+extension DetailsView {
+    struct HeaderView: View {
+        var text: String
+        var additionalTopPadding: CGFloat = 0
+        var body: some View {
+            HStack {
+                Text(text)
+                    .font(.headline)
+                    .foregroundColor(.tangemTapBlue)
+                    .padding(16)
+                Spacer()
+            }
+            .padding(.top, additionalTopPadding)
+            .background(Color.tangemTapBgGray)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 1, trailing: 0))
+        }
+    }
+    
+    struct FooterView: View {
+        var text: String = ""
+        var additionalBottomPadding: CGFloat = 0
+        var body: some View {
+            if text.isEmpty {
+                Color.tangemTapBgGray
+                    .listRowBackground(Color.tangemTapBgGray)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .frame(height: 0)
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(text)
+                        .font(.footnote)
+                        .foregroundColor(.tangemTapGrayDark)
+                        .padding()
+                        .padding(.bottom, additionalBottomPadding)
+                    Color.clear.frame(height: 0)
+                }
+                .background(Color.tangemTapBgGray)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            }
+        }
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
-            .environmentObject(Assembly.previewAssembly.navigationCoordinator)
-            .previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
+        NavigationView {
+            DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
+                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
+                .previewGroup(devices: [.iPhone8Plus])
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
+
