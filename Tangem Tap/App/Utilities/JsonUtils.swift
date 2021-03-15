@@ -22,18 +22,6 @@ struct JsonUtils {
         guard let path = Bundle.main.url(forResource: name + suffix, withExtension: "json") else {
             throw NSError(domain: "Failed to find json file with name: \(name)", code: -9999, userInfo: nil)
         }
-        
-        return try readJsonData(Data(contentsOf: path), type: type)
+        return try JSONDecoder().decode(type, from: Data(contentsOf: path))
     }
-    
-    static func readJsonData<T: Decodable>(_ data: Data, type: T.Type) throws -> T {
-        let jsonDecorer = JSONDecoder()
-        return try jsonDecorer.decode(type, from: data)
-    }
-    
-    static func writeJsonToData<T: Encodable>(_ info: T) throws -> Data {
-        let jsonEncoder = JSONEncoder()
-        return try jsonEncoder.encode(info)
-    }
-    
 }
