@@ -13,9 +13,12 @@ protocol WarningsConfigurator: class {
     func setupWarnings(for card: Card)
 }
 
-protocol WarningsManager: class {
+protocol WarningAppendor: class {
+    func appendWarning(for event: WarningEvent)
+}
+
+protocol WarningsManager: WarningAppendor {
     func warnings(for location: WarningsLocation) -> WarningsContainer
-    func addWarning(for event: WarningEvent)
     func hideWarning(_ warning: TapWarning)
     func hideWarning(for event: WarningEvent)
 }
@@ -113,7 +116,7 @@ extension WarningsService: WarningsManager {
         }
     }
     
-    func addWarning(for event: WarningEvent) {
+    func appendWarning(for event: WarningEvent) {
         let warning = event.warning
         if event.locationsToDisplay.contains(.main) {
             mainWarnings.add(warning)
