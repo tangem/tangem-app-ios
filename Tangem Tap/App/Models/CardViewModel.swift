@@ -417,6 +417,10 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func searchTokens() {
+        guard cardInfo.card.isMultiWallet else {
+            return
+        }
+        
         var sholdAddWalletManager = false
         var ethWalletModel = erc20TokenWalletModel
         
