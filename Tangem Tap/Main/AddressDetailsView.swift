@@ -14,10 +14,11 @@ struct AddressDetailView: View {
     @Binding var showCreatePayID: Bool
     @Binding var showQr: Bool
     @Binding var selectedAddressIndex: Int
-    var cardViewModel: CardViewModel
+    var walletModel: WalletModel
+    var payID: PayIdStatus
     
     var showPayIdBlock: Bool {
-        switch cardViewModel.payId {
+        switch payID {
         case .notSupported:
             return false
         default:
@@ -26,7 +27,7 @@ struct AddressDetailView: View {
     }
     
     var isPayIdCreated: Bool {
-        switch cardViewModel.payId {
+        switch payID {
         case .created:
             return true
         default:
@@ -35,16 +36,11 @@ struct AddressDetailView: View {
     }
     
     var showAddressSelector: Bool {
-        if cardViewModel.state.walletModel == nil {
-            return false
-        }
-        
-        let addressesCount = cardViewModel.state.wallet?.addresses.count ?? 1
-        return addressesCount > 1
+        return walletModel.wallet.addresses.count > 1
     }
     
     var payIdText: String {
-        if case let .created(text) = cardViewModel.payId {
+        if case let .created(text) = payID {
             return text
         } else {
             return ""
@@ -53,7 +49,7 @@ struct AddressDetailView: View {
     
     var pickerViews: [Text] {
         var views = [Text]()
-        for (index, address) in cardViewModel.state.wallet!.addresses.enumerated() {
+        for (index, address) in walletModel.wallet.addresses.enumerated() {
             let textView = Text(address.localizedName).tag(index) as! Text
             views.append(textView)
         }
@@ -64,19 +60,19 @@ struct AddressDetailView: View {
     var body: some View {
         VStack(spacing: 0.0) {
             if showAddressSelector {
-                PickerView(contents: cardViewModel.state.walletModel!.addressNames, selection: $selectedAddressIndex)
+                PickerView(contents: walletModel.addressNames, selection: $selectedAddressIndex)
                 .padding(.horizontal, 24)
                 .padding(.top, 8)
             }
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex))
+                    Text(walletModel.displayAddress(for: selectedAddressIndex))
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .foregroundColor(Color.tangemTapGrayDark)
                     Button(action: {
-                        if let url = self.cardViewModel.state.walletModel?.exploreURL(for: selectedAddressIndex) {
+                        if let url = walletModel.exploreURL(for: selectedAddressIndex) {
                             UIApplication.shared.open(url, options: [:], completionHandler: nil)
                         }
                     }) {
@@ -93,7 +89,7 @@ struct AddressDetailView: View {
                     }
                 }
                 Spacer()
-                CircleActionButton(action: {  UIPasteboard.general.string = cardViewModel.state.walletModel!.displayAddress(for: selectedAddressIndex) },
+                CircleActionButton(action: {  UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
                                    backgroundColor: .tangemTapBgGray,
                                    imageName: "square.on.square",
                                    isSystemImage: false,
@@ -101,10 +97,7 @@ struct AddressDetailView: View {
                                    withVerification: true,
                                    isDisabled: false)
                 
-                CircleActionButton(action: {
-                                    if self.cardViewModel.state.wallet != nil {
-                                        self.showQr = true
-                                    }},
+                CircleActionButton(action: { self.showQr = true },
                                    backgroundColor: .tangemTapBgGray,
                                    imageName: "qrcode",
                                    isSystemImage: false,
@@ -175,7 +168,8 @@ struct AddressDetailView_Previews: PreviewProvider {
             AddressDetailView(showCreatePayID: $showPayID,
                               showQr: $showQR,
                               selectedAddressIndex: $addressIndex,
-                              cardViewModel: cardViewModel)
+                              walletModel: cardViewModel.walletModels!.first!,
+                              payID: .notCreated)
         }.previewGroup()
     }
 }
