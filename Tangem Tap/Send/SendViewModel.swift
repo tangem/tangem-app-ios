@@ -82,7 +82,7 @@ class SendViewModel: ViewModel {
     }
     
     var inputDecimalsCount: Int? {
-        isFiatCalculation ? 2 : cardViewModel.state.wallet?.blockchain.decimalCount
+        isFiatCalculation ? 2 : walletModel.wallet.blockchain.decimalCount
     }
     
     @Published var isNetworkFeeBlockOpen: Bool = false
@@ -122,7 +122,7 @@ class SendViewModel: ViewModel {
                 }
                 .store(in: &bag)
             
-            cardViewModel.state.walletModel!
+            walletModel
                 .objectWillChange
                 .receive(on: RunLoop.main)
                 .sink { [weak self] in
@@ -132,7 +132,7 @@ class SendViewModel: ViewModel {
         }
     }
     
-    var walletModel: WalletModel { cardViewModel.state.walletModel! }
+    var walletModel: WalletModel { cardViewModel.walletModels![walletIndex] }
     
     var bag = Set<AnyCancellable>()
     
@@ -159,8 +159,11 @@ class SendViewModel: ViewModel {
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
-    init(amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
+    private var walletIndex: Int
+    
+    init(walletIndex: Int, amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
         self.signer = signer
+        self.walletIndex = walletIndex
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
@@ -181,8 +184,8 @@ class SendViewModel: ViewModel {
     }
     
     private func fillTotalBlockWithDefaults() {
-        self.sendAmount = "-"
-        self.sendTotal = "-"
+        self.sendAmount = " "
+        self.sendTotal = " "
         self.sendTotalSubtitle = ""
     }
     
@@ -223,7 +226,7 @@ class SendViewModel: ViewModel {
                     
                     if isFiatCalculation {
                         self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount) ?? ""
-                        self.sendTotal = totalFiatAmountFormatted ?? "-"
+                        self.sendTotal = totalFiatAmountFormatted ?? " "
                         self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
                             String(format: "send_total_subtitle_format".localized, totalAmount.description) :
                             String(format: "send_total_subtitle_asset_format".localized,
@@ -232,7 +235,7 @@ class SendViewModel: ViewModel {
                     } else {
                         self.sendAmount = tx.amount.description
                         self.sendTotal =  (tx.amount + tx.fee).description
-                        self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? "-" :  String(format: "send_total_subtitle_fiat_format".localized,
+                        self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? " " :  String(format: "send_total_subtitle_fiat_format".localized,
                                                                                                  totalFiatAmountFormatted!,
                                                                                                  self.walletModel.getFiatFormatted(for: tx.fee)!)
                     }
@@ -244,6 +247,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $isFiatCalculation //handle conversion
+            .dropFirst()
             .filter {[unowned self] _ in self.amountToSend.value != 0 }
             .sink { [unowned self] value in
                 self.amountText = value ? self.walletModel.getFiat(for: self.amountToSend)?.description
@@ -353,7 +357,9 @@ class SendViewModel: ViewModel {
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .dropFirst()
             .sink { [unowned self] _ in
-                self.amountToSend = self.walletModel.wallet.amounts[self.amountToSend.type]!
+                guard let amount = self.walletModel.wallet.amounts[self.amountToSend.type] else { return  }
+                
+                self.amountToSend = amount
                 self.amountText = self.walletTotalBalanceDecimals
                 
                 withAnimation {

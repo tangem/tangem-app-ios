@@ -147,7 +147,7 @@ PODS:
   - secp256k1.swift (0.1.4)
   - Sodium (0.9.1)
   - Starscream (3.1.1)
-  - stellar-ios-mac-sdk (1.9.4)
+  - stellar-ios-mac-sdk (1.9.5)
   - SwiftCBOR (0.4.3)
   - SwiftDate (6.0.3)
   - SwiftProtobuf (1.14.0)
@@ -168,7 +168,7 @@ DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.13`)
-  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-73`)"
+  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-80`)"
   - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
@@ -178,7 +178,7 @@ DEPENDENCIES:
   - KeychainSwift (~> 19.0)
   - Moya
   - SwiftyJSON
-  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-98`)"
+  - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-99`)"
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.4`)
 
 SPEC REPOS:
@@ -225,13 +225,13 @@ EXTERNAL SOURCES:
     :tag: 0.0.13
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-73
+    :tag: build-80
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-98
+    :tag: build-99
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -245,13 +245,13 @@ CHECKOUT OPTIONS:
     :tag: 0.0.13
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-73
+    :tag: build-80
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
-    :tag: build-98
+    :tag: build-99
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -287,7 +287,7 @@ SPEC CHECKSUMS:
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
-  stellar-ios-mac-sdk: d621bb6406d7c1f28fd33abd65a1d769309781b6
+  stellar-ios-mac-sdk: 64c0267b3e166a33ce9c753f901b68af923d9c43
   SwiftCBOR: c7d740966575e0fd5d971466de2b6776db3f10c3
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftProtobuf: ed465ed18402f998fd117f631da27e0168e6b59c
@@ -296,6 +296,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: cb65f22eb3d8446e96f2fd37d26bdb10fb9856b0
+PODFILE CHECKSUM: 706c5c02bbca59a9d1c357a07b49ad97b225b84c
 
 COCOAPODS: 1.10.1
