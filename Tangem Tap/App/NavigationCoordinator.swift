@@ -16,6 +16,8 @@ class NavigationCoordinator: ObservableObject {
     @Published var readToShop: Bool = false
     @Published var readToDisclaimer: Bool = false
     @Published var readToTwinOnboarding = false
+    @Published var readToTroubleshootingScan = false
+    @Published var readToSendEmail: Bool = false
     
     // MARK: DisclaimerView
     @Published var disclaimerToMain: Bool = false
@@ -33,9 +35,13 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToTwinOnboarding = false
     @Published var mainToTwinsWalletWarning = false
     @Published var mainToQR = false
+    @Published var mainToTokenDetails = false
+    @Published var mainToAddTokens: Bool = false
+    @Published var mainToTroubleshootingScan = false
     
     // MARK: SendView
     @Published var sendToQR = false
+    @Published var sendToSendEmail = false
     
     // MARK: TwinCardOnboardingView
     @Published var twinOnboardingToTwinWalletCreation: Bool = false
@@ -43,5 +49,15 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: DetailsView
     //All this stuff needed for fix permanent highlighting issues on ios 14
-    @Published var detailsToTwinsRecreateWarning: Bool = false //for back 
+    @Published var detailsToTwinsRecreateWarning: Bool = false //for back
+    @Published var detailsToSendEmail: Bool = false
+    @Published var detailsToManageTokens: Bool = false
+    
+    // MARK: Manage tokens
+    @Published var manageTokensToAddNewTokens = false
+    @Published var addNewTokensToCreateCustomToken = false
+    
+    // MARK: TokenDetailsView
+    @Published var detailsToTopup = false
+    @Published var detailsToSend = false
 }

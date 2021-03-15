@@ -1,6 +1,6 @@
 /* 
   Localizable.strings
-  Tangem Tap
+  Tangem
 
   Created by Alexander Osokin on 04.08.2020.
   Copyright © 2020 Tangem AG. All rights reserved.
@@ -34,9 +34,17 @@
 
 "common_back" = "Back";
 
+"common_add" = "Add";
+
+"common_added" = "Added";
+
+"common_remove" = "Remove";
+
+"common_search" = "Search";
+
 "home_welcome" = "Benvenuti in Tangem. Hai una delle nostre schede?";
 
-"home_welcome_back" = "Benevenuti di nuovo su Tangem Tap. Scansiona la tua carta per iniziare.";
+"home_welcome_back" = "Benevenuti di nuovo su Tangem. Scansiona la tua carta per iniziare.";
 "home_button_yes" = "Si! Scansiona carta.";
 
 "home_button_shop" = "Shop";
@@ -55,7 +63,7 @@
 
 "wallet_button_create_wallet" = "Crea portafoglio";
 
-"wallet_title" = "Tangem Tap";
+"wallet_title" = "Tangem";
 
 "wallet_choice_wallet_option_title" = "Scegli l'opzione del portafoglio";
 
@@ -98,8 +106,6 @@
 "wallet_address_button_explore" = "Cerca indirizzo";
 
 "wallet_address_button_create_payid" = "Crea PayString";
-
-"wallet_warning_button_ok" = "Ok, ho capito!";
 
 "wallet_qr_title_format" = "portafoglio %@";
 
@@ -185,11 +191,21 @@
 
 "details_section_title_card" = "Carta";
 
+"details_section_title_app" = "App";
+
 "details_row_title_validate" = "Convalidare la carta";
 
 "details_row_title_manage_security" = "Gestione del portafoglio";
 
 "details_row_title_erase_wallet" = "Cancella il portafoglio";
+
+"details_row_title_send_feedback" = "Send feedback";
+
+"details_currency_search_placeholder" = "Search";
+
+"details_section_title_blockchain" = "Blockchain";
+
+"details_row_title_manage_tokens" = "Manage tokens";
 
 "details_currency_search_placeholder" = "Cerca";
 
@@ -213,18 +229,38 @@
 
 "details_manage_security_access_code_description" = "Prima di scansionare la carta sarà necessario inserire il codice di accesso corretto";
 
+// MARK: - Alert
 
 "alert_old_device_this_card"="Potresti riscontrare problemi con l'NFC su alcuni iPhone 7/7 + durante la rimozione";
 
 "alert_card_signed_transactions" = "Questa carta è già stata ricaricata e ha firmato transazioni in passato. Valuta la possibilità di prelevare immediatamente tutti i fondi se hai ricevuto questa carta da una fonte inaffidabile.";
 
-"alert_unsupported_card" = "Questa carta non è progettata per funzionare con Tangem Tap";
+"alert_unsupported_card" = "Questa carta non è progettata per funzionare con Tangem";
 
 "alert_developer_card" = "La carta che hai scansionato è una carta di sviluppo. Non utilizzarla come strumento di pagamento";
 
 "alert_old_card" = "Le schede emesse prima di settembre 2019 non possono attualmente essere utilizzate con un iPhone. Stiamo lavorando a stretto contatto con Apple per renderle disponibili nelle future versioni di iOS. ";
 
+"alert_app_feedback_sent_title" = "Sent successfully";
+"alert_app_feedback_sent_message" = "Thank you for your feedback";
 
+"alert_negative_app_rate_sent_title" = "Your suggestions were sent";
+"alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
+
+"alert_failed_to_send_email_title" = "Failed to send email";
+"alert_failed_to_send_email_message" = "Reason: %@";
+
+"alert_failed_to_send_transaction_title" = "Can't send a transaction";
+"alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to send feedback?";
+
+"alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
+"alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
+
+"alert_button_try_again" = "Try again";
+"alert_button_request_support" = "Request support";
+"alert_button_send_feedback" = "Send feedback";
+
+// MARK: Initial message
 
 "initial_message_sign_header" = "Avvicina per firmare";
 
@@ -244,7 +280,7 @@
 
 "disclaimer_text" = "NOTA LEGALE
 
-App Tangem Tap (software)
+App Tangem (software)
 
 Il software può essere utilizzato solo con i portafogli hardware Tangem (schede) tramite l'interfaccia NFC. Il software NON esegue le seguenti operazioni:
 
@@ -358,4 +394,51 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "wallet_error_empty_twin_card" = "Create twin wallet";
 "wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
 
+// MARK: - Warnings
+
+"warning_button_ok" = "Ok, ho capito!";
+
+"warning_button_really_cool" = "Really cool!";
+"warning_button_can_be_better" = "Can be better";
+
+"warning_rate_app_title" = "One question";
+
+"warning_rate_app_message" = "How do you like Tangem?";
+
+"warning_failed_to_verify_card_title" = "Authenticity check failed";
+"warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
+
+// MARK: - Managed tokens
+
+"manage_tokens_no_tokens" = "No tokens yet";
+"manage_tokens_section_title_added_tokens" = "Added tokens";
+"manage_tokens_alert_remove_token_title" = "Remove %@ token";
+"manage_tokens_alert_remove_token_message" = "Are you sure you want to remove this token?";
+
+"add_tokens_title" = "Add tokens";
+"add_custom" = "Add Custom";
+"add_token_section_title_custom_tokens" = "Custom tokens";
+"add_token_section_title_popular_tokens" = "Ethereum tokens";
+"add_token_section_title_blockchains" = "Blockchains";
+
+"add_custom_token_title" = "Add custom token";
+
+"custom_token_creation_error_empty_fields" = "Please, fill all fields";
+"custom_token_creation_error_wrong_decimals" = "Entered number is not a valid decimals number";
+
+"custom_token_name_input_title" = "Name";
+"custom_token_token_symbol_input_title" = "Token symbol";
+"custom_token_contract_address_input_title" = "Contract address";
+"custom_token_decimals_input_title" = "Decimals";
+
+"custom_token_name_input_placeholder" = "ex. USD Coin";
+"custom_token_token_symbol_input_placeholder" = "ex. USDC";
+
 "details_row_title_card_tou" = "Card terms of use";
+
+"wallet_add_tokens" = "Add Tokens";
+"wallet_remove_token" = "Remove token";
+
+"common_copy" = "Copy";
+"common_share" = "Share";
+
