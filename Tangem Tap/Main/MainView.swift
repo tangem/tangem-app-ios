@@ -203,6 +203,7 @@ struct MainView: View {
                         CardView(image: self.viewModel.image,
                                  width: geometry.size.width - 32,
                                  currentCardNumber: self.viewModel.cardNumber)
+                            .fixedSize(horizontal: false, vertical: true)
                         
                         if self.isUnsupportdState {
                             ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
