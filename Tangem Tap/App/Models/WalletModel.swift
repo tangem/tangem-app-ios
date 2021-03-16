@@ -16,9 +16,20 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: [String: Decimal]] = [:]
-
-    var ratesService: CoinMarketCapService
-    var tokenItemsRepository: TokenItemsRepository
+    
+    weak var ratesService: CoinMarketCapService! {
+        didSet {
+            ratesService
+                .$selectedCurrencyCodePublished
+                .dropFirst()
+                .sink {[unowned self] _ in
+                    self.loadRates()
+                }
+                .store(in: &bag)
+        }
+    }
+    weak var tokenItemsRepository: TokenItemsRepository!
+    
     var txSender: TransactionSender { walletManager as! TransactionSender }
     var wallet: Wallet { walletManager.wallet }
     
@@ -43,11 +54,13 @@ class WalletModel: ObservableObject, Identifiable {
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
-    init(cardInfo: CardInfo, walletManager: WalletManager, ratesService: CoinMarketCapService, tokenItemsRepository: TokenItemsRepository) {
+    deinit {
+        print("WalletModel deinit")
+    }
+    
+    init(cardInfo: CardInfo, walletManager: WalletManager) {
         self.cardInfo = cardInfo
         self.walletManager = walletManager
-        self.ratesService = ratesService
-        self.tokenItemsRepository = tokenItemsRepository
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
@@ -64,14 +77,6 @@ class WalletModel: ObservableObject, Identifiable {
 //                    self.updateTimer = nil
 //                }
             })
-            .store(in: &bag)
-        
-        self.ratesService
-            .$selectedCurrencyCodePublished
-            .dropFirst()
-            .sink {[unowned self] _ in
-                self.loadRates()
-            }
             .store(in: &bag)
     }
     
