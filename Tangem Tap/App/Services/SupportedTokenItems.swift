@@ -17,7 +17,7 @@ class SupportedTokenItems {
                                               .xrp(curve: .secp256k1),
                                               .rsk,
                                               .binance(testnet: false),
-                                              .tezos]}()
+                                              .tezos(curve: .secp256k1)]}()
     
     lazy var erc20Tokens: [Token] = {
         let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
