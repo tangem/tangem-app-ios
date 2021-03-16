@@ -51,25 +51,28 @@ enum ScanResult: Equatable {
     }
 }
 
+protocol CardsRepositoryDelegate: AnyObject {
+    func onWillScan()
+    func onDidScan(_ cardInfo: CardInfo)
+}
+
 class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
+    weak var validatedCardsService: ValidatedCardsService!
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
     
-    var onWillScan: (() -> Void)? = nil
-    var onDidScan: ((CardInfo) -> Void)? = nil
-    
-    private let validatedCardsService: ValidatedCardsService
+    weak var delegate: CardsRepositoryDelegate? = nil
 	
-    init(validatedCardsService: ValidatedCardsService) {
-        self.validatedCardsService = validatedCardsService
-	}
+    deinit {
+        print("CardsRepository deinit")
+    }
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        onWillScan?()
+        delegate?.onWillScan()
         tangemSdk.startSession(with: TapScanTask(validatedCardsService: validatedCardsService)) {[unowned self] result in
             switch result {
             case .failure(let error):
@@ -88,7 +91,7 @@ class CardsRepository {
     }
 
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
-        onDidScan?(cardInfo)
+        delegate?.onDidScan(cardInfo)
         
         let cm = assembly.makeCardModel(from: cardInfo)
         let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
