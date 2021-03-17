@@ -11,7 +11,7 @@ import EFQRCode
 import BlockchainSdk
 
 struct BalanceAddressView: View {
-    var walletModel: WalletModel
+    @ObservedObject var walletModel: WalletModel
     var amountType: Amount.AmountType
     
     @State private var selectedAddressIndex: Int = 0
@@ -26,7 +26,7 @@ struct BalanceAddressView: View {
         }
         
         if walletModel.wallet.hasPendingTx(for: amountType) {
-            return  "wallet_balance_tx_in_progress".localized
+            return "wallet_balance_tx_in_progress".localized
         }
         
         if walletModel.state.isLoading {
@@ -192,8 +192,9 @@ struct BalanceAddressView_Previews: PreviewProvider {
     static var walletModel: WalletModel {
         let vm = cardViewModel.walletModels!.first!
         vm.state = .failed(error: "Failed to load. Internet connection is unnreachable")
+        vm.state = .idle
         vm.balanceViewModel = BalanceViewModel(isToken: false,
-                                               hasTransactionInProgress: false,
+                                               hasTransactionInProgress: true,
                                                state: .idle,
                                                name: "Ethereum smart contract token",
                                                fiatBalance: "$3.45",
