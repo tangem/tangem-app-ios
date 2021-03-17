@@ -60,4 +60,8 @@ class NavigationCoordinator: ObservableObject {
     // MARK: TokenDetailsView
     @Published var detailsToTopup = false
     @Published var detailsToSend = false
+    
+    deinit {
+        print("NavigationCoordinator deinit")
+    }
 }
