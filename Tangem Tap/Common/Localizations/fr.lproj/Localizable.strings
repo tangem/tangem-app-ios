@@ -16,6 +16,8 @@
 
 "common_done" = "Exécuté";
 
+"common_close" = "Close";
+
 "common_continue" = "Continuer";
 
 "common_save_changes" = "Sauvegarder les modifications";
@@ -442,3 +444,6 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 
 "common_copy" = "Copy";
 "common_share" = "Share";
+
+"mail_error_no_accounts_title" = "No Mail accounts";
+"mail_error_no_accounts_body" = "Please, set up an account to send email";
