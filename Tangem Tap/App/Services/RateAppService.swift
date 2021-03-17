@@ -60,6 +60,10 @@ class RateAppService: RateAppChecker, RateAppController {
         shouldShowRateAppWarning = (numberOfLaunches - dismissAtLaunch) >= 20
     }
     
+    deinit {
+        print("RateAppService deinit")
+    }
+    
     func dismissRateAppWarning() {
         userPrefsService.dismissRateAppAtLaunch = userPrefsService.numberOfLaunches
     }
