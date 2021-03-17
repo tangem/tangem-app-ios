@@ -197,7 +197,7 @@ extension DetailsView {
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel(with: CardViewModel.previewCardViewModel))
+            DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel())
                 .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
                 .previewGroup(devices: [.iPhone8Plus])
         }
