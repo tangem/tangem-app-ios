@@ -62,7 +62,7 @@ struct TokenDetailsView: View {
             if let amountToSend = viewModel.amountToSend {
                 SendView(viewModel: viewModel.assembly.makeSendViewModel(
                             with: amountToSend,
-                            walletIndex: 0,
+                            blockchain: viewModel.blockchain,
                             card: viewModel.card), onSuccess: {})
                     .environmentObject(navigation)
             }
@@ -114,7 +114,7 @@ struct TokenDetailsView: View {
 struct TokenDetailsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            TokenDetailsView(viewModel: Assembly.previewAssembly.makeTokenDetailsViewModel(blockchain: .bitcoin(testnet: false)))
+            TokenDetailsView(viewModel: Assembly.previewAssembly.makeTokenDetailsViewModel(blockchain: .ethereum(testnet: false)))
                 .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
         }
         .previewGroup(devices: [.iPhone8Plus])
