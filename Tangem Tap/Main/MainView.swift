@@ -212,6 +212,7 @@ struct MainView: View {
                             
                             if !viewModel.cardModel!.isMultiWallet {
                                 ForEach(pendingTransactionViews) { $0 }
+                                    .padding(.horizontal, 16.0)
                             }
                             
                             if shouldShowEmptyView {
