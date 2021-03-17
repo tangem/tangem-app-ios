@@ -19,7 +19,7 @@ class AppFeaturesService {
     }
     
     deinit {
-        print("FeaturesConfigProvider deinit")
+        print("AppFeaturesService deinit")
     }
 	
 	func setupFeatures(for card: Card) {
