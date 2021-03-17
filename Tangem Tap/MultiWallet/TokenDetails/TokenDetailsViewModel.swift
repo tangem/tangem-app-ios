@@ -90,10 +90,10 @@ class TokenDetailsViewModel: ViewModel {
     
     @Published var isRefreshing = false
     
-    public let amountType: Amount.AmountType
+    let amountType: Amount.AmountType
+    let blockchain: Blockchain
     private var bag = Set<AnyCancellable>()
-    private let blockchain: Blockchain
-
+    
     init(blockchain: Blockchain, amountType: Amount.AmountType) {
         self.blockchain = blockchain
         self.amountType = amountType
@@ -126,16 +126,7 @@ class TokenDetailsViewModel: ViewModel {
             .removeDuplicates()
             .filter { $0 }
             .sink{ [unowned self] _ in
-                if card.state.canUpdate {
-                    card.update()
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation {
-                            self.isRefreshing = false
-                        }
-                    }
-                }
-                
+                self.walletModel?.update()
             }
             .store(in: &bag)
         
@@ -149,6 +140,13 @@ class TokenDetailsViewModel: ViewModel {
                 withAnimation {
                     self.isRefreshing = false
                 }
+            }
+            .store(in: &bag)
+        
+        walletModel?.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
             }
             .store(in: &bag)
     }
