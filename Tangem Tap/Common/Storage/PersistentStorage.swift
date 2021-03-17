@@ -32,6 +32,10 @@ class PersistentStorage {
             fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
+    deinit {
+        print("PersistentStorage deinit")
+    }
+    
     func value<T: Decodable>(for key: PersistentStorageKey) throws -> T? {
         let documentPath = self.documentPath(for: key.path)
         if fileManager.fileExists(atPath: documentPath.path) {
