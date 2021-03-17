@@ -14,6 +14,8 @@
 
 "common_done" = "Fatto";
 
+"common_close" = "Close";
+
 "common_no" = "No";
 
 "common_save_changes" = "Mantieni le modifiche";
@@ -442,3 +444,5 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "common_copy" = "Copy";
 "common_share" = "Share";
 
+"mail_error_no_accounts_title" = "No Mail accounts";
+"mail_error_no_accounts_body" = "Please, set up an account to send email";
