@@ -16,6 +16,8 @@
 
 "common_done" = "Done";
 
+"common_close" = "Close";
+
 "common_no" = "No";
 
 "common_continue" = "Continue";
@@ -460,3 +462,6 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 
 "common_copy" = "Copy";
 "common_share" = "Share";
+
+"mail_error_no_accounts_title" = "No Mail accounts";
+"mail_error_no_accounts_body" = "Please, set up an account to send email";
