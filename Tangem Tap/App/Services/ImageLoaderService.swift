@@ -32,6 +32,10 @@ class ImageLoaderService {
         self.networkService = networkService
     }
     
+    deinit {
+        print("ImageLoaderService deinit")
+    }
+    
     func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Error> {
 		let prefix = String(cid.prefix(4))
 		if prefix.elementsEqual("BC01") { //Sergio
