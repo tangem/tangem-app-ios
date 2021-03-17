@@ -13,6 +13,10 @@ import BlockchainSdk
 class ServicesAssembly {
     weak var assembly: Assembly!
     
+    deinit {
+        print("ServicesAssembly deinit")
+    }
+    
     let logger = Logger()
     lazy var navigationCoordinator = NavigationCoordinator()
     lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
@@ -29,12 +33,24 @@ class ServicesAssembly {
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
     
+    lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
+        let collector = NegativeFeedbackDataCollector()
+        collector.cardRepository = cardsRepository
+        return collector
+    }()
+    
+    lazy var failedCardScanTracker: FailedCardScanTracker = {
+        let tracker = FailedCardScanTracker()
+        tracker.logger = logger
+        return tracker
+    }()
+    
     lazy var cardsRepository: CardsRepository = {
-        let crepo = CardsRepository(validatedCardsService: keychainService)
+        let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
+        crepo.validatedCardsService = keychainService
         crepo.assembly = assembly
-        crepo.onDidScan = onDidScan
-        crepo.onWillScan = onWillScan
+        crepo.delegate = self
         return crepo
     }()
     
@@ -54,7 +70,11 @@ class ServicesAssembly {
         return config
     }()
     
-    private func onDidScan(_ cardInfo: CardInfo) {
+    
+}
+
+extension ServicesAssembly: CardsRepositoryDelegate {
+    func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
         warningsService.setupWarnings(for: cardInfo.card)
         tokenItemsRepository.setCard(cardInfo.card.cardId ?? "")
@@ -68,12 +88,12 @@ class ServicesAssembly {
         }
     }
     
-    private func onWillScan() {
+    func onWillScan() {
         tangemSdk.config = defaultSdkConfig
     }
 }
 
-class Assembly {
+class Assembly: ObservableObject {
     public let services: ServicesAssembly
     private var modelsStorage = [String : Any]()
     
@@ -82,13 +102,18 @@ class Assembly {
         services.assembly = self
     }
     
+    deinit {
+        print("Assembly deinit")
+    }
+    
     func makeReadViewModel() -> ReadViewModel {
         if let restored: ReadViewModel = get() {
             return restored
         }
         
-        let vm =  ReadViewModel(failedCardScanTracker: FailedCardScanTracker(logger: services.logger))
+        let vm =  ReadViewModel()
         initialize(vm)
+        vm.failedCardScanTracker = services.failedCardScanTracker
         vm.userPrefsService = services.userPrefsService
         vm.cardsRepository = services.cardsRepository
         return vm
@@ -113,36 +138,40 @@ class Assembly {
         vm.warningsManager = services.warningsService
         vm.state = services.cardsRepository.lastScanResult
         vm.rateAppController = services.rateAppService
-        
-        vm.negativeFeedbackDataCollector = NegativeFeedbackDataCollector(cardRepository: services.cardsRepository)
-        vm.failedCardScanTracker = FailedCardScanTracker(logger: services.logger)
+
+        vm.negativeFeedbackDataCollector = services.negativeFeedbackDataCollector
+        vm.failedCardScanTracker = services.failedCardScanTracker
         
         return vm
     }
     
-    func makeTokenDetailsViewModel(with card: CardViewModel, blockchain: Blockchain, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
+    func makeTokenDetailsViewModel( blockchain: Blockchain, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
         let vm =  TokenDetailsViewModel(blockchain: blockchain, amountType: amountType)
         initialize(vm)
-        vm.card = card
+        if let cardModel = services.cardsRepository.lastScanResult.cardModel {
+            vm.card = cardModel
+        }
         vm.topupService = services.topupService
         return vm
     }
     
     func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
         let walletManagers = services.walletManagerFactory.makeWalletManagers(from: cardInfo.card, blockchains: blockchains)
-        let models = walletManagers.map { WalletModel(cardInfo: cardInfo,
-                                                      walletManager: $0,
-                                                      ratesService: services.ratesService,
-                                                      tokenItemsRepository: services.tokenItemsRepository) }
+        let models = walletManagers.map { manager -> WalletModel in
+            let model = WalletModel(cardInfo: cardInfo, walletManager: manager)
+            model.tokenItemsRepository = services.tokenItemsRepository
+            model.ratesService = services.ratesService
+            return model
+        }
         return models
     }
     
     func makeWalletModel(from cardInfo: CardInfo) -> [WalletModel] {
         return makeWallets(from: cardInfo).map {
-            WalletModel(cardInfo: cardInfo,
-                        walletManager: $0,
-                        ratesService: services.ratesService,
-                        tokenItemsRepository: services.tokenItemsRepository)
+            let model = WalletModel(cardInfo: cardInfo, walletManager: $0)
+            model.tokenItemsRepository = services.tokenItemsRepository
+            model.ratesService = services.ratesService
+            return model
         }
     }
     
@@ -233,14 +262,22 @@ class Assembly {
     
     // MARK: Details
     
-    func makeDetailsViewModel(with card: CardViewModel) -> DetailsViewModel {
+    func makeDetailsViewModel() -> DetailsViewModel {
+        
         if let restored: DetailsViewModel = get() {
-            restored.cardModel = card
+            if let cardModel = services.cardsRepository.lastScanResult.cardModel {
+                restored.cardModel = cardModel
+            }
             return restored
         }
         
-        let vm =  DetailsViewModel(cardModel: card, dataCollector: DetailsFeedbackDataCollector(cardModel: card))
+        let vm =  DetailsViewModel()
         initialize(vm)
+        
+        if let cardModel = services.cardsRepository.lastScanResult.cardModel {
+            vm.cardModel = cardModel
+            vm.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
+        }
         vm.cardsRepository = services.cardsRepository
         vm.ratesService = services.ratesService
         return vm
