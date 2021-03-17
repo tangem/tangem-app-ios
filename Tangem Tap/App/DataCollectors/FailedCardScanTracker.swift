@@ -10,7 +10,7 @@ import Foundation
 
 class FailedCardScanTracker: EmailDataCollector {
     
-    private var logger: Logger
+    weak var logger: Logger!
     
     var dataForEmail: String {
         "----------\n" + DeviceInfoProvider.info()
@@ -25,10 +25,6 @@ class FailedCardScanTracker: EmailDataCollector {
     }
     
     private var numberOfFailedAttempts: Int = 0
-    
-    init(logger: Logger) {
-        self.logger = logger
-    }
     
     func resetCounter() {
         numberOfFailedAttempts = 0
