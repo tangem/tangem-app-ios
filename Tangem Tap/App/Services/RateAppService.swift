@@ -48,7 +48,7 @@ class RateAppService: RateAppChecker, RateAppController {
         else { return }
         
         guard
-            (Date().timeIntervalSince1970 - positiveBalanceDate.timeIntervalSince1970) > positiveBalanceTimeThreshold ||
+            (Date().timeIntervalSince1970 - positiveBalanceDate.timeIntervalSince1970) > positiveBalanceTimeThreshold,
             (numberOfLaunches - positiveBalanceLaunch) >= positiveBalanceLaunchThreshold
         else { return }
         
