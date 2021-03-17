@@ -62,7 +62,7 @@ struct TokenDetailsView: View {
             if let amountToSend = viewModel.amountToSend {
                 SendView(viewModel: viewModel.assembly.makeSendViewModel(
                             with: amountToSend,
-                            walletIndex: 0,
+                            blockchain: viewModel.blockchain,
                             card: viewModel.card), onSuccess: {})
                     .environmentObject(navigation)
             }
