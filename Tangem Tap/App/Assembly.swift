@@ -93,7 +93,7 @@ extension ServicesAssembly: CardsRepositoryDelegate {
     }
 }
 
-class Assembly {
+class Assembly: ObservableObject {
     public let services: ServicesAssembly
     private var modelsStorage = [String : Any]()
     
@@ -103,7 +103,6 @@ class Assembly {
     }
     
     deinit {
-        modelsStorage = [:]
         print("Assembly deinit")
     }
     
