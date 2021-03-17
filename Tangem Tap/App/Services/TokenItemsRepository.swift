@@ -20,6 +20,10 @@ class TokenItemsRepository {
         self.persistanceStorage = persistanceStorage
     }
     
+    deinit {
+        print("TokenItemsRepository deinit")
+    }
+    
     func setCard(_ cardId: String) {
         self.cardId = cardId
         fetch()
