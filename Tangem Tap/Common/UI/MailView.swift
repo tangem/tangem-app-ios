@@ -54,7 +54,11 @@ struct MailView: UIViewControllerRepresentable {
         return Coordinator(presentation: presentation, emailType: emailType)
     }
 
-    func makeUIViewController(context: UIViewControllerRepresentableContext<MailView>) -> MFMailComposeViewController {
+    func makeUIViewController(context: UIViewControllerRepresentableContext<MailView>) -> UIViewController {
+        guard MFMailComposeViewController.canSendMail() else {
+            return UIHostingController(rootView: MailViewPlaceholder(presentationMode: presentation))
+        }
+        
         let vc = MFMailComposeViewController()
         vc.mailComposeDelegate = context.coordinator
         vc.setToRecipients(["support@tangem.com"])
@@ -70,8 +74,40 @@ struct MailView: UIViewControllerRepresentable {
         return vc
     }
 
-    func updateUIViewController(_ uiViewController: MFMailComposeViewController,
+    func updateUIViewController(_ uiViewController: UIViewController,
                                 context: UIViewControllerRepresentableContext<MailView>) {
 
+    }
+}
+
+fileprivate struct MailViewPlaceholder: View {
+    @Binding var presentationMode: PresentationMode
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Button("common_close") {
+                    presentationMode.dismiss()
+                }
+                Spacer()
+            }
+            .padding([.horizontal, .top])
+            Spacer()
+            Text("mail_error_no_accounts_title")
+                .font(.title)
+            Text("mail_error_no_accounts_body")
+                .font(.body)
+                .padding(.horizontal, 32)
+                .multilineTextAlignment(.center)
+            Spacer()
+        }
+    }
+}
+
+struct MailViewPlaceholder_Previews: PreviewProvider {
+    @Environment(\.presentationMode) static var presentation
+    
+    static var previews: some View {
+        MailViewPlaceholder(presentationMode: .constant(presentation.wrappedValue))
     }
 }

@@ -13,20 +13,6 @@ import BlockchainSdk
 import TangemSdk
 
 class MainViewModel: ViewModel {
-    
-    enum EmailFeedbackCase: Int, Identifiable {
-        var id: Int { rawValue }
-        
-        case negativeFeedback, scanTroubleshooting
-        
-        var emailType: EmailType {
-            switch self {
-            case .negativeFeedback: return .negativeRateAppFeedback
-            case .scanTroubleshooting: return .failedToScanCard
-            }
-        }
-    }
-    
     // MARK: Dependencies -
     weak var imageLoaderService: ImageLoaderService!
     weak var topupService: TopupService!
@@ -34,12 +20,10 @@ class MainViewModel: ViewModel {
     weak var cardsRepository: CardsRepository!
     weak var warningsManager: WarningsManager!
     weak var rateAppController: RateAppController!
-    
 	weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    
-    var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
-    var failedCardScanTracker: FailedCardScanTracker!
+    weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
+    weak var failedCardScanTracker: FailedCardScanTracker!
     
     // MARK: Variables
     
@@ -190,6 +174,10 @@ class MainViewModel: ViewModel {
 
                 return lhs < rhs
             })
+    }
+    
+    deinit {
+        print("MainViewModel deinit")
     }
     
     // MARK: - Functions
@@ -504,5 +492,20 @@ class MainViewModel: ViewModel {
 
         self.error = error
         return
+    }
+}
+
+extension MainViewModel {
+    enum EmailFeedbackCase: Int, Identifiable {
+        var id: Int { rawValue }
+        
+        case negativeFeedback, scanTroubleshooting
+        
+        var emailType: EmailType {
+            switch self {
+            case .negativeFeedback: return .negativeRateAppFeedback
+            case .scanTroubleshooting: return .failedToScanCard
+            }
+        }
     }
 }
