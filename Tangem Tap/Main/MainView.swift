@@ -212,6 +212,7 @@ struct MainView: View {
                             
                             if !viewModel.cardModel!.isMultiWallet {
                                 ForEach(pendingTransactionViews) { $0 }
+                                    .padding(.horizontal, 16.0)
                             }
                             
                             if shouldShowEmptyView {
@@ -359,7 +360,7 @@ struct MainView: View {
                         .sheet(isPresented: $navigation.mainToSend) {
                             SendView(viewModel: viewModel.assembly.makeSendViewModel(
                                         with: viewModel.amountToSend!,
-                                        walletIndex: 0,
+                                        blockchain: viewModel.wallets!.first!.blockchain,
                                         card: viewModel.state.cardModel!), onSuccess: {})
                                                                     .environmentObject(navigation) // Fix for crash (Fatal error: No ObservableObject of type NavigationCoordinator found.) which appearse time to time. May be some bug with environment object O_o
                                         
