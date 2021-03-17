@@ -132,7 +132,9 @@ class SendViewModel: ViewModel {
         }
     }
     
-    var walletModel: WalletModel { cardViewModel.walletModels![walletIndex] }
+    var walletModel: WalletModel {
+        return cardViewModel.walletModels!.first(where: { $0.wallet.blockchain == blockchain })!
+    }
     
     var bag = Set<AnyCancellable>()
     
@@ -159,11 +161,11 @@ class SendViewModel: ViewModel {
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
-    private var walletIndex: Int
+    private var blockchain: Blockchain
     
-    init(walletIndex: Int, amountToSend: Amount, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
+    init(amountToSend: Amount, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
         self.signer = signer
-        self.walletIndex = walletIndex
+        self.blockchain = blockchain
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
