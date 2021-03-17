@@ -71,7 +71,6 @@ struct PendingTxView: View, Identifiable {
         }
         .background(Color.white)
         .cornerRadius(6.0)
-        .padding(.horizontal, 16.0)
     }
 }
 
