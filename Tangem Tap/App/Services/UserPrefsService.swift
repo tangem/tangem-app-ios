@@ -29,4 +29,8 @@ class UserPrefsService {
     
     @Storage(type: StorageType.positiveBalanceAppearanceLaunch, defaultValue: nil)
     var positiveBalanceAppearanceLaunch: Int?
+    
+    deinit {
+        print("UserPrefsService deinit")
+    }
 }
