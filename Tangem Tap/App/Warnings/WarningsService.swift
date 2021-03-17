@@ -36,6 +36,10 @@ class WarningsService {
         self.rateAppChecker = rateAppChecker
     }
     
+    deinit {
+        print("WarningsService deinit")
+    }
+    
     private func warningsForMain(for card: Card) -> WarningsContainer {
         let container = WarningsContainer()
         
