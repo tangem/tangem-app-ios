@@ -26,6 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
      
         let vm = assembly.makeReadViewModel()
         let contentView = ContentView() { ReadView(viewModel: vm) }
+            .environmentObject(assembly)
             .environmentObject(assembly.services.navigationCoordinator)
             
         // Use a UIHostingController as window root view controller.
