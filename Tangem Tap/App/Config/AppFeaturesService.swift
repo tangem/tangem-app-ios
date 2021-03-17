@@ -17,11 +17,15 @@ class AppFeaturesService {
     init(configProvider: FeaturesConfigProvider) {
         self.configProvider = configProvider
     }
+    
+    deinit {
+        print("FeaturesConfigProvider deinit")
+    }
 	
 	func setupFeatures(for card: Card) {
 		features = getFeatures(for: card)
 	}
-	
+    
     private func getFeatures(for card: Card) -> AppFeatures {
         if card.isStart2Coin {
             return .none
