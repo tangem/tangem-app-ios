@@ -66,10 +66,12 @@ class RateAppService: RateAppChecker, RateAppController {
     
     func dismissRateAppWarning() {
         userPrefsService.dismissRateAppAtLaunch = userPrefsService.numberOfLaunches
+        shouldShowRateAppWarning = false
     }
     
     func userReactToRateAppWarning(isPositive: Bool) {
         userPrefsService.didUserRespondToRateApp = true
+        shouldShowRateAppWarning = false
         if isPositive {
             SKStoreReviewController.requestReview()
         }
