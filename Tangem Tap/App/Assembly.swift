@@ -335,13 +335,13 @@ class Assembly: ObservableObject {
 //        return vm
 //    }
     
-    func makeSendViewModel(with amount: Amount, walletIndex: Int, card: CardViewModel) -> SendViewModel {
+    func makeSendViewModel(with amount: Amount, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
         }
         
-        let vm = SendViewModel(walletIndex: walletIndex,
-                               amountToSend: amount,
+        let vm = SendViewModel(amountToSend: amount,
+                               blockchain: blockchain,
                                cardViewModel: card,
                                signer: services.tangemSdk.signer,
                                warningsManager: services.warningsService)
