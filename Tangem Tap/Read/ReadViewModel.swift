@@ -19,7 +19,7 @@ class ReadViewModel: ViewModel {
     weak var cardsRepository: CardsRepository!
     weak var userPrefsService: UserPrefsService!
     
-    var failedCardScanTracker: FailedCardScanTracker
+    weak var failedCardScanTracker: FailedCardScanTracker!
     
     //viewState
     @Published var state: State = .welcome
@@ -32,8 +32,7 @@ class ReadViewModel: ViewModel {
     private var firstTimeScan: Bool
     
     private var bag = Set<AnyCancellable>()
-    init(failedCardScanTracker: FailedCardScanTracker) {
-        self.failedCardScanTracker = failedCardScanTracker
+    init() {
         self.state = firstTimeScan ? .welcome : .welcomeBack
     }
     

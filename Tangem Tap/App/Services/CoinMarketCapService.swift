@@ -117,6 +117,10 @@ class CoinMarketCapService {
         self.apiKey = apiKey
     }
     
+    deinit {
+        print("CoinMarketCapService deinit")
+    }
+    
     func loadFiatMap() -> AnyPublisher<[FiatCurrency], MoyaError> {
         provider
             .requestPublisher(.fiatMap(apiKey: self.apiKey))
