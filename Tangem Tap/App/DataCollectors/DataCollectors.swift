@@ -31,9 +31,9 @@ extension EmailDataCollector {
     }
 }
 
-struct NegativeFeedbackDataCollector: EmailDataCollector {
+class NegativeFeedbackDataCollector: EmailDataCollector {
     
-    unowned var cardRepository: CardsRepository
+    weak var cardRepository: CardsRepository!
     
     var dataForEmail: String {
         guard let card = cardRepository.lastScanResult.card else { return "" }
