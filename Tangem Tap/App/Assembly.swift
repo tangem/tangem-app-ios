@@ -403,6 +403,10 @@ class Assembly: ObservableObject {
         indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
     }
     
+    public func reset(key: String) {
+        modelsStorage.removeValue(forKey: key)
+    }
+    
     // MARK: - Private funcs
     
     private func initialize<V: ViewModel>(_ vm: V) {
