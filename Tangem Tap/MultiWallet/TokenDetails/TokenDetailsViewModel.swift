@@ -57,10 +57,14 @@ class TokenDetailsViewModel: ViewModel {
             return false
         }
         
-        return wallet?.canSend ?? false
+        return wallet?.canSend(amountType: self.amountType) ?? false
     }
     
     var canDelete: Bool {
+        if case .noAccount = walletModel?.state {
+            return true
+        }
+        
         guard let amount = amountToSend, let walletModel = self.walletModel else {
             return false
         }
@@ -86,9 +90,9 @@ class TokenDetailsViewModel: ViewModel {
     
     @Published var isRefreshing = false
     
+    let amountType: Amount.AmountType
+    let blockchain: Blockchain
     private var bag = Set<AnyCancellable>()
-    private let blockchain: Blockchain
-    private let amountType: Amount.AmountType
     
     init(blockchain: Blockchain, amountType: Amount.AmountType) {
         self.blockchain = blockchain
@@ -96,10 +100,15 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     func onRemove() {
-        if let amount = amountToSend, let walletModel = walletModel {
-            if amount.type == .coin {
+        if let walletModel = self.walletModel, case .noAccount = walletModel.state {
+            card.removeBlockchain(walletModel.wallet.blockchain)
+            return
+        }
+
+        if let walletModel = self.walletModel {
+            if amountType == .coin {
                 card.removeBlockchain(walletModel.wallet.blockchain)
-            } else if case let .token(token) = amount.type {
+            } else if case let .token(token) = amountType {
                 walletModel.removeToken(token)
             }
         }
@@ -117,16 +126,7 @@ class TokenDetailsViewModel: ViewModel {
             .removeDuplicates()
             .filter { $0 }
             .sink{ [unowned self] _ in
-                if card.state.canUpdate {
-                    card.update()
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation {
-                            self.isRefreshing = false
-                        }
-                    }
-                }
-                
+                self.walletModel?.update()
             }
             .store(in: &bag)
         
@@ -140,6 +140,13 @@ class TokenDetailsViewModel: ViewModel {
                 withAnimation {
                     self.isRefreshing = false
                 }
+            }
+            .store(in: &bag)
+        
+        walletModel?.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
             }
             .store(in: &bag)
     }
