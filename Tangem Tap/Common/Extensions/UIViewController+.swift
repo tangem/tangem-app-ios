@@ -1,0 +1,39 @@
+//
+//  UIViewController+.swift
+//  Tangem Tap
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2021 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import UIKit
+
+extension UIViewController {
+    @objc var topViewController: UIViewController? { return presentedViewController?.topViewController ?? self }
+}
+
+extension UINavigationController {
+    override var topViewController: UIViewController? {
+        return visibleViewController?.topViewController
+    }
+}
+
+extension UITabBarController {
+    override var topViewController: UIViewController? {
+        return selectedViewController?.topViewController
+    }
+}
+
+extension UIWindow {
+    var topViewController: UIViewController? {
+        return rootViewController?.topViewController
+    }
+}
+
+extension UIApplication {
+    var topViewController : UIViewController? {
+        let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+        return keyWindow?.topViewController
+    }
+}

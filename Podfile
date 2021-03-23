@@ -27,6 +27,7 @@ target 'Tangem Tap' do
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
+  pod 'WalletConnectSwift'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
