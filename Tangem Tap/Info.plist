@@ -90,5 +90,16 @@
 		<string>A000000812010208</string>
 		<string>D2760000850101</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wc</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
