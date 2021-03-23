@@ -41,4 +41,8 @@ class TopupService {
         let url = urlComponents.url!
         return url
     }
+    
+    deinit {
+        print("Topup deinit")
+    }
 }

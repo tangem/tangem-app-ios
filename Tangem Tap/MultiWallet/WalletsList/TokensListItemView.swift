@@ -1,5 +1,5 @@
 //
-//  WalletsViewitem.swift
+//  TokensListItemView.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,8 +11,8 @@ import SwiftUI
 import TangemSdk
 import BlockchainSdk
 
-struct WalletsViewItem: View {
-    var item: WalletItemViewModel
+struct TokensListItemView: View {
+    var item: TokenItemViewModel
     
     var secondaryText: String {
         if item.state.isNoAccount {
@@ -49,56 +49,49 @@ struct WalletsViewItem: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        HStack(alignment: .top) {
             
-            Color.clear.frame(height: 16)
-            
-            HStack(alignment: .firstTextBaseline) {
-                Text(item.name)
-                    .layoutPriority(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer()
-                Text(item.balance)
-                    .multilineTextAlignment(.trailing)
-                    .truncationMode(.middle)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .lineLimit(2)
-            .minimumScaleFactor(0.8)
-            .foregroundColor(Color.tangemTapGrayDark6)
-            .font(Font.system(size: 17.0, weight: .medium, design: .default))
-            .padding(.horizontal, 24.0)
-            .padding(.bottom, 8)
-            
-            
-            HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                if item.state.errorDescription != nil  || item.hasTransactionInProgress {
-                    Image("exclamationmark.circle" )
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 10.0, height: 10.0)
+            item.tokenItem.imageView
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(item.name)
+                        .layoutPriority(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
+                    Text(item.balance)
+                        .multilineTextAlignment(.trailing)
+                        .truncationMode(.middle)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                VStack(alignment: .leading) {
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .foregroundColor(Color.tangemTapGrayDark6)
+                .font(Font.system(size: 17.0, weight: .medium, design: .default))
+                
+                
+                HStack(alignment: .firstTextBaseline, spacing: 5.0) {
+                    if item.state.errorDescription != nil  || item.hasTransactionInProgress {
+                        Image("exclamationmark.circle" )
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 10.0, height: 10.0)
+                    }
                     Text(secondaryText)
                         .lineLimit(1)
-                    if item.state.errorDescription != nil {
-                        Text(item.state.errorDescription!)
-                            .layoutPriority(1)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
+                    Spacer()
+                    Text(item.fiatBalance)
+                        .lineLimit(1)
+                        .foregroundColor(Color.tangemTapGrayDark)
                 }
-                Spacer()
-                Text(item.fiatBalance)
-                    .lineLimit(1)
-                    .foregroundColor(Color.tangemTapGrayDark)
+                .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                .foregroundColor(accentColor)
             }
-            .font(Font.system(size: 14.0, weight: .medium, design: .default))
-            .foregroundColor(accentColor)
-            .padding(.bottom, 16.0)
-            .padding(.horizontal, 24.0)
         }
+        .padding(16.0)
         .background(Color.white)
         .cornerRadius(6.0)
+        .shadow(color: .tangemTapGrayLight5, radius: 2, x: 0, y: 1)
     }
 }
 
@@ -108,39 +101,47 @@ struct WalletsViewItem_Previews: PreviewProvider {
         ZStack {
             Color.tangemTapBgGray
             VStack {
-                WalletsViewItem(item: WalletItemViewModel(state: .idle, hasTransactionInProgress: false,
-                                                          name: "Ethereum smart contract token",
+                TokensListItemView(item: TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
+                                                          name: "Ethereum ",
                                                           fiatBalance: "$3.45",
-                                                          balance: "0.00000348573986753845001 BTC",
+                                                          balance: "0.00000348501 BTC",
                                                           rate: "1.5 USD",
-                                                          blockchain: .ethereum(testnet: false)))
+                                                          amountType: .coin,
+                                                          blockchain: .ethereum(testnet: false),
+                                                          fiatValue: 0))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemViewModel(
+                TokensListItemView(item: TokenItemViewModel(
                                     state: .loading, hasTransactionInProgress: false,
                                     name: "Ethereum smart contract token",
                                     fiatBalance: "$3.45",
                                     balance: "0.00000348573986753845001 BTC",
                                     rate: "1.5 USD",
-                                    blockchain: .ethereum(testnet: false)))
+                                    amountType: .coin,
+                                    blockchain: .ethereum(testnet: false),
+                                    fiatValue: 0))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemViewModel(
+                TokensListItemView(item: TokenItemViewModel(
                                     state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"), hasTransactionInProgress: false,
-                                     name: "Ethereum smart contract token",
+                                    name: "Ethereum smart contract token",
                                     fiatBalance: " ",
-                                    balance: "-",
+                                    balance: " ",
                                     rate: "1.5 USD",
-                                    blockchain: .ethereum(testnet: false)))
+                                    amountType: .coin,
+                                    blockchain: .ethereum(testnet: false),
+                                    fiatValue: 0))
                     .padding(.horizontal, 16)
                 
-                WalletsViewItem(item: WalletItemViewModel(
+                TokensListItemView(item: TokenItemViewModel(
                                     state: .idle, hasTransactionInProgress: true,
                                     name: "Bitcoin token",
                                     fiatBalance: "5 USD",
                                     balance: "10 BTCA",
                                     rate: "1.5 USD",
-                                    blockchain: .ethereum(testnet: false)))
+                                    amountType: .coin,
+                                    blockchain: .ethereum(testnet: false),
+                                    fiatValue: 0))
                     .padding(.horizontal, 16)
             }
         }

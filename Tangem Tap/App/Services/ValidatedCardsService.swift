@@ -21,6 +21,10 @@ class ValidatedCardsService {
         keychain.synchronizable = true
     }
     
+    deinit {
+        print("ValidatedCardsService deinit")
+    }
+    
     func isCardValidated(_ card: Card) -> Bool {
         guard let data = card.cardValidationData else {
             return false
