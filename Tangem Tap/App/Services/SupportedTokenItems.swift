@@ -1,5 +1,5 @@
 //
-//  SupportedWalletItems.swift
+//  SupportedTokenItems.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-class SupportedWalletItems {
+class SupportedTokenItems {
     lazy var blockchains: Set<Blockchain> = {[.ethereum(testnet: false),
                                               .litecoin,
                                               .bitcoin(testnet: false),
@@ -17,7 +17,7 @@ class SupportedWalletItems {
                                               .xrp(curve: .secp256k1),
                                               .rsk,
                                               .binance(testnet: false),
-                                              .tezos]}()
+                                              .tezos(curve: .secp256k1)]}()
     
     lazy var erc20Tokens: [Token] = {
         let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
