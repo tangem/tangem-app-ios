@@ -35,7 +35,12 @@ struct TokenDetailsView: View {
         }
     }
     
-    var bottomButtons: some View {
+    @ViewBuilder var bottomButtons: some View {
+        let sendAction = {
+            viewModel.assembly.reset(key: String(describing: type(of: SendViewModel.self)))
+            navigation.detailsToSend = true
+        }
+        
         HStack(alignment: .center) {
             if viewModel.canTopup  {
                 TwinButton(leftImage: "arrow.up",
@@ -45,15 +50,13 @@ struct TokenDetailsView: View {
                            
                            rightImage: "arrow.right",
                            rightTitle: "wallet_button_send",
-                           rightAction: { navigation.detailsToSend = true },
+                           rightAction: sendAction,
                            rightIsDisabled: !viewModel.canSend)
             } else {
                 TangemLongButton(isLoading: false,
                                  title: "wallet_button_send",
-                                 image: "arrow.right") {
-                    viewModel.assembly.reset()
-                    navigation.detailsToSend = true
-                }
+                                 image: "arrow.right",
+                                 action: sendAction)
                 .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
                 .disabled(!self.viewModel.canSend)
             }
