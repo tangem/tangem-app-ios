@@ -13,7 +13,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    var cidFromClipCard: String?
     let assembly = Assembly()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -21,8 +20,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
+        
         // Create the SwiftUI view that provides the window contents.
-        let contentView = ContentView(viewModel: assembly.getMainViewModel(cid: cidFromClipCard ?? "Not scanned yet"))
+        let contentView = MainView(viewModel: assembly.getMainViewModel())
+//        let contentView = MainView(viewModel: Assembly.previewAssembly.getMainViewModel(cid: "CB47000000000435"))
 
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
@@ -34,21 +35,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        var batch: String?
+        defer {
+            assembly.updateAppClipCard(with: batch)
+        }
+        
         // Get URL components from the incoming user activity
+        logger.log("Scene continue with user activity: \(userActivity.activityType)")
         guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
               let incomingURL = userActivity.webpageURL
         else { return }
         
-        print(incomingURL)
+        logger.log(incomingURL.absoluteString)
         assembly.updateCardUrl(incomingURL.absoluteString)
         
         let splitted = incomingURL.absoluteString.split(separator: "#")
         print(splitted)
         guard splitted.count == 2 else { return }
         
-        let cid = String(splitted[1])
-        cidFromClipCard = cid
-        assembly.updateAppClipCard(with: cid)
+        batch = String(splitted[1])
+        logger.log("Successfully parse batch: \(batch!)")
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
