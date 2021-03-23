@@ -1,5 +1,5 @@
 //
-//  WalletItems+.swift
+//  TokenItems+Array.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-extension Array where Element == WalletItem {
+extension Array where Element == TokenItem {
     mutating func remove(token: Token) {
         if let index = firstIndex(where: { $0.token == token }) {
             remove(at: index)
@@ -22,8 +22,8 @@ extension Array where Element == WalletItem {
         }
     }
     
-    mutating func remove(_ walletItem: WalletItem) {
-        if let index = firstIndex(where: { $0 == walletItem }) {
+    mutating func remove(_ tokenItem: TokenItem) {
+        if let index = firstIndex(where: { $0 == tokenItem }) {
             remove(at: index)
         }
     }
