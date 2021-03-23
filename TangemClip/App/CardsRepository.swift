@@ -1,24 +1,21 @@
 //
 //  CardsRepository.swift
-//  Tangem Tap
+//  TangemClip
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2020 Tangem AG. All rights reserved.
+//  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import TangemSdk
-import BlockchainSdk
+import TangemSdkClips
+import BlockchainSdkClips
 
 struct CardInfo {
     var card: Card
     var artworkInfo: ArtworkInfo?
-	var twinCardInfo: TwinCardInfo?
+    var twinCardInfo: TwinCardInfo?
     
     var isMultiWallet: Bool {
-        if card.isTwinCard {
-            return false
-        }
         
         if let curve = card.curve, curve == .ed25519 {
             return false
@@ -35,7 +32,7 @@ struct CardInfo {
 enum ScanResult: Equatable {
     case card(model: CardViewModel)
     case unsupported
-	case notScannedYet
+    case notScannedYet
     
     var cardModel: CardViewModel? {
         switch self {
@@ -56,14 +53,14 @@ enum ScanResult: Equatable {
     }
 
     static func == (lhs: ScanResult, rhs: ScanResult) -> Bool {
-		switch (lhs, rhs) {
-		
-		case (.card, .card): return true
-		case (.unsupported, .unsupported): return true
-		case (.notScannedYet, .notScannedYet): return true
-		default:
-			return false
-		}
+        switch (lhs, rhs) {
+        
+        case (.card, .card): return true
+        case (.unsupported, .unsupported): return true
+        case (.notScannedYet, .notScannedYet): return true
+        default:
+            return false
+        }
     }
 }
 
@@ -72,45 +69,37 @@ class CardsRepository {
     weak var assembly: Assembly!
     
     var cards = [String: ScanResult]()
-	var lastScanResult: ScanResult = .notScannedYet
+    var lastScanResult: ScanResult = .notScannedYet
     var onScan: ((CardInfo) -> Void)? = nil
-    
-	private let twinCardFileDecoder: TwinCardFileDecoder
-    private let cardValidator: ValidatedCardsService
-	
-    init(twinCardFileDecoder: TwinCardFileDecoder, cardValidator: ValidatedCardsService) {
-		self.twinCardFileDecoder = twinCardFileDecoder
-        self.cardValidator = cardValidator
-	}
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         tangemSdk.config = assembly.sdkConfig
-        tangemSdk.startSession(with: TapScanTask(validatedCardsService: cardValidator)) {[unowned self] result in
+        tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.log(error: error)
                 completion(.failure(error))
             case .success(let response):
-				guard response.card.cardId != nil else {
-					completion(.failure(TangemSdkError.unknownError))
-					return
-				}
-				
-				Analytics.logScan(card: response.card)
-				completion(.success(processScan(response.getCardInfo())))
+                guard response.card.cardId != nil else {
+                    completion(.failure(TangemSdkError.unknownError))
+                    return
+                }
+                
+                Analytics.logScan(card: response.card)
+                completion(.success(processScan(response.getCardInfo())))
             }
         }
     }
 
-	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
+    private func processScan(_ cardInfo: CardInfo) -> ScanResult {
         onScan?(cardInfo)
         
-        let cm = assembly.makeCardModel(from: cardInfo)
+        let cm = assembly.getCardModel(from: cardInfo)
         let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
         cards[cardInfo.card.cardId!] = result
         lastScanResult = result
         cm?.getCardInfo()
         return result
-	}
+    }
 }
