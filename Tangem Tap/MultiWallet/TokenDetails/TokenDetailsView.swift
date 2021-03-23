@@ -94,7 +94,7 @@ struct TokenDetailsView: View {
                         
                         
                         if viewModel.shouldShowTxNote {
-                            AlertCardView(title: "", message: "Please wait for \(viewModel.amountInProgressName) transaction complete to be able to send funds")
+                            AlertCardView(title: "", message: viewModel.txNoteMessage)
                         }
                     }
                 }
