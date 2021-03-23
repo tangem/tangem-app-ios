@@ -82,10 +82,12 @@ class TokenDetailsViewModel: ViewModel {
         return walletModel.wallet.hasPendingTx && !walletModel.wallet.hasPendingTx(for: amountType)
     }
     
-    var amountInProgressName: String {
+    var txNoteMessage: String {
         guard let walletModel = walletModel else { return "" }
         
-        return walletModel.wallet.transactions.first?.amount.type.token?.name ?? ""
+        guard let name = walletModel.wallet.transactions.first?.amount.type.token?.name else { return "" }
+        
+        return String(format: "token_details_tx_note_message", name)
     }
     
     var amountToSend: Amount? {
