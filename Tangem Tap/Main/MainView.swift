@@ -324,7 +324,7 @@ struct MainView: View {
                         && !navigation.mainToTwinsWalletWarning
                         && !navigation.mainToAddTokens
                     }
-                    .delay(for: 0.3, scheduler: DispatchQueue.global())
+                    .delay(for: 0.5, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
             viewModel.state.cardModel?.update()
         }
