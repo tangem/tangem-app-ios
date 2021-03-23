@@ -86,9 +86,16 @@ struct TokenDetailsView: View {
                         
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(walletModel: walletModel, amountType: viewModel.amountType)
+                            
                         }
+                        
                         bottomButtons
                             .padding(.top, 16)
+                        
+                        
+                        if viewModel.shouldShowTxNote {
+                            AlertCardView(title: "", message: "Please wait for \(viewModel.amountInProgressName) transaction complete to be able to send funds")
+                        }
                     }
                 }
             }
