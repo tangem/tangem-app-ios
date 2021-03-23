@@ -8,42 +8,38 @@
 
 import SwiftUI
 import EFQRCode
+import BlockchainSdk
 
 struct BalanceAddressView: View {
-    var walletModel: WalletModel
+    @ObservedObject var walletModel: WalletModel
+    var amountType: Amount.AmountType
     
     @State private var selectedAddressIndex: Int = 0
     
-    var balanceViewModel: BalanceViewModel { walletModel.balanceViewModel }
-    
-    var blockhainImage: String {
-        return ""
-    }
-    
     var blockchainText: String {
-        if balanceViewModel.state.isNoAccount {
+        if walletModel.state.isNoAccount {
             return "wallet_error_no_account".localized
         }
         
-        if balanceViewModel.state.isBlockchainUnreachable {
+        if walletModel.state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
         }
         
-        if balanceViewModel.hasTransactionInProgress {
-            return  "wallet_balance_tx_in_progress".localized
+        if walletModel.wallet.hasPendingTx(for: amountType) {
+            return "wallet_balance_tx_in_progress".localized
         }
         
-        if balanceViewModel.state.isLoading {
-            return  "wallet_balance_loading".localized
+        if walletModel.state.isLoading {
+            return "wallet_balance_loading".localized
         }
         
         return "wallet_balance_verified".localized
     }
     
     var image: String {
-        balanceViewModel.state.errorDescription == nil
-            && !balanceViewModel.hasTransactionInProgress
-            && !balanceViewModel.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
+        walletModel.state.errorDescription == nil
+            && !walletModel.wallet.hasPendingTx(for: amountType)
+            && !walletModel.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
     }
     
     var showAddressSelector: Bool {
@@ -51,32 +47,48 @@ struct BalanceAddressView: View {
     }
     
     var accentColor: Color {
-        if balanceViewModel.state.errorDescription == nil
-            && !balanceViewModel.hasTransactionInProgress
-            && !balanceViewModel.state.isLoading {
+        if walletModel.state.errorDescription == nil
+            && !walletModel.wallet.hasPendingTx(for: amountType)
+            && !walletModel.state.isLoading {
             return .tangemTapGreen
         }
         return .tangemTapWarning
+    }
+    
+    var balance: String {
+        walletModel.getBalance(for: amountType)
+    }
+
+    var fiatBalance: String {
+        walletModel.getFiatBalance(for: amountType)
     }
     
     var body: some View {
         VStack {
             HStack (alignment: .top) {
                 VStack (alignment: .leading, spacing: 8) {
-                    Text(balanceViewModel.balance)
-                        .font(Font.system(size: 20.0, weight: .bold, design: .default))
-                        .foregroundColor(Color.tangemTapGrayDark6)
-                        .minimumScaleFactor(0.8)
-                        .multilineTextAlignment(.leading)
-                        .truncationMode(.middle)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(balanceViewModel.fiatBalance)
-                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                        .lineLimit(1)
-                        .foregroundColor(Color.tangemTapGrayDark)
+                    if let errorDescription = walletModel.state.errorDescription {
+                        Text(errorDescription)
+                            .layoutPriority(1)
+                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                            .foregroundColor(accentColor)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        Text(balance)
+                            .font(Font.system(size: 20.0, weight: .bold, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark6)
+                            .minimumScaleFactor(0.8)
+                            .multilineTextAlignment(.leading)
+                            .truncationMode(.middle)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(fiatBalance)
+                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                            .lineLimit(1)
+                            .foregroundColor(Color.tangemTapGrayDark)
+                    }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                        Image(balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
+                        Image(image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .foregroundColor(accentColor)
@@ -87,20 +99,12 @@ struct BalanceAddressView: View {
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(accentColor)
                                 .lineLimit(1)
-                            if balanceViewModel.state.errorDescription != nil {
-                                Text(balanceViewModel.state.errorDescription!)
-                                    .layoutPriority(1)
-                                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                    .foregroundColor(accentColor)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
                         }
                     }
                 }
                 Spacer()
-                Image(blockhainImage)
-                    .resizable()
-                    .frame(width: 40, height: 40)
+                
+                walletModel.getTokenItem(for: amountType).imageView
             }
             
             if showAddressSelector {
@@ -187,13 +191,16 @@ struct BalanceAddressView_Previews: PreviewProvider {
     
     static var walletModel: WalletModel {
         let vm = cardViewModel.walletModels!.first!
+        vm.state = .failed(error: "Failed to load. Internet connection is unnreachable")
+        vm.state = .idle
         vm.balanceViewModel = BalanceViewModel(isToken: false,
-                                               hasTransactionInProgress: false,
+                                               hasTransactionInProgress: true,
                                                state: .idle,
                                                name: "Ethereum smart contract token",
                                                fiatBalance: "$3.45",
                                                balance: "0.67538451 BTC",
-                                               secondaryBalance: "", secondaryFiatBalance: "",
+                                               secondaryBalance: "",
+                                               secondaryFiatBalance: "",
                                                secondaryName: "")
         return vm
     }
@@ -202,7 +209,7 @@ struct BalanceAddressView_Previews: PreviewProvider {
         ZStack {
             Color.gray
             BalanceAddressView(
-                walletModel: walletModel)
+                walletModel: walletModel, amountType: .coin)
                 .padding()
         }
     }
