@@ -1,5 +1,5 @@
 //
-//  Models.swift
+//  Assembly.swift
 //  TangemClip
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,23 +7,12 @@
 //
 
 import Foundation
-import TangemSdk
-
-class CardViewModel: ObservableObject {
-    var cardInfo: CardInfo
-    
-    init(cardInfo: CardInfo) {
-        self.cardInfo = cardInfo
-    }
-    
-    func getCardInfo() {
-        
-    }
-}
+import TangemSdkClips
 
 class Assembly {
     
-    let cardValidator = ValidatedCardsService()
+    lazy var networkService = NetworkService()
+    lazy var imageLoaderService = ImageLoaderService(networkService: networkService)
     
     lazy var tangemSdk: TangemSdk = {
        let sdk = TangemSdk()
@@ -31,7 +20,7 @@ class Assembly {
         return sdk
     }()
     lazy var cardsRepository: CardsRepository = {
-        let repo = CardsRepository(twinCardFileDecoder: TwinCardTlvFileDecoder(), cardValidator: cardValidator)
+        let repo = CardsRepository()
         repo.tangemSdk = tangemSdk
         repo.assembly = self
         return repo
@@ -43,14 +32,13 @@ class Assembly {
         Config()
     }
     
-    func getMainViewModel(cid: String) -> MainViewModel {
+    func getMainViewModel() -> MainViewModel {
         guard let model: MainViewModel = get() else {
-            let mainModel = MainViewModel(cid: cid, cardsRepository: cardsRepository)
+            let mainModel = MainViewModel(cardsRepository: cardsRepository, imageLoaderService: imageLoaderService)
             store(mainModel)
             return mainModel
         }
         
-        model.cardNumber = cid
         return model
     }
     
@@ -65,9 +53,9 @@ class Assembly {
         return model
     }
     
-    func updateAppClipCard(with cid: String) {
+    func updateAppClipCard(with batch: String?) {
         let mainModel: MainViewModel? = get()
-        mainModel?.cardNumber = cid
+        mainModel?.updateCardBatch(batch)
     }
     
     func updateCardUrl(_ url: String) {
@@ -99,17 +87,11 @@ extension Assembly {
     static var previewAssembly: Assembly = {
         let assembly = Assembly()
         
-        // Twin card
-        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
-        
         // Bitcoin old test card
         let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
         
-        // ETH pigeon card
-        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
-        
         // Which card data should be displayed in preview?
-        assembly.cardsRepository.lastScanResult = ethCardScan
+        assembly.cardsRepository.lastScanResult = testCardScan
         return assembly
     }()
     
@@ -121,29 +103,5 @@ extension Assembly {
         let scanResult = ScanResult.card(model: vm)
         assembly.cardsRepository.cards[card.cardId!] = scanResult
         return scanResult
-    }
-}
-
-class Analytics {
-    enum Event: String {
-        case cardIsScanned = "card_is_scanned"
-        case transactionIsSent = "transaction_is_sent"
-        case readyToScan = "ready_to_scan"
-        case displayRateAppWarning = "rate_app_warning_displayed"
-        case negativeRateAppFeedback = "negative_rate_app_feedback"
-        case positiveRateAppFeedback = "positive_rate_app_feedback"
-        case dismissRateAppWarning = "dismiss_rate_app_warning"
-    }
-    
-    static func log(error: Error) {
-        print("LOGGING ERRORRRRRR!RR!R!!Rrrr: ", error)
-    }
-    
-    static func logScan(card: Card) {
-        print("This is card", card)
-    }
-    
-    static func log(event: Event) {
-        print("ALARM!ALRAMRA. This is event", event.rawValue)
     }
 }
