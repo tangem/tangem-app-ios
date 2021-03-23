@@ -450,3 +450,5 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 
 "mail_error_no_accounts_title" = "No Mail accounts";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
+
+"token_details_tx_note_message" = "Please wait for %@ transaction to complete to be able to send funds";
