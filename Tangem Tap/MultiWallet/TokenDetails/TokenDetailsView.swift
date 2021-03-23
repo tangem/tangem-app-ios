@@ -25,14 +25,14 @@ struct TokenDetailsView: View {
         return incTx + outgTx
     }
     
-    var navigationLinks: AnyView {
+    var navigationLinks: some View {
         Group {
             NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                          closeUrl: viewModel.topupCloseUrl,
                                                          title: "wallet_button_topup")
-                            .onDisappear { self.viewModel.card.update() },
+                            .onDisappear { viewModel.card.update() },
                            isActive: $navigation.detailsToTopup)
-        }.toAnyView()
+        }
     }
     
     var bottomButtons: some View {
@@ -54,7 +54,7 @@ struct TokenDetailsView: View {
                     viewModel.assembly.reset()
                     navigation.detailsToSend = true
                 }
-                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
+                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
                 .disabled(!self.viewModel.canSend)
             }
         }
@@ -62,7 +62,7 @@ struct TokenDetailsView: View {
             if let amountToSend = viewModel.amountToSend {
                 SendView(viewModel: viewModel.assembly.makeSendViewModel(
                             with: amountToSend,
-                            walletIndex: 0,
+                            blockchain: viewModel.blockchain,
                             card: viewModel.card), onSuccess: {})
                     .environmentObject(navigation)
             }
@@ -82,7 +82,7 @@ struct TokenDetailsView: View {
                         ForEach(self.pendingTransactionViews) { $0 }
                         
                         if let walletModel = viewModel.walletModel {
-                            BalanceAddressView(walletModel: walletModel)
+                            BalanceAddressView(walletModel: walletModel, amountType: viewModel.amountType)
                         }
                         bottomButtons
                             .padding(.top, 16)
@@ -101,7 +101,7 @@ struct TokenDetailsView: View {
             }
             
         }, label: { Text("wallet_remove_token")
-            .foregroundColor(viewModel.canDelete ? Color.tangemTapGrayDark6 : Color.tangemTapGrayDark4)
+            .foregroundColor(viewModel.canDelete ? Color.tangemTapGrayDark6 : Color.tangemTapGrayLight5)
         })
         .disabled(!viewModel.canDelete)
         .padding(0.0)
@@ -114,8 +114,8 @@ struct TokenDetailsView: View {
 struct TokenDetailsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            TokenDetailsView(viewModel: Assembly.previewAssembly.makeTokenDetailsViewModel(with: CardViewModel.previewCardViewModel, blockchain: .bitcoin(testnet: false)))
-                .environmentObject(Assembly.previewAssembly.navigationCoordinator)
+            TokenDetailsView(viewModel: Assembly.previewAssembly.makeTokenDetailsViewModel(blockchain: .ethereum(testnet: false)))
+                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
         }
         .previewGroup(devices: [.iPhone8Plus])
     }
