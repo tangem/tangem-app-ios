@@ -29,19 +29,19 @@ struct MainView: View {
         
         let buttons = symbols?.map { amount in
             return ActionSheet.Button.default(Text(amount.currencySymbol)) {
-                self.viewModel.amountToSend = Amount(with: amount, value: 0)
-                self.viewModel.showSendScreen()
+                viewModel.amountToSend = Amount(with: amount, value: 0)
+                viewModel.showSendScreen()
             }
         }
         return buttons ?? []
     }
     
     var pendingTransactionViews: [PendingTxView] {
-        let incTx = self.viewModel.incomingTransactions.map {
+        let incTx = viewModel.incomingTransactions.map {
             return PendingTxView(txState: .incoming, amount: $0.amount.description, address: $0.sourceAddress)
         }
         
-        let outgTx = self.viewModel.outgoingTransactions.map {
+        let outgTx = viewModel.outgoingTransactions.map {
             return PendingTxView(txState: .outgoing, amount: $0.amount.description, address: $0.destinationAddress)
         }
         
@@ -50,7 +50,7 @@ struct MainView: View {
     
     var isUnsupportdState: Bool {
         switch viewModel.state {
-        case .unsupported:
+        case .unsupported, .notScannedYet:
             return true
         default:
             return false
@@ -58,7 +58,7 @@ struct MainView: View {
     }
     
     var shouldShowEmptyView: Bool {
-        if let cardModel = self.viewModel.state.cardModel {
+        if let cardModel = viewModel.state.cardModel {
             switch cardModel.state {
             case .empty, .created:
                 return true
@@ -70,7 +70,7 @@ struct MainView: View {
     }
     
     var shouldShowBalanceView: Bool {
-        if let walletModel = self.viewModel.cardModel?.walletModels?.first {
+        if let walletModel = viewModel.cardModel?.walletModels?.first {
             switch walletModel.state {
             case .idle, .loading, .failed:
                 return true
@@ -83,7 +83,7 @@ struct MainView: View {
     }
     
     var noAccountView: ErrorView? {
-        if let walletModel = self.viewModel.cardModel?.walletModels?.first {
+        if let walletModel = viewModel.cardModel?.walletModels?.first {
             switch walletModel.state {
             case .noAccount(let message):
                 return ErrorView(title: "wallet_error_no_account".localized, subtitle: message)
@@ -95,30 +95,31 @@ struct MainView: View {
         return nil
     }
     
-    var scanButton: some View {
+    @ViewBuilder var scanButton: some View {
         let scanAction = {
             withAnimation {
-                self.viewModel.scan()
+                viewModel.scan()
             }
         }
         
-        let button = viewModel.canTopup && !viewModel.canCreateWallet ?
-            (viewModel.cardModel?.cardInfo.isMultiWallet ?? false) ?
-            TangemLongButton(isLoading: viewModel.isScanning,
+        if viewModel.canTopup && !viewModel.canCreateWallet {
+            if  (viewModel.cardModel?.isMultiWallet ?? false) {
+                TangemButton(isLoading: viewModel.isScanning,
                              title: "wallet_button_scan",
                              image: "scan") {scanAction()}
-            .toAnyView()
-            :
-            TangemVerticalButton(isLoading: viewModel.isScanning,
-                                 title: "wallet_button_scan",
-                                 image: "scan") { scanAction()}
-            .toAnyView() : TangemButton(isLoading: viewModel.isScanning,
-                                        title: "wallet_button_scan",
-                                        image: "scan") {scanAction()}
-            .toAnyView()
-        
-        return button
-            .buttonStyle(TangemButtonStyle(color: .black))
+                    .buttonStyle(TangemButtonStyle(color: .black))
+            } else {
+                TangemVerticalButton(isLoading: viewModel.isScanning,
+                                     title: "wallet_button_scan",
+                                     image: "scan") { scanAction()}
+                    .buttonStyle(TangemButtonStyle(color: .black))
+            }
+        } else {
+            TangemButton(isLoading: viewModel.isScanning,
+                         title: "wallet_button_scan",
+                         image: "scan") {scanAction()}
+                .buttonStyle(TangemButtonStyle(color: .black))
+        }
     }
     
     var createWalletButton: some View {
@@ -129,58 +130,56 @@ struct MainView: View {
             .disabled(!viewModel.canCreateWallet)
     }
     
-    var sendButton: some View {
+    @ViewBuilder var sendButton: some View {
         let action = { viewModel.sendTapped() }
         
-        let button = viewModel.canTopup ?
+        if viewModel.canTopup {
             TangemVerticalButton(isLoading: false,
                                  title: "wallet_button_send",
                                  image: "arrow.right") { action() }
-            .toAnyView() :
+                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
+                .disabled(!viewModel.canSend)
+        } else {
             TangemLongButton(isLoading: false,
                              title: "wallet_button_send",
                              image: "arrow.right") { action() }
-            .toAnyView()
-        
-        return button
-            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !self.viewModel.canSend))
-            .disabled(!self.viewModel.canSend)
+                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
+                .disabled(!viewModel.canSend)
+        }
     }
     
     var topupButton: some View {
         TangemVerticalButton(isLoading: false,
                              title: "wallet_button_topup",
                              image: "arrow.up") {
-            if self.viewModel.topupURL != nil {
-                self.navigation.mainToTopup = true
+            if viewModel.topupURL != nil {
+                navigation.mainToTopup = true
             }
         }
         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
     }
     
-    var navigationLinks: AnyView {
-        Group {
-            NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel(with: viewModel.state.cardModel!)),
-                           isActive: $navigation.mainToSettings)
-            
-            
-            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: false)),
-                           isActive: $navigation.mainToTwinsWalletWarning)
-            
-            NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
-                                                         closeUrl: viewModel.topupCloseUrl,
-                                                         title: "wallet_button_topup")
-                            .onDisappear { self.viewModel.state.cardModel?.update() },
-                           isActive: $navigation.mainToTopup)
-            
-            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
-                           isActive: $navigation.mainToTwinOnboarding)
-            
-            NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(with: viewModel.state.cardModel!,
-                                                                                                                 blockchain: viewModel.selectedWallet.blockchain,
-                                                                                                                 amountType: viewModel.selectedWallet.amountType)),
-                isActive: $navigation.mainToTokenDetails)
-        }.toAnyView()
+    var navigationLinks: some View {
+        VStack {
+                NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
+                               isActive: $viewModel.navigation.mainToSettings)
+                
+                NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(blockchain: viewModel.selectedWallet.blockchain,
+                                                                                                                     amountType: viewModel.selectedWallet.amountType)),
+                               isActive: $navigation.mainToTokenDetails)
+                
+                NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: false)),
+                               isActive: $navigation.mainToTwinsWalletWarning)
+                
+                NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
+                                                             closeUrl: viewModel.topupCloseUrl,
+                                                             title: "wallet_button_topup")
+                                .onDisappear { viewModel.state.cardModel?.update() },
+                               isActive: $navigation.mainToTopup)
+                
+                NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
+                               isActive: $navigation.mainToTwinOnboarding)
+        }
     }
     
     //prevent navbar glitches
@@ -196,75 +195,76 @@ struct MainView: View {
         VStack(spacing: 0) {
             navigationLinks
             GeometryReader { geometry in
-                RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
+                RefreshableScrollView(refreshing: $viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
-                        CardView(image: self.viewModel.image,
+                        CardView(image: viewModel.image,
                                  width: geometry.size.width - 32,
-                                 currentCardNumber: self.viewModel.cardNumber)
+                                 currentCardNumber: viewModel.cardNumber)
+                            .fixedSize(horizontal: false, vertical: true)
                         
-                        if self.isUnsupportdState {
+                        if isUnsupportdState {
                             ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
                         } else {
-                            WarningListView(warnings: self.viewModel.warnings, warningButtonAction: {
-                                self.viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
+                            WarningListView(warnings: viewModel.warnings, warningButtonAction: {
+                                viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                             })
                             .padding(.horizontal, 16)
                             
                             if !viewModel.cardModel!.isMultiWallet {
-                                ForEach(self.pendingTransactionViews) { $0 }
+                                ForEach(pendingTransactionViews) { $0 }
+                                    .padding(.horizontal, 16.0)
                             }
                             
-                            if self.shouldShowEmptyView {
+                            if shouldShowEmptyView {
                                 ErrorView(
                                     title: viewModel.isTwinCard ? "wallet_error_empty_twin_card".localized : "wallet_error_empty_card".localized,
                                     subtitle: viewModel.isTwinCard ? "wallet_error_empty_twin_card_subtitle".localized : "wallet_error_empty_card_subtitle".localized
                                 )
                             } else {
                                 if viewModel.cardModel!.isMultiWallet {
-                                    ForEach(viewModel.cardModel!.walletItemViewModels!) { item in
-                                        WalletsViewItem(item: item)
+                                    ForEach(viewModel.tokenItemViewModels) { item in
+                                        TokensListItemView(item: item)
                                             .onTapGesture {
                                                 viewModel.onWalletTap(item)
                                             }
                                     }
                                     .padding(.horizontal, 16)
                                     
-                                    AddWalletView(action: {
+                                    AddTokensView(action: {
                                                     navigation.mainToAddTokens = true
                                     })
                                         .padding(.horizontal, 16)
+                                        .padding(.bottom, 8)
                                         .sheet(isPresented: $navigation.mainToAddTokens, content: {
-                                            NavigationView {
-                                                AddNewTokensView(viewModel: viewModel.assembly.makeAddTokensViewModel(for: viewModel.cardModel!))
-                                                    .environmentObject(navigation)
-                                            }
+                                            AddNewTokensView(viewModel: viewModel.assembly.makeAddTokensViewModel(for: viewModel.cardModel!))
+                                                .environmentObject(navigation)
                                         })
                                     
                                 } else {
-                                    if self.shouldShowBalanceView {
+                                    if shouldShowBalanceView {
                                         BalanceView(
-                                            balanceViewModel: self.viewModel.cardModel!.walletModels!.first!.balanceViewModel,
-                                            tokenViewModels: self.viewModel.cardModel!.walletModels!.first!.tokenViewModels
+                                            balanceViewModel: viewModel.cardModel!.walletModels!.first!.balanceViewModel,
+                                            tokenViewModels: viewModel.cardModel!.walletModels!.first!.tokenViewModels
                                         )
                                         .padding(.horizontal, 16.0)
                                     } else {
-                                        if self.noAccountView != nil {
-                                            self.noAccountView!
+                                        if noAccountView != nil {
+                                            noAccountView!
                                         } else {
                                             EmptyView()
                                         }
                                     }
                                     
-                                    AddressDetailView(showCreatePayID: self.$navigation.mainToCreatePayID,
-                                                      showQr: self.$navigation.mainToQR,
-                                                      selectedAddressIndex: self.$viewModel.selectedAddressIndex,
-                                                      walletModel: self.viewModel.cardModel!.walletModels!.first!,
-                                                      payID: self.viewModel.cardModel!.payId)
+                                    AddressDetailView(showCreatePayID: $navigation.mainToCreatePayID,
+                                                      showQr: $navigation.mainToQR,
+                                                      selectedAddressIndex: $viewModel.selectedAddressIndex,
+                                                      walletModel: viewModel.cardModel!.walletModels!.first!,
+                                                      payID: viewModel.cardModel!.payId)
                                     
                                     //                                Color.clear.frame(width: 1, height: 1, alignment: .center)
-                                    //                                    .sheet(isPresented: self.$navigation.mainToCreatePayID, content: {
-                                    //                                        CreatePayIdView(cardId: self.viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
-                                    //                                                        cardViewModel: self.viewModel.state.cardModel!)
+                                    //                                    .sheet(isPresented: $navigation.mainToCreatePayID, content: {
+                                    //                                        CreatePayIdView(cardId: viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
+                                    //                                                        cardViewModel: viewModel.state.cardModel!)
                                     //                                    })
                                 }
                             }
@@ -285,33 +285,32 @@ struct MainView: View {
                     return MailView(dataCollector: dataCollector, emailType: emailCase.emailType)
                 }
             ScanTroubleshootingView(isPresented: $navigation.mainToTroubleshootingScan) {
-                self.viewModel.scan()
+                viewModel.scan()
             } requestSupportAction: {
-                self.viewModel.failedCardScanTracker.resetCounter()
-                self.viewModel.emailFeedbackCase = .scanTroubleshooting
+                viewModel.failedCardScanTracker.resetCounter()
+                viewModel.emailFeedbackCase = .scanTroubleshooting
             }
 
             bottomButtons
                 .padding(.top, 8)
                 .padding(.horizontal, 16)
-                .padding(.bottom, 16.0)
+                .padding(.bottom, 8.0)
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(navigation.mainToSettings || navigation.mainToTopup || navigation.mainToTokenDetails ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
-            if self.viewModel.state.cardModel != nil {
-                self.viewModel.navigation.mainToSettings.toggle()
+            if viewModel.state.cardModel != nil {
+                viewModel.navigation.mainToSettings.toggle()
             }
         }, label: { Image("verticalDots")
             .foregroundColor(Color.tangemTapGrayDark6)
             .frame(width: 44.0, height: 44.0, alignment: .center)
             .offset(x: 10.0, y: 0.0)
-        })
-        .padding(0.0)
+        }).padding(0.0)
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
-            self.viewModel.onAppear()
+            viewModel.onAppear()
         }
         .navigationBarHidden(isNavBarHidden)
         .ignoresKeyboard()
@@ -352,28 +351,28 @@ struct MainView: View {
             if viewModel.canCreateWallet {
                 createWalletButton
             } else {
-                if !viewModel.cardModel!.isMultiWallet {
+                if let cardModel = viewModel.cardModel, !cardModel.isMultiWallet {
                     if viewModel.canTopup  {
                         topupButton
                     }
                     
                     sendButton
                         .sheet(isPresented: $navigation.mainToSend) {
-                            SendView(viewModel: self.viewModel.assembly.makeSendViewModel(
-                                        with: self.viewModel.amountToSend!,
-                                        walletIndex: 0,
-                                        card: self.viewModel.state.cardModel!), onSuccess: {})
+                            SendView(viewModel: viewModel.assembly.makeSendViewModel(
+                                        with: viewModel.amountToSend!,
+                                        blockchain: viewModel.wallets!.first!.blockchain,
+                                        card: viewModel.state.cardModel!), onSuccess: {})
                                                                     .environmentObject(navigation) // Fix for crash (Fatal error: No ObservableObject of type NavigationCoordinator found.) which appearse time to time. May be some bug with environment object O_o
                                         
                         }
-                        .actionSheet(isPresented: self.$navigation.mainToSendChoise) {
+                        .actionSheet(isPresented: $navigation.mainToSendChoise) {
                             ActionSheet(title: Text("wallet_choice_wallet_option_title"),
                                         message: nil,
                                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
                             
                         }
                 } else {
-                    Spacer()
+                    
                 }
 
             }
@@ -386,7 +385,7 @@ struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
-                .environmentObject(Assembly.previewAssembly.navigationCoordinator)
+                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
         }
         .previewGroup(devices: [.iPhone8Plus])
         .navigationViewStyle(StackNavigationViewStyle())
