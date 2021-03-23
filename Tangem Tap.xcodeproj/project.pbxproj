@@ -132,6 +132,8 @@
 		B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03A9338259877790061FB2D /* WarningsContainer.swift */; };
 		B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
+		B0594146260A0FE300F90053 /* ImageLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0594145260A0FE300F90053 /* ImageLoaderService.swift */; };
+		B059414C260A135D00F90053 /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B059414B260A135D00F90053 /* Assembly.swift */; };
 		B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */; };
 		B05B85A92589F0CF008A4452 /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05B85A82589F0CF008A4452 /* AppFeature.swift */; };
 		B0608CBE2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0608CBD2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift */; };
@@ -143,6 +145,10 @@
 		B080766425D11169006CF606 /* ManageTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080766325D11169006CF606 /* ManageTokensView.swift */; };
 		B080766C25D11173006CF606 /* ManageTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080766B25D11173006CF606 /* ManageTokensViewModel.swift */; };
 		B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B082E922255A8EF000A0CEA9 /* StorageType.swift */; };
+		B0869069260A2D55005976CD /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB856259A075500B92000 /* ButtonStyles.swift */; };
+		B086906E260A2D73005976CD /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
+		B0869073260A2D7B005976CD /* TangemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB855259A075500B92000 /* TangemButton.swift */; };
+		B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
 		B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */; };
 		B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */; };
 		B08ACD9425D2E056007387BD /* erc20tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B080765E25D10667006CF606 /* erc20tokens.json */; };
@@ -177,11 +183,14 @@
 		B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */; };
 		B0A9E939259213E7007B6D36 /* WarningsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9E938259213E7007B6D36 /* WarningsService.swift */; };
 		B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9E93E25921D21007B6D36 /* WarningView.swift */; };
+		B0B0FEB02608D226002B61CD /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FEAF2608D226002B61CD /* Card+.swift */; };
+		B0B0FFB52608EC09002B61CD /* CardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FFB42608EC09002B61CD /* CardsRepository.swift */; };
+		B0B0FFC42608EC44002B61CD /* TokenBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FFC32608EC44002B61CD /* TokenBalanceViewModel.swift */; };
+		B0B0FFD32608ECE9002B61CD /* TapScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FFD22608ECE9002B61CD /* TapScanTask.swift */; };
 		B0B4556425E0E3F400D7572F /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
 		B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B4556825E0E63000D7572F /* FailedCardScanTracker.swift */; };
 		B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */; };
 		B0C04BBE2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */; };
-		B0C821EC25F8930E0027E3BF /* Card+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499924E554140037E76F /* Card+Preview.swift */; };
 		B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
 		B0C87B482566492000F861DE /* TwinCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinCardInfo.swift */; };
 		B0C87B4D2566495C00F861DE /* Card+Twin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B4C2566495C00F861DE /* Card+Twin.swift */; };
@@ -193,15 +202,13 @@
 		B0CA5A9C25F77A5B0078F42F /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CA5A9B25F77A5B0078F42F /* MainViewModel.swift */; };
 		B0CA5AB425F785CD0078F42F /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
 		B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */; };
-		B0CA5AC725F786060078F42F /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* ErrorView.swift */; };
-		B0CA5ACC25F7863B0078F42F /* TokenBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2B3E825D6B5BD0001EEB4 /* TokenBalanceViewModel.swift */; };
 		B0CA5ADD25F786B90078F42F /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CA5ADC25F786B90078F42F /* BalanceView.swift */; };
 		B0CC817E25CD6281006D49B9 /* breadwallet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */; };
 		B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC818225CD63FB006D49B9 /* Token+.swift */; };
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
 		B0D3600425F26C7400929564 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D3600325F26C7400929564 /* AppDelegate.swift */; };
 		B0D3600625F26C7400929564 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D3600525F26C7400929564 /* SceneDelegate.swift */; };
-		B0D3600825F26C7400929564 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D3600725F26C7400929564 /* ContentView.swift */; };
+		B0D3600825F26C7400929564 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D3600725F26C7400929564 /* MainView.swift */; };
 		B0D3600A25F26C7600929564 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0D3600925F26C7600929564 /* Assets.xcassets */; };
 		B0D3600D25F26C7600929564 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0D3600C25F26C7600929564 /* Preview Assets.xcassets */; };
 		B0D3601025F26C7600929564 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B0D3600E25F26C7600929564 /* LaunchScreen.storyboard */; };
@@ -220,16 +227,9 @@
 		B0F735B825F7943A00DD348F /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B082E922255A8EF000A0CEA9 /* StorageType.swift */; };
 		B0F735BD25F79CCD00DD348F /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
 		B0F735C225F79CD100DD348F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CB24BF56DC00E8695B /* Assets.xcassets */; };
-		B0F735F925F7A21500DD348F /* ValidatedCardsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D17FB8825ED766500C98A7F /* ValidatedCardsService.swift */; };
-		B0F735FE25F7A23600DD348F /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
-		B0F7360325F7AF7700DD348F /* CardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAEA25517FB50059799C /* CardsRepository.swift */; };
 		B0F7360925F7AF9E00DD348F /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F7360825F7AF9E00DD348F /* Models.swift */; };
-		B0F7360E25F7AFDF00DD348F /* TapScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* TapScanTask.swift */; };
 		B0F7361325F7AFFB00DD348F /* TwinCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinCardInfo.swift */; };
-		B0F7361825F7B02900DD348F /* Card+Twin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B4C2566495C00F861DE /* Card+Twin.swift */; };
 		B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
-		B0F7362225F7B04F00DD348F /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
-		B0F7362725F7B07100DD348F /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
 		B0F920CC25932DCF007C176C /* WarningListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F920CB25932DCE007C176C /* WarningListView.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		E7B877C2D1F9ECC207398075 /* Pods_Tangem_Tap_Tangem_TapUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */; };
@@ -408,6 +408,8 @@
 		B03A9338259877790061FB2D /* WarningsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsContainer.swift; sourceTree = "<group>"; };
 		B03ACAC82567CFFF00F5D269 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		B046EE172578D38E00EA38A5 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		B0594145260A0FE300F90053 /* ImageLoaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoaderService.swift; sourceTree = "<group>"; };
+		B059414B260A135D00F90053 /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
 		B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTroublehootingView.swift; sourceTree = "<group>"; };
 		B05B85A82589F0CF008A4452 /* AppFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
 		B0608CBD2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseJsonConfigFetcher.swift; sourceTree = "<group>"; };
@@ -445,6 +447,10 @@
 		B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationService.swift; sourceTree = "<group>"; };
 		B0A9E938259213E7007B6D36 /* WarningsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsService.swift; sourceTree = "<group>"; };
 		B0A9E93E25921D21007B6D36 /* WarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningView.swift; sourceTree = "<group>"; };
+		B0B0FEAF2608D226002B61CD /* Card+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+.swift"; sourceTree = "<group>"; };
+		B0B0FFB42608EC09002B61CD /* CardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsRepository.swift; sourceTree = "<group>"; };
+		B0B0FFC32608EC44002B61CD /* TokenBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceViewModel.swift; sourceTree = "<group>"; };
+		B0B0FFD22608ECE9002B61CD /* TapScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapScanTask.swift; sourceTree = "<group>"; };
 		B0B4556825E0E63000D7572F /* FailedCardScanTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailedCardScanTracker.swift; sourceTree = "<group>"; };
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationLink+EmptyLabel.swift"; sourceTree = "<group>"; };
@@ -461,7 +467,7 @@
 		B0D3600125F26C7400929564 /* TangemClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TangemClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0D3600325F26C7400929564 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B0D3600525F26C7400929564 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		B0D3600725F26C7400929564 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B0D3600725F26C7400929564 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		B0D3600925F26C7600929564 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B0D3600C25F26C7600929564 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B0D3600F25F26C7600929564 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -1029,10 +1035,53 @@
 			path = Warnings;
 			sourceTree = "<group>";
 		};
+		B0B0FEAE2608D21A002B61CD /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B0B0FEAF2608D226002B61CD /* Card+.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		B0B0FFB32608EBFD002B61CD /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B0B0FFDC2608ED22002B61CD /* Services */,
+				B0B0FFB42608EC09002B61CD /* CardsRepository.swift */,
+				B059414B260A135D00F90053 /* Assembly.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		B0B0FFC22608EC39002B61CD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B0F7360825F7AF9E00DD348F /* Models.swift */,
+				B0B0FFC32608EC44002B61CD /* TokenBalanceViewModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B0B0FFD12608ECDD002B61CD /* Tangem */ = {
+			isa = PBXGroup;
+			children = (
+				B0B0FFD22608ECE9002B61CD /* TapScanTask.swift */,
+			);
+			path = Tangem;
+			sourceTree = "<group>";
+		};
+		B0B0FFDC2608ED22002B61CD /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B0594145260A0FE300F90053 /* ImageLoaderService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		B0CA5A9A25F77A4C0078F42F /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				B0D3600725F26C7400929564 /* ContentView.swift */,
+				B0D3600725F26C7400929564 /* MainView.swift */,
 				B0CA5A9B25F77A5B0078F42F /* MainViewModel.swift */,
 			);
 			path = Main;
@@ -1041,8 +1090,9 @@
 		B0CA5AD925F786A90078F42F /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				B0B0FFD12608ECDD002B61CD /* Tangem */,
+				B0B0FEAE2608D21A002B61CD /* Extensions */,
 				B0CA5ADB25F786B10078F42F /* UI */,
-				B0F7360825F7AF9E00DD348F /* Models.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -1068,6 +1118,8 @@
 		B0D3600225F26C7400929564 /* TangemClip */ = {
 			isa = PBXGroup;
 			children = (
+				B0B0FFB32608EBFD002B61CD /* App */,
+				B0B0FFC22608EC39002B61CD /* Models */,
 				B0CA5AD925F786A90078F42F /* Common */,
 				B0CA5A9A25F77A4C0078F42F /* Main */,
 				B0D3600325F26C7400929564 /* AppDelegate.swift */,
@@ -1661,32 +1713,32 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0F7359025F788DD00DD348F /* CardView.swift in Sources */,
+				B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */,
 				B0F7361325F7AFFB00DD348F /* TwinCardInfo.swift in Sources */,
+				B0594146260A0FE300F90053 /* ImageLoaderService.swift in Sources */,
+				B0869073260A2D7B005976CD /* TangemButton.swift in Sources */,
 				B0F735AE25F7932200DD348F /* Storage.swift in Sources */,
-				B0F7361825F7B02900DD348F /* Card+Twin.swift in Sources */,
 				B0D3600425F26C7400929564 /* AppDelegate.swift in Sources */,
 				B0F735B825F7943A00DD348F /* StorageType.swift in Sources */,
 				B0CA5A9025F779D60078F42F /* Color+.swift in Sources */,
 				B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */,
-				B0F7362225F7B04F00DD348F /* SignerUtils.swift in Sources */,
-				B0CA5ACC25F7863B0078F42F /* TokenBalanceViewModel.swift in Sources */,
 				B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */,
 				B0D3600625F26C7400929564 /* SceneDelegate.swift in Sources */,
-				B0F7360E25F7AFDF00DD348F /* TapScanTask.swift in Sources */,
-				B0F7360325F7AF7700DD348F /* CardsRepository.swift in Sources */,
-				B0F735F925F7A21500DD348F /* ValidatedCardsService.swift in Sources */,
-				B0F7362725F7B07100DD348F /* TwinCardsFileCoder.swift in Sources */,
-				B0D3600825F26C7400929564 /* ContentView.swift in Sources */,
+				B0B0FFB52608EC09002B61CD /* CardsRepository.swift in Sources */,
+				B0D3600825F26C7400929564 /* MainView.swift in Sources */,
 				B0CA5A8625F7797B0078F42F /* RefreshableScrollView.swift in Sources */,
-				B0C821EC25F8930E0027E3BF /* Card+Preview.swift in Sources */,
+				B0869069260A2D55005976CD /* ButtonStyles.swift in Sources */,
 				B0F735B325F7932500DD348F /* UserPrefsService.swift in Sources */,
 				B0CA5AB425F785CD0078F42F /* String+.swift in Sources */,
+				B086906E260A2D73005976CD /* ActivityIndicatorView.swift in Sources */,
 				B0CA5A8B25F779C60078F42F /* VIew+.swift in Sources */,
-				B0CA5AC725F786060078F42F /* ErrorView.swift in Sources */,
+				B0B0FFD32608ECE9002B61CD /* TapScanTask.swift in Sources */,
+				B0B0FFC42608EC44002B61CD /* TokenBalanceViewModel.swift in Sources */,
+				B059414C260A135D00F90053 /* Assembly.swift in Sources */,
 				B0CA5A9C25F77A5B0078F42F /* MainViewModel.swift in Sources */,
 				B0CA5ADD25F786B90078F42F /* BalanceView.swift in Sources */,
-				B0F735FE25F7A23600DD348F /* Card+.swift in Sources */,
 				B0F7360925F7AF9E00DD348F /* Models.swift in Sources */,
+				B0B0FEB02608D226002B61CD /* Card+.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
