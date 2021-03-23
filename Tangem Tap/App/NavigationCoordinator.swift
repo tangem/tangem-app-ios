@@ -61,6 +61,9 @@ class NavigationCoordinator: ObservableObject {
     @Published var detailsToTopup = false
     @Published var detailsToSend = false
     
+    // MARK: WalletConnectView
+    @Published var walletConnectToQR = false
+    
     deinit {
         print("NavigationCoordinator deinit")
     }
