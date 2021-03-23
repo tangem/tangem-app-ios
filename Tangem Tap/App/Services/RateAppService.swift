@@ -48,7 +48,7 @@ class RateAppService: RateAppChecker, RateAppController {
         else { return }
         
         guard
-            (Date().timeIntervalSince1970 - positiveBalanceDate.timeIntervalSince1970) > positiveBalanceTimeThreshold ||
+            (Date().timeIntervalSince1970 - positiveBalanceDate.timeIntervalSince1970) > positiveBalanceTimeThreshold,
             (numberOfLaunches - positiveBalanceLaunch) >= positiveBalanceLaunchThreshold
         else { return }
         
@@ -60,12 +60,18 @@ class RateAppService: RateAppChecker, RateAppController {
         shouldShowRateAppWarning = (numberOfLaunches - dismissAtLaunch) >= 20
     }
     
+    deinit {
+        print("RateAppService deinit")
+    }
+    
     func dismissRateAppWarning() {
         userPrefsService.dismissRateAppAtLaunch = userPrefsService.numberOfLaunches
+        shouldShowRateAppWarning = false
     }
     
     func userReactToRateAppWarning(isPositive: Bool) {
         userPrefsService.didUserRespondToRateApp = true
+        shouldShowRateAppWarning = false
         if isPositive {
             SKStoreReviewController.requestReview()
         }

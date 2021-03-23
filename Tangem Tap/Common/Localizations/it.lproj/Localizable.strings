@@ -14,6 +14,8 @@
 
 "common_done" = "Fatto";
 
+"common_close" = "Close";
+
 "common_no" = "No";
 
 "common_save_changes" = "Mantieni le modifiche";
@@ -35,6 +37,8 @@
 "common_back" = "Back";
 
 "common_add" = "Add";
+
+"common_added" = "Added";
 
 "common_remove" = "Remove";
 
@@ -403,6 +407,9 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 
 "warning_rate_app_message" = "How do you like Tangem?";
 
+"warning_failed_to_verify_card_title" = "Authenticity check failed";
+"warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
+
 // MARK: - Managed tokens
 
 "manage_tokens_no_tokens" = "No tokens yet";
@@ -410,7 +417,7 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "manage_tokens_alert_remove_token_title" = "Remove %@ token";
 "manage_tokens_alert_remove_token_message" = "Are you sure you want to remove this token?";
 
-"add_tokens_title" = "Add token";
+"add_tokens_title" = "Add tokens";
 "add_custom" = "Add Custom";
 "add_token_section_title_custom_tokens" = "Custom tokens";
 "add_token_section_title_popular_tokens" = "Ethereum tokens";
@@ -437,3 +444,5 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "common_copy" = "Copy";
 "common_share" = "Share";
 
+"mail_error_no_accounts_title" = "No Mail accounts";
+"mail_error_no_accounts_body" = "Please, set up an account to send email";
