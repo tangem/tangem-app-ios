@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class ServicesAssembly {
     weak var assembly: Assembly!
+    var urlHandlers: [URLHandler] = []
     
     deinit {
         print("ServicesAssembly deinit")
@@ -32,6 +33,11 @@ class ServicesAssembly {
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
+    lazy var walletConnectService: WalletConnectService = {
+        let wc = WalletConnectService()
+        wc.tangemSdk = tangemSdk
+        return wc
+    }()
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -69,8 +75,6 @@ class ServicesAssembly {
         config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
         return config
     }()
-    
-    
 }
 
 extension ServicesAssembly: CardsRepositoryDelegate {
@@ -78,6 +82,15 @@ extension ServicesAssembly: CardsRepositoryDelegate {
         featuresService.setupFeatures(for: cardInfo.card)
         warningsService.setupWarnings(for: cardInfo.card)
         tokenItemsRepository.setCard(cardInfo.card.cardId ?? "")
+        
+        if let cid = cardInfo.card.cardId,
+           let curve = cardInfo.card.curve, curve == .secp256k1,
+           let ethManager = assembly.makeWalletModels(from: cardInfo, blockchains: [.ethereum(testnet: false)]).first {
+            let address = ethManager.wallet.address
+            walletConnectService.start(for: cid, address: address)
+        } else {
+            walletConnectService.stop()
+        }
         
         if !featuresService.linkedTerminal {
             tangemSdk.config.linkedTerminal = false
@@ -234,6 +247,7 @@ class Assembly: ObservableObject {
             vm.payIDService = payIdService
         }
         vm.updateState()
+
         return vm
     }
     
@@ -391,6 +405,13 @@ class Assembly: ObservableObject {
 		initialize(vm)
 		return vm
 	}
+    
+    func makeWalletConnectViewModel() -> WalletConnectViewModel {
+        let vm = WalletConnectViewModel()
+        initialize(vm)
+        vm.walletConnectService = services.walletConnectService
+        return vm
+    }
     
     public func reset() {
         var persistentKeys = [String]()
