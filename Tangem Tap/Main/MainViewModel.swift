@@ -13,20 +13,6 @@ import BlockchainSdk
 import TangemSdk
 
 class MainViewModel: ViewModel {
-    
-    enum EmailFeedbackCase: Int, Identifiable {
-        var id: Int { rawValue }
-        
-        case negativeFeedback, scanTroubleshooting
-        
-        var emailType: EmailType {
-            switch self {
-            case .negativeFeedback: return .negativeRateAppFeedback
-            case .scanTroubleshooting: return .failedToScanCard
-            }
-        }
-    }
-    
     // MARK: Dependencies -
     weak var imageLoaderService: ImageLoaderService!
     weak var topupService: TopupService!
@@ -34,12 +20,10 @@ class MainViewModel: ViewModel {
     weak var cardsRepository: CardsRepository!
     weak var warningsManager: WarningsManager!
     weak var rateAppController: RateAppController!
-    
 	weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    
-    var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
-    var failedCardScanTracker: FailedCardScanTracker!
+    weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
+    weak var failedCardScanTracker: FailedCardScanTracker!
     
     // MARK: Variables
     
@@ -47,7 +31,7 @@ class MainViewModel: ViewModel {
     private var bag = Set<AnyCancellable>()
     @Published var isRefreshing = false
     
-    var selectedWallet: WalletItemViewModel = .default
+    var selectedWallet: TokenItemViewModel = .default
     //MARK: - Output
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
@@ -134,7 +118,7 @@ class MainViewModel: ViewModel {
             return false
         }
         
-        return wallet.canSend
+        return wallet.canSend(amountType: .coin)
     }
     
     var incomingTransactions: [BlockchainSdk.Transaction] {
@@ -152,6 +136,49 @@ class MainViewModel: ViewModel {
 	var isTwinCard: Bool {
 		cardModel?.isTwinCard ?? false
 	}
+    
+    var tokenItemViewModels: [TokenItemViewModel] {
+        guard let cardModel = cardModel,
+              let walletModels = cardModel.walletModels else { return [] }
+        
+        return walletModels
+            .flatMap ({ $0.tokenItemViewModels })
+            .sorted(by: { lhs, rhs in
+                if lhs.blockchain == cardModel.cardInfo.card.blockchain && rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                    if lhs.amountType.isToken && rhs.amountType.isToken {
+                        if lhs.amountType.token == cardModel.cardInfo.card.token {
+                            return true
+                        }
+
+                        if rhs.amountType.token == cardModel.cardInfo.card.token {
+                            return false
+                        }
+                    }
+
+                    if !lhs.amountType.isToken {
+                        return true
+                    }
+
+                    if !rhs.amountType.isToken {
+                        return false
+                    }
+                }
+
+                if lhs.blockchain == cardModel.cardInfo.card.blockchain {
+                   return true
+                }
+
+                if rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                    return false
+                }
+
+                return lhs < rhs
+            })
+    }
+    
+    deinit {
+        print("MainViewModel deinit")
+    }
     
     // MARK: - Functions
     func bind() {
@@ -196,7 +223,7 @@ class MainViewModel: ViewModel {
         }) {
             Publishers.MergeMany(loadingPublishers)
                 .collect(loadingPublishers.count)
-                .delay(for: 0.5, scheduler: DispatchQueue.global())
+                .delay(for: 1, scheduler: DispatchQueue.global())
                 .receive(on: RunLoop.main)
                 .sink {[unowned self] _ in
                     print("♻️ Wallet model loading state changed")
@@ -378,8 +405,9 @@ class MainViewModel: ViewModel {
         warningsManager.hideWarning(warning)
     }
     
-    func  onWalletTap(_ walletItem: WalletItemViewModel) {
-        selectedWallet = walletItem
+    func  onWalletTap(_ tokenItem: TokenItemViewModel) {
+        selectedWallet = tokenItem
+        assembly.reset()
         navigation.mainToTokenDetails = true
     }
 
@@ -413,7 +441,7 @@ class MainViewModel: ViewModel {
 		
 		func showUntrustedCardAlert() {
             withAnimation {
-                self.warningsManager.addWarning(for: .numberOfSignedHashesIncorrect)
+                self.warningsManager.appendWarning(for: .numberOfSignedHashesIncorrect)
             }
 		}
         
@@ -464,5 +492,20 @@ class MainViewModel: ViewModel {
 
         self.error = error
         return
+    }
+}
+
+extension MainViewModel {
+    enum EmailFeedbackCase: Int, Identifiable {
+        var id: Int { rawValue }
+        
+        case negativeFeedback, scanTroubleshooting
+        
+        var emailType: EmailType {
+            switch self {
+            case .negativeFeedback: return .negativeRateAppFeedback
+            case .scanTroubleshooting: return .failedToScanCard
+            }
+        }
     }
 }

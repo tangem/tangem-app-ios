@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import SwiftUI
 
 extension Wallet {
     var incomingTransactions: [BlockchainSdk.Transaction] {
@@ -24,8 +25,8 @@ extension Wallet {
         }
     }
     
-    public var canSend: Bool {
-        if hasPendingTx {
+    public func canSend(amountType: Amount.AmountType) -> Bool {
+        if hasPendingTx(for: amountType) {
             return false
         }
         
@@ -37,11 +38,27 @@ extension Wallet {
             return false
         }
         
+        let amount = amounts[amountType]?.value ?? 0
+        if amount <= 0 {
+            return false
+        }
+        
         let coinAmount = amounts[.coin]?.value ?? 0
         if coinAmount <= 0 { //not enough fee
             return false
         }
         
         return true
+    }
+    
+    @ViewBuilder func getImageView(for amountType: Amount.AmountType) -> some View {
+        if amountType == .coin, let name = blockchain.imageName {
+            Image(name)
+        } else if let token = amountType.token {
+            CircleImageTextView(name: token.name, color: token.color)
+        } else {
+            CircleImageTextView(name: blockchain.displayName,
+                            color: Color.tangemTapGrayLight4)
+        }
     }
 }
