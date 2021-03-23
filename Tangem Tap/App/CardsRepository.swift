@@ -14,22 +14,6 @@ struct CardInfo {
     var card: Card
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
-    
-    var isMultiWallet: Bool {
-        if card.isTwinCard {
-            return false
-        }
-        
-        if let curve = card.curve, curve == .ed25519 {
-            return false
-        }
-        
-        if card.cardData?.tokenSymbol != nil {
-            return false
-        }
-        
-        return true //todo
-    }
 }
 
 enum ScanResult: Equatable {
@@ -67,26 +51,29 @@ enum ScanResult: Equatable {
     }
 }
 
+protocol CardsRepositoryDelegate: AnyObject {
+    func onWillScan()
+    func onDidScan(_ cardInfo: CardInfo)
+}
+
 class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
+    weak var validatedCardsService: ValidatedCardsService!
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
-    var onScan: ((CardInfo) -> Void)? = nil
     
-	private let twinCardFileDecoder: TwinCardFileDecoder
-    private let cardValidator: ValidatedCardsService
+    weak var delegate: CardsRepositoryDelegate? = nil
 	
-    init(twinCardFileDecoder: TwinCardFileDecoder, cardValidator: ValidatedCardsService) {
-		self.twinCardFileDecoder = twinCardFileDecoder
-        self.cardValidator = cardValidator
-	}
+    deinit {
+        print("CardsRepository deinit")
+    }
     
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        tangemSdk.config = assembly.sdkConfig
-        tangemSdk.startSession(with: TapScanTask(validatedCardsService: cardValidator)) {[unowned self] result in
+        delegate?.onWillScan()
+        tangemSdk.startSession(with: TapScanTask(validatedCardsService: validatedCardsService)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.log(error: error)
@@ -104,7 +91,7 @@ class CardsRepository {
     }
 
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
-        onScan?(cardInfo)
+        delegate?.onDidScan(cardInfo)
         
         let cm = assembly.makeCardModel(from: cardInfo)
         let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
