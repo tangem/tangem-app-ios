@@ -8,8 +8,8 @@
 
 import Foundation
 import SwiftUI
-import TangemSdk
-import BlockchainSdk
+import TangemSdkClips
+import BlockchainSdkClips
 
 struct TokenBalanceView: View {
     var tokenViewModel: TokenBalanceViewModel
