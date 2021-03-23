@@ -196,7 +196,7 @@ class MainViewModel: ViewModel {
             .compactMap { $0.cardModel }
             .flatMap { $0.$state }
             .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange}) }
+            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange.debounce(for: 0.3, scheduler: DispatchQueue.main) }) }
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
