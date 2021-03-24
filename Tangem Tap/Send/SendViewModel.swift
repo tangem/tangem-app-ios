@@ -82,7 +82,7 @@ class SendViewModel: ViewModel {
     }
     
     var inputDecimalsCount: Int? {
-        isFiatCalculation ? 2 : walletModel.wallet.blockchain.decimalCount
+        isFiatCalculation ? 2 : amountToSend.decimals
     }
     
     @Published var isNetworkFeeBlockOpen: Bool = false
@@ -278,7 +278,7 @@ class SendViewModel: ViewModel {
                 }
                 
                 self.amountToSend.value = isFiat ? self.walletModel.getCrypto(for: decimals,
-                                                                              currencySymbol: self.amountToSend.currencySymbol)?.rounded(blockchain: self.walletModel.wallet.blockchain) ?? 0 : decimals
+                                                                              currencySymbol: self.amountToSend.currencySymbol)?.rounded(scale: amountToSend.decimals, roundingMode: .down) ?? 0 : decimals
             }
             .store(in: &bag)
         
