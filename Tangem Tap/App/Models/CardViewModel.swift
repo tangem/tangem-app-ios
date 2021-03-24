@@ -330,6 +330,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 card.walletSignedHashes = nil
                 self.warningsConfigurator.setupWarnings(for: card)
                 self.cardInfo.card = card
+                self.tokenItemsRepository.removeAll()
                 self.updateState()
                 completion(.success(()))
             case .failure(let error):
