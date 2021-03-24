@@ -26,7 +26,7 @@ extension Wallet {
     }
     
     public func canSend(amountType: Amount.AmountType) -> Bool {
-        if hasPendingTx(for: amountType) {
+        if hasPendingTx {
             return false
         }
         
