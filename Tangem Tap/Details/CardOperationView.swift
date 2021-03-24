@@ -41,18 +41,19 @@ struct CardOperationView: View {
                              image: "save") {
                                 self.isLoading = true
                                 self.actionButtonPressed {result in
-                                    self.isLoading = false
-                                    switch result {
-                                    case .success:
-                                        self.presentationMode.wrappedValue.dismiss()
-                                    case .failure(let error):
-                                        if case .userCancelled = error.toTangemSdkError() {
-                                            return
+                                    DispatchQueue.main.async {
+                                        self.isLoading = false
+                                        switch result {
+                                        case .success:
+                                            self.presentationMode.wrappedValue.dismiss()
+                                        case .failure(let error):
+                                            if case .userCancelled = error.toTangemSdkError() {
+                                                return
+                                            }
+                                            
+                                            self.error = error.alertBinder
                                         }
-                                        
-                                        self.error = error.alertBinder
                                     }
-                                    
                                 }
                 }.buttonStyle(TangemButtonStyle(color: .black,
                                                 isDisabled: false))
