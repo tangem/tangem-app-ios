@@ -10,8 +10,12 @@ import Foundation
 import WalletConnectSwift
 import Combine
 import TangemSdk
+import BlockchainSdk
+import CryptoSwift
 
 class WalletConnectService {
+    static let chainId = 4 //mainNet: 1, testnet: 4
+    
     weak var tangemSdk: TangemSdk!
     
     var isEnabled: Bool {
@@ -26,15 +30,19 @@ class WalletConnectService {
     private var sessionKey = ""
     private var cid: String = ""
     private var address: String = ""
+    private var walletPublicKey: Data = Data()
+    
     init() {}
     
-    func start(for cid: String, address: String) {
+    func start(for cid: String, address: String, walletPublicKey: Data) {
         self.cid = cid
         self.address = address
+        self.walletPublicKey = walletPublicKey
+        
         self.sessionKey = "wc_session_\(cid)"
         server = Server(delegate: self)
-        server!.register(handler: PersonalSignHandler(for: UIApplication.shared.topViewController!, server: server!))
-        server!.register(handler: SignTransactionHandler(for: UIApplication.shared.topViewController!, server: server!))
+        server!.register(handler: PersonalSignHandler(server: server!, tangemSdk: tangemSdk, address: address, walletPublicKey: walletPublicKey))
+        server!.register(handler: SignTransactionHandler(server: server!, tangemSdk: tangemSdk, address: address, walletPublicKey: walletPublicKey))
         if let oldSessionObject = UserDefaults.standard.object(forKey: sessionKey) as? Data,
            let session = try? JSONDecoder().decode(Session.self, from: oldSessionObject) {
             do {
@@ -50,6 +58,7 @@ class WalletConnectService {
     func stop() {
         cid = ""
         address = ""
+        walletPublicKey = Data()
         server = nil
         session = nil
     }
@@ -90,7 +99,7 @@ extension WalletConnectService: ServerDelegate {
         
         let walletInfo = Session.WalletInfo(approved: true,
                                             accounts: [address],
-                                            chainId: 4,
+                                            chainId: WalletConnectService.chainId,
                                             peerId: UUID().uuidString,
                                             peerMeta: walletMeta)
         
@@ -103,7 +112,7 @@ extension WalletConnectService: ServerDelegate {
                 self.connected.send(false)
                 completion(Session.WalletInfo(approved: false,
                                               accounts: [],
-                                              chainId: 4,
+                                              chainId: WalletConnectService.chainId,
                                               peerId: "",
                                               peerMeta: walletMeta))
             })
@@ -145,70 +154,114 @@ extension WalletConnectService: URLHandler {
 extension WalletConnectService {
     enum WalletConnectServiceError: Error {
         case failedToConnect
+        case signFailed
     }
 }
 
-class BaseHandler: RequestHandler {
-    weak var controller: UIViewController!
-    weak var sever: Server!
-   
-    init(for controller: UIViewController, server: Server) {
-        self.controller = controller
-        self.sever = server
-    }
 
-    func canHandle(request: Request) -> Bool {
-        return false
-    }
 
-    func handle(request: Request) {
-        // to override
-    }
 
-    func askToSign(request: Request, message: String, sign: @escaping () -> String) {
-//        let onSign = {
-//            let signature = sign()
-//            self.sever.send(.signature(signature, for: request))
-//        }
-//        let onCancel = {
-//            self.sever.send(.reject(request))
-//        }
-//        DispatchQueue.main.async {
-//            UIAlertController.showShouldSign(from: self.controller,
-//                                             title: "Request to sign a message",
-//                                             message: message,
-//                                             onSign: onSign,
-//                                             onCancel: onCancel)
-//        }
+
+protocol BaseHandler: RequestHandler {
+    var server: Server {get}
+    var tangemSdk: TangemSdk {get}
+    var walletPublicKey: Data {get}
+    
+    func askToSign(request: Request, message: String, sign: @escaping (_ completion: @escaping (String?) -> Void) -> Void)
+}
+
+extension BaseHandler {
+    func askToSign(request: Request, message: String, sign: @escaping (_ completion: @escaping (String?) -> Void) -> Void) {
+        let onSign = {
+            sign { signature in
+                DispatchQueue.global().async {
+                    if let signature = signature {
+                        self.server.send(.signature(signature, for: request))
+                    } else {
+                        self.server.send(.reject(request))
+                    }
+                }
+            }
+        }
+            let onCancel = {
+                self.server.send(.reject(request))
+            }
+            
+            DispatchQueue.main.async {
+                UIAlertController.showShouldSign(from: UIApplication.shared.topViewController!,
+                                                 title: "Request to sign a message",
+                                                 message: message,
+                                                 onSign: onSign,
+                                                 onCancel: onCancel)
+            }
+        }
+    
+    func sign(data: Data, completion: @escaping (Result<(v: Data, r: Data, s: Data), Error>) -> Void) {
+        let hash = data.sha3(.keccak256)
+        tangemSdk.sign(hashes: [hash]) {[weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let response):
+                if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response.signature, hash: hash, publicKey: self.walletPublicKey) {
+                    completion(.success(unmarshalledSig))
+                } else {
+                    completion(.failure(WalletConnectService.WalletConnectServiceError.signFailed))
+                }
+            case .failure(let error):
+                print(error)
+                completion(.failure(error))
+            }
+        }
     }
 }
 
 class PersonalSignHandler: BaseHandler {
-    override func canHandle(request: Request) -> Bool {
+    let server: Server
+    let tangemSdk: TangemSdk
+    let walletPublicKey: Data
+    
+    private let address: String
+    
+    init(server: Server, tangemSdk: TangemSdk, address: String, walletPublicKey: Data) {
+        self.server = server
+        self.tangemSdk = tangemSdk
+        self.address = address
+        self.walletPublicKey = walletPublicKey
+    }
+    
+    func canHandle(request: Request) -> Bool {
         return request.method == "personal_sign"
     }
 
-    override func handle(request: Request) {
-//        do {
-//            let messageBytes = try request.parameter(of: String.self, at: 0)
-//            let address = try request.parameter(of: String.self, at: 1)
-//
-//            guard address == privateKey.address.hex(eip55: true) else {
-//                sever.send(.reject(request))
-//                return
-//            }
-//
-//            let decodedMessage = String(data: Data(hex: messageBytes), encoding: .utf8) ?? messageBytes
-//
-//            askToSign(request: request, message: decodedMessage) {
-//                let personalMessageData = self.personalMessageData(messageData: Data(hex: messageBytes))
-//                let (v, r, s) = try! self.privateKey.sign(message: .init(hex: personalMessageData.toHexString()))
-//                return "0x" + r.toHexString() + s.toHexString() + String(v + 27, radix: 16) // v in [0, 1]
-//            }
-//        } catch {
-//            sever.send(.invalid(request))
-//            return
-//        }
+    func handle(request: Request) {
+        do {
+            let messageBytes = try request.parameter(of: String.self, at: 0)
+            let address = try request.parameter(of: String.self, at: 1)
+
+            guard address == self.address else {
+                server.send(.reject(request))
+                return
+            }
+
+            let decodedMessage = String(data: Data(hex: messageBytes), encoding: .utf8) ?? messageBytes
+
+            askToSign(request: request, message: decodedMessage) { completion in
+                let personalMessageData = self.personalMessageData(messageData: Data(hex: messageBytes))
+                
+                self.sign(data: personalMessageData) { result in
+                    switch result {
+                    case .failure(let error):
+                        print(error)
+                        completion(nil)
+                    case .success(let sig):
+                        completion("0x" + sig.r.toHexString() + sig.s.toHexString() + String(sig.v.toInt() + 27, radix: 16)) // v in [0, 1]
+                    }
+                }
+            }
+        } catch {
+            server.send(.invalid(request))
+            return
+        }
     }
 
     private func personalMessageData(messageData: Data) -> Data {
@@ -219,26 +272,47 @@ class PersonalSignHandler: BaseHandler {
 }
 
 class SignTransactionHandler: BaseHandler {
-    override func canHandle(request: Request) -> Bool {
+    let server: Server
+    let tangemSdk: TangemSdk
+    let walletPublicKey: Data
+    
+    private let address: String
+    
+    init(server: Server, tangemSdk: TangemSdk, address: String, walletPublicKey: Data) {
+        self.server = server
+        self.tangemSdk = tangemSdk
+        self.address = address
+        self.walletPublicKey = walletPublicKey
+    }
+    
+    func canHandle(request: Request) -> Bool {
         return request.method == "eth_signTransaction"
     }
 
-    override func handle(request: Request) {
-//        do {
-//            let transaction = try request.parameter(of: EthereumTransaction.self, at: 0)
-//            guard transaction.from == privateKey.address else {
-//                self.sever.send(.reject(request))
-//                return
-//            }
-//
-//            askToSign(request: request, message: transaction.description) {
-//                let signedTx = try! transaction.sign(with: self.privateKey, chainId: 4)
-//                let (r, s, v) = (signedTx.r, signedTx.s, signedTx.v)
-//                return r.hex() + s.hex().dropFirst(2) + String(v.quantity, radix: 16)
-//            }
-//        } catch {
-//            self.sever.send(.invalid(request))
-//        }
+    func handle(request: Request) {
+        do {
+            let transaction = try request.parameter(of: EthTransaction.self, at: 0)
+            guard transaction.from == address else {
+                self.server.send(.reject(request))
+                return
+            }
+
+            askToSign(request: request, message: transaction.description) { completion in
+                let hexData = Data(hex: transaction.data)
+                self.sign(data: hexData) {result in
+                    switch result {
+                    case .failure(let error):
+                        print(error)
+                        completion(nil)
+                    case .success(let sig):
+                        let str =  "0x" + sig.r.asHexString() + sig.s.asHexString() + String(sig.v.toInt() + 27 + WalletConnectService.chainId * 2 + 8, radix: 16)
+                        completion(str)
+                    }
+                }
+            }
+        } catch {
+            self.server.send(.invalid(request))
+        }
     }
 }
 
@@ -253,5 +327,40 @@ fileprivate extension UIAlertController {
         let startAction = UIAlertAction(title: "Start", style: .default) { _ in onStart() }
         alert.addAction(startAction)
         controller.present(alert.withCloseButton(onClose: onClose), animated: true)
+    }
+    
+    static func showShouldSign(from controller: UIViewController, title: String, message: String, onSign: @escaping () -> Void, onCancel: @escaping () -> Void) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let startAction = UIAlertAction(title: "Sign", style: .default) { _ in onSign() }
+        alert.addAction(startAction)
+        controller.present(alert.withCloseButton(title: "Reject", onClose: onCancel), animated: true)
+    }
+}
+
+extension Response {
+    static func signature(_ signature: String, for request: Request) -> Response {
+        return try! Response(url: request.url, value: signature, id: request.id!)
+    }
+}
+
+
+fileprivate struct EthTransaction: Codable {
+    let from: String // Required
+    let to: String // Required
+    let gas: String // Required
+    let gasPrice: String // Required
+    let value: String // Required
+    let data: String // Required
+    let nonce: String // Required
+    
+    var description: String {
+        return """
+        to: \(to),
+        value: \(value),
+        gasPrice: \(gasPrice),
+        gas: \(gas),
+        data: \(data),
+        nonce: \(nonce)
+        """
     }
 }
