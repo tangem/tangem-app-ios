@@ -85,9 +85,8 @@ class TokenDetailsViewModel: ViewModel {
     var txNoteMessage: String {
         guard let walletModel = walletModel else { return "" }
         
-        guard let name = walletModel.wallet.transactions.first?.amount.type.token?.name else { return "" }
-        
-        return String(format: "token_details_tx_note_message", name)
+        let name = walletModel.wallet.transactions.first?.amount.currencySymbol ?? ""
+        return String(format: "token_details_tx_note_message".localized, name)
     }
     
     var amountToSend: Amount? {
