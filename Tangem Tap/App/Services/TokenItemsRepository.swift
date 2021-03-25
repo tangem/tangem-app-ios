@@ -44,6 +44,11 @@ class TokenItemsRepository {
         save()
     }
     
+    func removeAll() {
+        items = []
+        save()
+    }
+    
     private func save() {
         try? persistanceStorage.store(value: items, for: storageKey)
     }
