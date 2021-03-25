@@ -159,6 +159,13 @@ class Assembly: ObservableObject {
     }
     
     func makeTokenDetailsViewModel( blockchain: Blockchain, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
+        if let restored: TokenDetailsViewModel = get() {
+            if let cardModel = services.cardsRepository.lastScanResult.cardModel {
+                restored.card = cardModel
+            }
+            return restored
+        }
+        
         let vm =  TokenDetailsViewModel(blockchain: blockchain, amountType: amountType)
         initialize(vm)
         if let cardModel = services.cardsRepository.lastScanResult.cardModel {
@@ -422,6 +429,10 @@ class Assembly: ObservableObject {
         
         let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
         indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
+    }
+    
+    public func reset(key: String) {
+        modelsStorage.removeValue(forKey: key)
     }
     
     // MARK: - Private funcs
