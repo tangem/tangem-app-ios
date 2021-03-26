@@ -45,13 +45,13 @@ class WalletConnectViewModel: ViewModel {
             }
             .store(in: &bag)
         
-        walletConnectService.connected
-            .receive(on: DispatchQueue.main)
-            .sink {[unowned self]  isConnected in
-                self.isConnecting = false
-                self.isConnected = isConnected
-            }
-            .store(in: &bag)
+//        walletConnectService.connected //todo: handle sesisons list
+//            .receive(on: DispatchQueue.main)
+//            .sink {[unowned self]  isConnected in
+//                self.isConnecting = false
+//                self.isConnected = isConnected
+//            }
+//            .store(in: &bag)
         
         walletConnectService.error
             .receive(on: DispatchQueue.main)
@@ -63,11 +63,12 @@ class WalletConnectViewModel: ViewModel {
     }
     
     func onTap() {
-        if isConnected {
-            self.isConnecting = true
-            walletConnectService.disconnect()
-        } else {
-            navigation.walletConnectToQR = true
-        }
+        //todo: pass concrete session
+//        if isConnected {
+//            self.isConnecting = true
+//            walletConnectService.disconnect()
+//        } else {
+//            navigation.walletConnectToQR = true
+//        }
     }
 }
