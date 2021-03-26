@@ -1,5 +1,5 @@
 //
-//  Models.swift
+//  Analytics.swift
 //  TangemClip
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,18 +8,6 @@
 
 import Foundation
 import TangemSdkClips
-
-class CardViewModel: ObservableObject {
-    var cardInfo: CardInfo
-    
-    init(cardInfo: CardInfo) {
-        self.cardInfo = cardInfo
-    }
-    
-    func getCardInfo() {
-        
-    }
-}
 
 class Analytics {
     enum Event: String {
