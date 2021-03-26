@@ -11,6 +11,16 @@ import TangemSdkClips
 import BlockchainSdkClips
 
 extension Card {
+    var isTwinCard: Bool {
+        cardData?.productMask?.contains(.twinCard) ?? false
+    }
+    
+    var twinNumber: Int {
+        TwinCardSeries.series(for: cardId)?.number ?? 0
+    }
+}
+
+extension Card {
     var canSign: Bool {
 //        let isPin2Default = self.isPin2Default ?? true
 //        let hasSmartSecurityDelay = settingsMask?.contains(.smartSecurityDelay) ?? false
@@ -26,19 +36,9 @@ extension Card {
         return true
     }
     
-    var blockchain: Blockchain? {
-        guard
-            let name = cardData?.blockchainName,
-            let curve = curve
-        else { return nil }
-        
-        return Blockchain.from(blockchainName: name, curve: curve)
-    }
-    
     var isTestnet: Bool {
-        return blockchain?.isTestnet ?? false
+        false
     }
-
     
     var cardValidationData: (cid: String, pubKey: String)? {
         guard
@@ -48,6 +48,31 @@ extension Card {
         
         return (cid, pubKey)
     }
+    
+    var isStart2Coin: Bool {
+        if let issuerName = cardData?.issuerName,
+           issuerName.lowercased() == "start2coin" {
+            return true
+        }
+        return false
+    }
+    
+    var isMultiWallet: Bool {
+        if isTwinCard {
+            return false
+        }
+        
+        if isStart2Coin {
+            return false
+        }
+        
+        if wallets.first?.curve != .secp256k1 {
+            return false
+        }
+        
+        return true
+    }
+
 }
 
 extension Card {
