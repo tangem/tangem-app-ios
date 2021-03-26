@@ -8,25 +8,72 @@
 
 import Foundation
 import TangemSdkClips
+import BlockchainSdkClips
+import Combine
+
+class ServicesAssembly {
+    weak var assembly: Assembly!
+    
+    deinit {
+        print("ServicesAssembly deinit")
+    }
+    
+    let logger = Logger()
+    lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
+    lazy var userPrefsService = UserPrefsService()
+    lazy var networkService = NetworkService()
+    lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
+    lazy var imageLoaderService: ImageLoaderService = ImageLoaderService(networkService: networkService)
+    lazy var tangemSdk: TangemSdk = .init()
+    
+    lazy var cardsRepository: CardsRepository = {
+        let crepo = CardsRepository()
+        crepo.tangemSdk = tangemSdk
+        crepo.assembly = assembly
+        crepo.delegate = self
+        return crepo
+    }()
+    
+    private let keysManager = try! KeysManager()
+    
+    private lazy var defaultSdkConfig: Config = {
+        var config = Config()
+        config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
+        return config
+    }()
+    
+}
+
+extension ServicesAssembly: CardsRepositoryDelegate {
+    func onDidScan(_ cardInfo: CardInfo) {
+    }
+    
+    func onWillScan() {
+        tangemSdk.config = defaultSdkConfig
+    }
+}
+
+enum SupportedBlockchains {
+    
+    static func blockchains(from curve: EllipticCurve, testnet: Bool) -> [Blockchain] {
+        switch curve {
+        case .secp256k1:
+            return [.bitcoin(testnet: testnet), .ethereum(testnet: testnet)]
+        default:
+            return []
+        }
+    }
+}
 
 class Assembly {
-    
-    lazy var networkService = NetworkService()
-    lazy var imageLoaderService = ImageLoaderService(networkService: networkService)
-    
-    lazy var tangemSdk: TangemSdk = {
-       let sdk = TangemSdk()
-        sdk.config = Config()
-        return sdk
-    }()
-    lazy var cardsRepository: CardsRepository = {
-        let repo = CardsRepository()
-        repo.tangemSdk = tangemSdk
-        repo.assembly = self
-        return repo
-    }()
-    
+
+    public let services: ServicesAssembly
     private var modelsStorage = [String : Any]()
+    
+    init() {
+        services = ServicesAssembly()
+        services.assembly = self
+    }
     
     var sdkConfig: Config {
         Config()
@@ -34,7 +81,7 @@ class Assembly {
     
     func getMainViewModel() -> MainViewModel {
         guard let model: MainViewModel = get() else {
-            let mainModel = MainViewModel(cardsRepository: cardsRepository, imageLoaderService: imageLoaderService)
+            let mainModel = MainViewModel(cardsRepository: services.cardsRepository, imageLoaderService: services.imageLoaderService)
             store(mainModel)
             return mainModel
         }
@@ -42,15 +89,34 @@ class Assembly {
         return model
     }
     
-    func getCardModel(from info: CardInfo) -> CardViewModel? {
-        guard let model: CardViewModel = get() else {
-            let cardViewModel = CardViewModel(cardInfo: info)
-            store(cardViewModel)
-            return cardViewModel
-        }
-        
-        model.cardInfo = info
-        return model
+    // MARK: Card model
+    func makeCardModel(from info: CardInfo) -> CardViewModel {
+        let vm = CardViewModel(cardInfo: info)
+        vm.assembly = self
+        vm.tangemSdk = services.tangemSdk
+        vm.updateState()
+        return vm
+    }
+    
+    // MARK: Wallets
+    func makeWalletModels(from info: CardInfo) -> AnyPublisher<[WalletModel], Never> {
+        info.card.wallets.publisher
+            .removeDuplicates(by: { $0.curve == $1.curve })
+            .filter { $0.status == .loaded }
+            .compactMap { cardWallet -> [WalletModel]? in
+                guard let curve = cardWallet.curve else { return nil }
+                
+                let blockchains = SupportedBlockchains.blockchains(from: curve, testnet: false)
+                let managers = self.services.walletManagerFactory.makeWalletManagers(for: cardWallet, cardId: info.card.cardId!, blockchains: blockchains)
+                
+                return managers.map {
+                    let model = WalletModel(cardWallet: cardWallet, walletManager: $0)
+                    model.ratesService = self.services.ratesService
+                    return model
+                }
+            }
+            .reduce([], { $0 + $1 })
+            .eraseToAnyPublisher()
     }
     
     func updateAppClipCard(with batch: String?) {
@@ -63,7 +129,7 @@ class Assembly {
         mainModel?.cardUrl = url
     }
     
-    private func store<T>(_ object: T ) {
+    private func store<T>(_ object: T) {
         let key = String(describing: type(of: T.self))
         store(object, with: key)
     }
@@ -91,7 +157,7 @@ extension Assembly {
         let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
         
         // Which card data should be displayed in preview?
-        assembly.cardsRepository.lastScanResult = testCardScan
+        assembly.services.cardsRepository.lastScanResult = testCardScan
         return assembly
     }()
     
@@ -99,9 +165,9 @@ extension Assembly {
         let ci = CardInfo(card: card,
                           artworkInfo: nil,
                           twinCardInfo: twinCardInfo)
-        let vm = assembly.getCardModel(from: ci)!
+        let vm = assembly.makeCardModel(from: ci)
         let scanResult = ScanResult.card(model: vm)
-        assembly.cardsRepository.cards[card.cardId!] = scanResult
+        assembly.services.cardsRepository.cards[card.cardId!] = scanResult
         return scanResult
     }
 }

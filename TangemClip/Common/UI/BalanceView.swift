@@ -158,6 +158,7 @@ struct BalanceView_Previews: PreviewProvider {
             Color.tangemTapBgGray
             VStack {
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
+                                                               state: .loading,
                                                                hasTransactionInProgress: false,
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: "$3.45",
@@ -168,6 +169,7 @@ struct BalanceView_Previews: PreviewProvider {
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
+                                                               state: .idle,
                                                                hasTransactionInProgress: false,
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: "$3.45",
@@ -178,6 +180,7 @@ struct BalanceView_Previews: PreviewProvider {
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
+                                                               state: .created,
                                                                hasTransactionInProgress: false,
                                                                name: "Ethereum smart contract token",
                                                                fiatBalance: " ",
@@ -189,6 +192,7 @@ struct BalanceView_Previews: PreviewProvider {
                     .padding(.horizontal, 16)
                 
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
+                                                               state: .created,
                                                                hasTransactionInProgress: true,
                                                                name: "Bitcoin token",
                                                                fiatBalance: "5 USD",
