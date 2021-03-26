@@ -36,12 +36,10 @@ PODS:
   - BlockchainSdkClips (1.0.0):
     - AnyCodable-FlightSchool
     - BigInt
-    - BinanceChain
     - BitcoinCore.swift
     - HDWalletKit
     - Moya
     - Sodium
-    - stellar-ios-mac-sdk
     - SwiftCBOR
     - SwiftyJSON
     - TangemSdkClips
@@ -182,7 +180,7 @@ DEPENDENCIES:
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.13`)
   - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-82`)"
-  - BlockchainSdkClips (from `../blockchain-sdk-swift`)
+  - "BlockchainSdkClips (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, branch `BSS-93_App-Clips`)"
   - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
@@ -193,7 +191,7 @@ DEPENDENCIES:
   - Moya
   - SwiftyJSON
   - "TangemSdk (from `git@bitbucket.org:tangem/card-sdk-swift.git`, tag `build-101`)"
-  - TangemSdkClips (from `../card-sdk-swift`)
+  - "TangemSdkClips (from `git@bitbucket.org:tangem/card-sdk-swift.git`, branch `CSS-113-AppClips`)"
   - web3swift (from `https://bitbucket.org/tangem/web3swift.git`, tag `2.2.4`)
 
 SPEC REPOS:
@@ -242,7 +240,8 @@ EXTERNAL SOURCES:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
     :tag: build-82
   BlockchainSdkClips:
-    :path: "../blockchain-sdk-swift"
+    :branch: BSS-93_App-Clips
+    :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
@@ -250,7 +249,8 @@ EXTERNAL SOURCES:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
     :tag: build-101
   TangemSdkClips:
-    :path: "../card-sdk-swift"
+    :branch: CSS-113-AppClips
+    :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -265,12 +265,18 @@ CHECKOUT OPTIONS:
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
     :tag: build-82
+  BlockchainSdkClips:
+    :commit: 071adc415806f61ce81b13b57e4ab18e3fc2f9f6
+    :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
     :tag: build-101
+  TangemSdkClips:
+    :commit: 263bfbef653a0c30110965c70ac8e8ad66d9f1c5
+    :git: "git@bitbucket.org:tangem/card-sdk-swift.git"
   web3swift:
     :git: https://bitbucket.org/tangem/web3swift.git
     :tag: 2.2.4
@@ -282,7 +288,7 @@ SPEC CHECKSUMS:
   BinanceChain: 590254fcbe333b0374c69f5ea80f56afb291bb26
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
   BlockchainSdk: da59ff083dc856929a14780763a2adeedb7f02aa
-  BlockchainSdkClips: 1bff555f10d38bcfc6aea2b44a8be5473c1b6573
+  BlockchainSdkClips: feb1148d35596167dd1f61ae1516788b14a4cf17
   CryptoSwift: 01b0f0cba1d5c212e5a335ff6c054fb75a204f00
   DeviceGuru: 73d82f34cddee25d215b35eb4d094b7a44ec187a
   EFQRCode: 27f7ef4382159d79d583d839cdfc596b5ac98c9f
@@ -313,10 +319,10 @@ SPEC CHECKSUMS:
   SwiftProtobuf: ed465ed18402f998fd117f631da27e0168e6b59c
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   TangemSdk: 38256307ef7d3b310c8fe32d341d5cb3514b3890
-  TangemSdkClips: ec6803eca340244026c3667a20a9d375b98823f9
+  TangemSdkClips: 1a299c508e0a35b0a2b5a4b2cb5d4cd0fd299f18
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: d08ccc044627084af75f238464a32053677bfab0
+PODFILE CHECKSUM: 46d2fd1c7936df9ea22b7ace785d97ae133ebe4c
 
 COCOAPODS: 1.10.1
