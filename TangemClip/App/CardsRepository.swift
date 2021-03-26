@@ -17,11 +17,7 @@ struct CardInfo {
     
     var isMultiWallet: Bool {
         
-        if let curve = card.curve, curve == .ed25519 {
-            return false
-        }
-        
-        if card.cardData?.tokenSymbol != nil {
+        if card.wallets.count <= 1 {
             return false
         }
         
@@ -64,9 +60,16 @@ enum ScanResult: Equatable {
     }
 }
 
+protocol CardsRepositoryDelegate: class {
+    func onWillScan()
+    func onDidScan(_ cardInfo: CardInfo)
+}
+
 class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
+    
+    weak var delegate: CardsRepositoryDelegate?
     
     var cards = [String: ScanResult]()
     var lastScanResult: ScanResult = .notScannedYet
@@ -95,11 +98,11 @@ class CardsRepository {
     private func processScan(_ cardInfo: CardInfo) -> ScanResult {
         onScan?(cardInfo)
         
-        let cm = assembly.getCardModel(from: cardInfo)
-        let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
+        let cm = assembly.makeCardModel(from: cardInfo)
+        let result: ScanResult = .card(model: cm)
         cards[cardInfo.card.cardId!] = result
         lastScanResult = result
-        cm?.getCardInfo()
+        cm.getCardInfo()
         return result
     }
 }
