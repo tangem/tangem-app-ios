@@ -41,12 +41,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         // Get URL components from the incoming user activity
-        logger.log("Scene continue with user activity: \(userActivity.activityType)")
+        clipsLogger.log("Scene continue with user activity: \(userActivity.activityType)")
         guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
               let incomingURL = userActivity.webpageURL
         else { return }
         
-        logger.log(incomingURL.absoluteString)
+        clipsLogger.log(incomingURL.absoluteString)
         assembly.updateCardUrl(incomingURL.absoluteString)
         
         let splitted = incomingURL.absoluteString.split(separator: "#")
@@ -54,7 +54,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard splitted.count == 2 else { return }
         
         batch = String(splitted[1])
-        logger.log("Successfully parse batch: \(batch!)")
+        clipsLogger.log("Successfully parse batch: \(batch!)")
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

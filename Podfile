@@ -41,16 +41,15 @@ end
 
 target 'TangemClip' do
   use_frameworks!
-  
-  pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.7'
-  pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.4'
+
   pod 'BitcoinCore.swift', :git => 'https://bitbucket.org/tangem/bitcoincore.git', :tag => '0.0.13'
   pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.12'
   #pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-99'
-  pod 'TangemSdkClips', :path => '../card-sdk-swift'
+#  pod 'TangemSdkClips', :path => '../card-sdk-swift'
+  pod 'TangemSdkClips', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :branch => 'CSS-113-AppClips'
 #  pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-75'
-  pod 'BlockchainSdkClips', :path => '../blockchain-sdk-swift'
-  pod 'KeychainSwift', '~> 19.0'
+#  pod 'BlockchainSdkClips', :path => '../blockchain-sdk-swift'
+  pod 'BlockchainSdkClips', :git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :branch => 'BSS-93_App-Clips'
 end
 
 pre_install do |installer|
