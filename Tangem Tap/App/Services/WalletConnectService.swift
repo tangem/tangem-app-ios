@@ -13,59 +13,48 @@ import TangemSdk
 import BlockchainSdk
 import CryptoSwift
 
-class WalletConnectService {
-    static let chainId = 4 //mainNet: 1, testnet: 4
-    
+class WalletConnectService: ObservableObject {
     weak var tangemSdk: TangemSdk!
-    
-    var isEnabled: Bool {
-        !cid.isEmpty && !address.isEmpty
-    }
-    
-    var connected: CurrentValueSubject<Bool, Never> = .init(false)
     var error: PassthroughSubject<Error, Never> = .init()
     
+    @Published var sessions: [String: SessionData] = [:]
+    
+    var chainId: Int {
+        isTestnet ? 4 : 1
+    }
+    
+    var isEnabled: Bool {
+        server != nil
+    }
+    
     private var server: Server? = nil
-    private var session: Session? = nil
-    private var sessionKey = ""
+    private var sessionsKey = ""
     private var cid: String = ""
     private var address: String = ""
-    private var walletPublicKey: Data = Data()
+    private var isTestnet: Bool = false
     
-    init() {}
-    
-    func start(for cid: String, address: String, walletPublicKey: Data) {
+    func start(for cid: String, walletPublicKey: Data, isTestnet: Bool) {
         self.cid = cid
-        self.address = address
-        self.walletPublicKey = walletPublicKey
+        self.isTestnet = isTestnet
+        self.sessionsKey = "wc_sessions_\(cid)"
+        self.address = Blockchain.ethereum(testnet: isTestnet).makeAddresses(from: walletPublicKey, with: nil).first!.value
         
-        self.sessionKey = "wc_session_\(cid)"
         server = Server(delegate: self)
         server!.register(handler: PersonalSignHandler(server: server!, tangemSdk: tangemSdk, address: address, walletPublicKey: walletPublicKey))
-        server!.register(handler: SignTransactionHandler(server: server!, tangemSdk: tangemSdk, address: address, walletPublicKey: walletPublicKey))
-        if let oldSessionObject = UserDefaults.standard.object(forKey: sessionKey) as? Data,
-           let session = try? JSONDecoder().decode(Session.self, from: oldSessionObject) {
-            do {
-                try server?.reconnect(to: session)
-            } catch {
-                self.error.send(error)
-                print("Server did fail to reconnect")
-                return
-            }
-        }
+        server!.register(handler: SignTransactionHandler(server: server!, tangemSdk: tangemSdk, address: address, walletPublicKey: walletPublicKey, chainId: self.chainId))
+        restore()
     }
     
     func stop() {
         cid = ""
         address = ""
-        walletPublicKey = Data()
         server = nil
-        session = nil
+        sessions = [:]
     }
     
-    func disconnect() {
+    func disconnect(from sessionKey: String) {
         do {
-            if let session = session {
+            if let session = sessions[sessionKey]?.session {
                 try server?.disconnect(from: session)
             }
         } catch {
@@ -84,6 +73,29 @@ class WalletConnectService {
             return
         }
     }
+    
+    private func save() {
+        let sessionsToSave = Dictionary(uniqueKeysWithValues: sessions.map { ($0.key, $0.value.session) })
+        if let sessionsData = try? JSONEncoder().encode(sessionsToSave) {
+            UserDefaults.standard.set(sessionsData, forKey: sessionsKey)
+        }
+    }
+    
+    private func restore() {
+        if let oldSessionsObject = UserDefaults.standard.object(forKey: sessionsKey) as? Data,
+           let sessions = try? JSONDecoder().decode([String:Session].self, from: oldSessionsObject) {
+            self.sessions = Dictionary(uniqueKeysWithValues: sessions.map { ($0.key, SessionData(session: $0.value, status: .disconnected)) })
+            self.sessions.values.forEach {
+                do {
+                    try server!.reconnect(to: $0.session)
+                } catch {
+                    self.error.send(error)
+                    print("Server did fail to reconnect")
+                    return
+                }
+            }
+        }
+    }
 }
 
 extension WalletConnectService: ServerDelegate {
@@ -99,7 +111,7 @@ extension WalletConnectService: ServerDelegate {
         
         let walletInfo = Session.WalletInfo(approved: true,
                                             accounts: [address],
-                                            chainId: WalletConnectService.chainId,
+                                            chainId: self.chainId,
                                             peerId: UUID().uuidString,
                                             peerMeta: walletMeta)
         
@@ -109,10 +121,9 @@ extension WalletConnectService: ServerDelegate {
                                               onStart: {
                 completion(walletInfo)
             }, onClose: {
-                self.connected.send(false)
                 completion(Session.WalletInfo(approved: false,
                                               accounts: [],
-                                              chainId: WalletConnectService.chainId,
+                                              chainId: self.chainId,
                                               peerId: "",
                                               peerMeta: walletMeta))
             })
@@ -120,18 +131,22 @@ extension WalletConnectService: ServerDelegate {
     }
     
     func server(_ server: Server, didConnect session: Session) {
-        self.session = session
-        if let sessionData = try? JSONEncoder().encode(session) {
-            UserDefaults.standard.set(sessionData, forKey: sessionKey)
+        let key = self.key(for: session)
+        let shouldSave = !sessions.keys.contains(key)
+        sessions[key] = SessionData(session: session, status: .connected)
+        if shouldSave {
+           save()
         }
-        connected.send(true)
     }
     
     func server(_ server: Server, didDisconnect session: Session) {
-        UserDefaults.standard.removeObject(forKey: sessionKey)
-        connected.send(false)
-        self.session = nil
-        self.server = nil
+        let key = self.key(for: session)
+        sessions[key] = nil
+        save()
+    }
+    
+    func key(for session: Session) -> String {
+        return "session_\(session.dAppInfo.peerMeta.name)"
     }
 }
 
@@ -158,11 +173,7 @@ extension WalletConnectService {
     }
 }
 
-
-
-
-
-protocol BaseHandler: RequestHandler {
+fileprivate protocol BaseHandler: RequestHandler {
     var server: Server {get}
     var tangemSdk: TangemSdk {get}
     var walletPublicKey: Data {get}
@@ -170,7 +181,7 @@ protocol BaseHandler: RequestHandler {
     func askToSign(request: Request, message: String, sign: @escaping (_ completion: @escaping (String?) -> Void) -> Void)
 }
 
-extension BaseHandler {
+fileprivate extension BaseHandler {
     func askToSign(request: Request, message: String, sign: @escaping (_ completion: @escaping (String?) -> Void) -> Void) {
         let onSign = {
             sign { signature in
@@ -215,7 +226,7 @@ extension BaseHandler {
     }
 }
 
-class PersonalSignHandler: BaseHandler {
+fileprivate class PersonalSignHandler: BaseHandler {
     let server: Server
     let tangemSdk: TangemSdk
     let walletPublicKey: Data
@@ -271,18 +282,20 @@ class PersonalSignHandler: BaseHandler {
     }
 }
 
-class SignTransactionHandler: BaseHandler {
+fileprivate class SignTransactionHandler: BaseHandler {
     let server: Server
     let tangemSdk: TangemSdk
     let walletPublicKey: Data
     
     private let address: String
+    private let chainId: Int
     
-    init(server: Server, tangemSdk: TangemSdk, address: String, walletPublicKey: Data) {
+    init(server: Server, tangemSdk: TangemSdk, address: String, walletPublicKey: Data, chainId: Int) {
         self.server = server
         self.tangemSdk = tangemSdk
         self.address = address
         self.walletPublicKey = walletPublicKey
+        self.chainId = chainId
     }
     
     func canHandle(request: Request) -> Bool {
@@ -299,13 +312,15 @@ class SignTransactionHandler: BaseHandler {
 
             askToSign(request: request, message: transaction.description) { completion in
                 let hexData = Data(hex: transaction.data)
-                self.sign(data: hexData) {result in
+                self.sign(data: hexData) {[weak self] result in
+                    guard let self = self else { return }
+                    
                     switch result {
                     case .failure(let error):
                         print(error)
                         completion(nil)
                     case .success(let sig):
-                        let str =  "0x" + sig.r.asHexString() + sig.s.asHexString() + String(sig.v.toInt() + 27 + WalletConnectService.chainId * 2 + 8, radix: 16)
+                        let str =  "0x" + sig.r.asHexString() + sig.s.asHexString() + String(sig.v.toInt() + 27 + self.chainId * 2 + 8, radix: 16)
                         completion(str)
                     }
                 }
@@ -337,7 +352,7 @@ fileprivate extension UIAlertController {
     }
 }
 
-extension Response {
+fileprivate extension Response {
     static func signature(_ signature: String, for request: Request) -> Response {
         return try! Response(url: request.url, value: signature, id: request.id!)
     }
@@ -363,4 +378,16 @@ fileprivate struct EthTransaction: Codable {
         nonce: \(nonce)
         """
     }
+}
+
+
+struct SessionData {
+    let session: Session
+    var status: SessionStatus
+}
+
+enum SessionStatus {
+    case disconnected
+    case connecting
+    case connected
 }
