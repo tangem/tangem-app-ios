@@ -24,37 +24,21 @@ struct TapScanTaskResponse: JSONStringConvertible {
 }
 
 extension TapScanTaskResponse {
-    private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
-        guard let cardId = response.card.cardId else {
-            return nil
-        }
-        
-        var pairPublicKey: Data?
-        let fullData = twinIssuerData
-        if let walletPubKey = card.walletPublicKey, fullData.count == 129 {
-            let pairPubKey = fullData[0..<65]
-            let signature = fullData[65..<fullData.count]
-            if Secp256k1Utils.vefify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
-               pairPublicKey = pairPubKey
-            }
-        }
-    
-        return TwinCardInfo(cid: cardId, series: TwinCardSeries.series(for: card.cardId), pairCid: TwinCardsUtils.makePairCid(for: cardId), pairPublicKey: pairPublicKey)
-    }
-    
     func getCardInfo() -> CardInfo {
         let cardInfo = CardInfo(card: card,
                                 artworkInfo: nil,
-                                twinCardInfo: decodeTwinFile(from: self))
+                                twinCardInfo: nil)
         return cardInfo
     }
 }
 
-final class TapScanTask: CardSessionRunnable {
+final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
     let excludeBatches = ["0027",
                           "0030",
                           "0031", //tags
     ]
+    
+    var preflightReadSettings: PreflightReadSettings { .fullCardRead }
     
     let excludeIssuers = ["TTM BANK"]
     
@@ -75,7 +59,7 @@ final class TapScanTask: CardSessionRunnable {
             return
         } catch { print(error) }
         
-        checkWallet(card, session: session, completion: completion)
+        verifyCard(card, session: session, completion: completion)
     }
     
     private func checkCard(_ card: Card) throws {
@@ -102,27 +86,27 @@ final class TapScanTask: CardSessionRunnable {
         }
     }
     
-    private func checkWallet(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard let cardStatus = card.status, cardStatus == .loaded else {
-            self.verifyCard(card, session: session, completion: completion)
-            return
-        }
-        
-        guard let curve = card.curve,
-            let publicKey = card.walletPublicKey else {
-                completion(.failure(.cardError))
-                return
-        }
-        
-        CheckWalletCommand(curve: curve, publicKey: publicKey).run(in: session) { checkWalletResult in
-            switch checkWalletResult {
-            case .success:
-                self.verifyCard(card, session: session, completion: completion)
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
+//    private func checkWallet(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+//        guard let cardStatus = card.status, cardStatus == .loaded else {
+//            self.verifyCard(card, session: session, completion: completion)
+//            return
+//        }
+//
+//        guard let curve = card.curve,
+//            let publicKey = card.walletPublicKey else {
+//                completion(.failure(.cardError))
+//                return
+//        }
+//
+//        CheckWalletCommand(curve: curve, publicKey: publicKey).run(in: session) { checkWalletResult in
+//            switch checkWalletResult {
+//            case .success:
+//                self.verifyCard(card, session: session, completion: completion)
+//            case .failure(let error):
+//                completion(.failure(error))
+//            }
+//        }
+//    }
     
     private func verifyCard(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         VerifyCardCommand().run(in: session) { verifyResult in
