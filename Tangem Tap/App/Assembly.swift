@@ -85,10 +85,8 @@ extension ServicesAssembly: CardsRepositoryDelegate {
         
         if let cid = cardInfo.card.cardId,
            let curve = cardInfo.card.curve, curve == .secp256k1,
-           let walletPublicKey = cardInfo.card.walletPublicKey,
-           let ethManager = assembly.makeWalletModels(from: cardInfo, blockchains: [.ethereum(testnet: false)]).first {
-            let address = ethManager.wallet.address
-            walletConnectService.start(for: cid, address: address, walletPublicKey: walletPublicKey)
+           let walletPublicKey = cardInfo.card.walletPublicKey {
+            walletConnectService.start(for: cid, walletPublicKey: walletPublicKey, isTestnet: cardInfo.card.isTestnet)
         } else {
             walletConnectService.stop()
         }
