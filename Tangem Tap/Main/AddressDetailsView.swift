@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftUI
-import TangemSdk
 
 struct AddressDetailView: View {
     @Binding var showCreatePayID: Bool
