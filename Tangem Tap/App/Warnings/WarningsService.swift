@@ -13,9 +13,12 @@ protocol WarningsConfigurator: class {
     func setupWarnings(for card: Card)
 }
 
-protocol WarningsManager: class {
+protocol WarningAppendor: class {
+    func appendWarning(for event: WarningEvent)
+}
+
+protocol WarningsManager: WarningAppendor {
     func warnings(for location: WarningsLocation) -> WarningsContainer
-    func addWarning(for event: WarningEvent)
     func hideWarning(_ warning: TapWarning)
     func hideWarning(for event: WarningEvent)
 }
@@ -26,9 +29,15 @@ class WarningsService {
     private var sendWarnings: WarningsContainer = .init()
     
     private let remoteWarningProvider: RemoteWarningProvider
+    private let rateAppChecker: RateAppChecker
     
-    init(remoteWarningProvider: RemoteWarningProvider) {
+    init(remoteWarningProvider: RemoteWarningProvider, rateAppChecker: RateAppChecker) {
         self.remoteWarningProvider = remoteWarningProvider
+        self.rateAppChecker = rateAppChecker
+    }
+    
+    deinit {
+        print("WarningsService deinit")
     }
     
     private func warningsForMain(for card: Card) -> WarningsContainer {
@@ -37,6 +46,10 @@ class WarningsService {
         addDevCardWarningIfNeeded(in: container, for: card)
         addOldCardWarning(in: container, for: card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
+        if rateAppChecker.shouldShowRateAppWarning {
+            Analytics.log(event: .displayRateAppWarning)
+            container.add(WarningEvent.rateApp.warning)
+        }
         
         let remoteWarnings = self.remoteWarnings(for: card, location: .main)
         container.add(remoteWarnings)
@@ -107,7 +120,7 @@ extension WarningsService: WarningsManager {
         }
     }
     
-    func addWarning(for event: WarningEvent) {
+    func appendWarning(for event: WarningEvent) {
         let warning = event.warning
         if event.locationsToDisplay.contains(.main) {
             mainWarnings.add(warning)
