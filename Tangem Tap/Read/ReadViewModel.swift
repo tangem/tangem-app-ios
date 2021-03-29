@@ -19,6 +19,8 @@ class ReadViewModel: ViewModel {
     weak var cardsRepository: CardsRepository!
     weak var userPrefsService: UserPrefsService!
     
+    weak var failedCardScanTracker: FailedCardScanTracker!
+    
     //viewState
     @Published var state: State = .welcome
     //scan button state
@@ -53,6 +55,7 @@ class ReadViewModel: ViewModel {
             defer { self.isLoading = false }
             switch scanResult {
             case .success(let result):
+                self.failedCardScanTracker.resetCounter()
                 defer {
                     self.firstTimeScan = false
                 }
@@ -70,8 +73,14 @@ class ReadViewModel: ViewModel {
                 
                 self.navigation.readToTwinOnboarding = true
             case .failure(let error):
-                if case .unknownError = error.toTangemSdkError() {
-                    self.scanError = error.alertBinder
+                self.failedCardScanTracker.recordFailure()
+                
+                if self.failedCardScanTracker.shouldDisplayAlert {
+                    self.navigation.readToTroubleshootingScan = true
+                } else {
+                    if case .unknownError = error.toTangemSdkError() {
+                        self.scanError = error.alertBinder
+                    }
                 }
             }
 
