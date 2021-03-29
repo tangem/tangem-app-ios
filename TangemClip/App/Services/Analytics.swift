@@ -21,14 +21,14 @@ class Analytics {
     }
     
     static func log(error: Error) {
-        print("LOGGING ERRORRRRRR!RR!R!!Rrrr: ", error)
+        print("Error: ", error)
     }
     
     static func logScan(card: Card) {
-        print("This is card", card)
+        print("Card", card)
     }
     
     static func log(event: Event) {
-        print("ALARM!ALRAMRA. This is event", event.rawValue)
+        print("Event", event.rawValue)
     }
 }

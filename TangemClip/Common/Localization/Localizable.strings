@@ -1,0 +1,18 @@
+/* 
+  Localizable.strings
+  Tangem Tap
+
+  Created by Andrew Son on 29/03/21.
+  Copyright © 2021 Tangem AG. All rights reserved.
+*/
+
+"main_title" = "Tangem Clip";
+"main_hint" = "Tap \"Read wallets\" button to load wallet information from card";
+"main_unsupported_card" = "Can't read card wallet information.\nPlease, use full app to load info from blockchain";
+
+"main_button_read_wallets" = "Read wallets";
+"main_button_get_full_app" = "Get full app";
+
+"wallet_error_no_account_subtitle_format" = "Load %@+ %@ to create account";
+"wallet_balance_loading" = "Balance is loading…";
+"wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
