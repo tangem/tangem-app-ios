@@ -308,14 +308,17 @@ class WalletModel: ObservableObject, Identifiable {
         let blockchainItem = TokenItemViewModel(from: balanceViewModel,
                                                 rate: getRateFormatted(for: .coin),
                                                 fiatValue: getFiat(for: wallet.amounts[.coin]) ?? 0,
-                                             blockchain: wallet.blockchain)
+                                             blockchain: wallet.blockchain,
+                                             hasTransactionInProgress: wallet.hasPendingTx(for: .coin))
         
-        let items = tokenViewModels.map {
-            TokenItemViewModel(from: balanceViewModel,
+        let items: [TokenItemViewModel] = tokenViewModels.map {
+            let amountType = Amount.AmountType.token(value: $0.token)
+            return TokenItemViewModel(from: balanceViewModel,
                                 tokenBalanceViewModel: $0,
-                                rate: getRateFormatted(for: .token(value: $0.token)),
-                                fiatValue:  getFiat(for: wallet.amounts[.token(value: $0.token)]) ?? 0,
-                                blockchain: wallet.blockchain)
+                                rate: getRateFormatted(for: amountType),
+                                fiatValue:  getFiat(for: wallet.amounts[amountType]) ?? 0,
+                                blockchain: wallet.blockchain,
+                                hasTransactionInProgress: wallet.hasPendingTx(for: amountType))
         }
         
         tokenItemViewModels = [blockchainItem] + items
