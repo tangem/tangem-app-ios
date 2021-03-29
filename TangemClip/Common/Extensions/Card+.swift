@@ -100,19 +100,17 @@ extension Card {
                  "issuerName" : "TANGEM SDK",
                  "manufactureDateTime" : "Jan 9, 2021",
                  "manufacturerSignature" : "B906FA3D536BEFA41D7425D2FC3E96B6231FC6B50D6B50318A2E95DD39C621E11E9E3EA11C98DC39B44852778785B93EEFE1D00825632B56EBBBB111FBA6D6FD",
-                "productMask" : [
-                  "Note"
-                ]
+                 "productMask": []
                },
                "cardId" : "CB42000000005343",
-               "cardPublicKey" : "04B8057C3CB5C0570B1785FCEF1A0EE5CF5F3908D047126DF526261B1FBFFAC927EBE0DE837B1FACB0502D4D5D692B771EB84EBC8505AFFACB3F82381D2C8D1A26",
-               "curve" : "secp256k1",
+               "cardPublicKey" : "045D5DACE8241F0015982BF1FCDF0250694FFF0FBF184899378B833D698FA3FD6F289F3B423910CF83A43A391F44BFE5E824C96736049602C3B37E3175BA17C03C",
+               "defaultCurve" : "secp256k1",
                "firmwareVersion" : {
                  "hotFix" : 0,
                  "major" : 4,
-                 "minor" : 11,
+                 "minor" : 12,
                  "type" : "d SDK",
-                 "version" : "4.11d SDK"
+                 "version" : "4.12d SDK"
                },
                "health" : 0,
                "isActivated" : false,
@@ -141,28 +139,44 @@ extension Card {
                "status" : "Empty",
                "terminalIsLinked" : false,
                "walletIndex" : 0,
-               "wallets" : {
-                 "0" : {
+               "wallets" : [
+                 {
+                   "curve" : "secp256k1",
                    "index" : 0,
-                   "status" : "Empty"
+                   "publicKey" : "0491906E700CA6877EB7F43FE60A981A77C321A4735078A90442C334E8790F490F5FCE6651B4B20D562C46568C0CA8BC00D5DB8F2269CB2DAD4FD31C07F1C5DBA3",
+                   "settingsMask" : [
+                     "IsReusable",
+                     "AllowSetPIN1",
+                     "AllowSetPIN2",
+                     "UseNDEF",
+                     "AllowUnencrypted",
+                     "AllowFastEncryption",
+                     "ProtectIssuerDataAgainstReplay",
+                     "AllowSelectBlockchain",
+                     "DisablePrecomputedNDEF",
+                     "SkipSecurityDelayIfValidatedByLinkedTerminal",
+                     "RestrictOverwriteIssuerExtraData"
+                   ],
+                   "signedHashes" : 0,
+                   "status" : "Loaded"
                  },
-                 "1" : {
+                 {
                    "index" : 1,
                    "status" : "Empty"
                  },
-                 "2" : {
+                 {
                    "index" : 2,
                    "status" : "Empty"
                  },
-                 "3" : {
+                 {
                    "index" : 3,
                    "status" : "Empty"
                  },
-                 "4" : {
+                 {
                    "index" : 4,
                    "status" : "Empty"
                  }
-               },
+               ],
                "walletsCount" : 5
              }
     """
