@@ -43,7 +43,7 @@ class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
         settings.minimumFetchInterval = 1200
         #endif
         config.configSettings = settings
-        features = try JsonReader.readBundleFile(with: featuresFileName, type: TapFeatures.self)
+        features = try JsonUtils.readBundleFile(with: featuresFileName, type: TapFeatures.self)
         fetch()
     }
     
