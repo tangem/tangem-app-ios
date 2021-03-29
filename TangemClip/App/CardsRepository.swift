@@ -12,17 +12,21 @@ import BlockchainSdkClips
 
 struct CardInfo {
     var card: Card
+    var artwork: CardArtwork = .notLoaded
     var artworkInfo: ArtworkInfo?
     var twinCardInfo: TwinCardInfo?
     
     var isMultiWallet: Bool {
-        
         if card.wallets.count <= 1 {
             return false
         }
         
         return true //todo
     }
+}
+
+enum CardArtwork {
+    case notLoaded, noArtwork, artwork(ArtworkInfo)
 }
 
 enum ScanResult: Equatable {

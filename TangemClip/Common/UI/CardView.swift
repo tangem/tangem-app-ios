@@ -34,6 +34,15 @@ struct CardView: View {
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        CardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width)
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 8.0) {
+                    CardView(image: UIImage(named: "card_tg062"),
+                             width: geometry.size.width - 32)
+                }
+            }
+            .frame(width: geometry.size.width)
+        }
+        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
     }
 }
