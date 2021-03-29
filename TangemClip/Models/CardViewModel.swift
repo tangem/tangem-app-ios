@@ -16,6 +16,7 @@ class CardViewModel: ObservableObject {
     @Published var state: State = .created
     
     @Published var cardInfo: CardInfo
+    @Published var isLoadingArtwork: Bool = false
     
     var isMultiWallet: Bool {
         cardInfo.card.isMultiWallet
@@ -31,16 +32,22 @@ class CardViewModel: ObservableObject {
     
     func getCardInfo() {
         guard cardInfo.card.cardType == .release else {
+            cardInfo.artwork = .noArtwork
             return
         }
         
         tangemSdk.getCardInfo(cardId: cardInfo.card.cardId ?? "", cardPublicKey: cardInfo.card.cardPublicKey ?? Data()) {[weak self] result in
             switch result {
             case .success(let info):
-                guard let artwork = info.artwork else { return }
+                guard let artwork = info.artwork else {
+                    self?.cardInfo.artwork = .noArtwork
+                    return
+                }
 
                 self?.cardInfo.artworkInfo = artwork
+                self?.cardInfo.artwork = .artwork(artwork)
             case .failure:
+                self?.cardInfo.artwork = .noArtwork
                 print("Failed to validate card")
             }
         }
