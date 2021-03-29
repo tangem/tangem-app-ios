@@ -148,6 +148,7 @@
 		B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */; };
 		B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03A9338259877790061FB2D /* WarningsContainer.swift */; };
 		B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
+		B03F239A2611FC7900A99C12 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B03F23992611FC7900A99C12 /* Localizable.strings */; };
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B0594146260A0FE300F90053 /* ImageLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0594145260A0FE300F90053 /* ImageLoaderService.swift */; };
 		B059414C260A135D00F90053 /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B059414B260A135D00F90053 /* Assembly.swift */; };
@@ -202,12 +203,16 @@
 		B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9E93E25921D21007B6D36 /* WarningView.swift */; };
 		B0B06963260C9C7600AE10B0 /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
 		B0B06968260C9C8000AE10B0 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
-		B0B0696D260CB11300AE10B0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
 		B0B06972260CB2F100AE10B0 /* CoinMarketCapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */; };
 		B0B0FEB02608D226002B61CD /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FEAF2608D226002B61CD /* Card+.swift */; };
 		B0B0FFB52608EC09002B61CD /* CardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FFB42608EC09002B61CD /* CardsRepository.swift */; };
 		B0B0FFC42608EC44002B61CD /* TokenBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FFC32608EC44002B61CD /* TokenBalanceViewModel.swift */; };
 		B0B0FFD32608ECE9002B61CD /* TapScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FFD22608ECE9002B61CD /* TapScanTask.swift */; };
+		B0B34CC52611CDD600ACFAB3 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
+		B0B34CC62611CDD600ACFAB3 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
+		B0B34CC72611CDD600ACFAB3 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
+		B0B34CC82611CDD600ACFAB3 /* SairaSemiCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */; };
+		B0B34CC92611CDD600ACFAB3 /* SairaSemiCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */; };
 		B0B4556425E0E3F400D7572F /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
 		B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B4556825E0E63000D7572F /* FailedCardScanTracker.swift */; };
 		B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */; };
@@ -438,6 +443,7 @@
 		B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsFinalizeWalletCreationTask.swift; sourceTree = "<group>"; };
 		B03A9338259877790061FB2D /* WarningsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsContainer.swift; sourceTree = "<group>"; };
 		B03ACAC82567CFFF00F5D269 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
+		B03F23992611FC7900A99C12 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		B046EE172578D38E00EA38A5 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B0594145260A0FE300F90053 /* ImageLoaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoaderService.swift; sourceTree = "<group>"; };
 		B059414B260A135D00F90053 /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
@@ -994,6 +1000,14 @@
 			path = Tasks;
 			sourceTree = "<group>";
 		};
+		B03F23982611FC5E00A99C12 /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				B03F23992611FC7900A99C12 /* Localizable.strings */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -1164,6 +1178,7 @@
 				B0B0FFD12608ECDD002B61CD /* Tangem */,
 				B0B0FEAE2608D21A002B61CD /* Extensions */,
 				B0CA5ADB25F786B10078F42F /* UI */,
+				B03F23982611FC5E00A99C12 /* Localization */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -1433,9 +1448,14 @@
 			files = (
 				B0D3601025F26C7600929564 /* LaunchScreen.storyboard in Resources */,
 				B0B06963260C9C7600AE10B0 /* config_dev.json in Resources */,
+				B0B34CC82611CDD600ACFAB3 /* SairaSemiCondensed-Regular.ttf in Resources */,
+				B03F239A2611FC7900A99C12 /* Localizable.strings in Resources */,
+				B0B34CC72611CDD600ACFAB3 /* SairaSemiCondensed-Medium.ttf in Resources */,
 				B0B06968260C9C8000AE10B0 /* config_prod.json in Resources */,
+				B0B34CC92611CDD600ACFAB3 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
+				B0B34CC52611CDD600ACFAB3 /* SairaSemiCondensed-Bold.ttf in Resources */,
+				B0B34CC62611CDD600ACFAB3 /* SairaSemiCondensed-Light.ttf in Resources */,
 				B00BC599260B1A2600F0647D /* Tokens.xcassets in Resources */,
-				B0B0696D260CB11300AE10B0 /* Localizable.strings in Resources */,
 				B0F735BD25F79CCD00DD348F /* Colors.xcassets in Resources */,
 				B0D3600D25F26C7600929564 /* Preview Assets.xcassets in Resources */,
 				B0D3600A25F26C7600929564 /* Assets.xcassets in Resources */,
@@ -2010,7 +2030,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 226;
+				CURRENT_PROJECT_VERSION = 238;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -2020,7 +2040,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2037,7 +2057,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 226;
+				CURRENT_PROJECT_VERSION = 238;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -2047,7 +2067,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2156,7 +2176,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CODE_SIGN_ENTITLEMENTS = TangemClip/TangemClip.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 226;
+				CURRENT_PROJECT_VERSION = 238;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_ASSET_PATHS = "\"TangemClip/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
@@ -2167,7 +2187,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2185,7 +2205,7 @@
 				CODE_SIGN_ENTITLEMENTS = TangemClip/TangemClip.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 226;
+				CURRENT_PROJECT_VERSION = 238;
 				DEVELOPMENT_ASSET_PATHS = "\"TangemClip/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -2195,7 +2215,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2211,11 +2231,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CODE_SIGN_ENTITLEMENTS = TangemClip/TangemClip.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 226;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 238;
 				DEVELOPMENT_ASSET_PATHS = "\"TangemClip/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = TangemClip/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -2223,7 +2243,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2295,9 +2315,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 226;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 238;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -2306,10 +2326,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "App Store Provisioning Profile";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
