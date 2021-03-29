@@ -179,7 +179,7 @@ DEPENDENCIES:
   - AnyCodable-FlightSchool
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.13`)
-  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-82`)"
+  - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-85`)"
   - "BlockchainSdkClips (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, branch `BSS-93_App-Clips`)"
   - DeviceGuru
   - EFQRCode
@@ -238,7 +238,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.13
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-82
+    :tag: build-85
   BlockchainSdkClips:
     :branch: BSS-93_App-Clips
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
@@ -264,7 +264,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.13
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
-    :tag: build-82
+    :tag: build-85
   BlockchainSdkClips:
     :commit: 071adc415806f61ce81b13b57e4ab18e3fc2f9f6
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
@@ -323,6 +323,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 46d2fd1c7936df9ea22b7ace785d97ae133ebe4c
+PODFILE CHECKSUM: 50d9df7647246a597571c7cd423bafcf4df5649a
 
 COCOAPODS: 1.10.1
