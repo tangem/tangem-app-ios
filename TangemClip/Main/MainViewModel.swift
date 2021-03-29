@@ -17,13 +17,14 @@ class MainViewModel: ObservableObject {
     @Published var isScanning: Bool = false
     @Published var image: UIImage? = nil
     @Published var isWithNdef: Bool = false
+    @Published var shouldShowGetFullApp = false
     @Published var cardUrl: String? {
         didSet {
             objectWillChange.send()
         }
     }
     @Published var selectedAddressIndex: Int = 0
-    @Published var state: ScanResult = .unsupported  {
+    @Published var state: ScanResult = .notScannedYet  {
         willSet {
             print("⚠️ Reset bag")
             image = nil
@@ -39,10 +40,10 @@ class MainViewModel: ObservableObject {
         state.cardModel
     }
     
-    
-    
     private var imageLoadingCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
+    
+    private var savedBatch: String?
     
     var tokenItemViewModels: [TokenItemViewModel] {
         guard let cardModel = cardModel else { return [] }
@@ -51,7 +52,6 @@ class MainViewModel: ObservableObject {
             .flatMap ({ $0.tokenItemViewModels })
     }
     
-    let defaults: UserDefaults = UserDefaults(suiteName: "group.com.tangem.Tangem") ?? .standard
     unowned var cardsRepository: CardsRepository
     unowned var imageLoaderService: ImageLoaderService
     
@@ -70,25 +70,28 @@ class MainViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
-                self.objectWillChange.send()
+                withAnimation {
+                    self.objectWillChange.send()
+                }
             }
             .store(in: &bag)
         
         state.cardModel?.$cardInfo
-            .tryMap { cardInfo -> (String, Data, ArtworkInfo?) in
-                if let cid = cardInfo.card.cardId,
-                   let pubkey = cardInfo.card.cardPublicKey {
-                    return (cid, pubkey, cardInfo.artworkInfo)
-                }
+            .flatMap { cardInfo -> AnyPublisher<UIImage?, Error> in
+                let noImagePublisher = self.imageLoaderService.backedLoadImage(.default)
                 
-                throw "Some error"
-            }
-            .flatMap { [unowned self] (info: (String, Data, ArtworkInfo?)) -> AnyPublisher<UIImage, Error> in
-                guard let artwork: ArtworkInfo = info.2 else {
-                    return self.imageLoaderService
-                        .loadImage(batch: String(info.0.prefix(4)))
+                guard let cid = cardInfo.card.cardId,
+                      let pubkey = cardInfo.card.cardPublicKey
+                else { return noImagePublisher }
+                
+                switch cardInfo.artwork {
+                case .noArtwork:
+                    return noImagePublisher
+                case .artwork(let art):
+                    return (self.imageLoaderService.loadImage(with: cid, pubkey: pubkey, for: art))
+                case .notLoaded:
+                    return Just(nil).setFailureType(to: Error.self).eraseToAnyPublisher()
                 }
-                return self.imageLoaderService.loadImage(with: info.0, pubkey: info.1, for: artwork)
             }
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
@@ -99,31 +102,50 @@ class MainViewModel: ObservableObject {
                     case .finished:
                         break
                     }}){ [unowned self] image in
-                self.image = image
+                withAnimation {
+                    self.image = image
+                }
             }
             .store(in: &bag)
     }
     
     func scanCard() {
-        cardsRepository.scan { (result) in
+        isScanning = true
+        cardsRepository.scan { [unowned self] (result) in
             switch result {
             case .success(let result):
+                self.shouldShowGetFullApp = true
                 self.state = result
             case .failure(let error):
                 print(error)
             }
+            self.isScanning = false
         }
     }
     
     func updateCardBatch(_ batch: String?) {
         isWithNdef = batch != nil
+        savedBatch = batch
+        state = .notScannedYet
+        shouldShowGetFullApp = false
+        loadImageByBatch(batch)
+    }
+    
+    private func loadImageByBatch(_ batch: String?) {
+        guard let batch = batch else {
+            image = nil
+            return
+        }
+        
         imageLoadingCancellable = imageLoaderService
             .loadImage(batch: batch)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 print(completion)
-            }, receiveValue: { [weak self] in
-                self?.image = $0
+            }, receiveValue: { [weak self] image in
+                withAnimation {
+                    self?.image = image
+                }
             })
     }
     
