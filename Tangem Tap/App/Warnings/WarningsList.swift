@@ -15,4 +15,6 @@ struct WarningsList {
     static let oldDeviceOldCard = TapWarning(title: warningTitle, message: "alert_old_device_this_card".localized, priority: .info, type: .permanent)
     static let devCard = TapWarning(title: warningTitle, message: "alert_developer_card".localized, priority: .critical, type: .permanent)
     static let numberOfSignedHashesIncorrect = TapWarning(title: warningTitle, message: "alert_card_signed_transactions".localized, priority: .info, type: .temporary, event: .numberOfSignedHashesIncorrect)
+    static let rateApp = TapWarning(title: "warning_rate_app_title".localized, message: "warning_rate_app_message".localized, priority: .info, type: .temporary, event: .rateApp)
+    static let failedToVerifyCard = TapWarning(title: "warning_failed_to_verify_card_title".localized, message: "warning_failed_to_verify_card_message".localized, priority: .critical, type: .permanent, event: .failedToValidateCard)
 }
