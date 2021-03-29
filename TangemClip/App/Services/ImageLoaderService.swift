@@ -65,52 +65,49 @@ class ImageLoaderService {
         self.networkService = networkService
     }
     
-    func loadImage(with cid: String, pubkey: Data, for artworkInfo: ArtworkInfo) -> AnyPublisher<UIImage, Error> {
+    func loadImage(with cid: String, pubkey: Data, for artworkInfo: ArtworkInfo) -> AnyPublisher<UIImage?, Error> {
         let endpoint = TangemEndpoint.artwork(cid: cid, cardPublicKey: pubkey, artworkId: artworkInfo.id)
         return publisher(for: endpoint)
     }
     
-    func loadImage(batch: String?) -> AnyPublisher<UIImage, Error> {
-        guard let batch = batch else {
-            return backedLoadImage(.default)
-        }
+    func loadImage(batch: String) -> AnyPublisher<UIImage?, Error> {
         let endpoint = ImageEndpoint.byBatch(batch)
         
         return publisher(for: endpoint)
     }
     
-    func backedLoadImage(name: String) -> AnyPublisher<UIImage, Error> {
+    func backedLoadImage(name: String) -> AnyPublisher<UIImage?, Error> {
         let configuration = URLSessionConfiguration.default
         configuration.requestCachePolicy = .returnCacheDataElseLoad
         let session = URLSession(configuration: configuration)
         return session
             .dataTaskPublisher(for: URL(string: "https://app.tangem.com/cards/\(name).png")!)
             .subscribe(on: DispatchQueue.global())
-            .tryMap { data, response -> UIImage in
+            .tryMap { data, response -> UIImage? in
                 if let image = UIImage(data: data) {
                     return image
                 }
                 
-                throw "Image mapping failed"
+                return nil
             }.eraseToAnyPublisher()
     }
     
-    func backedLoadImage(_ image: BackedImages) -> AnyPublisher<UIImage, Error> {
+    func backedLoadImage(_ image: BackedImages) -> AnyPublisher<UIImage?, Error> {
         backedLoadImage(name: image.name)
     }
     
-    private func publisher(for endpoint: NetworkEndpoint) -> AnyPublisher<UIImage, Error> {
+    private func publisher(for endpoint: NetworkEndpoint) -> AnyPublisher<UIImage?, Error> {
         return networkService
             .requestPublisher(endpoint)
             .subscribe(on: DispatchQueue.global())
-            .tryMap { data -> UIImage in
+            .tryMap { data -> UIImage? in
                 if let image = UIImage(data: data) {
                     return image
                 }
                 
-                throw "Image mapping failed"
+                return nil
             }
-            .tryCatch {[weak self] error -> AnyPublisher<UIImage, Error> in
+            .tryCatch {[weak self] error -> AnyPublisher<UIImage?, Error> in
                 guard let self = self else {
                     throw error
                 }
