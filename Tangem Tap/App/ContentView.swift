@@ -9,8 +9,6 @@
 import SwiftUI
 
 struct ContentView<Content: View>: View {
-    @EnvironmentObject var navigation: NavigationCoordinator
-    
     let content: () -> Content
     init (@ViewBuilder _ content: @escaping () -> Content) {
         self.content = content
