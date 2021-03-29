@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // Create the SwiftUI view that provides the window contents.
         let contentView = MainView(viewModel: assembly.getMainViewModel())
-//        let contentView = MainView(viewModel: Assembly.previewAssembly.getMainViewModel(cid: "CB47000000000435"))
+//        let contentView = MainView(viewModel: Assembly.previewAssembly.getMainViewModel())
 
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
@@ -49,11 +49,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         clipsLogger.log(incomingURL.absoluteString)
         assembly.updateCardUrl(incomingURL.absoluteString)
         
-        let splitted = incomingURL.absoluteString.split(separator: "#")
-        print(splitted)
-        guard splitted.count == 2 else { return }
-        
-        batch = String(splitted[1])
+        batch = incomingURL.lastPathComponent
         clipsLogger.log("Successfully parse batch: \(batch!)")
     }
 
