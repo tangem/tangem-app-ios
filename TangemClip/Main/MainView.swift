@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import StoreKit
 
 struct MainView: View {
     
@@ -16,28 +17,29 @@ struct MainView: View {
         true
     }
     
+    @State var isDisplayingAppStoreOverlay = false
+    
     var body: some View {
         VStack {
-            Text("Tangem Clip")
+            Text("main_title")
                 .font(.system(size: 17, weight: .medium))
                 .frame(height: 44, alignment: .center)
             GeometryReader { geometry in
                 ScrollView {
-                    VStack(spacing: 8.0) {
+                    VStack(spacing: 8) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32)
-//                        Text("URL saved on card " + (viewModel.cardUrl ?? "Unknown"))
-//                            .foregroundColor(.tangemTapGrayDark6)
-                        if viewModel.state == .unsupported {
-                            Text("Tap \"Scan card\" button to load wallet information from card")
-                                .padding()
+                            .fixedSize(horizontal: false, vertical: true)
+                        if viewModel.state == .notScannedYet {
+                            Text("main_hint")
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 2)
                         } else {
                             if viewModel.isMultiWallet {
                                 ForEach(viewModel.tokenItemViewModels) { item in
                                     TokensListItemView(item: item)
-                                        .onTapGesture {
-                                            //                                        viewModel.onWalletTap(item)
-                                        }
+                                        .onTapGesture { }
                                 }
                                 .padding(.horizontal, 16)
                                 
@@ -55,12 +57,9 @@ struct MainView: View {
                                     
                                     AddressDetailView(selectedAddressIndex: $viewModel.selectedAddressIndex,
                                                       walletModel: cardModel.walletModels.first!)
-                                    
-                                    //                                Color.clear.frame(width: 1, height: 1, alignment: .center)
-                                    //                                    .sheet(isPresented: $navigation.mainToCreatePayID, content: {
-                                    //                                        CreatePayIdView(cardId: viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
-                                    //                                                        cardViewModel: viewModel.state.cardModel!)
-                                    //                                    })
+                                } else {
+                                    Text("main_unsupported_card")
+                                        .multilineTextAlignment(.center)
                                 }
                             }
                         }
@@ -69,20 +68,19 @@ struct MainView: View {
                 }
                 .frame(width: geometry.size.width)
             }
-            
-            .onReceive(viewModel.$isWithNdef, perform: { isWithNdef in
-                //                if isWithNdef {
-                //                    viewModel.scanCard()
-                //                }
-            })
-            .ignoresKeyboard()
-            TangemLongButton(isLoading: viewModel.isScanning,
-                             title: "Scan card",
-                             image: "scan") {
-                viewModel.scanCard()
+            .appStoreOverlay(isPresented: $viewModel.shouldShowGetFullApp) { () -> SKOverlay.Configuration in
+                SKOverlay.AppClipConfiguration(position: .bottom)
             }
-            .buttonStyle(TangemButtonStyle(color: .black))
-            .padding(.bottom, 18)
+            
+            if viewModel.state == .notScannedYet {
+                TangemVerticalButton(isLoading: viewModel.isScanning,
+                                     title: "main_button_read_wallets",
+                                     image: "scan") {
+                    viewModel.scanCard()
+                }
+                .buttonStyle(TangemButtonStyle(color: .black))
+                .padding(.bottom, 48)
+            }
         }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
     }
