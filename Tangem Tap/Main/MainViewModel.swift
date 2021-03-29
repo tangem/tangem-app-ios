@@ -196,7 +196,7 @@ class MainViewModel: ViewModel {
             .compactMap { $0.cardModel }
             .flatMap { $0.$state }
             .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange}) }
+            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange.debounce(for: 0.3, scheduler: DispatchQueue.main) }) }
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
@@ -216,23 +216,20 @@ class MainViewModel: ViewModel {
             .store(in: &bag)
         
         
-        if let loadingPublishers = cardModel?.walletModels?.map ({
-            $0.$state
-                .map{ $0.isLoading }
-                .filter { !$0 }
-        }) {
-            Publishers.MergeMany(loadingPublishers)
-                .collect(loadingPublishers.count)
-                .delay(for: 1, scheduler: DispatchQueue.global())
-                .receive(on: RunLoop.main)
-                .sink {[unowned self] _ in
-                    print("♻️ Wallet model loading state changed")
-                    withAnimation {
-                        self.isRefreshing = false
-                    }
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$state }
+            .compactMap { $0.walletModels }
+            .flatMap { Publishers.MergeMany($0.map { $0.$state.map{ $0.isLoading }.filter { !$0 } }).collect($0.count) }
+            .delay(for: 1, scheduler: DispatchQueue.global())
+            .receive(on: RunLoop.main)
+            .sink {[unowned self] _ in
+                print("♻️ Wallet model loading state changed")
+                withAnimation {
+                    self.isRefreshing = false
                 }
-                .store(in: &bag)
-        }
+            }
+            .store(in: &bag)
     
         $state
             .filter { $0.cardModel != nil }
