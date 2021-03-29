@@ -56,8 +56,9 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
 }
 
 extension TokenItemViewModel {
-    init(from balanceViewModel: BalanceViewModel, rate: String, fiatValue: Decimal, blockchain: Blockchain) {
-        hasTransactionInProgress = balanceViewModel.hasTransactionInProgress
+    init(from balanceViewModel: BalanceViewModel, rate: String, fiatValue: Decimal, blockchain: Blockchain,
+         hasTransactionInProgress: Bool) {
+        self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
         name = balanceViewModel.name
         if name == "" {
@@ -75,8 +76,9 @@ extension TokenItemViewModel {
          tokenBalanceViewModel: TokenBalanceViewModel,
          rate: String,
          fiatValue: Decimal,
-         blockchain: Blockchain) {
-        hasTransactionInProgress = balanceViewModel.hasTransactionInProgress
+         blockchain: Blockchain,
+         hasTransactionInProgress: Bool) {
+        self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
         name = tokenBalanceViewModel.name
         balance = tokenBalanceViewModel.balance
