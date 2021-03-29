@@ -29,11 +29,11 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     var incomingTransactions: [BlockchainSdk.Transaction] {
-        wallet?.incomingTransactions ?? []
+        wallet?.incomingTransactions.filter { $0.amount.type == amountType } ?? []
     }
     
     var outgoingTransactions: [BlockchainSdk.Transaction] {
-        wallet?.outgoingTransactions ?? []
+        wallet?.outgoingTransactions.filter { $0.amount.type == amountType } ?? []
     }
     
     var canTopup: Bool {
@@ -74,6 +74,19 @@ class TokenDetailsViewModel: ViewModel {
         } else {
             return walletModel.canRemove(amountType: amount.type)
         }
+    }
+    
+    var shouldShowTxNote: Bool {
+        guard let walletModel = walletModel else { return false }
+        
+        return walletModel.wallet.hasPendingTx && !walletModel.wallet.hasPendingTx(for: amountType)
+    }
+    
+    var txNoteMessage: String {
+        guard let walletModel = walletModel else { return "" }
+        
+        let name = walletModel.wallet.transactions.first?.amount.currencySymbol ?? ""
+        return String(format: "token_details_tx_note_message".localized, name)
     }
     
     var amountToSend: Amount? {
