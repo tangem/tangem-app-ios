@@ -54,13 +54,6 @@ class WalletModel: ObservableObject {
             .sink(receiveValue: {[unowned self] wallet in
                 print("wallet received")
                 self.updateBalanceViewModel(with: wallet, state: self.state)
-//                if wallet.hasPendingTx {
-//                    if self.updateTimer == nil {
-//                        self.startUpdatingTimer()
-//                    }
-//                } else {
-//                    self.updateTimer = nil
-//                }
             })
             .store(in: &bag)
     }
@@ -113,7 +106,6 @@ class WalletModel: ObservableObject {
     }
     
     func getFiatFormatted(for amount: Amount?) -> String? {
-//        return getFiat(for: amount)?.currencyFormatted(code: ratesService.selectedCurrencyCode)
         return getFiat(for: amount)?.currencyFormatted(code: selectedCurrencyCode)
     }
     
