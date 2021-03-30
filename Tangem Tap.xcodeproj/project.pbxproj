@@ -27,6 +27,10 @@
 		5D225CB92524B721001564A3 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
 		5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */; };
 		5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
+		5D2B59B52613285300F5FF3F /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D2B59B32613285300F5FF3F /* config_dev.json */; };
+		5D2B59B62613285300F5FF3F /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D2B59B42613285300F5FF3F /* config_prod.json */; };
+		5D2B59BA2613285E00F5FF3F /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D2B59B32613285300F5FF3F /* config_dev.json */; };
+		5D2B59BE2613286100F5FF3F /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D2B59B42613285300F5FF3F /* config_prod.json */; };
 		5D2C7DAC251378CA001B29D0 /* Pods_Tangem_Tap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13E2B49EFB622F929FD5C46A /* Pods_Tangem_Tap.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
 		5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8A24FD154C00C2C92C /* PayIDService.swift */; };
@@ -139,7 +143,6 @@
 		B0620D8525D11ADF00091A84 /* AddedManagedTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0620D8425D11ADF00091A84 /* AddedManagedTokenView.swift */; };
 		B0651737259CACD8001D966C /* WarningsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0651736259CACD8001D966C /* WarningsList.swift */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
-		B072A731257A119700C5029C /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
 		B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07AE16B25DD548A0045179A /* RateAppService.swift */; };
 		B080766425D11169006CF606 /* ManageTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080766325D11169006CF606 /* ManageTokensView.swift */; };
 		B080766C25D11173006CF606 /* ManageTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080766B25D11173006CF606 /* ManageTokensViewModel.swift */; };
@@ -163,9 +166,6 @@
 		B09BB883259A09CE00B92000 /* WarningEvent+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB882259A09CE00B92000 /* WarningEvent+.swift */; };
 		B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B09FC1B1257DFB6E009524D4 /* FeaturesConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */; };
-		B09FC1C0257DFB8E009524D4 /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
-		B09FC1C1257DFB8E009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
-		B09FC1C7257DFB92009524D4 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E1D170257DE4DF00A3AB98 /* config_prod.json */; };
 		B0A0A19125822EFF005FC94D /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A19025822EFF005FC94D /* Storage.swift */; };
 		B0A0A2DC25825E8A005FC94D /* TwinOnboardingBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A2DB25825E8A005FC94D /* TwinOnboardingBackground.swift */; };
 		B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2B3E825D6B5BD0001EEB4 /* TokenBalanceViewModel.swift */; };
@@ -245,6 +245,8 @@
 		5D225CB82524B721001564A3 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkLoggerConfiguration+.swift"; sourceTree = "<group>"; };
 		5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
+		5D2B59B32613285300F5FF3F /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_dev.json; path = "tangem-ios-config/config_dev.json"; sourceTree = SOURCE_ROOT; };
+		5D2B59B42613285300F5FF3F /* config_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_prod.json; path = "tangem-ios-config/config_prod.json"; sourceTree = SOURCE_ROOT; };
 		5D383E4024D95BA600C9BFF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D384B8A24FD154C00C2C92C /* PayIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayIDService.swift; sourceTree = "<group>"; };
 		5D384B9024FD4E1800C2C92C /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
@@ -357,7 +359,6 @@
 		B0620D8425D11ADF00091A84 /* AddedManagedTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedManagedTokenView.swift; sourceTree = "<group>"; };
 		B0651736259CACD8001D966C /* WarningsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsList.swift; sourceTree = "<group>"; };
 		B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsUtils.swift; sourceTree = "<group>"; };
-		B072A72E257A119700C5029C /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_dev.json; sourceTree = "<group>"; };
 		B07AE16B25DD548A0045179A /* RateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppService.swift; sourceTree = "<group>"; };
 		B080765E25D10667006CF606 /* erc20tokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = erc20tokens.json; sourceTree = "<group>"; };
 		B080766325D11169006CF606 /* ManageTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensView.swift; sourceTree = "<group>"; };
@@ -400,7 +401,6 @@
 		B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsCreateWalletTask.swift; sourceTree = "<group>"; };
 		B0D76D4425D4E4560073FA98 /* AddCustomTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenView.swift; sourceTree = "<group>"; };
 		B0D76D4C25D4E4610073FA98 /* AddCustomTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenViewModel.swift; sourceTree = "<group>"; };
-		B0E1D170257DE4DF00A3AB98 /* config_prod.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = config_prod.json; sourceTree = "<group>"; };
 		B0E1D174257DE75D00A3AB98 /* KeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysManager.swift; sourceTree = "<group>"; };
 		B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesConfigManager.swift; sourceTree = "<group>"; };
 		B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailType.swift; sourceTree = "<group>"; };
@@ -823,8 +823,8 @@
 		B018F3012591FED600D8F89A /* JsonSettings */ = {
 			isa = PBXGroup;
 			children = (
-				B072A72E257A119700C5029C /* config_dev.json */,
-				B0E1D170257DE4DF00A3AB98 /* config_prod.json */,
+				5D2B59B32613285300F5FF3F /* config_dev.json */,
+				5D2B59B42613285300F5FF3F /* config_prod.json */,
 				B0A359EC2589117200E25B34 /* features_dev.json */,
 				B0A359EA2589117200E25B34 /* features_firebase.json */,
 				B0A359EB2589117200E25B34 /* features_prod.json */,
@@ -1118,9 +1118,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0A359EF2589117200E25B34 /* features_dev.json in Resources */,
+				5D2B59B52613285300F5FF3F /* config_dev.json in Resources */,
 				5D225CB72524B592001564A3 /* GoogleService-Info.plist in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
-				B09FC1C7257DFB92009524D4 /* config_prod.json in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
@@ -1128,8 +1128,8 @@
 				5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
-				B072A731257A119700C5029C /* config_dev.json in Resources */,
 				5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
+				5D2B59B62613285300F5FF3F /* config_prod.json in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				B0CC817E25CD6281006D49B9 /* breadwallet_tokens.json in Resources */,
 				B08ACD9425D2E056007387BD /* erc20tokens.json in Resources */,
@@ -1144,12 +1144,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D9141E024D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
-				B09FC1C1257DFB8E009524D4 /* config_prod.json in Resources */,
+				5D2B59BA2613285E00F5FF3F /* config_dev.json in Resources */,
 				5D9141EC24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
-				B09FC1C0257DFB8E009524D4 /* config_dev.json in Resources */,
 				5D9141E324D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5D9141E624D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
 				5D9141E924D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
+				5D2B59BE2613286100F5FF3F /* config_prod.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
