@@ -11,11 +11,12 @@ import Foundation
 class TokenItemsRepository {
     lazy var supportedItems = SupportedTokenItems()
     
-    private(set) var items: [TokenItem] = []
+    private(set) var items: Set<TokenItem> = []
     private let persistanceStorage: PersistentStorage
     private var cardId: String = ""
     private var storageKey: PersistentStorageKey { .wallets(cid: cardId) }
-
+    private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
+    
     internal init(persistanceStorage: PersistentStorage) {
         self.persistanceStorage = persistanceStorage
     }
@@ -30,23 +31,38 @@ class TokenItemsRepository {
     }
     
     func append(_ tokenItem: TokenItem) {
-        items.append(tokenItem)
-        save()
+        lockQueue.sync {
+            if !items.contains(tokenItem) {
+                items.insert(tokenItem)
+            }
+            
+            save()
+        }
     }
     
     func append(_ tokenItems: [TokenItem]) {
-        self.items.append(contentsOf: tokenItems)
-        save()
+        lockQueue.sync {
+            for token in tokenItems {
+                if !items.contains(token) {
+                    items.insert(token)
+                }
+            }
+            save()
+        }
     }
     
     func remove(_ tokenItem: TokenItem) {
-        items.remove(tokenItem)
-        save()
+        lockQueue.sync {
+            items.remove(tokenItem)
+            save()
+        }
     }
     
     func removeAll() {
-        items = []
-        save()
+        lockQueue.sync {
+            items = []
+            save()
+        }
     }
     
     private func save() {
@@ -54,6 +70,8 @@ class TokenItemsRepository {
     }
     
     private func fetch() {
-        items = (try? persistanceStorage.value(for: storageKey)) ?? []
+        lockQueue.sync {
+            items = (try? persistanceStorage.value(for: storageKey)) ?? []
+        }
     }
 }
