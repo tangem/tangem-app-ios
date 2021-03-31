@@ -32,10 +32,7 @@ class TokenItemsRepository {
     
     func append(_ tokenItem: TokenItem) {
         lockQueue.sync {
-            if !items.contains(tokenItem) {
-                items.insert(tokenItem)
-            }
-            
+            items.insert(tokenItem)
             save()
         }
     }
@@ -43,9 +40,7 @@ class TokenItemsRepository {
     func append(_ tokenItems: [TokenItem]) {
         lockQueue.sync {
             for token in tokenItems {
-                if !items.contains(token) {
-                    items.insert(token)
-                }
+                items.insert(token)
             }
             save()
         }
