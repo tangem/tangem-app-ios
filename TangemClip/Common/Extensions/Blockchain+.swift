@@ -28,8 +28,8 @@ extension Blockchain: Identifiable {
             return "litecoin"
         case .rsk:
             return "rsk"
-//        case .tezos:
-//            return "tezos"
+        case .tezos:
+            return "tezos"
         case .xrp:
             return "xrp"
         default:
