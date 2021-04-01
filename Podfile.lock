@@ -180,7 +180,7 @@ DEPENDENCIES:
   - BinanceChain (from `https://bitbucket.org/tangem/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://bitbucket.org/tangem/bitcoincore.git`, tag `0.0.13`)
   - "BlockchainSdk (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, tag `build-85`)"
-  - "BlockchainSdkClips (from `git@bitbucket.org:tangem/blockchain-sdk-swift.git`, branch `BSS-93_App-Clips`)"
+  - BlockchainSdkClips (from `../blockchain-sdk-swift`)
   - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
@@ -240,8 +240,7 @@ EXTERNAL SOURCES:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
     :tag: build-85
   BlockchainSdkClips:
-    :branch: BSS-93_App-Clips
-    :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
+    :path: "../blockchain-sdk-swift"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
@@ -265,9 +264,6 @@ CHECKOUT OPTIONS:
   BlockchainSdk:
     :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
     :tag: build-85
-  BlockchainSdkClips:
-    :commit: 071adc415806f61ce81b13b57e4ab18e3fc2f9f6
-    :git: "git@bitbucket.org:tangem/blockchain-sdk-swift.git"
   HDWalletKit:
     :git: https://bitbucket.org/tangem/hdwallet.git
     :tag: 0.3.12
@@ -323,6 +319,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 50d9df7647246a597571c7cd423bafcf4df5649a
+PODFILE CHECKSUM: 2c7cdeda62c1484b91e8bc01d4e11d6875b02212
 
 COCOAPODS: 1.10.1
