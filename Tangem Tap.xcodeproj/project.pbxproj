@@ -171,6 +171,7 @@
 		B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */; };
 		B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */; };
 		B08ACD9425D2E056007387BD /* erc20tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B080765E25D10667006CF606 /* erc20tokens.json */; };
+		B09421452614BBA400827A48 /* SupportedBlockchains.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09421442614BBA400827A48 /* SupportedBlockchains.swift */; };
 		B09BB85E259A075600B92000 /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
 		B09BB85F259A075600B92000 /* TangemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB855259A075500B92000 /* TangemButton.swift */; };
 		B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB856259A075500B92000 /* ButtonStyles.swift */; };
@@ -461,6 +462,7 @@
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
 		B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensView.swift; sourceTree = "<group>"; };
 		B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensViewModel.swift; sourceTree = "<group>"; };
+		B09421442614BBA400827A48 /* SupportedBlockchains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedBlockchains.swift; sourceTree = "<group>"; };
 		B09BB854259A075500B92000 /* CircleActionButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleActionButton.swift; sourceTree = "<group>"; };
 		B09BB855259A075500B92000 /* TangemButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemButton.swift; sourceTree = "<group>"; };
 		B09BB856259A075500B92000 /* ButtonStyles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
@@ -1129,6 +1131,7 @@
 				B0B0FFDC2608ED22002B61CD /* Services */,
 				B0B0FFB42608EC09002B61CD /* CardsRepository.swift */,
 				B059414B260A135D00F90053 /* Assembly.swift */,
+				B09421442614BBA400827A48 /* SupportedBlockchains.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -1828,6 +1831,7 @@
 				B00BC594260B1A1200F0647D /* Blockchain+.swift in Sources */,
 				B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */,
 				B0D3600625F26C7400929564 /* SceneDelegate.swift in Sources */,
+				B09421452614BBA400827A48 /* SupportedBlockchains.swift in Sources */,
 				B00BC57F260B11A100F0647D /* AddressDetailsView.swift in Sources */,
 				B00BC54D260B0F7F00F0647D /* TokenItemViewModel.swift in Sources */,
 				B0B0FFB52608EC09002B61CD /* CardsRepository.swift in Sources */,
