@@ -52,7 +52,7 @@ class WalletModel: ObservableObject {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[unowned self] wallet in
-                print("wallet received")
+//                print("wallet received")
                 self.updateBalanceViewModel(with: wallet, state: self.state)
             })
             .store(in: &bag)
@@ -66,31 +66,36 @@ class WalletModel: ObservableObject {
         wallet.getExploreURL(for: wallet.addresses[index].value)
     }
     
-    func update() {
+    func update() -> AnyPublisher<WalletModel, Error>? {
         if case .loading = state {
-            return
+            return nil
         }
         
         state = .loading
-        walletManager.update { result in
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                
-                if case let .failure(error) = result {
-                    if case let .noAccount(noAccountMessage) = (error as? WalletError) {
-                        self.state = .noAccount(message: noAccountMessage)
-                    } else {
-                        self.state = .failed(error: error)
-                        Analytics.log(error: error)
-                    }
+        return Future { (promise) in
+            self.walletManager.update { result in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
                     
-                    self.updateBalanceViewModel(with: self.wallet, state: self.state)
-                } else {
-                    self.state = .idle
-                    self.loadRates()
+                    if case let .failure(error) = result {
+                        if case let .noAccount(noAccountMessage) = (error as? WalletError) {
+                            self.state = .noAccount(message: noAccountMessage)
+                        } else {
+                            self.state = .failed(error: error)
+                            Analytics.log(error: error)
+                        }
+                        
+                        self.updateBalanceViewModel(with: self.wallet, state: self.state)
+                        promise(.failure(error))
+                    } else {
+                        self.state = .idle
+                        self.loadRates()
+                        promise(.success((self)))
+                    }
                 }
             }
         }
+        .eraseToAnyPublisher()
     }
     
     func getRateFormatted(for amountType: Amount.AmountType) -> String {
@@ -147,6 +152,13 @@ class WalletModel: ObservableObject {
         return getFiatFormatted(for: wallet.amounts[type]) ?? ""
     }
     
+    private func updateTokensViewModels() {
+        tokenViewModels = walletManager.cardTokens.map {
+            let type = Amount.AmountType.token(value: $0)
+            return TokenBalanceViewModel(token: $0, balance: getBalance(for: type), fiatBalance: getFiatBalance(for: type))
+        }
+    }
+    
     private func updateTokenItemViewModels() {
         let blockchainItem = TokenItemViewModel(from: balanceViewModel,
                                                 rate: getRateFormatted(for: .coin),
@@ -174,6 +186,7 @@ class WalletModel: ObservableObject {
                                             secondaryBalance: "",
                                             secondaryFiatBalance: "",
                                             secondaryName: "")
+        updateTokensViewModels()
         updateTokenItemViewModels()
     }
     
