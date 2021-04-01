@@ -176,29 +176,29 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecOption()
     }
     
-    func loadPayIDInfo () {
-        guard featuresService?.canReceiveToPayId ?? false else {
-            return
-        }
-        
-        payIDService?
-            .loadPayIDInfo(for: cardInfo.card)
-            .subscribe(on: DispatchQueue.global())
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
-                    switch completion {
-                    case .failure(let error):
-                        print("payid load failed")
-                        Analytics.log(error: error)
-                        print(error.localizedDescription)
-                    case .finished:
-                        break
-                    }}){ [unowned self] status in
-                print("payid loaded")
-                self.payId = status
-            }
-            .store(in: &bag)
-    }
+//    func loadPayIDInfo () {
+//        guard featuresService?.canReceiveToPayId ?? false else {
+//            return
+//        }
+//
+//        payIDService?
+//            .loadPayIDInfo(for: cardInfo.card)
+//            .subscribe(on: DispatchQueue.global())
+//            .receive(on: DispatchQueue.main)
+//            .sink(receiveCompletion: { completion in
+//                    switch completion {
+//                    case .failure(let error):
+//                        print("payid load failed")
+//                        Analytics.log(error: error)
+//                        print(error.localizedDescription)
+//                    case .finished:
+//                        break
+//                    }}){ [unowned self] status in
+//                print("payid loaded")
+//                self.payId = status
+//            }
+//            .store(in: &bag)
+//    }
 
 //    func createPayID(_ payIDString: String, completion: @escaping (Result<Void, Error>) -> Void) { //todo: move to payidservice
 //        guard featuresService.canReceiveToPayId,
@@ -233,7 +233,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        loadPayIDInfo()
+        //loadPayIDInfo()
         state.walletModels?.forEach { $0.update() }
     }
     
