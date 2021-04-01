@@ -49,7 +49,7 @@ class MainViewModel: ObservableObject {
         guard let cardModel = cardModel else { return [] }
         
         return cardModel.walletModels
-            .flatMap ({ $0.tokenItemViewModels })
+            .flatMap { $0.tokenItemViewModels }
     }
     
     unowned var cardsRepository: CardsRepository
@@ -69,7 +69,7 @@ class MainViewModel: ObservableObject {
             .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange}) }
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
-                print("⚠️ Wallet model will change")
+//                print("⚠️ Wallet model will change")
                 withAnimation {
                     self.objectWillChange.send()
                 }
