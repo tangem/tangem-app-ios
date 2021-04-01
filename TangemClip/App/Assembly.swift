@@ -53,18 +53,6 @@ extension ServicesAssembly: CardsRepositoryDelegate {
     }
 }
 
-enum SupportedBlockchains {
-    
-    static func blockchains(from curve: EllipticCurve, testnet: Bool) -> [Blockchain] {
-        switch curve {
-        case .secp256k1:
-            return [.bitcoin(testnet: testnet), .ethereum(testnet: testnet)]
-        default:
-            return []
-        }
-    }
-}
-
 class Assembly {
 
     public let services: ServicesAssembly
