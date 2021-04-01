@@ -37,11 +37,17 @@ struct MainView: View {
                                 .padding(.vertical, 2)
                         } else {
                             if viewModel.isMultiWallet {
+//                                Text("Loading balances counter: \(viewModel.cardModel?.loadingBalancesCounter ?? -100500)")
                                 ForEach(viewModel.tokenItemViewModels) { item in
                                     TokensListItemView(item: item)
                                         .onTapGesture { }
                                 }
                                 .padding(.horizontal, 16)
+                                ActivityIndicatorView(isAnimating: viewModel.state.cardModel?.loadingBalancesCounter != 0, style: .medium, color: .tangemTapGrayDark6)
+                                    .padding(.vertical, 10)
+                                    .opacity((viewModel.state.cardModel?.loadingBalancesCounter ?? 0) > 0 ? 1 : 0)
+                                    .animation(.easeInOut)
+                                Color.clear.frame(width: 100, height: viewModel.shouldShowGetFullApp ? 170 : 20, alignment: .center)
                                 
                             } else {
                                 if let cardModel = viewModel.cardModel, cardModel.walletModels.count > 0 {

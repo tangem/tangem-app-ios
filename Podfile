@@ -48,8 +48,8 @@ target 'TangemClip' do
 #  pod 'TangemSdkClips', :path => '../card-sdk-swift'
   pod 'TangemSdkClips', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :branch => 'CSS-113-AppClips'
 #  pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-75'
-#  pod 'BlockchainSdkClips', :path => '../blockchain-sdk-swift'
-  pod 'BlockchainSdkClips', :git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :branch => 'BSS-93_App-Clips'
+  pod 'BlockchainSdkClips', :path => '../blockchain-sdk-swift'
+  #pod 'BlockchainSdkClips', :git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :branch => 'BSS-93_App-Clips'
 end
 
 pre_install do |installer|
