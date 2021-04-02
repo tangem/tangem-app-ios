@@ -30,47 +30,54 @@ struct MainView: View {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32)
                             .fixedSize(horizontal: false, vertical: true)
-                        if viewModel.state == .notScannedYet {
+                        switch viewModel.state {
+                        case .notScannedYet:
                             Text("main_hint")
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 2)
-                        } else {
-                            if viewModel.isMultiWallet {
-//                                Text("Loading balances counter: \(viewModel.cardModel?.loadingBalancesCounter ?? -100500)")
-                                ForEach(viewModel.tokenItemViewModels) { item in
-                                    TokensListItemView(item: item)
-                                        .onTapGesture { }
-                                }
-                                .padding(.horizontal, 16)
-                                ActivityIndicatorView(isAnimating: viewModel.state.cardModel?.loadingBalancesCounter != 0, style: .medium, color: .tangemTapGrayDark6)
-                                    .padding(.vertical, 10)
-                                    .opacity((viewModel.state.cardModel?.loadingBalancesCounter ?? 0) > 0 ? 1 : 0)
-                                    .animation(.easeInOut)
-                                Color.clear.frame(width: 100, height: viewModel.shouldShowGetFullApp ? 170 : 20, alignment: .center)
-                                
+                        case .card(let cardModel):
+                            if viewModel.isCardEmpty {
+                                ErrorView(title: "main_error_empty_card_title".localized, subtitle: "main_error_empty_card_subtitle".localized)
                             } else {
-                                if let cardModel = viewModel.cardModel, cardModel.walletModels.count > 0 {
-                                    if shouldShowBalanceView {
-                                        BalanceView(
-                                            balanceViewModel: cardModel.walletModels.first!.balanceViewModel,
-                                            tokenViewModels: cardModel.walletModels.first!.tokenViewModels
-                                        )
-                                        .padding(.horizontal, 16.0)
+                                if viewModel.isMultiWallet {
+//                                  Text("Loading balances counter: \(viewModel.cardModel?.loadingBalancesCounter ?? -100500)")
+                                    if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.count == 0 {
+                                        ErrorView(title: "main_error_empty_wallets_title".localized, subtitle: "main_error_empty_wallets_subtitle".localized)
+                                            .animation(.easeInOut)
                                     } else {
-                                        EmptyView()
+                                        ForEach(viewModel.tokenItemViewModels) { item in
+                                            TokensListItemView(item: item)
+                                                .onTapGesture { }
+                                        }
+                                        .padding(.horizontal, 16)
+                                        ActivityIndicatorView(isAnimating: cardModel.loadingBalancesCounter != 0, style: .medium, color: .tangemTapGrayDark6)
+                                            .padding(.vertical, 10)
+                                            .opacity(cardModel.loadingBalancesCounter > 0 ? 1 : 0)
+                                            .animation(.easeInOut)
+                                        Color.clear.frame(width: 100, height: viewModel.shouldShowGetFullApp ? 170 : 20, alignment: .center)
                                     }
-                                    
-                                    AddressDetailView(selectedAddressIndex: $viewModel.selectedAddressIndex,
-                                                      walletModel: cardModel.walletModels.first!)
                                 } else {
-                                    Text("main_unsupported_card")
-                                        .multilineTextAlignment(.center)
+                                    if cardModel.walletModels.count > 0 {
+                                        if shouldShowBalanceView {
+                                            BalanceView(
+                                                balanceViewModel: cardModel.walletModels.first!.balanceViewModel,
+                                                tokenViewModels: cardModel.walletModels.first!.tokenViewModels
+                                            )
+                                            .padding(.horizontal, 16.0)
+                                        } else {
+                                            EmptyView()
+                                        }
+                                        
+                                        AddressDetailView(selectedAddressIndex: $viewModel.selectedAddressIndex,
+                                                          walletModel: cardModel.walletModels.first!)
+                                    }
                                 }
                             }
+                        case .unsupported:
+                            ErrorView(title: "main_error_unsupported_card_title".localized, subtitle: "main_error_unsupported_card_subtitle".localized)
                         }
                     }
-                    
                 }
                 .frame(width: geometry.size.width)
             }
@@ -78,15 +85,15 @@ struct MainView: View {
                 SKOverlay.AppClipConfiguration(position: .bottom)
             }
             
-            if viewModel.state == .notScannedYet {
-                TangemVerticalButton(isLoading: viewModel.isScanning,
-                                     title: "main_button_read_wallets",
-                                     image: "scan") {
-                    viewModel.scanCard()
-                }
-                .buttonStyle(TangemButtonStyle(color: .black))
-                .padding(.bottom, 48)
+            //            if viewModel.state == .notScannedYet {
+            TangemVerticalButton(isLoading: viewModel.isScanning,
+                                 title: "main_button_read_wallets",
+                                 image: "scan") {
+                viewModel.scanCard()
             }
+            .buttonStyle(TangemButtonStyle(color: .black))
+            .padding(.bottom, 48)
+            //            }
         }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
     }
