@@ -45,13 +45,13 @@ class WalletConnectViewModel: ViewModel {
             }
             .store(in: &bag)
         
-//        walletConnectService.connected //todo: handle sesisons list
-//            .receive(on: DispatchQueue.main)
-//            .sink {[unowned self]  isConnected in
-//                self.isConnecting = false
-//                self.isConnected = isConnected
-//            }
-//            .store(in: &bag)
+        walletConnectService.connecting
+            .receive(on: DispatchQueue.main)
+            .sink {[unowned self] isConnecting in
+                self.isConnecting = isConnecting
+              //  self.isConnected = isConnected
+            }
+            .store(in: &bag)
         
         walletConnectService.error
             .receive(on: DispatchQueue.main)
@@ -68,7 +68,7 @@ class WalletConnectViewModel: ViewModel {
 //            self.isConnecting = true
 //            walletConnectService.disconnect()
 //        } else {
-//            navigation.walletConnectToQR = true
+            navigation.walletConnectToQR = true
 //        }
     }
 }
