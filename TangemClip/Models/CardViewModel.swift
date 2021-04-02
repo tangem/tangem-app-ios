@@ -30,7 +30,12 @@ class CardViewModel: ObservableObject {
         cardInfo.card.isMultiWallet
     }
     
-    @Published var walletModels: [WalletModel] = []
+    var isCardEmpty: Bool {
+        cardInfo.card.wallets.count == 0 ||
+            cardInfo.card.wallets.filter { $0.status != .empty }.count == 0
+    }
+    
+    @Published private(set) var walletModels: [WalletModel] = []
     
     private var erc20TokenWalletModel: WalletModel? {
         get {
