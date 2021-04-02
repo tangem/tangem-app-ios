@@ -36,6 +36,8 @@ class ServicesAssembly {
     lazy var walletConnectService: WalletConnectService = {
         let wc = WalletConnectService()
         wc.tangemSdk = tangemSdk
+        wc.walletManagerFactory = walletManagerFactory
+        wc.restore()
         return wc
     }()
     
@@ -82,14 +84,7 @@ extension ServicesAssembly: CardsRepositoryDelegate {
         featuresService.setupFeatures(for: cardInfo.card)
         warningsService.setupWarnings(for: cardInfo.card)
         tokenItemsRepository.setCard(cardInfo.card.cardId ?? "")
-        
-        if let cid = cardInfo.card.cardId,
-           let curve = cardInfo.card.curve, curve == .secp256k1,
-           let walletPublicKey = cardInfo.card.walletPublicKey {
-            walletConnectService.start(for: cid, walletPublicKey: walletPublicKey, isTestnet: cardInfo.card.isTestnet)
-        } else {
-            walletConnectService.stop()
-        }
+        walletConnectService.didScan(cardInfo.card)
         
         if !featuresService.linkedTerminal {
             tangemSdk.config.linkedTerminal = false
