@@ -87,7 +87,7 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
             throw unsupportedCardError
         }
         
-        try checkWallets(card)
+//        try checkWallets(card)
     }
     
     private func checkWallets(_ card: Card) throws {
