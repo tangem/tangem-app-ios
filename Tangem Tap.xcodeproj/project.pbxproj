@@ -160,6 +160,7 @@
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
 		B072A731257A119700C5029C /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = B072A72E257A119700C5029C /* config_dev.json */; };
 		B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07AE16B25DD548A0045179A /* RateAppService.swift */; };
+		B07FE4D12616F686000F0EF9 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* ErrorView.swift */; };
 		B080766425D11169006CF606 /* ManageTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080766325D11169006CF606 /* ManageTokensView.swift */; };
 		B080766C25D11173006CF606 /* ManageTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080766B25D11173006CF606 /* ManageTokensViewModel.swift */; };
 		B082944A260C6D3800014A18 /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
@@ -1836,6 +1837,7 @@
 				B00BC54D260B0F7F00F0647D /* TokenItemViewModel.swift in Sources */,
 				B0B0FFB52608EC09002B61CD /* CardsRepository.swift in Sources */,
 				B0D3600825F26C7400929564 /* MainView.swift in Sources */,
+				B07FE4D12616F686000F0EF9 /* ErrorView.swift in Sources */,
 				B0CA5A8625F7797B0078F42F /* RefreshableScrollView.swift in Sources */,
 				B0869069260A2D55005976CD /* ButtonStyles.swift in Sources */,
 				B0F735B325F7932500DD348F /* UserPrefsService.swift in Sources */,
