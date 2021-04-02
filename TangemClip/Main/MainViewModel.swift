@@ -40,6 +40,10 @@ class MainViewModel: ObservableObject {
         state.cardModel
     }
     
+    var isCardEmpty: Bool {
+        state.cardModel?.isCardEmpty ?? true
+    }
+    
     private var imageLoadingCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
     
