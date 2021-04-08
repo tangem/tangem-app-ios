@@ -80,13 +80,15 @@ class WalletModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
     
-    func update() {
+    func update(silent: Bool = false) {
         if case .loading = state {
             return
         }
         
-        state = .loading
-
+        if !silent {
+            state = .loading
+        }
+        
         walletManager.update { result in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -101,7 +103,9 @@ class WalletModel: ObservableObject, Identifiable {
                     
                     self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 } else {
-                    self.state = .idle
+                    if !silent {
+                        self.state = .idle
+                    }
                     self.loadRates()
                 }
             }
@@ -192,7 +196,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func canRemove(amountType: Amount.AmountType) -> Bool {
-        if let token = amountType.token, token == cardInfo.card.token {
+        if let token = amountType.token, token == cardInfo.card.defaultToken {
             return false
         }
         
