@@ -196,7 +196,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func canRemove(amountType: Amount.AmountType) -> Bool {
-        if let token = amountType.token, token == cardInfo.card.token {
+        if let token = amountType.token, token == cardInfo.card.defaultToken {
             return false
         }
         
