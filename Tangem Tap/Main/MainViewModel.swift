@@ -144,13 +144,13 @@ class MainViewModel: ViewModel {
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
             .sorted(by: { lhs, rhs in
-                if lhs.blockchain == cardModel.cardInfo.card.blockchain && rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                if lhs.blockchain == cardModel.cardInfo.card.defaultBlockchain && rhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
                     if lhs.amountType.isToken && rhs.amountType.isToken {
-                        if lhs.amountType.token == cardModel.cardInfo.card.token {
+                        if lhs.amountType.token == cardModel.cardInfo.card.defaultToken {
                             return true
                         }
 
-                        if rhs.amountType.token == cardModel.cardInfo.card.token {
+                        if rhs.amountType.token == cardModel.cardInfo.card.defaultToken {
                             return false
                         }
                     }
@@ -164,11 +164,11 @@ class MainViewModel: ViewModel {
                     }
                 }
 
-                if lhs.blockchain == cardModel.cardInfo.card.blockchain {
+                if lhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
                    return true
                 }
 
-                if rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                if rhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
                     return false
                 }
 
@@ -443,7 +443,7 @@ class MainViewModel: ViewModel {
 		}
         
         guard
-            let numberOfSignedHashes = card.walletSignedHashes,
+            let numberOfSignedHashes = card.wallets.first?.signedHashes, //[REDACTED_TODO_COMMENT]
             numberOfSignedHashes > 0
         else { return }
 		
