@@ -64,7 +64,7 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: WalletConnectView
     @Published var walletConnectToQR = false
-    
+
     deinit {
         print("NavigationCoordinator deinit")
     }
