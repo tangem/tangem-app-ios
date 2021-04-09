@@ -118,6 +118,14 @@ struct TokenDetailsView: View {
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+                    .filter {_ in !navigation.detailsToSend
+                        && !navigation.detailsToTopup
+                    }
+                    .delay(for: 0.5, scheduler: DispatchQueue.global())
+                    .receive(on: DispatchQueue.main)) { _ in
+            viewModel.walletModel?.update(silent: true)
+        }
     }
 }
 
