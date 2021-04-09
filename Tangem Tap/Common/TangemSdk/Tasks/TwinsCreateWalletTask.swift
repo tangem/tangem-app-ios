@@ -8,8 +8,13 @@
 
 import TangemSdk
 
+struct TwinsCreateWalletTaskResponse: JSONStringConvertible {
+    let createWalletResponse: CreateWalletResponse
+    let card: Card
+}
+
 class TwinsCreateWalletTask: CardSessionRunnable {
-	typealias CommandResponse = CreateWalletResponse
+	typealias CommandResponse = TwinsCreateWalletTaskResponse
 	
     var message: Message? { Message(header: "twin_process_preparing_card".localized) }
     
@@ -27,7 +32,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 		self.fileToWrite = fileToWrite
 	}
 	
-	func run(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
+	func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         session.viewDelegate.showAlertMessage("twin_process_preparing_card".localized)
 		if session.environment.card?.status == .empty {
             createWallet(in: session, completion: completion)
@@ -48,8 +53,8 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 //		}
 //	}
 	
-	private func eraseWallet(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
-		let erase = PurgeWalletCommand()
+	private func eraseWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+        let erase = PurgeWalletCommand(walletIndex: .index(TangemSdkConstants.oldCardDefaultWalletIndex))
 		erase.run(in: session) { (result) in
 			switch result {
 			case .success:
@@ -60,7 +65,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 		}
 	}
 	
-	private func createWallet(in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
+	private func createWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
 		let createWalletCommand = CreateWalletTask()
 		createWalletCommand.run(in: session) { (result) in
 			switch result {
@@ -68,7 +73,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 				if let fileToWrite = self.fileToWrite {
 					self.writePublicKeyFile(fileToWrite: fileToWrite, walletResponse: response, in: session, completion: completion)
 				} else {
-					completion(.success(response))
+                    self.scanCard(session: session, walletResponse: response, completion: completion)
 				}
 			case .failure(let error):
 				completion(.failure(error))
@@ -76,14 +81,14 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 		}
 	}
 	
-	private func writePublicKeyFile(fileToWrite: Data, walletResponse: CreateWalletResponse, in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
+	private func writePublicKeyFile(fileToWrite: Data, walletResponse: CreateWalletResponse, in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
 //		let writeFileCommand = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: fileToWrite))
         let task = WriteIssuerDataTask(pairPubKey: fileToWrite, keys: SignerUtils.signerKeys)
         session.viewDelegate.showAlertMessage("twin_process_creating_wallet".localized)
         task.run(in: session) { (response) in
             switch response {
             case .success:
-                completion(.success(walletResponse))
+                self.scanCard(session: session, walletResponse: walletResponse, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -97,5 +102,19 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 //			}
 //		}
 	}
+    
+    
+    private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
+        let scanTask = TapScanTask()
+        scanTask.run(in: session) { scanCompletion in
+            switch scanCompletion {
+            case .failure(let error):
+                completion(.failure(error))
+            case .success(let scanResponse):
+                completion(.success(TwinsCreateWalletTaskResponse(createWalletResponse: walletResponse,
+                                                                  card: scanResponse.card)))
+            }
+        }
+    }
 	
 }
