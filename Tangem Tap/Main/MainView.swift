@@ -323,6 +323,7 @@ struct MainView: View {
                         && !navigation.mainToTwinOnboarding
                         && !navigation.mainToTwinsWalletWarning
                         && !navigation.mainToAddTokens
+                        && !navigation.mainToTokenDetails
                     }
                     .delay(for: 0.5, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
