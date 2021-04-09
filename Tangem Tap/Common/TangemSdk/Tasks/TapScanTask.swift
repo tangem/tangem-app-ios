@@ -31,10 +31,10 @@ extension TapScanTaskResponse {
         
         var pairPublicKey: Data?
         let fullData = twinIssuerData
-        if let walletPubKey = card.walletPublicKey, fullData.count == 129 {
+        if let walletPubKey = card.wallets.first?.publicKey, fullData.count == 129 {
             let pairPubKey = fullData[0..<65]
             let signature = fullData[65..<fullData.count]
-            if Secp256k1Utils.vefify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
+            if Secp256k1Utils.verify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
                pairPublicKey = pairPubKey
             }
         }
@@ -61,9 +61,9 @@ final class TapScanTask: CardSessionRunnable {
         print("TapScanTask deinit")
     }
     
-    private unowned var validatedCardsService: ValidatedCardsService
+    private weak var validatedCardsService: ValidatedCardsService?
     
-    init(validatedCardsService: ValidatedCardsService) {
+    init(validatedCardsService: ValidatedCardsService? = nil) {
         self.validatedCardsService = validatedCardsService
     }
     
@@ -80,7 +80,7 @@ final class TapScanTask: CardSessionRunnable {
             return
         } catch { print(error) }
         
-        if validatedCardsService.isCardValidated(card) {
+        if validatedCardsService?.isCardValidated(card) ?? true {
             readTwinIssuerDataIfNeeded(card, session: session, completion: completion)
         } else {
             checkWallet(card, session: session, completion: completion)
@@ -112,18 +112,20 @@ final class TapScanTask: CardSessionRunnable {
     }
     
     private func checkWallet(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard let cardStatus = card.status, cardStatus == .loaded else {
+        guard let cardStatus = card.status, cardStatus == .loaded,
+              let major = card.firmwareVersion?.major, major < 4 else {
             self.verifyCard(card, session: session, completion: completion)
             return
         }
         
-        guard let curve = card.curve,
-            let publicKey = card.walletPublicKey else {
+        guard let cardWallet = card.wallets.first,
+              let curve = cardWallet.curve,
+              let publicKey = cardWallet.publicKey else {
                 completion(.failure(.cardError))
                 return
         }
         
-        CheckWalletCommand(curve: curve, publicKey: publicKey, walletIndex: nil).run(in: session) { checkWalletResult in
+        CheckWalletCommand(curve: curve, publicKey: publicKey).run(in: session) { checkWalletResult in
             switch checkWalletResult {
             case .success(_):
                 self.verifyCard(card, session: session, completion: completion)
@@ -137,7 +139,7 @@ final class TapScanTask: CardSessionRunnable {
         VerifyCardCommand().run(in: session) { verifyResult in
             switch verifyResult {
             case .success:
-                self.validatedCardsService.saveValidatedCard(card)
+                self.validatedCardsService?.saveValidatedCard(card)
                 
                 self.readTwinIssuerDataIfNeeded(card, session: session, completion: completion)
             case .failure(let error):
