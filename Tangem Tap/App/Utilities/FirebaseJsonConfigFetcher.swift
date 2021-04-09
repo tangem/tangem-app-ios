@@ -4,7 +4,7 @@
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2020 Tangem AG. All rights reserved.
-//
+
 
 import FirebaseRemoteConfig
 
@@ -14,11 +14,11 @@ enum FirebaseConfigKeys: String {
 }
 
 struct FirebaseJsonConfigFetcher {
-	
+
 	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, withKey key: FirebaseConfigKeys) -> T? {
 		fetch(from: config, type: type, withKey: key.rawValue)
 	}
-	
+
 	static func fetch<T: Decodable>(from config: RemoteConfig, type: T.Type, withKey key: String) -> T? {
 		var dataKey = key + "_"
 		#if DEBUG
@@ -37,5 +37,5 @@ struct FirebaseJsonConfigFetcher {
         }
 		
 	}
-	
+
 }
