@@ -13,6 +13,16 @@ import TangemSdk
 import BlockchainSdk
 import CryptoSwift
 
+protocol WalletConnectSessionChecker: class {
+    func containSession(for wallet: WalletInfo) -> Bool
+}
+
+protocol WalletConnectSessionController: class {
+    var sessions: [WalletConnectSession] { get }
+    func disconnectSession(at index: Int) -> Bool
+    func handle(url: String) -> Bool
+}
+
 class WalletConnectService: ObservableObject {
     weak var tangemSdk: TangemSdk!
     weak var walletManagerFactory: WalletManagerFactory!
@@ -20,7 +30,7 @@ class WalletConnectService: ObservableObject {
     var error: PassthroughSubject<Error, Never> = .init()
     var connecting: PassthroughSubject<Bool, Never> = .init()
     
-    @Published var sessions: [WalletConnectSession] = .init()
+    @Published private(set) var sessions: [WalletConnectSession] = .init()
     
     internal lazy var server: Server = {
         let server = Server(delegate: self)
@@ -77,6 +87,22 @@ class WalletConnectService: ObservableObject {
         if let sessionsData = try? JSONEncoder().encode(sessions) {
             UserDefaults.standard.set(sessionsData, forKey: sessionsKey)
         }
+    }
+}
+
+extension WalletConnectService: WalletConnectSessionChecker {
+    func containSession(for wallet: WalletInfo) -> Bool {
+        sessions.contains(where: { $0.wallet == wallet })
+    }
+}
+
+extension WalletConnectService: WalletConnectSessionController {
+    func disconnectSession(at index: Int) -> Bool {
+        guard index < sessions.count else { return true }
+        
+        let session = sessions[index]
+        try! server.disconnect(from: session.session)
+        return true
     }
 }
 
@@ -274,7 +300,7 @@ fileprivate extension Response {
     }
 }
 
-struct WalletInfo: Codable {
+struct WalletInfo: Codable, Equatable {
     let cid: String
     let walletPublicKey: Data
     let isTestnet: Bool
@@ -284,6 +310,12 @@ struct WalletInfo: Codable {
     }
     
     var chainId: Int { isTestnet ? 4 : 1 }
+    
+    internal init(cid: String, walletPublicKey: Data, isTestnet: Bool) {
+        self.cid = cid
+        self.walletPublicKey = walletPublicKey
+        self.isTestnet = isTestnet
+    }
 }
 
 struct WalletConnectSession: Codable {
