@@ -51,11 +51,52 @@ extension Card {
             return false
         }
         
-        if let curve = curve, curve == .ed25519 {
+        if let major = firmwareVersion?.major, major < 4,
+           !walletCurves.contains(.secp256k1) {
             return false
         }
         
         return true
+    }
+    
+    public var defaultBlockchain: Blockchain? {
+        guard let major = firmwareVersion?.major, major < 4 else {
+            return nil
+        }
+        
+        
+        if let name = cardData?.blockchainName,
+           let curve = walletCurves.first {
+            return Blockchain.from(blockchainName: name, curve: curve)
+        }
+        return nil
+    }
+    
+    public var isTestnet: Bool? {
+        guard let major = firmwareVersion?.major, major < 4 else {
+            return nil
+        }
+        
+        return defaultBlockchain?.isTestnet
+    }
+    
+    public var defaultToken: Token? {
+        guard let major = firmwareVersion?.major, major < 4 else {
+            return nil
+        }
+        
+        if let symbol = cardData?.tokenSymbol,
+           let contractAddress = cardData?.tokenContractAddress,
+           let decimal = cardData?.tokenDecimal {
+            return Token(symbol: symbol,
+                         contractAddress: contractAddress,
+                         decimalCount: decimal)
+        }
+        return nil
+    }
+    
+    public var walletCurves: [EllipticCurve] {
+        wallets.compactMap { $0.curve }
     }
 }
 
