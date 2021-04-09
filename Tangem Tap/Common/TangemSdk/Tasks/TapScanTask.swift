@@ -50,7 +50,9 @@ extension TapScanTaskResponse {
     }
 }
 
-final class TapScanTask: CardSessionRunnable {
+final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
+    var preflightReadSettings: PreflightReadSettings { .fullCardRead }
+    
     let excludeBatches = ["0027",
                           "0030",
                           "0031"] //tangem tags
