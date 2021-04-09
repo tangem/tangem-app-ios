@@ -109,11 +109,12 @@ extension WalletConnectService: WalletConnectSessionController {
 extension WalletConnectService: CardDelegate {
     func didScan(_ card: Card) {
         if let cid = card.cardId,
-           let curve = card.curve, curve == .secp256k1,
-           let walletPublicKey = card.walletPublicKey {
+           let wallet = card.wallets.first,
+           let curve = wallet.curve, curve == .secp256k1,
+           let walletPublicKey = wallet.publicKey {
             self.wallet = WalletInfo(cid: cid,
                                          walletPublicKey: walletPublicKey,
-                                         isTestnet: card.isTestnet)
+                                         isTestnet: card.isTestnet ?? false)
         } else {
             self.wallet = nil
         }
@@ -251,7 +252,7 @@ extension WalletConnectService: SignHandler {
     
         
         
-        tangemSdk.sign(hashes: [hash]) {result in
+        tangemSdk.sign(hashes: [hash], walletPublicKey: walletPublicKey) {result in
             switch result {
             case .success(let response):
                 if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response.signature,

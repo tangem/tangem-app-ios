@@ -157,7 +157,6 @@
 "wallet_add_tokens" = "Add Tokens";
 "wallet_remove_token" = "Remove token";
 
-
 // MARK: - Send
 
 "send_destination_hint" = "Address or PayString";
