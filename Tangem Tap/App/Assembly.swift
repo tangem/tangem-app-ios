@@ -37,7 +37,6 @@ class ServicesAssembly {
         let wc = WalletConnectService()
         wc.tangemSdk = tangemSdk
         wc.walletManagerFactory = walletManagerFactory
-        wc.restore()
         return wc
     }()
     
@@ -126,7 +125,7 @@ class Assembly: ObservableObject {
         return vm
     }
     
-    // MARK: Main view model
+    // MARK: - Main view model
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
             let restoredCid = restored.state.card?.cardId ?? ""
@@ -145,6 +144,8 @@ class Assembly: ObservableObject {
         vm.warningsManager = services.warningsService
         vm.state = services.cardsRepository.lastScanResult
         vm.rateAppController = services.rateAppService
+        vm.walletConnectSessionChecker = services.walletConnectService
+        vm.walletConnectUrlHandler = services.walletConnectService
 
         vm.negativeFeedbackDataCollector = services.negativeFeedbackDataCollector
         vm.failedCardScanTracker = services.failedCardScanTracker
@@ -275,7 +276,7 @@ class Assembly: ObservableObject {
         return vm
     }
     
-    // MARK: Details
+    // MARK: - Details
     
     func makeDetailsViewModel() -> DetailsViewModel {
         
@@ -411,6 +412,7 @@ class Assembly: ObservableObject {
         let vm = WalletConnectViewModel()
         initialize(vm)
         vm.walletConnectService = services.walletConnectService
+        vm.walletConnectController = services.walletConnectService
         return vm
     }
     
