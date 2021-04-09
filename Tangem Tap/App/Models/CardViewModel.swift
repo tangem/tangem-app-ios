@@ -38,6 +38,24 @@ class CardViewModel: Identifiable, ObservableObject {
         return walletModels?.map { $0.wallet }
     }
     
+    var walletConnectModels: [WalletInfo] {
+        guard
+            let cid = cardInfo.card.cardId,
+            let wallets = wallets
+        else { return [] }
+        
+        let infos: [WalletInfo] = wallets
+            .compactMap {
+                switch $0.blockchain {
+                case .ethereum(let testnet):
+                    return WalletInfo(cid: cid, walletPublicKey: Data(), isTestnet: testnet)
+                default:
+                    return nil
+                }
+            }
+        return infos
+    }
+    
     var isMultiWallet: Bool {
         return cardInfo.card.isMultiWallet
     }
