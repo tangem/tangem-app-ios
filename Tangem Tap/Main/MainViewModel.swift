@@ -24,6 +24,8 @@ class MainViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
     weak var failedCardScanTracker: FailedCardScanTracker!
+    weak var walletConnectSessionChecker: WalletConnectSessionChecker!
+    weak var walletConnectUrlHandler: URLHandler!
     
     // MARK: Variables
     
@@ -49,6 +51,7 @@ class MainViewModel: ViewModel {
         }
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
+    @Published var walletConnectCode = ""
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -136,6 +139,13 @@ class MainViewModel: ViewModel {
 	var isTwinCard: Bool {
 		cardModel?.isTwinCard ?? false
 	}
+    
+    var canUseWalletConnect: Bool {
+        guard let cardModel = cardModel else { return false }
+        
+        return cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false &&
+            cardModel.walletConnectModels.filter { walletConnectSessionChecker.containSession(for: $0) }.count == 0
+    }
     
     var tokenItemViewModels: [TokenItemViewModel] {
         guard let cardModel = cardModel,
@@ -288,6 +298,19 @@ class MainViewModel: ViewModel {
                 
             }
             .store(in: &bag)
+        
+        $walletConnectCode
+            .dropFirst()
+            .filter { !$0.isEmpty }
+            .sink(receiveValue: {
+                guard self.walletConnectUrlHandler.handle(url: $0) else {
+                    self.error = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
+                    return
+                }
+                
+                self.walletConnectCode = ""
+            })
+            .store(in: &bag)
     }
     
     // MARK: Scan
@@ -402,7 +425,7 @@ class MainViewModel: ViewModel {
         warningsManager.hideWarning(warning)
     }
     
-    func  onWalletTap(_ tokenItem: TokenItemViewModel) {
+    func onWalletTap(_ tokenItem: TokenItemViewModel) {
         selectedWallet = tokenItem
         assembly.reset()
         navigation.mainToTokenDetails = true
