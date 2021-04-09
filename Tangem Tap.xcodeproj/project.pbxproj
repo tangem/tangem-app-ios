@@ -23,7 +23,6 @@
 		5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D15F9E7258A522500392BA5 /* PickerView.swift */; };
 		5D17FB8925ED766500C98A7F /* ValidatedCardsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D17FB8825ED766500C98A7F /* ValidatedCardsService.swift */; };
 		5D1BCFB8259CDCCA00EDA274 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1BCFB7259CDCCA00EDA274 /* ContentView.swift */; };
-		5D225CB72524B592001564A3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D225CB62524B592001564A3 /* GoogleService-Info.plist */; };
 		5D225CB92524B721001564A3 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
 		5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */; };
 		5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
@@ -60,6 +59,10 @@
 		5D6C128225E13DE10010A0C5 /* TokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */; };
 		5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128625E144DF0010A0C5 /* AddTokensView.swift */; };
 		5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */; };
+		5D78D024261B83D700F98B18 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D78D023261B83D700F98B18 /* GoogleService-Info.plist */; };
+		5D78D113261DFB2C00F98B18 /* CreateWalletAndReadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D112261DFB2C00F98B18 /* CreateWalletAndReadTask.swift */; };
+		5D78D118261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D117261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift */; };
+		5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */; };
 		5D79D3152555ABE700650DD7 /* ImageLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D79D3142555ABE700650DD7 /* ImageLoaderService.swift */; };
 		5D7CA0FB2589F9A300B12C25 /* TopupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39514C2556CDDF002CC452 /* TopupService.swift */; };
 		5D80ED422550172A0008DEF0 /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED412550172A0008DEF0 /* UIApplication+.swift */; };
@@ -241,7 +244,6 @@
 		5D15F9E7258A522500392BA5 /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		5D17FB8825ED766500C98A7F /* ValidatedCardsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValidatedCardsService.swift; sourceTree = "<group>"; };
 		5D1BCFB7259CDCCA00EDA274 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		5D225CB62524B592001564A3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5D225CB82524B721001564A3 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkLoggerConfiguration+.swift"; sourceTree = "<group>"; };
 		5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
@@ -280,6 +282,10 @@
 		5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensListItemView.swift; sourceTree = "<group>"; };
 		5D6C128625E144DF0010A0C5 /* AddTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTokensView.swift; sourceTree = "<group>"; };
 		5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectView.swift; sourceTree = "<group>"; };
+		5D78D023261B83D700F98B18 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "tangem-ios-config/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		5D78D112261DFB2C00F98B18 /* CreateWalletAndReadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletAndReadTask.swift; sourceTree = "<group>"; };
+		5D78D117261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurgeWalletAndReadResponse.swift; sourceTree = "<group>"; };
+		5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateMultiWalletTask.swift; sourceTree = "<group>"; };
 		5D79D3142555ABE700650DD7 /* ImageLoaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoaderService.swift; sourceTree = "<group>"; };
 		5D80ED412550172A0008DEF0 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
 		5D80ED462550186A0008DEF0 /* VIew+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VIew+.swift"; sourceTree = "<group>"; };
@@ -536,7 +542,7 @@
 		5D3F77B924BF56D800E8695B = {
 			isa = PBXGroup;
 			children = (
-				5D225CB62524B592001564A3 /* GoogleService-Info.plist */,
+				5D78D023261B83D700F98B18 /* GoogleService-Info.plist */,
 				5D3F77C424BF56D800E8695B /* Tangem Tap */,
 				5D3F77DB24BF56DC00E8695B /* Tangem TapTests */,
 				5D3F77E624BF56DC00E8695B /* Tangem TapUITests */,
@@ -863,6 +869,9 @@
 				B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */,
 				B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */,
 				B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */,
+				5D78D112261DFB2C00F98B18 /* CreateWalletAndReadTask.swift */,
+				5D78D117261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift */,
+				5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */,
 			);
 			path = Tasks;
 			sourceTree = "<group>";
@@ -1119,7 +1128,6 @@
 			files = (
 				B0A359EF2589117200E25B34 /* features_dev.json in Resources */,
 				5D2B59B52613285300F5FF3F /* config_dev.json in Resources */,
-				5D225CB72524B592001564A3 /* GoogleService-Info.plist in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
@@ -1129,6 +1137,7 @@
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
 				5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
+				5D78D024261B83D700F98B18 /* GoogleService-Info.plist in Resources */,
 				5D2B59B62613285300F5FF3F /* config_prod.json in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				B0CC817E25CD6281006D49B9 /* breadwallet_tokens.json in Resources */,
@@ -1345,6 +1354,7 @@
 				5D9DCAE325517D450059799C /* Assembly.swift in Sources */,
 				5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */,
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
+				5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */,
 				B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* SendView.swift in Sources */,
 				5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */,
@@ -1401,9 +1411,11 @@
 				5D09382D25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift in Sources */,
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */,
+				5D78D113261DFB2C00F98B18 /* CreateWalletAndReadTask.swift in Sources */,
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
 				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
+				5D78D118261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
