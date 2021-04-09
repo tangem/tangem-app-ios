@@ -8,6 +8,7 @@
 
 import Foundation
 
-protocol URLHandler {
+protocol URLHandler: class {
     func handle(url: URL) -> Bool
+    func handle(url: String) -> Bool
 }

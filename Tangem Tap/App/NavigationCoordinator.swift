@@ -38,6 +38,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToTokenDetails = false
     @Published var mainToAddTokens: Bool = false
     @Published var mainToTroubleshootingScan = false
+    @Published var mainToWalletConnectQR: Bool = false
     
     // MARK: SendView
     @Published var sendToQR = false
