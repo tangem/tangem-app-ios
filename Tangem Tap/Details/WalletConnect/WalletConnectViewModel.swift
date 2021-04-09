@@ -12,6 +12,7 @@ class WalletConnectViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var walletConnectService: WalletConnectService!
+    weak var walletConnectController: WalletConnectSessionController!
     
     @Published var error: AlertBinder?
     @Published var isConnecting: Bool = false
