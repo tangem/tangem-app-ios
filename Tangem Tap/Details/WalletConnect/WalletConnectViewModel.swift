@@ -8,6 +8,8 @@
 
 import Foundation
 import Combine
+import SwiftUI
+
 class WalletConnectViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
@@ -63,13 +65,14 @@ class WalletConnectViewModel: ViewModel {
             .store(in: &bag)
     }
     
-    func onTap() {
-        //todo: pass concrete session
-//        if isConnected {
-//            self.isConnecting = true
-//            walletConnectService.disconnect()
-//        } else {
-            navigation.walletConnectToQR = true
-//        }
+    func disconnectSession(at index: Int) {
+        walletConnectService.disconnectSession(at: index)
+        withAnimation {
+            self.objectWillChange.send()
+        }
+    }
+    
+    func openNewSession() {
+        navigation.walletConnectToQR = true
     }
 }

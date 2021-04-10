@@ -12,6 +12,7 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 import CryptoSwift
+import SwiftUI
 
 protocol WalletConnectSessionChecker: class {
     func containSession(for wallet: WalletInfo) -> Bool
@@ -101,7 +102,14 @@ extension WalletConnectService: WalletConnectSessionController {
         guard index < sessions.count else { return true }
         
         let session = sessions[index]
-        try! server.disconnect(from: session.session)
+        do {
+            try server.disconnect(from: session.session)
+        } catch {
+            print(error)
+        }
+        
+        sessions.remove(at: index)
+        save()
         return true
     }
 }
@@ -301,7 +309,7 @@ fileprivate extension Response {
     }
 }
 
-struct WalletInfo: Codable, Equatable {
+struct WalletInfo: Codable, Hashable {
     let cid: String
     let walletPublicKey: Data
     let isTestnet: Bool
@@ -319,7 +327,14 @@ struct WalletInfo: Codable, Equatable {
     }
 }
 
-struct WalletConnectSession: Codable {
+struct WalletConnectSession: Codable, Hashable, Identifiable {
+    var id: String { session.dAppInfo.peerId + "\(wallet.hashValue)" }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(wallet.hashValue)
+        hasher.combine(session.dAppInfo.peerId)
+    }
+    
     let wallet: WalletInfo
     var session: Session
     var status: SessionStatus = .disconnected
