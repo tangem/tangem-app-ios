@@ -141,10 +141,7 @@ class MainViewModel: ViewModel {
 	}
     
     var canUseWalletConnect: Bool {
-        guard let cardModel = cardModel else { return false }
-        
-        return cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false &&
-            cardModel.walletConnectModels.filter { walletConnectSessionChecker.containSession(for: $0) }.count == 0
+        cardModel?.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false
     }
     
     var tokenItemViewModels: [TokenItemViewModel] {
