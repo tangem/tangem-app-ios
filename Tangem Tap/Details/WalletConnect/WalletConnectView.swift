@@ -35,12 +35,8 @@ struct WalletConnectView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(Text("wallet_connect_sessions_title"))
-        .navigationBarItems(trailing: Button(action: {
+        .navigationBarItems(trailing: NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
             viewModel.openNewSession()
-        }, label: {
-            Image(systemName: "plus")
-                .foregroundColor(.tangemTapBlue)
-                .frame(width: 44, height: 44)
         })
         .sheet(isPresented: $navigation.walletConnectToQR) {
             QRScanView(code: $viewModel.code)
