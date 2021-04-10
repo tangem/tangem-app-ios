@@ -14,13 +14,14 @@ import BlockchainSdk
 import CryptoSwift
 import SwiftUI
 
-protocol WalletConnectSessionChecker: class {
+protocol WalletConnectChecker: class {
+    var isServiceBusy: CurrentValueSubject<Bool, Never> { get }
     func containSession(for wallet: WalletInfo) -> Bool
 }
 
-protocol WalletConnectSessionController: class {
+protocol WalletConnectSessionController: WalletConnectChecker {
     var sessions: [WalletConnectSession] { get }
-    func disconnectSession(at index: Int) -> Bool
+    func disconnectSession(at index: Int)
     func handle(url: String) -> Bool
 }
 
@@ -28,8 +29,9 @@ class WalletConnectService: ObservableObject {
     weak var tangemSdk: TangemSdk!
     weak var walletManagerFactory: WalletManagerFactory!
     
+    var isServiceBusy: CurrentValueSubject<Bool, Never> = .init(false)
+    
     var error: PassthroughSubject<Error, Never> = .init()
-    var connecting: PassthroughSubject<Bool, Never> = .init()
     
     @Published private(set) var sessions: [WalletConnectSession] = .init()
     
@@ -74,10 +76,10 @@ class WalletConnectService: ObservableObject {
     
     private func connect(to url: WCURL) {
         do {
-            connecting.send(true)
+            isServiceBusy.send(true)
             try server.connect(to: url)
         } catch {
-            connecting.send(false)
+            isServiceBusy.send(false)
             self.error.send(error)
             print("Server did fail to connect")
             return
@@ -91,15 +93,15 @@ class WalletConnectService: ObservableObject {
     }
 }
 
-extension WalletConnectService: WalletConnectSessionChecker {
+extension WalletConnectService: WalletConnectChecker {
     func containSession(for wallet: WalletInfo) -> Bool {
         sessions.contains(where: { $0.wallet == wallet })
     }
 }
 
 extension WalletConnectService: WalletConnectSessionController {
-    func disconnectSession(at index: Int) -> Bool {
-        guard index < sessions.count else { return true }
+    func disconnectSession(at index: Int) {
+        guard index < sessions.count else { return }
         
         let session = sessions[index]
         do {
@@ -110,7 +112,6 @@ extension WalletConnectService: WalletConnectSessionController {
         
         sessions.remove(at: index)
         save()
-        return true
     }
 }
 
@@ -146,7 +147,7 @@ extension WalletConnectService: ServerDelegate {
     }
     
     func server(_ server: Server, didFailToConnect url: WCURL) {
-        connecting.send(false)
+        isServiceBusy.send(false)
         error.send(WalletConnectServiceError.failedToConnect)
     }
     
@@ -180,7 +181,7 @@ extension WalletConnectService: ServerDelegate {
                 save()
             }
         }
-        connecting.send(false)
+        isServiceBusy.send(false)
     }
     
     func server(_ server: Server, didDisconnect session: Session) {
@@ -306,52 +307,5 @@ fileprivate extension UIAlertController {
 fileprivate extension Response {
     static func signature(_ signature: String, for request: Request) -> Response {
         return try! Response(url: request.url, value: signature, id: request.id!)
-    }
-}
-
-struct WalletInfo: Codable, Hashable {
-    let cid: String
-    let walletPublicKey: Data
-    let isTestnet: Bool
-    
-    var address: String {
-        Blockchain.ethereum(testnet: isTestnet).makeAddresses(from: walletPublicKey, with: nil).first!.value
-    }
-    
-    var chainId: Int { isTestnet ? 4 : 1 }
-    
-    internal init(cid: String, walletPublicKey: Data, isTestnet: Bool) {
-        self.cid = cid
-        self.walletPublicKey = walletPublicKey
-        self.isTestnet = isTestnet
-    }
-}
-
-struct WalletConnectSession: Codable, Hashable, Identifiable {
-    var id: String { session.dAppInfo.peerId + "\(wallet.hashValue)" }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(wallet.hashValue)
-        hasher.combine(session.dAppInfo.peerId)
-    }
-    
-    let wallet: WalletInfo
-    var session: Session
-    var status: SessionStatus = .disconnected
-    
-    private enum CodingKeys: String, CodingKey {
-        case wallet, session
-    }
-}
-
-enum SessionStatus: Int, Codable {
-    case disconnected
-    case connecting
-    case connected
-}
-
-extension Session: Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.dAppInfo == rhs.dAppInfo && lhs.walletInfo == rhs.walletInfo
     }
 }
