@@ -338,6 +338,14 @@
 "custom_token_name_input_placeholder" = "ex. USD Coin";
 "custom_token_token_symbol_input_placeholder" = "ex. USDC";
 
+// MARK: - Wallet connect
+
+"wallet_connect" = "Wallet Connect";
+"wallet_connect_sessions_title" = "Wallet Connect Sessions";
+"wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
+"wallet_connect_no_sessions_message" = "No opened Wallet Connect sessions";
+
+
 // MARK: - Alert
 
 "alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
@@ -465,7 +473,6 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 
 // MARK: - Other
 
-"wallet_connect" = "Wallet Connect";
 "mail_error_no_accounts_title" = "No Mail accounts";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 
