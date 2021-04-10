@@ -50,7 +50,7 @@ extension TapScanTaskResponse {
     }
 }
 
-final class TapScanTask: CardSessionRunnable {
+final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
     let excludeBatches = ["0027",
                           "0030",
                           "0031"] //tangem tags
@@ -60,6 +60,8 @@ final class TapScanTask: CardSessionRunnable {
     deinit {
         print("TapScanTask deinit")
     }
+    
+    var preflightReadSettings: PreflightReadSettings { .fullCardRead }
     
     private weak var validatedCardsService: ValidatedCardsService?
     

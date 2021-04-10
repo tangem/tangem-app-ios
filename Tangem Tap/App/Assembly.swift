@@ -504,16 +504,19 @@ extension Assembly {
         let assembly = Assembly()
         
         // Twin card
-        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
+//        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
         
         // Bitcoin old test card
-        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
+//        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
         
         // ETH pigeon card
-        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
+//        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
+        
+        // V4 card
+        let v4Card = scanResult(for: Card.v4Card, assembly: assembly)
         
         // Which card data should be displayed in preview?
-        assembly.services.cardsRepository.lastScanResult = ethCardScan
+        assembly.services.cardsRepository.lastScanResult = v4Card
         return assembly
     }()
     
