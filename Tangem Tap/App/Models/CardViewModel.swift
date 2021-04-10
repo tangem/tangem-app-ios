@@ -48,7 +48,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .compactMap {
                 switch $0.blockchain {
                 case .ethereum(let testnet):
-                    return WalletInfo(cid: cid, walletPublicKey: Data(), isTestnet: testnet)
+                    return WalletInfo(cid: cid, walletPublicKey: $0.publicKey, isTestnet: testnet)
                 default:
                     return nil
                 }
