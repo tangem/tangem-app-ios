@@ -374,7 +374,7 @@ struct MainView: View {
                         }
                 } else {
                     if viewModel.canUseWalletConnect {
-                        TangemLongButton(isLoading: false, title: "wallet_connect") {
+                        TangemLongButton(isLoading: viewModel.walletConnectSessionChecker.isServiceBusy.value, title: "wallet_connect") {
                             self.navigation.mainToWalletConnectQR = true
                         }
                         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
@@ -396,7 +396,7 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
                 .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
         }
-        .previewGroup(devices: [.iPhone8Plus])
+        .previewGroup(devices: [.iPhone12Pro])
         .navigationViewStyle(StackNavigationViewStyle())
         .environment(\.locale, .init(identifier: "en"))
     }
