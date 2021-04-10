@@ -24,7 +24,7 @@ class MainViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
     weak var failedCardScanTracker: FailedCardScanTracker!
-    weak var walletConnectSessionChecker: WalletConnectSessionChecker!
+    weak var walletConnectSessionChecker: WalletConnectChecker!
     weak var walletConnectUrlHandler: URLHandler!
     
     // MARK: Variables
