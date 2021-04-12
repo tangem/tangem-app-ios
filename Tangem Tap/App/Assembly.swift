@@ -162,37 +162,19 @@ class Assembly: ObservableObject {
         return vm
     }
     
-    func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
-        //[REDACTED_TODO_COMMENT]
-        guard let walletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey,
-              let cid = cardInfo.card.cardId else {
-            return []
-        }
-        
-        let walletManagers = services.walletManagerFactory.makeWalletManagers(from: cid,
-                                                                              walletPublicKey: walletPublicKey,
-                                                                              blockchains: blockchains)
-        let models = walletManagers.map { manager -> WalletModel in
-            let model = WalletModel(cardInfo: cardInfo, walletManager: manager)
-            model.tokenItemsRepository = services.tokenItemsRepository
-            model.ratesService = services.ratesService
-            return model
-        }
-        return models
+    ///Make wallets for blockchains
+    func makeWallets(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
+        let walletManagers = makeWalletManagers(from: cardInfo, blockchains: blockchains)
+        return makeWalletModels(from: cardInfo, walletManagers: walletManagers)
     }
     
-    func makeWalletModel(from cardInfo: CardInfo) -> [WalletModel] {
-        return makeWallets(from: cardInfo).map {
-            let model = WalletModel(cardInfo: cardInfo, walletManager: $0)
-            model.tokenItemsRepository = services.tokenItemsRepository
-            model.ratesService = services.ratesService
-            return model
-        }
-    }
-    
-    private func makeWallets(from cardInfo: CardInfo) -> [WalletManager] {
+    ///Load all possible wallets for card
+    func loadWallets(from cardInfo: CardInfo) -> [WalletModel] {
         guard let cid = cardInfo.card.cardId else { return [] }
         
+        var walletManagers: [WalletManager] = .init()
+        
+        //If this card is Twin, return twinWallet
         if cardInfo.card.isTwinCard,
            let savedPairKey = cardInfo.twinCardInfo?.pairPublicKey,
            let publicKey = cardInfo.card.wallets.first?.publicKey,
@@ -200,65 +182,79 @@ class Assembly: ObservableObject {
                                                                                        walletPublicKey: publicKey,
                                                                                        pairKey: savedPairKey,
                                                                                        isTestnet: false) {  //[REDACTED_TODO_COMMENT]
-            return [twinWalletManager]
-        }
-
-
-        if cardInfo.card.isMultiWallet && services.tokenItemsRepository.items.count > 0 {
-            return makeMultiwallet(from: cardInfo.card)
-        }
-        
-        if let nativeWalletManager = makeNativeWalletManager(from: cardInfo.card) {
-            return [nativeWalletManager]
-        }
-        
-        return []
-    }
-    
-    private func makeNativeWalletManager(from card: Card) -> WalletManager? {
-        if let cid = card.cardId,
-           let defaultBlockchain = card.defaultBlockchain,
-           let publicKey = card.wallets.first?.publicKey {
-            if let cardWalletManager = services.walletManagerFactory.makeWalletManager(from: cid,
-                                                                                       walletPublicKey: publicKey,
-                                                                                       blockchain: defaultBlockchain) {
-                if let defaultToken = card.defaultToken {
-                    _ = cardWalletManager.addToken(defaultToken)
+            walletManagers.append(twinWalletManager)
+        } else {
+            //If this card supports multiwallet feature, load all saved tokens from persistent storage
+            if cardInfo.card.isMultiWallet && services.tokenItemsRepository.items.count > 0 {
+                //Load erc20 tokens if exists
+                let erc20Tokens = services.tokenItemsRepository.items.compactMap { $0.token }
+                if !erc20Tokens.isEmpty {
+                    if let secpWalletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey,
+                       let ethereumWalletManager = services.walletManagerFactory.makeEthereumWalletManager(from: cid,
+                                                                                                           walletPublicKey: secpWalletPublicKey,
+                                                                                                           erc20Tokens: erc20Tokens,
+                                                                                                           isTestnet: false) { //[REDACTED_TODO_COMMENT]
+                        walletManagers.append(ethereumWalletManager)
+                    }
                 }
                 
-                return cardWalletManager
+                //Load blockchains if exists
+                let existingBlockchains = walletManagers.map { $0.wallet.blockchain }
+                let additionalBlockchains = services.tokenItemsRepository.items
+                    .compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
+                let additionalWalletManagers = makeWalletManagers(from: cardInfo, blockchains: additionalBlockchains)
+                walletManagers.append(contentsOf: additionalWalletManagers)
             }
+            
+            //Try found default card wallet
+            if let nativeWalletManager = makeNativeWalletManager(from: cardInfo) {
+                walletManagers.append(nativeWalletManager)
+            }
+        }
+        return makeWalletModels(from: cardInfo, walletManagers: walletManagers)
+    }
+    
+    //Make walletModel from walletManager
+    private func makeWalletModels(from cardInfo: CardInfo, walletManagers: [WalletManager]) -> [WalletModel] {
+        return walletManagers.map { manager -> WalletModel in
+            let model = WalletModel(cardInfo: cardInfo, walletManager: manager)
+            model.tokenItemsRepository = services.tokenItemsRepository
+            model.ratesService = services.ratesService
+            return model
+        }
+    }
+        
+    /// Try to load native walletmanager from card
+    private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
+        if let defaultBlockchain = cardInfo.card.defaultBlockchain,
+           let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
+            
+            if let defaultToken = cardInfo.card.defaultToken {
+                _ = cardWalletManager.addToken(defaultToken)
+            }
+            
+            return cardWalletManager
+            
         }
         
         return nil
     }
     
-    private func makeMultiwallet(from card: Card) -> [WalletManager] {
-        guard let cid = card.cardId else { return [] }
+    ///Try to make WalletManagers for blockchains with suitable wallet
+    private func makeWalletManagers(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletManager] {
+        guard let cid = cardInfo.card.cardId else { return [] }
         
-        var walletManagers: [WalletManager] = .init()
+        var walletManagers = [WalletManager]()
         
-        let erc20Tokens = services.tokenItemsRepository.items.compactMap { $0.token }
-        if !erc20Tokens.isEmpty {
-            if let secpWalletPublicKey = card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey,
-               let ethereumWalletManager = services.walletManagerFactory.makeEthereumWalletManager(from: cid,
-                                                                                                   walletPublicKey: secpWalletPublicKey,
-                                                                                                   erc20Tokens: erc20Tokens,
-                                                                                                   isTestnet: false) { //[REDACTED_TODO_COMMENT]
-                walletManagers.append(ethereumWalletManager)
+        for blockchain in blockchains {
+            if let walletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
+               let wm = services.walletManagerFactory.makeWalletManager(from: cid,
+                                                                        walletPublicKey: walletPublicKey,
+                                                                        blockchain: blockchain) {
+                walletManagers.append(wm)
             }
         }
         
-        if let nativeWalletManager = makeNativeWalletManager(from: card) {
-            walletManagers.append(nativeWalletManager)
-        }
-        
-        if let secpWalletPublicKey = card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey {
-            let existingBlockchains = walletManagers.map { $0.wallet.blockchain }
-            let additionalBlockchains = services.tokenItemsRepository.items.compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
-            let additionalWalletManagers = services.walletManagerFactory.makeWalletManagers(from: cid, walletPublicKey: secpWalletPublicKey, blockchains: additionalBlockchains)
-            walletManagers.append(contentsOf: additionalWalletManagers)
-        }
         return walletManagers
     }
     
