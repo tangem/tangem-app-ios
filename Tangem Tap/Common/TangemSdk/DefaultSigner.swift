@@ -13,6 +13,7 @@ import Combine
 
 public class DefaultSigner: TransactionSigner {
     public var initialMessage: Message? = nil
+    weak var delegate: SignerDelegate? = nil
     
     private let tangemSdk: TangemSdk
     
@@ -23,10 +24,12 @@ public class DefaultSigner: TransactionSigner {
     
     public func sign(hashes: [Data], cardId: String, walletPublicKey: Data) -> AnyPublisher<[Data], Error> {
         let future = Future<[Data], Error> {[unowned self] promise in
-            self.tangemSdk.sign(hashes: hashes, walletPublicKey: walletPublicKey, cardId: cardId, initialMessage: self.initialMessage) { signResult in
+            let signCommand = SignCommand(hashes: hashes, walletIndex: .publicKey(walletPublicKey))
+            self.tangemSdk.startSession(with: signCommand, cardId: cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
-                    promise(.success(response))
+                    self.delegate?.onSign(response)
+                    promise(.success(response.signatures))
                 case .failure(let error):
                     promise(.failure(error))
                 }
@@ -37,10 +40,12 @@ public class DefaultSigner: TransactionSigner {
     
     public func sign(hash: Data, cardId: String, walletPublicKey: Data) -> AnyPublisher<Data, Error> {
         let future = Future<Data, Error> {[unowned self] promise in
-            self.tangemSdk.sign(hash: hash, walletPublicKey: walletPublicKey, cardId: cardId, initialMessage: self.initialMessage) { signResult in
+            let signCommand = SignCommand(hashes: [hash], walletIndex: .publicKey(walletPublicKey))
+            self.tangemSdk.startSession(with: signCommand, cardId: cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
-                    promise(.success(response))
+                    self.delegate?.onSign(response)
+                    promise(.success(response.signatures[0]))
                 case .failure(let error):
                     promise(.failure(error))
                 }
@@ -48,4 +53,8 @@ public class DefaultSigner: TransactionSigner {
         }
         return AnyPublisher(future)
     }
+}
+
+protocol SignerDelegate: AnyObject {
+    func onSign(_ signResponse: SignResponse)
 }
