@@ -173,7 +173,8 @@ struct MainView: View {
                 
                 NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                              closeUrl: viewModel.topupCloseUrl,
-                                                             title: "wallet_button_topup")
+                                                             title: "wallet_button_topup",
+                                                             addLoadingIndicator: true)
                                 .onDisappear { viewModel.state.cardModel?.update() },
                                isActive: $navigation.mainToTopup)
                 
