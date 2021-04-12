@@ -69,6 +69,9 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
         self.validatedCardsService = validatedCardsService
     }
     
+    
+    /// read -> verify -> checkwallet -> appendWallets(createwallets + scan) -> readTwinData or
+    /// read -> appendWallets(createwallets+ scan)  -> readTwinData
     public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         guard let card = session.environment.card else {
             completion(.failure(.cardError))
@@ -85,7 +88,7 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
         if validatedCardsService?.isCardValidated(card) ?? true {
             appendWalletsIfNeeded(card, session: session, completion: completion)
         } else {
-            checkWallet(card, session: session, completion: completion)
+            verifyCard(card, session: session, completion: completion)
         }
     }
     
@@ -168,7 +171,7 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
     private func checkWallet(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         guard let cardStatus = card.status, cardStatus == .loaded,
               let major = card.firmwareVersion?.major, major < 4 else {
-            self.verifyCard(card, session: session, completion: completion)
+            self.appendWalletsIfNeeded(card, session: session, completion: completion)
             return
         }
         
@@ -182,7 +185,7 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
         CheckWalletCommand(curve: curve, publicKey: publicKey).run(in: session) { checkWalletResult in
             switch checkWalletResult {
             case .success(_):
-                self.verifyCard(card, session: session, completion: completion)
+                self.appendWalletsIfNeeded(card, session: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -195,7 +198,7 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
             case .success:
                 self.validatedCardsService?.saveValidatedCard(card)
                 
-                self.appendWalletsIfNeeded(card, session: session, completion: completion)
+                self.checkWallet(card, session: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
