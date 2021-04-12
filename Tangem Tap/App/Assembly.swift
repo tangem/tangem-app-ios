@@ -276,6 +276,7 @@ class Assembly: ObservableObject {
         vm.warningsConfigurator = services.warningsService
         vm.warningsAppendor = services.warningsService
         vm.tokenItemsRepository = services.tokenItemsRepository
+        vm.userPrefsService = services.userPrefsService
         //[REDACTED_TODO_COMMENT]
 //        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
 //            vm.payIDService = payIdService
