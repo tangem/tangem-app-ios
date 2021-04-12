@@ -323,8 +323,8 @@ class CardViewModel: Identifiable, ObservableObject {
                                initialMessage: Message(header: nil,
                                                        body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
             switch result {
-            case .success(let response):
-                self.update(with: response.card)
+            case .success(let card):
+                self.update(with: card)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.log(error: error)
