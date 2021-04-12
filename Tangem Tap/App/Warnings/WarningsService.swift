@@ -44,6 +44,7 @@ class WarningsService {
         let container = WarningsContainer()
         
         addDevCardWarningIfNeeded(in: container, for: card)
+        addLowRemainingSignaturesWarningIfNeeded(in: container, for: card)
         addOldCardWarning(in: container, for: card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
         if rateAppChecker.shouldShowRateAppWarning {
@@ -106,6 +107,13 @@ class WarningsService {
         }
         
         container.add(WarningsList.oldDeviceOldCard)
+    }
+    
+    private func addLowRemainingSignaturesWarningIfNeeded(in container: WarningsContainer, for card: Card) {
+        if let remainingSignatures = card.wallets.first?.remainingSignatures,
+           remainingSignatures <= 10 {
+            container.add(WarningsList.lowSignatures(count: remainingSignatures))
+        }
     }
     
 }
