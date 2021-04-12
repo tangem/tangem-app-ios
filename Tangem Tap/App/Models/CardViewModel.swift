@@ -100,6 +100,10 @@ class CardViewModel: Identifiable, ObservableObject {
             return false
         }
         
+        if cardInfo.card.settingsMask?.contains(.isReusable) ?? false {
+            return false
+        }
+        
         if let walletModels = state.walletModels {
             if walletModels.contains(where: { !$0.canCreateOrPurgeWallet }) {
                 return false
