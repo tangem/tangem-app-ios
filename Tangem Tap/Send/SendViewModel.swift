@@ -609,10 +609,7 @@ class SendViewModel: ViewModel {
                     callback()
                 }
                 
-            }, receiveValue: { _ in
-                //[REDACTED_TODO_COMMENT]
-              //  self.cardViewModel.onSign(signResponse)
-            })
+            }, receiveValue: { _ in  })
             .store(in: &bag)
     }
     
