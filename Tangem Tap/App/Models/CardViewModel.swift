@@ -323,8 +323,8 @@ class CardViewModel: Identifiable, ObservableObject {
                                initialMessage: Message(header: nil,
                                                        body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
             switch result {
-            case .success(let response):
-                self.update(with: response.card)
+            case .success(let card):
+                self.update(with: card)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.log(error: error)
@@ -363,7 +363,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        tangemSdk.getCardInfo(cardId: cardInfo.card.cardId ?? "", cardPublicKey: cardInfo.card.cardPublicKey ?? Data()) {[weak self] result in
+        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey ?? Data(), cardId: cardInfo.card.cardId ?? "") {[weak self] result in
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else { return }
@@ -392,12 +392,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func updateState() {
-        let models = self.assembly.makeWalletModel(from: cardInfo)
-        
-        if models.isEmpty {
+        let hasWallets = cardInfo.card.wallets.filter { $0.status == .loaded }.count > 0
+        if !hasWallets {
             self.state = .empty
         } else {
-            self.state = .loaded(walletModel: models)
+            self.state = .loaded(walletModel: self.assembly.loadWallets(from: cardInfo))
             searchTokens()
             update()
         }
@@ -430,8 +429,8 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let unusedBlockhains = tokenItemsRepository.supportedItems.blockchains.subtracting(currentBlockhains).map { $0 }
-        let models = assembly.makeWalletModels(from: cardInfo, blockchains: unusedBlockhains)
+        let unusedBlockhains = tokenItemsRepository.supportedItems.blockchains(for: cardInfo.card).subtracting(currentBlockhains).map { $0 }
+        let models = assembly.makeWallets(from: cardInfo, blockchains: unusedBlockhains)
         if models.isEmpty {
             return
         }
@@ -461,7 +460,7 @@ class CardViewModel: Identifiable, ObservableObject {
         if ethWalletModel == nil {
             sholdAddWalletManager = true
             let isTestnet = cardInfo.card.isTestnet ?? false
-            ethWalletModel = assembly.makeWalletModels(from: cardInfo, blockchains: [.ethereum(testnet: isTestnet)]).first!
+            ethWalletModel = assembly.makeWallets(from: cardInfo, blockchains: [.ethereum(testnet: isTestnet)]).first!
         }
         
         (ethWalletModel!.walletManager as! TokenFinder).findErc20Tokens() {[weak self] result in
@@ -504,7 +503,7 @@ class CardViewModel: Identifiable, ObservableObject {
   
     func addBlockchain(_ blockchain: Blockchain) {
         tokenItemsRepository.append(.blockchain(blockchain))
-        let newWalletModels = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain])
+        let newWalletModels = assembly.makeWallets(from: cardInfo, blockchains: [blockchain])
         newWalletModels.forEach {$0.update()}
         updateLoadedState(with: newWalletModels)
     }
