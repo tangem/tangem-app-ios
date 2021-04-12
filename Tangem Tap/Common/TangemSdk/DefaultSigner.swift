@@ -21,9 +21,23 @@ public class DefaultSigner: TransactionSigner {
         self.tangemSdk = tangemSdk
     }
     
-    public func sign(hashes: [Data], cardId: String, walletPublicKey: Data) -> AnyPublisher<SignResponse, Error> {
-        let future = Future<SignResponse, Error> {[unowned self] promise in
-            self.tangemSdk.sign(hashes: hashes, cardId: cardId, walletPublicKey: walletPublicKey, initialMessage: self.initialMessage) { signResult in
+    public func sign(hashes: [Data], cardId: String, walletPublicKey: Data) -> AnyPublisher<[Data], Error> {
+        let future = Future<[Data], Error> {[unowned self] promise in
+            self.tangemSdk.sign(hashes: hashes, walletPublicKey: walletPublicKey, cardId: cardId, initialMessage: self.initialMessage) { signResult in
+                switch signResult {
+                case .success(let response):
+                    promise(.success(response))
+                case .failure(let error):
+                    promise(.failure(error))
+                }
+            }
+        }
+        return AnyPublisher(future)
+    }
+    
+    public func sign(hash: Data, cardId: String, walletPublicKey: Data) -> AnyPublisher<Data, Error> {
+        let future = Future<Data, Error> {[unowned self] promise in
+            self.tangemSdk.sign(hash: hash, walletPublicKey: walletPublicKey, cardId: cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
                     promise(.success(response))
