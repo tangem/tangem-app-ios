@@ -246,8 +246,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func onSign(_ signResponse: SignResponse) {
-        // cardInfo.card.walletSignedHashes = signResponse.walletSignedHashes
-        //[REDACTED_TODO_COMMENT]
+        if let fw = cardInfo.card.firmwareVersion, fw < FirmwareConstraints.AvailabilityVersions.walletData,
+           var wallet = cardInfo.card.wallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex)) {
+            wallet.remainingSignatures = signResponse.walletRemainingSignatures
+            cardInfo.card.updateWallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex), with: wallet)
+            updateModel()
+        }
     }
     
     // MARK: - Security
@@ -351,6 +355,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success(let response):
                 self.tokenItemsRepository.removeAll()
+                self.clearTwinPairKey()
                 self.update(with: response.card)
                 completion(.success(()))
             case .failure(let error):
@@ -380,19 +385,17 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 	
 	func update(with card: Card) {
-        //  let card = cardInfo.card.updating(with: response)
         cardInfo.card = card
-
-		if card.isTwinCard {
-			cardInfo.twinCardInfo?.pairPublicKey = nil
-		}
-        warningsConfigurator.setupWarnings(for: card)
-		updateState()
+        updateModel()
 	}
     
     func update(with cardInfo: CardInfo) {
         self.cardInfo = cardInfo
-        updateState()
+        updateModel()
+    }
+    
+    func clearTwinPairKey() {
+        cardInfo.twinCardInfo?.pairPublicKey = nil
     }
     
     func updateState() {
@@ -404,6 +407,11 @@ class CardViewModel: Identifiable, ObservableObject {
             searchTokens()
             update()
         }
+    }
+    
+    private func updateModel() {
+        warningsConfigurator.setupWarnings(for: cardInfo.card)
+        updateState()
     }
     
     private func updateLoadedState(with newWalletModels: [WalletModel]) {
