@@ -132,7 +132,7 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
                 
                 if availableIndexes.count >= missingCurves.count {
                     var infos: [CreateWalletInfo] = .init()
-                    for (index, curve) in missingCurves.enumerated() {
+                    for (index, curve) in missingCurves.sorted(by: { $0.rawValue < $1.rawValue }).enumerated() {
                         infos.append(CreateWalletInfo(index: availableIndexes[index], config: WalletConfig(curveId: curve)))
                     }
                     appendWallets(infos, session: session, completion: completion)
