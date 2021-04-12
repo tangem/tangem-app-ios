@@ -54,12 +54,22 @@ class ServicesAssembly {
         return crepo
     }()
     
+    
     lazy var twinsWalletCreationService = {
         TwinsWalletCreationService(tangemSdk: tangemSdk,
                                    twinFileEncoder: TwinCardTlvFileEncoder(),
                                    cardsRepository: cardsRepository,
                                    validatedCardsService: keychainService)
     }()
+    
+    
+    var signer: TransactionSigner {
+        let signer = DefaultSigner(tangemSdk: self.tangemSdk,
+                                   initialMessage: Message(header: nil,
+                                                           body: "initial_message_sign_header".localized))
+        signer.delegate = cardsRepository
+        return signer
+    }
     
     private let keysManager = try! KeysManager()
     private let configManager = try! FeaturesConfigManager()
@@ -69,7 +79,6 @@ class ServicesAssembly {
         config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
         return config
     }()
-    
     
 }
 
@@ -381,7 +390,7 @@ class Assembly: ObservableObject {
         let vm = SendViewModel(amountToSend: amount,
                                blockchain: blockchain,
                                cardViewModel: card,
-                               signer: services.tangemSdk.signer,
+                               signer: services.signer,
                                warningsManager: services.warningsService)
         initialize(vm)
         vm.ratesService = services.ratesService
