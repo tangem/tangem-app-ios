@@ -22,6 +22,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var warningsConfigurator: WarningsConfigurator!
     weak var warningsAppendor: WarningAppendor!
     weak var tokenItemsRepository: TokenItemsRepository!
+    weak var userPrefsService: UserPrefsService!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -243,6 +244,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         //loadPayIDInfo()
         state.walletModels?.forEach { $0.update() }
+        searchTokens()
     }
     
     func onSign(_ signResponse: SignResponse) {
@@ -404,7 +406,6 @@ class CardViewModel: Identifiable, ObservableObject {
             self.state = .empty
         } else {
             self.state = .loaded(walletModel: self.assembly.loadWallets(from: cardInfo))
-            searchTokens()
             update()
         }
     }
@@ -462,7 +463,8 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func searchTokens() {
-        guard cardInfo.card.isMultiWallet else {
+        guard cardInfo.card.isMultiWallet,
+            let cid = cardInfo.card.cardId, !userPrefsService.searchedCards.contains(cid) else {
             return
         }
         
@@ -491,6 +493,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 print(error)
             }
             
+            self.userPrefsService.searchedCards.append(cid)
             self.searchBlockchains()
         }
     }
