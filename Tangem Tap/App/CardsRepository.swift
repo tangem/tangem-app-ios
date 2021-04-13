@@ -101,3 +101,11 @@ class CardsRepository {
         return result
 	}
 }
+
+extension CardsRepository: SignerDelegate {
+    func onSign(_ signResponse: SignResponse) {
+        if let cm = cards[signResponse.cardId] {
+            cm.cardModel?.onSign(signResponse)
+        }
+    }
+}
