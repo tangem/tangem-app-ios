@@ -9,12 +9,10 @@
 import Foundation
 import TangemSdk
 
-struct CardResponse: JSONStringConvertible {
-    let card: Card
-}
-
-class CreateWalletAndReadTask: CardSessionRunnable {
-    typealias CommandResponse = CardResponse
+class CreateWalletAndReadTask: CardSessionRunnable, PreflightReadCapable {
+    typealias CommandResponse = Card
+    
+    public var preflightReadSettings: PreflightReadSettings { .fullCardRead }
     
     func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         if let fw = session.environment.card?.firmwareVersion, fw.major < 4 {
@@ -43,20 +41,13 @@ class CreateWalletAndReadTask: CardSessionRunnable {
             case .failure(let error):
                 completion(.failure(error))
             case .success:
-                self.scanCard(session: session, completion: completion)
+                 self.scanCard(session: session, completion: completion)
             }
         }
     }
     
     private func scanCard(session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let scanTask = TapScanTask()
-        scanTask.run(in: session) { scanCompletion in
-            switch scanCompletion {
-            case .failure(let error):
-                completion(.failure(error))
-            case .success(let scanResponse):
-                completion(.success(CardResponse(card: scanResponse.card)))
-            }
-        }
+        let scanTask = PreflightReadTask(readSettings: .fullCardRead)
+        scanTask.run(in: session, completion: completion)
     }
 }
