@@ -52,6 +52,7 @@ class MainViewModel: ViewModel {
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     @Published var walletConnectCode = ""
+    @Published var isWalletConnectServiceBusy = false
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -307,6 +308,13 @@ class MainViewModel: ViewModel {
                 
                 self.walletConnectCode = ""
             })
+            .store(in: &bag)
+        
+        walletConnectSessionChecker.isServiceBusy
+            .receive(on: DispatchQueue.main)
+            .sink {
+                self.isWalletConnectServiceBusy = $0
+            }
             .store(in: &bag)
     }
     
