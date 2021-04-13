@@ -1,0 +1,8 @@
+{
+	"coinMarketCapKey": "",
+	"moonPayApiKey": "",
+	"moonPayApiSecretKey": "",
+	"blockchairApiKey": "",
+	"blockcypherTokens": ["","",""],
+	"infuraProjectId": ""
+}
