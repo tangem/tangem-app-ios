@@ -13,6 +13,7 @@ import TangemSdk
 import BlockchainSdk
 import CryptoSwift
 import SwiftUI
+import web3swift
 
 protocol WalletConnectChecker: class {
     var isServiceBusy: CurrentValueSubject<Bool, Never> { get }
@@ -26,6 +27,7 @@ protocol WalletConnectSessionController: WalletConnectChecker {
 }
 
 class WalletConnectService: ObservableObject {
+    weak var assembly: Assembly!
     weak var tangemSdk: TangemSdk!
     weak var walletManagerFactory: WalletManagerFactory!
     
@@ -34,16 +36,20 @@ class WalletConnectService: ObservableObject {
     var error: PassthroughSubject<Error, Never> = .init()
     
     @Published private(set) var sessions: [WalletConnectSession] = .init()
+    private var cards: [String:Card] = [:]
     
-    internal lazy var server: Server = {
+    private(set) lazy var server: Server = {
         let server = Server(delegate: self)
         server.register(handler: PersonalSignHandler(handler: self))
         server.register(handler: SignTransactionHandler(handler: self))
+        server.register(handler: SendTransactionHandler(handler: self))
         return server
     }()
     
     fileprivate var wallet: WalletInfo? = nil
     private let sessionsKey = "wc_sessions"
+    private let cardsKey = "scanned_cards"
+    private var bag: Set<AnyCancellable> = []
  
     init() {}
     
@@ -60,17 +66,20 @@ class WalletConnectService: ObservableObject {
     }
     
     func restore() {
+        let decoder = JSONDecoder()
         if let oldSessionsObject = UserDefaults.standard.object(forKey: sessionsKey) as? Data {
-            sessions = (try? JSONDecoder().decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
+            sessions = (try? decoder.decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
             sessions.forEach {
                 do {
                     try server.reconnect(to: $0.session)
                 } catch {
                     self.error.send(error)
                     print("Server did fail to reconnect")
-                    return
                 }
             }
+        }
+        if let scannedCardsObj = UserDefaults.standard.object(forKey: cardsKey) as? Data {
+            cards = (try? decoder.decode([String:Card].self, from: scannedCardsObj)) ?? [:]
         }
     }
     
@@ -87,9 +96,21 @@ class WalletConnectService: ObservableObject {
     }
     
     private func save() {
-        if let sessionsData = try? JSONEncoder().encode(sessions) {
+        let encoder = JSONEncoder()
+        if let sessionsData = try? encoder.encode(sessions) {
             UserDefaults.standard.set(sessionsData, forKey: sessionsKey)
         }
+        if let cardsData = try? encoder.encode(cards) {
+            UserDefaults.standard.setValue(cardsData, forKey: cardsKey)
+        }
+    }
+    
+    private func sendReject(for request: Request) {
+        server.send(.reject(request))
+    }
+    
+    private func findSession(for address: String) -> WalletConnectSession? {
+        sessions.first(where: { $0.wallet.address.lowercased() == address.lowercased() })
     }
 }
 
@@ -124,8 +145,7 @@ extension WalletConnectService: CardDelegate {
             self.wallet = WalletInfo(cid: cid,
                                          walletPublicKey: walletPublicKey,
                                          isTestnet: card.isTestnet ?? false)
-        } else {
-            self.wallet = nil
+            cards[cid] = card
         }
     }
 }
@@ -217,16 +237,16 @@ extension WalletConnectService {
 }
 extension WalletConnectService: SignHandler {
     func assertAddress(_ address: String) -> Bool {
-        guard let wallet = self.wallet else {
-            return false
-        }
-        
-        return address.lowercased() == wallet.address.lowercased()
+        findSession(for: address) != nil
     }
     
-    func askToSign(request: Request, message: String, dataToSign: Data) {
+    func askToSign(request: Request, address: String, message: String, dataToSign: Data) {
+        guard let wallet = findSession(for: address)?.wallet else {
+            sendReject(for: request)
+            return
+        }
         let onSign = {
-            self.sign(data: dataToSign) { res in
+            self.sign(with: wallet, data: dataToSign) { res in
                 DispatchQueue.global().async {
                     switch res {
                     case .success(let signature):
@@ -239,7 +259,7 @@ extension WalletConnectService: SignHandler {
         }
         
         let onCancel = {
-            self.server.send(.reject(request))
+            self.sendReject(for: request)
         }
         
         DispatchQueue.main.async {
@@ -251,25 +271,18 @@ extension WalletConnectService: SignHandler {
         }
     }
     
-    func sign(data: Data, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let walletPublicKey = wallet?.walletPublicKey, let chainId = wallet?.chainId else {
-            completion(.failure(WalletConnectService.WalletConnectServiceError.signFailed))
-            return
-        }
-        
+    func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
         let hash = data.sha3(.keccak256)
-    
         
-        
-        tangemSdk.sign(hashes: [hash], walletPublicKey: walletPublicKey) {result in
+        tangemSdk.sign(hashes: [hash], walletPublicKey: wallet.walletPublicKey) {result in
             switch result {
             case .success(let response):
                 if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response.signature,
                                                                   hash: hash,
-                                                                  publicKey: walletPublicKey) {
+                                                                  publicKey: wallet.walletPublicKey) {
                     
                     let strSig =  "0x" + unmarshalledSig.r.asHexString() + unmarshalledSig.s.asHexString() +
-                        String(unmarshalledSig.v.toInt() + chainId * 2 + 8, radix: 16)
+                        String(unmarshalledSig.v.toInt() + wallet.chainId * 2 + 8, radix: 16)
                     completion(.success(strSig))
                 } else {
                     completion(.failure(WalletConnectService.WalletConnectServiceError.signFailed))
@@ -279,6 +292,141 @@ extension WalletConnectService: SignHandler {
                 completion(.failure(error))
             }
         }
+    }
+}
+
+extension WalletConnectService: WCSendTxHandler {
+    func askToMakeTx(request: Request, ethTx: EthTransaction) {
+        guard let session = self.sessions.first(where: { $0.wallet.address.lowercased() == ethTx.from.lowercased() }) else {
+            self.sendReject(for: request)
+            return
+        }
+        
+        let wallet = session.wallet
+        let blockchain = Blockchain.ethereum(testnet: wallet.isTestnet)
+        
+        let contractDataString = ethTx.data.drop0xPrefix
+        let wcTxData = Data(hexString: String(contractDataString))
+        guard
+            let card = cards[wallet.cid],
+            let walletModels = assembly?.makeWalletModel(from: CardInfo(card: card, artworkInfo: nil, twinCardInfo: nil)),
+            let ethWalletModel = walletModels.first(where: { $0.wallet.address.lowercased() == ethTx.from.lowercased() }),
+            let value = try? EthereumUtils.parseEthereumValue(ethTx.value),
+            let gas = ethTx.gas.hexToInteger,
+            let gasPrice = ethTx.gasPrice.hexToInteger
+        else {
+            self.sendReject(for: request)
+            return
+        }
+        
+        ethWalletModel.update()
+        ethWalletModel.$state
+            .sink { (state) in
+                guard case .idle = state else { return }
+                
+                let valueAmount = Amount(with: blockchain, address: wallet.address, type: .coin, value: value)
+                let gasAmount = Amount(with: blockchain, address: wallet.address, type: .coin, value: Decimal(gas * gasPrice) / blockchain.decimalValue)
+                let totalAmount = valueAmount + gasAmount
+                let balance = ethWalletModel.wallet.amounts[.coin] ?? .zeroCoin(for: blockchain, address: ethTx.from)
+                let dApp = session.session.dAppInfo
+                let message: String = {
+                    var m = ""
+                    m += "\(CardIdFormatter().formatted(cid: wallet.cid))\n"
+                    
+                    m += "Request to create transaction for \(dApp.peerMeta.name)\n\(dApp.peerMeta.url)\n"
+                    m += "Amount: \(valueAmount.description)\n"
+                    m += "Fee: \(gasAmount.description)\n"
+                    m += "Total: \(totalAmount.description)\n"
+                    m += "Balance: \(ethWalletModel.getBalance(for: .coin))"
+                    if (balance < totalAmount) {
+                        m += "\nCan't send transaction. Not enough funds."
+                    }
+                    return m
+                }()
+                let alert = WalletConnectUIBuilder.makeAlert(for: .sendTx, withTitle: "Wallet Connect", message: message, onAcceptAction: {
+                    switch ethWalletModel.walletManager.createTransaction(amount: valueAmount, fee: gasAmount, destinationAddress: ethTx.to, sourceAddress: ethTx.from) {
+                    case .success(var tx):
+                        tx.params = EthereumTransactionParams(data: wcTxData, gasLimit: gas)
+                        ethWalletModel.txSender.send(tx, signer: self.tangemSdk.signer)
+                            .sink { (completion) in
+                                switch completion {
+                                case .failure(let error):
+                                    self.sendReject(for: request)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        UIApplication.modalFromTop(error.alertController)
+                                    }
+                                case .finished:
+                                    break
+                                }
+                            } receiveValue: { (signResp) in
+                                let vc = UIAlertController(title: "common_success".localized, message: "send_transaction_success".localized, preferredStyle: .alert)
+                                vc.addAction(UIAlertAction(title: "common_ok".localized, style: .destructive, handler: nil))
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    UIApplication.modalFromTop(vc)
+                                }
+                                guard
+                                    let sendedTx = ethWalletModel.wallet.transactions.last,
+                                    let txHash = sendedTx.hash
+                                else {
+                                    self.sendReject(for: request)
+                                    return
+                                }
+                                
+                                self.server.send(try! Response(url: request.url, value: "0x" + txHash, id: request.id!))
+                            }
+                            .store(in: &self.bag)
+
+                    case .failure(let error):
+                        let vc = error.alertController
+                        DispatchQueue.main.async {
+                            UIApplication.modalFromTop(vc)
+                        }
+                    }
+                    
+                    
+//                    let tx = ethWalletModel.walletManager.create
+                    
+//                    let t = Transaction(amount: valueAmount,
+//                                        fee: gasAmount,
+//                                        sourceAddress: ethTx.from,
+//                                        destinationAddress: ethTx.to,
+//                                        changeAddress: ethTx.from)
+//                    let result: (hash: Data, transaction: EthereumTransaction)? = builder.buildForSign(transaction: t, nonce: 0, gasLimit: Web3Utils.parseToBigUInt("\(gas)", decimals: decimals)!)
+//                    self.tangemSdk.sign(hashes: [result!.hash], walletPublicKey: wallet.walletPublicKey) { (signResult) in
+//                        switch signResult {
+//                        case .success(let resp):
+//                            guard let tx = builder.buildForSend(transaction: result!.transaction, hash: result!.hash, signature: resp.signature) else {
+//                                break
+//                            }
+//
+//                            self.server.send(try! Response(url: request.url, value: "0x" + tx.asHexString(), id: request.id!))
+//                            return
+//                        case .failure:
+//                            break
+//                        }
+//                        self.sendReject(for: request)
+//                    }
+                    
+        //                self.askToSign(request: request, message: message, dataToSign: result!.hash)
+                    
+        //            guard
+        //                let value = Web3Utils.parseToBigUInt(ethTx.value, decimals: decimals),
+        //                let gas = Web3Utils.parseToBigUInt(ethTx.gas, decimals: decimals),
+        //                let gasPrice = Web3Utils.parseToBigUInt(ethTx.gasPrice, decimals: decimals)
+        //            else {
+        //                self.sendReject(for: request)
+        //                return
+        //            }
+                    
+                    
+                }, isAcceptEnabled: (balance >= totalAmount), onReject: {
+                    self.sendReject(for: request)
+                })
+                DispatchQueue.main.async {
+                    UIApplication.modalFromTop(alert)
+                }
+            }
+            .store(in: &bag)
     }
 }
 
@@ -308,4 +456,10 @@ fileprivate extension Response {
     static func signature(_ signature: String, for request: Request) -> Response {
         return try! Response(url: request.url, value: signature, id: request.id!)
     }
+}
+
+extension StringProtocol {
+    var drop0xPrefix: SubSequence { hasPrefix("0x") ? dropFirst(2) : self[...] }
+    var hexToInteger: Int? { Int(drop0xPrefix, radix: 16) }
+    var integerToHex: String { .init(Int(self) ?? 0, radix: 16) }
 }

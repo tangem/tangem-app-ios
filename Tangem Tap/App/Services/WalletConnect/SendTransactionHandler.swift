@@ -1,5 +1,5 @@
 //
-//  SignTransactionHandler.swift
+//  SendTransactionHandler.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,16 +8,18 @@
 
 import Foundation
 import WalletConnectSwift
+import BlockchainSdk
 
-class SignTransactionHandler: RequestHandler {
-    private(set) weak var handler: SignHandler!
+class SendTransactionHandler: RequestHandler {
+    private(set) weak var handler: WCSendTxHandler!
+//    private(set) weak var builder: EthereumTransactionBuilder
     
-    init(handler: SignHandler) {
+    init(handler: WCSendTxHandler) {
         self.handler = handler
     }
     
     func canHandle(request: Request) -> Bool {
-        return request.method == "eth_signTransaction"
+        return request.method == "eth_sendTransaction"
     }
 
     func handle(request: Request) {
@@ -29,9 +31,7 @@ class SignTransactionHandler: RequestHandler {
                 return
             }
             
-            let message = transaction.description
-            let data = Data(hex: transaction.data)
-            handler.askToSign(request: request, address: transaction.from, message: message, dataToSign: data)
+            handler.askToMakeTx(request: request, ethTx: transaction)
         } catch {
             handler.server.send(.invalid(request))
         }
