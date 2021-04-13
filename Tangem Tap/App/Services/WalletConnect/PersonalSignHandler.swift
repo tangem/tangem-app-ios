@@ -32,7 +32,7 @@ class PersonalSignHandler: RequestHandler {
         
             let message = String(data: Data(hex: messageBytes), encoding: .utf8) ?? messageBytes
             let personalMessageData = self.personalMessageData(messageData: Data(hex: messageBytes))
-            handler.askToSign(request: request, message: message, dataToSign: personalMessageData)
+            handler.askToSign(request: request, address: address, message: message, dataToSign: personalMessageData)
         } catch {
             handler.server.send(.invalid(request))
             return
