@@ -31,7 +31,7 @@ class SignTransactionHandler: RequestHandler {
             
             let message = transaction.description
             let data = Data(hex: transaction.data)
-            handler.askToSign(request: request, message: message, dataToSign: data)
+            handler.askToSign(request: request, address: transaction.from, message: message, dataToSign: data)
         } catch {
             handler.server.send(.invalid(request))
         }
