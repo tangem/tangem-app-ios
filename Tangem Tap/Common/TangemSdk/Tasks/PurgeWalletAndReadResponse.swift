@@ -14,8 +14,10 @@ struct PurgeWalletAndReadResponse: JSONStringConvertible {
     let card: Card
 }
 
-class PurgeWalletAndReadTask: CardSessionRunnable {
+class PurgeWalletAndReadTask: CardSessionRunnable, PreflightReadCapable {
     typealias CommandResponse = PurgeWalletAndReadResponse
+    
+    public var preflightReadSettings: PreflightReadSettings { .readWallet(index: .index(TangemSdkConstants.oldCardDefaultWalletIndex)) }
     
     func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         let purgeWalletCommand = PurgeWalletCommand(walletIndex: .index(TangemSdkConstants.oldCardDefaultWalletIndex))
@@ -24,14 +26,14 @@ class PurgeWalletAndReadTask: CardSessionRunnable {
             case .failure(let error):
                 completion(.failure(error))
             case .success(let purgeWalletResponse):
-                let scanTask = TapScanTask()
+                let scanTask = PreflightReadTask(readSettings: .fullCardRead)
                 scanTask.run(in: session) { scanCompletion in
                     switch scanCompletion {
                     case .failure(let error):
                         completion(.failure(error))
                     case .success(let scanResponse):
                         completion(.success(PurgeWalletAndReadResponse(purgeWalletResponse: purgeWalletResponse,
-                                                                        card: scanResponse.card)))
+                                                                        card: scanResponse)))
                     }
                 }
             }
