@@ -94,7 +94,6 @@
 		5D9DCADE2551744F0059799C /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCADD2551744F0059799C /* ViewModel.swift */; };
 		5D9DCAE325517D450059799C /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAE225517D450059799C /* Assembly.swift */; };
 		5D9DCAEB25517FB50059799C /* CardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAEA25517FB50059799C /* CardsRepository.swift */; };
-		5D9DCAF92551857D0059799C /* TangemSdk+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAF82551857D0059799C /* TangemSdk+.swift */; };
 		5D9DCB01255191380059799C /* DisclamerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB00255191380059799C /* DisclamerViewModel.swift */; };
 		5D9DCB06255193C30059799C /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* UserPrefsService.swift */; };
 		5D9DCB0C255199AA0059799C /* SecurityManagementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */; };
@@ -323,7 +322,6 @@
 		5D9DCADD2551744F0059799C /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		5D9DCAE225517D450059799C /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
 		5D9DCAEA25517FB50059799C /* CardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsRepository.swift; sourceTree = "<group>"; };
-		5D9DCAF82551857D0059799C /* TangemSdk+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TangemSdk+.swift"; sourceTree = "<group>"; };
 		5D9DCB00255191380059799C /* DisclamerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclamerViewModel.swift; sourceTree = "<group>"; };
 		5D9DCB05255193C30059799C /* UserPrefsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPrefsService.swift; sourceTree = "<group>"; };
 		5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManagementViewModel.swift; sourceTree = "<group>"; };
@@ -796,7 +794,6 @@
 				5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */,
 				5D80ED412550172A0008DEF0 /* UIApplication+.swift */,
 				5D80ED462550186A0008DEF0 /* VIew+.swift */,
-				5D9DCAF82551857D0059799C /* TangemSdk+.swift */,
 				B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */,
 				B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */,
 				5D09383125E7A9820049B8F0 /* Wallet+.swift */,
@@ -1432,7 +1429,6 @@
 				5D00FCD626173905004626DE /* SignHandler.swift in Sources */,
 				B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */,
 				5D6784C325EB8EF000149995 /* TokenItemsRepository.swift in Sources */,
-				5D9DCAF92551857D0059799C /* TangemSdk+.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* TopupService.swift in Sources */,
@@ -1722,7 +1718,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 226;
+				CURRENT_PROJECT_VERSION = 242;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -1732,7 +1728,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.15;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -1748,7 +1744,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 226;
+				CURRENT_PROJECT_VERSION = 242;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -1758,7 +1754,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.15;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1922,7 +1918,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 226;
+				CURRENT_PROJECT_VERSION = 242;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -1931,7 +1927,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.12;
+				MARKETING_VERSION = 3.15;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "App Store Provisioning Profile";
