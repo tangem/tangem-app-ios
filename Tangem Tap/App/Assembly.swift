@@ -37,6 +37,7 @@ class ServicesAssembly {
         let wc = WalletConnectService()
         wc.tangemSdk = tangemSdk
         wc.walletManagerFactory = walletManagerFactory
+        wc.assembly = assembly
         return wc
     }()
     
@@ -142,11 +143,12 @@ class Assembly: ObservableObject {
         vm.topupService = services.topupService
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
-        vm.state = services.cardsRepository.lastScanResult
-        vm.rateAppController = services.rateAppService
         vm.walletConnectSessionChecker = services.walletConnectService
         vm.walletConnectUrlHandler = services.walletConnectService
+        vm.rateAppController = services.rateAppService
 
+        vm.state = services.cardsRepository.lastScanResult
+        
         vm.negativeFeedbackDataCollector = services.negativeFeedbackDataCollector
         vm.failedCardScanTracker = services.failedCardScanTracker
         
