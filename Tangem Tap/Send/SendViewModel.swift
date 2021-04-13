@@ -609,9 +609,7 @@ class SendViewModel: ViewModel {
                     callback()
                 }
                 
-            }, receiveValue: {[unowned self] signResponse in
-                self.cardViewModel.onSign(signResponse)
-            })
+            }, receiveValue: { _ in  })
             .store(in: &bag)
     }
     
