@@ -13,12 +13,6 @@ extension UIViewController {
     @objc var topViewController: UIViewController? { return presentedViewController?.topViewController ?? self }
 }
 
-extension UINavigationController {
-    override var topViewController: UIViewController? {
-        return visibleViewController?.topViewController
-    }
-}
-
 extension UITabBarController {
     override var topViewController: UIViewController? {
         return selectedViewController?.topViewController
