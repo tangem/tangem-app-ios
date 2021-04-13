@@ -15,7 +15,7 @@ struct EthTransaction: Codable {
     let gasPrice: String // Required
     let value: String // Required
     let data: String // Required
-    let nonce: String // Required
+    let nonce: String?
     
     var description: String {
         return """
@@ -23,8 +23,8 @@ struct EthTransaction: Codable {
         value: \(value),
         gasPrice: \(gasPrice),
         gas: \(gas),
-        data: \(data),
-        nonce: \(nonce)
+        data: \(data.count > 30 ? "\(data.prefix(10))...\(data.suffix(10))" : data),
+        nonce: \(nonce ?? "not specified")
         """
     }
 }
