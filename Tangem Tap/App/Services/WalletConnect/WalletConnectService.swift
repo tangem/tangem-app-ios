@@ -30,6 +30,7 @@ class WalletConnectService: ObservableObject {
     weak var assembly: Assembly!
     weak var tangemSdk: TangemSdk!
     weak var walletManagerFactory: WalletManagerFactory!
+    var txSigner: TransactionSigner!
     
     var isServiceBusy: CurrentValueSubject<Bool, Never> = .init(false)
     
@@ -274,10 +275,10 @@ extension WalletConnectService: SignHandler {
     func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
         let hash = data.sha3(.keccak256)
         
-        tangemSdk.sign(hashes: [hash], walletPublicKey: wallet.walletPublicKey) {result in
+        tangemSdk.sign(hash: hash, walletPublicKey: wallet.walletPublicKey) {result in
             switch result {
             case .success(let response):
-                if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response.signature,
+                if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response,
                                                                   hash: hash,
                                                                   publicKey: wallet.walletPublicKey) {
                     
@@ -309,7 +310,7 @@ extension WalletConnectService: WCSendTxHandler {
         let wcTxData = Data(hexString: String(contractDataString))
         guard
             let card = cards[wallet.cid],
-            let walletModels = assembly?.makeWalletModel(from: CardInfo(card: card, artworkInfo: nil, twinCardInfo: nil)),
+            let walletModels = assembly?.makeWallets(from: CardInfo(card: card, artworkInfo: nil, twinCardInfo: nil), blockchains: [blockchain]),
             let ethWalletModel = walletModels.first(where: { $0.wallet.address.lowercased() == ethTx.from.lowercased() }),
             let value = try? EthereumUtils.parseEthereumValue(ethTx.value),
             let gas = ethTx.gas.hexToInteger,
@@ -347,7 +348,7 @@ extension WalletConnectService: WCSendTxHandler {
                     switch ethWalletModel.walletManager.createTransaction(amount: valueAmount, fee: gasAmount, destinationAddress: ethTx.to, sourceAddress: ethTx.from) {
                     case .success(var tx):
                         tx.params = EthereumTransactionParams(data: wcTxData, gasLimit: gas)
-                        ethWalletModel.txSender.send(tx, signer: self.tangemSdk.signer)
+                        ethWalletModel.txSender.send(tx, signer: self.txSigner)
                             .sink { (completion) in
                                 switch completion {
                                 case .failure(let error):
@@ -382,43 +383,6 @@ extension WalletConnectService: WCSendTxHandler {
                             UIApplication.modalFromTop(vc)
                         }
                     }
-                    
-                    
-//                    let tx = ethWalletModel.walletManager.create
-                    
-//                    let t = Transaction(amount: valueAmount,
-//                                        fee: gasAmount,
-//                                        sourceAddress: ethTx.from,
-//                                        destinationAddress: ethTx.to,
-//                                        changeAddress: ethTx.from)
-//                    let result: (hash: Data, transaction: EthereumTransaction)? = builder.buildForSign(transaction: t, nonce: 0, gasLimit: Web3Utils.parseToBigUInt("\(gas)", decimals: decimals)!)
-//                    self.tangemSdk.sign(hashes: [result!.hash], walletPublicKey: wallet.walletPublicKey) { (signResult) in
-//                        switch signResult {
-//                        case .success(let resp):
-//                            guard let tx = builder.buildForSend(transaction: result!.transaction, hash: result!.hash, signature: resp.signature) else {
-//                                break
-//                            }
-//
-//                            self.server.send(try! Response(url: request.url, value: "0x" + tx.asHexString(), id: request.id!))
-//                            return
-//                        case .failure:
-//                            break
-//                        }
-//                        self.sendReject(for: request)
-//                    }
-                    
-        //                self.askToSign(request: request, message: message, dataToSign: result!.hash)
-                    
-        //            guard
-        //                let value = Web3Utils.parseToBigUInt(ethTx.value, decimals: decimals),
-        //                let gas = Web3Utils.parseToBigUInt(ethTx.gas, decimals: decimals),
-        //                let gasPrice = Web3Utils.parseToBigUInt(ethTx.gasPrice, decimals: decimals)
-        //            else {
-        //                self.sendReject(for: request)
-        //                return
-        //            }
-                    
-                    
                 }, isAcceptEnabled: (balance >= totalAmount), onReject: {
                     self.sendReject(for: request)
                 })
