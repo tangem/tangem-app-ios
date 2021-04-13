@@ -30,6 +30,9 @@ class UserPrefsService {
     @Storage(type: StorageType.positiveBalanceAppearanceLaunch, defaultValue: nil)
     var positiveBalanceAppearanceLaunch: Int?
     
+    @Storage(type: StorageType.searchedCards, defaultValue: [])
+    var searchedCards: [String]
+    
     deinit {
         print("UserPrefsService deinit")
     }
