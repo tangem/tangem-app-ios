@@ -374,7 +374,7 @@ struct MainView: View {
                         }
                 } else {
                     if viewModel.canUseWalletConnect {
-                        TangemLongButton(isLoading: viewModel.walletConnectSessionChecker.isServiceBusy.value, title: "wallet_connect") {
+                        TangemLongButton(isLoading: viewModel.isWalletConnectServiceBusy, title: "wallet_connect") {
                             self.navigation.mainToWalletConnectQR = true
                         }
                         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
