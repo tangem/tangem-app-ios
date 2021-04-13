@@ -22,6 +22,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var warningsConfigurator: WarningsConfigurator!
     weak var warningsAppendor: WarningAppendor!
     weak var tokenItemsRepository: TokenItemsRepository!
+    weak var userPrefsService: UserPrefsService!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -115,6 +116,10 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+            return false
+        }
+        
+        if cardInfo.card.settingsMask?.contains(.isReusable) ?? false {
             return false
         }
         
@@ -258,11 +263,16 @@ class CardViewModel: Identifiable, ObservableObject {
         
         //loadPayIDInfo()
         state.walletModels?.forEach { $0.update() }
+        searchTokens()
     }
     
     func onSign(_ signResponse: SignResponse) {
-        // cardInfo.card.walletSignedHashes = signResponse.walletSignedHashes
-        //[REDACTED_TODO_COMMENT]
+        if let fw = cardInfo.card.firmwareVersion, fw < FirmwareConstraints.AvailabilityVersions.walletData,
+           var wallet = cardInfo.card.wallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex)) {
+            wallet.remainingSignatures = signResponse.walletRemainingSignatures
+            cardInfo.card.updateWallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex), with: wallet)
+            updateModel()
+        }
     }
     
     // MARK: - Security
@@ -342,8 +352,8 @@ class CardViewModel: Identifiable, ObservableObject {
                                initialMessage: Message(header: nil,
                                                        body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
             switch result {
-            case .success(let response):
-                self.update(with: response.card)
+            case .success(let card):
+                self.update(with: card)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.log(error: error)
@@ -366,6 +376,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success(let response):
                 self.tokenItemsRepository.removeAll()
+                self.clearTwinPairKey()
                 self.update(with: response.card)
                 completion(.success(()))
             case .failure(let error):
@@ -382,7 +393,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        tangemSdk.getCardInfo(cardId: cardInfo.card.cardId ?? "", cardPublicKey: cardInfo.card.cardPublicKey ?? Data()) {[weak self] result in
+        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey ?? Data(), cardId: cardInfo.card.cardId ?? "") {[weak self] result in
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else { return }
@@ -395,31 +406,32 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 	
 	func update(with card: Card) {
-        //  let card = cardInfo.card.updating(with: response)
         cardInfo.card = card
-
-		if card.isTwinCard {
-			cardInfo.twinCardInfo?.pairPublicKey = nil
-		}
-        warningsConfigurator.setupWarnings(for: card)
-		updateState()
+        updateModel()
 	}
     
     func update(with cardInfo: CardInfo) {
         self.cardInfo = cardInfo
-        updateState()
+        updateModel()
+    }
+    
+    func clearTwinPairKey() {
+        cardInfo.twinCardInfo?.pairPublicKey = nil
     }
     
     func updateState() {
-        let models = self.assembly.makeWalletModel(from: cardInfo)
-        
-        if models.isEmpty {
+        let hasWallets = cardInfo.card.wallets.filter { $0.status == .loaded }.count > 0
+        if !hasWallets {
             self.state = .empty
         } else {
-            self.state = .loaded(walletModel: models)
-            searchTokens()
+            self.state = .loaded(walletModel: self.assembly.loadWallets(from: cardInfo))
             update()
         }
+    }
+    
+    private func updateModel() {
+        warningsConfigurator.setupWarnings(for: cardInfo.card)
+        updateState()
     }
     
     private func updateLoadedState(with newWalletModels: [WalletModel]) {
@@ -449,8 +461,8 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let unusedBlockhains = tokenItemsRepository.supportedItems.blockchains.subtracting(currentBlockhains).map { $0 }
-        let models = assembly.makeWalletModels(from: cardInfo, blockchains: unusedBlockhains)
+        let unusedBlockhains = tokenItemsRepository.supportedItems.blockchains(for: cardInfo.card).subtracting(currentBlockhains).map { $0 }
+        let models = assembly.makeWallets(from: cardInfo, blockchains: unusedBlockhains)
         if models.isEmpty {
             return
         }
@@ -470,7 +482,8 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func searchTokens() {
-        guard cardInfo.card.isMultiWallet else {
+        guard cardInfo.card.isMultiWallet,
+            let cid = cardInfo.card.cardId, !userPrefsService.searchedCards.contains(cid) else {
             return
         }
         
@@ -480,7 +493,7 @@ class CardViewModel: Identifiable, ObservableObject {
         if ethWalletModel == nil {
             sholdAddWalletManager = true
             let isTestnet = cardInfo.card.isTestnet ?? false
-            ethWalletModel = assembly.makeWalletModels(from: cardInfo, blockchains: [.ethereum(testnet: isTestnet)]).first!
+            ethWalletModel = assembly.makeWallets(from: cardInfo, blockchains: [.ethereum(testnet: isTestnet)]).first!
         }
         
         (ethWalletModel!.walletManager as! TokenFinder).findErc20Tokens() {[weak self] result in
@@ -499,6 +512,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 print(error)
             }
             
+            self.userPrefsService.searchedCards.append(cid)
             self.searchBlockchains()
         }
     }
@@ -523,7 +537,7 @@ class CardViewModel: Identifiable, ObservableObject {
   
     func addBlockchain(_ blockchain: Blockchain) {
         tokenItemsRepository.append(.blockchain(blockchain))
-        let newWalletModels = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain])
+        let newWalletModels = assembly.makeWallets(from: cardInfo, blockchains: [blockchain])
         newWalletModels.forEach {$0.update()}
         updateLoadedState(with: newWalletModels)
     }
