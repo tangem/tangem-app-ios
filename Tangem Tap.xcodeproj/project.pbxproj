@@ -26,10 +26,6 @@
 		5D225CB92524B721001564A3 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
 		5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */; };
 		5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
-		5D2B59B52613285300F5FF3F /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D2B59B32613285300F5FF3F /* config_dev.json */; };
-		5D2B59B62613285300F5FF3F /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D2B59B42613285300F5FF3F /* config_prod.json */; };
-		5D2B59BA2613285E00F5FF3F /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D2B59B32613285300F5FF3F /* config_dev.json */; };
-		5D2B59BE2613286100F5FF3F /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D2B59B42613285300F5FF3F /* config_prod.json */; };
 		5D2C7DAC251378CA001B29D0 /* Pods_Tangem_Tap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13E2B49EFB622F929FD5C46A /* Pods_Tangem_Tap.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
 		5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8A24FD154C00C2C92C /* PayIDService.swift */; };
@@ -49,6 +45,9 @@
 		5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D43E2D62514D5B700697E5B /* CardOperationView.swift */; };
 		5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5332B025F9091900D32CA5 /* TokenItem.swift */; };
 		5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D559BCB25406BB40009E0F6 /* AppFeaturesService.swift */; };
+		5D5CE1A82625FF00009023EC /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A62625FF00009023EC /* config_dev.json */; };
+		5D5CE1A92625FF00009023EC /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A72625FF00009023EC /* config_prod.json */; };
+		5D5CE1AE2625FF23009023EC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1AD2625FF23009023EC /* GoogleService-Info.plist */; };
 		5D5D013C25CC1F3900DA8616 /* TransparentModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */; };
 		5D5E059224FEA4B800F04DE1 /* CoinMarketCapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */; };
 		5D6784C325EB8EF000149995 /* TokenItemsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784C225EB8EF000149995 /* TokenItemsRepository.swift */; };
@@ -59,7 +58,6 @@
 		5D6C128225E13DE10010A0C5 /* TokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */; };
 		5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128625E144DF0010A0C5 /* AddTokensView.swift */; };
 		5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */; };
-		5D78D024261B83D700F98B18 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D78D023261B83D700F98B18 /* GoogleService-Info.plist */; };
 		5D78D113261DFB2C00F98B18 /* CreateWalletAndReadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D112261DFB2C00F98B18 /* CreateWalletAndReadTask.swift */; };
 		5D78D118261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D117261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift */; };
 		5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */; };
@@ -246,8 +244,6 @@
 		5D225CB82524B721001564A3 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkLoggerConfiguration+.swift"; sourceTree = "<group>"; };
 		5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
-		5D2B59B32613285300F5FF3F /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_dev.json; path = "tangem-ios-config/config_dev.json"; sourceTree = SOURCE_ROOT; };
-		5D2B59B42613285300F5FF3F /* config_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_prod.json; path = "tangem-ios-config/config_prod.json"; sourceTree = SOURCE_ROOT; };
 		5D383E4024D95BA600C9BFF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D384B8A24FD154C00C2C92C /* PayIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayIDService.swift; sourceTree = "<group>"; };
 		5D384B9024FD4E1800C2C92C /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
@@ -271,6 +267,11 @@
 		5D43E2D62514D5B700697E5B /* CardOperationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationView.swift; sourceTree = "<group>"; };
 		5D5332B025F9091900D32CA5 /* TokenItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItem.swift; sourceTree = "<group>"; };
 		5D559BCB25406BB40009E0F6 /* AppFeaturesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeaturesService.swift; sourceTree = "<group>"; };
+		5D5CE19E2625FEE9009023EC /* config_example.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_example.json; sourceTree = "<group>"; };
+		5D5CE1A62625FF00009023EC /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_dev.json; path = "tangem-app-config/config_dev.json"; sourceTree = SOURCE_ROOT; };
+		5D5CE1A72625FF00009023EC /* config_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_prod.json; path = "tangem-app-config/config_prod.json"; sourceTree = SOURCE_ROOT; };
+		5D5CE1AD2625FF23009023EC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info.plist"; path = "tangem-app-config/ios/GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransparentModal.swift; sourceTree = "<group>"; };
 		5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinMarketCapService.swift; sourceTree = "<group>"; };
 		5D6784C225EB8EF000149995 /* TokenItemsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemsRepository.swift; sourceTree = "<group>"; };
@@ -281,7 +282,6 @@
 		5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensListItemView.swift; sourceTree = "<group>"; };
 		5D6C128625E144DF0010A0C5 /* AddTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTokensView.swift; sourceTree = "<group>"; };
 		5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectView.swift; sourceTree = "<group>"; };
-		5D78D023261B83D700F98B18 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "tangem-ios-config/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5D78D112261DFB2C00F98B18 /* CreateWalletAndReadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletAndReadTask.swift; sourceTree = "<group>"; };
 		5D78D117261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurgeWalletAndReadResponse.swift; sourceTree = "<group>"; };
 		5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateMultiWalletTask.swift; sourceTree = "<group>"; };
@@ -540,7 +540,7 @@
 		5D3F77B924BF56D800E8695B = {
 			isa = PBXGroup;
 			children = (
-				5D78D023261B83D700F98B18 /* GoogleService-Info.plist */,
+				5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */,
 				5D3F77C424BF56D800E8695B /* Tangem Tap */,
 				5D3F77DB24BF56DC00E8695B /* Tangem TapTests */,
 				5D3F77E624BF56DC00E8695B /* Tangem TapUITests */,
@@ -563,6 +563,7 @@
 		5D3F77C424BF56D800E8695B /* Tangem Tap */ = {
 			isa = PBXGroup;
 			children = (
+				5D5CE1AD2625FF23009023EC /* GoogleService-Info.plist */,
 				5D9DCADC255174140059799C /* App */,
 				5D6C127025E122CE0010A0C5 /* MultiWallet */,
 				5D011A222530776A00758010 /* Disclaimer */,
@@ -826,8 +827,9 @@
 		B018F3012591FED600D8F89A /* JsonSettings */ = {
 			isa = PBXGroup;
 			children = (
-				5D2B59B32613285300F5FF3F /* config_dev.json */,
-				5D2B59B42613285300F5FF3F /* config_prod.json */,
+				5D5CE1A62625FF00009023EC /* config_dev.json */,
+				5D5CE1A72625FF00009023EC /* config_prod.json */,
+				5D5CE19E2625FEE9009023EC /* config_example.json */,
 				B0A359EC2589117200E25B34 /* features_dev.json */,
 				B0A359EA2589117200E25B34 /* features_firebase.json */,
 				B0A359EB2589117200E25B34 /* features_prod.json */,
@@ -1124,8 +1126,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0A359EF2589117200E25B34 /* features_dev.json in Resources */,
-				5D2B59B52613285300F5FF3F /* config_dev.json in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
+				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
@@ -1134,10 +1136,10 @@
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
 				5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
-				5D78D024261B83D700F98B18 /* GoogleService-Info.plist in Resources */,
-				5D2B59B62613285300F5FF3F /* config_prod.json in Resources */,
+				5D5CE1AE2625FF23009023EC /* GoogleService-Info.plist in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				B0CC817E25CD6281006D49B9 /* breadwallet_tokens.json in Resources */,
+				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
 				B08ACD9425D2E056007387BD /* erc20tokens.json in Resources */,
 				B0A359EE2589117200E25B34 /* features_prod.json in Resources */,
 				5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */,
@@ -1150,12 +1152,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D9141E024D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
-				5D2B59BA2613285E00F5FF3F /* config_dev.json in Resources */,
 				5D9141EC24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
 				5D9141E324D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5D9141E624D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
 				5D9141E924D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
-				5D2B59BE2613286100F5FF3F /* config_prod.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
