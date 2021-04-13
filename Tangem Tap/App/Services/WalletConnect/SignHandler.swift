@@ -9,8 +9,15 @@
 import Foundation
 import WalletConnectSwift
 
-protocol SignHandler: AnyObject {
-    var server: Server {get}
+protocol WalletConnectHandler: class {
+    var server: Server { get }
     func assertAddress(_ address: String) -> Bool
-    func askToSign(request: Request, message: String, dataToSign: Data)
+}
+
+protocol SignHandler: WalletConnectHandler {
+    func askToSign(request: Request, address: String, message: String, dataToSign: Data)
+}
+
+protocol WCSendTxHandler: WalletConnectHandler {
+    func askToMakeTx(request: Request, ethTx: EthTransaction)
 }
