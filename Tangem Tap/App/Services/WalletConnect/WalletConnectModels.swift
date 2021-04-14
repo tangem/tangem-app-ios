@@ -56,3 +56,9 @@ extension Session: Equatable {
         lhs.dAppInfo == rhs.dAppInfo && lhs.walletInfo == rhs.walletInfo
     }
 }
+
+extension Response {
+    static func signature(_ signature: String, for request: Request) -> Response {
+        return try! Response(url: request.url, value: signature, id: request.id!)
+    }
+}
