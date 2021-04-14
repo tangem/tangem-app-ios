@@ -35,3 +35,9 @@ extension String {
         })
     }
 }
+
+extension StringProtocol {
+    var drop0xPrefix: SubSequence { hasPrefix("0x") ? dropFirst(2) : self[...] }
+    var hexToInteger: Int? { Int(drop0xPrefix, radix: 16) }
+    var integerToHex: String { .init(Int(self) ?? 0, radix: 16) }
+}
