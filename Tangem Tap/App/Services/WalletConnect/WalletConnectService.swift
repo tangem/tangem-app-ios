@@ -26,33 +26,34 @@ protocol WalletConnectSessionController: WalletConnectChecker {
     func handle(url: String) -> Bool
 }
 
+protocol WalletConnectHandlerDelegate: class {
+    func send(_ response: Response)
+    func sendReject(for request: Request)
+}
+
+protocol WalletConnectHandlerDataSource: class {
+    var server: Server! { get }
+    func session(for request: Request, address: String) -> WalletConnectSession?
+}
+
 class WalletConnectService: ObservableObject {
-    weak var assembly: Assembly!
-    weak var tangemSdk: TangemSdk!
-    weak var walletManagerFactory: WalletManagerFactory!
-    var txSigner: TransactionSigner!
-    
     var isServiceBusy: CurrentValueSubject<Bool, Never> = .init(false)
     
     var error: PassthroughSubject<Error, Never> = .init()
     
     @Published private(set) var sessions: [WalletConnectSession] = .init()
-    private var cards: [String:Card] = [:]
     
-    private(set) lazy var server: Server = {
-        let server = Server(delegate: self)
-        server.register(handler: PersonalSignHandler(handler: self))
-        server.register(handler: SignTransactionHandler(handler: self))
-        server.register(handler: SendTransactionHandler(handler: self))
-        return server
-    }()
+    private(set) var server: Server!
     
     fileprivate var wallet: WalletInfo? = nil
     private let sessionsKey = "wc_sessions"
-    private let cardsKey = "scanned_cards"
-    private var bag: Set<AnyCancellable> = []
- 
-    init() {}
+    
+    init(assembly: Assembly, tangemSdk: TangemSdk, scannedCardsRepository: ScannedCardsRepository) {
+        server = Server(delegate: self)
+        server.register(handler: PersonalSignHandler(tangemSdk: tangemSdk, delegate: self, dataSource: self))
+        server.register(handler: SignTransactionHandler(tangemSdk: tangemSdk, delegate: self, dataSource: self))
+        server.register(handler: SendTransactionHandler(dataSource: self, delegate: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
+    }
     
     func disconnect(from session: Session) {
         do {
@@ -79,9 +80,6 @@ class WalletConnectService: ObservableObject {
                 }
             }
         }
-        if let scannedCardsObj = UserDefaults.standard.object(forKey: cardsKey) as? Data {
-            cards = (try? decoder.decode([String:Card].self, from: scannedCardsObj)) ?? [:]
-        }
     }
     
     private func connect(to url: WCURL) {
@@ -101,17 +99,22 @@ class WalletConnectService: ObservableObject {
         if let sessionsData = try? encoder.encode(sessions) {
             UserDefaults.standard.set(sessionsData, forKey: sessionsKey)
         }
-        if let cardsData = try? encoder.encode(cards) {
-            UserDefaults.standard.setValue(cardsData, forKey: cardsKey)
-        }
+    }
+}
+
+extension WalletConnectService: WalletConnectHandlerDataSource {
+    func session(for request: Request, address: String) -> WalletConnectSession? {
+        sessions.first(where: { $0.wallet.address.lowercased() == address.lowercased() && $0.session.url.topic == request.url.topic })
+    }
+}
+
+extension WalletConnectService: WalletConnectHandlerDelegate {
+    func send(_ response: Response) {
+        server.send(response)
     }
     
-    private func sendReject(for request: Request) {
+    func sendReject(for request: Request) {
         server.send(.reject(request))
-    }
-    
-    private func findSession(for address: String) -> WalletConnectSession? {
-        sessions.first(where: { $0.wallet.address.lowercased() == address.lowercased() })
     }
 }
 
@@ -140,13 +143,11 @@ extension WalletConnectService: WalletConnectSessionController {
 extension WalletConnectService: CardDelegate {
     func didScan(_ card: Card) {
         if let cid = card.cardId,
-           let wallet = card.wallets.first,
-           let curve = wallet.curve, curve == .secp256k1,
+           let wallet = card.wallets.first(where: { $0.curve == .secp256k1 }),
            let walletPublicKey = wallet.publicKey {
             self.wallet = WalletInfo(cid: cid,
-                                         walletPublicKey: walletPublicKey,
-                                         isTestnet: card.isTestnet ?? false)
-            cards[cid] = card
+                                     walletPublicKey: walletPublicKey,
+                                     isTestnet: card.isTestnet ?? false)
         }
     }
 }
@@ -179,7 +180,7 @@ extension WalletConnectService: ServerDelegate {
         }
     
         DispatchQueue.main.async {
-            UIAlertController.showShouldStart(from: UIApplication.shared.topViewController!,
+            UIAlertController.showShouldStart(from: UIApplication.topViewController!,
                                               clientName: session.dAppInfo.peerMeta.name,
                                               onStart: {
                                                 completion(Session.WalletInfo(approved: true,
@@ -215,7 +216,7 @@ extension WalletConnectService: ServerDelegate {
 
 extension WalletConnectService: URLHandler {
     func handle(url: URL) -> Bool {
-        return handle(url: url.absoluteString)
+        handle(url: url.absoluteString)
     }
     
     func handle(url: String) -> Bool {
@@ -234,196 +235,4 @@ extension WalletConnectService {
         case failedToConnect
         case signFailed
     }
-    
-}
-extension WalletConnectService: SignHandler {
-    func assertAddress(_ address: String) -> Bool {
-        findSession(for: address) != nil
-    }
-    
-    func askToSign(request: Request, address: String, message: String, dataToSign: Data) {
-        guard let wallet = findSession(for: address)?.wallet else {
-            sendReject(for: request)
-            return
-        }
-        let onSign = {
-            self.sign(with: wallet, data: dataToSign) { res in
-                DispatchQueue.global().async {
-                    switch res {
-                    case .success(let signature):
-                        self.server.send(.signature(signature, for: request))
-                    case .failure:
-                        self.server.send(.invalid(request))
-                    }
-                }
-            }
-        }
-        
-        let onCancel = {
-            self.sendReject(for: request)
-        }
-        
-        DispatchQueue.main.async {
-            UIAlertController.showShouldSign(from: UIApplication.shared.topViewController!,
-                                             title: "Request to sign a message",
-                                             message: message,
-                                             onSign: onSign,
-                                             onCancel: onCancel)
-        }
-    }
-    
-    func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
-        let hash = data.sha3(.keccak256)
-        
-        tangemSdk.sign(hash: hash, walletPublicKey: wallet.walletPublicKey) {result in
-            switch result {
-            case .success(let response):
-                if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response,
-                                                                  hash: hash,
-                                                                  publicKey: wallet.walletPublicKey) {
-                    
-                    let strSig =  "0x" + unmarshalledSig.r.asHexString() + unmarshalledSig.s.asHexString() +
-                        String(unmarshalledSig.v.toInt() + wallet.chainId * 2 + 8, radix: 16)
-                    completion(.success(strSig))
-                } else {
-                    completion(.failure(WalletConnectService.WalletConnectServiceError.signFailed))
-                }
-            case .failure(let error):
-                print(error)
-                completion(.failure(error))
-            }
-        }
-    }
-}
-
-extension WalletConnectService: WCSendTxHandler {
-    func askToMakeTx(request: Request, ethTx: EthTransaction) {
-        guard let session = self.sessions.first(where: { $0.wallet.address.lowercased() == ethTx.from.lowercased() }) else {
-            self.sendReject(for: request)
-            return
-        }
-        
-        let wallet = session.wallet
-        let blockchain = Blockchain.ethereum(testnet: wallet.isTestnet)
-        
-        let contractDataString = ethTx.data.drop0xPrefix
-        let wcTxData = Data(hexString: String(contractDataString))
-        guard
-            let card = cards[wallet.cid],
-            let walletModels = assembly?.makeWallets(from: CardInfo(card: card, artworkInfo: nil, twinCardInfo: nil), blockchains: [blockchain]),
-            let ethWalletModel = walletModels.first(where: { $0.wallet.address.lowercased() == ethTx.from.lowercased() }),
-            let value = try? EthereumUtils.parseEthereumValue(ethTx.value),
-            let gas = ethTx.gas.hexToInteger,
-            let gasPrice = ethTx.gasPrice.hexToInteger
-        else {
-            self.sendReject(for: request)
-            return
-        }
-        
-        ethWalletModel.update()
-        ethWalletModel.$state
-            .sink { (state) in
-                guard case .idle = state else { return }
-                
-                let valueAmount = Amount(with: blockchain, address: wallet.address, type: .coin, value: value)
-                let gasAmount = Amount(with: blockchain, address: wallet.address, type: .coin, value: Decimal(gas * gasPrice) / blockchain.decimalValue)
-                let totalAmount = valueAmount + gasAmount
-                let balance = ethWalletModel.wallet.amounts[.coin] ?? .zeroCoin(for: blockchain, address: ethTx.from)
-                let dApp = session.session.dAppInfo
-                let message: String = {
-                    var m = ""
-                    m += "\(CardIdFormatter().formatted(cid: wallet.cid))\n"
-                    
-                    m += "Request to create transaction for \(dApp.peerMeta.name)\n\(dApp.peerMeta.url)\n"
-                    m += "Amount: \(valueAmount.description)\n"
-                    m += "Fee: \(gasAmount.description)\n"
-                    m += "Total: \(totalAmount.description)\n"
-                    m += "Balance: \(ethWalletModel.getBalance(for: .coin))"
-                    if (balance < totalAmount) {
-                        m += "\nCan't send transaction. Not enough funds."
-                    }
-                    return m
-                }()
-                let alert = WalletConnectUIBuilder.makeAlert(for: .sendTx, withTitle: "Wallet Connect", message: message, onAcceptAction: {
-                    switch ethWalletModel.walletManager.createTransaction(amount: valueAmount, fee: gasAmount, destinationAddress: ethTx.to, sourceAddress: ethTx.from) {
-                    case .success(var tx):
-                        tx.params = EthereumTransactionParams(data: wcTxData, gasLimit: gas)
-                        ethWalletModel.txSender.send(tx, signer: self.txSigner)
-                            .sink { (completion) in
-                                switch completion {
-                                case .failure(let error):
-                                    self.sendReject(for: request)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        UIApplication.modalFromTop(error.alertController)
-                                    }
-                                case .finished:
-                                    break
-                                }
-                            } receiveValue: { (signResp) in
-                                let vc = UIAlertController(title: "common_success".localized, message: "send_transaction_success".localized, preferredStyle: .alert)
-                                vc.addAction(UIAlertAction(title: "common_ok".localized, style: .destructive, handler: nil))
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                    UIApplication.modalFromTop(vc)
-                                }
-                                guard
-                                    let sendedTx = ethWalletModel.wallet.transactions.last,
-                                    let txHash = sendedTx.hash
-                                else {
-                                    self.sendReject(for: request)
-                                    return
-                                }
-                                
-                                self.server.send(try! Response(url: request.url, value: "0x" + txHash, id: request.id!))
-                            }
-                            .store(in: &self.bag)
-
-                    case .failure(let error):
-                        let vc = error.alertController
-                        DispatchQueue.main.async {
-                            UIApplication.modalFromTop(vc)
-                        }
-                    }
-                }, isAcceptEnabled: (balance >= totalAmount), onReject: {
-                    self.sendReject(for: request)
-                })
-                DispatchQueue.main.async {
-                    UIApplication.modalFromTop(alert)
-                }
-            }
-            .store(in: &bag)
-    }
-}
-
-
-fileprivate extension UIAlertController {
-    func withCloseButton(title: String = "Close", onClose: (() -> Void)? = nil ) -> UIAlertController {
-        addAction(UIAlertAction(title: title, style: .cancel) { _ in onClose?() } )
-        return self
-    }
-    
-    static func showShouldStart(from controller: UIViewController, clientName: String, onStart: @escaping () -> Void, onClose: @escaping (() -> Void)) {
-        let alert = UIAlertController(title: "Request to start a session", message: clientName, preferredStyle: .alert)
-        let startAction = UIAlertAction(title: "Start", style: .default) { _ in onStart() }
-        alert.addAction(startAction)
-        controller.present(alert.withCloseButton(onClose: onClose), animated: true)
-    }
-    
-    static func showShouldSign(from controller: UIViewController, title: String, message: String, onSign: @escaping () -> Void, onCancel: @escaping () -> Void) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let startAction = UIAlertAction(title: "Sign", style: .default) { _ in onSign() }
-        alert.addAction(startAction)
-        controller.present(alert.withCloseButton(title: "Reject", onClose: onCancel), animated: true)
-    }
-}
-
-fileprivate extension Response {
-    static func signature(_ signature: String, for request: Request) -> Response {
-        return try! Response(url: request.url, value: signature, id: request.id!)
-    }
-}
-
-extension StringProtocol {
-    var drop0xPrefix: SubSequence { hasPrefix("0x") ? dropFirst(2) : self[...] }
-    var hexToInteger: Int? { Int(drop0xPrefix, radix: 16) }
-    var integerToHex: String { .init(Int(self) ?? 0, radix: 16) }
 }
