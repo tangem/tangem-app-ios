@@ -24,10 +24,3 @@ extension UIWindow {
         return rootViewController?.topViewController
     }
 }
-
-extension UIApplication {
-    var topViewController : UIViewController? {
-        let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-        return keyWindow?.topViewController
-    }
-}
