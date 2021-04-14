@@ -90,10 +90,10 @@ class SendViewModel: ViewModel {
     // MARK: Output
     @Published var destinationHint: TextHint? = nil
     @Published var amountHint: TextHint? = nil
-    @Published var sendAmount: String = ""
-    @Published var sendTotal: String = ""
-    @Published var sendFee: String = ""
-    @Published var sendTotalSubtitle: String = ""
+    @Published var sendAmount: String = " "
+    @Published var sendTotal: String = " "
+    @Published var sendFee: String = " "
+    @Published var sendTotalSubtitle: String = " "
     @Published var isSendEnabled: Bool = false
     @Published var selectedFee: Amount? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
@@ -188,7 +188,7 @@ class SendViewModel: ViewModel {
     private func fillTotalBlockWithDefaults() {
         self.sendAmount = " "
         self.sendTotal = " "
-        self.sendTotalSubtitle = ""
+        self.sendTotalSubtitle = " "
     }
     
     // MARK: - Subscriptions
@@ -205,14 +205,15 @@ class SendViewModel: ViewModel {
         
         $destination //destination validation
             .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
+            .removeDuplicates()
             .sink{ [unowned self] newText in
                 self.validateDestination(newText)
             }
             .store(in: &bag)
         
         $transaction
-            .combineLatest($isFiatCalculation)
-            .debounce(for: 0.3, scheduler: RunLoop.main)
+            .combineLatest($isFiatCalculation.uiPublisherWithFirst)
+        //.debounce(for: 0.3, scheduler: RunLoop.main)
             //update total block
             .sink { [unowned self] tx, isFiatCalculation in
                 if let tx = tx {
@@ -249,7 +250,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $isFiatCalculation //handle conversion
-            .dropFirst()
+            .uiPublisher
             .filter {[unowned self] _ in self.amountToSend.value != 0 }
             .sink { [unowned self] value in
                 self.amountText = value ? self.walletModel.getFiat(for: self.amountToSend)?.description
@@ -260,8 +261,8 @@ class SendViewModel: ViewModel {
         
         // MARK: Amount
         $amountText
-            .removeDuplicates()
-            .combineLatest($isFiatCalculation)
+            .uiPublisher
+            .combineLatest($isFiatCalculation.uiPublisherWithFirst)
             .debounce(for: 0.3, scheduler: RunLoop.main)
             .filter {[unowned self] (string, isFiat) -> Bool in
                 if isFiat,
@@ -283,8 +284,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $amountToSend //amount validation
-            .removeDuplicates()
-            .debounce(for: 0.5, scheduler: RunLoop.main, options: nil)
+            .uiPublisher
             .sink {[unowned self] newAmount in
                 if newAmount.value == 0 {
                     self.amountHint = nil
@@ -303,8 +303,9 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $amountValidated //update fee
+            .uiPublisher
             .filter { $0 }
-            .combineLatest($validatedDestination.compactMap { $0 }, $isFeeIncluded)
+            .combineLatest($validatedDestination.uiPublisher.compactMap { $0 },  $isFeeIncluded.uiPublisherWithFirst)
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .flatMap { [unowned self] _, dest, includeFee -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
@@ -317,25 +318,26 @@ class SendViewModel: ViewModel {
             }
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] completion in
-                self.isFeeLoading = false
                 self.fees = []
-            }, receiveValue: {[unowned self] fees in
                 self.isFeeLoading = false
+            }, receiveValue: {[unowned self] fees in
                 self.fees = fees
+                self.isFeeLoading = false
             })
             .store(in: &bag)
         
         $amountValidated
-            .combineLatest($validatedDestination,
-                           $selectedFee,
-                           $isFeeIncluded)
+            .uiPublisher
+            .combineLatest($validatedDestination.uiPublisher,
+                           $selectedFee.uiPublisherWithFirst,
+                           $isFeeIncluded.uiPublisherWithFirst)
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .map {[unowned self] amountValidated, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
                 
                 if !amountValidated || destination == nil || fee == nil {
                     return nil
                 }
-                
+
                 let result = self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? self.amountToSend - fee! : self.amountToSend,
                                                                                  fee: fee!,
                                                                                  destinationAddress: destination!)
@@ -356,8 +358,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $maxAmountTapped //handle max amount tap
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
-            .dropFirst()
+            .uiPublisher
             .sink { [unowned self] _ in
                 guard let amount = self.walletModel.wallet.amounts[self.amountToSend.type] else { return  }
                 
@@ -372,7 +373,8 @@ class SendViewModel: ViewModel {
         
         // MARK: Fee
         $fees //handle fee selection
-            .combineLatest($selectedFeeLevel)
+            .uiPublisher
+            .combineLatest($selectedFeeLevel.uiPublisherWithFirst)
             .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
             .sink{ [unowned self] fees, level in
                 if fees.isEmpty {
@@ -384,7 +386,8 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $selectedFee //update fee label
-            .combineLatest($isFiatCalculation)
+            .uiPublisher
+            .combineLatest($isFiatCalculation.uiPublisherWithFirst)
             .debounce(for: 0.3, scheduler: RunLoop.main)
             .sink{ [unowned self] newAmount, isFiat in
                 let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, address: self.walletModel.wallet.address, type: .coin, value: 0)
@@ -394,9 +397,7 @@ class SendViewModel: ViewModel {
         
         // MARK: Memo + destination tag
         $destinationTagStr
-            .dropFirst()
-            .removeDuplicates()
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .uiPublisher
             .sink(receiveValue: { [unowned self] destTagStr in
                 self.validatedXrpDestinationTag = nil
                 self.destinationTagHint = nil
@@ -410,9 +411,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $memo
-            .dropFirst()
-            .removeDuplicates()
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .uiPublisher
             .sink(receiveValue: { [unowned self] memo in
                 self.validatedMemoId = nil
                 self.memoHint = nil
