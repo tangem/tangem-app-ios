@@ -9,33 +9,27 @@
 import Foundation
 import WalletConnectSwift
 
-class PersonalSignHandler: RequestHandler {
-    private(set) weak var handler: SignHandler!
+class PersonalSignHandler: WalletConnectSignHandler {
     
-    init(handler: SignHandler) {
-        self.handler = handler
-    }
-    
-    func canHandle(request: Request) -> Bool {
+    override func canHandle(request: Request) -> Bool {
         return request.method == "personal_sign"
     }
 
-    func handle(request: Request) {
+    override func handle(request: Request) {
         do {
             let messageBytes = try request.parameter(of: String.self, at: 0)
             let address = try request.parameter(of: String.self, at: 1)
 
-            guard handler.assertAddress(address) else {
-                handler.server.send(.reject(request))
+            guard let session = dataSource?.session(for: request, address: address) else {
+                delegate?.send(.reject(request))
                 return
             }
         
             let message = String(data: Data(hex: messageBytes), encoding: .utf8) ?? messageBytes
             let personalMessageData = self.personalMessageData(messageData: Data(hex: messageBytes))
-            handler.askToSign(request: request, address: address, message: message, dataToSign: personalMessageData)
+            askToSign(in: session, request: request, message: message, dataToSign: personalMessageData)
         } catch {
-            handler.server.send(.invalid(request))
-            return
+            delegate?.send(.invalid(request))
         }
     }
 
