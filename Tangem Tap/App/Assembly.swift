@@ -33,14 +33,7 @@ class ServicesAssembly {
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
-    lazy var walletConnectService: WalletConnectService = {
-        let wc = WalletConnectService()
-        wc.tangemSdk = tangemSdk
-        wc.walletManagerFactory = walletManagerFactory
-        wc.assembly = assembly
-        wc.txSigner = signer
-        return wc
-    }()
+    lazy var walletConnectService = WalletConnectService(assembly: assembly, tangemSdk: tangemSdk, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -54,12 +47,14 @@ class ServicesAssembly {
         return tracker
     }()
     
+    lazy var scannedCardsRepository: ScannedCardsRepository = ScannedCardsRepository(storage: persistentStorage)
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
         crepo.validatedCardsService = keychainService
         crepo.assembly = assembly
         crepo.delegate = self
+        crepo.scannedCardsRepository = scannedCardsRepository
         return crepo
     }()
     
