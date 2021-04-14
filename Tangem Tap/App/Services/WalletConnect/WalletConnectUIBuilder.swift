@@ -29,7 +29,7 @@ enum WalletConnectUIBuilder {
         case .personalSign:
             buttonTitle = "Sign"
         case .sendTx:
-            buttonTitle = "Build Tx"
+            buttonTitle = "Sign and Send"
         }
         vc.addAction(UIAlertAction(title: "Reject", style: .destructive, handler: { _ in onReject() }))
         let acceptButton = UIAlertAction(title: buttonTitle, style: .default, handler: { _ in onAcceptAction() })
