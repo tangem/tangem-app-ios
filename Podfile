@@ -17,7 +17,7 @@ target 'Tangem Tap' do
   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-17'
   #pod 'TangemSdk', :path => '../card-sdk-swift'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'build-91'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'build-92'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.4'
