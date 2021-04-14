@@ -1,5 +1,5 @@
 //
-//  EthTransaction.swift
+//  WalletConnectEthTransaction.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,14 @@
 
 import Foundation
 
-struct EthTransaction: Codable {
+struct WalletConnectEthTransaction: Codable {
     let from: String // Required
     let to: String // Required
-    let gas: String // Required
     let gasPrice: String // Required
     let value: String // Required
     let data: String // Required
+    let gas: String?
+    let gasLimit: String?
     let nonce: String?
     
     var description: String {
@@ -22,7 +23,7 @@ struct EthTransaction: Codable {
         to: \(to),
         value: \(value),
         gasPrice: \(gasPrice),
-        gas: \(gas),
+        gas: \(gas ?? gasLimit ?? "not specified"),
         data: \(data.count > 30 ? "\(data.prefix(10))...\(data.suffix(10))" : data),
         nonce: \(nonce ?? "not specified")
         """
