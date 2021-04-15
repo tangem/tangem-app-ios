@@ -178,19 +178,30 @@ extension WalletConnectService: ServerDelegate {
             completion(rejectedResponse)
             return
         }
-    
+        
+        let peerMeta = session.dAppInfo.peerMeta
+        var message = "Request to start a session for\n\(peerMeta.name)\n\nURL: \(peerMeta.url)"
+        if let description = peerMeta.description, !description.isEmpty {
+            message += "\n\n" + description
+        }
+        let onAccept = {
+            self.sessions.filter {
+                $0.wallet == wallet &&
+                    $0.session.dAppInfo.peerMeta.url == session.dAppInfo.peerMeta.url
+                    && $0.session.dAppInfo.peerMeta.name == session.dAppInfo.peerMeta.name
+            }.forEach { try? server.disconnect(from: $0.session) }
+            completion(Session.WalletInfo(approved: true,
+                                          accounts: [wallet.address],
+                                          chainId: wallet.chainId,
+                                          peerId: UUID().uuidString,
+                                          peerMeta: self.walletMeta))
+        }
         DispatchQueue.main.async {
-            UIAlertController.showShouldStart(from: UIApplication.topViewController!,
-                                              clientName: session.dAppInfo.peerMeta.name,
-                                              onStart: {
-                                                completion(Session.WalletInfo(approved: true,
-                                                                              accounts: [wallet.address],
-                                                                              chainId: wallet.chainId,
-                                                                              peerId: UUID().uuidString,
-                                                                              peerMeta: self.walletMeta))
-                                              }, onClose: {
-                                                completion(self.rejectedResponse)
-                                              })
+            UIApplication.modalFromTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
+                                                                        message: message,
+                                                                        onAcceptAction: onAccept,
+                                                                        isAcceptEnabled: true,
+                                                                        onReject: { completion(self.rejectedResponse) }))
         }
     }
     

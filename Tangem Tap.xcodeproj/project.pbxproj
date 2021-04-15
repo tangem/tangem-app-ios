@@ -157,7 +157,6 @@
 		B0651737259CACD8001D966C /* WarningsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0651736259CACD8001D966C /* WarningsList.swift */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
 		B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07AE16B25DD548A0045179A /* RateAppService.swift */; };
-		B07DBC9E2625E0AF00BAE18E /* UIAlertController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07DBC9D2625E0AF00BAE18E /* UIAlertController+.swift */; };
 		B080766425D11169006CF606 /* ManageTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080766325D11169006CF606 /* ManageTokensView.swift */; };
 		B080766C25D11173006CF606 /* ManageTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080766B25D11173006CF606 /* ManageTokensViewModel.swift */; };
 		B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B082E922255A8EF000A0CEA9 /* StorageType.swift */; };
@@ -396,7 +395,6 @@
 		B0651736259CACD8001D966C /* WarningsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsList.swift; sourceTree = "<group>"; };
 		B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsUtils.swift; sourceTree = "<group>"; };
 		B07AE16B25DD548A0045179A /* RateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppService.swift; sourceTree = "<group>"; };
-		B07DBC9D2625E0AF00BAE18E /* UIAlertController+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+.swift"; sourceTree = "<group>"; };
 		B080765E25D10667006CF606 /* erc20tokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = erc20tokens.json; sourceTree = "<group>"; };
 		B080766325D11169006CF606 /* ManageTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensView.swift; sourceTree = "<group>"; };
 		B080766B25D11173006CF606 /* ManageTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensViewModel.swift; sourceTree = "<group>"; };
@@ -979,7 +977,6 @@
 				5DF2522C24F95E390015B429 /* UIScreen+.swift */,
 				5D80ED412550172A0008DEF0 /* UIApplication+.swift */,
 				5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */,
-				B07DBC9D2625E0AF00BAE18E /* UIAlertController+.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -1487,7 +1484,6 @@
 				5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
-				B07DBC9E2625E0AF00BAE18E /* UIAlertController+.swift in Sources */,
 				B018F2FD2591FE8600D8F89A /* TapWarning.swift in Sources */,
 				B0F920CC25932DCF007C176C /* WarningListView.swift in Sources */,
 				5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */,
