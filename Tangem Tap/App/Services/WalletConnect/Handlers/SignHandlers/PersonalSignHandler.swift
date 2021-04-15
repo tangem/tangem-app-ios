@@ -25,17 +25,19 @@ class PersonalSignHandler: WalletConnectSignHandler {
                 return
             }
         
+            let prefix = "Message for \(session.session.dAppInfo.peerMeta.name):\n"
             let message = String(data: Data(hex: messageBytes), encoding: .utf8) ?? messageBytes
-            let personalMessageData = self.personalMessageData(messageData: Data(hex: messageBytes))
-            askToSign(in: session, request: request, message: message, dataToSign: personalMessageData)
+            let personalMessageData = self.makePersonalMessageData(Data(hex: messageBytes))
+            askToSign(in: session, request: request, message: prefix + message, dataToSign: personalMessageData)
         } catch {
             delegate?.send(.invalid(request))
         }
     }
 
-    private func personalMessageData(messageData: Data) -> Data {
+    private func makePersonalMessageData(_ data: Data) -> Data {
         let prefix = "\u{19}Ethereum Signed Message:\n"
-        let prefixData = (prefix + String(messageData.count)).data(using: .ascii)!
-        return prefixData + messageData
+        let prefixData = (prefix + "\(data.count)").data(using: .utf8)!
+        return prefixData + data
     }
 }
+
