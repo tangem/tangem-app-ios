@@ -343,7 +343,7 @@
 "wallet_connect" = "Wallet Connect";
 "wallet_connect_sessions_title" = "Wallet Connect Sessions";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
-"wallet_connect_no_sessions_message" = "No opened Wallet Connect sessions";
+"wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
 
 
 // MARK: - Alert
