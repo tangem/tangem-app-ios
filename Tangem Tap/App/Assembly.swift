@@ -67,13 +67,13 @@ class ServicesAssembly {
     }()
     
     
-    var signer: TransactionSigner {
+    lazy var signer: TransactionSigner = {
         let signer = DefaultSigner(tangemSdk: self.tangemSdk,
                                    initialMessage: Message(header: nil,
                                                            body: "initial_message_sign_header".localized))
         signer.delegate = cardsRepository
         return signer
-    }
+    }()
     
     private let keysManager = try! KeysManager()
     private let configManager = try! FeaturesConfigManager()
