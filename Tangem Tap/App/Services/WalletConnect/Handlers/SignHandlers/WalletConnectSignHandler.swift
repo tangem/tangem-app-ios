@@ -44,23 +44,22 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             }
         }
         
-        let onCancel: () -> Void = {
-            self.delegate?.sendReject(for: request)
-        }
-        
+        let alertMessage = "Requesting to sign a message\nwith card \(TapCardIdFormatter(cid: session.wallet.cid).formatted())\n\n" + message
         DispatchQueue.main.async {
-            UIAlertController.showShouldSign(from: UIApplication.topViewController!,
-                                             title: "Request to sign a message",
-                                             message: message,
-                                             onSign: onSign,
-                                             onCancel: onCancel)
+            UIApplication.modalFromTop(
+                WalletConnectUIBuilder.makeAlert(for: .sign,
+                                                 message: alertMessage,
+                                                 onAcceptAction: onSign,
+                                                 isAcceptEnabled: true,
+                                                 onReject: { self.delegate?.sendReject(for: request) })
+            )
         }
     }
     
     func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
         let hash = data.sha3(.keccak256)
         
-        tangemSdk.sign(hash: hash, walletPublicKey: wallet.walletPublicKey) {result in
+        tangemSdk.sign(hash: hash, walletPublicKey: wallet.walletPublicKey, cardId: wallet.cid) {result in
             switch result {
             case .success(let response):
                 if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response,
@@ -68,7 +67,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                                                                   publicKey: wallet.walletPublicKey) {
                     
                     let strSig =  "0x" + unmarshalledSig.r.asHexString() + unmarshalledSig.s.asHexString() +
-                        String(unmarshalledSig.v.toInt() + wallet.chainId * 2 + 8, radix: 16)
+                        unmarshalledSig.v.asHexString()
                     completion(.success(strSig))
                 } else {
                     completion(.failure(WalletConnectService.WalletConnectServiceError.signFailed))
