@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 enum WalletConnectEvent {
-    case establishSession, personalSign, sendTx
+    case establishSession, sign, sendTx
 }
 
 enum WalletConnectUIBuilder {
@@ -20,18 +20,18 @@ enum WalletConnectUIBuilder {
         return vc
     }
     
-    static func makeAlert(for event: WalletConnectEvent, withTitle title: String, message: String, onAcceptAction: @escaping () -> Void, isAcceptEnabled: Bool, onReject: @escaping () -> Void) -> UIAlertController {
-        let vc: UIAlertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    static func makeAlert(for event: WalletConnectEvent, message: String, onAcceptAction: @escaping () -> Void, isAcceptEnabled: Bool, onReject: @escaping () -> Void) -> UIAlertController {
+        let vc: UIAlertController = UIAlertController(title: "WalletConnect", message: message, preferredStyle: .alert)
         let buttonTitle: String
         switch event {
         case .establishSession:
             buttonTitle = "Start"
-        case .personalSign:
+        case .sign:
             buttonTitle = "Sign"
         case .sendTx:
             buttonTitle = "Sign and Send"
         }
-        vc.addAction(UIAlertAction(title: "Reject", style: .destructive, handler: { _ in onReject() }))
+        vc.addAction(UIAlertAction(title: "Reject", style: .cancel, handler: { _ in onReject() }))
         let acceptButton = UIAlertAction(title: buttonTitle, style: .default, handler: { _ in onAcceptAction() })
         acceptButton.isEnabled = isAcceptEnabled
         vc.addAction(acceptButton)
