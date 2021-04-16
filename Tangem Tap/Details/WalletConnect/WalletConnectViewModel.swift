@@ -13,16 +13,19 @@ import SwiftUI
 class WalletConnectViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var walletConnectService: WalletConnectService!
     weak var walletConnectController: WalletConnectSessionController!
     
-    @Published var error: AlertBinder?
+    @Published var alert: AlertBinder?
     @Published var code: String = ""
     @Published var isServiceBusy: Bool = true
+    @Published var sessions: [WalletConnectSession] = []
     
+    private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
     
-    init() {}
+    init(cardModel: CardViewModel) {
+        self.cardModel = cardModel
+    }
     
     func onAppear() {
         bag = []
@@ -30,18 +33,16 @@ class WalletConnectViewModel: ViewModel {
         $code
             .dropFirst()
             .sink {[unowned self] newCode in
-                if self.walletConnectService.handle(url: newCode) {
-//                    self.isConnecting = true
-                } else {
-                    self.error = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
+                if !self.walletConnectController.handle(url: newCode) {
+                    self.alert = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
                 }
             }
             .store(in: &bag)
         
-        walletConnectService.error
+        walletConnectController.error
             .receive(on: DispatchQueue.main)
             .sink {[unowned self]  error in
-                self.error = error.alertBinder
+                self.alert = error.alertBinder
             }
             .store(in: &bag)
         
@@ -51,10 +52,19 @@ class WalletConnectViewModel: ViewModel {
                 self?.isServiceBusy = isServiceBusy
             }
             .store(in: &bag)
+        
+        walletConnectController.sessionsPublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] in
+                guard let self = self else { return }
+                
+                self.sessions = $0.filter { $0.wallet.cid == self.cardModel.cardInfo.card.cardId }
+            })
+            .store(in: &bag)
     }
     
     func disconnectSession(at index: Int) {
-        walletConnectService.disconnectSession(at: index)
+        walletConnectController.disconnectSession(at: index)
         withAnimation {
             self.objectWillChange.send()
         }
