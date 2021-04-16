@@ -47,7 +47,7 @@ class DetailsViewModel: ViewModel {
         cardModel.hasWallet
     }
     
-    var shoulShowWC: Bool {
+    var shouldShowWC: Bool {
         cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
     }
     
