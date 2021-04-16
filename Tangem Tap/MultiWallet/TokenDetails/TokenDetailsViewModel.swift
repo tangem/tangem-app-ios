@@ -128,6 +128,7 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     private func bind() {
+        print("🔗 Token Details view model updates binding")
         card.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -145,11 +146,12 @@ class TokenDetailsViewModel: ViewModel {
         
         walletModel?
             .$state
+            .print("🐼 TokenDetailsViewModel: Wallet model state")
             .map{ $0.isLoading }
             .filter { !$0 }
             .receive(on: RunLoop.main)
             .sink {[unowned self] _ in
-                print("♻️ Wallet model loading state changed")
+                print("♻️ Token wallet model loading state changed")
                 withAnimation {
                     self.isRefreshing = false
                 }
