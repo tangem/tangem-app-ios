@@ -60,11 +60,11 @@ class TokenItemsRepository {
         }
     }
     
-    private func save() {
+    func save() {
         try? persistanceStorage.store(value: items, for: storageKey)
     }
     
-    private func fetch() {
+    func fetch() {
         lockQueue.sync {
             items = (try? persistanceStorage.value(for: storageKey)) ?? []
         }

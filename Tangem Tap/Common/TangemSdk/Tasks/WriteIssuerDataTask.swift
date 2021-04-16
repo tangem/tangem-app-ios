@@ -8,7 +8,7 @@
 
 import TangemSdk
 
-    class WriteIssuerDataTask: CardSessionRunnable {
+class WriteIssuerDataTask: CardSessionRunnable {
     typealias CommandResponse = WriteIssuerDataResponse
     
     var message: Message? { Message(header: "twin_process_creating_wallet".localized) }

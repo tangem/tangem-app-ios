@@ -8,6 +8,8 @@ target 'Tangem Tap' do
   inhibit_all_warnings!
 
   # Pods for Tangem Tap
+  pod 'AnyCodable-FlightSchool'
+  
   pod 'BinanceChain', :git => 'https://github.com/lazutkin-andrey/swiftbinancechain.git', :tag => '0.0.7'
   #pod 'BinanceChain', :path => '../SwiftBinanceChain'
   
@@ -17,8 +19,8 @@ target 'Tangem Tap' do
   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-17'
   #pod 'TangemSdk', :path => '../card-sdk-swift'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'build-92'
-  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'build-93'
+#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.4'
   #pod 'web3swift', :path => '../web3swift'
@@ -33,6 +35,7 @@ target 'Tangem Tap' do
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
+  pod 'WalletConnectSwift'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
