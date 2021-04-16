@@ -342,8 +342,9 @@
 
 "wallet_connect" = "Wallet Connect";
 "wallet_connect_sessions_title" = "Wallet Connect Sessions";
+"wallet_connect_session_opened" = "WalletConnect session opened with %@";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
-"wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
+"wallet_connect_no_sessions_message" = "No opened WalletConnect sessions for scanned card";
 
 
 // MARK: - Alert

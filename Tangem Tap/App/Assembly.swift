@@ -447,10 +447,9 @@ class Assembly: ObservableObject {
 		return vm
 	}
     
-    func makeWalletConnectViewModel() -> WalletConnectViewModel {
-        let vm = WalletConnectViewModel()
+    func makeWalletConnectViewModel(cardModel: CardViewModel) -> WalletConnectViewModel {
+        let vm = WalletConnectViewModel(cardModel: cardModel)
         initialize(vm)
-        vm.walletConnectService = services.walletConnectService
         vm.walletConnectController = services.walletConnectService
         return vm
     }
