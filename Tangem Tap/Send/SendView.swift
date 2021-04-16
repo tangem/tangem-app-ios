@@ -242,14 +242,10 @@ struct SendView: View {
                                          image: "arrow.right") {
                             self.viewModel.send() {
                                 DispatchQueue.main.async {
-                                    let alert = Alert(title: Text("common_success"),
-                                                      message: Text("send_transaction_success"),
-                                                      dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                                          action: {
-                                                                                            presentationMode.wrappedValue.dismiss()
-                                                                                            onSuccess()
-                                                                                          }))
-                                    
+                                    let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
+                                        presentationMode.wrappedValue.dismiss()
+                                        onSuccess()
+                                    }
                                     self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
                                 }
                             }
