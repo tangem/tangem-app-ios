@@ -22,13 +22,6 @@ extension Error {
     }
 }
 
-
-struct AlertBinder: Identifiable {
-    let id = UUID()
-    let alert: Alert
-    var error: Error?
-}
-
 extension Error {
     private var alertTitle: String {
         "common_error".localized
