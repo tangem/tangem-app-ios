@@ -38,6 +38,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToTokenDetails = false
     @Published var mainToAddTokens: Bool = false
     @Published var mainToTroubleshootingScan = false
+    @Published var mainToWalletConnectQR: Bool = false
     
     // MARK: SendView
     @Published var sendToQR = false
@@ -61,6 +62,9 @@ class NavigationCoordinator: ObservableObject {
     @Published var detailsToTopup = false
     @Published var detailsToSend = false
     
+    // MARK: WalletConnectView
+    @Published var walletConnectToQR = false
+
     deinit {
         print("NavigationCoordinator deinit")
     }
