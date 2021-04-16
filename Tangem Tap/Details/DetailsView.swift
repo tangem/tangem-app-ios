@@ -127,8 +127,8 @@ struct DetailsView: View {
                     }
                 }
                 
-                if viewModel.shoulShowWC {
-                    NavigationLink(destination: WalletConnectView(viewModel: viewModel.assembly.makeWalletConnectViewModel())
+                if viewModel.shouldShowWC {
+                    NavigationLink(destination: WalletConnectView(viewModel: viewModel.assembly.makeWalletConnectViewModel(cardModel: viewModel.cardModel))
                                     .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
                                    tag: NavigationTag.walletConnect, selection: $selection) {
                         DetailsRowView(title: "WalletConnect",
