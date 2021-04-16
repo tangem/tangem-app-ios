@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class ServicesAssembly {
     weak var assembly: Assembly!
+    var urlHandlers: [URLHandler] = []
     
     deinit {
         print("ServicesAssembly deinit")
@@ -32,6 +33,7 @@ class ServicesAssembly {
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
+    lazy var walletConnectService = WalletConnectService(assembly: assembly, tangemSdk: tangemSdk, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -45,12 +47,14 @@ class ServicesAssembly {
         return tracker
     }()
     
+    lazy var scannedCardsRepository: ScannedCardsRepository = ScannedCardsRepository(storage: persistentStorage)
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
         crepo.validatedCardsService = keychainService
         crepo.assembly = assembly
         crepo.delegate = self
+        crepo.scannedCardsRepository = scannedCardsRepository
         return crepo
     }()
     
@@ -63,13 +67,13 @@ class ServicesAssembly {
     }()
     
     
-    var signer: TransactionSigner {
+    lazy var signer: TransactionSigner = {
         let signer = DefaultSigner(tangemSdk: self.tangemSdk,
                                    initialMessage: Message(header: nil,
                                                            body: "initial_message_sign_header".localized))
         signer.delegate = cardsRepository
         return signer
-    }
+    }()
     
     private let keysManager = try! KeysManager()
     private let configManager = try! FeaturesConfigManager()
@@ -79,7 +83,6 @@ class ServicesAssembly {
         config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
         return config
     }()
-    
 }
 
 extension ServicesAssembly: CardsRepositoryDelegate {
@@ -87,6 +90,7 @@ extension ServicesAssembly: CardsRepositoryDelegate {
         featuresService.setupFeatures(for: cardInfo.card)
         warningsService.setupWarnings(for: cardInfo.card)
         tokenItemsRepository.setCard(cardInfo.card.cardId ?? "")
+        walletConnectService.didScan(cardInfo.card)
         
         if !featuresService.linkedTerminal {
             tangemSdk.config.linkedTerminal = false
@@ -128,7 +132,7 @@ class Assembly: ObservableObject {
         return vm
     }
     
-    // MARK: Main view model
+    // MARK: - Main view model
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
             let restoredCid = restored.state.card?.cardId ?? ""
@@ -145,9 +149,12 @@ class Assembly: ObservableObject {
         vm.topupService = services.topupService
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
-        vm.state = services.cardsRepository.lastScanResult
+        vm.walletConnectSessionChecker = services.walletConnectService
+        vm.walletConnectUrlHandler = services.walletConnectService
         vm.rateAppController = services.rateAppService
 
+        vm.state = services.cardsRepository.lastScanResult
+        
         vm.negativeFeedbackDataCollector = services.negativeFeedbackDataCollector
         vm.failedCardScanTracker = services.failedCardScanTracker
         
@@ -308,7 +315,7 @@ class Assembly: ObservableObject {
         return vm
     }
     
-    // MARK: Details
+    // MARK: - Details
     
     func makeDetailsViewModel() -> DetailsViewModel {
         
@@ -440,6 +447,13 @@ class Assembly: ObservableObject {
 		return vm
 	}
     
+    func makeWalletConnectViewModel(cardModel: CardViewModel) -> WalletConnectViewModel {
+        let vm = WalletConnectViewModel(cardModel: cardModel)
+        initialize(vm)
+        vm.walletConnectController = services.walletConnectService
+        return vm
+    }
+
     public func reset() {
         var persistentKeys = [String]()
         persistentKeys.append(String(describing: type(of: MainViewModel.self)))
@@ -494,16 +508,19 @@ extension Assembly {
         let assembly = Assembly()
         
         // Twin card
-        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
+//        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
         
         // Bitcoin old test card
-        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
+//        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
         
         // ETH pigeon card
-        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
+//        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
+        
+        // V4 card
+        let v4Card = scanResult(for: Card.v4Card, assembly: assembly)
         
         // Which card data should be displayed in preview?
-        assembly.services.cardsRepository.lastScanResult = ethCardScan
+        assembly.services.cardsRepository.lastScanResult = v4Card
         return assembly
     }()
     
