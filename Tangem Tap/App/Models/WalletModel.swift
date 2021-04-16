@@ -344,7 +344,19 @@ class WalletModel: ObservableObject, Identifiable {
 }
 
 extension WalletModel {
-    enum State {
+    enum State: Equatable {
+        static func == (lhs: WalletModel.State, rhs: WalletModel.State) -> Bool {
+            switch (lhs, rhs) {
+            case (.noAccount, noAccount),
+                 (.created, .created),
+                 (.idle, .idle),
+                 (.loading, .loading),
+                 (.failed, .failed): return true
+            default:
+                return false
+            }
+        }
+        
         case created
         case idle
         case loading
