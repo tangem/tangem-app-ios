@@ -146,7 +146,8 @@ class TokenDetailsViewModel: ViewModel {
         
         walletModel?
             .$state
-            .print("🐼 TokenDetailsViewModel: Wallet model state")
+            .removeDuplicates()
+//            .print("🐼 TokenDetailsViewModel: Wallet model state")
             .map{ $0.isLoading }
             .filter { !$0 }
             .receive(on: RunLoop.main)
