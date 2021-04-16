@@ -39,6 +39,24 @@ class CardViewModel: Identifiable, ObservableObject {
         return walletModels?.map { $0.wallet }
     }
     
+    var walletConnectModels: [WalletInfo] {
+        guard
+            let cid = cardInfo.card.cardId,
+            let wallets = wallets
+        else { return [] }
+        
+        let infos: [WalletInfo] = wallets
+            .compactMap {
+                switch $0.blockchain {
+                case .ethereum(let testnet):
+                    return WalletInfo(cid: cid, walletPublicKey: $0.publicKey, isTestnet: testnet)
+                default:
+                    return nil
+                }
+            }
+        return infos
+    }
+    
     var isMultiWallet: Bool {
         return cardInfo.card.isMultiWallet
     }
@@ -185,6 +203,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecOption()
     }
     
+
 //    func loadPayIDInfo () {
 //        guard featuresService?.canReceiveToPayId ?? false else {
 //            return
