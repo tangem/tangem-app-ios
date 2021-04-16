@@ -20,6 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
+        assembly.services.walletConnectService.restore()
         // Create the SwiftUI view that provides the window contents.
         assembly.services.userPrefsService.numberOfLaunches += 1
         print("Launch number:", assembly.services.userPrefsService.numberOfLaunches)
@@ -36,6 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             self.window = window
             window.makeKeyAndVisible()
         }
+        handleURL(contexts: connectionOptions.urlContexts)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -66,6 +68,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        handleURL(contexts: URLContexts)
+    }
+    
+    private func handleURL(contexts: Set<UIOpenURLContext>) {
+        if let url = contexts.first?.url {
+            for handler in assembly.services.urlHandlers {
+                if handler.handle(url: url) {
+                    break
+                }
+            }
+        }
+    }
 }
 
