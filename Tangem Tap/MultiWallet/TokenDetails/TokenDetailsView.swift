@@ -58,8 +58,8 @@ struct TokenDetailsView: View {
                                  title: "wallet_button_send",
                                  image: "arrow.right",
                                  action: sendAction)
-                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
-                .disabled(!self.viewModel.canSend)
+                    .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
+                    .disabled(!self.viewModel.canSend)
             }
         }
         .sheet(isPresented: $navigation.detailsToSend) {
