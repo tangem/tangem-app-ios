@@ -103,7 +103,6 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 //		}
 	}
     
-    
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
         let scanTask = TapScanTask()
         scanTask.run(in: session) { scanCompletion in
