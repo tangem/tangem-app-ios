@@ -339,6 +339,7 @@ class WalletModel: ObservableObject, Identifiable {
             .sink() {[weak self] _ in
                 print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
                 self?.update()
+                self?.updateTimer?.cancel()
             }
     }
 }
