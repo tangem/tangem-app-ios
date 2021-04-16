@@ -21,7 +21,8 @@ protocol WalletConnectChecker: class {
 }
 
 protocol WalletConnectSessionController: WalletConnectChecker {
-    var sessions: [WalletConnectSession] { get }
+    var sessionsPublisher: Published<[WalletConnectSession]>.Publisher { get }
+    var error: PassthroughSubject<Error, Never> { get }
     func disconnectSession(at index: Int)
     func handle(url: String) -> Bool
 }
@@ -42,6 +43,7 @@ class WalletConnectService: ObservableObject {
     var error: PassthroughSubject<Error, Never> = .init()
     
     @Published private(set) var sessions: [WalletConnectSession] = .init()
+    var sessionsPublisher: Published<[WalletConnectSession]>.Publisher { $sessions }
     
     private(set) var server: Server!
     
