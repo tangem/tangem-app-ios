@@ -22,21 +22,28 @@ extension Error {
     }
 }
 
-
-struct AlertBinder: Identifiable {
-    let id = UUID()
-    let alert: Alert
-    var error: Error?
-}
-
 extension Error {
+    private var alertTitle: String {
+        "common_error".localized
+    }
+    private var okButtonTitle: String {
+        "common_ok".localized
+    }
     var alertBinder: AlertBinder {
         return AlertBinder(alert: alert, error: self)
     }
     
     var alert: Alert {
-        return Alert(title: Text("common_error".localized),
+        return Alert(title: Text(alertTitle),
                      message: Text(self.localizedDescription),
-                     dismissButton: Alert.Button.default(Text("common_ok")))
+                     dismissButton: Alert.Button.default(Text(okButtonTitle)))
+    }
+    
+    var alertController: UIAlertController {
+        let vc = UIAlertController(title: alertTitle, message: localizedDescription, preferredStyle: .alert)
+        vc.addAction(UIAlertAction(title: okButtonTitle, style: .destructive, handler: nil))
+        return vc
     }
 }
+
+
