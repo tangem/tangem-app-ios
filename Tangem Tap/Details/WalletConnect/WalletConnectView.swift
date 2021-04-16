@@ -14,15 +14,17 @@ struct WalletConnectView: View {
     
     var body: some View {
         VStack {
-            if viewModel.walletConnectService.sessions.count == 0 {
+            if viewModel.sessions.count == 0 {
                 Text("wallet_connect_no_sessions_title")
                     .font(.system(size: 24, weight: .semibold))
                     .padding(.bottom, 10)
                 Text("wallet_connect_no_sessions_message")
+                    .multilineTextAlignment(.center)
                     .font(.system(size: 17, weight: .medium))
+                    .padding(.horizontal, 40)
             } else {
                 List {
-                    ForEach(Array(viewModel.walletConnectService.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
+                    ForEach(Array(viewModel.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
                         return WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name,
                                                             cardId: item.wallet.cid) {
                             viewModel.disconnectSession(at: i)
@@ -42,7 +44,7 @@ struct WalletConnectView: View {
             QRScanView(code: $viewModel.code)
                 .edgesIgnoringSafeArea(.all)
         })
-        .alert(item: $viewModel.error) { $0.alert }
+        .alert(item: $viewModel.alert) { $0.alert }
         .onAppear {
             viewModel.onAppear()
         }
@@ -50,8 +52,10 @@ struct WalletConnectView: View {
 }
 
 struct WalletConnectView_Previews: PreviewProvider {
+    static let assembly = Assembly.previewAssembly
+    
     static var previews: some View {
-        WalletConnectView(viewModel: Assembly.previewAssembly.makeWalletConnectViewModel())
+        WalletConnectView(viewModel: assembly.makeWalletConnectViewModel(cardModel: assembly.services.cardsRepository.lastScanResult.cardModel!))
             .environmentObject(NavigationCoordinator())
             .previewGroup(devices: [.iPhone12Pro])
     }
