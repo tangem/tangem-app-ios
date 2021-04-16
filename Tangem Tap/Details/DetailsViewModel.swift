@@ -16,6 +16,7 @@ class DetailsViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
+
     weak var ratesService: CoinMarketCapService! {
         didSet {
             ratesService
@@ -44,6 +45,11 @@ class DetailsViewModel: ViewModel {
 	
     var hasWallet: Bool {
         cardModel.hasWallet
+    }
+    
+    var shouldShowWC: Bool {
+        cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
+            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
     }
     
 	var isTwinCard: Bool {
