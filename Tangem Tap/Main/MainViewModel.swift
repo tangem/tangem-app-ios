@@ -24,6 +24,8 @@ class MainViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
     weak var failedCardScanTracker: FailedCardScanTracker!
+    weak var walletConnectSessionChecker: WalletConnectChecker!
+    weak var walletConnectUrlHandler: URLHandler!
     
     // MARK: Variables
     
@@ -49,6 +51,8 @@ class MainViewModel: ViewModel {
         }
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
+    @Published var walletConnectCode = ""
+    @Published var isWalletConnectServiceBusy = false
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -137,6 +141,10 @@ class MainViewModel: ViewModel {
 		cardModel?.isTwinCard ?? false
 	}
     
+    var canUseWalletConnect: Bool {
+        cardModel?.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false
+    }
+    
     var tokenItemViewModels: [TokenItemViewModel] {
         guard let cardModel = cardModel,
               let walletModels = cardModel.walletModels else { return [] }
@@ -144,13 +152,13 @@ class MainViewModel: ViewModel {
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
             .sorted(by: { lhs, rhs in
-                if lhs.blockchain == cardModel.cardInfo.card.blockchain && rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                if lhs.blockchain == cardModel.cardInfo.card.defaultBlockchain && rhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
                     if lhs.amountType.isToken && rhs.amountType.isToken {
-                        if lhs.amountType.token == cardModel.cardInfo.card.token {
+                        if lhs.amountType.token == cardModel.cardInfo.card.defaultToken {
                             return true
                         }
 
-                        if rhs.amountType.token == cardModel.cardInfo.card.token {
+                        if rhs.amountType.token == cardModel.cardInfo.card.defaultToken {
                             return false
                         }
                     }
@@ -164,11 +172,11 @@ class MainViewModel: ViewModel {
                     }
                 }
 
-                if lhs.blockchain == cardModel.cardInfo.card.blockchain {
+                if lhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
                    return true
                 }
 
-                if rhs.blockchain == cardModel.cardInfo.card.blockchain {
+                if rhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
                     return false
                 }
 
@@ -288,6 +296,26 @@ class MainViewModel: ViewModel {
                 
             }
             .store(in: &bag)
+        
+        $walletConnectCode
+            .dropFirst()
+            .filter { !$0.isEmpty }
+            .sink(receiveValue: {
+                guard self.walletConnectUrlHandler.handle(url: $0) else {
+                    self.error = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
+                    return
+                }
+                
+                self.walletConnectCode = ""
+            })
+            .store(in: &bag)
+        
+        walletConnectSessionChecker.isServiceBusy
+            .receive(on: DispatchQueue.main)
+            .sink {
+                self.isWalletConnectServiceBusy = $0
+            }
+            .store(in: &bag)
     }
     
     // MARK: Scan
@@ -402,7 +430,7 @@ class MainViewModel: ViewModel {
         warningsManager.hideWarning(warning)
     }
     
-    func  onWalletTap(_ tokenItem: TokenItemViewModel) {
+    func onWalletTap(_ tokenItem: TokenItemViewModel) {
         selectedWallet = tokenItem
         assembly.reset()
         navigation.mainToTokenDetails = true
@@ -443,7 +471,7 @@ class MainViewModel: ViewModel {
 		}
         
         guard
-            let numberOfSignedHashes = card.walletSignedHashes,
+            let numberOfSignedHashes = card.wallets.first?.signedHashes, //[REDACTED_TODO_COMMENT]
             numberOfSignedHashes > 0
         else { return }
 		
