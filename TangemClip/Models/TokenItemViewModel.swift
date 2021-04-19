@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdkClips
 import TangemSdkClips
 
 struct TokenItemViewModel: Identifiable, Equatable, Comparable {

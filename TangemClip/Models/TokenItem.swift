@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdkClips
 import SwiftUI
 
 enum TokenItem: Codable, Hashable {
