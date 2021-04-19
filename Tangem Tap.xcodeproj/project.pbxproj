@@ -175,6 +175,8 @@
 		B0608CBE2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0608CBD2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift */; };
 		B0620D8525D11ADF00091A84 /* AddedManagedTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0620D8425D11ADF00091A84 /* AddedManagedTokenView.swift */; };
 		B0651737259CACD8001D966C /* WarningsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0651736259CACD8001D966C /* WarningsList.swift */; };
+		B066AFB9262D5F3800EB85A5 /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A62625FF00009023EC /* config_dev.json */; };
+		B066AFBD262D5F3800EB85A5 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A72625FF00009023EC /* config_prod.json */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
 		B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07AE16B25DD548A0045179A /* RateAppService.swift */; };
 		B07FE4D12616F686000F0EF9 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* ErrorView.swift */; };
@@ -1563,6 +1565,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0D3601025F26C7600929564 /* LaunchScreen.storyboard in Resources */,
+				B066AFB9262D5F3800EB85A5 /* config_dev.json in Resources */,
+				B066AFBD262D5F3800EB85A5 /* config_prod.json in Resources */,
 				B0B06963260C9C7600AE10B0 /* (null) in Resources */,
 				B0B34CC82611CDD600ACFAB3 /* SairaSemiCondensed-Regular.ttf in Resources */,
 				B03F239A2611FC7900A99C12 /* Localizable.strings in Resources */,
