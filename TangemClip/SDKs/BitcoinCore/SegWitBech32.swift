@@ -1,15 +1,43 @@
 //
 //  SegWitBech32.swift
+//  TangemClip
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2018 Evolution Group Ltd. All rights reserved.
+//  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-//  Base32 address format for native v0-16 witness outputs implementation
-//  https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
-//  Inspired by Pieter Wuille C++ implementation
-
 import Foundation
+
+public class SegWitAddress: Equatable {
+    public let type: BitcoinCoreAddressType
+    public let keyHash: Data
+    public let stringValue: String
+    public let version: UInt8
+
+    public var scriptType: ScriptType {
+        switch type {
+        case .pubKeyHash: return .p2wpkh
+        case .scriptHash: return .p2wsh
+        }
+    }
+
+    public var lockingScript: Data {
+        // Data[0] - version byte, Data[1] - push keyHash
+        OpCode.push(Int(version)) + OpCode.push(keyHash)
+    }
+
+    public init(type: BitcoinCoreAddressType, keyHash: Data, bech32: String, version: UInt8) {
+        self.type = type
+        self.keyHash = keyHash
+        self.stringValue = bech32
+        self.version = version
+    }
+
+    static public func == (lhs: SegWitAddress, rhs: SegWitAddress) -> Bool {
+        lhs.type == rhs.type && lhs.keyHash == rhs.keyHash && lhs.version == rhs.version
+    }
+}
+
 
 /// Segregated Witness Address encoder/decoder
 public class SegWitBech32 {
@@ -66,7 +94,7 @@ public class SegWitBech32 {
     public static func encode(hrp: String, version: UInt8, program: Data) throws -> String {
         var enc = Data([version])
         enc.append(try convertBits(from: 8, to: 5, pad: true, idata: program))
-        let result = bech32.encode(hrp, values: enc)
+        let result = bech32.bitcoinCoreEncode(hrp, values: enc)
         guard let _ = try? decode(hrp: hrp, addr: result) else {
             throw CoderError.encodingCheckFailed
         }
