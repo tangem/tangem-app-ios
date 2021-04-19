@@ -58,7 +58,6 @@ target 'TangemClip' do
   pod 'Sodium'
   pod 'SwiftCBOR'
   pod 'AnyCodable-FlightSchool'
-  pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.13'
   pod 'TangemSdkClips', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :branch => 'CSS-113-AppClips'
   
 end
