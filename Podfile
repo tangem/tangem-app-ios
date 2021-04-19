@@ -9,24 +9,33 @@ target 'Tangem Tap' do
 
   # Pods for Tangem Tap
   pod 'AnyCodable-FlightSchool'
-  pod 'BinanceChain', :git => 'https://bitbucket.org/tangem/swiftbinancechain.git', :tag => '0.0.7'
-  #pod 'BinanceChain', :path => '../swiftbinancechain'
-  pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.12'
-  pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-101'
+  
+  pod 'BinanceChain', :git => 'https://github.com/lazutkin-andrey/swiftbinancechain.git', :tag => '0.0.7'
+  #pod 'BinanceChain', :path => '../SwiftBinanceChain'
+  
+  pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
+  #pod 'HDWalletKit', :path => '../HDWallet'
+  
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-17'
   #pod 'TangemSdk', :path => '../card-sdk-swift'
-  pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-85'
-  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
-  pod 'web3swift', :git => 'https://bitbucket.org/tangem/web3swift.git', :tag => '2.2.4'
+  
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'build-93'
+#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  
+  pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.4'
   #pod 'web3swift', :path => '../web3swift'
+  
+  pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.13'
   #pod 'BitcoinCore.swift', :path => '../bitcoincore'
-  pod 'BitcoinCore.swift', :git => 'https://bitbucket.org/tangem/bitcoincore.git', :tag => '0.0.13'
+
   pod 'Moya'
   pod 'KeychainSwift', '~> 19.0'
-  pod 'EFQRCode'
+  pod 'EFQRCode' #//TODO: remove
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
+  pod 'WalletConnectSwift'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
@@ -42,14 +51,12 @@ end
 target 'TangemClip' do
   use_frameworks!
 
-  pod 'BitcoinCore.swift', :git => 'https://bitbucket.org/tangem/bitcoincore.git', :tag => '0.0.13'
-  pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.12'
-  #pod 'TangemSdk', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :tag => 'build-99'
-#  pod 'TangemSdkClips', :path => '../card-sdk-swift'
+  pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.13'
+#  pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.12'
+#  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-17'
+  pod 'stellar-sdk-clips', :path => '../stellar-sdk-clips'
   pod 'TangemSdkClips', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :branch => 'CSS-113-AppClips'
-#  pod 'BlockchainSdk',:git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :tag => 'build-75'
   pod 'BlockchainSdkClips', :path => '../blockchain-sdk-swift'
-  #pod 'BlockchainSdkClips', :git => 'git@bitbucket.org:tangem/blockchain-sdk-swift.git', :branch => 'BSS-93_App-Clips'
 end
 
 pre_install do |installer|

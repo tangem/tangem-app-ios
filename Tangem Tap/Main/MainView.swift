@@ -173,7 +173,8 @@ struct MainView: View {
                 
                 NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                              closeUrl: viewModel.topupCloseUrl,
-                                                             title: "wallet_button_topup")
+                                                             title: "wallet_button_topup",
+                                                             addLoadingIndicator: true)
                                 .onDisappear { viewModel.state.cardModel?.update() },
                                isActive: $navigation.mainToTopup)
                 
@@ -323,6 +324,7 @@ struct MainView: View {
                         && !navigation.mainToTwinOnboarding
                         && !navigation.mainToTwinsWalletWarning
                         && !navigation.mainToAddTokens
+                        && !navigation.mainToTokenDetails
                     }
                     .delay(for: 0.5, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
@@ -372,7 +374,15 @@ struct MainView: View {
                             
                         }
                 } else {
-                    
+                    if viewModel.canUseWalletConnect {
+                        TangemLongButton(isLoading: viewModel.isWalletConnectServiceBusy, title: "wallet_connect") {
+                            self.navigation.mainToWalletConnectQR = true
+                        }
+                        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
+                        .sheet(isPresented: $navigation.mainToWalletConnectQR, content: {
+                            QRScanView(code: $viewModel.walletConnectCode)
+                        })
+                    }
                 }
 
             }
@@ -387,7 +397,7 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
                 .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
         }
-        .previewGroup(devices: [.iPhone8Plus])
+        .previewGroup(devices: [.iPhone12Pro])
         .navigationViewStyle(StackNavigationViewStyle())
         .environment(\.locale, .init(identifier: "en"))
     }
