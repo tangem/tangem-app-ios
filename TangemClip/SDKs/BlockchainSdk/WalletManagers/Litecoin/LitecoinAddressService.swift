@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BitcoinCore
 
 class LitecoinNetworkParams: INetwork {
     let bundleName = "BitcoinKit"
@@ -21,7 +20,7 @@ class LitecoinNetworkParams: INetwork {
     let magic: UInt32 = 0xfbc0b6db //packetMagic
     let port: UInt32 = 9333 //port
     let coinType: UInt32 = 0
-    let sigHash: SigHashType = .bitcoinAll
+    let sigHash: BitcoinCoreSigHashType = .bitcoinAll
     var syncableFromApi: Bool = true
 
     let dnsSeeds = [
