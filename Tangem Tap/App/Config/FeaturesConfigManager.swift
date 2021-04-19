@@ -51,24 +51,24 @@ class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
         config.fetchAndActivate { [weak self] (status, error) in
             guard let self = self else { return }
             
-            self.setupFeatures()
+//            self.setupFeatures()
             self.setupWarnings()
         }
     }
-    
-    private func setupFeatures() {
-        if let features = FirebaseJsonConfigFetcher.fetch(from: config, type: TapFeatures.self, withKey: .features) {
-            print("Features config from Firebase successflly parsed")
-            self.features = features
-        }
-        print("App features config updated")
-    }
-    
+
+//    private func setupFeatures() {
+//        if let features = FirebaseJsonConfigFetcher.fetch(from: config, type: TapFeatures.self, withKey: .features) {
+//            print("Features config from Firebase successflly parsed")
+//            self.features = features
+//        }
+//        print("App features config updated")
+//    }
+
     private func setupWarnings() {
         guard let warnings = FirebaseJsonConfigFetcher.fetch(from: config, type: [RemoteTapWarning].self, withKey: .warnings) else {
             return
         }
-        
+
         self.warnings = TapWarning.fetch(remote: warnings)
     }
 }
