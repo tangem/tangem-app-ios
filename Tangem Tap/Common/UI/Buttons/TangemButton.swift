@@ -103,8 +103,27 @@ struct TangemVerticalButton: View {
 struct TangemLongButton: View {
     let isLoading: Bool
     let title: LocalizedStringKey
-    let image: String
+    let image: Image?
     let action: () -> Void
+    
+    init(isLoading: Bool, title: LocalizedStringKey, image: (() -> Image)?, action: @escaping () -> Void) {
+        self.isLoading = isLoading
+        self.title = title
+        self.image = image?()
+        self.action = action
+    }
+    
+    init(isLoading: Bool, title: LocalizedStringKey, action: @escaping () -> Void) {
+        self.init(isLoading: isLoading, title: title, image: nil, action: action)
+    }
+    
+    init(isLoading: Bool, title: LocalizedStringKey, image: String, action: @escaping () -> Void) {
+        self.init(isLoading: isLoading, title: title, image: { Image(image) }, action: action)
+    }
+    
+    init(isLoading: Bool, title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) {
+        self.init(isLoading: isLoading, title: title, image: { Image(systemName: systemImage) }, action: action)
+    }
     
     var body: some View {
         Button(action: {
@@ -118,7 +137,7 @@ struct TangemLongButton: View {
                 } else {
                     Text(title)
                     Spacer()
-                    Image(image)
+                    image
                 }
             }
             .padding(.horizontal, 16)
