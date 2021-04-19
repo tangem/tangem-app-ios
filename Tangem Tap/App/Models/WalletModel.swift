@@ -55,7 +55,7 @@ class WalletModel: ObservableObject, Identifiable {
     private var updateTimer: AnyCancellable? = nil
     
     deinit {
-        print("WalletModel deinit")
+        print("🗑 WalletModel deinit")
     }
     
     init(cardInfo: CardInfo, walletManager: WalletManager) {
@@ -67,7 +67,7 @@ class WalletModel: ObservableObject, Identifiable {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[unowned self] wallet in
-                print("wallet received")
+                print("💳 Wallet model received update")
                 self.updateBalanceViewModel(with: wallet, state: self.state)
 //                if wallet.hasPendingTx {
 //                    if self.updateTimer == nil {
@@ -80,13 +80,15 @@ class WalletModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
     
-    func update() {
+    func update(silent: Bool = false) {
         if case .loading = state {
             return
         }
         
-        state = .loading
-
+        if !silent {
+            state = .loading
+        }
+        
         walletManager.update { result in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -101,7 +103,9 @@ class WalletModel: ObservableObject, Identifiable {
                     
                     self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 } else {
-                    self.state = .idle
+                    if !silent {
+                        self.state = .idle
+                    }
                     self.loadRates()
                 }
             }
@@ -192,7 +196,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func canRemove(amountType: Amount.AmountType) -> Bool {
-        if let token = amountType.token, token == cardInfo.card.token {
+        if let token = amountType.token, token == cardInfo.card.defaultToken {
             return false
         }
         
@@ -326,19 +330,34 @@ class WalletModel: ObservableObject, Identifiable {
     
     
     func startUpdatingTimer() {
+        print("⏰ Starting updating timer for Wallet model")
         updateTimer = Timer.TimerPublisher(interval: 10.0,
                                            tolerance: 0.1,
                                            runLoop: .main,
                                            mode: .common)
             .autoconnect()
             .sink() {[weak self] _ in
+                print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
                 self?.update()
+                self?.updateTimer?.cancel()
             }
     }
 }
 
 extension WalletModel {
-    enum State {
+    enum State: Equatable {
+        static func == (lhs: WalletModel.State, rhs: WalletModel.State) -> Bool {
+            switch (lhs, rhs) {
+            case (.noAccount, noAccount),
+                 (.created, .created),
+                 (.idle, .idle),
+                 (.loading, .loading),
+                 (.failed, .failed): return true
+            default:
+                return false
+            }
+        }
+        
         case created
         case idle
         case loading
