@@ -24,11 +24,11 @@ class WriteIssuerDataTask: CardSessionRunnable {
     }
     
     func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
-        let sign = SignCommand(hashes: [pairPubKey.sha256()])
+        let sign = SignCommand(hashes: [pairPubKey.sha256()], walletIndex: .index(TangemSdkConstants.oldCardDefaultWalletIndex))
         sign.run(in: session) { (result) in
             switch result {
             case .success(let response):
-                self.signedPubKeyHash = response.signature
+                self.signedPubKeyHash = response.signatures.first
                 self.readIssuerCounter(in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
