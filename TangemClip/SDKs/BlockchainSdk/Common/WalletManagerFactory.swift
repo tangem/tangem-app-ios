@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemSdkClips
-import BitcoinCore
 
 public class WalletManagerFactory {
     private let config: BlockchainSdkConfig
@@ -83,33 +82,15 @@ public class WalletManagerFactory {
         switch blockchain {
         case .bitcoin(let testnet):
             return BitcoinWalletManager(cardId: cardId, wallet: wallet).then {
-                //                let network: BitcoinNetwork = testnet ? .testnet : .mainnet
-                //                let bitcoinManager = BitcoinManager(networkParams: network.networkParams,
-                //                                                             walletPublicKey: walletPublicKey,
-                //                                                             compressedWalletPublicKey: Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!,
-                //                                                             bip: walletPairPublicKey == nil ? .bip84 : .bip141)
-                
-                //                $0.txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: addresses)
-                
                 var providers = [BitcoinNetworkApi:BitcoinNetworkProvider]()
                 providers[.blockchair] = BlockchairNetworkProvider(endpoint: .bitcoin, apiKey: config.blockchairApiKey)
                 providers[.blockcypher] = BlockcypherNetworkProvider(endpoint: BlockcypherEndpoint(coin: .btc, chain: testnet ? .test3: .main),
                                                               tokens: config.blockcypherTokens)
-                // providers[.main] = BitcoinMainProvider()
-                
                 $0.networkService = BitcoinNetworkService(providers: providers, isTestNet: testnet, defaultApi: .blockchair)
             }
             
         case .litecoin:
-            return LitecoinWalletManager(cardId: cardId, wallet: wallet).then {
-                //                let bitcoinManager = BitcoinManager(networkParams: LitecoinNetworkParams(),
-                //                                                    walletPublicKey: walletPublicKey,
-                //                                                    compressedWalletPublicKey: Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!,
-                //                                                    bip: .bip44)
-                //
-                //                $0.txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: addresses)
-                
-                var providers = [BitcoinNetworkApi:BitcoinNetworkProvider]()
+            return LitecoinWalletManager(cardId: cardId, wallet: wallet).then {var providers = [BitcoinNetworkApi:BitcoinNetworkProvider]()
                 providers[.blockcypher] = BlockcypherNetworkProvider(endpoint: BlockcypherEndpoint(coin: .ltc, chain: .main), tokens: config.blockcypherTokens)
                 providers[.blockchair] = BlockchairNetworkProvider(endpoint: .litecoin, apiKey: config.blockchairApiKey)
                 $0.networkService = BitcoinNetworkService(providers: providers, isTestNet: false, defaultApi: .blockchair)
@@ -117,9 +98,6 @@ public class WalletManagerFactory {
             
         case .ducatus:
             return DucatusWalletManager(cardId: cardId, wallet: wallet).then {
-                //                let bitcoinManager = BitcoinManager(networkParams: DucatusNetworkParams(), walletPublicKey: walletPublicKey, compressedWalletPublicKey: Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!, bip: .bip44)
-                
-                //                $0.txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: addresses)
                 $0.networkService = DucatusNetworkService()
             }
             
@@ -134,7 +112,6 @@ public class WalletManagerFactory {
         case .ethereum(let testnet):
             return EthereumWalletManager(cardId: cardId, wallet: wallet, cardTokens: tokens).then {
                 let ethereumNetwork = testnet ? EthereumNetwork.testnet(projectId: config.infuraProjectId) : EthereumNetwork.mainnet(projectId: config.infuraProjectId)
-                //                $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, network: ethereumNetwork)
                 let provider = BlockcypherNetworkProvider(endpoint: .init(coin: .eth, chain: .main), tokens: config.blockcypherTokens)
                 let blockchair = BlockchairNetworkProvider(endpoint: .bitcoin, apiKey: config.blockchairApiKey)
                 $0.networkService = EthereumNetworkService(network: ethereumNetwork, blockcypherProvider: provider, blockchairProvider: blockchair)
@@ -142,14 +119,12 @@ public class WalletManagerFactory {
             
         case .rsk:
             return EthereumWalletManager(cardId: cardId, wallet: wallet, cardTokens: tokens).then {
-                //                $0.txBuilder = EthereumTransactionBuilder(walletPublicKey: walletPublicKey, network: .rsk)
                 let blockchair = BlockchairNetworkProvider(endpoint: .bitcoin, apiKey: config.blockchairApiKey)
                 $0.networkService = EthereumNetworkService(network: .rsk, blockcypherProvider: nil, blockchairProvider: blockchair)
             }
             
         case .bitcoinCash:
             return BitcoinCashWalletManager(cardId: cardId, wallet: wallet).then {
-                //                $0.txBuilder = BitcoinCashTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet)
                 let provider = BlockchairNetworkProvider(endpoint: .bitcoinCash, apiKey: config.blockchairApiKey)
                 $0.networkService = BitcoinCashNetworkService(provider: provider)
             }
@@ -162,7 +137,6 @@ public class WalletManagerFactory {
             
         case .cardano:
             return CardanoWalletManager(cardId: cardId, wallet: wallet).then {
-                //                $0.txBuilder = CardanoTransactionBuilder(walletPublicKey: walletPublicKey, shelleyCard: shelley)
                 let service = CardanoNetworkService(providers: [
                     AdaliteNetworkProvider(baseUrl: .main),
                     RosettaNetworkProvider(baseUrl: .tangemRosetta)
@@ -172,12 +146,10 @@ public class WalletManagerFactory {
             
         case .xrp:
             return XRPWalletManager(cardId: cardId, wallet: wallet).then {
-                //                $0.txBuilder = XRPTransactionBuilder(walletPublicKey: walletPublicKey, curve: curve)
                 $0.networkService = XRPNetworkService()
             }
         case .tezos:
             return TezosWalletManager(cardId: cardId, wallet: wallet).then {
-                //                $0.txBuilder = TezosTransactionBuilder(walletPublicKey: walletPublicKey)
                 $0.networkService = TezosNetworkService()
             }
         }
