@@ -51,12 +51,16 @@ end
 target 'TangemClip' do
   use_frameworks!
 
+  pod 'BigInt'
+  pod 'SwiftyJSON'
+  pod 'Alamofire'
+  pod 'Moya'
+  pod 'Sodium'
+  pod 'SwiftCBOR'
+  pod 'AnyCodable-FlightSchool'
   pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.13'
-#  pod 'HDWalletKit', :git => 'https://bitbucket.org/tangem/hdwallet.git', :tag => '0.3.12'
-#  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-17'
-  pod 'stellar-sdk-clips', :path => '../stellar-sdk-clips'
   pod 'TangemSdkClips', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :branch => 'CSS-113-AppClips'
-  pod 'BlockchainSdkClips', :path => '../blockchain-sdk-swift'
+  
 end
 
 pre_install do |installer|
