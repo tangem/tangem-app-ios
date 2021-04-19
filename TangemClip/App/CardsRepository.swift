@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemSdkClips
-import BlockchainSdkClips
 
 struct CardInfo {
     var card: Card
