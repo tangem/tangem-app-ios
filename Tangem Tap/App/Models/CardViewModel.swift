@@ -271,7 +271,7 @@ class CardViewModel: Identifiable, ObservableObject {
            var wallet = cardInfo.card.wallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex)) {
             wallet.remainingSignatures = signResponse.walletRemainingSignatures
             cardInfo.card.updateWallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex), with: wallet)
-            updateModel()
+//            updateModel()
         }
     }
     
@@ -406,11 +406,13 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 	
 	func update(with card: Card) {
+        print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
         updateModel()
 	}
     
     func update(with cardInfo: CardInfo) {
+        print("🔷 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
         updateModel()
     }
@@ -420,16 +422,19 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func updateState() {
+        print("‼️ Updating Card view model state")
         let hasWallets = cardInfo.card.wallets.filter { $0.status == .loaded }.count > 0
         if !hasWallets {
             self.state = .empty
         } else {
+            print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: self.assembly.loadWallets(from: cardInfo))
             update()
         }
     }
     
     private func updateModel() {
+        print("🔶 Updating Card view model")
         warningsConfigurator.setupWarnings(for: cardInfo.card)
         updateState()
     }
