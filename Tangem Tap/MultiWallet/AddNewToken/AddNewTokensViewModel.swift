@@ -15,7 +15,7 @@ class AddNewTokensViewModel: ViewModel {
     weak var navigation: NavigationCoordinator!
     weak var tokenItemsRepository: TokenItemsRepository!
     
-    var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains.map {$0}.sorted(by: { $0.displayName < $1.displayName }) } }
+    var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains(for: cardModel.cardInfo.card ).sorted(by: { $0.displayName < $1.displayName }) } }
     var availableTokens: [Token]  { get { tokenItemsRepository.supportedItems.erc20Tokens.map {$0} } }
     
     @Published var searchText: String = ""
