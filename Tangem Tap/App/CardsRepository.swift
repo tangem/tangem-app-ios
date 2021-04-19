@@ -60,6 +60,7 @@ class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
     weak var validatedCardsService: ValidatedCardsService!
+    weak var scannedCardsRepository: ScannedCardsRepository!
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
@@ -85,6 +86,7 @@ class CardsRepository {
 				}
 				
 				Analytics.logScan(card: response.card)
+                self.scannedCardsRepository.add(response.card)
 				completion(.success(processScan(response.getCardInfo())))
             }
         }
@@ -100,4 +102,12 @@ class CardsRepository {
         cm?.getCardInfo()
         return result
 	}
+}
+
+extension CardsRepository: SignerDelegate {
+    func onSign(_ signResponse: SignResponse) {
+        if let cm = cards[signResponse.cardId] {
+            cm.cardModel?.onSign(signResponse)
+        }
+    }
 }
