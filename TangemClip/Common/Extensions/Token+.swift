@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import BlockchainSdkClips
 
 extension Token: Identifiable {
     public var id: Int { return hashValue }
