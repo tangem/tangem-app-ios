@@ -31,6 +31,14 @@
 		<key>NSAppClipRequestLocationConfirmation</key>
 		<false/>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>SairaSemiCondensed-Bold.ttf</string>
+		<string>SairaSemiCondensed-Light.ttf</string>
+		<string>SairaSemiCondensed-Medium.ttf</string>
+		<string>SairaSemiCondensed-Regular.ttf</string>
+		<string>SairaSemiCondensed-SemiBold.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -74,14 +82,6 @@
 	<array>
 		<string>A000000812010208</string>
 		<string>D2760000850101</string>
-	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>SairaSemiCondensed-Bold.ttf</string>
-		<string>SairaSemiCondensed-Light.ttf</string>
-		<string>SairaSemiCondensed-Medium.ttf</string>
-		<string>SairaSemiCondensed-Regular.ttf</string>
-		<string>SairaSemiCondensed-SemiBold.ttf</string>
 	</array>
 </dict>
 </plist>
