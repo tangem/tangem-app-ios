@@ -1,0 +1,5 @@
+module ed25519C [system] {
+    header "SDKs/StellarSdk/libs/ed25519-C/include/ed25519.h"
+    export *
+}
+

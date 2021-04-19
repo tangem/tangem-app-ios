@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemSdkClips
-import BlockchainSdkClips
 import Combine
 
 class ServicesAssembly {
