@@ -29,7 +29,8 @@ struct TokenDetailsView: View {
         Group {
             NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                          closeUrl: viewModel.topupCloseUrl,
-                                                         title: "wallet_button_topup")
+                                                         title: "wallet_button_topup",
+                                                         addLoadingIndicator: true)
                             .onDisappear { viewModel.card.update() },
                            isActive: $navigation.detailsToTopup)
         }
@@ -57,8 +58,8 @@ struct TokenDetailsView: View {
                                  title: "wallet_button_send",
                                  image: "arrow.right",
                                  action: sendAction)
-                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
-                .disabled(!self.viewModel.canSend)
+                    .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
+                    .disabled(!self.viewModel.canSend)
             }
         }
         .sheet(isPresented: $navigation.detailsToSend) {
@@ -118,6 +119,14 @@ struct TokenDetailsView: View {
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+                    .filter {_ in !navigation.detailsToSend
+                        && !navigation.detailsToTopup
+                    }
+                    .delay(for: 0.5, scheduler: DispatchQueue.global())
+                    .receive(on: DispatchQueue.main)) { _ in
+            viewModel.walletModel?.update(silent: true)
+        }
     }
 }
 
