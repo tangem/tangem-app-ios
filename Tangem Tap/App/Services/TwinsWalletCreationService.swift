@@ -94,8 +94,9 @@ class TwinsWalletCreationService {
         tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { (result) in
             switch result {
             case .success(let response):
-                self.cardsRepository.lastScanResult.cardModel?.update(withCreateWaletResponse: response)
-                self.firstTwinPublicKey = response.walletPublicKey
+                self.cardsRepository.lastScanResult.cardModel?.clearTwinPairKey()
+                self.cardsRepository.lastScanResult.cardModel?.update(with: response.card)
+                self.firstTwinPublicKey = response.createWalletResponse.walletPublicKey
                 self.step.send(.second)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -117,7 +118,7 @@ class TwinsWalletCreationService {
         tangemSdk.startSession(with: task, cardId: secondTwinCid, initialMessage: initialMessage(for: secondTwinCid)) { (result) in
             switch result {
             case .success(let response):
-                self.secondTwinPublicKey = response.walletPublicKey
+                self.secondTwinPublicKey = response.createWalletResponse.walletPublicKey
                 self.step.send(.third)
             case .failure(let error):
                 self.occuredError.send(error)
