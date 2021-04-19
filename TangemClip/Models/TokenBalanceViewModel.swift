@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdkClips
 
 struct TokenBalanceViewModel: Hashable, Identifiable {
     var id: Int { token.hashValue }
