@@ -228,14 +228,28 @@ public class Bech32 {
             assertionFailure()
             return ""
         }
-        
-        var combined = Data(bytes: convertedValues)
+
+        var combined = Data(convertedValues)
         let checksum = createChecksum(hrp: hrp, values: combined)
         combined.append(checksum)
         guard let hrpBytes = hrp.data(using: .utf8) else { return "" }
         var ret = hrpBytes
         ret.append("1".data(using: .utf8)!)
-        
+
+        for i in combined {
+            ret.append(encCharset[Int(i)])
+        }
+        return String(data: ret, encoding: .utf8) ?? ""
+    }
+    
+    /// Encode Bech32 for BitcoinCore framework string
+    public func bitcoinCoreEncode(_ hrp: String, values: Data) -> String {
+        let checksum = createChecksum(hrp: hrp, values: values)
+        var combined = values
+        combined.append(checksum)
+        guard let hrpBytes = hrp.data(using: .utf8) else { return "" }
+        var ret = hrpBytes
+        ret.append("1".data(using: .utf8)!)
         for i in combined {
             ret.append(encCharset[Int(i)])
         }
