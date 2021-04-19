@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemSdkClips
-import BlockchainSdkClips
 
 enum SupportedBlockchains {
     static func blockchains(from curve: EllipticCurve, testnet: Bool) -> [Blockchain] {
