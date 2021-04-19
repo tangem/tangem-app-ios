@@ -13,6 +13,16 @@ extension String {
         return self.range(of: string, options: ignoreCase ? .caseInsensitive : []) != nil
     }
     
+    public func stripHexPrefix() -> String {
+        let prefix = "0x"
+
+        if self.hasPrefix(prefix) {
+            return String(self.dropFirst(prefix.count))
+        }
+
+        return self
+    }
+    
     func removeHexPrefix() -> String {
         return String(self[self.index(self.startIndex, offsetBy: 2)...])
     }
