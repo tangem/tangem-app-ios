@@ -157,6 +157,11 @@
 		B018F304259204A200D8F89A /* WarningEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018F303259204A200D8F89A /* WarningEvent.swift */; };
 		B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFB325DE7F9300EF422C /* DataCollectors.swift */; };
 		B020FFBE25DE895E00EF422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* Logger.swift */; };
+		B02D4267262EA93F00BCA3D9 /* BinanceChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4266262EA93F00BCA3D9 /* BinanceChain.swift */; };
+		B02D4271262EAA3A00BCA3D9 /* BinanceParsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4270262EAA3A00BCA3D9 /* BinanceParsers.swift */; };
+		B02D4277262EAA8400BCA3D9 /* BinanceAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */; };
+		B02D4281262EAC0E00BCA3D9 /* HexEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4280262EAC0E00BCA3D9 /* HexEncoding.swift */; };
+		B02D4287262EAD0400BCA3D9 /* BinanceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4286262EAD0400BCA3D9 /* BinanceError.swift */; };
 		B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */; };
 		B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
 		B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */; };
@@ -833,6 +838,11 @@
 		B020FFB325DE7F9300EF422C /* DataCollectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectors.swift; sourceTree = "<group>"; };
 		B020FFBD25DE895E00EF422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		B022D30F253746C900D934D7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B02D4266262EA93F00BCA3D9 /* BinanceChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceChain.swift; sourceTree = "<group>"; };
+		B02D4270262EAA3A00BCA3D9 /* BinanceParsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceParsers.swift; sourceTree = "<group>"; };
+		B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceAccount.swift; sourceTree = "<group>"; };
+		B02D4280262EAC0E00BCA3D9 /* HexEncoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexEncoding.swift; sourceTree = "<group>"; };
+		B02D4286262EAD0400BCA3D9 /* BinanceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceError.swift; sourceTree = "<group>"; };
 		B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataTask.swift; sourceTree = "<group>"; };
 		B0323F2B258C041D005C7CD5 /* SignerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignerUtils.swift; sourceTree = "<group>"; };
 		B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsFinalizeWalletCreationTask.swift; sourceTree = "<group>"; };
@@ -1799,6 +1809,18 @@
 			path = Tasks;
 			sourceTree = "<group>";
 		};
+		B02D4265262EA8FE00BCA3D9 /* BinanceChain */ = {
+			isa = PBXGroup;
+			children = (
+				B02D4266262EA93F00BCA3D9 /* BinanceChain.swift */,
+				B02D4270262EAA3A00BCA3D9 /* BinanceParsers.swift */,
+				B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */,
+				B02D4280262EAC0E00BCA3D9 /* HexEncoding.swift */,
+				B02D4286262EAD0400BCA3D9 /* BinanceError.swift */,
+			);
+			path = BinanceChain;
+			sourceTree = "<group>";
+		};
 		B03F23982611FC5E00A99C12 /* Localization */ = {
 			isa = PBXGroup;
 			children = (
@@ -1810,6 +1832,7 @@
 		B066AFC6262D679300EB85A5 /* SDKs */ = {
 			isa = PBXGroup;
 			children = (
+				B02D4265262EA8FE00BCA3D9 /* BinanceChain */,
 				B066B597262DAC4D00EB85A5 /* BitcoinCore */,
 				B066AFC7262D67A200EB85A5 /* BlockchainSdk */,
 				B066B071262D6B1000EB85A5 /* HDWallet */,
@@ -3678,6 +3701,7 @@
 				B066B46D262D6EFA00EB85A5 /* PageResponse.swift in Sources */,
 				B066B1DB262D6B1100EB85A5 /* Opcode.swift in Sources */,
 				B066B1D1262D6B1100EB85A5 /* OP_VER.swift in Sources */,
+				B02D4281262EAC0E00BCA3D9 /* HexEncoding.swift in Sources */,
 				B066B144262D6B1100EB85A5 /* TezosWalletManager.swift in Sources */,
 				B0F7359025F788DD00DD348F /* CardView.swift in Sources */,
 				B066B201262D6B1100EB85A5 /* BlockchairResponses.swift in Sources */,
@@ -3715,6 +3739,7 @@
 				B0F7361325F7AFFB00DD348F /* TwinCardInfo.swift in Sources */,
 				B066B1C3262D6B1100EB85A5 /* OP_PICK.swift in Sources */,
 				B066B131262D6B1100EB85A5 /* XRPAmount.swift in Sources */,
+				B02D4277262EAA8400BCA3D9 /* BinanceAccount.swift in Sources */,
 				B066B1A9262D6B1100EB85A5 /* OP_NUMEQUALVERIFY.swift in Sources */,
 				B066B492262D6EFA00EB85A5 /* keypair.c in Sources */,
 				B066B15B262D6B1100EB85A5 /* BinanceAddressService.swift in Sources */,
@@ -3768,6 +3793,7 @@
 				B066B1CE262D6B1100EB85A5 /* OP_0.swift in Sources */,
 				B066B127262D6B1100EB85A5 /* HTTP.swift in Sources */,
 				B066B477262D6EFA00EB85A5 /* XDREncoder.swift in Sources */,
+				B02D4267262EA93F00BCA3D9 /* BinanceChain.swift in Sources */,
 				B066B470262D6EFA00EB85A5 /* Constants.swift in Sources */,
 				B0F735B825F7943A00DD348F /* StorageType.swift in Sources */,
 				B066B11F262D6B1100EB85A5 /* BitcoinCashWalletManager.swift in Sources */,
@@ -3845,6 +3871,7 @@
 				B066B134262D6B1100EB85A5 /* Entropy.swift in Sources */,
 				B066B1CC262D6B1100EB85A5 /* OP_RESERVED.swift in Sources */,
 				B066B16E262D6B1100EB85A5 /* Bech32+Clips.swift in Sources */,
+				B02D4271262EAA3A00BCA3D9 /* BinanceParsers.swift in Sources */,
 				B066B1E7262D6B1100EB85A5 /* BlockchainInfoResponse.swift in Sources */,
 				B00BC57F260B11A100F0647D /* AddressDetailsView.swift in Sources */,
 				B066B446262D6EFA00EB85A5 /* NoPadding.swift in Sources */,
@@ -3857,6 +3884,7 @@
 				B066B149262D6B1100EB85A5 /* BitcoinAddress.swift in Sources */,
 				B066B1F8262D6B1100EB85A5 /* BlockcypherTarget.swift in Sources */,
 				B066B447262D6EFA00EB85A5 /* UInt8+Extension.swift in Sources */,
+				B02D4287262EAD0400BCA3D9 /* BinanceError.swift in Sources */,
 				B066B48B262D6EFA00EB85A5 /* verify.c in Sources */,
 				B066B14F262D6B1100EB85A5 /* CardanoWalletManager.swift in Sources */,
 				B0B0FFB52608EC09002B61CD /* CardsRepository.swift in Sources */,
