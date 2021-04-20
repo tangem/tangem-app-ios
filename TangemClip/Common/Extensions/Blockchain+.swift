@@ -13,8 +13,8 @@ extension Blockchain: Identifiable {
     
     var imageName: String? {
         switch self {
-//        case .binance:
-//            return "binance"
+        case .binance:
+            return "binance"
         case .bitcoin:
             return "btc"
         case .bitcoinCash:
@@ -31,6 +31,8 @@ extension Blockchain: Identifiable {
             return "tezos"
         case .xrp:
             return "xrp"
+        case .stellar:
+            return "stellar"
         default:
             return nil
         }
