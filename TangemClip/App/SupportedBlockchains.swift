@@ -20,7 +20,8 @@ enum SupportedBlockchains {
                 .bitcoinCash(testnet: testnet),
                 .xrp(curve: .secp256k1),
                 .rsk,
-                .tezos(curve: .secp256k1)
+                .tezos(curve: .secp256k1),
+                .binance(testnet: testnet)
             ]
         case .ed25519:
             return [
