@@ -10,7 +10,7 @@ import Foundation
 
 struct RosettaBalanceResponse: Codable {
     let balances: [RosettaAmount]
-    let coins: [RosettaCoin]
+    let coins: [RosettaCoin]?
     
     var address: String?
 }
