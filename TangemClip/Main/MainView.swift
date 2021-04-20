@@ -40,38 +40,20 @@ struct MainView: View {
                             if viewModel.isCardEmpty {
                                 ErrorView(title: "main_error_empty_card_title".localized, subtitle: "main_error_empty_card_subtitle".localized)
                             } else {
-                                if viewModel.isMultiWallet {
-//                                  Text("Loading balances counter: \(viewModel.cardModel?.loadingBalancesCounter ?? -100500)")
-                                    if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.count == 0 {
-                                        ErrorView(title: "main_error_empty_wallets_title".localized, subtitle: "main_error_empty_wallets_subtitle".localized)
-                                            .animation(.easeInOut)
-                                    } else {
-                                        ForEach(viewModel.tokenItemViewModels) { item in
-                                            TokensListItemView(item: item)
-                                                .onTapGesture { }
-                                        }
-                                        .padding(.horizontal, 16)
-                                        ActivityIndicatorView(isAnimating: cardModel.loadingBalancesCounter != 0, style: .medium, color: .tangemTapGrayDark6)
-                                            .padding(.vertical, 10)
-                                            .opacity(cardModel.loadingBalancesCounter > 0 ? 1 : 0)
-                                            .animation(.easeInOut)
-                                        Color.clear.frame(width: 100, height: viewModel.shouldShowGetFullApp ? 170 : 20, alignment: .center)
-                                    }
+                                if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.count == 0 {
+                                    ErrorView(title: "main_error_empty_wallets_title".localized, subtitle: "main_error_empty_wallets_subtitle".localized)
+                                        .animation(.easeInOut)
                                 } else {
-                                    if cardModel.walletModels.count > 0 {
-                                        if shouldShowBalanceView {
-                                            BalanceView(
-                                                balanceViewModel: cardModel.walletModels.first!.balanceViewModel,
-                                                tokenViewModels: cardModel.walletModels.first!.tokenViewModels
-                                            )
-                                            .padding(.horizontal, 16.0)
-                                        } else {
-                                            EmptyView()
-                                        }
-                                        
-                                        AddressDetailView(selectedAddressIndex: $viewModel.selectedAddressIndex,
-                                                          walletModel: cardModel.walletModels.first!)
+                                    ForEach(viewModel.tokenItemViewModels) { item in
+                                        TokensListItemView(item: item)
+                                            .onTapGesture { }
                                     }
+                                    .padding(.horizontal, 16)
+                                    ActivityIndicatorView(isAnimating: cardModel.loadingBalancesCounter != 0, style: .medium, color: .tangemTapGrayDark6)
+                                        .padding(.vertical, 10)
+                                        .opacity(cardModel.loadingBalancesCounter > 0 ? 1 : 0)
+                                        .animation(.easeInOut)
+                                    Color.clear.frame(width: 100, height: viewModel.shouldShowGetFullApp ? 170 : 20, alignment: .center)
                                 }
                             }
                         case .unsupported:
