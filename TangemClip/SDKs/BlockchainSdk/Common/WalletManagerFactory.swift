@@ -129,11 +129,10 @@ public class WalletManagerFactory {
                 $0.networkService = BitcoinCashNetworkService(provider: provider)
             }
             
-//        case .binance(let testnet):
-//            return BinanceWalletManager(cardId: cardId, wallet: wallet, cardTokens: tokens).then {
-//                //                $0.txBuilder = BinanceTransactionBuilder(walletPublicKey: walletPublicKey, isTestnet: testnet)
-//                $0.networkService = BinanceNetworkService(isTestNet: testnet)
-//            }
+        case .binance(let testnet):
+            return BinanceWalletManager(cardId: cardId, wallet: wallet, cardTokens: tokens).then {
+                $0.networkService = BinanceNetworkService(isTestNet: testnet)
+            }
             
         case .cardano:
             return CardanoWalletManager(cardId: cardId, wallet: wallet).then {
