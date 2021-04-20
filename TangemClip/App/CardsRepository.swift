@@ -16,11 +16,7 @@ struct CardInfo {
     var twinCardInfo: TwinCardInfo?
     
     var isMultiWallet: Bool {
-        if card.wallets.count <= 1 {
-            return false
-        }
-        
-        return true //todo
+        card.wallets.count > 1
     }
 }
 
