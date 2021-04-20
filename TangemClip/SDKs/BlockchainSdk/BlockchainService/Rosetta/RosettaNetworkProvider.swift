@@ -47,7 +47,7 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
             var unspentOutputs = [CardanoUnspentOutput]()
             
             addressesResponses.forEach { response in
-                response.coins.forEach { coin in
+                response.coins?.forEach { coin in
                     if coin.amount?.currency?.symbol == cardanoCurrencySymbol,
                        let splittedIdentifier = coin.coinIdentifier?.identifier?.split(separator: ":"),
                        splittedIdentifier.count == 2,
