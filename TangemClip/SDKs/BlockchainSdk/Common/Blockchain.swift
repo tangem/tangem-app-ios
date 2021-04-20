@@ -16,7 +16,7 @@ public enum Blockchain {
     case ethereum(testnet: Bool)
     case rsk
     case bitcoinCash(testnet: Bool)
-//    case binance(testnet: Bool)
+    case binance(testnet: Bool)
     case cardano(shelley: Bool)
     case xrp(curve: EllipticCurve)
     case ducatus
@@ -34,8 +34,8 @@ public enum Blockchain {
             return testnet
         case .bitcoinCash(let testnet):
             return testnet
-//        case .binance(let testnet):
-//            return testnet
+        case .binance(let testnet):
+            return testnet
         }
     }
     
@@ -54,8 +54,7 @@ public enum Blockchain {
     
     public var decimalCount: Int {
         switch self {
-        case .bitcoin, .litecoin, .bitcoinCash, .ducatus:
-//             , .binance:
+        case .bitcoin, .litecoin, .bitcoinCash, .ducatus, .binance:
             return 8
         case .ethereum, .rsk:
             return 18
@@ -84,8 +83,8 @@ public enum Blockchain {
             return "RBTC"
         case .bitcoinCash:
             return "BCH"
-//        case .binance:
-//            return "BNB"
+        case .binance:
+            return "BNB"
         case .ducatus:
             return "DUC"
         case .cardano:
@@ -120,8 +119,8 @@ public enum Blockchain {
             return "Stellar Asset"
         case .ethereum:
             return "Ethereum smart contract token"
-//        case .binance:
-//            return "Binance Asset"
+        case .binance:
+            return "Binance Asset"
         default:
             return displayName
         }
@@ -137,8 +136,8 @@ public enum Blockchain {
             return ["litecoin:"]
         case .xrp:
             return ["xrpl:", "ripple:"]
-//        case .binance:
-//            return ["bnb:"]
+        case .binance:
+            return ["bnb:"]
         default:
             return [""]
         }
@@ -177,8 +176,8 @@ public enum Blockchain {
     
     public func getExploreURL(from address: String, tokenContractAddress: String? = nil) -> URL? {
         switch self {
-//        case .binance:
-//            return URL(string: "https://explorer.binance.org/address/\(address)")
+        case .binance:
+            return URL(string: "https://explorer.binance.org/address/\(address)")
         case .bitcoin:
             return URL(string: "https://blockchain.info/address/\(address)")
         case .bitcoinCash:
@@ -217,17 +216,17 @@ public enum Blockchain {
         let cleanName = blockchainName.remove(testnetAttribute).lowercased()
         switch cleanName {
         case "btc": return .bitcoin(testnet: isTestnet)
-//        case "xlm", "asset", "xlm-tag": return .stellar(testnet: isTestnet)
+        case "xlm", "asset", "xlm-tag": return .stellar(testnet: isTestnet)
         case "eth", "token", "nfttoken": return .ethereum(testnet: isTestnet)
         case "ltc": return .litecoin
         case "rsk", "rsktoken": return .rsk
         case "bch": return .bitcoinCash(testnet: isTestnet)
-//        case "binance", "binanceasset": return .binance(testnet: isTestnet)
+        case "binance", "binanceasset": return .binance(testnet: isTestnet)
         case "cardano": return .cardano(shelley: false)
         case "cardano-s": return .cardano(shelley: true)
         case "xrp": return .xrp(curve: curve)
         case "duc": return .ducatus
-//        case "xtz": return .tezos(curve: curve)
+        case "xtz": return .tezos(curve: curve)
         default: return nil
         }
     }
@@ -246,8 +245,8 @@ public enum Blockchain {
             return EthereumAddressService()
         case .bitcoinCash:
             return BitcoinCashAddressService()
-//        case .binance(let testnet):
-//            return BinanceAddressService(testnet: testnet)
+        case .binance(let testnet):
+            return BinanceAddressService(testnet: testnet)
         case .ducatus:
             return BitcoinLegacyAddressService(networkParams: DucatusNetworkParams())
         case .cardano(let shelley):
@@ -264,7 +263,7 @@ public enum Blockchain {
 extension Blockchain: Equatable, Hashable, Codable {
     var codingKey: String {
         switch self {
-//        case .binance: return "binance"
+        case .binance: return "binance"
         case .bitcoin: return "bitcoin"
         case .bitcoinCash: return "bitcoinCash"
         case .cardano: return "cardano"
@@ -303,7 +302,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case "litecoin": self = .litecoin
         case "rsk": self = .rsk
         case "bitcoinCash": self = .bitcoinCash(testnet: isTestnet)
-//        case "binance": self = .binance(testnet: isTestnet)
+        case "binance": self = .binance(testnet: isTestnet)
         case "cardano": self =  .cardano(shelley: shelley!)
         case "xrp": self = .xrp(curve: curve)
         case "ducatus": self = .ducatus
