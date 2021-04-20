@@ -35,19 +35,22 @@ private func CRCCCITTXModem(_ bytes: Data) -> UInt16 {
 
 extension UInt8 {
     func crc16() -> UInt16 {
-        return CRCCCITTXModem(Data(bytes: [self]))
+        return CRCCCITTXModem(Data([self]))
     }
 }
 
 
 extension Data {
+    func stellarCrc16() -> UInt16 {
+        return CRCCCITTXModem(self)
+    }
     
     func crcValid() -> Bool {
         return CRCCCITTXModem(subdata(in: 0..<count-2)) == self.subdata(in: count-2..<count).withUnsafeBytes { $0.pointee }
     }
     
     func crc16Data() -> Data {
-        var crc = crc16()
+        var crc = stellarCrc16()
         let crcData = Data(bytes: &crc, count: MemoryLayout.size(ofValue: crc))
         
         let checksumedData = NSMutableData(data: self)
