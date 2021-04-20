@@ -25,6 +25,7 @@ enum SupportedBlockchains {
             ]
         case .ed25519:
             return [
+                .stellar(testnet: testnet),
                 .cardano(shelley: true)
             ]
         default:
