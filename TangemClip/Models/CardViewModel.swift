@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 import Combine
 import SwiftUI
 
@@ -59,7 +58,7 @@ class CardViewModel: ObservableObject {
             return
         }
         
-        tangemSdk.getCardInfo(cardId: cardInfo.card.cardId ?? "", cardPublicKey: cardInfo.card.cardPublicKey ?? Data()) {[weak self] result in
+        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey ?? Data(), cardId: cardInfo.card.cardId ?? "") {[weak self] result in
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else {
