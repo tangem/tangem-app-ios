@@ -9,7 +9,6 @@
 import Foundation
 import Moya
 import Combine
-import TangemSdkClips
 import Alamofire
 import SwiftyJSON
 
@@ -67,57 +66,6 @@ class BlockchairNetworkProvider: BitcoinNetworkProvider {
         }
         .eraseToAnyPublisher()
     }
-    
-    func getFee() -> AnyPublisher<BtcFee, Error> {
-		publisher(for: .fee(endpoint: endpoint, apiKey: apiKey))
-            .tryMap { json throws -> BtcFee in
-                let data = json["data"]
-                guard let feePerByteSatoshi = data["suggested_transaction_fee_per_byte_sat"].int  else {
-                    throw WalletError.failedToGetFee
-                }
-                
-                let normal = Decimal(feePerByteSatoshi)
-                let min = (Decimal(0.8) * normal).rounded(roundingMode: .down)
-                let max = (Decimal(1.2) * normal).rounded(roundingMode: .down)
-
-                let fee = BtcFee(minimalSatoshiPerByte: min,
-                                 normalSatoshiPerByte: normal,
-                                 prioritySatoshiPerByte: max)
-                return fee
-        }
-        .eraseToAnyPublisher()
-    }
-    
-    func send(transaction: String) -> AnyPublisher<String, Error> {
-		publisher(for: .send(txHex: transaction, endpoint: endpoint, apiKey: apiKey))
-            .tryMap { json throws -> String in
-                let data = json["data"]
-                
-                guard let hash = data["transaction_hash"].string else {
-                    throw WalletError.failedToParseNetworkResponse
-                }
-                
-               return hash
-        }
-        .eraseToAnyPublisher()
-    }
-	
-	func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-		publisher(for: .address(address: address, endpoint: endpoint, transactionDetails: false, apiKey: apiKey))
-			.map { json -> Int in
-                let addr = self.mapAddressBlock(address, json: json)
-				let address = addr["address"]
-				
-				guard
-					let outputCount = address["output_count"].int,
-					let unspentOutputCount = address["unspent_output_count"].int
-				else { return 0 }
-				
-				return outputCount - unspentOutputCount
-			}
-			.mapError { $0 as Error }
-			.eraseToAnyPublisher()
-	}
     
     func findErc20Tokens(address: String) -> AnyPublisher<[BlockchairToken], Error> {
         publisher(for: .findErc20Tokens(address: address, apiKey: apiKey))
