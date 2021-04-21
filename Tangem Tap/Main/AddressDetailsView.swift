@@ -95,6 +95,7 @@ struct AddressDetailView: View {
                                    imageColor: .tangemTapGrayDark6,
                                    withVerification: true,
                                    isDisabled: false)
+                    .accessibility(label: Text("voice_over_copy_address"))
                 
                 CircleActionButton(action: { self.showQr = true },
                                    backgroundColor: .tangemTapBgGray,
@@ -102,6 +103,7 @@ struct AddressDetailView: View {
                                    isSystemImage: false,
                                    imageColor: .tangemTapGrayDark6,
                                    isDisabled: false)
+                    .accessibility(label: Text("voice_over_show_address_qr"))
             }
             .padding(.horizontal, 24.0)
             .padding(.vertical, 16.0)
