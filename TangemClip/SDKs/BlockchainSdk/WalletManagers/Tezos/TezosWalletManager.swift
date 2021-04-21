@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import TangemSdkClips
 
 class TezosWalletManager: WalletManager {
     var networkService: TezosNetworkService!
@@ -39,4 +38,3 @@ class TezosWalletManager: WalletManager {
 
 
 extension TezosWalletManager: ThenProcessable { }
-//
