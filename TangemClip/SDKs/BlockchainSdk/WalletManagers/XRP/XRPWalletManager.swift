@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import TangemSdkClips
 
 public enum XRPError: String, Error, LocalizedError {
     case failedLoadUnconfirmed = "xrp_load_unconfirmed_error"
