@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 
 struct CardInfo {
     var card: Card
@@ -98,7 +97,7 @@ class CardsRepository {
         onScan?(cardInfo)
         
         let cm = assembly.makeCardModel(from: cardInfo)
-        let result: ScanResult = .card(model: cm)
+        let result: ScanResult = cardInfo.card.firmwareVersion >= FirmwareConstraints.AvailabilityVersions.walletData ? .card(model: cm) : .unsupported
         cards[cardInfo.card.cardId!] = result
         lastScanResult = result
         cm.getCardInfo()

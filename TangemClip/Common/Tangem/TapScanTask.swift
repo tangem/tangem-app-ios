@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 
 enum ScanError: Error {
     case wrongState
@@ -35,8 +34,8 @@ extension TapScanTaskResponse {
 final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
     let excludeBatches = ["0027",
                           "0030",
-                          "0031", //tags
-    ]
+                          "0031",
+                          "0035"]
     
     var preflightReadSettings: PreflightReadSettings { .fullCardRead }
     
@@ -75,7 +74,7 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
             }
             
             if status == .purged {
-                throw TangemSdkError.cardIsPurged
+                throw TangemSdkError.walletIsPurged
             }
         }
         
@@ -86,8 +85,6 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
         if let issuer = card.cardData?.issuerName, excludeIssuers.contains(issuer) { //filter issuer
             throw unsupportedCardError
         }
-        
-//        try checkWallets(card)
     }
     
     private func checkWallets(_ card: Card) throws {
@@ -112,28 +109,6 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
             throw unsupportedCardError
         }
     }
-    
-//    private func checkWallet(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-//        guard let cardStatus = card.status, cardStatus == .loaded else {
-//            self.verifyCard(card, session: session, completion: completion)
-//            return
-//        }
-//
-//        guard let curve = card.curve,
-//            let publicKey = card.walletPublicKey else {
-//                completion(.failure(.cardError))
-//                return
-//        }
-//
-//        CheckWalletCommand(curve: curve, publicKey: publicKey).run(in: session) { checkWalletResult in
-//            switch checkWalletResult {
-//            case .success:
-//                self.verifyCard(card, session: session, completion: completion)
-//            case .failure(let error):
-//                completion(.failure(error))
-//            }
-//        }
-//    }
     
     private func verifyCard(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         VerifyCardCommand().run(in: session) { verifyResult in
