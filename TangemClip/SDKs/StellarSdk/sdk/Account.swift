@@ -12,7 +12,7 @@ import Foundation
 public protocol TransactionAccount {
     
     /// Returns keypair associated with this Account.
-    var keyPair: KeyPair { get }
+    var keyPair: StellarKeyPair { get }
     
     /// Returns current sequence number of this Account.
     var sequenceNumber : Int64 { get }
@@ -29,7 +29,7 @@ public protocol TransactionAccount {
 /// Represents an account in Stellar network with it's sequence number.
 public class Account: TransactionAccount
 {
-    public private (set) var keyPair: KeyPair
+    public private (set) var keyPair: StellarKeyPair
     public private (set) var sequenceNumber: Int64
     
     /// Creates a new Account object.
@@ -37,7 +37,7 @@ public class Account: TransactionAccount
     /// - Parameter keyPair: KeyPair associated with this Account.
     /// - Parameter sequenceNumber: Current sequence number of the account (can be obtained using the sdk or horizon server).
     ///
-    public init(keyPair: KeyPair, sequenceNumber: Int64) {
+    public init(keyPair: StellarKeyPair, sequenceNumber: Int64) {
         self.keyPair = keyPair
         self.sequenceNumber = sequenceNumber
     }

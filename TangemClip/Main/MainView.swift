@@ -67,15 +67,15 @@ struct MainView: View {
                 SKOverlay.AppClipConfiguration(position: .bottom)
             }
             
-            //            if viewModel.state == .notScannedYet {
-            TangemVerticalButton(isLoading: viewModel.isScanning,
-                                 title: "main_button_read_wallets",
-                                 image: "scan") {
-                viewModel.scanCard()
+            if viewModel.state == .notScannedYet {
+                TangemVerticalButton(isLoading: viewModel.isScanning,
+                                     title: "main_button_read_wallets",
+                                     image: "scan") {
+                    viewModel.scanCard()
+                }
+                .buttonStyle(TangemButtonStyle(color: .black))
+                .padding(.bottom, 48)
             }
-            .buttonStyle(TangemButtonStyle(color: .black))
-            .padding(.bottom, 48)
-            //            }
         }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
     }

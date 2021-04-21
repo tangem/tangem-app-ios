@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import SwiftUI
-import TangemSdkClips
 
 class MainViewModel: ObservableObject {
     
