@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 
 struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     let id = UUID()

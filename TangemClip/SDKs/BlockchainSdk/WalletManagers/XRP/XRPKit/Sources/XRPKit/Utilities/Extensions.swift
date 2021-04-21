@@ -45,7 +45,6 @@ extension String  {
     }
 }
 
-typealias Byte = UInt8
 enum Bit: Int {
     case zero, one
 }
