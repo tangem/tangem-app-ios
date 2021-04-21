@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftUI
-import TangemSdkClips
 
 struct TokenBalanceView: View {
     var tokenViewModel: TokenBalanceViewModel
