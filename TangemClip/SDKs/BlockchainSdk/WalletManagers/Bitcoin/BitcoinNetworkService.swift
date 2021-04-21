@@ -9,7 +9,6 @@
 import Foundation
 import Moya
 import Combine
-import TangemSdkClips
 import Alamofire
 
 class BitcoinNetworkService: BitcoinNetworkProvider {
@@ -41,24 +40,6 @@ class BitcoinNetworkService: BitcoinNetworkProvider {
             .eraseToAnyPublisher()
     }
     
-    @available(iOS 13.0, *)
-    func getFee() -> AnyPublisher<BtcFee, Error> {
-        return Just(())
-            .setFailureType(to: Error.self)
-            .flatMap {[unowned self] in self.getProvider().getFee() }
-            .mapError {[unowned self] in self.handleError($0)}
-            .retry(2)
-            .eraseToAnyPublisher()
-    }
-    
-    @available(iOS 13.0, *)
-    func send(transaction: String) -> AnyPublisher<String, Error> {
-        return Just(())
-            .setFailureType(to: Error.self)
-            .flatMap{[unowned self] in self.getProvider().send(transaction: transaction) }
-            .eraseToAnyPublisher()
-    }
-    
     func getProvider() -> BitcoinNetworkProvider {
         if providers.count == 1 {
             return providers.first!.value
@@ -66,10 +47,6 @@ class BitcoinNetworkService: BitcoinNetworkProvider {
         
         return isTestNet ? providers[.blockcypher]!: providers[networkApi] ?? providers.first!.value
     }
-	
-	func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-		getProvider().getSignatureCount(address: address)
-	}
     
     private func handleError(_ error: Error) -> Error {
         if let moyaError = error as? MoyaError,
