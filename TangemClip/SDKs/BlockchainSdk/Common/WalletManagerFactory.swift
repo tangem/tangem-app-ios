@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 
 public class WalletManagerFactory {
     private let config: BlockchainSdkConfig
