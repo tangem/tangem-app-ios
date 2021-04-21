@@ -9,7 +9,6 @@
 import Foundation
 import BigInt
 import Combine
-import TangemSdkClips
 import Moya
 
 public enum ETHError: String, Error, LocalizedError {
