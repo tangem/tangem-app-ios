@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import TangemSdkClips
 
 public enum CardanoError: String, Error, LocalizedError {
     case noUnspents = "cardano_missing_unspents"
