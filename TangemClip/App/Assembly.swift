@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 import Combine
 
 class ServicesAssembly {
@@ -17,7 +16,6 @@ class ServicesAssembly {
         print("ServicesAssembly deinit")
     }
     
-    let logger = Logger()
     lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
     lazy var userPrefsService = UserPrefsService()
     lazy var networkService = NetworkService()
@@ -37,7 +35,7 @@ class ServicesAssembly {
     
     private lazy var defaultSdkConfig: Config = {
         var config = Config()
-        config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
+        config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [ConsoleLogger()])
         return config
     }()
     
