@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 import Combine
 
 class BitcoinWalletManager: WalletManager {

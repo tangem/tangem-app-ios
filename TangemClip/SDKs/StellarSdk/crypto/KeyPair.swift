@@ -10,7 +10,7 @@ import Foundation
 import ed25519C
 
 /// Holds a Stellar keypair.
-public final class KeyPair {
+public final class StellarKeyPair {
     public let publicKey: StellarPublicKey
     public let privateKey: PrivateKey?
     public private(set) var seed:Seed?
@@ -29,9 +29,9 @@ public final class KeyPair {
     }
     
     /// Generates a random Stellar keypair.
-    public static func generateRandomKeyPair() throws -> KeyPair {
+    public static func generateRandomKeyPair() throws -> StellarKeyPair {
         let seed = try Seed()
-        let keyPair = KeyPair(seed: seed)
+        let keyPair = StellarKeyPair(seed: seed)
         
         return keyPair
         
