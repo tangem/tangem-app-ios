@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 
 public enum Blockchain {
     case bitcoin(testnet: Bool)
