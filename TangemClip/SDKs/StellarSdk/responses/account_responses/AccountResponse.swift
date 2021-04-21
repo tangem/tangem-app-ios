@@ -19,7 +19,7 @@ public class AccountResponse: NSObject, Decodable, TransactionAccount {
     public var accountId:String
     
     /// Keypair of the account containing the public key.
-    public var keyPair: KeyPair
+    public var keyPair: StellarKeyPair
     
     /// The current sequence number that can be used when submitting a transaction from this account.
     public private (set) var sequenceNumber: Int64
@@ -83,7 +83,7 @@ public class AccountResponse: NSObject, Decodable, TransactionAccount {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         links = try values.decode(AccountLinksResponse.self, forKey: .links)
         accountId = try values.decode(String.self, forKey: .accountId)
-        self.keyPair = try KeyPair(accountId: accountId)
+        self.keyPair = try StellarKeyPair(accountId: accountId)
         let sequenceNumberString = try values.decode(String.self, forKey: .sequenceNumber)
         sequenceNumber = Int64(sequenceNumberString)!
         pagingToken = try values.decodeIfPresent(String.self, forKey: .pagingToken)
