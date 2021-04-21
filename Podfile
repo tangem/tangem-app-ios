@@ -58,7 +58,6 @@ target 'TangemClip' do
   pod 'Sodium'
   pod 'SwiftCBOR'
   pod 'AnyCodable-FlightSchool'
-  pod 'TangemSdkClips', :git => 'git@bitbucket.org:tangem/card-sdk-swift.git', :branch => 'CSS-113-AppClips'
   
 end
 
