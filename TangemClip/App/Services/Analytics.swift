@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdkClips
 
 class Analytics {
     enum Event: String {
