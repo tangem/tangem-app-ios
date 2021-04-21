@@ -14,12 +14,12 @@ public class StellarAddressService: AddressService {
             return ""
         }
         
-        let keyPair = KeyPair(publicKey: publicKey)
+        let keyPair = StellarKeyPair(publicKey: publicKey)
         return keyPair.accountId
     }
     
     public func validate(_ address: String) -> Bool {
-        let keyPair = try? KeyPair(accountId: address)
+        let keyPair = try? StellarKeyPair(accountId: address)
         return keyPair != nil
     }
 }

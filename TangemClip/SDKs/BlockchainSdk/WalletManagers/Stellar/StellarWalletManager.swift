@@ -9,7 +9,6 @@
 import Foundation
 import SwiftyJSON
 import Combine
-import TangemSdkClips
 
 public enum StellarError: String, Error, LocalizedError {
     case emptyResponse = "xlm_empty_response_error"
