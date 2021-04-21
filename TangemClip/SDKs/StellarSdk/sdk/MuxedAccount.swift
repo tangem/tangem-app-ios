@@ -34,7 +34,7 @@ public class MuxedAccount: Account
     /// - Parameter sequenceNumber: Current sequence number of the account (can be obtained using the sdk or horizon server).
     /// - Parameter id: optional [subaccount ID](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0027.md)
     ///
-    public init(keyPair: KeyPair, sequenceNumber: Int64, id:UInt64? = nil) {
+    public init(keyPair: StellarKeyPair, sequenceNumber: Int64, id:UInt64? = nil) {
         self.id = id
         if let mid = id {
             let m = MuxedAccountMed25519XDR(id: mid, sourceAccountEd25519: keyPair.publicKey.bytes)
@@ -54,7 +54,7 @@ public class MuxedAccount: Account
             seqNr = pSqNr
         }
         let muxl = try accountId.decodeMuxedAccount()
-        let kp = try KeyPair(accountId: muxl.ed25519AccountId)
+        let kp = try StellarKeyPair(accountId: muxl.ed25519AccountId)
         var pid:UInt64? = id
         switch muxl {
         case .med25519(let inner):
@@ -70,7 +70,7 @@ public class MuxedAccount: Account
     /// The account will be of type ED25519 if you do not provide an id
     /// The account will be of type MUXED_ED25519 if you provide an id
     public convenience init(secretSeed:String, sequenceNumber: Int64, id:UInt64? = nil) throws {
-        let keyPair = try KeyPair(secretSeed: secretSeed)
+        let keyPair = try StellarKeyPair(secretSeed: secretSeed)
         self.init(keyPair: keyPair, sequenceNumber: sequenceNumber, id:id)
     }
     
@@ -81,11 +81,11 @@ public class MuxedAccount: Account
     public convenience init(accountId:String, secretSeed:String? = nil, sequenceNumber: Int64) throws {
         
         let mux = try accountId.decodeMuxedAccount()
-        let keyPair:KeyPair
+        let keyPair:StellarKeyPair
         if let oseed = secretSeed {
-            keyPair = try KeyPair(secretSeed: oseed)
+            keyPair = try StellarKeyPair(secretSeed: oseed)
         } else {
-            keyPair = try KeyPair(publicKey: StellarPublicKey(accountId: mux.ed25519AccountId))
+            keyPair = try StellarKeyPair(publicKey: StellarPublicKey(accountId: mux.ed25519AccountId))
         }
         var id:UInt64? = nil
         switch mux {
