@@ -40,6 +40,7 @@ struct WalletConnectView: View {
         .navigationBarItems(trailing: NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
             viewModel.openNewSession()
         })
+        .accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
         .sheet(isPresented: $navigation.walletConnectToQR) {
             QRScanView(code: $viewModel.code)
                 .edgesIgnoringSafeArea(.all)
