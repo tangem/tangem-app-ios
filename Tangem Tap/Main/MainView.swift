@@ -307,7 +307,9 @@ struct MainView: View {
             .foregroundColor(Color.tangemTapGrayDark6)
             .frame(width: 44.0, height: 44.0, alignment: .center)
             .offset(x: 10.0, y: 0.0)
-        }).padding(0.0)
+        })
+        .accessibility(label: Text("voice_over_open_card_details"))
+        .padding(0.0)
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
@@ -379,6 +381,7 @@ struct MainView: View {
                             self.navigation.mainToWalletConnectQR = true
                         }
                         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
+                        .accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
                         .sheet(isPresented: $navigation.mainToWalletConnectQR, content: {
                             QRScanView(code: $viewModel.walletConnectCode)
                         })
