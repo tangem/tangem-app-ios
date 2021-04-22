@@ -52,13 +52,15 @@ struct WarningView: View {
                     .offset(x: 6)
                 }
             }
-            Text(warning.message)
-                .font(.system(size: 13, weight: .medium))
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(minHeight: warning.type.isWithAction ? 35 : 0, alignment: .topLeading)
-                .lineSpacing(8)
-                .foregroundColor(warning.priority.messageColor)
-                .padding(.bottom, warning.type.isWithAction ? 8 : 16)
+            if !warning.message.isEmpty {
+                Text(warning.message)
+                    .font(.system(size: 13, weight: .medium))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(minHeight: warning.type.isWithAction ? 25 : 0, alignment: .topLeading)
+                    .lineSpacing(8)
+                    .foregroundColor(warning.priority.messageColor)
+                    .padding(.bottom, warning.type.isWithAction ? 8 : 16)
+            }
             buttons
             Color.clear.frame(height: 0, alignment: .center)
         }
@@ -110,7 +112,7 @@ struct WarningView_Previews: PreviewProvider {
         TapWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent),
         TapWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary),
         TapWarning(title: "Attention!", message: "Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
-        
+        WarningsList.multiWalletSignedHashes
     ]
     static var previews: some View {
         ScrollView {
