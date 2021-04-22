@@ -170,10 +170,12 @@ PODS:
     - ObjcExceptionBridging
 
 DEPENDENCIES:
+  - Alamofire
   - AnyCodable-FlightSchool
+  - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.13`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `build-93`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-3`)
   - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
@@ -182,6 +184,8 @@ DEPENDENCIES:
   - HDWalletKit (from `https://github.com/lazutkin-andrey/hdwallet.git`, tag `0.3.12`)
   - KeychainSwift (~> 19.0)
   - Moya
+  - Sodium
+  - SwiftCBOR
   - SwiftyJSON
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-17`)
   - WalletConnectSwift
@@ -232,7 +236,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: build-93
+    :tag: develop-3
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -252,7 +256,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: build-93
+    :tag: develop-3
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -304,6 +308,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 8a507efa4841fbab001004cad74966ab7857ebf4
+PODFILE CHECKSUM: 08bf2211f92b8e4e191d3395618e6cefbfd24827
 
 COCOAPODS: 1.10.1
