@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import BlockchainSdk
 
 struct CircleImageTextView: View {
     let name: String
