@@ -11,18 +11,19 @@ import Foundation
 enum WarningEvent: String, Decodable {
     
     case numberOfSignedHashesIncorrect
+    case multiWalletSignedHashes
     case rateApp
     case failedToValidateCard
     
     var locationsToDisplay: Set<WarningsLocation> {
         switch self {
-        case .numberOfSignedHashesIncorrect, .rateApp, .failedToValidateCard: return [.main]
+        case .numberOfSignedHashesIncorrect, .rateApp, .failedToValidateCard, .multiWalletSignedHashes: return [.main]
         }
     }
     
     var canBeDismissed: Bool {
         switch self {
-        case .numberOfSignedHashesIncorrect, .failedToValidateCard: return false
+        case .numberOfSignedHashesIncorrect, .failedToValidateCard, .multiWalletSignedHashes: return false
         case .rateApp: return true
         }
     }
@@ -30,6 +31,7 @@ enum WarningEvent: String, Decodable {
     var buttons: [WarningButton] {
         switch self {
         case .numberOfSignedHashesIncorrect: return [.okGotIt]
+        case .multiWalletSignedHashes: return [.learnMore]
         case .rateApp: return [.reportProblem, .rateApp]
         case .failedToValidateCard: return []
         }
@@ -38,7 +40,7 @@ enum WarningEvent: String, Decodable {
 }
 
 enum WarningButton: String, Identifiable {
-    case okGotIt, rateApp, reportProblem, dismiss
+    case okGotIt, rateApp, reportProblem, dismiss, learnMore
     
     var id: String { rawValue }
     
@@ -47,6 +49,7 @@ enum WarningButton: String, Identifiable {
         case .okGotIt: return "warning_button_ok".localized
         case .rateApp: return "warning_button_really_cool".localized
         case .reportProblem: return "warning_button_can_be_better".localized
+        case .learnMore: return "warning_button_learn_more".localized
         case .dismiss: return ""
         }
     }
