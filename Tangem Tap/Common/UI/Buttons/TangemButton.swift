@@ -96,6 +96,8 @@ struct TangemVerticalButton: View {
             .fixedSize()
         })
     }
+    
+    
 }
 
 struct TangemLongButton: View {
