@@ -378,16 +378,28 @@
 "alert_button_request_support" = "Request support";
 "alert_button_send_feedback" = "Send feedback";
 
+"alert_signed_hashes_message" = "This card is not a bearer note. We can’t currently match the signature count on the card with the information on the blockchain. This is normal but in rare cases can mean a previous holder is holding back an offline signature, which is a security concern.
+
+Do not accept this card as physical payment from someone you don’t trust.
+
+It’s perfectly safe in all other respects.
+
+Tangem is the only hardware wallet to offer signature count protection.";
+"alert_button_i_understand" = "I understand";
+
 // MARK: - Warnings
 
 "warning_button_ok" = "Ok, Got it!";
 "warning_button_really_cool" = "Really cool!";
 "warning_button_can_be_better" = "Can be better";
+"warning_button_learn_more" = "Learn more";
 
 "warning_rate_app_title" = "One question";
 
 "warning_rate_app_message" = "How do you like Tangem?";
 
+"warning_important_security_info" = "Important security information ⚠️";
+"warning_signed_tx_previously" = "This card has signed transactions in the past";
 "warning_failed_to_verify_card_title" = "Authenticity check failed";
 "warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
 
