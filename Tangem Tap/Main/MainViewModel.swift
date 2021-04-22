@@ -409,13 +409,19 @@ class MainViewModel: ViewModel {
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
-        switch button {
-        case .okGotIt:
-            if let cardId = state.card?.cardId,
-               case .numberOfSignedHashesIncorrect = warning.event {
-                validatedSignedHashesCards.append(cardId)
+        func registerValidatedSignedHashesCard() {
+            guard let cardId = state.card?.cardId else {
+                return
             }
             
+            validatedSignedHashesCards.append(cardId)
+        }
+        
+        switch button {
+        case .okGotIt:
+            if warning.event == .numberOfSignedHashesIncorrect {
+                registerValidatedSignedHashesCard()
+            }
         case .rateApp:
             Analytics.log(event: .positiveRateAppFeedback)
             rateAppController.userReactToRateAppWarning(isPositive: true)
@@ -426,6 +432,19 @@ class MainViewModel: ViewModel {
             Analytics.log(event: .negativeRateAppFeedback)
             rateAppController.userReactToRateAppWarning(isPositive: false)
             emailFeedbackCase = .negativeFeedback
+        case .learnMore:
+            if warning.event == .multiWalletSignedHashes {
+                error = AlertBinder(alert: Alert(title: Text(warning.title),
+                                                 message: Text("alert_signed_hashes_message"),
+                                                 primaryButton: .cancel(),
+                                                 secondaryButton: .default(Text("alert_button_i_understand")) { [weak self] in
+                                                    withAnimation {
+                                                        registerValidatedSignedHashesCard()
+                                                        self?.warningsManager.hideWarning(warning)
+                                                    }
+                                                 }))
+                return
+            }
         }
         warningsManager.hideWarning(warning)
     }
@@ -449,10 +468,8 @@ class MainViewModel: ViewModel {
 	private func validateHashesCount() {
         guard let card = state.card else { return }
         
-        guard !(cardModel?.isMultiWallet ?? false) else { return }
-        
         guard cardModel?.hasWallet ?? false else {
-            warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
+            card.isMultiWallet ? warningsManager.hideWarning(for: .multiWalletSignedHashes) : warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
             return
         }
         
@@ -462,7 +479,16 @@ class MainViewModel: ViewModel {
 		
 		guard let cardId = card.cardId else { return }
 		
-		if validatedSignedHashesCards.contains(cardId) { return }
+        if validatedSignedHashesCards.contains(cardId) { return }
+        
+        if cardModel?.isMultiWallet ?? false {
+            if cardModel?.cardInfo.card.wallets.filter({ $0.signedHashes ?? 0 > 0 }).count ?? 0 > 0 {
+                withAnimation {
+                    warningsManager.appendWarning(for: .multiWalletSignedHashes)
+                }
+            }
+            return
+        }
 		
 		func showUntrustedCardAlert() {
             withAnimation {
@@ -471,7 +497,7 @@ class MainViewModel: ViewModel {
 		}
         
         guard
-            let numberOfSignedHashes = card.wallets.first?.signedHashes, //[REDACTED_TODO_COMMENT]
+            let numberOfSignedHashes = card.wallets.first?.signedHashes,
             numberOfSignedHashes > 0
         else { return }
 		
