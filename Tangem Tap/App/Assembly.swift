@@ -29,7 +29,7 @@ class ServicesAssembly {
     lazy var persistentStorage = PersistentStorage()
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
     lazy var keychainService = ValidatedCardsService()
-    lazy var imageLoaderService: ImageLoaderService = ImageLoaderService(networkService: networkService)
+    lazy var imageLoaderService: CardImageLoaderService = CardImageLoaderService(networkService: networkService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
