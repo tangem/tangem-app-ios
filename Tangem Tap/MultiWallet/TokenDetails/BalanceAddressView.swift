@@ -149,10 +149,12 @@ struct BalanceAddressView: View {
                                           imageName: "doc.on.clipboard",
                                           title: "common_copy".localized,
                                           withVerification: true)
+                            .accessibility(label: Text("voice_over_copy_address"))
                         
                         RoundedRectButton(action: { showShareSheet() },
                                           imageName: "square.and.arrow.up",
                                           title: "common_share".localized)
+                            .accessibility(label: Text("voice_over_share_address"))
                     }
                 }
                 Spacer()
