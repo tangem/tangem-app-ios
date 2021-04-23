@@ -29,8 +29,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         var batch: String?
+        var link: String = ""
         defer {
-            assembly.updateAppClipCard(with: batch)
+            assembly.updateAppClipCard(with: batch, fullLink: link)
         }
         
         // Get URL components from the incoming user activity
@@ -38,8 +39,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
               let incomingURL = userActivity.webpageURL
         else { return }
         
-        assembly.updateCardUrl(incomingURL.absoluteString)
-        
+        link = incomingURL.absoluteString
         batch = incomingURL.lastPathComponent
     }
 
