@@ -13,10 +13,6 @@ struct MainView: View {
     
     @ObservedObject var viewModel: MainViewModel
     
-    var shouldShowBalanceView: Bool {
-        true
-    }
-    
     @State var isDisplayingAppStoreOverlay = false
     
     var body: some View {
@@ -34,6 +30,7 @@ struct MainView: View {
                         case .notScannedYet:
                             Text("main_hint")
                                 .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 2)
                         case .card(let cardModel):
