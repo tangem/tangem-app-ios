@@ -104,7 +104,8 @@ struct BalanceAddressView: View {
                 }
                 Spacer()
                 
-                walletModel.getTokenItem(for: amountType).imageView
+                TokenIconView(token: walletModel.getTokenItem(for: amountType))
+                    .frame(width: 40, height: 40, alignment: .center)
             }
             
             if showAddressSelector {
