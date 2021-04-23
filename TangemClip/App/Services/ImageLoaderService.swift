@@ -13,23 +13,29 @@ import UIKit
 class ImageLoaderService {
     enum ImageEndpoint: NetworkEndpoint {
         case byBatch(String)
+        case byNdefLink(URL)
         
         private var baseURL: URL {
             URL(string: "https://raw.githubusercontent.com/tangem/ndef-registry/main")!
         }
         
+        private var imageSuffix: String { "card.png" }
+        
         var url: URL {
             switch self {
             case .byBatch(let batch):
                 let url = baseURL.appendingPathComponent(batch)
-                    .appendingPathComponent("card.png")
+                    .appendingPathComponent(imageSuffix)
+                return url
+            case .byNdefLink(let link):
+                let url = link.appendingPathComponent(imageSuffix)
                 return url
             }
         }
         
         var method: String {
             switch self {
-            case .byBatch:
+            case .byBatch, .byNdefLink:
                 return "GET"
             }
         }
@@ -77,6 +83,14 @@ class ImageLoaderService {
         let endpoint = ImageEndpoint.byBatch(batch)
         
         return publisher(for: endpoint)
+    }
+    
+    func loadImage(byNdefLink link: String) -> AnyPublisher<UIImage?, Error> {
+        guard let url = URL(string: link) else {
+            return backedLoadImage(.default)
+        }
+        
+        return publisher(for: ImageEndpoint.byNdefLink(url))
     }
     
     func backedLoadImage(name: String) -> AnyPublisher<UIImage?, Error> {
