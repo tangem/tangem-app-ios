@@ -68,7 +68,7 @@ class TwinsWalletCreationViewModel: ViewModel {
 	
     weak var navigation: NavigationCoordinator!
 	weak var assembly: Assembly!
-	weak var imageLoaderService: ImageLoaderService!
+	weak var imageLoaderService: CardImageLoaderService!
 	
 	let isRecreatingWallet: Bool
 	
@@ -77,7 +77,7 @@ class TwinsWalletCreationViewModel: ViewModel {
 	private var imageLoadingBag = Set<AnyCancellable>()
 	private var creationServiceBag = Set<AnyCancellable>()
 	
-	init(isRecreatingWallet: Bool, walletCreationService: TwinsWalletCreationService, imageLoaderService: ImageLoaderService) {
+	init(isRecreatingWallet: Bool, walletCreationService: TwinsWalletCreationService, imageLoaderService: CardImageLoaderService) {
 		self.isRecreatingWallet = isRecreatingWallet
 		self.walletCreationService = walletCreationService
 		self.imageLoaderService = imageLoaderService
