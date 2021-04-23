@@ -13,10 +13,6 @@ struct MainView: View {
     
     @ObservedObject var viewModel: MainViewModel
     
-    var shouldShowBalanceView: Bool {
-        true
-    }
-    
     @State var isDisplayingAppStoreOverlay = false
     
     var body: some View {
