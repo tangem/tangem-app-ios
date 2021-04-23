@@ -14,7 +14,7 @@ import TangemSdk
 
 class MainViewModel: ViewModel {
     // MARK: Dependencies -
-    weak var imageLoaderService: ImageLoaderService!
+    weak var imageLoaderService: CardImageLoaderService!
     weak var topupService: TopupService!
 	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
