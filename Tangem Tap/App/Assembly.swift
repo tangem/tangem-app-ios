@@ -223,7 +223,7 @@ class Assembly: ObservableObject {
             }
             
             //Try found default card wallet
-            if let nativeWalletManager = makeNativeWalletManager(from: cardInfo) {
+            if let nativeWalletManager = makeNativeWalletManager(from: cardInfo), !walletManagers.contains(where: { $0.wallet.blockchain == nativeWalletManager.wallet.blockchain }) {
                 walletManagers.append(nativeWalletManager)
             }
         }
