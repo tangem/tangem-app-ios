@@ -11,7 +11,7 @@ import Combine
 import UIKit
 import TangemSdk
 
-class ImageLoaderService {
+class CardImageLoaderService {
 	enum BackedImages {
 		case sergio, marta, `default`, twinCardOne, twinCardTwo
 		
