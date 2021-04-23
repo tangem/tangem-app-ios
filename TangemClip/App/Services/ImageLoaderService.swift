@@ -15,14 +15,14 @@ class ImageLoaderService {
         case byBatch(String)
         
         private var baseURL: URL {
-            URL(string: "https://app.tangem.com/")!
+            URL(string: "https://raw.githubusercontent.com/tangem/ndef-registry/main")!
         }
         
         var url: URL {
             switch self {
             case .byBatch(let batch):
-                var url = baseURL.appendingPathComponent("cards")
-                url.appendPathComponent("card_tg" + batch + ".png")
+                let url = baseURL.appendingPathComponent(batch)
+                    .appendingPathComponent("card.png")
                 return url
             }
         }
@@ -70,6 +70,10 @@ class ImageLoaderService {
     }
     
     func loadImage(batch: String) -> AnyPublisher<UIImage?, Error> {
+        if batch.isEmpty {
+            return backedLoadImage(.default)
+        }
+        
         let endpoint = ImageEndpoint.byBatch(batch)
         
         return publisher(for: endpoint)
