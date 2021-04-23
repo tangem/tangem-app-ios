@@ -77,7 +77,6 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
         let card = cardModel.cardInfo.card
         
         var dataToFormat = collectData(from: card)
-        
         let signedHashesConsolidated = card.wallets.map { " \(String(describing: $0.curve)) \(String(describing: $0.signedHashes))" }.joined(separator: ";")
         dataToFormat.append(EmailCollectedData(type: .wallet(.signedHashes), data: "\(signedHashesConsolidated)"))
         
