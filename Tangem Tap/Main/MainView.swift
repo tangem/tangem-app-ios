@@ -375,19 +375,7 @@ struct MainView: View {
                                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
                             
                         }
-                } else {
-                    if viewModel.canUseWalletConnect {
-                        TangemLongButton(isLoading: viewModel.isWalletConnectServiceBusy, title: "wallet_connect") {
-                            self.navigation.mainToWalletConnectQR = true
-                        }
-                        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
-                        .accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
-                        .sheet(isPresented: $navigation.mainToWalletConnectQR, content: {
-                            QRScanView(code: $viewModel.walletConnectCode)
-                        })
-                    }
-                }
-
+                } 
             }
         }
     }
