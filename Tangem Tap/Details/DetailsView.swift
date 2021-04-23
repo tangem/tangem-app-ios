@@ -30,7 +30,7 @@ struct DetailsRowView: View {
 
 struct DetailsView: View {
     private enum NavigationTag: String {
-        case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens
+        case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens, walletConnect
     }
     
     @ObservedObject var viewModel: DetailsViewModel
@@ -45,6 +45,7 @@ struct DetailsView: View {
                                subtitle: viewModel.cardCid)
                 DetailsRowView(title: "details_row_title_issuer".localized,
                                subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
+
 //                if viewModel.hasWallet, !viewModel.isTwinCard,
 //                   viewModel.cardModel.cardInfo.card.walletSignedHashes != nil {
 //                    DetailsRowView(title: "details_row_title_signed_hashes".localized,
@@ -121,6 +122,16 @@ struct DetailsView: View {
                                     .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
                                    tag: NavigationTag.cardTermsOfUse, selection: $selection) {
                         DetailsRowView(title: "details_row_title_card_tou".localized,
+                                       subtitle: "")
+                        
+                    }
+                }
+                
+                if viewModel.shouldShowWC {
+                    NavigationLink(destination: WalletConnectView(viewModel: viewModel.assembly.makeWalletConnectViewModel(cardModel: viewModel.cardModel))
+                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                   tag: NavigationTag.walletConnect, selection: $selection) {
+                        DetailsRowView(title: "WalletConnect",
                                        subtitle: "")
                         
                     }
