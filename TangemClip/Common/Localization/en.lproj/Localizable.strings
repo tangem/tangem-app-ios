@@ -1,0 +1,263 @@
+/* 
+  Localizable.strings
+  TangemSdk
+
+  Created by Alexander Osokin on 02/10/2019.
+  Copyright © 2019 Tangem AG. All rights reserved.
+*/
+
+// Error message. When NFC session time is over
+"nfc_session_timeout" = "Session timeout. Please, try again.";
+
+// Label. When session is started and we ask user to hold the card near the phone
+"nfc_alert_default" = "Hold your iPhone near a card";
+
+// Label. When transaction has been signed
+"nfc_alert_sign_completed" = "Transaction has been successfully signed";
+
+// Label. Long Tap is the operation when we ask the user to connect the card and the phone and hold it for several seconds.
+"view_delegate_security_delay" = "Long tap";
+
+// Label. During the “Long Tap” we show to the user how many seconds he has to hold the card and count them down.
+"nfc_seconds_left" = "%@ left";
+
+// Label. Operation is finished.
+"nfc_alert_default_done" = "Done";
+
+// Error Label.
+"nfc_stuck_error" = "It seems that NFC does not work properly on your iPhone";
+
+// Error Label.
+"unknownStatus" = "Unknown card status";
+
+// Error Label. Generic error with error code.
+"generic_error_code" = "An error occurred during the operation. Code: %@";
+
+// Label. Reading data: 30%
+"reading_data_progress" = "Reading data: %@%%";
+
+// Label. Writing data: 30%
+"writing_data_progress" = "Writing data: %@%%";
+
+"pin1" = "Access code";
+"pin2" = "Passcode";
+"pin_enter" = "Enter %@";
+"pin_confirm_error_format" = "Codes do not match";
+"pin_change_code_format" = "Change %@";
+"pin_change_new_code_format" = "New %@";
+"pin_change_current_code_format" = "Current %@";
+"pin_set_code_confirm_format" = "Confirm %@";
+
+"common_ok" = "OK";
+"common_cancel" = "Cancel";
+"common_continue" = "Continue";
+"common_save" = "Save";
+"common_success" = "Success";
+"common_error" = "Error";
+
+// Errors
+"error_operation" = "An error occurred during the operation";
+"error_tag_lost" = "Tag lost.";
+"error_already_personalized" = "This card has already been personalized";
+"error_cannot_be_depersonalized" = "This card cannot be depersonalized";
+"error_already_created" = "A wallet has already been created";
+"error_purge_prohibited" = "This card’s configuration does not allow you to erase the wallet";
+"error_pin1_cannot_be_changed" = "Access Code cannot be changed";
+"error_pin2_cannot_be_changed" = "Passcode cannot be changed";
+"error_pin1_cannot_be_default" = "Access Code cannot be changed to the default value. Please create a new Access Code.";
+"error_no_remaining_signatures" = "You cannot sign data with this wallet because the card has reached its signature limit";
+"error_empty_hashes" = "There is nothing to sign here";
+"error_cannot_be_signed" = "This data cannot be signed";
+"error_wallet_is_not_created" = "The operation can't be completed. Wallet is not created.";
+"error_wallet_is_purged" = "The operation can't be completed. Wallet is purged and can't be created again.";
+"error_not_personalized" = "This card has not been personalized";
+"error_not_activated" = "This card has not been activated";
+"error_verification_failed" = "Data verification failed";
+"error_card_verification_failed" = "Card verification failed";
+"error_data_size_too_large" = "Data size exceeds the max limit of 512 bytes";
+"error_data_size_too_large_extended" = "Data size exceeds the max limit of 32 Kbytes";
+"error_missing_counter" = "The data cannot be written to the card because there is no counter";
+"error_data_cannot_be_written" = "The data cannot be written to the card";
+"error_missing_issuer_public_key" = "The issuer public key is missing";
+"error_user_cancelled" = "The user cancelled the operation";
+"error_busy" = "The CardSession is running a command. Please wait and try again";
+"error_wrong_card_number" = "You tapped a different card. Please match the in-app Card ID to the your physical Card ID to continue this process.";
+"error_wrong_card_type" = "This card is configured for a different app. Please see the information on your card and download the related app.";
+"error_card_error" = "Your card is missing essential data";
+"error_wallet_error" = "Selected wallet is missing essential data";
+"error_pin1_required" = "Access code is required";
+"error_pin2_required" = "Passcode is required";
+"error_wrong_card" = "Wrong Card";
+"error_invalid_response" = "Invalid Response";
+
+"error_file_not_found" = "File not found";
+"error_wrong_interaction_mode" = "Unsupported interaction mode";
+"error_not_supported_firmware_version" = "Card firmware does not meet requirements";
+
+"error_no_space_for_new_wallet" = "Max number of wallets already created";
+"error_card_read_wrong_wallet" = "Card read wrong wallet";
+
+"error_wrong_pin1" = "Wrong Access Сode";
+"error_wrong_pin2" = "Wrong Passcode";
+//Android only
+
+// Label. Need NFC to be switched on.
+"dialog_nfc_enable_title" = "Enable NFC?";
+"dialog_nfc_enable_text" = "This app needs NFC to be switched on. Hit OK to go to Settings, where you can enable NFC.";
+
+// Label. Long Tap is the operation when we ask the user to connect the card and the phone and hold it for several seconds.
+"view_delegate_security_delay_description" = "This card has enforced security delay. Please hold the card firmly until the operation is completed.";
+
+// Label. Something is happening.
+"view_delegate_delay" = "Operation is in progress";
+
+// Label. The user has to hold the card near the phone so as not to lose the connection between his phone and his card.
+"view_delegate_delay_description" = "Please hold the card firmly until the operation is completed";
+
+// Label. Shows that the app is ready to scan the card.
+"view_delegate_scan" = "Ready to scan";
+"view_delegate_scan_description" = "Scan card with your phone as shown above";
+
+// Label. Shows card number. Card 1234 5678 1234 5678 or any card if number is not important.
+"view_delegate_header_card" = "Card";
+"view_delegate_header_any_card" = "Any card";
+
+// This is a tutorial how to scan (tap) the card with the phone
+"how_to_unknown_tap_card" = "Tap your card to the back of the phone";
+"how_to_unknown_move_card" = "To detect where your NFC antenna is located, move the card up and down until confirmation.";
+"how_to_unknown_nothing_happened" = "Nothing happened? Try removing your card from the phone and then put it back.";
+"how_to_unknown_detected" = "Connection was established.. This is the placement of your NFC antenna";
+"how_to_nfc_detected" = "You just found the location of your NFC antenna. Please remember it.";
+"how_to_known_here_how_to_use" = "Here's how to use Tangem Cards with (phone)";
+"how_to_known_antenna_is_here" = "Your NFC antenna is here";
+"how_to_known_tap_card_to_the_back" = "Tap your card to the back of the phone";
+"how_to_known_tap_card_to_the_front" = "Tap your card to the front of the phone";
+"how_to_button" = "How to";
+"how_to_got_it_button" = "Ok, got it!";
+"how_to_try_other_way_button" = "Still not working";
+"how_to_show_again_button" = "Show again";
+
+"tap_in_button" = "Tap in";
+"tap_in_known_info_message" = "Hold your card to the phone as demonstrated when you tap in to connect.";
+"tap_in_known_show_how_tap_in_button" = "Show me how to tap in";
+"tap_in_unknown_info_message" = "Watch the video to see how to tap in and connect the NFC in your phone to the card.";
+"tap_in_unknown_how_to_tap_in_button" = "How to tap in";
+
+"pin_change_new_code_confirm_format" = "New %@ (Confirm)";
+"pin_set_code_format" = "Set %@";
+
+"cid_format" = "Card #%@";
+
+// MARK: - Blockchain SDK
+
+"no_account_xlm" = "To create account send 1+ XLM to this address";
+
+"no_account_xlm_asset" = "To create account send 1.5+ XLM to this address";
+
+"no_trustline_xlm_asset" = "The destination account does not have a trustline for the asset being sent.";
+
+"no_account_on_destination_xlm_asset" = "The destination account is not created. To create account send 1+ XLM.";
+
+"no_account_xrp" = "Load 20+ XRP to create account";
+
+"no_account_bnb" = "To create account send funds to this address";
+
+
+
+"common_build_tx_error" = "Failed to build transaction";
+
+"common_fee_error" = "Failed to get fee";
+
+"common_parse_network_response_error" = "Failed to parse network response";
+
+"common_send_tx_error" = "Failed to send transaction";
+
+"common_estimate_tx_size_error" = "Failed to calculate transaction size";
+
+"common_failed_to_load_token_balance" = "Failed to load %@ token balance";
+
+
+"cardano_missing_unspents" = "Missing unspents";
+
+"cardano_low_ada" = "Sent amount and change cannot be less than 1 ADA";
+
+
+
+"xrp_target_not_created_format" = "Target account is not created. Amount to send should be %@ XRP + fee or more";
+
+"xrp_load_unconfirmed_error" = "Failed to load unconfirmed balance";
+
+"xrp_load_reserve_error" = "Failed to load reserve";
+
+"xrp_load_account_error" = "Failed to load account info";
+
+"xrp_missing_reserve_error" = "Missing reserve";
+
+
+
+"eth_tx_count_parse_error" = "Failed to parse tx count";
+
+"eth_balance_parse_error" = "Failed to parse the balance";
+
+"eth_token_balance_parse_error" = "Failed to parse token balance";
+
+
+
+"xlm_latest_ledger_error" = "Couldn't find latest ledger";
+
+"xlm_requires_memo_error" = "Requires memo";
+
+"xlm_empty_response_error" = "Empty response";
+
+
+
+"xtz_withdrawal_message_warning" = "To avoid paying an increased commission the next time you top up your wallet, reduce the amount by %@ XTZ";
+
+"xtz_withdrawal_message_reduce" = "Reduce by %@ XTZ";
+
+"xtz_withdrawal_message_ignore" = "No, send all";
+
+
+
+"send_validation_invalid_amount" =  "Invalid amount";
+
+"send_validation_invalid_total" = "Total exceeds balance";
+
+"send_validation_invalid_fee" = "Fee exceeds balance";
+
+"send_validation_amount_exceeds_balance" = "Amount exceeds balance";
+
+"send_error_dust_amount_format" = "Minimum amount is %@";
+
+"send_error_dust_change_format" = "Minimum change is %@";
+
+"send_error_invalid_fee_value" = "Invalid Fee";
+
+"send_error_insufficient_balance" = "Insufficient balance";
+
+"send_error_blockchain_internal" = "Blockchain internal error";
+
+"send_error_unknown" = "Unknown error";
+
+
+// MARK: - AppClips
+
+"main_title" = "Tangem Clip";
+"main_hint" = "Tap \"Read wallets\" button to load wallet information from card";
+"main_button_read_wallets" = "Read wallets";
+"main_button_get_full_app" = "Get full app";
+
+// Errors
+"main_error_empty_card_title" = "Empty card";
+"main_error_empty_card_subtitle" = "To start using Tangem card, please, download full app and create wallets";
+"main_error_empty_wallets_title" = "Empty wallets";
+"main_error_empty_wallets_subtitle" = "All wallets on card are empty. Please use full app to learn more";
+"main_error_unsupported_card_title" = "Unsupported card";
+"main_error_unsupported_card_subtitle" = "Can't read card wallet information.\nPlease, use full app to load info from blockchain";
+
+"wallet_error_no_account_subtitle_format" = "Load %@+ %@ to create account";
+"wallet_balance_loading" = "Balance is loading…";
+"wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
+
+"alert_unsupported_card" = "This card is not designed to work with Tangem Clip";
+"alert_wrong_card_scanned" = "You've scanned wrong card. Try again, please.";
