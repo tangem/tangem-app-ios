@@ -27,5 +27,6 @@ struct ContentView_Previews: PreviewProvider {
         ContentView() {
             Text("Hello")
         }
+        .previewGroup(devices: [.iPhone12Pro])
     }
 }
