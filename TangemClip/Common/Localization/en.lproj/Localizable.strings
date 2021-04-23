@@ -260,3 +260,4 @@
 "wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
 
 "alert_unsupported_card" = "This card is not designed to work with Tangem Clip";
+"alert_wrong_card_scanned" = "You've scanned wrong card. Try again, please.";
