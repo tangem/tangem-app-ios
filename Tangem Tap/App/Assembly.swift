@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class ServicesAssembly {
     weak var assembly: Assembly!
+    var urlHandlers: [URLHandler] = []
     
     deinit {
         print("ServicesAssembly deinit")
@@ -28,10 +29,11 @@ class ServicesAssembly {
     lazy var persistentStorage = PersistentStorage()
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
     lazy var keychainService = ValidatedCardsService()
-    lazy var imageLoaderService: ImageLoaderService = ImageLoaderService(networkService: networkService)
+    lazy var imageLoaderService: CardImageLoaderService = CardImageLoaderService(networkService: networkService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
+    lazy var walletConnectService = WalletConnectService(assembly: assembly, tangemSdk: tangemSdk, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -45,20 +47,32 @@ class ServicesAssembly {
         return tracker
     }()
     
+    lazy var scannedCardsRepository: ScannedCardsRepository = ScannedCardsRepository(storage: persistentStorage)
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
         crepo.validatedCardsService = keychainService
         crepo.assembly = assembly
         crepo.delegate = self
+        crepo.scannedCardsRepository = scannedCardsRepository
         return crepo
     }()
+    
     
     lazy var twinsWalletCreationService = {
         TwinsWalletCreationService(tangemSdk: tangemSdk,
                                    twinFileEncoder: TwinCardTlvFileEncoder(),
                                    cardsRepository: cardsRepository,
                                    validatedCardsService: keychainService)
+    }()
+    
+    
+    lazy var signer: TransactionSigner = {
+        let signer = DefaultSigner(tangemSdk: self.tangemSdk,
+                                   initialMessage: Message(header: nil,
+                                                           body: "initial_message_sign_header".localized))
+        signer.delegate = cardsRepository
+        return signer
     }()
     
     private let keysManager = try! KeysManager()
@@ -69,8 +83,6 @@ class ServicesAssembly {
         config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
         return config
     }()
-    
-    
 }
 
 extension ServicesAssembly: CardsRepositoryDelegate {
@@ -78,6 +90,7 @@ extension ServicesAssembly: CardsRepositoryDelegate {
         featuresService.setupFeatures(for: cardInfo.card)
         warningsService.setupWarnings(for: cardInfo.card)
         tokenItemsRepository.setCard(cardInfo.card.cardId ?? "")
+        walletConnectService.didScan(cardInfo.card)
         
         if !featuresService.linkedTerminal {
             tangemSdk.config.linkedTerminal = false
@@ -119,7 +132,7 @@ class Assembly: ObservableObject {
         return vm
     }
     
-    // MARK: Main view model
+    // MARK: - Main view model
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
             let restoredCid = restored.state.card?.cardId ?? ""
@@ -136,9 +149,12 @@ class Assembly: ObservableObject {
         vm.topupService = services.topupService
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
-        vm.state = services.cardsRepository.lastScanResult
+        vm.walletConnectSessionChecker = services.walletConnectService
+        vm.walletConnectUrlHandler = services.walletConnectService
         vm.rateAppController = services.rateAppService
 
+        vm.state = services.cardsRepository.lastScanResult
+        
         vm.negativeFeedbackDataCollector = services.negativeFeedbackDataCollector
         vm.failedCardScanTracker = services.failedCardScanTracker
         
@@ -162,37 +178,19 @@ class Assembly: ObservableObject {
         return vm
     }
     
-    func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
-        //[REDACTED_TODO_COMMENT]
-        guard let walletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey,
-              let cid = cardInfo.card.cardId else {
-            return []
-        }
-        
-        let walletManagers = services.walletManagerFactory.makeWalletManagers(from: cid,
-                                                                              walletPublicKey: walletPublicKey,
-                                                                              blockchains: blockchains)
-        let models = walletManagers.map { manager -> WalletModel in
-            let model = WalletModel(cardInfo: cardInfo, walletManager: manager)
-            model.tokenItemsRepository = services.tokenItemsRepository
-            model.ratesService = services.ratesService
-            return model
-        }
-        return models
+    ///Make wallets for blockchains
+    func makeWallets(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
+        let walletManagers = makeWalletManagers(from: cardInfo, blockchains: blockchains)
+        return makeWalletModels(from: cardInfo, walletManagers: walletManagers)
     }
     
-    func makeWalletModel(from cardInfo: CardInfo) -> [WalletModel] {
-        return makeWallets(from: cardInfo).map {
-            let model = WalletModel(cardInfo: cardInfo, walletManager: $0)
-            model.tokenItemsRepository = services.tokenItemsRepository
-            model.ratesService = services.ratesService
-            return model
-        }
-    }
-    
-    private func makeWallets(from cardInfo: CardInfo) -> [WalletManager] {
+    ///Load all possible wallets for card
+    func loadWallets(from cardInfo: CardInfo) -> [WalletModel] {
         guard let cid = cardInfo.card.cardId else { return [] }
         
+        var walletManagers: [WalletManager] = .init()
+        
+        //If this card is Twin, return twinWallet
         if cardInfo.card.isTwinCard,
            let savedPairKey = cardInfo.twinCardInfo?.pairPublicKey,
            let publicKey = cardInfo.card.wallets.first?.publicKey,
@@ -200,65 +198,79 @@ class Assembly: ObservableObject {
                                                                                        walletPublicKey: publicKey,
                                                                                        pairKey: savedPairKey,
                                                                                        isTestnet: false) {  //[REDACTED_TODO_COMMENT]
-            return [twinWalletManager]
-        }
-
-
-        if cardInfo.card.isMultiWallet && services.tokenItemsRepository.items.count > 0 {
-            return makeMultiwallet(from: cardInfo.card)
-        }
-        
-        if let nativeWalletManager = makeNativeWalletManager(from: cardInfo.card) {
-            return [nativeWalletManager]
-        }
-        
-        return []
-    }
-    
-    private func makeNativeWalletManager(from card: Card) -> WalletManager? {
-        if let cid = card.cardId,
-           let defaultBlockchain = card.defaultBlockchain,
-           let publicKey = card.wallets.first?.publicKey {
-            if let cardWalletManager = services.walletManagerFactory.makeWalletManager(from: cid,
-                                                                                       walletPublicKey: publicKey,
-                                                                                       blockchain: defaultBlockchain) {
-                if let defaultToken = card.defaultToken {
-                    _ = cardWalletManager.addToken(defaultToken)
+            walletManagers.append(twinWalletManager)
+        } else {
+            //If this card supports multiwallet feature, load all saved tokens from persistent storage
+            if cardInfo.card.isMultiWallet && services.tokenItemsRepository.items.count > 0 {
+                //Load erc20 tokens if exists
+                let erc20Tokens = services.tokenItemsRepository.items.compactMap { $0.token }
+                if !erc20Tokens.isEmpty {
+                    if let secpWalletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey,
+                       let ethereumWalletManager = services.walletManagerFactory.makeEthereumWalletManager(from: cid,
+                                                                                                           walletPublicKey: secpWalletPublicKey,
+                                                                                                           erc20Tokens: erc20Tokens,
+                                                                                                           isTestnet: false) { //[REDACTED_TODO_COMMENT]
+                        walletManagers.append(ethereumWalletManager)
+                    }
                 }
                 
-                return cardWalletManager
+                //Load blockchains if exists
+                let existingBlockchains = walletManagers.map { $0.wallet.blockchain }
+                let additionalBlockchains = services.tokenItemsRepository.items
+                    .compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
+                let additionalWalletManagers = makeWalletManagers(from: cardInfo, blockchains: additionalBlockchains)
+                walletManagers.append(contentsOf: additionalWalletManagers)
             }
+            
+            //Try found default card wallet
+            if let nativeWalletManager = makeNativeWalletManager(from: cardInfo), !walletManagers.contains(where: { $0.wallet.blockchain == nativeWalletManager.wallet.blockchain }) {
+                walletManagers.append(nativeWalletManager)
+            }
+        }
+        return makeWalletModels(from: cardInfo, walletManagers: walletManagers)
+    }
+    
+    //Make walletModel from walletManager
+    private func makeWalletModels(from cardInfo: CardInfo, walletManagers: [WalletManager]) -> [WalletModel] {
+        return walletManagers.map { manager -> WalletModel in
+            let model = WalletModel(cardInfo: cardInfo, walletManager: manager)
+            model.tokenItemsRepository = services.tokenItemsRepository
+            model.ratesService = services.ratesService
+            return model
+        }
+    }
+        
+    /// Try to load native walletmanager from card
+    private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
+        if let defaultBlockchain = cardInfo.card.defaultBlockchain,
+           let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
+            
+            if let defaultToken = cardInfo.card.defaultToken {
+                _ = cardWalletManager.addToken(defaultToken)
+            }
+            
+            return cardWalletManager
+            
         }
         
         return nil
     }
     
-    private func makeMultiwallet(from card: Card) -> [WalletManager] {
-        guard let cid = card.cardId else { return [] }
+    ///Try to make WalletManagers for blockchains with suitable wallet
+    private func makeWalletManagers(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletManager] {
+        guard let cid = cardInfo.card.cardId else { return [] }
         
-        var walletManagers: [WalletManager] = .init()
+        var walletManagers = [WalletManager]()
         
-        let erc20Tokens = services.tokenItemsRepository.items.compactMap { $0.token }
-        if !erc20Tokens.isEmpty {
-            if let secpWalletPublicKey = card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey,
-               let ethereumWalletManager = services.walletManagerFactory.makeEthereumWalletManager(from: cid,
-                                                                                                   walletPublicKey: secpWalletPublicKey,
-                                                                                                   erc20Tokens: erc20Tokens,
-                                                                                                   isTestnet: false) { //[REDACTED_TODO_COMMENT]
-                walletManagers.append(ethereumWalletManager)
+        for blockchain in blockchains {
+            if let walletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
+               let wm = services.walletManagerFactory.makeWalletManager(from: cid,
+                                                                        walletPublicKey: walletPublicKey,
+                                                                        blockchain: blockchain) {
+                walletManagers.append(wm)
             }
         }
         
-        if let nativeWalletManager = makeNativeWalletManager(from: card) {
-            walletManagers.append(nativeWalletManager)
-        }
-        
-        if let secpWalletPublicKey = card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey {
-            let existingBlockchains = walletManagers.map { $0.wallet.blockchain }
-            let additionalBlockchains = services.tokenItemsRepository.items.compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
-            let additionalWalletManagers = services.walletManagerFactory.makeWalletManagers(from: cid, walletPublicKey: secpWalletPublicKey, blockchains: additionalBlockchains)
-            walletManagers.append(contentsOf: additionalWalletManagers)
-        }
         return walletManagers
     }
     
@@ -271,6 +283,7 @@ class Assembly: ObservableObject {
         vm.warningsConfigurator = services.warningsService
         vm.warningsAppendor = services.warningsService
         vm.tokenItemsRepository = services.tokenItemsRepository
+        vm.userPrefsService = services.userPrefsService
         //[REDACTED_TODO_COMMENT]
 //        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
 //            vm.payIDService = payIdService
@@ -302,7 +315,7 @@ class Assembly: ObservableObject {
         return vm
     }
     
-    // MARK: Details
+    // MARK: - Details
     
     func makeDetailsViewModel() -> DetailsViewModel {
         
@@ -385,7 +398,7 @@ class Assembly: ObservableObject {
         let vm = SendViewModel(amountToSend: amount,
                                blockchain: blockchain,
                                cardViewModel: card,
-                               signer: services.tangemSdk.signer,
+                               signer: services.signer,
                                warningsManager: services.warningsService)
         initialize(vm)
         vm.ratesService = services.ratesService
@@ -434,6 +447,13 @@ class Assembly: ObservableObject {
 		return vm
 	}
     
+    func makeWalletConnectViewModel(cardModel: CardViewModel) -> WalletConnectViewModel {
+        let vm = WalletConnectViewModel(cardModel: cardModel)
+        initialize(vm)
+        vm.walletConnectController = services.walletConnectService
+        return vm
+    }
+
     public func reset() {
         var persistentKeys = [String]()
         persistentKeys.append(String(describing: type(of: MainViewModel.self)))
@@ -488,16 +508,19 @@ extension Assembly {
         let assembly = Assembly()
         
         // Twin card
-        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
+//        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
         
         // Bitcoin old test card
-        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
+//        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
         
         // ETH pigeon card
-        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
+//        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
+        
+        // V4 card
+        let v4Card = scanResult(for: Card.v4Card, assembly: assembly)
         
         // Which card data should be displayed in preview?
-        assembly.services.cardsRepository.lastScanResult = ethCardScan
+        assembly.services.cardsRepository.lastScanResult = v4Card
         return assembly
     }()
     
