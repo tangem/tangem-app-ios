@@ -104,14 +104,9 @@ class Assembly {
             .eraseToAnyPublisher()
     }
     
-    func updateAppClipCard(with batch: String?) {
+    func updateAppClipCard(with batch: String?, fullLink: String) {
         let mainModel: MainViewModel? = get()
-        mainModel?.updateCardBatch(batch)
-    }
-    
-    func updateCardUrl(_ url: String) {
-        let mainModel: MainViewModel? = get()
-        mainModel?.cardUrl = url
+        mainModel?.updateCardBatch(batch, fullLink: fullLink)
     }
     
     private func store<T>(_ object: T) {
