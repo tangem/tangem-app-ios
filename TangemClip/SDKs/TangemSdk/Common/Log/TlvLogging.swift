@@ -1,0 +1,25 @@
+//
+//  TlvLogging.swift
+//  TangemSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2021 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+protocol TlvLogging {
+    func logTlv<T>(_ tlv: Tlv, _ value: T)
+}
+
+extension TlvLogging {
+    func logTlv<T>(_ tlv: Tlv, _ value: T) {
+        var tlvString = "\(tlv)"
+        
+        if tlv.tag.valueType != .data && tlv.tag.valueType != .hexString {
+            tlvString += " (\(value))"
+        }
+        
+        Log.tlv(tlvString)
+    }
+}
