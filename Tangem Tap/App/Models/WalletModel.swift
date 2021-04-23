@@ -208,7 +208,7 @@ class WalletModel: ObservableObject, Identifiable {
             return false
         }
     
-        if amountType == .coin && !wallet.isEmpty {
+        if amountType == .coin && (!wallet.isEmpty || walletManager.cardTokens.count != 0) {
             return false
         }
 
