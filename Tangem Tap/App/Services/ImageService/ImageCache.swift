@@ -33,16 +33,14 @@ public final class ImageCache: ImageCacheType {
         public let countLimit: Int
         public let memoryLimit: Int
 
-        public static let defaultConfig = Config(countLimit: 100, memoryLimit: 1024 * 1024 * 100) // 100 MB
+        public static let defaultConfig = Config(countLimit: 100, memoryLimit: 1024 * 1024 * 70) // 100 MB
     }
     
-    // 1st level cache, that contains encoded images
     private lazy var imageCache: NSCache<AnyObject, AnyObject> = {
         let cache = NSCache<AnyObject, AnyObject>()
         cache.countLimit = config.countLimit
         return cache
     }()
-    // 2nd level cache, that contains decoded images
     private lazy var decodedImageCache: NSCache<AnyObject, AnyObject> = {
         let cache = NSCache<AnyObject, AnyObject>()
         cache.totalCostLimit = config.memoryLimit
@@ -52,11 +50,12 @@ public final class ImageCache: ImageCacheType {
     
     private var cacheFolderUrl: URL {
         let url = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("ImageCache")
-        try? fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+        if !fileManager.fileExists(atPath: url.path){
+            try? fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+        }
         return url
     }
     
-    private let lock = NSLock()
     private let config: Config
     
     public init(config: Config = Config.defaultConfig) {
@@ -64,8 +63,6 @@ public final class ImageCache: ImageCacheType {
     }
 
     public func image(for url: URL) -> UIImage? {
-        lock.lock(); defer { lock.unlock() }
-        // the best case scenario -> there is a decoded image in memory
         if let decodedImage = decodedImageCache.object(forKey: url as AnyObject) as? UIImage {
             return decodedImage
         }
@@ -73,7 +70,7 @@ public final class ImageCache: ImageCacheType {
         func saveToDecodedCache(image: UIImage) {
             decodedImageCache.setObject(image as AnyObject, forKey: url as AnyObject, cost: image.diskSize)
         }
-        // search for image data
+        
         if let image = imageCache.object(forKey: url as AnyObject) as? UIImage {
             let decodedImage = image.decodedImage()
             saveToDecodedCache(image: decodedImage)
@@ -92,7 +89,6 @@ public final class ImageCache: ImageCacheType {
         guard let image = image else { return removeImage(for: url) }
         let decompressedImage = image.decodedImage()
 
-        lock.lock(); defer { lock.unlock() }
         imageCache.setObject(decompressedImage, forKey: url as AnyObject, cost: 1)
         decodedImageCache.setObject(image as AnyObject, forKey: url as AnyObject, cost: decompressedImage.diskSize)
         if let data = image.pngData() {
@@ -105,24 +101,20 @@ public final class ImageCache: ImageCacheType {
     }
 
     public func removeImage(for url: URL) {
-        lock.lock(); defer { lock.unlock() }
         imageCache.removeObject(forKey: url as AnyObject)
         decodedImageCache.removeObject(forKey: url as AnyObject)
+        try? fileManager.removeItem(at: url)
     }
 
     public func removeAllImages() {
-        lock.lock(); defer { lock.unlock() }
         imageCache.removeAllObjects()
         decodedImageCache.removeAllObjects()
+        try? fileManager.removeItem(at: cacheFolderUrl)
     }
 
     public subscript(_ key: URL) -> UIImage? {
-        get {
-            return image(for: key)
-        }
-        set {
-            return insertImage(newValue, for: key)
-        }
+        get { image(for: key) }
+        set { insertImage(newValue, for: key) }
     }
     
     private func localFileUrl(for remoteUrl: URL) -> URL {
