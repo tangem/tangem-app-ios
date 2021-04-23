@@ -8,8 +8,6 @@
 
 import Foundation
 import SwiftUI
-import TangemSdk
-import BlockchainSdk
 
 
 
