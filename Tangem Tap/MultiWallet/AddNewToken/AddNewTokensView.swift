@@ -20,7 +20,8 @@ fileprivate struct TokenView: View {
     
     var body: some View {
         HStack {
-            tokenItem.imageView
+            TokenIconView(token: tokenItem)
+                .frame(width: 40, height: 40, alignment: .center)
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(name)
