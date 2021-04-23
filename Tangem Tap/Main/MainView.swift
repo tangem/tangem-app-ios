@@ -173,7 +173,8 @@ struct MainView: View {
                 
                 NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                              closeUrl: viewModel.topupCloseUrl,
-                                                             title: "wallet_button_topup")
+                                                             title: "wallet_button_topup",
+                                                             addLoadingIndicator: true)
                                 .onDisappear { viewModel.state.cardModel?.update() },
                                isActive: $navigation.mainToTopup)
                 
@@ -306,7 +307,9 @@ struct MainView: View {
             .foregroundColor(Color.tangemTapGrayDark6)
             .frame(width: 44.0, height: 44.0, alignment: .center)
             .offset(x: 10.0, y: 0.0)
-        }).padding(0.0)
+        })
+        .accessibility(label: Text("voice_over_open_card_details"))
+        .padding(0.0)
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
@@ -372,10 +375,7 @@ struct MainView: View {
                                         buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
                             
                         }
-                } else {
-                    
-                }
-
+                } 
             }
         }
     }
@@ -388,7 +388,7 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
                 .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
         }
-        .previewGroup(devices: [.iPhone8Plus])
+        .previewGroup(devices: [.iPhone12Pro])
         .navigationViewStyle(StackNavigationViewStyle())
         .environment(\.locale, .init(identifier: "en"))
     }
