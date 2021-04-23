@@ -141,10 +141,6 @@ class MainViewModel: ViewModel {
 		cardModel?.isTwinCard ?? false
 	}
     
-    var canUseWalletConnect: Bool {
-        cardModel?.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false
-    }
-    
     var tokenItemViewModels: [TokenItemViewModel] {
         guard let cardModel = cardModel,
               let walletModels = cardModel.walletModels else { return [] }
