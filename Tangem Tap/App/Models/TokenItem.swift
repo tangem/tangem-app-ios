@@ -51,6 +51,15 @@ enum TokenItem: Codable, Hashable {
         }
     }
     
+    var imagePath: String? {
+        switch self {
+        case .blockchain(let blockchain):
+            return IconsUtils.getBlockchainIconUrl(blockchain)?.absoluteString
+        case .token(let token):
+            return IconsUtils.getTokenIconUrl(for: .ethereum(testnet: false), token: token)?.absoluteString
+        }
+    }
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let blockchain = try? container.decode(Blockchain.self) {
