@@ -17,6 +17,8 @@ extension WarningEvent {
             return WarningsList.rateApp
         case .failedToValidateCard:
             return WarningsList.failedToVerifyCard
+        case .multiWalletSignedHashes:
+            return WarningsList.multiWalletSignedHashes
         }
     }
 }
