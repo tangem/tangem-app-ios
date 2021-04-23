@@ -32,16 +32,15 @@ extension TapScanTaskResponse {
 }
 
 final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
-    let excludeBatches = ["0027",
-                          "0030",
-                          "0031",
-                          "0035"]
-    
     var preflightReadSettings: PreflightReadSettings { .fullCardRead }
     
-    let excludeIssuers = ["TTM BANK"]
-    
     private let unsupportedCardError = TangemSdkError.underlying(error: "alert_unsupported_card".localized)
+    
+    private let targetBatch: String
+    
+    init(targetBatch: String) {
+        self.targetBatch = targetBatch
+    }
     
     deinit {
         print("TapScanTask deinit")
@@ -78,12 +77,12 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
             }
         }
         
-        if let batch = card.cardData?.batchId, self.excludeBatches.contains(batch) { //filter batch
+        guard let batch = card.cardData?.batchId else {
             throw unsupportedCardError
         }
         
-        if let issuer = card.cardData?.issuerName, excludeIssuers.contains(issuer) { //filter issuer
-            throw unsupportedCardError
+        if batch != targetBatch {
+            throw TangemSdkError.underlying(error: "alert_wrong_card_scanned".localized)
         }
     }
     
