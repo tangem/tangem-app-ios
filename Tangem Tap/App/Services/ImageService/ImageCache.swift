@@ -118,13 +118,13 @@ public final class ImageCache: ImageCacheType {
     }
     
     private func localFileUrl(for remoteUrl: URL) -> URL {
-        let fileName = remoteUrl.absoluteString.md5
+        let fileName = remoteUrl.absoluteString.md5String
         return cacheFolderUrl.appendingPathComponent(fileName)
     }
 }
 
 fileprivate extension String {
-    var md5: String {
+    var md5String: String {
         let length = Int(CC_MD5_DIGEST_LENGTH)
         let messageData = data(using:.utf8)!
         var digestData = Data(count: length)
