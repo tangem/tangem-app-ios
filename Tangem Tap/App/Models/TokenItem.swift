@@ -40,10 +40,16 @@ enum TokenItem: Codable, Hashable {
     @ViewBuilder var imageView: some View {
         switch self {
         case .token(let token):
-            CircleImageTextView(name: token.name, color: token.color)
+            if let iconName = token.customIcon {
+                Image(iconName)
+                    .resizable()
+            } else {
+                CircleImageTextView(name: token.name, color: token.color)
+            }
         case .blockchain(let blockchain):
             if let image = blockchain.imageName {
                 Image(image)
+                    .resizable()
             } else {
                 CircleImageTextView(name: blockchain.displayName,
                                 color: Color.tangemTapGrayLight4)
@@ -56,6 +62,8 @@ enum TokenItem: Codable, Hashable {
         case .blockchain(let blockchain):
             return IconsUtils.getBlockchainIconUrl(blockchain)?.absoluteString
         case .token(let token):
+            guard token.customIcon == nil else { return nil }
+            
             return IconsUtils.getTokenIconUrl(for: .ethereum(testnet: false), token: token)?.absoluteString
         }
     }
