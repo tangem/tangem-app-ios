@@ -55,7 +55,8 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
 
     let excludeBatches = ["0027",
                           "0030",
-                          "0031"] //tangem tags
+                          "0031",
+                          "0035"]
     
     let excludeIssuers = ["TTM BANK"]
     
