@@ -21,6 +21,13 @@ struct CircleActionButton: View {
     var isDisabled = false
 	
     @State private var isVerify = false
+    
+    var image: Image {
+        isSystemImage ?
+            Image(systemName: imageName) :
+            Image(imageName)
+    }
+    
     var body: some View {
         Button(action: {
             action()
@@ -36,11 +43,7 @@ struct CircleActionButton: View {
                     if isVerify {
                         Image("checkmark")
                     } else {
-                        if isSystemImage {
-                            Image(systemName: imageName)
-                        } else {
-                            Image(imageName)
-                        }
+                        image
                     }
 				}
 				.font(Font.system(size: 17.0, weight: .light, design: .default))
