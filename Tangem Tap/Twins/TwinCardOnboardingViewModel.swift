@@ -75,7 +75,7 @@ class TwinCardOnboardingViewModel: ViewModel {
 	
 	weak var navigation: NavigationCoordinator!
 	weak var assembly: Assembly!
-	weak var imageLoader: ImageLoaderService!
+	weak var imageLoader: CardImageLoaderService!
 	weak var userPrefsService: UserPrefsService!
 	
 	@Published var firstTwinImage: UIImage = UIImage()
@@ -85,7 +85,7 @@ class TwinCardOnboardingViewModel: ViewModel {
 	var appeared = false
 	private var bag = Set<AnyCancellable>()
 	
-	init(state: State, imageLoader: ImageLoaderService) {
+	init(state: State, imageLoader: CardImageLoaderService) {
 		self.state = state
 		self.imageLoader = imageLoader
 		loadImages()
