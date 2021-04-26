@@ -39,6 +39,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         handleURL(contexts: connectionOptions.urlContexts)
     }
+    
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        print("Scene continue: \(userActivity.webpageURL)")
+    }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
