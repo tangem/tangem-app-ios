@@ -65,15 +65,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     let assembly = Assembly()
     
+    var userPrefs: UserPrefsService {
+        assembly.services.userPrefsService
+    }
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         let contentView = MainView(viewModel: assembly.getMainViewModel())
 
-
-        if let activity = connectionOptions.userActivities.first {
-            clipsLogger.log("Scene will connect to session with activity: \(activity). Type: \(activity.activityType). Webpage url: \(activity.webpageURL)", level: .debug)
-            handleActivity(activity)
-            scene.userActivity = activity
-        }
+        clipsLogger.log("Scene will connect to session with activity: \(connectionOptions.userActivities.first), SceneDelegate activity: \(userActivity). Type: \(connectionOptions.userActivities.first?.activityType). Webpage url: \(connectionOptions.userActivities.first?.webpageURL)", level: .debug)
+        handle(connectionOptions.userActivities.first, in: scene)
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
@@ -83,28 +83,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
     
-    func scene(_ scene: UIScene, willContinueUserActivityWithType userActivityType: String) {
-        guard let activity = scene.userActivity else { return }
-        clipsLogger.log("Scene will continue user activity: \(activity). Type: \(activity.activityType). Webpage url: \(activity.webpageURL)", level: .debug)
-        handleActivity(activity)
-    }
-    
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-        handleActivity(userActivity)
-        clipsLogger.log("Scene will continue user activity: \(userActivity). Type: \(userActivity.activityType). Webpage url: \(userActivity.webpageURL)", level: .debug)
-        scene.userActivity = userActivity
+        clipsLogger.log("Scene continue with activity: \(userActivity), SceneDelegate activity: \(userActivity). Type: \(userActivity.activityType). Webpage url: \(userActivity.webpageURL)", level: .debug)
+        handle(userActivity, in: scene)
     }
     
-    private func handleActivity(_ activity: NSUserActivity) {
+    private func handle(_ activity: NSUserActivity?, in scene: UIScene) {
         // Get URL components from the incoming user activity
-        guard activity.activityType == NSUserActivityTypeBrowsingWeb,
-              let incomingURL = activity.webpageURL,
-              incomingURL.absoluteString != "https://example.com"
-        else { return }
+        let url: URL
+        clipsLogger.log("Handling activity: \(activity). Type: \(activity?.activityType). Webpage url: \(activity?.webpageURL)", level: .debug)
+        if let activity = activity, activity.activityType == NSUserActivityTypeBrowsingWeb, let incomingURL = activity.webpageURL {
+            if incomingURL.absoluteString == "https://example.com" {
+                clipsLogger.log("Scene found url but this is example.com. Returning without action", level: .debug)
+                return
+            }
+            url = incomingURL
+            scene.userActivity = activity
+        } else if let savedNdef = URL(string: userPrefs.lastScannedNdef) {
+            clipsLogger.log("Scene not found url. Reverting to saved url: \(savedNdef)", level: .debug)
+            url = savedNdef
+        } else {
+            clipsLogger.log("Scene not found url and not found saved url. Replacing with preset link", level: .debug)
+            url = URL(string: "https://tangem.com/ndef/CB79")!
+        }
         
-        let link = incomingURL.absoluteString
-        let batch = incomingURL.lastPathComponent
+        let link = url.absoluteString
+        let batch = url.lastPathComponent
         assembly.updateAppClipCard(with: batch, fullLink: link)
+        userPrefs.lastScannedNdef = link
+        if !userPrefs.scannedNdefs.contains(link) {
+            userPrefs.scannedNdefs.append(link)
+        }
     }
 
 }
