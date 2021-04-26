@@ -20,7 +20,6 @@ struct LogsView: View {
         }
     }
 }
-
 struct MainView: View {
     
     @ObservedObject var viewModel: MainViewModel
