@@ -119,7 +119,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return false
         }
         
-        if cardInfo.card.settingsMask?.contains(.isReusable) ?? false {
+        if !(cardInfo.card.settingsMask?.contains(.isReusable) ?? false) {
             return false
         }
         
