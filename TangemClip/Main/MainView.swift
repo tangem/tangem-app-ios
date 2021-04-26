@@ -9,11 +9,24 @@
 import SwiftUI
 import StoreKit
 
+struct LogsView: View {
+    var logs: String
+    
+    var body: some View {
+        ScrollView {
+            Text(logs)
+                .lineLimit(nil)
+                .padding()
+        }
+    }
+}
+
 struct MainView: View {
     
     @ObservedObject var viewModel: MainViewModel
     
     @State var isDisplayingAppStoreOverlay = false
+    @State var share = false
     
     var body: some View {
         VStack {
@@ -25,6 +38,13 @@ struct MainView: View {
                     VStack(spacing: 8) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32)
+                            .onTapGesture(count: 15, perform: {
+                                share.toggle()
+                            })
+                            .sheet(isPresented: $share,
+                                           content: {
+                                            LogsView(logs: clipsLogger.logs)
+                                           })
                             .fixedSize(horizontal: false, vertical: true)
                         switch viewModel.state {
                         case .notScannedYet:
