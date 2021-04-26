@@ -4970,7 +4970,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 244;
+				CURRENT_PROJECT_VERSION = 247;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -4980,7 +4980,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.15;
+				MARKETING_VERSION = 3.16;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -4997,7 +4997,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 244;
+				CURRENT_PROJECT_VERSION = 247;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -5007,7 +5007,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.15;
+				MARKETING_VERSION = 3.16;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -5116,7 +5116,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CODE_SIGN_ENTITLEMENTS = TangemClip/TangemClip.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 244;
+				CURRENT_PROJECT_VERSION = 247;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
@@ -5127,7 +5127,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.15;
+				MARKETING_VERSION = 3.16;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_INCLUDE_PATHS = "$(inherited) \"${PODS_XCFRAMEWORKS_BUILD_DIR}/Clibsodium\" $(SRCROOT)/TangemClip";
@@ -5146,7 +5146,7 @@
 				CODE_SIGN_ENTITLEMENTS = TangemClip/TangemClip.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 244;
+				CURRENT_PROJECT_VERSION = 247;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -5156,7 +5156,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.15;
+				MARKETING_VERSION = 3.16;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_INCLUDE_PATHS = "$(inherited) \"${PODS_XCFRAMEWORKS_BUILD_DIR}/Clibsodium\" $(SRCROOT)/TangemClip";
@@ -5175,7 +5175,7 @@
 				CODE_SIGN_ENTITLEMENTS = TangemClip/TangemClip.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 244;
+				CURRENT_PROJECT_VERSION = 247;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -5185,7 +5185,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.15;
+				MARKETING_VERSION = 3.16;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -5260,7 +5260,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Tangem Tap/Tangem Tap.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 244;
+				CURRENT_PROJECT_VERSION = 247;
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem Tap/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
@@ -5269,7 +5269,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.15;
+				MARKETING_VERSION = 3.16;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
