@@ -346,7 +346,7 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "wallet_create_payid_empty" = "Zuerst geben Sie die gewünschte PayString ein";
 "initial_message_scan_header" = "Legen Sie die Karte zum Scannen an";
 "initial_message_tap_header" = "Legen Sie die Karte an";
-"details_notification_erase_wallet_not_possible" = "Ihr Kontostand in dieser Brieftasche ist nicht Null, oder Sie haben unbestätigte Transaktionen. Es ist unmöglich die Funktion der Brieftasche zu löschen.";
+"details_notification_erase_wallet_not_possible" = "Es ist unmöglich die Funktion der Brieftasche zu löschen.";
 "details_notification_security_option_already_active" = "Dies ist die derzeit aktive Wahl";
 
 // MARK: - Twin Cards
