@@ -599,7 +599,7 @@ class SendViewModel: ViewModel {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
-                    Analytics.log(error: error)
+                    Analytics.logCardSdkError(error.toTangemSdkError(), for: .sendTx, card: cardViewModel.cardInfo.card, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
                     emailDataCollector.lastError = error
                     self.sendError = error.alertBinder
                 } else {
