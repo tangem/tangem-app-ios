@@ -280,7 +280,7 @@ class MainViewModel: ViewModel {
             .removeDuplicates()
             .filter { $0 }
             .sink{ [unowned self] _ in
-                if let cardModel = self.cardModel, cardModel.state.canUpdate {
+                if let cardModel = self.cardModel, cardModel.state.canUpdate, cardModel.walletModels?.count ?? 0 > 0 {
                     cardModel.update()
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
