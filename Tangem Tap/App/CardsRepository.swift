@@ -77,7 +77,7 @@ class CardsRepository {
         tangemSdk.startSession(with: TapScanTask(validatedCardsService: validatedCardsService)) {[unowned self] result in
             switch result {
             case .failure(let error):
-                Analytics.log(error: error)
+                Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
 				guard response.card.cardId != nil else {
