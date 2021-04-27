@@ -297,27 +297,31 @@ class CardViewModel: Identifiable, ObservableObject {
             tangemSdk.startSession(with: SetPinCommand(pinType: .pin1, isExclusive: true),
                                    cardId: cardInfo.card.cardId!,
                                    initialMessage: Message(header: nil, body: "initial_message_change_access_code_body".localized)) {[weak self] result in
+                guard let self = self else { return }
+                
                 switch result {
                 case .success:
-                    self?.cardInfo.card.isPin1Default = false
-                    self?.cardInfo.card.isPin2Default = true
-                    self?.updateCurrentSecOption()
+                    self.cardInfo.card.isPin1Default = false
+                    self.cardInfo.card.isPin2Default = true
+                    self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.log(error: error)
+                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Access Code"])
                     completion(.failure(error))
                 }
             }
         case .longTap:
             tangemSdk.startSession(with: SetPinCommand(), cardId: cardInfo.card.cardId!) {[weak self] result in
+                guard let self = self else { return }
+                
                 switch result {
                 case .success:
-                    self?.cardInfo.card.isPin1Default = true
-                    self?.cardInfo.card.isPin2Default = true
-                    self?.updateCurrentSecOption()
+                    self.cardInfo.card.isPin1Default = true
+                    self.cardInfo.card.isPin2Default = true
+                    self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.log(error: error)
+                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Long tap"])
                     completion(.failure(error))
                 }
             }
@@ -325,14 +329,16 @@ class CardViewModel: Identifiable, ObservableObject {
             tangemSdk.startSession(with: SetPinCommand(pinType: .pin2, isExclusive: true),
                                    cardId: cardInfo.card.cardId!,
                                    initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) {[weak self] result in
+                guard let self = self else { return }
+                
                 switch result {
                 case .success:
-                    self?.cardInfo.card.isPin2Default = false
-                    self?.cardInfo.card.isPin1Default = true
-                    self?.updateCurrentSecOption()
+                    self.cardInfo.card.isPin2Default = false
+                    self.cardInfo.card.isPin1Default = true
+                    self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
-                    Analytics.log(error: error)
+                    Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Pass code"])
                     completion(.failure(error))
                 }
             }
@@ -356,7 +362,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self.update(with: card)
                 completion(.success(()))
             case .failure(let error):
-                Analytics.log(error: error)
+                Analytics.logCardSdkError(error, for: .createWallet, card: cardInfo.card)
                 completion(.failure(error))
             }
         }
@@ -380,7 +386,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self.update(with: response.card)
                 completion(.success(()))
             case .failure(let error):
-                Analytics.log(error: error)
+                Analytics.logCardSdkError(error, for: .purgeWallet, card: cardInfo.card)
                 completion(.failure(error))
             }
         }
