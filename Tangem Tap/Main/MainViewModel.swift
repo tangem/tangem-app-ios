@@ -24,8 +24,6 @@ class MainViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
     weak var failedCardScanTracker: FailedCardScanTracker!
-    weak var walletConnectSessionChecker: WalletConnectChecker!
-    weak var walletConnectUrlHandler: URLHandler!
     
     // MARK: Variables
     
@@ -51,8 +49,6 @@ class MainViewModel: ViewModel {
         }
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
-    @Published var walletConnectCode = ""
-    @Published var isWalletConnectServiceBusy = false
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -293,23 +289,11 @@ class MainViewModel: ViewModel {
             }
             .store(in: &bag)
         
-        $walletConnectCode
-            .dropFirst()
-            .filter { !$0.isEmpty }
-            .sink(receiveValue: {
-                guard self.walletConnectUrlHandler.handle(url: $0) else {
-                    self.error = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
-                    return
+        warningsManager.warningsUpdatePublisher
+            .sink { [weak self] (locationUpdate) in
+                if case .main = locationUpdate {
+                    self?.fetchWarnings()
                 }
-                
-                self.walletConnectCode = ""
-            })
-            .store(in: &bag)
-        
-        walletConnectSessionChecker.isServiceBusy
-            .receive(on: DispatchQueue.main)
-            .sink {
-                self.isWalletConnectServiceBusy = $0
             }
             .store(in: &bag)
     }
