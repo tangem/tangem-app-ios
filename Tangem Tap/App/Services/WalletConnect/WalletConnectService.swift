@@ -50,10 +50,10 @@ class WalletConnectService: ObservableObject {
     fileprivate var wallet: WalletInfo? = nil
     private let sessionsKey = "wc_sessions"
     
-    init(assembly: Assembly, tangemSdk: TangemSdk, scannedCardsRepository: ScannedCardsRepository) {
+    init(assembly: Assembly, signer: TangemSigner, scannedCardsRepository: ScannedCardsRepository) {
         server = Server(delegate: self)
-        server.register(handler: PersonalSignHandler(tangemSdk: tangemSdk, delegate: self, dataSource: self))
-        server.register(handler: SignTransactionHandler(tangemSdk: tangemSdk, delegate: self, dataSource: self))
+        server.register(handler: PersonalSignHandler(signer: signer, delegate: self, dataSource: self))
+        server.register(handler: SignTransactionHandler(signer: signer, delegate: self, dataSource: self))
         server.register(handler: SendTransactionHandler(dataSource: self, delegate: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
     }
     
@@ -177,6 +177,7 @@ extension WalletConnectService: ServerDelegate {
     
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
         guard let wallet = self.wallet else {
+            isServiceBusy.send(false)
             completion(rejectedResponse)
             return
         }
