@@ -46,6 +46,7 @@ class Analytics {
         case errorDescription = "error_description"
         case errorCode = "error_code"
         case newSecOption = "new_security_option"
+        case errorKey = "Tangem SDK error key"
     }
     
     static func log(event: Event, parameters: [String: Any]? = nil) {
@@ -70,10 +71,9 @@ class Analytics {
         
         var params = parameters
         params[.action] = action.rawValue
-        params[.errorDescription] = error.errorDescription ?? error.localizedDescription
-        params[.errorCode] = error.code
+        params[.errorKey] = String(describing: error)
         
-        let nsError = NSError(domain: error.localizedDescription, code: error.code, userInfo: params.firebaseParams)
+        let nsError = NSError(domain: "Tangem SDK Error #\(error.code)", code: error.code, userInfo: params.firebaseParams)
         Crashlytics.crashlytics().record(error: nsError)
     }
     
