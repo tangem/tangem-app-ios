@@ -73,7 +73,8 @@ class Analytics {
         params[.errorDescription] = error.errorDescription ?? error.localizedDescription
         params[.errorCode] = error.code
         
-        FirebaseAnalytics.Analytics.logEvent(Event.nfcError, parameters: params.firebaseParams)
+        let nsError = NSError(domain: error.localizedDescription, code: error.code, userInfo: params.firebaseParams)
+        Crashlytics.crashlytics().record(error: nsError)
     }
     
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: Any] = [:]) {
