@@ -12,13 +12,13 @@ import Combine
 extension Publisher where Output: Equatable {
     var uiPublisher: AnyPublisher<Output, Failure> {
         dropFirst()
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .debounce(for: 0.6, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
     
     var uiPublisherWithFirst: AnyPublisher<Output, Failure> {
-            debounce(for: 0.3, scheduler: DispatchQueue.main)
+            debounce(for: 0.6, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
