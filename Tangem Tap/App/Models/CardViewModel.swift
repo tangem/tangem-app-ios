@@ -99,6 +99,10 @@ class CardViewModel: Identifiable, ObservableObject {
             return nil
         }
         
+        if !(cardInfo.card.settingsMask?.contains(.isReusable) ?? true) {
+            return "details_notification_not_reusable_wallet".localized
+        }
+        
         if !canPurgeWallet {
             return "details_notification_erase_wallet_not_possible".localized
         }
