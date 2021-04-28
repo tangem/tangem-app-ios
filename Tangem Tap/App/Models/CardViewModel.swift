@@ -275,7 +275,7 @@ class CardViewModel: Identifiable, ObservableObject {
            var wallet = cardInfo.card.wallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex)) {
             wallet.remainingSignatures = signResponse.walletRemainingSignatures
             cardInfo.card.updateWallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex), with: wallet)
-//            updateModel()
+            warningsConfigurator.setupWarnings(for: cardInfo.card)
         }
     }
     

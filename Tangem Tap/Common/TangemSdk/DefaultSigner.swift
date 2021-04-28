@@ -11,7 +11,9 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
-public class DefaultSigner: TransactionSigner {
+typealias TangemSigner = TransactionSigner
+
+public class DefaultSigner: TangemSigner {
     public var initialMessage: Message? = nil
     weak var delegate: SignerDelegate? = nil
     
