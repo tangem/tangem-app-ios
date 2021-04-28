@@ -51,7 +51,6 @@ struct DetailsView: View {
                                    subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
                                                     viewModel.cardModel.cardInfo.card.walletSignedHashes.description))
                 }
-                //[REDACTED_TODO_COMMENT]
                 Button(action: {
                     viewModel.checkPin {
                         selection = .securityManagement
