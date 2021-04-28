@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import Combine
 
 protocol WarningsConfigurator: class {
     func setupWarnings(for card: Card)
@@ -18,6 +19,7 @@ protocol WarningAppendor: class {
 }
 
 protocol WarningsManager: WarningAppendor {
+    var warningsUpdatePublisher: PassthroughSubject<WarningsLocation, Never> { get }
     func warnings(for location: WarningsLocation) -> WarningsContainer
     func hideWarning(_ warning: TapWarning)
     func hideWarning(for event: WarningEvent)
@@ -25,8 +27,17 @@ protocol WarningsManager: WarningAppendor {
 
 class WarningsService {
     
-    private var mainWarnings: WarningsContainer = .init()
-    private var sendWarnings: WarningsContainer = .init()
+    var warningsUpdatePublisher: PassthroughSubject<WarningsLocation, Never> = PassthroughSubject()
+    private var mainWarnings: WarningsContainer = .init() {
+        didSet {
+            warningsUpdatePublisher.send(.main)
+        }
+    }
+    private var sendWarnings: WarningsContainer = .init() {
+        didSet {
+            warningsUpdatePublisher.send(.send)
+        }
+    }
     
     private let remoteWarningProvider: RemoteWarningProvider
     private let rateAppChecker: RateAppChecker
