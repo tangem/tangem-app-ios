@@ -9,15 +9,18 @@
 import Foundation
 import WalletConnectSwift
 import TangemSdk
+import Combine
 
 class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     weak var delegate: WalletConnectHandlerDelegate?
     weak var dataSource: WalletConnectHandlerDataSource?
     
-    private let tangemSdk: TangemSdk
+    private let signer: TangemSigner
     
-    init(tangemSdk: TangemSdk, delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource) {
-        self.tangemSdk = tangemSdk
+    private var signerSubscription: AnyCancellable?
+    
+    init(signer: TangemSigner, delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource) {
+        self.signer = signer
         self.delegate = delegate
         self.dataSource = dataSource
     }
@@ -59,9 +62,13 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
         let hash = data.sha3(.keccak256)
         
-        tangemSdk.sign(hash: hash, walletPublicKey: wallet.walletPublicKey, cardId: wallet.cid) {result in
-            switch result {
-            case .success(let response):
+        signerSubscription = signer.sign(hash: hash, cardId: wallet.cid, walletPublicKey: wallet.walletPublicKey)
+            .sink(receiveCompletion: { [weak self] (subsCompletion) in
+                if case let .failure(error) = subsCompletion {
+                    completion(.failure(error))
+                }
+                self?.signerSubscription = nil
+            }, receiveValue: { (response) in
                 if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response,
                                                                   hash: hash,
                                                                   publicKey: wallet.walletPublicKey) {
@@ -72,11 +79,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                 } else {
                     completion(.failure(WalletConnectService.WalletConnectServiceError.signFailed))
                 }
-            case .failure(let error):
-                print(error)
-                completion(.failure(error))
-            }
-        }
+            })
     }
     
 }

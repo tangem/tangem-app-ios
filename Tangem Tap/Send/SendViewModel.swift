@@ -263,7 +263,6 @@ class SendViewModel: ViewModel {
         $amountText
             .uiPublisher
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
-            .debounce(for: 0.3, scheduler: RunLoop.main)
             .filter {[unowned self] (string, isFiat) -> Bool in
                 if isFiat,
                    let fiat = self.walletModel.getFiat(for: self.amountToSend)?.description,
@@ -284,7 +283,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $amountToSend //amount validation
-            .uiPublisher
+            .dropFirst()
             .sink {[unowned self] newAmount in
                 if newAmount.value == 0 {
                     self.amountHint = nil
@@ -303,10 +302,8 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $amountValidated //update fee
-            .uiPublisher
             .filter { $0 }
-            .combineLatest($validatedDestination.uiPublisher.compactMap { $0 },  $isFeeIncluded.uiPublisherWithFirst)
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .combineLatest($validatedDestination.compactMap { $0 },  $isFeeIncluded.uiPublisherWithFirst)
             .flatMap { [unowned self] _, dest, includeFee -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
 				return self.walletModel.txSender.getFee(amount: self.amountToSend, destination: dest, includeFee: includeFee)
@@ -327,11 +324,9 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $amountValidated
-            .uiPublisher
-            .combineLatest($validatedDestination.uiPublisher,
-                           $selectedFee.uiPublisherWithFirst,
-                           $isFeeIncluded.uiPublisherWithFirst)
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .combineLatest($validatedDestination,
+                           $selectedFee,
+                           $isFeeIncluded)
             .map {[unowned self] amountValidated, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
                 
                 if !amountValidated || destination == nil || fee == nil {
@@ -358,7 +353,7 @@ class SendViewModel: ViewModel {
             .store(in: &bag)
         
         $maxAmountTapped //handle max amount tap
-            .uiPublisher
+            .dropFirst()
             .sink { [unowned self] _ in
                 guard let amount = self.walletModel.wallet.amounts[self.amountToSend.type] else { return  }
                 
@@ -373,9 +368,7 @@ class SendViewModel: ViewModel {
         
         // MARK: Fee
         $fees //handle fee selection
-            .uiPublisher
-            .combineLatest($selectedFeeLevel.uiPublisherWithFirst)
-            .debounce(for: 0.3, scheduler: RunLoop.main, options: nil)
+            .combineLatest($selectedFeeLevel)
             .sink{ [unowned self] fees, level in
                 if fees.isEmpty {
                     self.selectedFee = nil
@@ -387,8 +380,7 @@ class SendViewModel: ViewModel {
         
         $selectedFee //update fee label
             .uiPublisher
-            .combineLatest($isFiatCalculation.uiPublisherWithFirst)
-            .debounce(for: 0.3, scheduler: RunLoop.main)
+            .combineLatest($isFiatCalculation)
             .sink{ [unowned self] newAmount, isFiat in
                 let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, address: self.walletModel.wallet.address, type: .coin, value: 0)
                 self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
@@ -599,7 +591,7 @@ class SendViewModel: ViewModel {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
-                    Analytics.log(error: error)
+                    Analytics.logCardSdkError(error.toTangemSdkError(), for: .sendTx, card: cardViewModel.cardInfo.card, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
                     emailDataCollector.lastError = error
                     self.sendError = error.alertBinder
                 } else {
