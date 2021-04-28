@@ -54,7 +54,7 @@ class PersistentStorage {
         createDirectory()
         
         let data = try JSONEncoder().encode(value)
-        try data.write(to: documentPath)
+        try data.write(to: documentPath, options: .atomic)
     }
     
     private func documentPath(for key: String) -> URL {
