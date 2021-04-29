@@ -373,7 +373,7 @@ class SendViewModel: ViewModel {
                 if fees.isEmpty {
                     self.selectedFee = nil
                 } else {
-                    self.selectedFee = fees.count > 1 ? fees[self.selectedFeeLevel] : fees.first!
+                    self.selectedFee = fees.count > 1 ? fees[level] : fees.first!
                 }
             }
             .store(in: &bag)
