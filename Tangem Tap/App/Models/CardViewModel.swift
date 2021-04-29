@@ -90,7 +90,9 @@ class CardViewModel: Identifiable, ObservableObject {
         
         guard hasWallet else { return nil }
         
-        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+        let card = cardInfo.card
+        
+        if card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
             return TangemSdkError.purgeWalletProhibited.localizedDescription
         }
         
@@ -99,7 +101,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return nil
         }
         
-        if !(cardInfo.card.settingsMask?.contains(.isReusable) ?? true) {
+        if !(card.settingsMask?.contains(.isReusable) ?? true) || card.firmwareVersion >= FirmwareConstraints.AvailabilityVersions.walletData {
             return "details_notification_not_reusable_wallet".localized
         }
         
