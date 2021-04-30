@@ -169,6 +169,12 @@
     },
     {
         "decimalCount" : 18,
+        "symbol" : "CANDY",
+        "name" : "Candy",
+        "contractAddress" : "0xf2eab3a2034d3f6b63734d2e08262040e3ff7b48"
+    },
+    {
+        "decimalCount" : 18,
         "symbol" : "CAS",
         "name" : "Cashaa",
         "contractAddress" : "0xe8780b48bdb05f928697a5e8155f672ed91462f7"
