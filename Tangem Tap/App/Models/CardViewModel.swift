@@ -276,6 +276,7 @@ class CardViewModel: Identifiable, ObservableObject {
         if let fw = cardInfo.card.firmwareVersion, fw < FirmwareConstraints.AvailabilityVersions.walletData,
            var wallet = cardInfo.card.wallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex)) {
             wallet.remainingSignatures = signResponse.walletRemainingSignatures
+            wallet.signedHashes = signResponse.walletSignedHashes
             cardInfo.card.updateWallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex), with: wallet)
             warningsConfigurator.setupWarnings(for: cardInfo.card)
         }
