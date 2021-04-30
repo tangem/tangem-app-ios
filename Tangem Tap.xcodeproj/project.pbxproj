@@ -639,6 +639,7 @@
 		B0F7361325F7AFFB00DD348F /* TwinCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinCardInfo.swift */; };
 		B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
 		B0F920CC25932DCF007C176C /* WarningListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F920CB25932DCE007C176C /* WarningListView.swift */; };
+		B0FB2995263BD3ED007B400F /* EthereumUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB2994263BD3ED007B400F /* EthereumUtils.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		B0FC4A182630245F000444D7 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FC49052630245C000444D7 /* Config.swift */; };
 		B0FC4A192630245F000444D7 /* IssuerDataVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FC49072630245C000444D7 /* IssuerDataVerifier.swift */; };
@@ -1443,6 +1444,7 @@
 		B0F7358F25F788DD00DD348F /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		B0F7360825F7AF9E00DD348F /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
 		B0F920CB25932DCE007C176C /* WarningListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningListView.swift; sourceTree = "<group>"; };
+		B0FB2994263BD3ED007B400F /* EthereumUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumUtils.swift; sourceTree = "<group>"; };
 		B0FB98A42598D24300B769A3 /* Card+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+.swift"; sourceTree = "<group>"; };
 		B0FC49052630245C000444D7 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		B0FC49072630245C000444D7 /* IssuerDataVerifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IssuerDataVerifier.swift; sourceTree = "<group>"; };
@@ -2462,6 +2464,7 @@
 				B066B0EF262D6B1000EB85A5 /* Transaction.swift */,
 				B066B0F0262D6B1000EB85A5 /* WalletManagerFactory.swift */,
 				B066B0F1262D6B1000EB85A5 /* Token.swift */,
+				B0FB2994263BD3ED007B400F /* EthereumUtils.swift */,
 				B066B0F2262D6B1000EB85A5 /* Wallet.swift */,
 			);
 			path = Common;
@@ -4353,6 +4356,7 @@
 				B066B44F262D6EFA00EB85A5 /* Updatable.swift in Sources */,
 				B066B15D262D6B1100EB85A5 /* BinanceWalletManager.swift in Sources */,
 				B0FC4A842630245F000444D7 /* CardIdFormatter.swift in Sources */,
+				B0FB2995263BD3ED007B400F /* EthereumUtils.swift in Sources */,
 				B066B145262D6B1100EB85A5 /* TezosFee.swift in Sources */,
 				B066B485262D6EFA00EB85A5 /* String+Base32.swift in Sources */,
 				B0FC4A7E2630245F000444D7 /* TerminalKeysService.swift in Sources */,
