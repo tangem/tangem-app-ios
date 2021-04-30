@@ -9,8 +9,6 @@
 import Foundation
 import SwiftUI
 
-
-
 struct TokensListItemView: View {
     var item: TokenItemViewModel
     
@@ -51,8 +49,6 @@ struct TokensListItemView: View {
     var body: some View {
         HStack(alignment: .top) {
             
-//            KFImage(URL(string: item.tokenItem.imagePath))
-//                .resizable()
             TokenIconView(token: item.tokenItem)
                 .frame(width: 40, height: 40, alignment: .center)
 
