@@ -811,6 +811,12 @@
         "contractAddress" : "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
     },
     {
+        "decimalCount" : 18,
+        "symbol" : "SEED",
+        "name" : "Superbloom Network",
+        "contractAddress" : "0x4e7bd88e3996f48e2a24d15e37ca4c02b4d134d2"
+    },
+    {
         "decimalCount" : 2,
         "symbol" : "TEL",
         "name" : "Telcoin",
