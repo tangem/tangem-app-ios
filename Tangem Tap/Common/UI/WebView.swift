@@ -16,7 +16,9 @@ struct WebViewContainer: View {
     var url: URL?
     var closeUrl: String? = nil
     var title: LocalizedStringKey
+    var addLoadingIndicator = false
     @Environment(\.presentationMode) var presentationMode
+    @State private var isLoading: Bool = true
     
     var urlActions: [String : (() -> Void)]  {
         if let closeUrl = closeUrl {
@@ -29,9 +31,15 @@ struct WebViewContainer: View {
     }
     
     var body: some View {
-        WebView(url: url, urlActions: urlActions)
-            .navigationBarTitle(title, displayMode: .inline)
-            .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
+        ZStack {
+            WebView(url: url, urlActions: urlActions, isLoading: $isLoading)
+                .navigationBarTitle(title, displayMode: .inline)
+                .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
+            if isLoading && addLoadingIndicator {
+                ActivityIndicatorView(color: .tangemTapGrayDark)
+            }
+           
+        }
     }
 }
 
@@ -39,6 +47,7 @@ struct WebViewContainer: View {
 struct WebView: UIViewRepresentable {
     var url: URL?
     var urlActions: [String : (() -> Void)] = [:]
+    var isLoading:  Binding<Bool>
     
     func makeUIView(context: Context) -> WKWebView {
         let view =  WKWebView()
@@ -51,18 +60,16 @@ struct WebView: UIViewRepresentable {
     
     func updateUIView(_ uiView: WKWebView, context: Context) {}
     
-    
-    
     class Coordinator: NSObject, WKNavigationDelegate {
         let urlActions: [String: (() -> Void)]
+        var isLoading:  Binding<Bool>
         
-        init(urlActions: [String : (() -> Void)] = [:]) {
+        init(urlActions: [String : (() -> Void)] = [:], isLoading: Binding<Bool>) {
             self.urlActions = urlActions
+            self.isLoading = isLoading
         }
         
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            
-            
             if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
                let actionForURL = urlActions[String(url).removeLatestSlash()] {
                 decisionHandler(.cancel)
@@ -72,10 +79,18 @@ struct WebView: UIViewRepresentable {
             
             decisionHandler(.allow)
         }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            isLoading.wrappedValue = false
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            isLoading.wrappedValue = false
+        }
     }
     
     func makeCoordinator() -> Coordinator {
-        return Coordinator(urlActions: urlActions)
+        return Coordinator(urlActions: urlActions, isLoading: self.isLoading)
     }
 }
 
