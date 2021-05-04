@@ -169,6 +169,12 @@
     },
     {
         "decimalCount" : 18,
+        "symbol" : "CANDY",
+        "name" : "Candy",
+        "contractAddress" : "0xf2eab3a2034d3f6b63734d2e08262040e3ff7b48"
+    },
+    {
+        "decimalCount" : 18,
         "symbol" : "CAS",
         "name" : "Cashaa",
         "contractAddress" : "0xe8780b48bdb05f928697a5e8155f672ed91462f7"
@@ -631,6 +637,13 @@
     },
     {
         "decimalCount" : 8,
+        "symbol" : "QCX",
+        "name" : "QuickX Protocol",
+        "contractAddress" : "0xf9e5af7b42d31d51677c75bbbd37c1986ec79aee",
+        "customIcon": "qcx"
+    },
+    {
+        "decimalCount" : 8,
         "symbol" : "QRL",
         "name" : "QRL",
         "contractAddress" : "0x697beac28B09E122C4332D163985e8a73121b97F"
@@ -798,6 +811,12 @@
         "contractAddress" : "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
     },
     {
+        "decimalCount" : 18,
+        "symbol" : "SEED",
+        "name" : "Superbloom Network",
+        "contractAddress" : "0x4e7bd88e3996f48e2a24d15e37ca4c02b4d134d2"
+    },
+    {
         "decimalCount" : 2,
         "symbol" : "TEL",
         "name" : "Telcoin",
@@ -892,6 +911,12 @@
         "symbol" : "WRC",
         "name" : "Worldcore",
         "contractAddress" : "0x72adadb447784dd7ab1f472467750fc485e4cb2d"
+    },
+    {
+        "decimalCount" : 18,
+        "symbol" : "WETH",
+        "name" : "Wrapped Ether",
+        "contractAddress" : "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
     },
     {
         "decimalCount" : 18,
