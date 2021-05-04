@@ -175,7 +175,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.13`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-4`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-9`)
   - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
@@ -187,9 +187,9 @@ DEPENDENCIES:
   - Sodium
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-17`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-18`)
   - WalletConnectSwift
-  - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.4`)
+  - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
 SPEC REPOS:
   trunk:
@@ -236,16 +236,16 @@ EXTERNAL SOURCES:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-4
+    :tag: develop-9
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-17
+    :tag: develop-18
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
-    :tag: 2.2.4
+    :tag: 2.2.6
 
 CHECKOUT OPTIONS:
   BinanceChain:
@@ -256,16 +256,16 @@ CHECKOUT OPTIONS:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-4
+    :tag: develop-9
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-17
+    :tag: develop-18
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
-    :tag: 2.2.4
+    :tag: 2.2.6
 
 SPEC CHECKSUMS:
   Alamofire: 3b6a534a3df22db367e4dedeeca73d1ddfcf0e2f
@@ -308,6 +308,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 3061059f3f0f8cc271a1d7a86cee260c9530e713
+PODFILE CHECKSUM: 707c32ce68258b5b557b0c928c5019923f96d6aa
 
 COCOAPODS: 1.10.1

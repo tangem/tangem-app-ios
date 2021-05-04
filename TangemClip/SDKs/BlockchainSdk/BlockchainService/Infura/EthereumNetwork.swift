@@ -16,6 +16,14 @@ enum EthereumNetwork {
     
     var chainId: BigUInt { return BigUInt(self.id) }
     
+    var blockchain: Blockchain {
+        switch self {
+        case .mainnet: return .ethereum(testnet: false)
+        case .testnet: return .ethereum(testnet: true)
+        case .rsk: return .rsk
+        }
+    }
+    
     var id: Int {
         switch self {
         case .mainnet:
