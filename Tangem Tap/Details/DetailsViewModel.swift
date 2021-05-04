@@ -16,6 +16,7 @@ class DetailsViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
+
     weak var ratesService: CoinMarketCapService! {
         didSet {
             ratesService
@@ -44,6 +45,11 @@ class DetailsViewModel: ViewModel {
 	
     var hasWallet: Bool {
         cardModel.hasWallet
+    }
+    
+    var shouldShowWC: Bool {
+        cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
+            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
     }
     
 	var isTwinCard: Bool {
@@ -115,12 +121,13 @@ class DetailsViewModel: ViewModel {
     private var bag = Set<AnyCancellable>()
     
     func checkPin(_ completion: @escaping () -> Void) {
-        cardModel.checkPin { result in
+        cardModel.checkPin { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success:
                 completion()
             case .failure(let error):
-                print(error)
+                Analytics.logCardSdkError(error.toTangemSdkError(), for: .readPinSettings, card: self.cardModel.cardInfo.card)
             }
         }
     }
@@ -132,7 +139,6 @@ class DetailsViewModel: ViewModel {
                 completion(.success(()))
             case .failure(let error):
                 completion(.failure(error))
-                break
             }
         }
     }
