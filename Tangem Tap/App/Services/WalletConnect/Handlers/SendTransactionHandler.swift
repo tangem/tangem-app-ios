@@ -63,7 +63,7 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
         guard
             let ethWalletModel = walletModels.first(where: { $0.wallet.address.lowercased() == ethTx.from.lowercased() }),
             let gasLoader = ethWalletModel.walletManager as? EthereumGasLoader,
-            let value = try? EthereumUtils.parseEthereumValue(ethTx.value),
+            let value = try? EthereumUtils.parseEthereumDecimal(ethTx.value, decimalsCount: blockchain.decimalCount),
             let gas = ethTx.gas?.hexToInteger ?? ethTx.gasLimit?.hexToInteger
         else {
             sendReject(for: request)
