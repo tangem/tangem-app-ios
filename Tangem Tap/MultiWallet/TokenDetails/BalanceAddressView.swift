@@ -104,7 +104,8 @@ struct BalanceAddressView: View {
                 }
                 Spacer()
                 
-                walletModel.getTokenItem(for: amountType).imageView
+                TokenIconView(token: walletModel.getTokenItem(for: amountType))
+                    .frame(width: 40, height: 40, alignment: .center)
             }
             
             if showAddressSelector {
@@ -148,10 +149,12 @@ struct BalanceAddressView: View {
                                           imageName: "doc.on.clipboard",
                                           title: "common_copy".localized,
                                           withVerification: true)
+                            .accessibility(label: Text("voice_over_copy_address"))
                         
                         RoundedRectButton(action: { showShareSheet() },
                                           imageName: "square.and.arrow.up",
                                           title: "common_share".localized)
+                            .accessibility(label: Text("voice_over_share_address"))
                     }
                 }
                 Spacer()
