@@ -46,13 +46,11 @@ struct DetailsView: View {
                 DetailsRowView(title: "details_row_title_issuer".localized,
                                subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
 
-//                if viewModel.hasWallet, !viewModel.isTwinCard,
-//                   viewModel.cardModel.cardInfo.card.walletSignedHashes != nil {
-//                    DetailsRowView(title: "details_row_title_signed_hashes".localized,
-//                                   subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
-//                                                    viewModel.cardModel.cardInfo.card.walletSignedHashes!.description))
-//                }
-                //[REDACTED_TODO_COMMENT]
+                if viewModel.hasWallet, !viewModel.isTwinCard {
+                    DetailsRowView(title: "details_row_title_signed_hashes".localized,
+                                   subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
+                                                    viewModel.cardModel.cardInfo.card.walletSignedHashes.description))
+                }
                 Button(action: {
                     viewModel.checkPin {
                         selection = .securityManagement
