@@ -59,6 +59,14 @@ extension Card {
         return true
     }
     
+    var firmwareVersionString: String {
+        firmwareVersion?.version ?? "unknown"
+    }
+    
+    var walletSignedHashes: Int {
+        wallets.reduce(into: 0, { $0 += ($1.signedHashes ?? 0) })
+    }
+    
     public var defaultBlockchain: Blockchain? {
         guard let major = firmwareVersion?.major, major < 4 else {
             return nil

@@ -9,10 +9,13 @@
 import Foundation
 
 enum PersistentStorageKey {
+    case cards
     case wallets(cid: String)
     
     var path: String {
         switch self {
+        case .cards:
+            return "scanned_cards"
         case .wallets(let cid):
             return "wallets_\(cid)"
         }
@@ -51,7 +54,7 @@ class PersistentStorage {
         createDirectory()
         
         let data = try JSONEncoder().encode(value)
-        try data.write(to: documentPath)
+        try data.write(to: documentPath, options: .atomic)
     }
     
     private func documentPath(for key: String) -> URL {
