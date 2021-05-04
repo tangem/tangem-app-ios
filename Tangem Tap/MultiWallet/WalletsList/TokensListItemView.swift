@@ -8,8 +8,6 @@
 
 import Foundation
 import SwiftUI
-import TangemSdk
-import BlockchainSdk
 
 struct TokensListItemView: View {
     var item: TokenItemViewModel
@@ -51,7 +49,8 @@ struct TokensListItemView: View {
     var body: some View {
         HStack(alignment: .top) {
             
-            item.tokenItem.imageView
+            TokenIconView(token: item.tokenItem)
+                .frame(width: 40, height: 40, alignment: .center)
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .firstTextBaseline) {
