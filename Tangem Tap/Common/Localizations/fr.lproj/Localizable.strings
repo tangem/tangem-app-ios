@@ -345,6 +345,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "initial_message_scan_header" = "Posez pour scanner";
 "initial_message_tap_header" = "Posez la carte";
 "details_notification_erase_wallet_not_possible" = "Votre solde sur ce portefeuille n'est pas nul, ou vous avez des transactions non confirmées. Impossible de supprimer la fonction du portefeuille";
+"details_notification_not_reusable_wallet" = "Impossible de supprimer la fonction du portefeuille.";
 "details_notification_security_option_already_active" = "Cette option est déjà active";
 
 // MARK: - Twin Cards
