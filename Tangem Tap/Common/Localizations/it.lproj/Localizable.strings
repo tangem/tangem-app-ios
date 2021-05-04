@@ -343,6 +343,7 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "initial_message_scan_header" = "Avvicina per scansionare";
 "initial_message_tap_header" = "Avvicina la carta";
 "details_notification_erase_wallet_not_possible" = "Il tuo saldo su questo portafoglio non è pari a zero o hai transazioni non confermate. Non è possibile eliminare la funzione portafoglio.";
+"details_notification_not_reusable_wallet" = "Non è possibile eliminare la funzione portafoglio.";
 "details_notification_security_option_already_active" = "E' l'opzione attualmente attiva";
 
 // MARK: - Twin Cards
