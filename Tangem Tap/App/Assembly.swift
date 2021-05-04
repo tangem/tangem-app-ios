@@ -33,7 +33,7 @@ class ServicesAssembly {
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
-    lazy var walletConnectService = WalletConnectService(assembly: assembly, tangemSdk: tangemSdk, scannedCardsRepository: scannedCardsRepository)
+    lazy var walletConnectService = WalletConnectService(assembly: assembly, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -149,8 +149,6 @@ class Assembly: ObservableObject {
         vm.topupService = services.topupService
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
-        vm.walletConnectSessionChecker = services.walletConnectService
-        vm.walletConnectUrlHandler = services.walletConnectService
         vm.rateAppController = services.rateAppService
 
         vm.state = services.cardsRepository.lastScanResult
