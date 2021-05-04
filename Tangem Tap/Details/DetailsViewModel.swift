@@ -121,12 +121,13 @@ class DetailsViewModel: ViewModel {
     private var bag = Set<AnyCancellable>()
     
     func checkPin(_ completion: @escaping () -> Void) {
-        cardModel.checkPin { result in
+        cardModel.checkPin { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success:
                 completion()
             case .failure(let error):
-                print(error)
+                Analytics.logCardSdkError(error.toTangemSdkError(), for: .readPinSettings, card: self.cardModel.cardInfo.card)
             }
         }
     }
@@ -138,7 +139,6 @@ class DetailsViewModel: ViewModel {
                 completion(.success(()))
             case .failure(let error):
                 completion(.failure(error))
-                break
             }
         }
     }
