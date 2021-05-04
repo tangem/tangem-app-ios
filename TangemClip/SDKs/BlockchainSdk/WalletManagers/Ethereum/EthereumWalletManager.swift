@@ -16,6 +16,7 @@ public enum ETHError: String, Error, LocalizedError {
     case failedToParseBalance = "eth_balance_parse_error"
     case failedToParseTokenBalance = "eth_token_balance_parse_error"
     case failedToParseGasLimit
+    case notValidEthereumValue
     case unsupportedFeature
     
     public var errorDescription: String? {
