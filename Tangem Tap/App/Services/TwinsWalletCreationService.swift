@@ -94,6 +94,7 @@ class TwinsWalletCreationService {
         tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { (result) in
             switch result {
             case .success(let response):
+                self.cardsRepository.lastScanResult.cardModel?.clearTwinPairKey()
                 self.cardsRepository.lastScanResult.cardModel?.update(with: response.card)
                 self.firstTwinPublicKey = response.createWalletResponse.walletPublicKey
                 self.step.send(.second)
