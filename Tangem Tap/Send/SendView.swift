@@ -45,6 +45,7 @@ struct SendView: View {
                                                        isSystemImage: false,
                                                        imageColor: .tangemTapGrayDark6,
                                                        isDisabled: self.viewModel.validatedClipboard == nil)
+                                        .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
                                         .disabled(self.viewModel.validatedClipboard == nil)
                                     CircleActionButton(
                                         action: {
@@ -59,6 +60,7 @@ struct SendView: View {
                                         isSystemImage: false,
                                         imageColor: .tangemTapGrayDark6
                                     )
+                                    .accessibility(label: Text("voice_over_scan_qr_with_address"))
                                     .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
                                         QRScanView(code: self.$viewModel.scannedQRCode)
                                             .edgesIgnoringSafeArea(.all)
@@ -156,8 +158,10 @@ struct SendView: View {
                                     Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
                                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                         .foregroundColor(Color.tangemTapGrayDark6)
+                                        .padding()
                                 }
-                            }.padding(.vertical)
+                                .accessibility(label: Text(self.viewModel.isNetworkFeeBlockOpen ? "voice_over_close_network_fee_settings" : "voice_over_open_network_fee_settings"))
+                            }
                             if self.viewModel.isNetworkFeeBlockOpen {
                                 VStack(spacing: 16.0) {
                                     if self.viewModel.shoudShowFeeSelector {
@@ -188,6 +192,7 @@ struct SendView: View {
                             Spacer()
                             Text(self.viewModel.sendAmount)
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                                .fixedSize(horizontal: false, vertical: true)
                                 .foregroundColor(Color.tangemTapGrayDark6)
                         }
                         HStack{
@@ -217,6 +222,7 @@ struct SendView: View {
                                 .font(Font.system(size: 20.0, weight: .bold, design: .default))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
+                                .fixedSize(horizontal: false, vertical: true)
                                 .foregroundColor(Color.tangemTapGrayDark6)
                             
                         }
@@ -224,6 +230,7 @@ struct SendView: View {
                             Spacer()
                             Text(self.viewModel.sendTotalSubtitle)
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
+                                .fixedSize(horizontal: false, vertical: true)
                                 .foregroundColor(Color.tangemTapGrayDark)
                         }
                     }
@@ -239,14 +246,10 @@ struct SendView: View {
                                          image: "arrow.right") {
                             self.viewModel.send() {
                                 DispatchQueue.main.async {
-                                    let alert = Alert(title: Text("common_success"),
-                                                      message: Text("send_transaction_success"),
-                                                      dismissButton: Alert.Button.default(Text("common_ok"),
-                                                                                          action: {
-                                                                                            presentationMode.wrappedValue.dismiss()
-                                                                                            onSuccess()
-                                                                                          }))
-                                    
+                                    let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
+                                        presentationMode.wrappedValue.dismiss()
+                                        onSuccess()
+                                    }
                                     self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
                                 }
                             }
@@ -294,7 +297,7 @@ struct ExtractView_Previews: PreviewProvider {
                                                                                     address: "adsfafa",
                                                                                     type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                                     value: 0.0), blockchain: Blockchain.ethereum(testnet: false),
-                                                                       card: CardViewModel.previewEthCardViewModel),
+                                                                       card: CardViewModel.previewCardViewModel),
                  onSuccess: {})
     }
 }

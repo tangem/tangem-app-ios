@@ -48,6 +48,10 @@
 
 "common_search" = "Search";
 
+"common_copy" = "Copy";
+
+"common_share" = "Share";
+
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
@@ -146,6 +150,12 @@
 "wallet_create_payid_error_message" = "Error response while creating PayString";
 
 "wallet_create_payid_error_already_created" = "This PayString already exists. Try a different one.";
+
+"wallet_notification_address_copied" = "Address was successfully copied";
+
+"wallet_create_payid_empty" = "Enter desired PayString first";
+"wallet_add_tokens" = "Add Tokens";
+"wallet_remove_token" = "Remove token";
 
 // MARK: - Send
 
@@ -252,6 +262,11 @@
 
 "details_manage_security_access_code_description" = "You will have to submit the correct access code before scanning the card";
 
+"details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Delete Wallet function not possible.";
+"details_notification_not_reusable_wallet" = "Delete Wallet function not possible.";
+"details_notification_security_option_already_active" = "This is the currently active option";
+"details_row_title_card_tou" = "Card terms of use";
+
 // MARK: - Twin Cards
 
 "twins_onboarding_title" = "Tangem Twin";
@@ -324,6 +339,15 @@
 "custom_token_name_input_placeholder" = "ex. USD Coin";
 "custom_token_token_symbol_input_placeholder" = "ex. USDC";
 
+// MARK: - Wallet connect
+
+"wallet_connect" = "Wallet Connect";
+"wallet_connect_sessions_title" = "Wallet Connect Sessions";
+"wallet_connect_session_opened" = "WalletConnect session opened with %@";
+"wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
+"wallet_connect_no_sessions_message" = "No opened WalletConnect sessions for scanned card";
+
+
 // MARK: - Alert
 
 "alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
@@ -355,16 +379,28 @@
 "alert_button_request_support" = "Request support";
 "alert_button_send_feedback" = "Send feedback";
 
+"alert_signed_hashes_message" = "This card is not a bearer note. We can’t currently match the signature count on the card with the information on the blockchain. This is normal but in rare cases can mean a previous holder is holding back an offline signature, which is a security concern.
+
+Do not accept this card as physical payment from someone you don’t trust.
+
+It’s perfectly safe in all other respects.
+
+Tangem is the only hardware wallet to offer signature count protection.";
+"alert_button_i_understand" = "I understand";
+
 // MARK: - Warnings
 
 "warning_button_ok" = "Ok, Got it!";
 "warning_button_really_cool" = "Really cool!";
 "warning_button_can_be_better" = "Can be better";
+"warning_button_learn_more" = "Learn more";
 
 "warning_rate_app_title" = "One question";
 
 "warning_rate_app_message" = "How do you like Tangem?";
 
+"warning_important_security_info" = "Important security information ⚠️";
+"warning_signed_tx_previously" = "This card has signed transactions in the past";
 "warning_failed_to_verify_card_title" = "Authenticity check failed";
 "warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
 
@@ -383,9 +419,15 @@
 
 "initial_message_change_passcode_body" = "Tap to change the passcode";
 
+"initial_message_scan_header" = "Tap to scan";
+"initial_message_tap_header" = "Tap the card";
+
 "payid_service_error_loading" = "Invalid PayString";
 
 
+// MARK: - Disclaimer
+
+"disclaimer_title" = "Terms of service";
 "disclaimer_text" = "Legal Disclaimer
 
 1.  Tangem application (Software)
@@ -443,27 +485,24 @@ Unless otherwise required by law, in no event shall the owners of, or contributo
  
 This disclaimer was amended for the last time on October 1st, 2020.";
 
-"disclaimer_title" = "Terms of service";
-
-"wallet_notification_address_copied" = "Address was successfully copied";
-"wallet_create_payid_empty" = "Enter desired PayString first";
-
-"initial_message_scan_header" = "Tap to scan";
-"initial_message_tap_header" = "Tap the card";
-
-"details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Delete Wallet function not possible.";
-"details_notification_security_option_already_active" = "This is the currently active option";
-
-
-"wallet_add_tokens" = "Add Tokens";
-"wallet_remove_token" = "Remove token";
-
-"details_row_title_card_tou" = "Card terms of use";
-
-"common_copy" = "Copy";
-"common_share" = "Share";
+// MARK: - Other
 
 "mail_error_no_accounts_title" = "No Mail accounts";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 
 "token_details_tx_note_message" = "Please wait for %@ transaction to complete to be able to send funds";
+
+"warning_low_signatures_format" = "There are only %@ signatures available on this card. You must withdraw all of your funds.";
+
+// MARK: - Voice over
+
+"voice_over_copy_address" = "Copy address";
+"voice_over_share_address" = "Share address";
+"voice_over_show_address_qr" = "Show address, QR, code";
+"voice_over_open_card_details" = "Open card details";
+"voice_over_open_new_wallet_connect_session" = "Scan QR code to open new WalletConnect session";
+"voice_over_nothing_to_paste" = "Nothing to paste from clipboard";
+"voice_over_paste_from_clipboard" = "Paste address from clipboard";
+"voice_over_scan_qr_with_address" = "Scan, QR, code with address";
+"voice_over_open_network_fee_settings" = "Open network fee settings";
+"voice_over_close_network_fee_settings" = "Close network fee settings";
