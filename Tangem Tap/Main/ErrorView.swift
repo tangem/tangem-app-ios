@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftUI
-import TangemSdk
 
 struct ErrorView: View {
     var title: String
@@ -18,7 +17,7 @@ struct ErrorView: View {
         HStack(alignment: .textAndImage, spacing: 18.0) {
             Spacer()
                 .frame(width: 8.0, height: nil, alignment: .center)
-                Image("exclamationmark.circle")
+            Image(systemName: "exclamationmark.circle")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .foregroundColor(Color.tangemTapWarning)
