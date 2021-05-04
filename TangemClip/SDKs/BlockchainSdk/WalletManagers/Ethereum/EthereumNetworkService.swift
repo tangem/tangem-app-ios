@@ -93,7 +93,7 @@ class EthereumNetworkService {
         return provider
             .requestPublisher(.balance(address: address, network: network))
             .filterSuccessfulStatusAndRedirectCodes()
-            .tryMap {[unowned self] in try self.parseBalance($0.data)}
+            .tryMap {[unowned self] in try self.parseBalance($0.data, decimalsCount: network.blockchain.decimalCount)}
             .eraseToAnyPublisher()
     }
     
@@ -101,7 +101,7 @@ class EthereumNetworkService {
         return provider
             .requestPublisher(.tokenBalance(address: address, contractAddress: contractAddress, network: network ))
             .filterSuccessfulStatusAndRedirectCodes()
-            .tryMap{[unowned self] in try self.parseTokenBalance($0.data, tokenDecimals: tokenDecimals)}
+            .tryMap{[unowned self] in try self.parseBalance($0.data, decimalsCount: tokenDecimals)}
             .eraseToAnyPublisher()
     }
     
@@ -131,26 +131,8 @@ class EthereumNetworkService {
         return count
     }
     
-    private func parseBalance(_ data: Data) throws -> Decimal {
-        let quantity = (try parseResult(data)).removeHexPrefix()
-        guard let balanceData = asciiHexToData(quantity),
-              let balanceWei = dataToDecimal(balanceData) else {
-                throw ETHError.failedToParseBalance
-        }
-        
-        let balanceEth = balanceWei / Decimal(1000000000000000000)
-        return balanceEth
-    }
-    
-    private func parseTokenBalance(_ data: Data, tokenDecimals: Int) throws -> Decimal {
-        let quantity = (try parseResult(data)).removeHexPrefix()
-        guard let balanceData = asciiHexToData(quantity),
-              let balanceWei = dataToDecimalToken(balanceData) else {
-            throw ETHError.failedToParseTokenBalance
-        }
-        
-        let balanceEth = balanceWei.dividing(by: NSDecimalNumber(value: 1).multiplying(byPowerOf10: Int16(tokenDecimals)))
-        return balanceEth as Decimal
+    private func parseBalance(_ data: Data, decimalsCount: Int) throws -> Decimal {
+        try EthereumUtils.parseEthereumDecimal(try parseResult(data), decimalsCount: decimalsCount)
     }
 }
 
@@ -159,68 +141,4 @@ struct EthereumResponse {
     let tokenBalances: [Token: Decimal]
     let txCount: Int
     let pendingTxCount: Int
-}
-
-//MARK: Bytes
-fileprivate extension EthereumNetworkService {
-    private func dataToDecimal(_ data: Data) -> Decimal? {
-        if data.count > 8 {
-            return nil
-        }
-        let temp = NSData(bytes: data.reversed(), length: data.count)
-
-        let rawPointer = UnsafeRawPointer(temp.bytes)
-        let pointer = rawPointer.assumingMemoryBound(to: UInt64.self)
-        let value = pointer.pointee
-        return NSDecimalNumber(value: value) as Decimal
-    }
-    
-    private func dataToDecimalToken(_ data: Data) -> NSDecimalNumber? {
-        let reversed = data.reversed()
-        var number = NSDecimalNumber(value: 0)
-
-        reversed.enumerated().forEach { (arg) in
-            let (offset, value) = arg
-            number = number.adding(NSDecimalNumber(value: value).multiplying(by: NSDecimalNumber(value: 256).raising(toPower: offset)))
-        }
-
-        return number
-    }
-    
-    private func asciiHexToData(_ hexString: String) -> Data? {
-
-        var trimmedString = hexString.trimmingCharacters(in: NSCharacterSet(charactersIn: "<> ") as CharacterSet).replacingOccurrences(of: " ", with: "")
-        if trimmedString.count % 2 != 0 {
-            trimmedString = "0" + trimmedString
-        }
-
-        guard isValidHex(trimmedString) else {
-            return nil
-        }
-        
-        var data = [UInt8]()
-        var fromIndex = trimmedString.startIndex
-        while let toIndex = trimmedString.index(fromIndex, offsetBy: 2, limitedBy: trimmedString.endIndex) {
-
-            let byteString = String(trimmedString[fromIndex..<toIndex])
-            let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
-            data.append(num)
-
-            fromIndex = toIndex
-        }
-
-        return Data(data)
-    }
-    
-    private func isValidHex(_ asciiHex: String) -> Bool {
-        let regex = try! NSRegularExpression(pattern: "^[0-9a-f]*$", options: .caseInsensitive)
-
-        let found = regex.firstMatch(in: asciiHex, options: [], range: NSRange(location: 0, length: asciiHex.count))
-
-        if found == nil || found?.range.location == NSNotFound || asciiHex.count % 2 != 0 {
-            return false
-        }
-
-        return true
-    }
 }
