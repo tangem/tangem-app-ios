@@ -32,7 +32,9 @@ extension Blockchain: Identifiable {
             return "tezos"
         case .xrp:
             return "xrp"
-        default:
+        case .stellar:
+            return "stellar"
+        case .ducatus:
             return nil
         }
     }
