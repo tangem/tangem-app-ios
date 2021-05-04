@@ -100,7 +100,6 @@ class CardsRepository {
         let result: ScanResult = cardInfo.card.firmwareVersion >= FirmwareConstraints.AvailabilityVersions.walletData ? .card(model: cm) : .unsupported
         cards[cardInfo.card.cardId!] = result
         lastScanResult = result
-//        cm.getCardInfo()
         return result
     }
 }
