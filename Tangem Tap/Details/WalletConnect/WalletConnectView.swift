@@ -12,6 +12,21 @@ struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
+    @ViewBuilder
+    var navBarButton: some View {
+        if viewModel.canCreateWC {
+            NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
+                viewModel.openNewSession()
+            }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
+            .sheet(isPresented: $navigation.walletConnectToQR) {
+                QRScanView(code: $viewModel.code)
+                    .edgesIgnoringSafeArea(.all)
+            }
+        } else {
+            EmptyView()
+        }
+    }
+    
     var body: some View {
         VStack {
             if viewModel.sessions.count == 0 {
@@ -37,14 +52,7 @@ struct WalletConnectView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(Text("wallet_connect_sessions_title"))
-        .navigationBarItems(trailing: NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
-            viewModel.openNewSession()
-        })
-        .accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
-        .sheet(isPresented: $navigation.walletConnectToQR) {
-            QRScanView(code: $viewModel.code)
-                .edgesIgnoringSafeArea(.all)
-        })
+        .navigationBarItems(trailing: navBarButton)
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear {
             viewModel.onAppear()
