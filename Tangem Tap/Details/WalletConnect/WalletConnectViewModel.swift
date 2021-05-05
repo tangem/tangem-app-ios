@@ -20,6 +20,11 @@ class WalletConnectViewModel: ViewModel {
     @Published var isServiceBusy: Bool = true
     @Published var sessions: [WalletConnectSession] = []
     
+    var canCreateWC: Bool {
+        cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
+            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
+    }
+    
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
     
@@ -41,7 +46,7 @@ class WalletConnectViewModel: ViewModel {
         
         walletConnectController.error
             .receive(on: DispatchQueue.main)
-            .sink {[unowned self]  error in
+            .sink { [unowned self]  error in
                 self.alert = error.alertBinder
             }
             .store(in: &bag)
@@ -58,7 +63,7 @@ class WalletConnectViewModel: ViewModel {
             .sink(receiveValue: { [weak self] in
                 guard let self = self else { return }
                 
-                self.sessions = $0.filter { $0.wallet.cid == self.cardModel.cardInfo.card.cardId }
+                self.sessions = $0
             })
             .store(in: &bag)
     }
