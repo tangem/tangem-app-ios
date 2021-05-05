@@ -145,8 +145,10 @@ struct DetailsView: View {
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
         .onDisappear {
-            if #available(iOS 14.3, *) {
-                self.selection = nil
+            if #available(iOS 14.5, *) { } else {
+                if #available(iOS 14.3, *) { //remains selection fix from 14.3 to 14.5
+                    self.selection = nil
+                }
             }
         }
     }
