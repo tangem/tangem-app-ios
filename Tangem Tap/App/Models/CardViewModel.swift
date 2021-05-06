@@ -518,13 +518,22 @@ class CardViewModel: Identifiable, ObservableObject {
             guard let self = self else { return }
             
             switch result {
-            case .success(let isAdded):
-                if isAdded && sholdAddWalletManager {
-                    self.tokenItemsRepository.append(.blockchain(ethWalletModel!.wallet.blockchain))
-                    self.stateUpdateQueue.sync {
-                        self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
+            case .success(let tokensAdded):
+                if tokensAdded {
+                    var tokens = ethWalletModel!.walletManager.cardTokens
+                    if let defaultToken = self.cardInfo.card.defaultToken {
+                        tokens = tokens.filter { $0 != defaultToken }
                     }
-                    ethWalletModel!.update()
+                    let tokenItems = tokens.map { TokenItem.token($0) }
+                    self.tokenItemsRepository.append(tokenItems)
+                    
+                    if sholdAddWalletManager {
+                        self.tokenItemsRepository.append(.blockchain(ethWalletModel!.wallet.blockchain))
+                        self.stateUpdateQueue.sync {
+                            self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
+                        }
+                        ethWalletModel!.update()
+                    }
                 }
             case .failure(let error):
                 print(error)
