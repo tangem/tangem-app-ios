@@ -10,12 +10,10 @@ import Foundation
 import TangemSdk
 
 extension Card {
-    static var testCard: Card  = {
-        return fromJson(testCardJson)
-    }()
+    
     
     static var testCardNoWallet: Card = {
-        return fromJson(noWalletJson)
+        fromJson(noWalletJson)
     }()
     
     static var testTwinCard: Card = {
@@ -23,7 +21,11 @@ extension Card {
     }()
     
     static var testEthCard: Card = {
-        return fromJson(ethCardJson)
+        fromJson(ethCardJson)
+    }()
+    
+    static var testXlmCard: Card = {
+        fromJson(stellarCardJson)
     }()
     
     static var v4Card: Card = {
@@ -42,173 +44,148 @@ extension Card {
         fatalError()
     }
     
-    private static let testCardJson =
-        """
-             {
-              "cardData" : {
-                "batchId" : "FFFF",
-                "blockchainName" : "BTC",
-                "issuerName" : "TANGEM SDK",
-                "manufactureDateTime" : "Mar 16, 2020",
-                "manufacturerSignature" : "E4A2403C60F6C468D7ED50E3BE3AF903AF3C6A2A6ABA2F8369584C91E15F42DAF90E4F9ABFBA1E5FBB3965CA30FC2C4F57CC34C8460B6E12D5CDBEBB1838D5C7",
-                "productMask" : [
-                  "Note"
-                ]
-              },
-              "cardId" : "BB00000000000239",
-              "cardPublicKey" : "0405B26CACB20F3015322C450F8A47D4EEA94225155D5E5D80E2409A3F96EB1C2FE71E95EDA418EED93582C680E2BBEBA34B96D7F52381C29F2A700D3EC7E8CFBC",
-              "curve" : "Secp256K1",
-    "firmwareVersion" : {
-    "hotFix" : 0,
-    "major" : 2,
-    "minor" : 42,
-    "type" : "d SDK",
-    "version" : "2.42d SDK"
-    },
-              "health" : 0,
-              "isActivated" : false,
-              "issuerPublicKey" : "045F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22F553C7DEEFB54FD3D4F361D14E6DC3F11B7D4EA183250A60720EBDF9E110CD26",
-              "manufacturerName" : "TANGEM",
-              "maxSignatures" : 19040,
-              "pauseBeforePin2" : 500,
-              "remainingSignatures" : 19034,
-              "settingsMask" : [
-                "IsReusable",
-                "AllowSetPIN1",
-                "AllowSetPIN2",
-                "UseDynamicNDEF",
-                "AllowUnencrypted",
-                "AllowFastEncryption",
-                "ProtectIssuerDataAgainstReplay",
-                "SkipSecurityDelayIfValidatedByIssuer",
-                "SkipCheckPIN2CVCIfValidatedByIssuer",
-                "SkipSecurityDelayIfValidatedByLinkedTerminal",
-                "RestrictOverwriteIssuerExtraDara",
-                "CheckPIN3OnCard"
-              ],
-              "signedHashes" : 6,
-              "signingMethod" : [
-                "SignHash",
-                "SignRaw"
-              ],
-              "status" : "Loaded",
-              "terminalIsLinked" : false,
-              "walletPublicKey" : "041DCEFEF8FA536EE746707E800400C61B7F87B1E06A58F1AA04B4C0E36DF445655A089C351AE670FA5778620F06624FB4014C1B07EB436B8D47186B063530B560",
-              "walletRemainingSignatures" : 19034,
-              "walletSignedHashes" : 6
-            }
-    """
-    
     private static let noWalletJson =
         """
-             {
-              "cardData" : {
-                "batchId" : "FFFF",
-                "blockchainName" : "ETH",
-                "issuerName" : "TANGEM SDK",
-                "manufactureDateTime" : "Mar 16, 2020",
-                "manufacturerSignature" : "E4A2403C60F6C468D7ED50E3BE3AF903AF3C6A2A6ABA2F8369584C91E15F42DAF90E4F9ABFBA1E5FBB3965CA30FC2C4F57CC34C8460B6E12D5CDBEBB1838D5C7",
-                "productMask" : [
-                  "Note"
-                ]
-              },
-              "cardId" : "BB00000000000238",
-              "cardPublicKey" : "0405B26CACB20F3015322C450F8A47D4EEA94225155D5E5D80E2409A3F96EB1C2FE71E95EDA418EED93582C680E2BBEBA34B96D7F52381C29F2A700D3EC7E8CFBC",
-              "curve" : "Secp256K1",
-               "firmwareVersion" : {
-      "hotFix" : 0,
-      "major" : 2,
-      "minor" : 24,
-      "type" : "d SDK",
-      "version" : "2.24d SDK"
-    },
-              "health" : 0,
-              "isActivated" : false,
-              "issuerPublicKey" : "045F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22F553C7DEEFB54FD3D4F361D14E6DC3F11B7D4EA183250A60720EBDF9E110CD26",
-              "manufacturerName" : "TANGEM",
-              "maxSignatures" : 19040,
-              "pauseBeforePin2" : 500,
-              "remainingSignatures" : 19034,
-              "settingsMask" : [
-                "IsReusable",
-                "AllowSetPIN1",
-                "AllowSetPIN2",
-                "UseDynamicNDEF",
-                "AllowUnencrypted",
-                "AllowFastEncryption",
-                "ProtectIssuerDataAgainstReplay",
-                "SkipSecurityDelayIfValidatedByIssuer",
-                "SkipCheckPIN2CVCIfValidatedByIssuer",
-                "SkipSecurityDelayIfValidatedByLinkedTerminal",
-                "RestrictOverwriteIssuerExtraDara",
-                "CheckPIN3OnCard"
-              ],
-              "signedHashes" : 6,
-              "signingMethod" : [
-                "SignHash",
-                "SignRaw"
-              ],
-              "status" : "Loaded",
-              "terminalIsLinked" : false,
-              "walletRemainingSignatures" : 19034,
-              "walletSignedHashes" : 6
-            }
-    """
+          {
+            "cardData" : {
+              "batchId" : "FFFF",
+              "blockchainName" : "BTC",
+              "issuerName" : "TANGEM SDK",
+              "manufactureDateTime" : "Jan 12, 2021",
+              "manufacturerSignature" : "5351B94FCD7362B6F8CFAA0499DDD9804FAF81DB7F1C98AE115DC268496B15583463C643AE9C3F49D3B6FB8215EAF6EBF5A6C5D99DA914F2228DB281FB80EB29",
+              "productMask" : [
+                "Note"
+              ]
+            },
+            "cardId" : "BB03000000000004",
+            "cardPublicKey" : "04EF1B1B775D3DE6CBB6DD52DE7F3A30AC45F681597002F4B19B65BF6AA306A8DA6CD5295C247D6E9769E0083DF5F8D04AC892DB09EC8F38093E3073C34A59A553",
+            "defaultCurve" : "secp256k1",
+            "firmwareVersion" : {
+              "hotFix" : 0,
+              "major" : 3,
+              "minor" : 37,
+              "type" : "d SDK",
+              "version" : "3.37d SDK"
+            },
+            "health" : 0,
+            "isActivated" : false,
+            "isPin1Default" : true,
+            "isPin2Default" : true,
+            "issuerPublicKey" : "045F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22F553C7DEEFB54FD3D4F361D14E6DC3F11B7D4EA183250A60720EBDF9E110CD26",
+            "manufacturerName" : "TANGEM",
+            "pauseBeforePin2" : 500,
+            "settingsMask" : [
+              "IsReusable",
+              "AllowSetPIN1",
+              "AllowSetPIN2",
+              "UseNDEF",
+              "UseDynamicNDEF",
+              "SmartSecurityDelay",
+              "AllowUnencrypted",
+              "AllowFastEncryption",
+              "SkipSecurityDelayIfValidatedByIssuer",
+              "SkipCheckPIN2CVCIfValidatedByIssuer",
+              "SkipSecurityDelayIfValidatedByLinkedTerminal"
+            ],
+            "signingMethods" : [
+              "SignHash"
+            ],
+            "status" : "Empty",
+            "terminalIsLinked" : false,
+            "wallets" : [
+              {
+                "curve" : "secp256k1",
+                "index" : 0,
+                "settingsMask" : [
+                  "IsReusable",
+                  "AllowSetPIN1",
+                  "AllowSetPIN2",
+                  "UseNDEF",
+                  "UseDynamicNDEF",
+                  "SmartSecurityDelay",
+                  "AllowUnencrypted",
+                  "AllowFastEncryption",
+                  "SkipSecurityDelayIfValidatedByIssuer",
+                  "SkipCheckPIN2CVCIfValidatedByIssuer",
+                  "SkipSecurityDelayIfValidatedByLinkedTerminal"
+                ],
+                "status" : "Empty"
+              }
+            ]
+          }
+        """
     
     private static let twinCardJson =
         """
-		{
-		  "cardData" : {
-			"batchId" : "FFFF",
-			"blockchainName" : "BTC",
-			"issuerName" : "TANGEM SDK",
-			"manufactureDateTime" : "Dec 2, 2020",
-			"manufacturerSignature" : "BF9466B0F0C7BFC67A3E782EE193DDB53D987F5615AC797E332C964D2D485B36F87CC8045A2FA1744934419C115608DBE5BC7F79F930E0577D4F9013F09FB96A",
-			"productMask" : [
-			  "TwinCard"
-			]
-		  },
-		  "cardId" : "CB64000000056786",
-		  "cardPublicKey" : "046CF604F0107B1695D459C790F86E0F7659AB4FC26E0F69C4F25EC7044EFB114B92C2A8587A85D9E4B2D8FFDEA109769EB997331FFA71DC7F3EBF1F3D18F4C547",
-		  "curve" : "Secp256K1",
-		  "firmwareVersion" : {
-			"hotFix" : 0,
-			"major" : 3,
-			"minor" : 37,
-			"type" : "d SDK",
-			"version" : "3.37d SDK"
-		  },
-		  "health" : 0,
-		  "isActivated" : false,
-		  "isPin1Default" : true,
-		  "isPin2Default" : true,
-		  "issuerPublicKey" : "045F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22F553C7DEEFB54FD3D4F361D14E6DC3F11B7D4EA183250A60720EBDF9E110CD26",
-		  "manufacturerName" : "TANGEM",
-		  "maxSignatures" : 999999,
-		  "pauseBeforePin2" : 500,
-		  "settingsMask" : [
-			"IsReusable",
-			"AllowSetPIN1",
-			"AllowSetPIN2",
-			"UseNDEF",
-			"UseDynamicNDEF",
-			"SmartSecurityDelay",
-			"AllowUnencrypted",
-			"AllowFastEncryption",
-			"SkipSecurityDelayIfValidatedByIssuer",
-			"SkipCheckPIN2CVCIfValidatedByIssuer",
-			"SkipSecurityDelayIfValidatedByLinkedTerminal"
-		  ],
-		  "signingMethods" : [
-			"SignHash"
-		  ],
-		  "status" : "Loaded",
-		  "terminalIsLinked" : false,
-		  "walletPublicKey" : "049CF238FB442E307241FC468613F9F1306CFA872DC6CF2D6B0DE51B6755173AEAC5EAA02D5E53A119A67F7778C6335294DE850039FF32B1E71ACA36947BEF57CD",
-		  "walletRemainingSignatures" : 999993,
-		  "walletSignedHashes" : 6
-		}
-	"""
+         {
+          "cardData" : {
+            "batchId" : "FFFF",
+            "blockchainName" : "BTC",
+            "issuerName" : "TANGEM SDK",
+            "manufactureDateTime" : "Dec 18, 2020",
+            "manufacturerSignature" : "B55FAB99AF49A6AE31A8E23C67C53338ADFB0EEF805247381845F65E7020F541544700942B1B3EFD16EF125B4A2EC718CD24979879E49E60F3CB173072F828AC",
+            "productMask" : [
+              "TwinCard"
+            ]
+          },
+          "cardId" : "CB62000000005629",
+          "cardPublicKey" : "04007CB1D0C643C86E30579576A10068A5B03DC6363968712DEA5D298A47E5F723696AE5C211D331BF9A4A0DBF94C539FE51B62D6FA8572399B924529B307DD589",
+          "defaultCurve" : "secp256k1",
+          "firmwareVersion" : {
+            "hotFix" : 0,
+            "major" : 3,
+            "minor" : 29,
+            "type" : "d SDK",
+            "version" : "3.29d SDK"
+          },
+          "health" : 0,
+          "isActivated" : false,
+          "isPin1Default" : true,
+          "isPin2Default" : true,
+          "issuerPublicKey" : "048196AA4B410AC44A3B9CCE18E7BE226AEA070ACC83A9CF67540FAC49AF25129F6A538A28AD6341358E3C4F9963064F7E365372A651D374E5C23CDD37FD099BF2",
+          "manufacturerName" : "TANGEM",
+          "pauseBeforePin2" : 1500,
+          "settingsMask" : [
+            "IsReusable",
+            "AllowSetPIN1",
+            "AllowSetPIN2",
+            "UseNDEF",
+            "AllowUnencrypted",
+            "AllowFastEncryption",
+            "ProtectIssuerDataAgainstReplay",
+            "DisablePrecomputedNDEF",
+            "SkipSecurityDelayIfValidatedByLinkedTerminal",
+            "RestrictOverwriteIssuerExtraData"
+          ],
+          "signingMethods" : [
+            "SignHash"
+          ],
+          "status" : "Loaded",
+          "terminalIsLinked" : false,
+          "wallets" : [
+            {
+              "curve" : "secp256k1",
+              "index" : 0,
+              "publicKey" : "040F5088849BA1C1FCA4E65EF7137D4246C9F399DBC5408415FD3829C78DA13126B095AFEDE9E66EDFF3C914E282F02D04CED8D36CDA07CA3DE04B14E448E7609A",
+              "remainingSignatures" : 999998,
+              "settingsMask" : [
+                "IsReusable",
+                "AllowSetPIN1",
+                "AllowSetPIN2",
+                "UseNDEF",
+                "AllowUnencrypted",
+                "AllowFastEncryption",
+                "ProtectIssuerDataAgainstReplay",
+                "DisablePrecomputedNDEF",
+                "SkipSecurityDelayIfValidatedByLinkedTerminal",
+                "RestrictOverwriteIssuerExtraData"
+              ],
+              "signedHashes" : 1,
+              "status" : "Loaded"
+            }
+          ]
+        }
+        """
     
     private static let ethCardJson =
         """
@@ -225,7 +202,7 @@ extension Card {
           },
           "cardId" : "CB42000000003975",
           "cardPublicKey" : "048AB0FAEC9DA319377F6A6BAC679DE1A99239987BD1824471ADE394C970B4BCB6E2645403F1A5C1BB6814CBBA9CF3755BE1D43A4D90767119B9192A3E49CBA67D",
-          "curve" : "secp256k1",
+          "defaultCurve" : "secp256k1",
           "firmwareVersion" : {
             "hotFix" : 0,
             "major" : 3,
@@ -239,7 +216,6 @@ extension Card {
           "isPin2Default" : true,
           "issuerPublicKey" : "048196AA4B410AC44A3B9CCE18E7BE226AEA070ACC83A9CF67540FAC49AF25129F6A538A28AD6341358E3C4F9963064F7E365372A651D374E5C23CDD37FD099BF2",
           "manufacturerName" : "TANGEM",
-          "maxSignatures" : 1000000,
           "pauseBeforePin2" : 1500,
           "settingsMask" : [
             "IsReusable",
@@ -257,17 +233,105 @@ extension Card {
           ],
           "status" : "Loaded",
           "terminalIsLinked" : false,
-          "walletPublicKey" : "04ECDE9F7584D27E5914652487E2668A8D26C63D550CEBC67B61C0B9A5CF80CB5B63FD7F2DC3EF4A7304678E4A918838659672063A115B133126165BC88147E685",
-          "walletRemainingSignatures" : 999997,
-          "walletSignedHashes" : 3
+          "wallets" : [
+            {
+              "curve" : "secp256k1",
+              "index" : 0,
+              "publicKey" : "04ECDE9F7584D27E5914652487E2668A8D26C63D550CEBC67B61C0B9A5CF80CB5B63FD7F2DC3EF4A7304678E4A918838659672063A115B133126165BC88147E685",
+              "remainingSignatures" : 999968,
+              "settingsMask" : [
+                "IsReusable",
+                "AllowSetPIN2",
+                "UseNDEF",
+                "UseDynamicNDEF",
+                "SmartSecurityDelay",
+                "AllowUnencrypted",
+                "AllowFastEncryption",
+                "ProtectIssuerDataAgainstReplay",
+                "SkipSecurityDelayIfValidatedByLinkedTerminal"
+              ],
+              "signedHashes" : 32,
+              "status" : "Loaded"
+            }
+          ]
         }
         """
+    
+    private static let stellarCardJson =
+    """
+        {
+          "cardData" : {
+            "batchId" : "0052",
+            "blockchainName" : "XLM",
+            "issuerName" : "TANGEM",
+            "manufactureDateTime" : "Mar 12, 2020",
+            "manufacturerSignature" : "5D001070E4C660CDC19F4B779147F866B7476FD1EB86DD13BF13D1E602B6869A56A24E6B1FED9F629537CE10112D139B107A2FFF2DF25F7E3CA87F4938E74A58",
+            "productMask" : [
+              "Note"
+            ]
+          },
+          "cardId" : "CB43000000002950",
+          "cardPublicKey" : "04F1CDEE71100B81322CA82A61E760A235325A721059F92DC613F41B5E9C9571B06E34FF39EF8775825B168B19C0259EA141E89DB3A335162DCB1CDE0E994143C6",
+          "defaultCurve" : "ed25519",
+          "firmwareVersion" : {
+            "hotFix" : 0,
+            "major" : 3,
+            "minor" : 5,
+            "type" : "r",
+            "version" : "3.05r"
+          },
+          "health" : 0,
+          "isActivated" : false,
+          "isPin1Default" : true,
+          "isPin2Default" : true,
+          "issuerPublicKey" : "048196AA4B410AC44A3B9CCE18E7BE226AEA070ACC83A9CF67540FAC49AF25129F6A538A28AD6341358E3C4F9963064F7E365372A651D374E5C23CDD37FD099BF2",
+          "manufacturerName" : "TANGEM",
+          "pauseBeforePin2" : 1500,
+          "settingsMask" : [
+            "IsReusable",
+            "AllowSetPIN2",
+            "UseNDEF",
+            "UseDynamicNDEF",
+            "SmartSecurityDelay",
+            "AllowUnencrypted",
+            "AllowFastEncryption",
+            "ProtectIssuerDataAgainstReplay",
+            "SkipSecurityDelayIfValidatedByLinkedTerminal"
+          ],
+          "signingMethods" : [
+            "SignHash"
+          ],
+          "status" : "Loaded",
+          "terminalIsLinked" : false,
+          "wallets" : [
+            {
+              "curve" : "ed25519",
+              "index" : 0,
+              "publicKey" : "9FE5BB2CC7D83C1DA10845AFD8A34B141FD8FD72500B95B1547E12B9BB8AAC3D",
+              "remainingSignatures" : 999992,
+              "settingsMask" : [
+                "IsReusable",
+                "AllowSetPIN2",
+                "UseNDEF",
+                "UseDynamicNDEF",
+                "SmartSecurityDelay",
+                "AllowUnencrypted",
+                "AllowFastEncryption",
+                "ProtectIssuerDataAgainstReplay",
+                "SkipSecurityDelayIfValidatedByLinkedTerminal"
+              ],
+              "signedHashes" : 8,
+              "status" : "Loaded"
+            }
+          ]
+        }
+    """
     
     private static let v4CardJson =
         """
         {
           "cardData" : {
-            "batchId" : "FFFF",
+            "batchId" : "CB79",
             "issuerName" : "TANGEM SDK",
             "manufactureDateTime" : "Jan 9, 2021",
             "manufacturerSignature" : "B906FA3D536BEFA41D7425D2FC3E96B6231FC6B50D6B50318A2E95DD39C621E11E9E3EA11C98DC39B44852778785B93EEFE1D00825632B56EBBBB111FBA6D6FD",
@@ -275,7 +339,7 @@ extension Card {
                   "Note"
                 ]
           },
-          "cardId" : "CB42000000005343",
+          "cardId" : "CB79000000005343",
           "cardPublicKey" : "04049C2B2B2AA75ACE9BD4BEB31D1BD2909A0FDD172801E01F7EFBD2310C9D5B2E6F816CB00C1FD92851292408596B5331B4A150FFEF199CA752EC9268892738BF",
           "defaultCurve" : "secp256k1",
           "firmwareVersion" : {

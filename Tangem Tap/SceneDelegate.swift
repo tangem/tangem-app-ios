@@ -9,11 +9,15 @@
 import UIKit
 import SwiftUI
 import TangemSdk
+import BlockchainSdk
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    let assembly = Assembly()
+    let assembly = Assembly.previewAssembly(for: .ethereum)
+    var blockchain: Blockchain {
+        assembly.previewCardViewModel.wallets!.first!.blockchain
+    }
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -26,9 +30,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         print("Launch number:", assembly.services.userPrefsService.numberOfLaunches)
      
         let vm = assembly.makeReadViewModel()
-        let contentView = ContentView() { ReadView(viewModel: vm) }
-            .environmentObject(assembly)
-            .environmentObject(assembly.services.navigationCoordinator)
+        let contentView = ContentView() {
+            //            ReadView(viewModel: vm)
+            DisclaimerView(viewModel: self.assembly.makeDisclaimerViewModel(with: .read))
+        }
+        .environmentObject(assembly)
+        .environmentObject(assembly.services.navigationCoordinator)
             
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
