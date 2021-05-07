@@ -190,7 +190,9 @@ struct BalanceAddressView: View {
 }
 
 struct BalanceAddressView_Previews: PreviewProvider {
-    @State static var cardViewModel = CardViewModel.previewCardViewModel
+    static let assembly = Assembly.previewAssembly(for: .ethereum)
+    
+    @State static var cardViewModel = assembly.previewCardViewModel
     
     static var walletModel: WalletModel {
         let vm = cardViewModel.walletModels!.first!
