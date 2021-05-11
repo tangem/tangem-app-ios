@@ -13,6 +13,7 @@ import SwiftUI
 class WalletConnectViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
+    weak var pasteboardService: PasteboardService!
     weak var walletConnectController: WalletConnectSessionController! {
         didSet {
             $code
@@ -59,6 +60,14 @@ class WalletConnectViewModel: ViewModel {
             && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
     }
     
+    var hasWCInPasteboard: Bool {
+        guard let copiedValue = pasteboardService.lastValue.value else {
+            return false
+        }
+        
+        return walletConnectController.canHandle(url: copiedValue)
+    }
+    
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
     
@@ -75,7 +84,14 @@ class WalletConnectViewModel: ViewModel {
         }
     }
     
-    func openNewSession() {
+    func scanQrCode() {
         navigation.walletConnectToQR = true
+    }
+    
+    func pasteFromClipboard() {
+        guard let value = pasteboardService.lastValue.value else { return }
+        
+        code = value
+        pasteboardService.clearPasteboard()
     }
 }
