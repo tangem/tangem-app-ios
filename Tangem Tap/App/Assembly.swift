@@ -33,7 +33,7 @@ class ServicesAssembly {
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
-    lazy var walletConnectService = WalletConnectService(assembly: assembly, signer: signer, scannedCardsRepository: scannedCardsRepository)
+    lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -75,6 +75,13 @@ class ServicesAssembly {
         return signer
     }()
     
+    lazy var walletConnectCardScanner: WalletConnectCardScanner = {
+        let scanner = WalletConnectCardScanner()
+        scanner.assembly = assembly
+        scanner.tangemSdk = tangemSdk
+        return scanner
+    }()
+    
     private let keysManager = try! KeysManager()
     private let configManager = try! FeaturesConfigManager()
     
@@ -90,7 +97,6 @@ extension ServicesAssembly: CardsRepositoryDelegate {
         featuresService.setupFeatures(for: cardInfo.card)
         warningsService.setupWarnings(for: cardInfo.card)
         tokenItemsRepository.setCard(cardInfo.card.cardId ?? "")
-        walletConnectService.didScan(cardInfo.card)
         
         if !featuresService.linkedTerminal {
             tangemSdk.config.linkedTerminal = false
