@@ -15,7 +15,7 @@ import CryptoSwift
 import SwiftUI
 import web3swift
 
-protocol WalletConnectChecker: class {
+protocol WalletConnectChecker: AnyObject {
     var isServiceBusy: CurrentValueSubject<Bool, Never> { get }
     func containSession(for wallet: WalletInfo) -> Bool
 }
@@ -27,12 +27,12 @@ protocol WalletConnectSessionController: WalletConnectChecker {
     func handle(url: String) -> Bool
 }
 
-protocol WalletConnectHandlerDelegate: class {
+protocol WalletConnectHandlerDelegate: AnyObject {
     func send(_ response: Response)
     func sendReject(for request: Request)
 }
 
-protocol WalletConnectHandlerDataSource: class {
+protocol WalletConnectHandlerDataSource: AnyObject {
     var server: Server! { get }
     func session(for request: Request, address: String) -> WalletConnectSession?
 }
@@ -50,7 +50,11 @@ class WalletConnectService: ObservableObject {
     fileprivate var wallet: WalletInfo? = nil
     private let sessionsKey = "wc_sessions"
     
-    init(assembly: Assembly, signer: TangemSigner, scannedCardsRepository: ScannedCardsRepository) {
+    private unowned var cardScanner: WalletConnectCardScanner
+    private var bag: Set<AnyCancellable> = []
+    
+    init(assembly: Assembly, cardScanner: WalletConnectCardScanner, signer: TangemSigner, scannedCardsRepository: ScannedCardsRepository) {
+        self.cardScanner = cardScanner
         server = Server(delegate: self)
         server.register(handler: PersonalSignHandler(signer: signer, delegate: self, dataSource: self))
         server.register(handler: SignTransactionHandler(signer: signer, delegate: self, dataSource: self))
@@ -85,15 +89,21 @@ class WalletConnectService: ObservableObject {
     }
     
     private func connect(to url: WCURL) {
-        do {
-            isServiceBusy.send(true)
-            try server.connect(to: url)
-        } catch {
-            isServiceBusy.send(false)
-            self.error.send(error)
-            print("Server did fail to connect")
-            return
-        }
+        cardScanner.scanCard()
+            .sink { completion in
+                if case let .failure(error) = completion {
+                    self.error.send(error)
+                }
+                self.isServiceBusy.send(false)
+            } receiveValue: { wallet in
+                self.wallet = wallet
+                do {
+                    try self.server.connect(to: url)
+                } catch {
+                    print("Server failed to connect to wallet connect")
+                }
+            }
+            .store(in: &bag)
     }
     
     private func save() {
@@ -139,18 +149,6 @@ extension WalletConnectService: WalletConnectSessionController {
         
         sessions.remove(at: index)
         save()
-    }
-}
-
-extension WalletConnectService: CardDelegate {
-    func didScan(_ card: Card) {
-        if let cid = card.cardId,
-           let wallet = card.wallets.first(where: { $0.curve == .secp256k1 }),
-           let walletPublicKey = wallet.publicKey {
-            self.wallet = WalletInfo(cid: cid,
-                                     walletPublicKey: walletPublicKey,
-                                     isTestnet: card.isTestnet ?? false)
-        }
     }
 }
 
