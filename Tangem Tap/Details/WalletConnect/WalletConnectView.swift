@@ -12,11 +12,17 @@ struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
+    @State private var isActionSheetVisible: Bool = false
+    
     @ViewBuilder
     var navBarButton: some View {
         if viewModel.canCreateWC {
             NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
-                viewModel.openNewSession()
+                if viewModel.hasWCInPasteboard {
+                    isActionSheetVisible = true
+                } else {
+                    viewModel.scanQrCode()
+                }
             }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
             .sheet(isPresented: $navigation.walletConnectToQR) {
                 QRScanView(code: $viewModel.code)
@@ -29,6 +35,19 @@ struct WalletConnectView: View {
     
     var body: some View {
         VStack {
+            Color.clear
+                .frame(width: 0.5, height: 0.5)
+                .actionSheet(isPresented: $isActionSheetVisible, content: {
+                    ActionSheet(title: Text("Select action"), message: Text("Clipboard contain WalletConnect code. Use copied value or scan QR-code"), buttons: [
+                        .default(Text("Paste from clipboard"), action: {
+                            viewModel.pasteFromClipboard()
+                        }),
+                        .default(Text("Scan new code"), action: {
+                            viewModel.scanQrCode()
+                        }),
+                        .cancel()
+                    ])
+                })
             if viewModel.sessions.count == 0 {
                 Text("wallet_connect_no_sessions_title")
                     .font(.system(size: 24, weight: .semibold))
@@ -40,7 +59,7 @@ struct WalletConnectView: View {
             } else {
                 List {
                     ForEach(Array(viewModel.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
-                        return WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name,
+                        WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name,
                                                             cardId: item.wallet.cid) {
                             viewModel.disconnectSession(at: i)
                         }

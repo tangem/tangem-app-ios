@@ -11,6 +11,8 @@ import TangemSdk
 import BlockchainSdk
 
 class ServicesAssembly {
+    let pasteboardService = PasteboardService()
+    
     weak var assembly: Assembly!
     var urlHandlers: [URLHandler] = []
     
@@ -455,6 +457,7 @@ class Assembly: ObservableObject {
         let vm = WalletConnectViewModel(cardModel: cardModel)
         initialize(vm)
         vm.walletConnectController = services.walletConnectService
+        vm.pasteboardService = services.pasteboardService
         return vm
     }
 
