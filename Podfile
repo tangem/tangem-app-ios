@@ -36,6 +36,7 @@ target 'Tangem Tap' do
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
   pod 'WalletConnectSwift'
+  pod 'Kingfisher'
 
   target 'Tangem TapTests' do
     inherit! :search_paths
