@@ -24,6 +24,7 @@ protocol WalletConnectSessionController: WalletConnectChecker {
     var sessionsPublisher: Published<[WalletConnectSession]>.Publisher { get }
     var error: PassthroughSubject<Error, Never> { get }
     func disconnectSession(at index: Int)
+    func canHandle(url: String) -> Bool
     func handle(url: String) -> Bool
 }
 
@@ -149,6 +150,10 @@ extension WalletConnectService: WalletConnectSessionController {
         
         sessions.remove(at: index)
         save()
+    }
+    
+    func canHandle(url: String) -> Bool {
+        WCURL(url) != nil
     }
 }
 
