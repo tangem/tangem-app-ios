@@ -174,8 +174,7 @@ struct MainView: View {
                 NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                              closeUrl: viewModel.topupCloseUrl,
                                                              title: "wallet_button_topup",
-                                                             addLoadingIndicator: true)
-                                .onDisappear { viewModel.state.cardModel?.update() },
+                                                             addLoadingIndicator: true),
                                isActive: $navigation.mainToTopup)
                 
                 NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
