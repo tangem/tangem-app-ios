@@ -25,6 +25,7 @@
 		5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */; };
 		5D119E85256BF1E50046CAD2 /* Option.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D119E84256BF1E50046CAD2 /* Option.swift */; };
 		5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D12D21225B60AA3006060A1 /* SearchBar.swift */; };
+		5D15102E264BD49600961000 /* issuers.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D15102D264BD49600961000 /* issuers.json */; };
 		5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D15F9E7258A522500392BA5 /* PickerView.swift */; };
 		5D17FB8925ED766500C98A7F /* ValidatedCardsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D17FB8825ED766500C98A7F /* ValidatedCardsService.swift */; };
 		5D1BCFB8259CDCCA00EDA274 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1BCFB7259CDCCA00EDA274 /* ContentView.swift */; };
@@ -807,6 +808,8 @@
 		5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentStorage.swift; sourceTree = "<group>"; };
 		5D119E84256BF1E50046CAD2 /* Option.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Option.swift; sourceTree = "<group>"; };
 		5D12D21225B60AA3006060A1 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
+		5D15102B264BD47500961000 /* issuers_example.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = issuers_example.json; sourceTree = "<group>"; };
+		5D15102D264BD49600961000 /* issuers.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = issuers.json; path = "tangem-app-config/issuers.json"; sourceTree = SOURCE_ROOT; };
 		5D15F9E7258A522500392BA5 /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		5D17FB8825ED766500C98A7F /* ValidatedCardsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValidatedCardsService.swift; sourceTree = "<group>"; };
 		5D1BCFB7259CDCCA00EDA274 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -2084,6 +2087,8 @@
 		B018F3012591FED600D8F89A /* JsonSettings */ = {
 			isa = PBXGroup;
 			children = (
+				5D15102D264BD49600961000 /* issuers.json */,
+				5D15102B264BD47500961000 /* issuers_example.json */,
 				5D5CE1A62625FF00009023EC /* config_dev.json */,
 				5D5CE1A72625FF00009023EC /* config_prod.json */,
 				5D5CE19E2625FEE9009023EC /* config_example.json */,
@@ -3835,6 +3840,7 @@
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
+				5D15102E264BD49600961000 /* issuers.json in Resources */,
 				5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
 				5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
