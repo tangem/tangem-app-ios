@@ -511,33 +511,58 @@ class Assembly: ObservableObject {
 }
 
 extension Assembly {
-    static var previewAssembly: Assembly = {
+    enum PreviewCard {
+        case withoutWallet, twin, ethereum, stellar, v4
+        
+        static func scanResult(for preview: PreviewCard, assembly: Assembly) -> ScanResult {
+            let card = preview.card
+            let ci = CardInfo(card: card,
+                              artworkInfo: nil,
+                              twinCardInfo: preview.twinInfo)
+            let vm = assembly.makeCardModel(from: ci)!
+            let scanResult = ScanResult.card(model: vm)
+            assembly.services.cardsRepository.cards[card.cardId!] = scanResult
+            return scanResult
+        }
+        
+        var card: Card {
+            switch self {
+            case .withoutWallet: return .testCardNoWallet
+            case .twin: return .testTwinCard
+            case .ethereum: return .testEthCard
+            case .stellar: return .testXlmCard
+            case .v4: return .v4Card
+            }
+        }
+        
+        private var twinInfo: TwinCardInfo? {
+            switch self {
+            case .twin: return TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil)
+            default: return nil
+            }
+        }
+    }
+    
+    static func previewAssembly(for card: PreviewCard) -> Assembly {
         let assembly = Assembly()
         
-        // Twin card
-//        let twinScan = scanResult(for: Card.testTwinCard, assembly: assembly, twinCardInfo: TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil))
-        
-        // Bitcoin old test card
-//        let testCardScan = scanResult(for: Card.testCard, assembly: assembly)
-        
-        // ETH pigeon card
-//        let ethCardScan = scanResult(for: Card.testEthCard, assembly: assembly)
-        
-        // V4 card
-        let v4Card = scanResult(for: Card.v4Card, assembly: assembly)
-        
-        // Which card data should be displayed in preview?
-        assembly.services.cardsRepository.lastScanResult = v4Card
+        assembly.services.cardsRepository.lastScanResult = PreviewCard.scanResult(for: card, assembly: assembly)
         return assembly
-    }()
+    }
     
-    private static func scanResult(for card: Card, assembly: Assembly, twinCardInfo: TwinCardInfo? = nil) -> ScanResult {
-        let ci = CardInfo(card: card,
-                          artworkInfo: nil,
-                          twinCardInfo: twinCardInfo)
-        let vm = assembly.makeCardModel(from: ci)!
-        let scanResult = ScanResult.card(model: vm)
-        assembly.services.cardsRepository.cards[card.cardId!] = scanResult
-        return scanResult
+    static func previewCardViewModel(for card: PreviewCard) -> CardViewModel {
+        previewAssembly(for: card).services.cardsRepository.cards[card.card.cardId!]!.cardModel!
+    }
+    
+    static var previewAssembly: Assembly {
+        .previewAssembly(for: .v4)
+    }
+    
+    var previewCardViewModel: CardViewModel {
+        services.cardsRepository.lastScanResult.cardModel!
+    }
+    
+    var previewBlockchain: Blockchain {
+        previewCardViewModel.wallets!.first!.blockchain
     }
 }
