@@ -36,7 +36,8 @@ struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
-    @State private var selection: NavigationTag? = nil //fix remain highlited bug on ios14
+    //fix remain highlited bug on ios14
+    @State private var selection: NavigationTag? = nil
     
     var body: some View {
         List {
@@ -144,7 +145,8 @@ struct DetailsView: View {
         .navigationBarHidden(false)
         .onDisappear {
             if #available(iOS 14.5, *) { } else {
-                if #available(iOS 14.3, *) { //remains selection fix from 14.3 to 14.5
+                if #available(iOS 14.3, *) {
+                    // remains selection fix from 14.3 to 14.5
                     self.selection = nil
                 }
             }
@@ -204,11 +206,12 @@ extension DetailsView {
 }
 
 struct SettingsView_Previews: PreviewProvider {
+    static let assembly = Assembly.previewAssembly(for: .ethereum)
+    
     static var previews: some View {
         NavigationView {
-            DetailsView(viewModel: Assembly.previewAssembly.makeDetailsViewModel())
-                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
-                .previewGroup(devices: [.iPhone8Plus])
+            DetailsView(viewModel: assembly.makeDetailsViewModel())
+                .environmentObject(assembly.services.navigationCoordinator)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
