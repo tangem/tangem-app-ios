@@ -56,10 +56,10 @@ struct WarningView: View {
                 Text(warning.message)
                     .font(.system(size: 13, weight: .medium))
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(minHeight: warning.type.isWithAction ? 25 : 0, alignment: .topLeading)
+                    .frame(minHeight: warning.type.isWithAction ? CGFloat(25) : CGFloat(0), alignment: .topLeading)
                     .lineSpacing(8)
                     .foregroundColor(warning.priority.messageColor)
-                    .padding(.bottom, warning.type.isWithAction ? 8 : 16)
+                    .padding(.bottom, warning.type.isWithAction ? CGFloat(8) : CGFloat(16))
             }
             buttons
             Color.clear.frame(height: 0, alignment: .center)
