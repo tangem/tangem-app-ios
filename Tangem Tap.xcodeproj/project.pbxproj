@@ -596,6 +596,7 @@
 		B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B9E0B52629779500408726 /* AlertBinder.swift */; };
 		B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */; };
 		B0C04BBE2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */; };
+		B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */; };
 		B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */; };
 		B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
 		B0C87B482566492000F861DE /* TwinCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinCardInfo.swift */; };
@@ -1412,6 +1413,7 @@
 		B0B9E0B52629779500408726 /* AlertBinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertBinder.swift; sourceTree = "<group>"; };
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationLink+EmptyLabel.swift"; sourceTree = "<group>"; };
+		B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAccessDeniedModifier.swift; sourceTree = "<group>"; };
 		B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionItemView.swift; sourceTree = "<group>"; };
 		B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsFileCoder.swift; sourceTree = "<group>"; };
 		B0C87B472566492000F861DE /* TwinCardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardInfo.swift; sourceTree = "<group>"; };
@@ -1828,6 +1830,7 @@
 				B09BB85B259A075600B92000 /* TextInputs */,
 				B0A9E93D25921D12007B6D36 /* Warnings */,
 				5DD4CB4324FAAAE0008F23CC /* KeyboardAvoidance */,
+				B0C171CC264C171D00E4BA5C /* Modifiers */,
 				5DBBAB0724D850EA00E78F1C /* CircleView.swift */,
 				5DEC50A425F160930022CE83 /* CircleImageTextView.swift */,
 				5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */,
@@ -3310,6 +3313,14 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		B0C171CC264C171D00E4BA5C /* Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+				B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */,
+			);
+			path = Modifiers;
+			sourceTree = "<group>";
+		};
 		B0CA5A9A25F77A4C0078F42F /* Main */ = {
 			isa = PBXGroup;
 			children = (
@@ -4092,6 +4103,7 @@
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
 				5D011A242530778200758010 /* DisclaimerView.swift in Sources */,
+				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
 				B069F36F2631AD3C00ACFD19 /* ImageLoader.swift in Sources */,
 				B0608CBE2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift in Sources */,
 				B0A9E939259213E7007B6D36 /* WarningsService.swift in Sources */,
@@ -4235,7 +4247,6 @@
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */,
 				B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */,
-				B080766C25D11173006CF606 /* ManageTokensViewModel.swift in Sources */,
 				B0CC670C26455C44007D227A /* WalletConnectCardScanner.swift in Sources */,
 				5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */,
 				5D1BCFB8259CDCCA00EDA274 /* ContentView.swift in Sources */,
