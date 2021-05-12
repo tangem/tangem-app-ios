@@ -466,6 +466,8 @@ class MainViewModel: ViewModel {
                 withAnimation {
                     warningsManager.appendWarning(for: .multiWalletSignedHashes)
                 }
+            } else {
+                validatedSignedHashesCards.append(cardId)
             }
             return
         }
