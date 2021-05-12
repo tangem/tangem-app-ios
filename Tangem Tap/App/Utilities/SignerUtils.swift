@@ -1,5 +1,5 @@
 //
-//  SignerUtils.swift/Users/alexander.osokin/repos/tangem/tangem-ios/tangem-app-config/issuers.json
+//  SignerUtils.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
