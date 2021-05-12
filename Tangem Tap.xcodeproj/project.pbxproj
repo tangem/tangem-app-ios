@@ -154,7 +154,6 @@
 		B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00D714F258A1B6C00A9442C /* JsonUtils.swift */; };
 		B00D7154258A1CCC00A9442C /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00D714F258A1B6C00A9442C /* JsonUtils.swift */; };
 		B013A7B82621CC510032F2AE /* SendTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B013A7B72621CC510032F2AE /* SendTransactionHandler.swift */; };
-		B01416A22632A91C00D82A9C /* TokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F3E92631FCF600ACFD19 /* TokenIconView.swift */; };
 		B01416A72632A92300D82A9C /* WebImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F3762631B24F00ACFD19 /* WebImage.swift */; };
 		B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F36E2631AD3C00ACFD19 /* ImageLoader.swift */; };
 		B01416B12632A93800D82A9C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F3B02631D57500ACFD19 /* ImageCache.swift */; };
@@ -742,6 +741,7 @@
 		B0FC4AC526302460000444D7 /* SessionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FC4A132630245F000444D7 /* SessionViewDelegate.swift */; };
 		B0FC4AC626302460000444D7 /* AnimKeyPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FC4A142630245F000444D7 /* AnimKeyPaths.swift */; };
 		B0FC4AC826302460000444D7 /* TangemSdkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FC4A172630245F000444D7 /* TangemSdkButton.swift */; };
+		B0FF8815264AABCD003E000A /* TokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FF8814264AABCD003E000A /* TokenIconView.swift */; };
 		E7B877C2D1F9ECC207398075 /* Pods_Tangem_Tap_Tangem_TapUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -1550,6 +1550,7 @@
 		B0FC4A132630245F000444D7 /* SessionViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionViewDelegate.swift; sourceTree = "<group>"; };
 		B0FC4A142630245F000444D7 /* AnimKeyPaths.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimKeyPaths.swift; sourceTree = "<group>"; };
 		B0FC4A172630245F000444D7 /* TangemSdkButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSdkButton.swift; sourceTree = "<group>"; };
+		B0FF8814264AABCD003E000A /* TokenIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconView.swift; sourceTree = "<group>"; };
 		B9F1CD10D9C48557C2894B61 /* Pods-Tangem Tap.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.debug.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.debug.xcconfig"; sourceTree = "<group>"; };
 		BD6C9959F53AF1BAC643BEDD /* Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
@@ -3341,6 +3342,7 @@
 				B0CA5ADC25F786B90078F42F /* BalanceView.swift */,
 				B0F7358F25F788DD00DD348F /* CardView.swift */,
 				B00BC57E260B11A100F0647D /* AddressDetailsView.swift */,
+				B0FF8814264AABCD003E000A /* TokenIconView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -4421,7 +4423,6 @@
 				B066B129262D6B1100EB85A5 /* XRPLResponse.swift in Sources */,
 				B066B14B262D6B1100EB85A5 /* BitcoinNetworkProvider.swift in Sources */,
 				B066B202262D6B1100EB85A5 /* BlockchairNetworkProvider.swift in Sources */,
-				B01416A22632A91C00D82A9C /* TokenIconView.swift in Sources */,
 				B066B188262D6B1100EB85A5 /* OP_CHECKSIG.swift in Sources */,
 				B066B49C262D6EFA00EB85A5 /* MuxedAccount.swift in Sources */,
 				B066B45C262D6EFA00EB85A5 /* PBKDF1.swift in Sources */,
@@ -4632,6 +4633,7 @@
 				B066B445262D6EFA00EB85A5 /* Digest.swift in Sources */,
 				B066B126262D6B1100EB85A5 /* WebSocket+Convenience.swift in Sources */,
 				B066B1C7262D6B1100EB85A5 /* OP_DUP.swift in Sources */,
+				B0FF8815264AABCD003E000A /* TokenIconView.swift in Sources */,
 				B066B46B262D6EFA00EB85A5 /* LedgerLinksResponse.swift in Sources */,
 				B066B1F2262D6B1100EB85A5 /* InfuraTarget.swift in Sources */,
 				B066B1F4262D6B1100EB85A5 /* BitcoreProvider.swift in Sources */,
