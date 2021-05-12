@@ -382,10 +382,12 @@ struct MainView: View {
 }
 
 struct MainView_Previews: PreviewProvider {
+    static let assembly: Assembly = .previewAssembly(for: .stellar)
+    
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: Assembly.previewAssembly.makeMainViewModel())
-                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
+            MainView(viewModel: assembly.makeMainViewModel())
+                .environmentObject(assembly.services.navigationCoordinator)
         }
         .previewGroup(devices: [.iPhone12Pro])
         .navigationViewStyle(StackNavigationViewStyle())
