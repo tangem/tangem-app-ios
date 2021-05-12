@@ -138,7 +138,7 @@ struct AddNewTokensView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     
     static var previews: some View {
-        AddNewTokensView(viewModel: assembly.makeAddTokensViewModel(for: CardViewModel.previewCardViewModel))
+        AddNewTokensView(viewModel: assembly.makeAddTokensViewModel(for: assembly.previewCardViewModel))
             .environmentObject(assembly.services.navigationCoordinator)
     }
 }
