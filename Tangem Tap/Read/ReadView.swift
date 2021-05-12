@@ -163,11 +163,12 @@ struct ReadView: View {
 
 
 struct ReadView_Previews: PreviewProvider {
+    static let assembly = Assembly.previewAssembly
+    
     static var previews: some View {
         Group {
-            ReadView(viewModel: Assembly.previewAssembly.makeReadViewModel())
-                .deviceForPreview(.iPhone11Pro)
-                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
+            ReadView(viewModel: assembly.makeReadViewModel())
+                .environmentObject(assembly.services.navigationCoordinator)
             
         }
     }
