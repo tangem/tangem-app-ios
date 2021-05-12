@@ -158,7 +158,8 @@ struct AddressDetailView: View {
 }
 
 struct AddressDetailView_Previews: PreviewProvider {
-    @State static var cardViewModel = CardViewModel.previewCardViewModel
+    static let assembly: Assembly = .previewAssembly(for: .v4)
+    @State static var cardViewModel = assembly.previewCardViewModel
     @State static var showPayID = false
     @State static var showQR = false
     @State static var addressIndex = 0
@@ -171,6 +172,7 @@ struct AddressDetailView_Previews: PreviewProvider {
                               selectedAddressIndex: $addressIndex,
                               walletModel: cardViewModel.walletModels!.first!,
                               payID: .notCreated)
-        }.previewGroup()
+        }
+        .environmentObject(assembly.services.navigationCoordinator)
     }
 }
