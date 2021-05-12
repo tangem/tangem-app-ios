@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
     @State private var isActionSheetVisible: Bool = false
+    @State private var showCameraDeniedAlert: Bool = false
     
     @ViewBuilder
     var navBarButton: some View {
@@ -21,13 +23,14 @@ struct WalletConnectView: View {
                 if viewModel.hasWCInPasteboard {
                     isActionSheetVisible = true
                 } else {
-                    viewModel.scanQrCode()
+                    scanQrCode()
                 }
             }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
             .sheet(isPresented: $navigation.walletConnectToQR) {
                 QRScanView(code: $viewModel.code)
                     .edgesIgnoringSafeArea(.all)
             }
+            .cameraAccessDeniedAlert($showCameraDeniedAlert)
         } else {
             EmptyView()
         }
@@ -43,7 +46,7 @@ struct WalletConnectView: View {
                             viewModel.pasteFromClipboard()
                         }),
                         .default(Text("Scan new code"), action: {
-                            viewModel.scanQrCode()
+                            scanQrCode()
                         }),
                         .cancel()
                     ])
@@ -75,6 +78,14 @@ struct WalletConnectView: View {
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear {
             viewModel.onAppear()
+        }
+    }
+    
+    private func scanQrCode() {
+        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+            showCameraDeniedAlert = true
+        } else {
+            viewModel.scanQrCode()
         }
     }
 }
