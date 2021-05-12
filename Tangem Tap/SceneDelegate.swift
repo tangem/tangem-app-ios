@@ -9,6 +9,7 @@
 import UIKit
 import SwiftUI
 import TangemSdk
+import BlockchainSdk
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -27,8 +28,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
      
         let vm = assembly.makeReadViewModel()
         let contentView = ContentView() { ReadView(viewModel: vm) }
-            .environmentObject(assembly)
-            .environmentObject(assembly.services.navigationCoordinator)
+        .environmentObject(assembly)
+        .environmentObject(assembly.services.navigationCoordinator)
             
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
