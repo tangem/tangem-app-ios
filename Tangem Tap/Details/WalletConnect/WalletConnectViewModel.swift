@@ -13,12 +13,51 @@ import SwiftUI
 class WalletConnectViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var walletConnectController: WalletConnectSessionController!
+    weak var walletConnectController: WalletConnectSessionController! {
+        didSet {
+            $code
+                .dropFirst()
+                .sink {[unowned self] newCode in
+                    if !self.walletConnectController.handle(url: newCode) {
+                        self.alert = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
+                    }
+                }
+                .store(in: &bag)
+            
+            walletConnectController.error
+                .receive(on: DispatchQueue.main)
+                .sink { [unowned self]  error in
+                    self.alert = error.alertBinder
+                }
+                .store(in: &bag)
+            
+            walletConnectController.isServiceBusy
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] (isServiceBusy) in
+                    self?.isServiceBusy = isServiceBusy
+                }
+                .store(in: &bag)
+            
+            walletConnectController.sessionsPublisher
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [weak self] in
+                    guard let self = self else { return }
+                    
+                    self.sessions = $0
+                })
+                .store(in: &bag)
+        }
+    }
     
     @Published var alert: AlertBinder?
     @Published var code: String = ""
     @Published var isServiceBusy: Bool = true
     @Published var sessions: [WalletConnectSession] = []
+    
+    var canCreateWC: Bool {
+        cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
+            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
+    }
     
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
@@ -27,41 +66,7 @@ class WalletConnectViewModel: ViewModel {
         self.cardModel = cardModel
     }
     
-    func onAppear() {
-        bag = []
-        
-        $code
-            .dropFirst()
-            .sink {[unowned self] newCode in
-                if !self.walletConnectController.handle(url: newCode) {
-                    self.alert = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
-                }
-            }
-            .store(in: &bag)
-        
-        walletConnectController.error
-            .receive(on: DispatchQueue.main)
-            .sink {[unowned self]  error in
-                self.alert = error.alertBinder
-            }
-            .store(in: &bag)
-        
-        walletConnectController.isServiceBusy
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] (isServiceBusy) in
-                self?.isServiceBusy = isServiceBusy
-            }
-            .store(in: &bag)
-        
-        walletConnectController.sessionsPublisher
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                guard let self = self else { return }
-                
-                self.sessions = $0.filter { $0.wallet.cid == self.cardModel.cardInfo.card.cardId }
-            })
-            .store(in: &bag)
-    }
+    func onAppear() {}
     
     func disconnectSession(at index: Int) {
         walletConnectController.disconnectSession(at: index)
