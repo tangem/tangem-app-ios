@@ -33,9 +33,11 @@ struct DisclaimerView: View {
         }
     }
     
-    var isNavBarHidden: Bool { //prevent navbar glitches
+    var isNavBarHidden: Bool {
+        // prevent navbar glitches
         if viewModel.state == .accept  && navigation.disclaimerToTwinOnboarding {
-           return true //hide navbar when navigate to twin onboarding
+            // hide navbar when navigate to twin onboarding
+           return true
         }
     
         return false
@@ -74,9 +76,10 @@ struct DisclaimerView: View {
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
-    static let navigation = NavigationCoordinator()
+    static let assembly = Assembly.previewAssembly
+    
     static var previews: some View {
-        DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel(with: .read))
-            .environmentObject(navigation)
+        DisclaimerView(viewModel: assembly.makeDisclaimerViewModel(with: .read))
+            .environmentObject(assembly.services.navigationCoordinator)
     }
 }
