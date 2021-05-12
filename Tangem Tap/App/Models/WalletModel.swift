@@ -89,6 +89,7 @@ class WalletModel: ObservableObject, Identifiable {
             state = .loading
         }
         
+        print("🔄 Updating wallet model for \(wallet.blockchain)")
         walletManager.update { result in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
