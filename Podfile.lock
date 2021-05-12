@@ -124,6 +124,7 @@ PODS:
     - CryptoSwift
     - secp256k1.swift
   - KeychainSwift (19.0.0)
+  - Kingfisher (6.3.0)
   - Moya (14.0.0):
     - Moya/Core (= 14.0.0)
   - Moya/Core (14.0.0):
@@ -175,7 +176,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.13`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-9`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-11`)
   - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
@@ -183,6 +184,7 @@ DEPENDENCIES:
   - Firebase/RemoteConfig
   - HDWalletKit (from `https://github.com/lazutkin-andrey/hdwallet.git`, tag `0.3.12`)
   - KeychainSwift (~> 19.0)
+  - Kingfisher
   - Moya
   - Sodium
   - SwiftCBOR
@@ -211,6 +213,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - KeychainSwift
+    - Kingfisher
     - Moya
     - nanopb
     - ObjcExceptionBridging
@@ -236,7 +239,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-9
+    :tag: develop-11
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -256,7 +259,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-9
+    :tag: develop-11
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -290,6 +293,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: abda45f519bc4073aa1171d2f8742108def46017
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
+  Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   Moya: 5b45dacb75adb009f97fde91c204c1e565d31916
   nanopb: 59221d7f958fb711001e6a449489542d92ae113e
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
@@ -308,6 +312,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 707c32ce68258b5b557b0c928c5019923f96d6aa
+PODFILE CHECKSUM: 46843d3e1dc2711b3c681b1ad14d152d84ecc22c
 
 COCOAPODS: 1.10.1

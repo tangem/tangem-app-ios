@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import Kingfisher
 
 struct TokenIconView: View {
     
@@ -15,7 +16,12 @@ struct TokenIconView: View {
     
     var body: some View {
         if let path = token.imagePath, let url = URL(string: path) {
-            WebImage(imagePath: url, placeholder: token.imageView.toAnyView())
+            KFImage(url)
+                .resizable()
+                .placeholder {
+                    token.imageView
+                }
+                .fade(duration: 0.3)
         } else {
             token.imageView
         }
