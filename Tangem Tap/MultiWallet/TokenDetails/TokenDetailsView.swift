@@ -30,8 +30,7 @@ struct TokenDetailsView: View {
             NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                          closeUrl: viewModel.topupCloseUrl,
                                                          title: "wallet_button_topup",
-                                                         addLoadingIndicator: true)
-                            .onDisappear { viewModel.card.update() },
+                                                         addLoadingIndicator: true),
                            isActive: $navigation.detailsToTopup)
         }
     }
