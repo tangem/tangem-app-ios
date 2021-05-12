@@ -30,8 +30,7 @@ struct TokenDetailsView: View {
             NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
                                                          closeUrl: viewModel.topupCloseUrl,
                                                          title: "wallet_button_topup",
-                                                         addLoadingIndicator: true)
-                            .onDisappear { viewModel.card.update() },
+                                                         addLoadingIndicator: true),
                            isActive: $navigation.detailsToTopup)
         }
     }
@@ -131,11 +130,12 @@ struct TokenDetailsView: View {
 }
 
 struct TokenDetailsView_Previews: PreviewProvider {
+    static let assembly: Assembly = .previewAssembly(for: .ethereum)
+    
     static var previews: some View {
         NavigationView {
-            TokenDetailsView(viewModel: Assembly.previewAssembly.makeTokenDetailsViewModel(blockchain: .ethereum(testnet: false)))
-                .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
+            TokenDetailsView(viewModel: assembly.makeTokenDetailsViewModel(blockchain: assembly.previewBlockchain))
+                .environmentObject(assembly.services.navigationCoordinator)
         }
-        .previewGroup(devices: [.iPhone8Plus])
     }
 }
