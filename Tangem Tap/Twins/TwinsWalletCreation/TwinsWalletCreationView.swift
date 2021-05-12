@@ -117,13 +117,17 @@ struct TwinsWalletCreationView: View {
     private func dismiss(isWalletCreated: Bool) {
         viewModel.isDismissing = true
         
-        if navigation.mainToTwinsWalletWarning { //if create wallet from main
-            navigation.mainToTwinsWalletWarning = false //skip warning screen
-        } else { //if recreate wallet from details
+        //if create wallet from main
+        if navigation.mainToTwinsWalletWarning {
+            // skip warning screen
+            navigation.mainToTwinsWalletWarning = false
+        } else { // if recreate wallet from details
             if isWalletCreated {
-                navigation.mainToSettings = false //back directly to main screen
+                // back directly to main screen
+                navigation.mainToSettings = false
             } else {
-                navigation.detailsToTwinsRecreateWarning = false //skip warning screen
+                // skip warning screen
+                navigation.detailsToTwinsRecreateWarning = false
             }
         }
         
@@ -133,6 +137,5 @@ struct TwinsWalletCreationView: View {
 struct TwinsWalletCreationView_Previews: PreviewProvider {
     static var previews: some View {
         TwinsWalletCreationView(viewModel: Assembly.previewAssembly.makeTwinsWalletCreationViewModel(isRecreating: false))
-            .deviceForPreview(.iPhone11Pro)
     }
 }
