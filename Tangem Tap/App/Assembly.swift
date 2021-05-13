@@ -11,8 +11,6 @@ import TangemSdk
 import BlockchainSdk
 
 class ServicesAssembly {
-    let pasteboardService = PasteboardService()
-    
     weak var assembly: Assembly!
     var urlHandlers: [URLHandler] = []
     
@@ -281,7 +279,7 @@ class Assembly: ObservableObject {
     }
     
     // MARK: Card model
-    func makeCardModel(from info: CardInfo) -> CardViewModel? {
+    func makeCardModel(from info: CardInfo) -> CardViewModel {
         let vm = CardViewModel(cardInfo: info)
         vm.featuresService = services.featuresService
         vm.assembly = self
@@ -457,7 +455,6 @@ class Assembly: ObservableObject {
         let vm = WalletConnectViewModel(cardModel: cardModel)
         initialize(vm)
         vm.walletConnectController = services.walletConnectService
-        vm.pasteboardService = services.pasteboardService
         return vm
     }
 
@@ -519,7 +516,7 @@ extension Assembly {
             let ci = CardInfo(card: card,
                               artworkInfo: nil,
                               twinCardInfo: preview.twinInfo)
-            let vm = assembly.makeCardModel(from: ci)!
+            let vm = assembly.makeCardModel(from: ci)
             let scanResult = ScanResult.card(model: vm)
             assembly.services.cardsRepository.cards[card.cardId!] = scanResult
             return scanResult
