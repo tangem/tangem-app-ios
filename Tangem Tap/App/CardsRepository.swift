@@ -96,10 +96,10 @@ class CardsRepository {
         delegate?.onDidScan(cardInfo)
         
         let cm = assembly.makeCardModel(from: cardInfo)
-        let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
+        let result: ScanResult = .card(model: cm)
         cards[cardInfo.card.cardId!] = result
         lastScanResult = result
-        cm?.getCardInfo()
+        cm.getCardInfo()
         return result
 	}
 }
