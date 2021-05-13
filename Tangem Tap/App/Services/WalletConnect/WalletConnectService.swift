@@ -53,6 +53,8 @@ class WalletConnectService: ObservableObject {
     
     private unowned var cardScanner: WalletConnectCardScanner
     private var bag: Set<AnyCancellable> = []
+    private var isWaitingToConnect: Bool = false
+    private var timer: Timer?
     
     init(assembly: Assembly, cardScanner: WalletConnectCardScanner, signer: TangemSigner, scannedCardsRepository: ScannedCardsRepository) {
         self.cardScanner = cardScanner
@@ -90,20 +92,19 @@ class WalletConnectService: ObservableObject {
     }
     
     private func connect(to url: WCURL) {
+        isServiceBusy.send(true)
         cardScanner.scanCard()
+            .tryMap {
+                self.wallet = $0
+                try self.server.connect(to: url)
+                self.setupSessionConnectTimer()
+            }
             .sink { completion in
                 if case let .failure(error) = completion {
                     self.error.send(error)
+                    self.isServiceBusy.send(false)
                 }
-                self.isServiceBusy.send(false)
-            } receiveValue: { wallet in
-                self.wallet = wallet
-                do {
-                    try self.server.connect(to: url)
-                } catch {
-                    print("Server failed to connect to wallet connect")
-                }
-            }
+            } receiveValue: { }
             .store(in: &bag)
     }
     
@@ -112,6 +113,21 @@ class WalletConnectService: ObservableObject {
         if let sessionsData = try? encoder.encode(sessions) {
             UserDefaults.standard.set(sessionsData, forKey: sessionsKey)
         }
+    }
+    
+    private func setupSessionConnectTimer() {
+        isWaitingToConnect = true
+        isServiceBusy.send(true)
+        timer = .scheduledTimer(withTimeInterval: 20, repeats: false, block: { timer in
+            self.isWaitingToConnect = false
+            self.isServiceBusy.send(false)
+            self.error.send(WalletConnectServiceError.timeout)
+        })
+    }
+    
+    private func resetSessionConnectTimer() {
+        timer?.invalidate()
+        isWaitingToConnect = false
     }
 }
 
@@ -179,12 +195,14 @@ extension WalletConnectService: ServerDelegate {
     }
     
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
-        guard let wallet = self.wallet else {
+        guard isWaitingToConnect,
+            let wallet = self.wallet else {
             isServiceBusy.send(false)
             completion(rejectedResponse)
             return
         }
         
+        resetSessionConnectTimer()
         let peerMeta = session.dAppInfo.peerMeta
         var message = "Request to start a session for\n\(peerMeta.name)\n\nURL: \(peerMeta.url)"
         if let description = peerMeta.description, !description.isEmpty {
@@ -248,8 +266,17 @@ extension WalletConnectService: URLHandler {
 }
 
 extension WalletConnectService {
-    enum WalletConnectServiceError: Error {
+    enum WalletConnectServiceError: LocalizedError {
         case failedToConnect
         case signFailed
+        case timeout
+        
+        var errorDescription: String? {
+            switch self {
+            case .timeout: return "wallet_connect_error_timeout".localized
+            case .signFailed: return "wallet_connect_error_sing_failed".localized
+            case .failedToConnect: return "wallet_connect_error_failed_to_connect".localized
+            }
+        }
     }
 }
