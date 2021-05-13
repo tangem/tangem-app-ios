@@ -18,22 +18,18 @@ struct WalletConnectView: View {
     
     @ViewBuilder
     var navBarButton: some View {
-        if viewModel.canCreateWC {
-            NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
-                if viewModel.hasWCInPasteboard {
-                    isActionSheetVisible = true
-                } else {
-                    scanQrCode()
-                }
-            }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
-            .sheet(isPresented: $navigation.walletConnectToQR) {
-                QRScanView(code: $viewModel.code)
-                    .edgesIgnoringSafeArea(.all)
+        NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
+            if viewModel.hasWCInPasteboard {
+                isActionSheetVisible = true
+            } else {
+                scanQrCode()
             }
-            .cameraAccessDeniedAlert($showCameraDeniedAlert)
-        } else {
-            EmptyView()
+        }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
+        .sheet(isPresented: $navigation.walletConnectToQR) {
+            QRScanView(code: $viewModel.code)
+                .edgesIgnoringSafeArea(.all)
         }
+        .cameraAccessDeniedAlert($showCameraDeniedAlert)
     }
     
     var body: some View {
@@ -76,9 +72,6 @@ struct WalletConnectView: View {
         .navigationBarTitle(Text("wallet_connect_sessions_title"))
         .navigationBarItems(trailing: navBarButton)
         .alert(item: $viewModel.alert) { $0.alert }
-        .onAppear {
-            viewModel.onAppear()
-        }
     }
     
     private func scanQrCode() {
