@@ -41,11 +41,11 @@ struct WalletConnectView: View {
             Color.clear
                 .frame(width: 0.5, height: 0.5)
                 .actionSheet(isPresented: $isActionSheetVisible, content: {
-                    ActionSheet(title: Text("Select action"), message: Text("Clipboard contain WalletConnect code. Use copied value or scan QR-code"), buttons: [
-                        .default(Text("Paste from clipboard"), action: {
+                    ActionSheet(title: Text("common_select_action"), message: Text("wallet_connect_clipboard_alert"), buttons: [
+                        .default(Text("wallet_connect_paste_from_clipboard"), action: {
                             viewModel.pasteFromClipboard()
                         }),
-                        .default(Text("Scan new code"), action: {
+                        .default(Text("wallet_connect_scan_new_code"), action: {
                             scanQrCode()
                         }),
                         .cancel()
