@@ -13,9 +13,10 @@ import SwiftUI
 class WalletConnectViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var pasteboardService: PasteboardService!
     weak var walletConnectController: WalletConnectSessionController! {
         didSet {
+            bag.removeAll()
+            
             $code
                 .dropFirst()
                 .sink {[unowned self] newCode in
@@ -27,6 +28,7 @@ class WalletConnectViewModel: ViewModel {
             
             walletConnectController.error
                 .receive(on: DispatchQueue.main)
+                .debounce(for: 0.3, scheduler: DispatchQueue.main)
                 .sink { [unowned self]  error in
                     self.alert = error.alertBinder
                 }
@@ -61,21 +63,24 @@ class WalletConnectViewModel: ViewModel {
     }
     
     var hasWCInPasteboard: Bool {
-        guard let copiedValue = pasteboardService.lastValue.value else {
+        guard let copiedValue = UIPasteboard.general.string else {
             return false
         }
         
-        return walletConnectController.canHandle(url: copiedValue)
+        let canHandle = walletConnectController.canHandle(url: copiedValue)
+        if canHandle {
+            self.copiedValue = copiedValue
+        }
+        return canHandle
     }
     
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
+    private var copiedValue: String?
     
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
     }
-    
-    func onAppear() {}
     
     func disconnectSession(at index: Int) {
         walletConnectController.disconnectSession(at: index)
@@ -89,9 +94,9 @@ class WalletConnectViewModel: ViewModel {
     }
     
     func pasteFromClipboard() {
-        guard let value = pasteboardService.lastValue.value else { return }
+        guard let value = copiedValue else { return }
         
         code = value
-        pasteboardService.clearPasteboard()
+        copiedValue = nil
     }
 }
