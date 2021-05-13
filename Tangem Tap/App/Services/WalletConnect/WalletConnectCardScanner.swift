@@ -10,8 +10,15 @@ import Foundation
 import TangemSdk
 import Combine
 
-enum WalletConnectCardScannerError: Error {
-    case noCardId, noEthereumWallet, noPublicKey
+enum WalletConnectCardScannerError: LocalizedError {
+    case noCardId, noEthereumWallet
+    
+    var errorDescription: String? {
+        switch self {
+        case .noCardId: return "wallet_connect_scanner_error_no_card_id".localized
+        case .noEthereumWallet: return "wallet_connect_scanner_error_no_ethereum_wallet".localized
+        }
+    }
 }
 
 class WalletConnectCardScanner {
@@ -20,7 +27,7 @@ class WalletConnectCardScanner {
     
     func scanCard() -> AnyPublisher<WalletInfo, Error> {
         return Future { promise in
-            self.tangemSdk.scanCard(initialMessage: Message(header: "Scan card to bind to wallet connect")) { result in
+            self.tangemSdk.scanCard(initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { result in
                 switch result {
                 case .success(let card):
                     do {
@@ -42,16 +49,14 @@ class WalletConnectCardScanner {
             throw WalletConnectCardScannerError.noCardId
         }
         
-        guard let wallet = card.wallets.first(where: { $0.curve == .secp256k1 }) else {
+        let wallets = assembly.loadWallets(from: CardInfo(card: card))
+        
+        guard let wallet = wallets.first(where: { $0.wallet.blockchain == .ethereum(testnet: false) || $0.wallet.blockchain == .ethereum(testnet: true) })?.wallet else {
             throw WalletConnectCardScannerError.noEthereumWallet
         }
         
-        guard let walletPublicKey = wallet.publicKey else {
-            throw WalletConnectCardScannerError.noPublicKey
-        }
-        
         return WalletInfo(cid: cid,
-                          walletPublicKey: walletPublicKey,
+                          walletPublicKey: wallet.publicKey,
                           isTestnet: card.isTestnet ?? false)
     }
     
