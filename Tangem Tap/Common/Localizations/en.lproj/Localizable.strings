@@ -52,6 +52,10 @@
 
 "common_share" = "Share";
 
+"common_select_action" = "Select action";
+
+"common_disconnect" = "Disconnect";
+
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
@@ -346,6 +350,14 @@
 "wallet_connect_session_opened" = "WalletConnect session opened with %@";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
 "wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
+"wallet_connect_clipboard_alert" = "Clipboard contain WalletConnect code. Use copied value or scan QR-code";
+"wallet_connect_paste_from_clipboard" = "Paste from clipboard";
+"wallet_connect_scan_new_code" = "Scan new code";
+"wallet_connect_card_number" = "Card: %@";
+
+"wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error. Please, try again later.";
+"wallet_connect_error_failed_to_connect" = "Failed to establish WalletConnect session. Please, try again later.";
+"wallet_connect_error_sing_failed" = "Failed to sign message. Please, try again";
 
 
 // MARK: - Alert
