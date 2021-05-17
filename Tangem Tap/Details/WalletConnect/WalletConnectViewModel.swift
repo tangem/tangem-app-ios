@@ -29,8 +29,8 @@ class WalletConnectViewModel: ViewModel {
             walletConnectController.error
                 .receive(on: DispatchQueue.main)
                 .debounce(for: 0.3, scheduler: DispatchQueue.main)
-                .sink { [unowned self]  error in
-                    self.alert = error.alertBinder
+                .sink { error in
+//                    self.alert = error.alertBinder
                 }
                 .store(in: &bag)
             
