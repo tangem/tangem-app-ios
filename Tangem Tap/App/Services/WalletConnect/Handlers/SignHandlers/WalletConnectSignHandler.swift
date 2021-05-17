@@ -15,6 +15,10 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     weak var delegate: WalletConnectHandlerDelegate?
     weak var dataSource: WalletConnectHandlerDataSource?
     
+    var action: WalletConnectAction {
+        fatalError("WalletConnect action not specified")
+    }
+    
     private let signer: TangemSigner
     
     private var signerSubscription: AnyCancellable?
@@ -39,9 +43,9 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                 DispatchQueue.global().async {
                     switch res {
                     case .success(let signature):
-                        self.delegate?.send(.signature(signature, for: request))
+                        self.delegate?.send(.signature(signature, for: request), for: self.action)
                     case .failure:
-                        self.delegate?.send(.invalid(request))
+                        self.delegate?.send(.invalid(request), for: self.action)
                     }
                 }
             }
