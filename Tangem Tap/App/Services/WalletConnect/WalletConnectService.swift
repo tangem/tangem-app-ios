@@ -29,13 +29,28 @@ protocol WalletConnectSessionController: WalletConnectChecker {
 }
 
 protocol WalletConnectHandlerDelegate: AnyObject {
-    func send(_ response: Response)
+    func send(_ response: Response, for action: WalletConnectAction)
+    func sendInvalid(_ request: Request)
     func sendReject(for request: Request)
 }
 
 protocol WalletConnectHandlerDataSource: AnyObject {
     var server: Server! { get }
     func session(for request: Request, address: String) -> WalletConnectSession?
+}
+
+enum WalletConnectAction: String {
+    case personalSign = "personal_sign"
+    case signTransaction = "eth_signTransaction"
+    case sendTransaction = "eth_sendTransaction"
+    
+    var successMessage: String {
+        switch self {
+        case .personalSign: return "wallet_connect_message_signed".localized
+        case .signTransaction: return "wallet_connect_transaction_signed".localized
+        case .sendTransaction: return "wallet_connect_transaction_signed_and_send".localized
+        }
+    }
 }
 
 class WalletConnectService: ObservableObject {
@@ -103,8 +118,7 @@ class WalletConnectService: ObservableObject {
                 if case let .failure(error) = completion {
                     self.error.send(error)
                     self.presentOnTop(WalletConnectUIBuilder.makeAlert(for: .error,
-                                                                       message: error.localizedDescription),
-                                      delay: 0.3)
+                                                                       message: error.localizedDescription))
                     self.isServiceBusy.send(false)
                 }
             } receiveValue: { }
@@ -147,8 +161,13 @@ extension WalletConnectService: WalletConnectHandlerDataSource {
 }
 
 extension WalletConnectService: WalletConnectHandlerDelegate {
-    func send(_ response: Response) {
+    func send(_ response: Response, for action: WalletConnectAction) {
         server.send(response)
+        presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
+    }
+    
+    func sendInvalid(_ request: Request) {
+        server.send(.invalid(request))
     }
     
     func sendReject(for request: Request) {
@@ -236,7 +255,8 @@ extension WalletConnectService: ServerDelegate {
                                                       onReject: {
                                                         completion(self.rejectedResponse)
                                                         self.isServiceBusy.send(false)
-                                                      }))
+                                                      }),
+                     delay: 0.3)
     }
     
     func server(_ server: Server, didConnect session: Session) {
