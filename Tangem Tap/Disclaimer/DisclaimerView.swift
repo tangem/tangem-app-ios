@@ -13,8 +13,6 @@ struct DisclaimerView: View {
     @ObservedObject var viewModel: DisclaimerViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
-    @Environment(\.presentationMode) var presentationMode
-    
     private let disclaimerTitle: LocalizedStringKey = "disclaimer_title"
     
     var navigationLinks: some View {
@@ -26,12 +24,20 @@ struct DisclaimerView: View {
                 NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
                                isActive: $navigation.disclaimerToMain)
             }
+            
+            //https://forums.swift.org/t/14-5-beta3-navigationlink-unexpected-pop/45279
+            // Weird IOS 14.5/XCode 12.5 bug. Navigation link cause an immediate pop, if there are exactly 2 links presented
+            NavigationLink(destination: EmptyView()) {
+                EmptyView()
+            }
         }
     }
     
-    var isNavBarHidden: Bool { //prevent navbar glitches
+    var isNavBarHidden: Bool {
+        // prevent navbar glitches
         if viewModel.state == .accept  && navigation.disclaimerToTwinOnboarding {
-           return true //hide navbar when navigate to twin onboarding
+            // hide navbar when navigate to twin onboarding
+           return true
         }
     
         return false
@@ -70,9 +76,10 @@ struct DisclaimerView: View {
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
-    static let navigation = NavigationCoordinator()
+    static let assembly = Assembly.previewAssembly
+    
     static var previews: some View {
-        DisclaimerView(viewModel: Assembly.previewAssembly.makeDisclaimerViewModel(with: .read))
-            .environmentObject(navigation)
+        DisclaimerView(viewModel: assembly.makeDisclaimerViewModel(with: .read))
+            .environmentObject(assembly.services.navigationCoordinator)
     }
 }
