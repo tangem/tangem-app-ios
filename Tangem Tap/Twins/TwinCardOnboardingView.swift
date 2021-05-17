@@ -23,7 +23,8 @@ struct TwinCardOnboardingView: View {
     
     var navigationLinks: some View {
         Group {
-            if viewModel.state.isWarning { //activate link only if we need it, because of navigation issues with shared state
+            //activate link only if we need it, because of navigation issues with shared state
+            if viewModel.state.isWarning {
                 NavigationLink(destination: TwinsWalletCreationView(viewModel: viewModel.assembly
                                                                         .makeTwinsWalletCreationViewModel(isRecreating: viewModel.state.isRecreating)),
                                isActive:  $navigation.twinOnboardingToTwinWalletCreation)
@@ -37,12 +38,14 @@ struct TwinCardOnboardingView: View {
         }
     }
     
-    @State var appeared = false //fix ios 13 bug. (navbar not dissapeared)
+    //fix ios 13 bug. (navbar not dissapeared)
+    @State var appeared = false
     
     //prevent navbar glitches
     var isNavBarHidden: Bool {
         if #available(iOS 14.0, *) {} else {
-            if !appeared { //fix ios 13 bug. We need to trigger one more view update
+            //fix ios 13 bug. We need to trigger one more view update
+            if !appeared {
                 return false
             }
         }
@@ -58,10 +61,12 @@ struct TwinCardOnboardingView: View {
         }
         
         if #available(iOS 14.0, *), !presentationMode.wrappedValue.isPresented {
-            return false //show navbar when navigate back to main
+            //show navbar when navigate back to main
+            return false
         }
         
-        return true //default navbar state
+        //default navbar state
+        return true
     }
     
     var body: some View {
@@ -120,7 +125,8 @@ struct TwinCardOnboardingView: View {
         }
         .onDisappear() {
             if #available(iOS 14.0, *) {} else {
-                viewModel.appeared = false //fix ios 13 bug
+                //fix ios 13 bug
+                viewModel.appeared = false
             }
         }
         .navigationBarTitle("")
