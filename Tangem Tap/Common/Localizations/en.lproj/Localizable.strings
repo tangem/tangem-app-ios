@@ -360,6 +360,10 @@
 "wallet_connect_card_number" = "Card: %@";
 "wallet_connect_scan_card_message" = "Tap card to bind to wallet connect";
 
+"wallet_connect_message_signed" = "The message has been successfully signed and sent to the Dapp";
+"wallet_connect_transaction_signed" = "The transaction has been successfully signed and sent to the Dapp";
+"wallet_connect_transaction_signed_and_send" = "The transaction succesfully signed and sent to the blockchain";
+
 "wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error. \nPlease, try again later.";
 "wallet_connect_error_failed_to_connect" = "Failed to establish WalletConnect session. \nPlease, try again later.";
 "wallet_connect_error_sing_failed" = "Failed to sign message. \nPlease, try again";
