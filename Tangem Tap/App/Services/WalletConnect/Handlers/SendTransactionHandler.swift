@@ -18,6 +18,8 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
     unowned var assembly: Assembly
     unowned var scannedCardsRepo: ScannedCardsRepository
     
+    var action: WalletConnectAction { .sendTransaction }
+    
     private(set) var bag: Set<AnyCancellable> = []
     
     init(dataSource: WalletConnectHandlerDataSource, delegate: WalletConnectHandlerDelegate, assembly: Assembly, scannedCardsRepo: ScannedCardsRepository) {
@@ -27,7 +29,7 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
         self.scannedCardsRepo = scannedCardsRepo
     }
     
-    func canHandle(request: Request) -> Bool { request.method == "eth_sendTransaction" }
+    func canHandle(request: Request) -> Bool { request.method == action.rawValue }
 
     func handle(request: Request) {
         do {
@@ -40,7 +42,7 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
             
             askToMakeTx(in: session, for: request, ethTx: transaction)
         } catch {
-            delegate?.send(.invalid(request))
+            delegate?.sendInvalid(request)
         }
     }
     
@@ -146,7 +148,7 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
                                 }
                                 print("\nSended transaction \(sendedTx) \ntxHash: \(txHash)\n\n")
                                 
-                                self.delegate?.send(try! Response(url: request.url, value: txHash, id: request.id!))
+                                self.delegate?.send(try! Response(url: request.url, value: txHash, id: request.id!), for: self.action)
                             }
                             .store(in: &self.bag)
                         
