@@ -81,7 +81,7 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
             throw unsupportedCardError
         }
         
-        if batch != targetBatch {
+        if batch.lowercased() != targetBatch.lowercased() {
             throw TangemSdkError.underlying(error: "alert_wrong_card_scanned".localized)
         }
     }
