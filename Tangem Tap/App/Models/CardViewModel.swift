@@ -13,6 +13,11 @@ import Combine
 import Alamofire
 import SwiftUI
 
+struct CardPinSettings {
+    var isPin1Default: Bool
+    var isPin2Default: Bool
+}
+
 class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
     weak var featuresService: AppFeaturesService!
@@ -28,6 +33,8 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     @Published public private(set) var cardInfo: CardInfo
+    
+    private var cardPinSettings: CardPinSettings?
     
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     
@@ -186,11 +193,6 @@ class CardViewModel: Identifiable, ObservableObject {
 		return true
 	}
     
-    var canManageSecurity: Bool {
-        cardInfo.card.isPin1Default != nil &&
-            cardInfo.card.isPin2Default != nil
-    }
-    
     var canTopup: Bool { featuresService.canTopup }
     
     private var erc20TokenWalletModel: WalletModel? {
@@ -288,8 +290,7 @@ class CardViewModel: Identifiable, ObservableObject {
         tangemSdk.startSession(with: CheckPinCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
             switch result {
             case .success(let resp):
-                self?.cardInfo.card.isPin1Default = resp.isPin1Default
-                self?.cardInfo.card.isPin2Default = resp.isPin2Default
+                self?.cardPinSettings = CardPinSettings(isPin1Default: resp.isPin1Default, isPin2Default: resp.isPin2Default)
                 self?.updateCurrentSecOption()
                 completion(.success(resp))
             case .failure(let error):
@@ -308,8 +309,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardInfo.card.isPin1Default = false
-                    self.cardInfo.card.isPin2Default = true
+                    self.cardPinSettings?.isPin1Default = false
+                    self.cardPinSettings?.isPin2Default = true
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
@@ -323,8 +324,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardInfo.card.isPin1Default = true
-                    self.cardInfo.card.isPin2Default = true
+                    self.cardPinSettings?.isPin1Default = true
+                    self.cardPinSettings?.isPin2Default = true
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
@@ -340,8 +341,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardInfo.card.isPin2Default = false
-                    self.cardInfo.card.isPin1Default = true
+                    self.cardPinSettings?.isPin1Default = false
+                    self.cardPinSettings?.isPin2Default = true
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
@@ -518,13 +519,22 @@ class CardViewModel: Identifiable, ObservableObject {
             guard let self = self else { return }
             
             switch result {
-            case .success(let isAdded):
-                if isAdded && sholdAddWalletManager {
-                    self.tokenItemsRepository.append(.blockchain(ethWalletModel!.wallet.blockchain))
-                    self.stateUpdateQueue.sync {
-                        self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
+            case .success(let tokensAdded):
+                if tokensAdded {
+                    var tokens = ethWalletModel!.walletManager.cardTokens
+                    if let defaultToken = self.cardInfo.card.defaultToken {
+                        tokens = tokens.filter { $0 != defaultToken }
                     }
-                    ethWalletModel!.update()
+                    let tokenItems = tokens.map { TokenItem.token($0) }
+                    self.tokenItemsRepository.append(tokenItems)
+                    
+                    if sholdAddWalletManager {
+                        self.tokenItemsRepository.append(.blockchain(ethWalletModel!.wallet.blockchain))
+                        self.stateUpdateQueue.sync {
+                            self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
+                        }
+                        ethWalletModel!.update()
+                    }
                 }
             case .failure(let error):
                 print(error)
@@ -590,9 +600,9 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func updateCurrentSecOption() {
-        if !(cardInfo.card.isPin1Default ?? true) {
+        if !(cardPinSettings?.isPin1Default ?? true) {
             self.currentSecOption = .accessCode
-        } else if !(cardInfo.card.isPin2Default ?? true) {
+        } else if !(cardPinSettings?.isPin2Default ?? true) {
             self.currentSecOption = .passCode
         }
         else {
@@ -639,24 +649,7 @@ extension CardViewModel {
 
 
 extension CardViewModel {
-    static var previewCardViewModel: CardViewModel {
-        viewModel(for: Card.testCard)
-    }
-    
-    static var previewCardViewModelNoWallet: CardViewModel {
-        viewModel(for: Card.testCardNoWallet)
-    }
-	
-	static var previewTwinCardViewModel: CardViewModel {
-		viewModel(for: Card.testTwinCard)
-	}
-    
-    static var previewEthCardViewModel: CardViewModel {
-        viewModel(for: Card.testEthCard)
-    }
-    
-    private static func viewModel(for card: Card) -> CardViewModel {
-        let assembly = Assembly.previewAssembly
-        return assembly.services.cardsRepository.cards[card.cardId!]!.cardModel!
+    static func previewViewModel(for card: Assembly.PreviewCard) -> CardViewModel {
+        Assembly.previewCardViewModel(for: card)
     }
 }
