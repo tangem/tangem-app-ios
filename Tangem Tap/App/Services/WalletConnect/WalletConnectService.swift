@@ -102,6 +102,9 @@ class WalletConnectService: ObservableObject {
             .sink { completion in
                 if case let .failure(error) = completion {
                     self.error.send(error)
+                    self.presentOnTop(WalletConnectUIBuilder.makeAlert(for: .error,
+                                                                       message: error.localizedDescription),
+                                      delay: 0.3)
                     self.isServiceBusy.send(false)
                 }
             } receiveValue: { }
@@ -128,6 +131,12 @@ class WalletConnectService: ObservableObject {
     private func resetSessionConnectTimer() {
         timer?.invalidate()
         isWaitingToConnect = false
+    }
+    
+    private func presentOnTop(_ vc: UIViewController, delay: TimeInterval = 0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            UIApplication.modalFromTop(vc)
+        }
     }
 }
 
@@ -178,7 +187,7 @@ extension WalletConnectService: ServerDelegate {
         Session.ClientMeta(name: "Tangem Wallet",
                            description: nil,
                            icons: [],
-                           url: URL(string: "https://tangem.com")!)
+                           url: Constants.tangemDomainUrl)
     }
     
     private var rejectedResponse: Session.WalletInfo {
@@ -204,7 +213,7 @@ extension WalletConnectService: ServerDelegate {
         
         resetSessionConnectTimer()
         let peerMeta = session.dAppInfo.peerMeta
-        var message = "Request to start a session for\n\(peerMeta.name)\n\nURL: \(peerMeta.url)"
+        var message = "Request to start a session for card with ID \(wallet.cid)\nfor\n\(peerMeta.name)\n\nURL: \(peerMeta.url)"
         if let description = peerMeta.description, !description.isEmpty {
             message += "\n\n" + description
         }
@@ -220,13 +229,14 @@ extension WalletConnectService: ServerDelegate {
                                           peerId: UUID().uuidString,
                                           peerMeta: self.walletMeta))
         }
-        DispatchQueue.main.async {
-            UIApplication.modalFromTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
-                                                                        message: message,
-                                                                        onAcceptAction: onAccept,
-                                                                        isAcceptEnabled: true,
-                                                                        onReject: { completion(self.rejectedResponse) }))
-        }
+        
+        presentOnTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
+                                                      message: message,
+                                                      onAcceptAction: onAccept,
+                                                      onReject: {
+                                                        completion(self.rejectedResponse)
+                                                        self.isServiceBusy.send(false)
+                                                      }))
     }
     
     func server(_ server: Server, didConnect session: Session) {
@@ -251,7 +261,9 @@ extension WalletConnectService: ServerDelegate {
 
 extension WalletConnectService: URLHandler {
     func handle(url: URL) -> Bool {
-        handle(url: url.absoluteString)
+        guard let link = extractWcUrl(from: url) else { return false }
+        
+        return handle(url: link)
     }
     
     func handle(url: String) -> Bool {
@@ -262,6 +274,32 @@ extension WalletConnectService: URLHandler {
         }
         
         return true
+    }
+    
+    private func extractWcUrl(from url: URL) -> String? {
+        let absoluteStr = url.absoluteString
+        if canHandle(url: absoluteStr) {
+            return absoluteStr
+        }
+        
+        let uriPrefix = "uri="
+        let wcPrefix = "wc:"
+        
+        guard
+            let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+            let scheme = components.scheme,
+            var query = components.query
+        else { return nil }
+        
+        guard (absoluteStr.starts(with: Constants.tangemDomain) && query.starts(with: uriPrefix + wcPrefix)) ||
+                ((Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [[String:Any]])?.map { $0["CFBundleURLSchemes"] as? [String] }.contains(where: { $0?.contains(scheme) ?? false }) ?? false)
+        else { return nil }
+        
+        query.removeFirst(uriPrefix.count)
+
+        guard canHandle(url: query) else { return nil }
+        
+        return query
     }
 }
 
