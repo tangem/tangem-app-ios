@@ -10,11 +10,11 @@ import Foundation
 import SwiftUI
 
 enum WalletConnectEvent {
-    case establishSession, sign, sendTx, error
+    case establishSession, sign, sendTx, error, success
     
     var withCancelButton: Bool {
         switch self {
-        case .error: return false
+        case .error, .success: return false
         default: return true
         }
     }
@@ -37,7 +37,7 @@ enum WalletConnectUIBuilder {
             buttonTitle = "common_sign".localized
         case .sendTx:
             buttonTitle = "common_sign_and_send".localized
-        case .error:
+        case .error, .success:
             buttonTitle = "common_ok".localized
         }
         if event.withCancelButton {
