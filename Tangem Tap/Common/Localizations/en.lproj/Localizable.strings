@@ -56,6 +56,10 @@
 
 "common_disconnect" = "Disconnect";
 
+"common_sign" = "Sign";
+"common_sign_and_send" = "Sign and send";
+"common_reject" = "Reject";
+
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
