@@ -53,7 +53,6 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                 WalletConnectUIBuilder.makeAlert(for: .sign,
                                                  message: alertMessage,
                                                  onAcceptAction: onSign,
-                                                 isAcceptEnabled: true,
                                                  onReject: { self.delegate?.sendReject(for: request) })
             )
         }

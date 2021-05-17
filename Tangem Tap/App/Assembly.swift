@@ -12,7 +12,9 @@ import BlockchainSdk
 
 class ServicesAssembly {
     weak var assembly: Assembly!
-    var urlHandlers: [URLHandler] = []
+    lazy var urlHandlers: [URLHandler] = [
+        walletConnectService
+    ]
     
     deinit {
         print("ServicesAssembly deinit")

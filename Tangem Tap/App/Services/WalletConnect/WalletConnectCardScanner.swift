@@ -27,11 +27,11 @@ class WalletConnectCardScanner {
     
     func scanCard() -> AnyPublisher<WalletInfo, Error> {
         return Future { promise in
-            self.tangemSdk.scanCard(initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { result in
+            self.tangemSdk.startSession(with: TapScanTask(), initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { result in
                 switch result {
                 case .success(let card):
                     do {
-                        promise(.success(try self.walletInfo(for: card)))
+                        promise(.success(try self.walletInfo(for: card.card)))
                     } catch {
                         print("Failed to receive wallet info for: \(card)")
                         promise(.failure(error))
