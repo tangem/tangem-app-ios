@@ -11,8 +11,10 @@ import WalletConnectSwift
 
 class PersonalSignHandler: WalletConnectSignHandler {
     
+    override var action: WalletConnectAction { .personalSign }
+    
     override func canHandle(request: Request) -> Bool {
-        return request.method == "personal_sign"
+        request.method == action.rawValue
     }
 
     override func handle(request: Request) {
@@ -21,7 +23,7 @@ class PersonalSignHandler: WalletConnectSignHandler {
             let address = try request.parameter(of: String.self, at: 1)
 
             guard let session = dataSource?.session(for: request, address: address) else {
-                delegate?.send(.reject(request))
+                delegate?.send(.reject(request), for: action)
                 return
             }
         
@@ -30,7 +32,7 @@ class PersonalSignHandler: WalletConnectSignHandler {
             let personalMessageData = self.makePersonalMessageData(Data(hex: messageBytes))
             askToSign(in: session, request: request, message: prefix + message, dataToSign: personalMessageData)
         } catch {
-            delegate?.send(.invalid(request))
+            delegate?.sendInvalid(request)
         }
     }
 
