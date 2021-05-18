@@ -38,9 +38,11 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     func askToSign(in session: WalletConnectSession, request: Request, message: String, dataToSign: Data) {
         let wallet = session.wallet
         
-        let onSign = {
-            self.sign(with: wallet, data: dataToSign) { res in
+        let onSign: () -> Void = { [weak self] in
+            self?.sign(with: wallet, data: dataToSign) { res in
                 DispatchQueue.global().async {
+                    guard let self = self else { return }
+                    
                     switch res {
                     case .success(let signature):
                         self.delegate?.send(.signature(signature, for: request), for: self.action)
