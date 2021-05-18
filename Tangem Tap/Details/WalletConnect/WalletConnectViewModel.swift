@@ -21,7 +21,7 @@ class WalletConnectViewModel: ViewModel {
                 .dropFirst()
                 .sink {[unowned self] newCode in
                     if !self.walletConnectController.handle(url: newCode) {
-                        self.alert = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
+                        self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                     }
                 }
                 .store(in: &bag)
