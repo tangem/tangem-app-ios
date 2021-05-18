@@ -80,7 +80,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                         unmarshalledSig.v.asHexString()
                     completion(.success(strSig))
                 } else {
-                    completion(.failure(WalletConnectService.WalletConnectServiceError.signFailed))
+                    completion(.failure(WalletConnectServiceError.signFailed))
                 }
             })
     }
