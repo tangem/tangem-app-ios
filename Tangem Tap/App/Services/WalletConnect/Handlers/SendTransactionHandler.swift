@@ -94,12 +94,12 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
                             }
                         }
                         .filter { $0 == .idle })
-            .sink { (completion) in
+            .sink { [weak self] (completion) in
                 if case .failure = completion {
-                    self.sendReject(for: request)
+                    self?.sendReject(for: request)
                 }
-                self.bag = []
-            } receiveValue: { (gasPrice, state) in
+                self?.bag = []
+            } receiveValue: { [weak self] (gasPrice, state) in
                 let gasAmount = Amount(with: blockchain, address: wallet.address, type: .coin, value: Decimal(gas * gasPrice) / blockchain.decimalValue)
                 let totalAmount = valueAmount + gasAmount
                 let balance = ethWalletModel.wallet.amounts[.coin] ?? .zeroCoin(for: blockchain, address: ethTx.from)
@@ -119,6 +119,8 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
                     return m
                 }()
                 let alert = WalletConnectUIBuilder.makeAlert(for: .sendTx, message: message, onAcceptAction: {
+                    guard let self = self else { return }
+                    
                     switch ethWalletModel.walletManager.createTransaction(amount: valueAmount, fee: gasAmount, destinationAddress: ethTx.to, sourceAddress: ethTx.from) {
                     case .success(var tx):
                         let contractDataString = ethTx.data.drop0xPrefix
@@ -156,9 +158,9 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
                         self.presentOnMain(vc: error.alertController)
                     }
                 }, isAcceptEnabled: (balance >= totalAmount), onReject: {
-                    self.sendReject(for: request)
+                    self?.sendReject(for: request)
                 })
-                self.presentOnMain(vc: alert)
+                self?.presentOnMain(vc: alert)
             }
             .store(in: &bag)
     }
@@ -176,10 +178,6 @@ class SendTransactionHandler: TangemWalletConnectRequestHandler {
         }
         
         return .justWithError(output: gasPrice)
-    }
-    
-    private func sendTxPublisher() {
-        
     }
     
     private func presentOnMain(vc: UIViewController, delay: Double = 0) {
