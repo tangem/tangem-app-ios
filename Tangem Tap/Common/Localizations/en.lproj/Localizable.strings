@@ -369,6 +369,17 @@
 "wallet_connect_error_sing_failed" = "Failed to sign message. \nPlease, try again";
 "wallet_connect_scanner_error_no_card_id" = "Failed to read card id. \nPlaease, try again";
 "wallet_connect_scanner_error_no_ethereum_wallet" = "Scanned card doesn't contain Ethereum wallet. \nPlease, create Ethereum wallet first and then retry open WalletConnect session";
+"wallet_connect_card_not_found" = "Failed to find target card";
+
+"wallet_connect_create_tx_message" = "Card: %@
+Request to create transaction for %@
+%@
+
+Amount: %@
+Fee: %@
+Total: %@
+Balance: %@";
+"wallet_connect_create_tx_not_enough_funds" = "\n\nCan't send transaction. Not enough funds.";
 
 
 // MARK: - Alert
