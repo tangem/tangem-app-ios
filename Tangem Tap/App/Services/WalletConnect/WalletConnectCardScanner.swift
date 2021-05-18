@@ -24,6 +24,7 @@ enum WalletConnectCardScannerError: LocalizedError {
 class WalletConnectCardScanner {
     weak var assembly: Assembly!
     weak var tangemSdk: TangemSdk!
+    weak var scannedCardsRepository: ScannedCardsRepository!
     
     func scanCard() -> AnyPublisher<WalletInfo, Error> {
         return Future { promise in
@@ -57,6 +58,7 @@ class WalletConnectCardScanner {
             throw WalletConnectCardScannerError.noEthereumWallet
         }
         
+        scannedCardsRepository.add(card)
         return WalletInfo(cid: cid,
                           walletPublicKey: wallet.publicKey,
                           isTestnet: card.isTestnet ?? false)
