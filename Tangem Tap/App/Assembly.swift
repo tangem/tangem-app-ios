@@ -81,6 +81,7 @@ class ServicesAssembly {
         let scanner = WalletConnectCardScanner()
         scanner.assembly = assembly
         scanner.tangemSdk = tangemSdk
+        scanner.scannedCardsRepository = scannedCardsRepository
         return scanner
     }()
     
