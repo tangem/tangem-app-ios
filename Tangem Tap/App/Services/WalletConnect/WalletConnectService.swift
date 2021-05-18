@@ -75,8 +75,8 @@ class WalletConnectService: ObservableObject {
         self.cardScanner = cardScanner
         server = Server(delegate: self)
         server.register(handler: PersonalSignHandler(signer: signer, delegate: self, dataSource: self))
-        server.register(handler: SignTransactionHandler(signer: signer, delegate: self, dataSource: self))
-        server.register(handler: SendTransactionHandler(dataSource: self, delegate: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
+        server.register(handler: SignTransactionHandler(signer: signer, delegate: self, dataSource: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
+        server.register(handler: SendTransactionHandler(signer: signer, delegate: self, dataSource: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
     }
     
     func disconnect(from session: Session) {
@@ -323,18 +323,28 @@ extension WalletConnectService: URLHandler {
     }
 }
 
-extension WalletConnectService {
-    enum WalletConnectServiceError: LocalizedError {
-        case failedToConnect
-        case signFailed
-        case timeout
-        
-        var errorDescription: String? {
-            switch self {
-            case .timeout: return "wallet_connect_error_timeout".localized
-            case .signFailed: return "wallet_connect_error_sing_failed".localized
-            case .failedToConnect: return "wallet_connect_error_failed_to_connect".localized
-            }
+enum WalletConnectServiceError: LocalizedError {
+    case failedToConnect
+    case signFailed
+    case cancelled
+    case timeout
+    case deallocated
+    case cardNotFound
+    
+    var shouldHandle: Bool {
+        switch self {
+        case .cancelled, .deallocated: return false
+        default: return true
+        }
+    }
+    
+    var errorDescription: String? {
+        switch self {
+        case .timeout: return "wallet_connect_error_timeout".localized
+        case .signFailed: return "wallet_connect_error_sing_failed".localized
+        case .failedToConnect: return "wallet_connect_error_failed_to_connect".localized
+        case .cardNotFound: return "wallet_connect_card_not_found".localized
+        default: return ""
         }
     }
 }
