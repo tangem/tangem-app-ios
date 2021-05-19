@@ -47,6 +47,8 @@ class Analytics {
         case errorCode = "error_code"
         case newSecOption = "new_security_option"
         case errorKey = "Tangem SDK error key"
+        case walletConnectAction = "wallet_connect_action"
+        case walletConnectRequest = "wallet_connect_request"
     }
     
     static func log(event: Event, parameters: [String: Any]? = nil) {
@@ -91,6 +93,34 @@ class Analytics {
         Crashlytics.crashlytics().record(error: error)
     }
     
+    static func logWcEvent(_ event: WalletConnectEvent) {
+        var params = [String: Any]()
+        switch event {
+        case let .error(error, action):
+            if let action = action {
+                params[ParameterKey.walletConnectAction.rawValue] = action.rawValue
+            }
+            params[ParameterKey.errorDescription.rawValue] = error.localizedDescription
+            let nsError = NSError(domain: "WalletConnect Error for \(action?.rawValue ?? "WC Service error")", code: 0, userInfo: params)
+            Crashlytics.crashlytics().record(error: nsError)
+        case .action(let action):
+            params[ParameterKey.walletConnectAction.rawValue] = action.rawValue
+            FirebaseAnalytics.Analytics.logEvent("wallet_connect_success_response", parameters: params)
+        case .invalidRequest(let json):
+            params[ParameterKey.walletConnectRequest.rawValue] = json
+            FirebaseAnalytics.Analytics.logEvent("wallet_connect_invalid_request", parameters: params)
+        case .session(let state):
+            let eventName: String
+            switch state {
+            case .connect:
+                eventName = "wallet_connect_new_session"
+            case .disconnect:
+                eventName = "wallet_connect_session_disconnected"
+            }
+            FirebaseAnalytics.Analytics.logEvent(eventName, parameters: nil)
+        }
+    }
+    
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
         params[.batchId] = card.cardData?.batchId ?? ""
@@ -104,5 +134,15 @@ fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == A
         var convertedParams = [String:Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
         return convertedParams
+    }
+}
+
+extension Analytics {
+    enum WalletConnectEvent {
+        enum SessionEvent {
+            case disconnect, connect
+        }
+        
+        case error(Error, WalletConnectAction?), session(SessionEvent), action(WalletConnectAction), invalidRequest(json: String?)
     }
 }
