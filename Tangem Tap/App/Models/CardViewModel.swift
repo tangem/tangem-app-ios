@@ -68,6 +68,14 @@ class CardViewModel: Identifiable, ObservableObject {
         return cardInfo.card.isMultiWallet
     }
     
+    var emailSupport: EmailSupport {
+        isStart2CoinCard ? .start2coin : .tangem
+    }
+    
+    var isStart2CoinCard: Bool {
+        cardInfo.card.isStart2Coin
+    }
+    
     var canSetAccessCode: Bool {
        return (cardInfo.card.settingsMask?.contains(.allowSetPIN1) ?? false ) &&
 			featuresService.canSetAccessCode
