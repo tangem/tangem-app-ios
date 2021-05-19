@@ -25,7 +25,7 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
     private func askToMakeTx(in session: WalletConnectSession, for request: Request, ethTx: WalletConnectEthTransaction) {
         buildTx(in: session, ethTx)
             .flatMap { [weak self] buildResult -> AnyPublisher<WalletModel, Error> in
-                guard let self = self else { return .anyFail(error: "Deallocated") }
+                guard let self = self else { return .anyFail(error: WalletConnectServiceError.deallocated) }
                 
                 let ethWalletModel = buildResult.0
                 let tx = buildResult.1
@@ -36,8 +36,7 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
             .sink { [weak self] completion in
                 switch completion {
                 case .failure(let error):
-                    self?.sendReject(for: request)
-                    self?.presentOnMain(vc: error.alertController, delay: 0.1)
+                    self?.sendReject(for: request, error: error)
                 case .finished:
                     break
                 }
@@ -52,7 +51,7 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
                     let sendedTx = ethWalletModel.wallet.transactions.last,
                     let txHash = sendedTx.hash
                 else {
-                    self.sendReject(for: request)
+                    self.sendReject(for: request, error: WalletConnectServiceError.txNotFound)
                     return
                 }
                 

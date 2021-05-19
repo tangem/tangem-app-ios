@@ -24,13 +24,13 @@ class SignTransactionHandler: WalletConnectTransactionHandler {
     private func askToSign(in session: WalletConnectSession, request: Request, ethTransaction: WalletConnectEthTransaction) {
         buildTx(in: session, ethTransaction)
             .flatMap { [weak self] buildResponse -> AnyPublisher<String, Error> in
-                guard let self = self else { return .anyFail(error: "Deallocated") }
+                guard let self = self else { return .anyFail(error: WalletConnectServiceError.deallocated) }
                 
                 let ethWalletModel = buildResponse.0
                 let tx = buildResponse.1
                 
                 guard let txSigner = ethWalletModel.walletManager as? EthereumTransactionSigner else {
-                    return .anyFail(error: "Failed to find signer")
+                    return .anyFail(error: WalletConnectServiceError.failedToFindSigner)
                 }
                 
                 return txSigner.sign(tx, signer: self.signer)
@@ -38,8 +38,7 @@ class SignTransactionHandler: WalletConnectTransactionHandler {
             .sink { [weak self] completion in
                 switch completion {
                 case .failure(let error):
-                    self?.delegate?.sendReject(for: request)
-                    self?.presentOnMain(vc: error.alertController, delay: 0.1)
+                    self?.sendReject(for: request, error: error)
                 case .finished:
                     break
                 }
