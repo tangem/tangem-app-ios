@@ -143,7 +143,7 @@ struct ReadView: View {
                 }
                 .buttonStyle(TangemButtonStyle(color: .green))
                 .sheet(isPresented: $navigation.readToSendEmail, content: {
-                    MailView(dataCollector: viewModel.failedCardScanTracker, emailType: .failedToScanCard)
+                    MailView(dataCollector: viewModel.failedCardScanTracker, support: .tangem, emailType: .failedToScanCard)
                 })
                 ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
                     self.viewModel.scan()
