@@ -52,14 +52,6 @@
 
 "common_share" = "Share";
 
-"common_select_action" = "Select action";
-
-"common_disconnect" = "Disconnect";
-
-"common_sign" = "Sign";
-"common_sign_and_send" = "Sign and send";
-"common_reject" = "Reject";
-
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
@@ -538,3 +530,23 @@ Fee: %@
 Total: %@
 Balance: %@";
 "wallet_connect_create_tx_not_enough_funds" = "\n\nCan't send transaction. Not enough funds.";
+
+"common_select_action" = "Select action";
+
+"common_disconnect" = "Disconnect";
+
+"common_sign" = "Sign";
+"common_sign_and_send" = "Sign and send";
+"common_reject" = "Reject";
+
+"wallet_connect_tx_not_found" = "Failed to find transaction hash";
+"wallet_connect_session_not_found" = "Failed to find session for request";
+"wallet_connect_request_session_start" = "Request to start a session for card with ID %@
+for
+%@
+
+URL: %@";
+
+"wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data";
+"wallet_connect_personal_sign_message" = "Message for %@:\n";
+"wallet_connect_alert_sign_message" = "Requesting to sign a message\nwith card %@\n\n%@";
