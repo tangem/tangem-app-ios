@@ -26,13 +26,13 @@ class WalletConnectViewModel: ViewModel {
                 }
                 .store(in: &bag)
             
-            walletConnectController.error
-                .receive(on: DispatchQueue.main)
-                .debounce(for: 0.3, scheduler: DispatchQueue.main)
-                .sink { error in
+//            walletConnectController.error
+//                .receive(on: DispatchQueue.main)
+//                .debounce(for: 0.3, scheduler: DispatchQueue.main)
+//                .sink { error in
 //                    self.alert = error.alertBinder
-                }
-                .store(in: &bag)
+//                }
+//                .store(in: &bag)
             
             walletConnectController.isServiceBusy
                 .receive(on: DispatchQueue.main)
