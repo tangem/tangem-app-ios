@@ -8,7 +8,9 @@
 
 import Foundation
 
-protocol URLHandler: class {
+protocol URLHandler: AnyObject {
+    @discardableResult
     func handle(url: URL) -> Bool
+    @discardableResult
     func handle(url: String) -> Bool
 }
