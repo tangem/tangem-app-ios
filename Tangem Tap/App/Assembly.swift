@@ -12,7 +12,9 @@ import BlockchainSdk
 
 class ServicesAssembly {
     weak var assembly: Assembly!
-    var urlHandlers: [URLHandler] = []
+    lazy var urlHandlers: [URLHandler] = [
+        walletConnectService
+    ]
     
     deinit {
         print("ServicesAssembly deinit")
@@ -33,7 +35,7 @@ class ServicesAssembly {
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
-    lazy var walletConnectService = WalletConnectService(assembly: assembly, signer: signer, scannedCardsRepository: scannedCardsRepository)
+    lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -75,6 +77,13 @@ class ServicesAssembly {
         return signer
     }()
     
+    lazy var walletConnectCardScanner: WalletConnectCardScanner = {
+        let scanner = WalletConnectCardScanner()
+        scanner.assembly = assembly
+        scanner.tangemSdk = tangemSdk
+        return scanner
+    }()
+    
     private let keysManager = try! KeysManager()
     private let configManager = try! FeaturesConfigManager()
     
@@ -90,7 +99,6 @@ extension ServicesAssembly: CardsRepositoryDelegate {
         featuresService.setupFeatures(for: cardInfo.card)
         warningsService.setupWarnings(for: cardInfo.card)
         tokenItemsRepository.setCard(cardInfo.card.cardId ?? "")
-        walletConnectService.didScan(cardInfo.card)
         
         if !featuresService.linkedTerminal {
             tangemSdk.config.linkedTerminal = false
@@ -273,7 +281,7 @@ class Assembly: ObservableObject {
     }
     
     // MARK: Card model
-    func makeCardModel(from info: CardInfo) -> CardViewModel? {
+    func makeCardModel(from info: CardInfo) -> CardViewModel {
         let vm = CardViewModel(cardInfo: info)
         vm.featuresService = services.featuresService
         vm.assembly = self
@@ -510,7 +518,7 @@ extension Assembly {
             let ci = CardInfo(card: card,
                               artworkInfo: nil,
                               twinCardInfo: preview.twinInfo)
-            let vm = assembly.makeCardModel(from: ci)!
+            let vm = assembly.makeCardModel(from: ci)
             let scanResult = ScanResult.card(model: vm)
             assembly.services.cardsRepository.cards[card.cardId!] = scanResult
             return scanResult
