@@ -30,7 +30,7 @@ protocol WalletConnectSessionController: WalletConnectChecker {
 protocol WalletConnectHandlerDelegate: AnyObject {
     func send(_ response: Response, for action: WalletConnectAction)
     func sendInvalid(_ request: Request)
-    func sendReject(for request: Request, with error: Error)
+    func sendReject(for request: Request, with error: Error, for action: WalletConnectAction)
 }
 
 protocol WalletConnectHandlerDataSource: AnyObject {
@@ -133,7 +133,7 @@ class WalletConnectService: ObservableObject {
         })
     }
     
-    private func handle(_ error: Error, delay: TimeInterval = 0) {
+    private func handle(_ error: Error, for action: WalletConnectAction? = nil, delay: TimeInterval = 0) {
         var errorToDisplay: Error?
         if let wcError = error as? WalletConnectServiceError {
             switch wcError {
@@ -156,6 +156,7 @@ class WalletConnectService: ObservableObject {
         
         guard let handledError = errorToDisplay else { return }
         
+        Analytics.logWcEvent(.error(handledError, action))
         presentOnTop(WalletConnectUIBuilder.makeErrorAlert(handledError), delay: delay)
     }
     
@@ -180,15 +181,17 @@ extension WalletConnectService: WalletConnectHandlerDataSource {
 extension WalletConnectService: WalletConnectHandlerDelegate {
     func send(_ response: Response, for action: WalletConnectAction) {
         server.send(response)
+        Analytics.logWcEvent(.action(action))
         presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
     }
     
     func sendInvalid(_ request: Request) {
+        Analytics.logWcEvent(.invalidRequest(json: request.jsonString))
         server.send(.invalid(request))
     }
     
-    func sendReject(for request: Request, with error: Error) {
-        handle(error)
+    func sendReject(for request: Request, with error: Error, for action: WalletConnectAction) {
+        handle(error, for: action)
         server.send(.reject(request))
     }
 }
@@ -212,6 +215,7 @@ extension WalletConnectService: WalletConnectSessionController {
         
         sessions.remove(at: index)
         save()
+        Analytics.logWcEvent(.session(.disconnect))
     }
     
     func canHandle(url: String) -> Bool {
@@ -283,6 +287,7 @@ extension WalletConnectService: ServerDelegate {
             if let wallet = self.wallet { //new session only if wallet exists
                 sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                 save()
+                Analytics.logWcEvent(.session(.connect))
             }
         }
         isServiceBusy.send(false)
