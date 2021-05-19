@@ -109,19 +109,18 @@ class WalletConnectService: ObservableObject {
     private func connect(to url: WCURL) {
         isServiceBusy.send(true)
         cardScanner.scanCard()
-            .tryMap {
-                self.wallet = $0
-                try self.server.connect(to: url)
-                self.setupSessionConnectTimer()
-            }
-            .sink { completion in
+            .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
                     self.error.send(error)
                     self.presentOnTop(WalletConnectUIBuilder.makeAlert(for: .error,
                                                                        message: error.localizedDescription))
                     self.isServiceBusy.send(false)
                 }
-            } receiveValue: { }
+            } receiveValue: { [unowned self] wallet in
+                self.wallet = wallet
+                try? self.server.connect(to: url)
+                self.setupSessionConnectTimer()
+            }
             .store(in: &bag)
     }
     
@@ -135,7 +134,7 @@ class WalletConnectService: ObservableObject {
     private func setupSessionConnectTimer() {
         isWaitingToConnect = true
         isServiceBusy.send(true)
-        timer = .scheduledTimer(withTimeInterval: 20, repeats: false, block: { timer in
+        timer = .scheduledTimer(withTimeInterval: 20, repeats: false, block: { [unowned self] timer in
             self.isWaitingToConnect = false
             self.isServiceBusy.send(false)
             self.error.send(WalletConnectServiceError.timeout)
@@ -240,7 +239,6 @@ extension WalletConnectService: ServerDelegate {
             self.sessions.filter {
                 $0.wallet == wallet &&
                     $0.session.dAppInfo.peerMeta.url == session.dAppInfo.peerMeta.url
-                    && $0.session.dAppInfo.peerMeta.name == session.dAppInfo.peerMeta.name
             }.forEach { try? server.disconnect(from: $0.session) }
             completion(Session.WalletInfo(approved: true,
                                           accounts: [wallet.address],
