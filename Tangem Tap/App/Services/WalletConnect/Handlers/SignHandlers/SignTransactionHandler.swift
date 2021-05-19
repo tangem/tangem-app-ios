@@ -11,8 +11,10 @@ import WalletConnectSwift
 
 class SignTransactionHandler: WalletConnectSignHandler {
     
+    override var action: WalletConnectAction { .signTransaction }
+    
     override func canHandle(request: Request) -> Bool {
-        return request.method == "eth_signTransaction"
+        return request.method == action.rawValue
     }
 
     override func handle(request: Request) {
@@ -28,7 +30,7 @@ class SignTransactionHandler: WalletConnectSignHandler {
             let data = Data(hex: transaction.data)
             askToSign(in: session, request: request, message: message, dataToSign: data)
         } catch {
-            delegate?.send(.invalid(request))
+            delegate?.sendInvalid(request)
         }
     }
 }
