@@ -82,11 +82,11 @@ struct MainView: View {
         return false
     }
     
-    var noAccountView: ErrorView? {
+    var noAccountView: MessageView? {
         if let walletModel = viewModel.cardModel?.walletModels?.first {
             switch walletModel.state {
             case .noAccount(let message):
-                return ErrorView(title: "wallet_error_no_account".localized, subtitle: message)
+                return MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
             default:
                 return nil
             }
@@ -203,7 +203,7 @@ struct MainView: View {
                             .fixedSize(horizontal: false, vertical: true)
                         
                         if isUnsupportdState {
-                            ErrorView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized)
+                            MessageView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized, type: .error)
                         } else {
                             WarningListView(warnings: viewModel.warnings, warningButtonAction: {
                                 viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
@@ -216,9 +216,10 @@ struct MainView: View {
                             }
                             
                             if shouldShowEmptyView {
-                                ErrorView(
+                                MessageView(
                                     title: viewModel.isTwinCard ? "wallet_error_empty_twin_card".localized : "wallet_error_empty_card".localized,
-                                    subtitle: viewModel.isTwinCard ? "wallet_error_empty_twin_card_subtitle".localized : "wallet_error_empty_card_subtitle".localized
+                                    subtitle: viewModel.isTwinCard ? "wallet_error_empty_twin_card_subtitle".localized : "wallet_error_empty_card_subtitle".localized,
+                                    type: .error
                                 )
                             } else {
                                 if viewModel.cardModel!.isMultiWallet {
