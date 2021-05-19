@@ -127,7 +127,7 @@
 		5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DFB499524E44BC90037E76F /* Tokens.xcassets */; };
 		5DFB499824E54A340037E76F /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499724E54A340037E76F /* BalanceView.swift */; };
 		5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499924E554140037E76F /* Card+Preview.swift */; };
-		5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* ErrorView.swift */; };
+		5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* MessageView.swift */; };
 		5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6624C371D90014A293 /* ReadViewModel.swift */; };
 		5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6B24C372140014A293 /* ReadView.swift */; };
 		5DFCCB6F24C3728E0014A293 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6E24C3728E0014A293 /* MainView.swift */; };
@@ -542,7 +542,7 @@
 		B069F3B12631D57500ACFD19 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F3B02631D57500ACFD19 /* ImageCache.swift */; };
 		B069F3EA2631FCF600ACFD19 /* TokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F3E92631FCF600ACFD19 /* TokenIconView.swift */; };
 		B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07AE16B25DD548A0045179A /* RateAppService.swift */; };
-		B07FE4D12616F686000F0EF9 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* ErrorView.swift */; };
+		B07FE4D12616F686000F0EF9 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* MessageView.swift */; };
 		B082944A260C6D3800014A18 /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
 		B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B082E922255A8EF000A0CEA9 /* StorageType.swift */; };
 		B0869069260A2D55005976CD /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB856259A075500B92000 /* ButtonStyles.swift */; };
@@ -913,7 +913,7 @@
 		5DFB499524E44BC90037E76F /* Tokens.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Tokens.xcassets; sourceTree = "<group>"; };
 		5DFB499724E54A340037E76F /* BalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceView.swift; sourceTree = "<group>"; };
 		5DFB499924E554140037E76F /* Card+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+Preview.swift"; sourceTree = "<group>"; };
-		5DFB499B24E6BAF10037E76F /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		5DFB499B24E6BAF10037E76F /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 		5DFCCB6624C371D90014A293 /* ReadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadViewModel.swift; sourceTree = "<group>"; };
 		5DFCCB6B24C372140014A293 /* ReadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadView.swift; sourceTree = "<group>"; };
 		5DFCCB6E24C3728E0014A293 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -1831,6 +1831,7 @@
 				5DD4CB4324FAAAE0008F23CC /* KeyboardAvoidance */,
 				B0C171CC264C171D00E4BA5C /* Modifiers */,
 				5DBBAB0724D850EA00E78F1C /* CircleView.swift */,
+				5DFB499B24E6BAF10037E76F /* MessageView.swift */,
 				5DEC50A425F160930022CE83 /* CircleImageTextView.swift */,
 				5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */,
 				5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */,
@@ -1977,7 +1978,6 @@
 				5DFCCB6E24C3728E0014A293 /* MainView.swift */,
 				5DFCCB7024C372980014A293 /* MainViewModel.swift */,
 				5DFB499724E54A340037E76F /* BalanceView.swift */,
-				5DFB499B24E6BAF10037E76F /* ErrorView.swift */,
 				5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */,
 				5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */,
 				5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */,
@@ -4112,7 +4112,7 @@
 				5D79D3152555ABE700650DD7 /* CardImageLoaderService.swift in Sources */,
 				B069F3772631B24F00ACFD19 /* WebImage.swift in Sources */,
 				B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */,
-				5DFB499C24E6BAF10037E76F /* ErrorView.swift in Sources */,
+				5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */,
 				5D9DCB01255191380059799C /* DisclamerViewModel.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
 				B0E1D17D257DE79000A3AB98 /* FeaturesConfigManager.swift in Sources */,
@@ -4596,7 +4596,7 @@
 				B066B150262D6B1100EB85A5 /* CardanoAddressService.swift in Sources */,
 				B066B5AF262DAD3F00EB85A5 /* BitcoinLegacyAddress.swift in Sources */,
 				B066B49F262D6EFA00EB85A5 /* Account.swift in Sources */,
-				B07FE4D12616F686000F0EF9 /* ErrorView.swift in Sources */,
+				B07FE4D12616F686000F0EF9 /* MessageView.swift in Sources */,
 				B066B462262D6EFA00EB85A5 /* Seed.swift in Sources */,
 				B066B19E262D6B1100EB85A5 /* OP_NUMNOTEQUAL.swift in Sources */,
 				B0FC4A9F2630245F000444D7 /* ReadWalletListCommand.swift in Sources */,
