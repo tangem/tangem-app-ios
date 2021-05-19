@@ -283,7 +283,7 @@ struct MainView: View {
                     case .scanTroubleshooting:
                         dataCollector = viewModel.failedCardScanTracker
                     }
-                    return MailView(dataCollector: dataCollector, emailType: emailCase.emailType)
+                    return MailView(dataCollector: dataCollector, support: viewModel.emailSupport, emailType: emailCase.emailType)
                 }
             ScanTroubleshootingView(isPresented: $navigation.mainToTroubleshootingScan) {
                 viewModel.scan()
