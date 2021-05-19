@@ -105,7 +105,7 @@ class WalletConnectService: ObservableObject {
         cardScanner.scanCard()
             .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
-                    self.handle(error)
+                    self.handle(error, delay: 0.5)
                     self.isServiceBusy.send(false)
                 }
             } receiveValue: { [unowned self] wallet in
@@ -133,7 +133,7 @@ class WalletConnectService: ObservableObject {
         })
     }
     
-    private func handle(_ error: Error) {
+    private func handle(_ error: Error, delay: TimeInterval = 0) {
         var errorToDisplay: Error?
         if let wcError = error as? WalletConnectServiceError {
             switch wcError {
@@ -150,9 +150,13 @@ class WalletConnectService: ObservableObject {
             errorToDisplay = tangemError
         }
         
+        if error is WalletConnectCardScannerError {
+            errorToDisplay = error
+        }
+        
         guard let handledError = errorToDisplay else { return }
         
-        presentOnTop(WalletConnectUIBuilder.makeErrorAlert(handledError))
+        presentOnTop(WalletConnectUIBuilder.makeErrorAlert(handledError), delay: delay)
     }
     
     private func resetSessionConnectTimer() {
