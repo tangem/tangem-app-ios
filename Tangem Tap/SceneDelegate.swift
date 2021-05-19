@@ -38,11 +38,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             self.window = window
             window.makeKeyAndVisible()
         }
-        handleURL(contexts: connectionOptions.urlContexts)
+        handleActivity(connectionOptions.userActivities)
     }
     
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-        print("Scene continue: \(userActivity.webpageURL)")
+        handleActivity([userActivity])
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -77,12 +77,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         handleURL(contexts: URLContexts)
     }
     
+    private func handleActivity(_ userActivity: Set<NSUserActivity>) {
+        guard
+            let activity = userActivity.first(where: { $0.activityType == NSUserActivityTypeBrowsingWeb }),
+            let url = activity.webpageURL
+        else { return }
+        
+        handleUrl(url)
+    }
+    
     private func handleURL(contexts: Set<UIOpenURLContext>) {
         if let url = contexts.first?.url {
-            for handler in assembly.services.urlHandlers {
-                if handler.handle(url: url) {
-                    break
-                }
+            handleUrl(url)
+        }
+    }
+    
+    private func handleUrl(_ url: URL) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.assembly.services.urlHandlers.forEach {
+                $0.handle(url: url)
             }
         }
     }
