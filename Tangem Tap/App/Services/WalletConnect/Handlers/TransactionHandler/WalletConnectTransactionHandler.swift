@@ -44,7 +44,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             let transaction = try request.parameter(of: WalletConnectEthTransaction.self, at: 0)
             
             guard let session = dataSource?.session(for: request, address: transaction.from) else {
-                delegate?.sendReject(for: request)
+                delegate?.sendReject(for: request, with: WalletConnectServiceError.sessionNotFound)
                 return nil
             }
             
@@ -55,8 +55,8 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         }
     }
 
-    func sendReject(for request: Request) {
-        delegate?.sendReject(for: request)
+    func sendReject(for request: Request, error: Error?) {
+        delegate?.sendReject(for: request, with: error ?? WalletConnectServiceError.cancelled)
         bag = []
     }
     
@@ -76,7 +76,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             let value = try? EthereumUtils.parseEthereumDecimal(transaction.value, decimalsCount: blockchain.decimalCount),
             let gas = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger
         else {
-            return .anyFail(error: "")
+            return .anyFail(error: WalletConnectServiceError.failedToBuildTx)
         }
         
         let valueAmount = Amount(with: blockchain, address: wallet.address, type: .coin, value: value)
