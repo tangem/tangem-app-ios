@@ -10,7 +10,14 @@ import Foundation
 import SwiftUI
 
 enum WalletConnectEvent {
-    case establishSession, sign, sendTx
+    case establishSession, sign, sendTx, error, success
+    
+    var withCancelButton: Bool {
+        switch self {
+        case .error, .success: return false
+        default: return true
+        }
+    }
 }
 
 enum WalletConnectUIBuilder {
@@ -20,18 +27,22 @@ enum WalletConnectUIBuilder {
         return vc
     }
     
-    static func makeAlert(for event: WalletConnectEvent, message: String, onAcceptAction: @escaping () -> Void, isAcceptEnabled: Bool, onReject: @escaping () -> Void) -> UIAlertController {
+    static func makeAlert(for event: WalletConnectEvent, message: String, onAcceptAction: @escaping () -> Void = {}, isAcceptEnabled: Bool = true, onReject: @escaping () -> Void = {}) -> UIAlertController {
         let vc: UIAlertController = UIAlertController(title: "WalletConnect", message: message, preferredStyle: .alert)
         let buttonTitle: String
         switch event {
         case .establishSession:
-            buttonTitle = "Start"
+            buttonTitle = "common_start".localized
         case .sign:
-            buttonTitle = "Sign"
+            buttonTitle = "common_sign".localized
         case .sendTx:
-            buttonTitle = "Sign and Send"
+            buttonTitle = "common_sign_and_send".localized
+        case .error, .success:
+            buttonTitle = "common_ok".localized
         }
-        vc.addAction(UIAlertAction(title: "Reject", style: .cancel, handler: { _ in onReject() }))
+        if event.withCancelButton {
+            vc.addAction(UIAlertAction(title: "common_reject".localized, style: .cancel, handler: { _ in onReject() }))
+        }
         let acceptButton = UIAlertAction(title: buttonTitle, style: .default, handler: { _ in onAcceptAction() })
         acceptButton.isEnabled = isAcceptEnabled
         vc.addAction(acceptButton)
