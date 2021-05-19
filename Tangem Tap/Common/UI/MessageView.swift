@@ -9,18 +9,37 @@
 import Foundation
 import SwiftUI
 
-struct ErrorView: View {
+struct MessageView: View {
+    enum MessageType {
+        case error, message
+        
+        var iconName: String {
+            switch self {
+            case .error: return "exclamationmark.circle"
+            case .message: return "info.circle"
+            }
+        }
+        
+        var iconColor: Color {
+            switch self {
+            case .error: return .tangemTapWarning
+            case .message: return .tangemTapGreen
+            }
+        }
+    }
+    
     var title: String
     var subtitle: String
+    var type: MessageType
     
     var body: some View {
         HStack(alignment: .textAndImage, spacing: 18.0) {
             Spacer()
                 .frame(width: 8.0, height: nil, alignment: .center)
-            Image(systemName: "exclamationmark.circle")
+            Image(systemName: type.iconName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundColor(Color.tangemTapWarning)
+                .foregroundColor(type.iconColor)
                     .frame(width: 26.5, height: 26.5)
                     .alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
 
@@ -47,11 +66,14 @@ struct ErrorView: View {
     }
 }
 
-struct ErrorView_Previews: PreviewProvider {
+struct MessageView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemTapBgGray
-            ErrorView(title: "Empty card", subtitle: "Create wallet to start using Tangem card")
+            VStack {
+                MessageView(title: "Empty card", subtitle: "Create wallet to start using Tangem card", type: .error)
+                MessageView(title: "Empty wallets", subtitle: "Wallet are empty", type: .message)
+            }
         }
     }
 }
