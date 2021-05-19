@@ -52,6 +52,14 @@
 
 "common_share" = "Share";
 
+"common_select_action" = "Select action";
+
+"common_disconnect" = "Disconnect";
+
+"common_sign" = "Sign";
+"common_sign_and_send" = "Sign and send";
+"common_reject" = "Reject";
+
 // MARK: - Home
 "home_welcome" = "Welcome to Tangem.\nDo you have one of our cards?";
 
@@ -339,14 +347,6 @@
 "custom_token_name_input_placeholder" = "ex. USD Coin";
 "custom_token_token_symbol_input_placeholder" = "ex. USDC";
 
-// MARK: - Wallet connect
-
-"wallet_connect" = "Wallet Connect";
-"wallet_connect_sessions_title" = "Wallet Connect Sessions";
-"wallet_connect_session_opened" = "WalletConnect session opened with %@";
-"wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
-"wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
-
 
 // MARK: - Alert
 
@@ -506,3 +506,24 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "voice_over_scan_qr_with_address" = "Scan, QR, code with address";
 "voice_over_open_network_fee_settings" = "Open network fee settings";
 "voice_over_close_network_fee_settings" = "Close network fee settings";
+
+"wallet_connect" = "Wallet Connect";
+"wallet_connect_sessions_title" = "Wallet Connect Sessions";
+"wallet_connect_session_opened" = "WalletConnect session opened with %@";
+"wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
+"wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
+"wallet_connect_clipboard_alert" = "Clipboard contain WalletConnect code. Use copied value or scan QR-code";
+"wallet_connect_paste_from_clipboard" = "Paste from clipboard";
+"wallet_connect_scan_new_code" = "Scan new code";
+"wallet_connect_card_number" = "Card: %@";
+"wallet_connect_scan_card_message" = "Tap card to bind to wallet connect";
+
+"wallet_connect_message_signed" = "The message has been successfully signed and sent to the Dapp";
+"wallet_connect_transaction_signed" = "The transaction has been successfully signed and sent to the Dapp";
+"wallet_connect_transaction_signed_and_send" = "The transaction succesfully signed and sent to the blockchain";
+
+"wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error. \nPlease, try again later.";
+"wallet_connect_error_failed_to_connect" = "Failed to establish WalletConnect session. \nPlease, try again later.";
+"wallet_connect_error_sing_failed" = "Failed to sign message. \nPlease, try again";
+"wallet_connect_scanner_error_no_card_id" = "Failed to read card id. \nPlaease, try again";
+"wallet_connect_scanner_error_no_ethereum_wallet" = "Scanned card doesn't contain Ethereum wallet. \nPlease, create Ethereum wallet first and then retry open WalletConnect session";
