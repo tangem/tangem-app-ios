@@ -9,14 +9,15 @@
 import Foundation
 import TangemSdk
 import Combine
+import BlockchainSdk
 
 enum WalletConnectCardScannerError: LocalizedError {
-    case noCardId, noEthereumWallet
+    case noCardId, notValidCard
     
     var errorDescription: String? {
         switch self {
         case .noCardId: return "wallet_connect_scanner_error_no_card_id".localized
-        case .noEthereumWallet: return "wallet_connect_scanner_error_no_ethereum_wallet".localized
+        case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
         }
     }
 }
@@ -25,6 +26,7 @@ class WalletConnectCardScanner {
     weak var assembly: Assembly!
     weak var tangemSdk: TangemSdk!
     weak var scannedCardsRepository: ScannedCardsRepository!
+    weak var tokenItemsRepository: TokenItemsRepository!
     
     func scanCard() -> AnyPublisher<WalletInfo, Error> {
         Deferred {
@@ -37,7 +39,7 @@ class WalletConnectCardScanner {
                         do {
                             promise(.success(try self.walletInfo(for: card.card)))
                         } catch {
-                            print("Failed to receive wallet info for: \(card)")
+                            print("Failed to receive wallet info for with id: \(card.card.cardId ?? "")")
                             promise(.failure(error))
                         }
                     case .failure(let error):
@@ -54,10 +56,29 @@ class WalletConnectCardScanner {
             throw WalletConnectCardScannerError.noCardId
         }
         
-        let wallets = assembly.loadWallets(from: CardInfo(card: card))
+        guard card.isMultiWallet,
+            card.wallets.contains(where: { $0.curve == .secp256k1 }) else {
+            throw WalletConnectCardScannerError.notValidCard
+        }
         
-        guard let wallet = wallets.first(where: { $0.wallet.blockchain == .ethereum(testnet: false) || $0.wallet.blockchain == .ethereum(testnet: true) })?.wallet else {
-            throw WalletConnectCardScannerError.noEthereumWallet
+        let tokenRepoCardId = tokenItemsRepository.cardId
+        let needSwapCards = tokenRepoCardId != cid
+        if needSwapCards {
+            tokenItemsRepository.setCard(cid)
+        }
+        let cardInfo = CardInfo(card: card)
+        let wallets = assembly.loadWallets(from: cardInfo)
+        
+        let wallet: Wallet
+        if let ethWallet = wallets.first(where: { $0.wallet.blockchain == .ethereum(testnet: false) || $0.wallet.blockchain == .ethereum(testnet: true) })?.wallet {
+            wallet = ethWallet
+        } else {
+            let blockchain = Blockchain.ethereum(testnet: false)
+            tokenItemsRepository.append(.blockchain(blockchain))
+            wallet = assembly.makeWallets(from: cardInfo, blockchains: [blockchain]).first!.wallet
+        }
+        if needSwapCards {
+            tokenItemsRepository.setCard(tokenRepoCardId)
         }
         
         scannedCardsRepository.add(card)
