@@ -53,6 +53,10 @@
 			<string>Any</string>
 		</dict>
 	</dict>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>ScanTangemCardIntent</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SairaSemiCondensed-Bold.ttf</string>

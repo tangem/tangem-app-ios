@@ -78,12 +78,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func handleActivity(_ userActivity: Set<NSUserActivity>) {
-        guard
-            let activity = userActivity.first(where: { $0.activityType == NSUserActivityTypeBrowsingWeb }),
-            let url = activity.webpageURL
-        else { return }
-        
-        handleUrl(url)
+        userActivity.forEach {
+            switch $0.activityType {
+            case NSUserActivityTypeBrowsingWeb:
+                guard let url = $0.webpageURL else { return }
+                
+                handleUrl(url)
+            case String(describing: ScanTangemCardIntent.self):
+                if window?.rootViewController?.presentedViewController != nil {
+                    window?.rootViewController?.dismiss(animated: false, completion: nil)
+                }
+                assembly.services.navigationCoordinator.readToMain = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.assembly.makeReadViewModel().scan()
+                }
+                
+            default: return
+            }
+        }
     }
     
     private func handleURL(contexts: Set<UIOpenURLContext>) {
