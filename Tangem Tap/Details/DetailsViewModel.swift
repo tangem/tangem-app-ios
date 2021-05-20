@@ -57,9 +57,9 @@ class DetailsViewModel: ViewModel {
 	}
     
     var cardTouURL: URL? {
-        guard let issuerName = cardModel.cardInfo.card.cardData?.issuerName,
-              let cid = cardModel.cardInfo.card.cardId,
-              issuerName.lowercased() == "start2coin" else { //is this card is S2C
+        guard cardModel.isStart2CoinCard,
+              let cid = cardModel.cardInfo.card.cardId
+        else { //is this card is S2C
             return nil
         }
         
