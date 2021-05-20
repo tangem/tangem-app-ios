@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import Intents
 
 struct CardInfo {
     var card: Card
@@ -86,6 +87,8 @@ class CardsRepository {
 				}
 				
 				Analytics.logScan(card: response.card)
+                let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
+                interaction.donate(completion: nil)
                 self.scannedCardsRepository.add(response.card)
 				completion(.success(processScan(response.getCardInfo())))
             }
