@@ -137,6 +137,10 @@ class MainViewModel: ViewModel {
 		cardModel?.isTwinCard ?? false
 	}
     
+    var emailSupport: EmailSupport {
+        cardModel?.emailSupport ?? .tangem
+    }
+    
     var tokenItemViewModels: [TokenItemViewModel] {
         guard let cardModel = cardModel,
               let walletModels = cardModel.walletModels else { return [] }
