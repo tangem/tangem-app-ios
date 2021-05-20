@@ -185,6 +185,7 @@
 		B05B85A92589F0CF008A4452 /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05B85A82589F0CF008A4452 /* AppFeature.swift */; };
 		B0608CBE2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0608CBD2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift */; };
 		B0651737259CACD8001D966C /* WarningsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0651736259CACD8001D966C /* WarningsList.swift */; };
+		B06682482656730F00CB86CF /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B06682472656730F00CB86CF /* Intents.intentdefinition */; };
 		B066AFB9262D5F3800EB85A5 /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A62625FF00009023EC /* config_dev.json */; };
 		B066AFBD262D5F3800EB85A5 /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A72625FF00009023EC /* config_prod.json */; };
 		B066B11E262D6B1100EB85A5 /* BitcoinCashAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B003262D6B0F00EB85A5 /* BitcoinCashAddressService.swift */; };
@@ -771,6 +772,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		B066823E26564ADB00CB86CF /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B0D3601625F26C7600929564 /* Embed App Clips */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1012,6 +1023,9 @@
 		B05B85A82589F0CF008A4452 /* AppFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
 		B0608CBD2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseJsonConfigFetcher.swift; sourceTree = "<group>"; };
 		B0651736259CACD8001D966C /* WarningsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsList.swift; sourceTree = "<group>"; };
+		B066822426564ADB00CB86CF /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
+		B066822F26564ADB00CB86CF /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
+		B06682472656730F00CB86CF /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
 		B066B003262D6B0F00EB85A5 /* BitcoinCashAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinCashAddressService.swift; sourceTree = "<group>"; };
 		B066B004262D6B0F00EB85A5 /* BitcoinCashWalletManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinCashWalletManager.swift; sourceTree = "<group>"; };
 		B066B005262D6B0F00EB85A5 /* BitcoinCashAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinCashAddress.swift; sourceTree = "<group>"; };
@@ -1605,6 +1619,8 @@
 				ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */,
 				30730268D19E81F373712C02 /* Pods_Tangem_TapTests.framework */,
 				53B942339EFD27C7397E9C3A /* Pods_TangemClip.framework */,
+				B066822426564ADB00CB86CF /* Intents.framework */,
+				B066822F26564ADB00CB86CF /* IntentsUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1708,6 +1724,7 @@
 		5D3F77B924BF56D800E8695B = {
 			isa = PBXGroup;
 			children = (
+				B06682472656730F00CB86CF /* Intents.intentdefinition */,
 				5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */,
 				5D3F77C424BF56D800E8695B /* Tangem Tap */,
 				5D3F77DB24BF56DC00E8695B /* Tangem TapTests */,
@@ -3727,6 +3744,7 @@
 				78515DF22ED176E83FF382BF /* [CP] Embed Pods Frameworks */,
 				5DDE02EC25878DCE007161C9 /* ShellScript */,
 				B0D3601625F26C7600929564 /* Embed App Clips */,
+				B066823E26564ADB00CB86CF /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
@@ -3802,7 +3820,7 @@
 		5D3F77BA24BF56D800E8695B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1240;
+				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1150;
 				ORGANIZATIONNAME = "Tangem AG";
 				TargetAttributes = {
@@ -4245,6 +4263,7 @@
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
 				5DDE22FA2609023B008657C6 /* WalletConnectViewModel.swift in Sources */,
+				B06682482656730F00CB86CF /* Intents.intentdefinition in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */,
 				B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */,

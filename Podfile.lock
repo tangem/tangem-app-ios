@@ -189,7 +189,7 @@ DEPENDENCIES:
   - Sodium
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-18`)
+  - TangemSdk (from `../tangem-sdk-ios`)
   - WalletConnectSwift
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
@@ -244,8 +244,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
-    :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-18
+    :path: "../tangem-sdk-ios"
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
     :tag: 2.2.6
@@ -263,9 +262,6 @@ CHECKOUT OPTIONS:
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
-  TangemSdk:
-    :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-18
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
     :tag: 2.2.6
@@ -312,6 +308,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 8267290ebe9242b033bfece2c00f9b6c44af671d
+PODFILE CHECKSUM: d00782c6f4f543186ebe36bc16ffd9abf0f2e94f
 
 COCOAPODS: 1.10.1
