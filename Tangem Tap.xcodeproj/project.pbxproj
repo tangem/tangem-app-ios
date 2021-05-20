@@ -170,6 +170,7 @@
 		B02D4287262EAD0400BCA3D9 /* BinanceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4286262EAD0400BCA3D9 /* BinanceError.swift */; };
 		B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */; };
 		B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
+		B037A9C92652AEF000A2D394 /* WalletConnectTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037A9C82652AEF000A2D394 /* WalletConnectTransactionHandler.swift */; };
 		B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */; };
 		B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03A9338259877790061FB2D /* WarningsContainer.swift */; };
 		B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
@@ -997,6 +998,7 @@
 		B02D4286262EAD0400BCA3D9 /* BinanceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceError.swift; sourceTree = "<group>"; };
 		B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataTask.swift; sourceTree = "<group>"; };
 		B0323F2B258C041D005C7CD5 /* SignerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignerUtils.swift; sourceTree = "<group>"; };
+		B037A9C82652AEF000A2D394 /* WalletConnectTransactionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectTransactionHandler.swift; sourceTree = "<group>"; };
 		B037B1ED256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsFinalizeWalletCreationTask.swift; sourceTree = "<group>"; };
 		B03A9338259877790061FB2D /* WarningsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsContainer.swift; sourceTree = "<group>"; };
 		B03ACAC82567CFFF00F5D269 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
@@ -3148,6 +3150,16 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		B069E67326539A84009310DC /* TransactionHandler */ = {
+			isa = PBXGroup;
+			children = (
+				B013A7B72621CC510032F2AE /* SendTransactionHandler.swift */,
+				5D00FCCB2617389E004626DE /* SignTransactionHandler.swift */,
+				B037A9C82652AEF000A2D394 /* WalletConnectTransactionHandler.swift */,
+			);
+			path = TransactionHandler;
+			sourceTree = "<group>";
+		};
 		B069F3AF2631D56700ACFD19 /* ImageService */ = {
 			isa = PBXGroup;
 			children = (
@@ -3374,7 +3386,6 @@
 			isa = PBXGroup;
 			children = (
 				5D00FCC62617387E004626DE /* PersonalSignHandler.swift */,
-				5D00FCCB2617389E004626DE /* SignTransactionHandler.swift */,
 				B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */,
 			);
 			path = SignHandlers;
@@ -3383,9 +3394,9 @@
 		B0D34E7B2626DF4300625AC5 /* Handlers */ = {
 			isa = PBXGroup;
 			children = (
+				B069E67326539A84009310DC /* TransactionHandler */,
 				B0D34E6D2626CED500625AC5 /* SignHandlers */,
 				B0D34E762626DF2F00625AC5 /* WalletConnectRequestHandler.swift */,
-				B013A7B72621CC510032F2AE /* SendTransactionHandler.swift */,
 			);
 			path = Handlers;
 			sourceTree = "<group>";
@@ -4245,6 +4256,7 @@
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
 				5DDE22FA2609023B008657C6 /* WalletConnectViewModel.swift in Sources */,
+				B037A9C92652AEF000A2D394 /* WalletConnectTransactionHandler.swift in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */,
 				B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */,
