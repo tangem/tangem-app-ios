@@ -9,6 +9,16 @@
 import Foundation
 import TangemSdk
 
+var loggerDateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "HH:mm:ss:SSS"
+    return formatter
+}()
+
+func logToConsole(_ message: String) {
+    print(loggerDateFormatter.string(from: Date()) + ": " + message)
+}
+
 class Logger: TangemSdkLogger {
     
     private let fileManager = FileManager.default
@@ -21,12 +31,6 @@ class Logger: TangemSdkLogger {
         fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("scanLogs.txt")
     }
     
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss:SSS"
-        return formatter
-    }()
-    
     private var isRecordingLogs: Bool = false
     
     init() {
@@ -34,8 +38,9 @@ class Logger: TangemSdkLogger {
     }
     
     func log(_ message: String, level: Log.Level) {
-        let formattedMessage = "\(self.dateFormatter.string(from: Date())): \(message)\n"
+        let formattedMessage = "\(loggerDateFormatter.string(from: Date())): \(message)\n"
         let messageData = formattedMessage.data(using: .utf8)!
+        logToConsole(message)
         if let handler = try? FileHandle(forWritingTo: scanLogsFileUrl) {
             handler.seekToEndOfFile()
             handler.write(messageData)
