@@ -15,6 +15,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     let assembly = Assembly()
+    
+    private var deferredIntents: [NSUserActivity] = []
+    private var deferredIntentWork: DispatchWorkItem?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -26,15 +29,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         assembly.services.userPrefsService.numberOfLaunches += 1
         print("Launch number:", assembly.services.userPrefsService.numberOfLaunches)
      
-        let vm = assembly.makeReadViewModel()
-        let contentView = ContentView() { ReadView(viewModel: vm) }
-        .environmentObject(assembly)
-        .environmentObject(assembly.services.navigationCoordinator)
+//        let vm = assembly.makeReadViewModel()
+//        let contentView = ContentView() { ReadView(viewModel: vm) }
+//            .environmentObject(assembly)
+//            .environmentObject(assembly.services.navigationCoordinator)
             
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = UIHostingController(rootView: contentView)
+            window.rootViewController = prepareRootController()
             self.window = window
             window.makeKeyAndVisible()
         }
@@ -55,11 +58,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+        
+        deferredIntentWork = DispatchWorkItem {
+            self.deferredIntents.forEach {
+                switch $0.activityType {
+                case String(describing: ScanTangemCardIntent.self):
+                    self.assembly.makeReadViewModel().scan()
+                default:
+                    break
+                }
+            }
+            self.deferredIntents.removeAll()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: deferredIntentWork!)
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
+        deferredIntentWork?.cancel()
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
@@ -85,14 +102,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 
                 handleUrl(url)
             case String(describing: ScanTangemCardIntent.self):
-                if window?.rootViewController?.presentedViewController != nil {
-                    window?.rootViewController?.dismiss(animated: false, completion: nil)
-                }
                 assembly.services.navigationCoordinator.readToMain = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.assembly.makeReadViewModel().scan()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.assembly.services.navigationCoordinator.reset()
                 }
                 
+//                if let window = window {
+//                    let coordinator = NavigationCoordinator()
+//                    assembly.services.navigationCoordinator = coordinator
+//                    window.rootViewController = prepareRootController(with: coordinator)
+//                    UIView.transition(with: window, duration: 0.3, options: .curveEaseIn, animations: { }, completion: nil)
+//                }
+                deferredIntents.append($0)
             default: return
             }
         }
@@ -110,6 +131,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 $0.handle(url: url)
             }
         }
+    }
+    
+    private func prepareRootController(with navigation: NavigationCoordinator? = nil) -> UIViewController {
+        let vm = assembly.makeReadViewModel(with: navigation)
+        let contentView = ContentView() { ReadView(viewModel: vm) }
+            .environmentObject(assembly)
+            .environmentObject(navigation ?? assembly.services.navigationCoordinator)
+        return UIHostingController(rootView: contentView)
     }
 }
 
