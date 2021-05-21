@@ -30,7 +30,7 @@ protocol WalletConnectSessionController: WalletConnectChecker {
 protocol WalletConnectHandlerDelegate: AnyObject {
     func send(_ response: Response, for action: WalletConnectAction)
     func sendInvalid(_ request: Request)
-    func sendReject(for request: Request, with error: Error)
+    func sendReject(for request: Request, with error: Error, for action: WalletConnectAction)
 }
 
 protocol WalletConnectHandlerDataSource: AnyObject {
@@ -106,12 +106,16 @@ class WalletConnectService: ObservableObject {
             .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
                     self.handle(error, delay: 0.5)
-                    self.isServiceBusy.send(false)
                 }
             } receiveValue: { [unowned self] wallet in
                 self.wallet = wallet
-                try? self.server.connect(to: url)
                 self.setupSessionConnectTimer()
+                do {
+                    try self.server.connect(to: url)
+                } catch {
+                    self.handle(error)
+                    self.resetSessionConnectTimer()
+                }
             }
             .store(in: &bag)
     }
@@ -126,37 +130,29 @@ class WalletConnectService: ObservableObject {
     private func setupSessionConnectTimer() {
         isWaitingToConnect = true
         isServiceBusy.send(true)
-        timer = .scheduledTimer(withTimeInterval: 30, repeats: false, block: { [unowned self] timer in
+        timer = .scheduledTimer(withTimeInterval: 20, repeats: false, block: { [unowned self] timer in
             self.isWaitingToConnect = false
-            self.isServiceBusy.send(false)
             self.handle(WalletConnectServiceError.timeout)
         })
     }
     
-    private func handle(_ error: Error, delay: TimeInterval = 0) {
-        var errorToDisplay: Error?
+    private func handle(_ error: Error, for action: WalletConnectAction? = nil, delay: TimeInterval = 0) {
+        isServiceBusy.send(false)
         if let wcError = error as? WalletConnectServiceError {
             switch wcError {
             case .cancelled, .deallocated:
                 return
             default:
-                errorToDisplay = wcError
+                break
             }
         }
         
-        if let tangemError = error as? TangemSdkError {
-            if case .userCancelled = tangemError { return }
-            
-            errorToDisplay = tangemError
+        if let tangemError = error as? TangemSdkError, case .userCancelled = tangemError {
+            return
         }
         
-        if error is WalletConnectCardScannerError {
-            errorToDisplay = error
-        }
-        
-        guard let handledError = errorToDisplay else { return }
-        
-        presentOnTop(WalletConnectUIBuilder.makeErrorAlert(handledError), delay: delay)
+        Analytics.logWcEvent(.error(error, action))
+        presentOnTop(WalletConnectUIBuilder.makeErrorAlert(error), delay: delay)
     }
     
     private func resetSessionConnectTimer() {
@@ -180,15 +176,17 @@ extension WalletConnectService: WalletConnectHandlerDataSource {
 extension WalletConnectService: WalletConnectHandlerDelegate {
     func send(_ response: Response, for action: WalletConnectAction) {
         server.send(response)
+        Analytics.logWcEvent(.action(action))
         presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
     }
     
     func sendInvalid(_ request: Request) {
+        Analytics.logWcEvent(.invalidRequest(json: request.jsonString))
         server.send(.invalid(request))
     }
     
-    func sendReject(for request: Request, with error: Error) {
-        handle(error)
+    func sendReject(for request: Request, with error: Error, for action: WalletConnectAction) {
+        handle(error, for: action)
         server.send(.reject(request))
     }
 }
@@ -212,6 +210,7 @@ extension WalletConnectService: WalletConnectSessionController {
         
         sessions.remove(at: index)
         save()
+        Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
     }
     
     func canHandle(url: String) -> Bool {
@@ -236,7 +235,6 @@ extension WalletConnectService: ServerDelegate {
     }
     
     func server(_ server: Server, didFailToConnect url: WCURL) {
-        isServiceBusy.send(false)
         handle(WalletConnectServiceError.failedToConnect)
     }
     
@@ -273,7 +271,7 @@ extension WalletConnectService: ServerDelegate {
                                                         completion(self.rejectedResponse)
                                                         self.isServiceBusy.send(false)
                                                       }),
-                     delay: 0.3)
+                     delay: 0.5)
     }
     
     func server(_ server: Server, didConnect session: Session) {
@@ -283,6 +281,7 @@ extension WalletConnectService: ServerDelegate {
             if let wallet = self.wallet { //new session only if wallet exists
                 sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                 save()
+                Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
             }
         }
         isServiceBusy.send(false)
@@ -306,9 +305,9 @@ extension WalletConnectService: URLHandler {
     func handle(url: String) -> Bool {
         guard let url = WCURL(url) else { return false }
         
-        DispatchQueue.global().async {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.3, execute: {
             self.connect(to: url)
-        }
+        })
         
         return true
     }
