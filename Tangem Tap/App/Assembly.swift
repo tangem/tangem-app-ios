@@ -127,7 +127,7 @@ class Assembly: ObservableObject {
         print("Assembly deinit")
     }
     
-    func makeReadViewModel() -> ReadViewModel {
+    func makeReadViewModel(with navigation: NavigationCoordinator? = nil) -> ReadViewModel {
         if let restored: ReadViewModel = get() {
             return restored
         }
@@ -505,7 +505,9 @@ class Assembly: ObservableObject {
     }
 	
 	private func get<T>(key: String) -> T? {
-		modelsStorage[key] as? T
+        let val = modelsStorage[key] as? ViewModelNavigatable
+        val?.navigation = services.navigationCoordinator
+        return val as? T
 	}
 }
 
