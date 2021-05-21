@@ -60,7 +60,8 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                                                  message: alertMessage,
                                                  onAcceptAction: onSign,
                                                  onReject: { self.delegate?.sendReject(for: request,
-                                                                                       with: WalletConnectServiceError.cancelled) })
+                                                                                       with: WalletConnectServiceError.cancelled,
+                                                                                       for: self.action) })
             )
         }
     }
