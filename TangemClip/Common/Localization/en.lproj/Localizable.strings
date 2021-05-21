@@ -227,6 +227,7 @@
 
 "send_validation_amount_exceeds_balance" = "Amount exceeds balance";
 
+
 "send_error_dust_amount_format" = "Minimum amount is %@";
 
 "send_error_dust_change_format" = "Minimum change is %@";
@@ -238,7 +239,6 @@
 "send_error_blockchain_internal" = "Blockchain internal error";
 
 "send_error_unknown" = "Unknown error";
-
 
 // MARK: - AppClips
 
