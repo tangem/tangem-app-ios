@@ -10,7 +10,10 @@ import Foundation
 import SwiftUI
 import Combine
 
-protocol ViewModel: ObservableObject, Identifiable {
+protocol ViewModel: ObservableObject, Identifiable, ViewModelNavigatable {
     var assembly: Assembly! { get set }
+}
+
+protocol ViewModelNavigatable: AnyObject {
     var navigation: NavigationCoordinator! { get set }
 }
