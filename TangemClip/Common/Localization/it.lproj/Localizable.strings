@@ -231,8 +231,6 @@
 
 "send_validation_invalid_fee" = "La commissione supera il saldo";
 
-"send_error_unknown" = "Errore sconosciuto";
-
 "send_error_insufficient_balance" = "Saldo insufficiente";
 
 "send_error_blockchain_internal" = "Errore interno della blockchain";
@@ -245,3 +243,27 @@
 
 "send_error_dust_change_format" = "Il resto minimo è di %@";
 
+"send_error_unknown" = "Errore sconosciuto";
+
+
+// MARK: - AppClips
+
+"main_title" = "Tangem Clip";
+"main_hint" = "Tap \"Read wallets\" button to load wallet information from card";
+"main_button_read_wallets" = "Read wallets";
+"main_button_get_full_app" = "Get full app";
+
+// Errors
+"main_error_empty_card_title" = "Empty card";
+"main_error_empty_card_subtitle" = "To start using Tangem card, please, download full app and create wallets";
+"main_error_empty_wallets_title" = "Empty wallets";
+"main_error_empty_wallets_subtitle" = "All wallets on card are empty. Please use full app to learn more";
+"main_error_unsupported_card_title" = "Unsupported card";
+"main_error_unsupported_card_subtitle" = "Can't read card wallet information.\nPlease, use full app to load info from blockchain";
+
+"wallet_error_no_account_subtitle_format" = "Load %@+ %@ to create account";
+"wallet_balance_loading" = "Balance is loading…";
+"wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
+
+"alert_unsupported_card" = "This card is not designed to work with Tangem Clip";
+"alert_wrong_card_scanned" = "You've scanned wrong card. Try again, please.";

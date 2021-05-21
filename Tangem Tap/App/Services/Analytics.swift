@@ -20,6 +20,10 @@ class Analytics {
         case negativeRateAppFeedback = "negative_rate_app_feedback"
         case positiveRateAppFeedback = "positive_rate_app_feedback"
         case dismissRateAppWarning = "dismiss_rate_app_warning"
+        case wcSuccessResponse = "wallet_connect_success_response"
+        case wcInvalidRequest = "wallet_connect_invalid_request"
+        case wcNewSession = "wallet_connect_new_session"
+        case wcSessionDisconnected = "wallet_connect_session_disconnected"
         
         fileprivate static var nfcError: String {
             "nfc_error"
@@ -47,6 +51,9 @@ class Analytics {
         case errorCode = "error_code"
         case newSecOption = "new_security_option"
         case errorKey = "Tangem SDK error key"
+        case walletConnectAction = "wallet_connect_action"
+        case walletConnectRequest = "wallet_connect_request"
+        case walletConnectDappUrl = "wallet_connect_dapp_url"
     }
     
     static func log(event: Event, parameters: [String: Any]? = nil) {
@@ -91,6 +98,36 @@ class Analytics {
         Crashlytics.crashlytics().record(error: error)
     }
     
+    static func logWcEvent(_ event: WalletConnectEvent) {
+        var params = [ParameterKey: Any]()
+        let firEvent: Event
+        switch event {
+        case let .error(error, action):
+            if let action = action {
+                params[.walletConnectAction] = action.rawValue
+            }
+            params[.errorDescription] = error.localizedDescription
+            let nsError = NSError(domain: "WalletConnect Error for: \(action?.rawValue ?? "WC Service error")", code: 0, userInfo: params.firebaseParams)
+            Crashlytics.crashlytics().record(error: nsError)
+            return
+        case .action(let action):
+            params[.walletConnectAction] = action.rawValue
+            firEvent = .wcSuccessResponse
+        case .invalidRequest(let json):
+            params[.walletConnectRequest] = json
+            firEvent = .wcInvalidRequest
+        case .session(let state, let url):
+            switch state {
+            case .connect:
+                firEvent = .wcNewSession
+            case .disconnect:
+                firEvent = .wcSessionDisconnected
+            }
+            params[.walletConnectDappUrl] = url.absoluteString
+        }
+        FirebaseAnalytics.Analytics.logEvent(firEvent.rawValue, parameters: params.firebaseParams)
+    }
+    
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
         params[.batchId] = card.cardData?.batchId ?? ""
@@ -104,5 +141,15 @@ fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == A
         var convertedParams = [String:Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
         return convertedParams
+    }
+}
+
+extension Analytics {
+    enum WalletConnectEvent {
+        enum SessionEvent {
+            case disconnect, connect
+        }
+        
+        case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
     }
 }
