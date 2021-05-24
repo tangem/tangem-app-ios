@@ -58,6 +58,10 @@ class ReadViewModel: ViewModel {
                 self.failedCardScanTracker.resetCounter()
                 defer {
                     self.firstTimeScan = false
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        self.state = .welcomeBack
+                    }
                 }
                 
                 guard self.userPrefsService.isTermsOfServiceAccepted else {
@@ -72,6 +76,7 @@ class ReadViewModel: ViewModel {
                 }
                 
                 self.navigation.readToTwinOnboarding = true
+                
             case .failure(let error):
                 self.failedCardScanTracker.recordFailure()
                 
@@ -83,7 +88,6 @@ class ReadViewModel: ViewModel {
                     }
                 }
             }
-
         }
     }
 }
