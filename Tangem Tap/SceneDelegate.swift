@@ -27,6 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         assembly.services.walletConnectService.restore()
         // Create the SwiftUI view that provides the window contents.
         assembly.services.userPrefsService.numberOfLaunches += 1
+        assembly.services.urlHandlers.append(self)
         print("Launch number:", assembly.services.userPrefsService.numberOfLaunches)
      
 //        let vm = assembly.makeReadViewModel()
@@ -102,17 +103,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 
                 handleUrl(url)
             case String(describing: ScanTangemCardIntent.self):
-                assembly.services.navigationCoordinator.readToMain = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.assembly.services.navigationCoordinator.reset()
-                }
-                
-//                if let window = window {
-//                    let coordinator = NavigationCoordinator()
-//                    assembly.services.navigationCoordinator = coordinator
-//                    window.rootViewController = prepareRootController(with: coordinator)
-//                    UIView.transition(with: window, duration: 0.3, options: .curveEaseIn, animations: { }, completion: nil)
-//                }
+                popToRoot()
                 deferredIntents.append($0)
             default: return
             }
@@ -126,11 +117,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func handleUrl(_ url: URL) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.assembly.services.urlHandlers.forEach {
-                $0.handle(url: url)
-            }
+        self.assembly.services.urlHandlers.forEach {
+            $0.handle(url: url)
         }
+    }
+    
+    private func popToRoot() {
+        assembly.services.navigationCoordinator.readToMain = false
+        assembly.services.navigationCoordinator.readToDisclaimer = false
+        assembly.services.navigationCoordinator.readToShop = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.assembly.services.navigationCoordinator.reset()
+        }
+        
+//                if let window = window {
+//                    let coordinator = NavigationCoordinator()
+//                    assembly.services.navigationCoordinator = coordinator
+//                    window.rootViewController = prepareRootController(with: coordinator)
+//                    UIView.transition(with: window, duration: 0.3, options: .curveEaseIn, animations: { }, completion: nil)
+//                }
+        
     }
     
     private func prepareRootController(with navigation: NavigationCoordinator? = nil) -> UIViewController {
@@ -142,3 +148,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 }
 
+extension SceneDelegate: URLHandler {
+    func handle(url: String) -> Bool {
+        guard url.starts(with: "https://app.tangem.com") || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
+        
+        popToRoot()
+        return true
+    }
+    
+    func handle(url: URL) -> Bool {
+        handle(url: url.absoluteString)
+    }
+}
