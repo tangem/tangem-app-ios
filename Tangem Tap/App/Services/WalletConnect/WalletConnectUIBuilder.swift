@@ -21,12 +21,6 @@ enum WalletConnectEvent {
 }
 
 enum WalletConnectUIBuilder {
-    static func makeUI(for event: WalletConnectEvent) -> UIViewController {
-        let vc: UIViewController = UIHostingController(rootView: Text("Establish session"))
-        vc.modalTransitionStyle = .crossDissolve
-        return vc
-    }
-    
     static func makeAlert(for event: WalletConnectEvent, message: String, onAcceptAction: @escaping () -> Void = {}, isAcceptEnabled: Bool = true, onReject: @escaping () -> Void = {}) -> UIAlertController {
         let vc: UIAlertController = UIAlertController(title: "WalletConnect", message: message, preferredStyle: .alert)
         let buttonTitle: String
@@ -47,5 +41,9 @@ enum WalletConnectUIBuilder {
         acceptButton.isEnabled = isAcceptEnabled
         vc.addAction(acceptButton)
         return vc
+    }
+    
+    static func makeErrorAlert(_ error: Error) -> UIAlertController {
+        makeAlert(for: .error, message: error.localizedDescription)
     }
 }
