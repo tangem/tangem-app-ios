@@ -279,25 +279,27 @@ extension WalletConnectService: ServerDelegate {
 
 extension WalletConnectService: URLHandler {
     func handle(url: URL) -> Bool {
-        guard let link = extractWcUrl(from: url) else { return false }
+        guard let extracted = extractWcUrl(from: url) else { return false }
         
-        return handle(url: link)
-    }
-    
-    func handle(url: String) -> Bool {
-        guard let url = WCURL(url) else { return false }
+        guard let wcUrl = WCURL(extracted.url) else { return false }
         
-        DispatchQueue.global().async {
-            self.connect(to: url)
+        DispatchQueue.global().asyncAfter(deadline: .now() + extracted.handleDelay) {
+            self.connect(to: wcUrl)
         }
         
         return true
     }
     
-    private func extractWcUrl(from url: URL) -> String? {
+    func handle(url: String) -> Bool {
+        guard let url = URL(string: url) else { return false }
+        
+        return handle(url: url)
+    }
+    
+    private func extractWcUrl(from url: URL) -> ExtractedWCUrl? {
         let absoluteStr = url.absoluteString
         if canHandle(url: absoluteStr) {
-            return absoluteStr
+            return (url: absoluteStr, handleDelay: 0)
         }
         
         let uriPrefix = "uri="
@@ -317,7 +319,7 @@ extension WalletConnectService: URLHandler {
 
         guard canHandle(url: query) else { return nil }
         
-        return query
+        return (query, 0.5)
     }
 }
 
@@ -336,3 +338,5 @@ extension WalletConnectService {
         }
     }
 }
+
+fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
