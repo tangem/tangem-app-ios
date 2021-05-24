@@ -21,18 +21,18 @@ class WalletConnectViewModel: ViewModel {
                 .dropFirst()
                 .sink {[unowned self] newCode in
                     if !self.walletConnectController.handle(url: newCode) {
-                        self.alert = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
+                        self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                     }
                 }
                 .store(in: &bag)
             
-            walletConnectController.error
-                .receive(on: DispatchQueue.main)
-                .debounce(for: 0.3, scheduler: DispatchQueue.main)
-                .sink { error in
+//            walletConnectController.error
+//                .receive(on: DispatchQueue.main)
+//                .debounce(for: 0.3, scheduler: DispatchQueue.main)
+//                .sink { error in
 //                    self.alert = error.alertBinder
-                }
-                .store(in: &bag)
+//                }
+//                .store(in: &bag)
             
             walletConnectController.isServiceBusy
                 .receive(on: DispatchQueue.main)
