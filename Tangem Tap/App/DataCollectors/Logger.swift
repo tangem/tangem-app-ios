@@ -40,7 +40,7 @@ class Logger: TangemSdkLogger {
     func log(_ message: String, level: Log.Level) {
         let formattedMessage = "\(loggerDateFormatter.string(from: Date())): \(message)\n"
         let messageData = formattedMessage.data(using: .utf8)!
-        logToConsole(message)
+//        logToConsole(message)
         if let handler = try? FileHandle(forWritingTo: scanLogsFileUrl) {
             handler.seekToEndOfFile()
             handler.write(messageData)
