@@ -27,7 +27,7 @@ class PersonalSignHandler: WalletConnectSignHandler {
                 return
             }
         
-            let prefix = "Message for \(session.session.dAppInfo.peerMeta.name):\n"
+            let prefix = String(format: "wallet_connect_personal_sign_message".localized, session.session.dAppInfo.peerMeta.name) 
             let message = String(data: Data(hex: messageBytes), encoding: .utf8) ?? messageBytes
             let personalMessageData = self.makePersonalMessageData(Data(hex: messageBytes))
             askToSign(in: session, request: request, message: prefix + message, dataToSign: personalMessageData)

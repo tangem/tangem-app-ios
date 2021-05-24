@@ -12,8 +12,8 @@ class TokenItemsRepository {
     lazy var supportedItems = SupportedTokenItems()
     
     private(set) var items: Set<TokenItem> = []
+    private(set) var cardId: String = ""
     private let persistanceStorage: PersistentStorage
-    private var cardId: String = ""
     private var storageKey: PersistentStorageKey { .wallets(cid: cardId) }
     private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
     
