@@ -27,7 +27,7 @@
 			<string>com.tangem.Tangem</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>tangem-com</string>
+				<string>tangem</string>
 			</array>
 		</dict>
 	</array>
