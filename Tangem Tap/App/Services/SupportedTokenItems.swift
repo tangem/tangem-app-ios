@@ -11,16 +11,22 @@ import BlockchainSdk
 import TangemSdk
 
 class SupportedTokenItems {
-    private lazy var blockchains: Set<Blockchain> = {[.ethereum(testnet: false),
-                                              .litecoin,
-                                              .bitcoin(testnet: false),
-                                              .bitcoinCash(testnet: false),
-                                              .xrp(curve: .secp256k1),
-                                              .rsk,
-                                              .binance(testnet: false),
-                                              .tezos(curve: .secp256k1),
-                                              .stellar(testnet: false),
-                                              .cardano(shelley: true)]
+    private lazy var blockchains: Set<Blockchain> = {
+        [
+            .ethereum(testnet: false),
+            .litecoin,
+            .bitcoin(testnet: false),
+            .bitcoinCash(testnet: false),
+            .xrp(curve: .secp256k1),
+            .rsk,
+            .binance(testnet: false),
+            .tezos(curve: .secp256k1),
+            .stellar(testnet: false),
+            .cardano(shelley: true),
+            .dogecoin,
+            .bsc(testnet: false),
+            .matic(testnet: false)
+        ]
     }()
     
     func blockchains(for card: Card) -> Set<Blockchain> {
