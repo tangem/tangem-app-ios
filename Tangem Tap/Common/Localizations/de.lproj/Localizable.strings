@@ -239,7 +239,7 @@
 
 "alert_developer_card" = "Die von Ihnen gescannte Karte ist eine Entwicklungskarte. Akzeptieren Sie sie nicht als Zahlungsmittel.";
 
-"alert_old_card" = "Die vor September 2019 ausgestellten Karten können mit iPhone momentan nicht extrahiert werden. Wir arbeiten eng mit Apple zusammen, damit es in den nächsten Versionen von iOS möglich wäre.";
+"alert_old_card" = "Guthaben von Tangem-Karten, die vor September 2019 ausgegeben wurden, können aufgrund von iOS-Einschränkungen nicht mit einem iPhone abgerufen werden. Sie müssen ein Android-Telefon verwenden, um Guthaben abzurufen. Karten, die nach September 2019 herausgegeben wurden, funktionieren mit beiden Plattformen korrekt.";
 
 "alert_app_feedback_sent_title" = "Sent successfully";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
