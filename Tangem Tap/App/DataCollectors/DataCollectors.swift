@@ -19,11 +19,16 @@ extension EmailDataCollector {
     var attachment: Data? { nil }
     
     fileprivate func collectData(from card: Card) -> [EmailCollectedData] {
-        [
+        var data = [
             EmailCollectedData(type: .card(.cardId), data: card.cardId ?? ""),
             EmailCollectedData(type: .card(.firmwareVersion), data: card.firmwareVersion?.version ?? ""),
-            EmailCollectedData(type: .card(.blockchain), data: card.cardData?.blockchainName ?? "")
         ]
+        
+        if let blockchain = card.cardData?.blockchainName {
+            data.append(EmailCollectedData(type: .card(.cardBlockchain), data: blockchain))
+        }
+        
+        return data
     }
     
     fileprivate func formatData(_ data: [EmailCollectedData], appendDeviceInfo: Bool = true) -> String {
@@ -52,8 +57,13 @@ struct SendScreenDataCollector: EmailDataCollector {
     var dataForEmail: String {
         let card = sendViewModel.cardViewModel.cardInfo.card
         var data = collectData(from: card)
-        if let token = sendViewModel.amountToSend.type.token {
+        switch sendViewModel.amountToSend.type {
+        case .coin:
+            data.append(EmailCollectedData(type: .card(.blockchain), data: sendViewModel.amountToSend.currencySymbol))
+        case .token(let token):
             data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
+        default:
+            break
         }
         
         data.append(contentsOf: [
