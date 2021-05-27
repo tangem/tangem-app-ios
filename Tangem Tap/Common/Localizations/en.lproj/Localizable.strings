@@ -349,7 +349,7 @@
 
 "alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 
-"alert_old_card" = "Tangem cards manufactured before September 2019 cannot currently be extracted with an iPhone. We’re working hard with Apple to make it possible in future versions of iOS.";
+"alert_old_card" = "Funds from Tangem cards issued before September 2019 cannot be retrieved using an iPhone due to iOS restrictions. You must use an Android phone to retrieve funds. Cards released after September 2019 work correctly with both platforms.";
 
 "alert_app_feedback_sent_title" = "Sent successfully";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
