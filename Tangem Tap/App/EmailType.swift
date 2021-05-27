@@ -70,7 +70,7 @@ enum EmailCollectedDataType {
     case logs, card(CardData), send(SendData), wallet(WalletData), error
     
     enum CardData: String {
-        case cardId = "Card ID", firmwareVersion = "Firmware version", blockchain, token
+        case cardId = "Card ID", firmwareVersion = "Firmware version", cardBlockchain = "Card Blockchain", blockchain, token
     }
     
     enum SendData: String {
