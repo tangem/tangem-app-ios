@@ -19,7 +19,7 @@ target 'Tangem Tap' do
   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-18'
 #  pod 'TangemSdk', :path => '../tangem-sdk-ios'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-19'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-22'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
@@ -51,6 +51,7 @@ end
 
 target 'TangemClip' do
   use_frameworks!
+  inhibit_all_warnings!
 
   pod 'BigInt'
   pod 'SwiftyJSON'
