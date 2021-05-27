@@ -241,7 +241,7 @@
 
 "alert_developer_card" = "La carta che hai scansionato è una carta di sviluppo. Non utilizzarla come strumento di pagamento";
 
-"alert_old_card" = "Le schede emesse prima di settembre 2019 non possono attualmente essere utilizzate con un iPhone. Stiamo lavorando a stretto contatto con Apple per renderle disponibili nelle future versioni di iOS. ";
+"alert_old_card" = "I fondi delle carte Tangem emesse prima di settembre 2019 non possono essere recuperati utilizzando un iPhone a causa delle restrizioni di iOS. È necessario utilizzare un telefono Android per recuperare i fondi. Le carte rilasciate dopo settembre 2019 funzionano correttamente con entrambe le piattaforme.";
 
 "alert_app_feedback_sent_title" = "Sent successfully";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
