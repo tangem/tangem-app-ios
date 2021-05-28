@@ -181,6 +181,8 @@ class PayIDService {
             return PayIDService(network: .XRPL)
         case .tezos:
             return PayIDService(network: .XTZ)
+        default:
+            break
         }
         return nil
     }
