@@ -31,10 +31,7 @@ public enum ETHError: String, Error, LocalizedError {
 
 class EthereumWalletManager: WalletManager {
     var networkService: EthereumNetworkService!
-    var txCount: Int = -1
-    var pendingTxCount: Int = -1
     
-    private var gasLimit: BigUInt? = nil
     private var findTokensSubscription: AnyCancellable? = nil
     
     override func update(completion: @escaping (Result<Void, Error>)-> Void) {
@@ -67,40 +64,16 @@ class EthereumWalletManager: WalletManager {
             .eraseToAnyPublisher()
     }
     
-    private func updateWallet(with response: EthereumResponse) {
+    private func updateWallet(with response: EthereumInfoResponse) {
         wallet.add(coinValue: response.balance)
         for tokenBalance in response.tokenBalances {
             wallet.add(tokenValue: tokenBalance.value, for: tokenBalance.key)
-        }
-        txCount = response.txCount
-        pendingTxCount = response.pendingTxCount
-        if txCount == pendingTxCount {
-            for  index in wallet.transactions.indices {
-                wallet.transactions[index].status = .confirmed
-            }
-        } else {
-            if wallet.transactions.isEmpty {
-                wallet.addPendingTransaction()
-            }
         }
     }
 }
 
 
 extension EthereumWalletManager: ThenProcessable { }
-
-extension EthereumWalletManager {
-    enum GasLimit: Int {
-        case `default` = 21000
-        case erc20 = 60000
-        case medium = 150000
-        case high = 300000
-        
-        var value: BigUInt {
-            return BigUInt(self.rawValue)
-        }
-    }
-}
 
 extension EthereumWalletManager: TokenFinder {
     func findErc20Tokens(completion: @escaping (Result<Bool, Error>)-> Void) {
