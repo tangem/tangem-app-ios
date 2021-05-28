@@ -15,21 +15,24 @@ class WalletConnectViewModel: ViewModel {
     weak var navigation: NavigationCoordinator!
     weak var walletConnectController: WalletConnectSessionController! {
         didSet {
+            bag.removeAll()
+            
             $code
                 .dropFirst()
                 .sink {[unowned self] newCode in
                     if !self.walletConnectController.handle(url: newCode) {
-                        self.alert = WalletConnectService.WalletConnectServiceError.failedToConnect.alertBinder
+                        self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                     }
                 }
                 .store(in: &bag)
             
-            walletConnectController.error
-                .receive(on: DispatchQueue.main)
-                .sink { [unowned self]  error in
-                    self.alert = error.alertBinder
-                }
-                .store(in: &bag)
+//            walletConnectController.error
+//                .receive(on: DispatchQueue.main)
+//                .debounce(for: 0.3, scheduler: DispatchQueue.main)
+//                .sink { error in
+//                    self.alert = error.alertBinder
+//                }
+//                .store(in: &bag)
             
             walletConnectController.isServiceBusy
                 .receive(on: DispatchQueue.main)
@@ -59,14 +62,25 @@ class WalletConnectViewModel: ViewModel {
             && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
     }
     
+    var hasWCInPasteboard: Bool {
+        guard let copiedValue = UIPasteboard.general.string else {
+            return false
+        }
+        
+        let canHandle = walletConnectController.canHandle(url: copiedValue)
+        if canHandle {
+            self.copiedValue = copiedValue
+        }
+        return canHandle
+    }
+    
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
+    private var copiedValue: String?
     
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
     }
-    
-    func onAppear() {}
     
     func disconnectSession(at index: Int) {
         walletConnectController.disconnectSession(at: index)
@@ -75,7 +89,14 @@ class WalletConnectViewModel: ViewModel {
         }
     }
     
-    func openNewSession() {
+    func scanQrCode() {
         navigation.walletConnectToQR = true
+    }
+    
+    func pasteFromClipboard() {
+        guard let value = copiedValue else { return }
+        
+        code = value
+        copiedValue = nil
     }
 }
