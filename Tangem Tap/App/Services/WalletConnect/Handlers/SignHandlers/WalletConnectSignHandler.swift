@@ -15,6 +15,10 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     weak var delegate: WalletConnectHandlerDelegate?
     weak var dataSource: WalletConnectHandlerDataSource?
     
+    var action: WalletConnectAction {
+        fatalError("WalletConnect action not specified")
+    }
+    
     private let signer: TangemSigner
     
     private var signerSubscription: AnyCancellable?
@@ -34,27 +38,30 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     func askToSign(in session: WalletConnectSession, request: Request, message: String, dataToSign: Data) {
         let wallet = session.wallet
         
-        let onSign = {
-            self.sign(with: wallet, data: dataToSign) { res in
+        let onSign: () -> Void = { [weak self] in
+            self?.sign(with: wallet, data: dataToSign) { res in
                 DispatchQueue.global().async {
+                    guard let self = self else { return }
+                    
                     switch res {
                     case .success(let signature):
-                        self.delegate?.send(.signature(signature, for: request))
+                        self.delegate?.send(.signature(signature, for: request), for: self.action)
                     case .failure:
-                        self.delegate?.send(.invalid(request))
+                        self.delegate?.send(.invalid(request), for: self.action)
                     }
                 }
             }
         }
         
-        let alertMessage = "Requesting to sign a message\nwith card \(TapCardIdFormatter(cid: session.wallet.cid).formatted())\n\n" + message
+        let alertMessage =  String(format: "wallet_connect_alert_sign_message".localized, TapCardIdFormatter(cid: session.wallet.cid).formatted(), message)
         DispatchQueue.main.async {
             UIApplication.modalFromTop(
                 WalletConnectUIBuilder.makeAlert(for: .sign,
                                                  message: alertMessage,
                                                  onAcceptAction: onSign,
-                                                 isAcceptEnabled: true,
-                                                 onReject: { self.delegate?.sendReject(for: request) })
+                                                 onReject: { self.delegate?.sendReject(for: request,
+                                                                                       with: WalletConnectServiceError.cancelled,
+                                                                                       for: self.action) })
             )
         }
     }
@@ -77,7 +84,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                         unmarshalledSig.v.asHexString()
                     completion(.success(strSig))
                 } else {
-                    completion(.failure(WalletConnectService.WalletConnectServiceError.signFailed))
+                    completion(.failure(WalletConnectServiceError.signFailed))
                 }
             })
     }
