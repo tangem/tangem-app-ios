@@ -64,10 +64,14 @@ enum EmailType {
 struct EmailCollectedData {
     let type: EmailCollectedDataType
     let data: String
+    
+    static func separator(_ type: EmailCollectedDataType.SeparatorType) -> EmailCollectedData {
+        EmailCollectedData(type: .separator(type), data: "")
+    }
 }
 
 enum EmailCollectedDataType {
-    case logs, card(CardData), send(SendData), wallet(WalletData), error
+    case logs, card(CardData), send(SendData), wallet(WalletData), error, separator(SeparatorType)
     
     enum CardData: String {
         case cardId = "Card ID", firmwareVersion = "Firmware version", cardBlockchain = "Card Blockchain", blockchain, token
@@ -78,7 +82,11 @@ enum EmailCollectedDataType {
     }
     
     enum WalletData: String {
-        case walletAddress = "Wallet address", explorerLink = "Explorer link", signedHashes = "Signed hashes"
+        case walletAddress = "Wallet address", explorerLink = "Explorer link", signedHashes = "Signed hashes", walletManagerHost = "Host"
+    }
+    
+    enum SeparatorType: String {
+        case dashes = "--------", newLine = "\n"
     }
     
     var title: String {
@@ -88,6 +96,7 @@ enum EmailCollectedDataType {
         case .send(let data): return data.rawValue.capitalizingFirstLetter() + ": "
         case .wallet(let data): return data.rawValue + ": "
         case .error: return "Error: "
+        case .separator(let type): return type.rawValue
         }
     }
 }
