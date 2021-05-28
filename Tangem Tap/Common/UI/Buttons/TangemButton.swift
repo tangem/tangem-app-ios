@@ -87,7 +87,7 @@ struct TangemVerticalButton: View {
                 }
             }
             .padding(.all, 8)
-            .frame(minWidth: ButtonSize.smallVertical.value.width,
+            .frame(minWidth: ButtonSize.smallVertical.value.width - 0.1 * ButtonSize.smallVertical.value.width,
                    maxWidth: ButtonSize.smallVertical.value.width,
                    minHeight: ButtonSize.smallVertical.value.height,
                    idealHeight: ButtonSize.smallVertical.value.height,
@@ -141,7 +141,7 @@ struct TangemLongButton: View {
                 }
             }
             .padding(.horizontal, 16)
-            .frame(minWidth: ButtonSize.big.value.width,
+            .frame(minWidth: ButtonSize.big.value.width - 0.1*ButtonSize.big.value.width,
                    maxWidth: ButtonSize.big.value.width,
                    minHeight: ButtonSize.big.value.height,
                    maxHeight: ButtonSize.big.value.height,
