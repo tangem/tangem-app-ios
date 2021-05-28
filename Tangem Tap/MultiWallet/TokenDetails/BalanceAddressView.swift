@@ -58,7 +58,7 @@ struct BalanceAddressView: View {
     var balance: String {
         walletModel.getBalance(for: amountType)
     }
-
+    
     var fiatBalance: String {
         walletModel.getFiatBalance(for: amountType)
     }
@@ -85,6 +85,7 @@ struct BalanceAddressView: View {
                         Text(fiatBalance)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .lineLimit(1)
+                            .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(Color.tangemTapGrayDark)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
@@ -113,53 +114,53 @@ struct BalanceAddressView: View {
                     .padding(.vertical, 16)
             }
             
-            HStack(alignment: .center) {
-                Image(uiImage: self.getQrCodeImage(width: 300.0, height: 300.0))
-                    .resizable()
-                    .frame(width: 114, height: 114)
-                    .aspectRatio(contentMode: .fit)
-                
-                Spacer()
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(walletModel.displayAddress(for: selectedAddressIndex))
-                        .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                        .lineLimit(2)
-                        .truncationMode(.middle)
-                        .foregroundColor(Color.tangemTapGrayDark)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Button(action: {
-                        if let url = walletModel.exploreURL(for: selectedAddressIndex) {
-                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                        }}) {
-                        HStack {
-                            Text("wallet_address_button_explore")
-                                .multilineTextAlignment(.leading)
-                                .lineLimit(1)
-                            Image ("chevron.right")
-                        }
-                        .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                        .foregroundColor(Color.tangemTapGrayDark6)
-                    }
-                    .padding(.bottom, 16)
+            GeometryReader { geometry in
+                HStack(alignment: .center, spacing: 0) {
+                    Image(uiImage: self.getQrCodeImage(width: 114, height: 114))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: geometry.size.width * 0.3)
                     
-                    HStack {
-                        RoundedRectButton(action: {
-                                            UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
-                                          imageName: "doc.on.clipboard",
-                                          title: "common_copy".localized,
-                                          withVerification: true)
-                            .accessibility(label: Text("voice_over_copy_address"))
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(walletModel.displayAddress(for: selectedAddressIndex))
+                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                            .lineLimit(3)
+                            .truncationMode(.middle)
+                            .foregroundColor(Color.tangemTapGrayDark)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button(action: {
+                                if let url = walletModel.exploreURL(for: selectedAddressIndex) {
+                                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                                }}) {
+                            HStack {
+                                Text("wallet_address_button_explore")
+                                    .multilineTextAlignment(.leading)
+                                    .lineLimit(1)
+                                Image ("chevron.right")
+                            }
+                            .font(Font.system(size: 14.0, weight: .bold, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark6)
+                        }
+                        .padding(.bottom, 8)
                         
-                        RoundedRectButton(action: { showShareSheet() },
-                                          imageName: "square.and.arrow.up",
-                                          title: "common_share".localized)
-                            .accessibility(label: Text("voice_over_share_address"))
+                        HStack {
+                            RoundedRectButton(action: {
+                                                UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
+                                              imageName: "doc.on.clipboard",
+                                              title: "common_copy".localized,
+                                              withVerification: true)
+                                .accessibility(label: Text("voice_over_copy_address"))
+                            
+                            RoundedRectButton(action: { showShareSheet() },
+                                              imageName: "square.and.arrow.up",
+                                              title: "common_share".localized)
+                                .accessibility(label: Text("voice_over_share_address"))
+                        }
                     }
+                    .padding(.leading, 8)
+                    .frame(width: geometry.size.width * 0.7)
                 }
-                Spacer()
-            }
-            
+            }.frame(maxHeight: 114)
         }
         .padding(16)
         .background(Color.white)
@@ -217,5 +218,6 @@ struct BalanceAddressView_Previews: PreviewProvider {
                 walletModel: walletModel, amountType: .coin)
                 .padding()
         }
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax])
     }
 }
