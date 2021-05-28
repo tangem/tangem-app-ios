@@ -611,11 +611,7 @@ class SendViewModel: ViewModel {
     }
     
     func openSystemSettings() {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            }
-        }
+        UIApplication.openSystemSettings()
     }
     
     private func setupWarnings() {
