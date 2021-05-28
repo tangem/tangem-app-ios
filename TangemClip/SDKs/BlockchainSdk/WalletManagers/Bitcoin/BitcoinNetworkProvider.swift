@@ -28,13 +28,7 @@ struct BtcTx {
     let script: String
 }
 
-enum BitcoinNetworkApi {
-    case main
-	case blockchair
-    case blockcypher
-}
-
-protocol BitcoinNetworkProvider: class {
+protocol BitcoinNetworkProvider: AnyObject {
     func getInfo(addresses: [String]) -> AnyPublisher<[BitcoinResponse], Error>
     func getInfo(address: String) -> AnyPublisher<BitcoinResponse, Error>
 }
