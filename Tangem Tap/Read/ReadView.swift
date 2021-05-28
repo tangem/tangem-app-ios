@@ -171,5 +171,6 @@ struct ReadView_Previews: PreviewProvider {
                 .environmentObject(assembly.services.navigationCoordinator)
             
         }
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax])
     }
 }
