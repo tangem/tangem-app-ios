@@ -58,7 +58,7 @@ enum ScanResult: Equatable {
     }
 }
 
-protocol CardsRepositoryDelegate: class {
+protocol CardsRepositoryDelegate: AnyObject {
     func onWillScan()
     func onDidScan(_ cardInfo: CardInfo)
 }
