@@ -7,28 +7,46 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
+    @State private var isActionSheetVisible: Bool = false
+    @State private var showCameraDeniedAlert: Bool = false
+    
     @ViewBuilder
     var navBarButton: some View {
-        if viewModel.canCreateWC {
-            NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
-                viewModel.openNewSession()
-            }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
-            .sheet(isPresented: $navigation.walletConnectToQR) {
-                QRScanView(code: $viewModel.code)
-                    .edgesIgnoringSafeArea(.all)
+        NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
+            if viewModel.hasWCInPasteboard {
+                isActionSheetVisible = true
+            } else {
+                scanQrCode()
             }
-        } else {
-            EmptyView()
+        }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
+        .sheet(isPresented: $navigation.walletConnectToQR) {
+            QRScanView(code: $viewModel.code)
+                .edgesIgnoringSafeArea(.all)
         }
+        .cameraAccessDeniedAlert($showCameraDeniedAlert)
     }
     
     var body: some View {
         VStack {
+            Color.clear
+                .frame(width: 0.5, height: 0.5)
+                .actionSheet(isPresented: $isActionSheetVisible, content: {
+                    ActionSheet(title: Text("common_select_action"), message: Text("wallet_connect_clipboard_alert"), buttons: [
+                        .default(Text("wallet_connect_paste_from_clipboard"), action: {
+                            viewModel.pasteFromClipboard()
+                        }),
+                        .default(Text("wallet_connect_scan_new_code"), action: {
+                            scanQrCode()
+                        }),
+                        .cancel()
+                    ])
+                })
             if viewModel.sessions.count == 0 {
                 Text("wallet_connect_no_sessions_title")
                     .font(.system(size: 24, weight: .semibold))
@@ -40,7 +58,7 @@ struct WalletConnectView: View {
             } else {
                 List {
                     ForEach(Array(viewModel.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
-                        return WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name,
+                        WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name,
                                                             cardId: item.wallet.cid) {
                             viewModel.disconnectSession(at: i)
                         }
@@ -54,8 +72,13 @@ struct WalletConnectView: View {
         .navigationBarTitle(Text("wallet_connect_sessions_title"))
         .navigationBarItems(trailing: navBarButton)
         .alert(item: $viewModel.alert) { $0.alert }
-        .onAppear {
-            viewModel.onAppear()
+    }
+    
+    private func scanQrCode() {
+        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+            showCameraDeniedAlert = true
+        } else {
+            viewModel.scanQrCode()
         }
     }
 }
