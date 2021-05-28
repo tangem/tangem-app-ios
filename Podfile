@@ -16,10 +16,10 @@ target 'Tangem Tap' do
   pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-18'
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-35'
 #  pod 'TangemSdk', :path => '../tangem-sdk-ios'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-11'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-23'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
@@ -51,6 +51,7 @@ end
 
 target 'TangemClip' do
   use_frameworks!
+  inhibit_all_warnings!
 
   pod 'BigInt'
   pod 'SwiftyJSON'
