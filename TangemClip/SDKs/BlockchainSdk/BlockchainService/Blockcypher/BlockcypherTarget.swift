@@ -25,6 +25,8 @@ struct BlockcypherEndpoint {
             return .ethereum(testnet: true)
         case (.ltc, .main), (.ltc, .test3):
             return .litecoin
+        case (.doge, _):
+            return .dogecoin
         }
     }
 }
@@ -33,6 +35,7 @@ enum BlockcypherCoin: String {
     case btc
     case ltc
     case eth
+    case doge
 }
 
 enum BlockcypherChain: String {
@@ -43,9 +46,6 @@ enum BlockcypherChain: String {
 struct BlockcypherTarget: TargetType {
     enum BlockcypherTargetType {
 		case address(address: String, unspentsOnly: Bool, limit: Int?)
-        case fee
-        case send(txHex: String)
-        case txs(txHash: String)
     }
     
     let endpoint: BlockcypherEndpoint
@@ -58,21 +58,13 @@ struct BlockcypherTarget: TargetType {
         switch targetType {
         case .address(let address, _, _):
             return "/addrs/\(address)"
-        case .fee:
-            return ""
-        case .send:
-            return "/txs/push"
-        case .txs(let txHash):
-            return "/txs/\(txHash)"
         }
     }
     
     var method: Moya.Method {
         switch targetType {
-        case .address, .fee, .txs:
+        case .address:
             return .get
-        case .send:
-            return .post
         }
     }
     
@@ -92,12 +84,6 @@ struct BlockcypherTarget: TargetType {
 			if let limit = limit {
 				parameters["limit"] = "\(limit)"
 			}
-        case .send(let txHex):
-            return .requestCompositeParameters(bodyParameters: ["tx": txHex],
-                                               bodyEncoding: JSONEncoding.default,
-                                               urlParameters: parameters)
-        default:
-            break
         }
         
         return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
