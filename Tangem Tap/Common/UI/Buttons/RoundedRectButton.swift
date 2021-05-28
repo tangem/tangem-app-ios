@@ -31,7 +31,12 @@ struct RoundedRectButton: View {
                 Text(title)
             }
             .padding(.horizontal, 8)
-            .frame(width: 84, height: 28)
+            .frame(minWidth: 74,
+                   idealWidth: 84,
+                   maxWidth: 84,
+                   minHeight: 28,
+                   idealHeight: 28,
+                   maxHeight: 28)
             .font(Font.system(size: 13.0, weight: .medium, design: .default))
             .foregroundColor(foregroundColor)
             .background(backgroundColor)
