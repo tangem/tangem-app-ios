@@ -42,7 +42,7 @@ struct DeviceInfoProvider {
     }
     
     static func info(for subjects: [Subject] = Subject.allCases) -> String {
-        subjects.reduce(into: "", { $0 += $1.description })
+        subjects.reduce(into: "\n", { $0 += $1.description })
     }
     
 }
