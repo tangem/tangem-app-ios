@@ -214,6 +214,7 @@ struct SettingsView_Previews: PreviewProvider {
                 .environmentObject(assembly.services.navigationCoordinator)
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .deviceForPreviewZoomed(.iPhone7)
     }
 }
 
