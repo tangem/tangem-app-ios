@@ -65,14 +65,7 @@ struct SendView: View {
                                         QRScanView(code: self.$viewModel.scannedQRCode)
                                             .edgesIgnoringSafeArea(.all)
                                     }
-                                    .alert(isPresented: self.$viewModel.showCameraDeniedAlert) {
-                                        return Alert(title: Text("common_camera_denied_alert_title"),
-                                                     message: Text("common_camera_denied_alert_message"),
-                                                     primaryButton: Alert.Button.default(Text("common_camera_alert_button_settings"),
-                                                                                         action: {self.viewModel.openSystemSettings()}),
-                                                     secondaryButton: Alert.Button.default(Text("common_ok"),
-                                                                                           action: {}))
-                                    }
+                                    .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
                                    }, message: self.viewModel.destinationHint?.message ?? " " ,
                                    isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
                     
@@ -257,7 +250,7 @@ struct SendView: View {
                                                         isDisabled: !self.viewModel.isSendEnabled))
                         .disabled(!self.viewModel.isSendEnabled)
                         .sheet(isPresented: $navigation.sendToSendEmail, content: {
-                            MailView(dataCollector: viewModel.emailDataCollector, emailType: .failedToSendTx)
+                            MailView(dataCollector: viewModel.emailDataCollector, support: viewModel.cardViewModel.emailSupport, emailType: .failedToSendTx)
                         })
                         .alert(item: self.$viewModel.sendError) { binder in
                             if binder.error == nil {

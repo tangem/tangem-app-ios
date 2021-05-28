@@ -36,6 +36,12 @@ extension Blockchain: Identifiable {
             return "stellar"
         case .ducatus:
             return nil
+        case .dogecoin:
+            return nil
+        case .bsc:
+            return nil
+        case .matic:
+            return nil
         }
     }
 }
