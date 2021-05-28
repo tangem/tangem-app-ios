@@ -9,9 +9,21 @@
 import SwiftUI
 import MessageUI
 
+enum EmailSupport {
+    case tangem, start2coin
+    
+    var recipients: [String] {
+        switch self {
+        case .tangem: return ["support@tangem.com"]
+        case .start2coin: return ["cardsupport@start2coin.com"]
+        }
+    }
+}
+
 struct MailView: UIViewControllerRepresentable {
 
     var dataCollector: EmailDataCollector
+    var support: EmailSupport
     
     @Environment(\.presentationMode) var presentation
     let emailType: EmailType
@@ -61,7 +73,7 @@ struct MailView: UIViewControllerRepresentable {
         
         let vc = MFMailComposeViewController()
         vc.mailComposeDelegate = context.coordinator
-        vc.setToRecipients(["support@tangem.com"])
+        vc.setToRecipients(support.recipients)
         vc.setSubject(emailType.emailSubject)
         var messageBody = "\n" + emailType.emailPreface
         messageBody.append("\n\n\n")
