@@ -86,6 +86,7 @@ struct TokenDetailsView: View {
                         
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(walletModel: walletModel, amountType: viewModel.amountType)
+                                .frame(width: geometry.size.width)
                             
                         }
                         
@@ -114,7 +115,6 @@ struct TokenDetailsView: View {
             .foregroundColor(viewModel.canDelete ? Color.tangemTapGrayDark6 : Color.tangemTapGrayLight5)
         })
         .disabled(!viewModel.canDelete)
-        .padding(0.0)
         )
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
@@ -137,5 +137,6 @@ struct TokenDetailsView_Previews: PreviewProvider {
             TokenDetailsView(viewModel: assembly.makeTokenDetailsViewModel(blockchain: assembly.previewBlockchain))
                 .environmentObject(assembly.services.navigationCoordinator)
         }
+        .deviceForPreviewZoomed(.iPhone7)
     }
 }
