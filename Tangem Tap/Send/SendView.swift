@@ -296,5 +296,6 @@ struct ExtractView_Previews: PreviewProvider {
                                                        card: assembly.previewCardViewModel),
                  onSuccess: {})
             .environmentObject(assembly.services.navigationCoordinator)
+            .previewLayout(.iphone7Zoomed)
     }
 }
