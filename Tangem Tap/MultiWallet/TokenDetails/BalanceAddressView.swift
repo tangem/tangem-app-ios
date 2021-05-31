@@ -160,7 +160,7 @@ struct BalanceAddressView: View {
                     .padding(.leading, 8)
                     .frame(width: geometry.size.width * 0.7)
                 }
-            }.frame(maxHeight: 114)
+            }.frame(height: 114)
         }
         .padding(16)
         .background(Color.white)
@@ -214,9 +214,11 @@ struct BalanceAddressView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.gray
+            ScrollView {
             BalanceAddressView(
                 walletModel: walletModel, amountType: .coin)
                 .padding()
+            }
         }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax])
     }
