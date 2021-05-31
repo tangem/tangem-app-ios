@@ -95,6 +95,7 @@ extension Card {
         
         if let symbol = cardData?.tokenSymbol,
            let contractAddress = cardData?.tokenContractAddress,
+           !contractAddress.isEmpty,
            let decimal = cardData?.tokenDecimal {
             return Token(symbol: symbol,
                          contractAddress: contractAddress,
