@@ -5,6 +5,7 @@
   Created by Alexander Osokin on 02/10/2019.
   Copyright © 2019 Tangem AG. All rights reserved.
 */
+
 // Error message. When NFC session time is over
 "nfc_session_timeout" = "Dépassement de temps imparti de la séance. Essayez encore une fois";
 
@@ -47,7 +48,6 @@
 "pin_change_current_code_format" = "Actuel %@";
 "pin_set_code_confirm_format" = "Confirmer %@";
 
-
 "common_ok" = "OK";
 "common_cancel" = "Annuler";
 "common_continue" = "Continuer";
@@ -56,7 +56,6 @@
 "common_error" = "Erreur";
 
 // Errors
-
 "error_operation" = "Une erreur s'est produite lors de l'opération";
 "error_tag_lost" = "Tag est perdu";
 "error_already_personalized" = "Cette carte a déjà été personnalisée";
@@ -91,13 +90,13 @@
 "error_wrong_card" = "Mauvaise carte";
 "error_invalid_response" = "Réponse incorrecte";
 
-
 "error_file_not_found" = "File not found";
 "error_wrong_interaction_mode" = "Unsupported interaction mode";
 "error_not_supported_firmware_version" = "Card firmware does not meet requirements";
 
 "error_no_space_for_new_wallet" = "Max number of wallets already created";
 "error_card_read_wrong_wallet" = "Card read wrong wallet";
+
 "error_wrong_pin1" = "Wrong Access Сode";
 "error_wrong_pin2" = "Wrong Passcode";
 //Android only
@@ -137,7 +136,6 @@
 "how_to_got_it_button" = "OK, j’ai compris !";
 "how_to_try_other_way_button" = "Ceci ne fonctionne toujours pas";
 "how_to_show_again_button" = "Montrer encore une fois";
-
 
 "tap_in_button" = "Connecter";
 "tap_in_known_info_message" = "Tenez fermement la carte près du téléphone comme indiqué sur l'image lorsque vous l'utilisez pour vous connecter";
@@ -179,11 +177,9 @@
 "common_failed_to_load_token_balance" = "Failed to load %@ token balance";
 
 
-
 "cardano_missing_unspents" = "Il n'y a pas de montants non dépensés";
 
 "cardano_low_ada" = "Le montant envoyé et la change ne peuvent pas être inférieurs à 1 ADA";
-
 
 
 
@@ -221,27 +217,6 @@
 
 "xtz_withdrawal_message_ignore" = "Non, envoyer toute la somme";
 
-
-
-"send_validation_invalid_amount" =  "Somme incorrecte";
-
-"send_validation_invalid_total" = "Le total dépasse le solde";
-
-"send_validation_invalid_fee" = "Les commissions dépassent le solde";
-
-"send_validation_amount_exceeds_balance" = "Le montant dépasse le solde";
-
-"send_error_unknown" = "Erreur inconnue";
-
-"send_error_insufficient_balance" = "Solde insuffisant";
-
-"send_error_blockchain_internal" = "Erreur interne de la blockchain";
-
-"send_error_invalid_fee_value" = "Commission non valide";
-
-"send_error_dust_amount_format" = "Le montant minimal est de %@";
-
-"send_error_dust_change_format" = "Le monnaie minimal est de %@";
 
 // MARK: - AppClips
 
