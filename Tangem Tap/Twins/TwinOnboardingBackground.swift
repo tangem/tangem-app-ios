@@ -27,11 +27,12 @@ struct TwinOnboardingBackground: View {
 		}
 		
 		var heights: [CGFloat] {
-			[192, 81, 107, 72]
+			//[192, 81, 107, 72]
+            [1, 0.42, 0.557, 0.375]
 		}
 		
 		var offset: [CGFloat] {
-			[0, 0, -3.5, -7]
+            [0, 0.45, 1.1, 1.75]
 		}
 		
 		var colors: [Color] {
@@ -51,25 +52,30 @@ struct TwinOnboardingBackground: View {
 	var colorSet: ColorSet = .orange
 	
     var body: some View {
-		ZStack(alignment: .top) {
-			VStack(spacing: 10.7) {
-				ForEach(colorSet.lines) { line in
-					line.color
-						.frame(width: 550, height: line.height)
-						.rotationEffect(.degrees(-22))
-						.offset(y: line.offset)
-				}
-			}
-			.offset(y: -64)
-			.edgesIgnoringSafeArea(.all)
-		}
-        
+        GeometryReader { geo in
+            let baseHeight = geo.size.height * 0.25
+            ZStack(alignment: .top) {
+                VStack(spacing: 0.1 * baseHeight) {
+                    ForEach(colorSet.lines) { line in
+                        line.color
+                            .frame(width: 600,
+                                   height: baseHeight * line.height)
+                            .rotationEffect(.degrees(-22))
+                            .offset(y: -0.1 * baseHeight * line.offset)
+                    }
+                }
+            }.frame(width: geo.size.width,
+                    height: geo.size.height,
+                    alignment: .center)
+            .offset(y: -0.3 * geo.size.height)
+        }.clipped()
+        .edgesIgnoringSafeArea(.all)
     }
 }
 
 struct TwinOnboardingBackground_Previews: PreviewProvider {
     static var previews: some View {
         TwinOnboardingBackground()
-			.deviceForPreview(.iPhone11ProMax)
+            .previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
     }
 }
