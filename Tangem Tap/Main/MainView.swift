@@ -390,7 +390,7 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: assembly.makeMainViewModel())
                 .environmentObject(assembly.services.navigationCoordinator)
         }
-        .previewGroup(devices: [.iPhone12Pro])
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
         .environment(\.locale, .init(identifier: "en"))
     }
