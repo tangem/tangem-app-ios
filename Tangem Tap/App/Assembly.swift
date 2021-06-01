@@ -83,6 +83,7 @@ class ServicesAssembly {
         scanner.tangemSdk = tangemSdk
         scanner.scannedCardsRepository = scannedCardsRepository
         scanner.tokenItemsRepository = tokenItemsRepository
+        scanner.cardsRepository = cardsRepository
         return scanner
     }()
     
