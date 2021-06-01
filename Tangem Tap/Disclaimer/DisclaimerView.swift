@@ -81,5 +81,6 @@ struct DisclaimerView_Previews: PreviewProvider {
     static var previews: some View {
         DisclaimerView(viewModel: assembly.makeDisclaimerViewModel(with: .read))
             .environmentObject(assembly.services.navigationCoordinator)
+            .deviceForPreviewZoomed(.iPhone7)
     }
 }
