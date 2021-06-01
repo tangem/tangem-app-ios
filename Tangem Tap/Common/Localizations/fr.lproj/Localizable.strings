@@ -12,11 +12,17 @@
 
 "common_ok" = "OK";
 
-"common_no" = "Non";
-
 "common_done" = "Exécuté";
 
 "common_close" = "Close";
+
+"common_no" = "Non";
+
+"common_start" = "Start";
+
+"common_cancel" = "Cancel";
+
+"common_back" = "Back";
 
 "common_continue" = "Continuer";
 
@@ -24,11 +30,11 @@
 
 "common_warning" = "Alerte";
 
-"common_start" = "Start";
+"common_camera_denied_alert_title" = "L’accès à la caméra est refusé";
 
-"common_cancel" = "Cancel";
+"common_camera_denied_alert_message" = "Vous n'avez pas octroyé l’accès à votre caméra, veuillez modifier vos paramètres de confidentialité";
 
-"common_back" = "Back";
+"common_camera_alert_button_settings" = "Paramètres";
 
 "common_add" = "Add";
 
@@ -37,13 +43,6 @@
 "common_remove" = "Remove";
 
 "common_search" = "Search";
-
-"common_camera_denied_alert_title" = "L’accès à la caméra est refusé";
-
-"common_camera_denied_alert_message" = "Vous n'avez pas octroyé l’accès à votre caméra, veuillez modifier vos paramètres de confidentialité";
-
-"common_camera_alert_button_settings" = "Paramètres";
-
 
 "home_welcome" = "Bienvenue à Tangem. Avez-vous une de nos cartes?";
 
@@ -59,12 +58,13 @@
 
 "home_button_scan" = "Scannez la carte";
 
-
 "wallet_error_no_account_subtitle_format" = "Téléchargez% @ +% @ pour créer un compte";
 
 "wallet_button_scan" = "Scanner";
 
 "wallet_button_send" = "Envoyer";
+
+"wallet_button_topup" = "Top up";
 
 "wallet_button_create_wallet" = "Créer un portefeuille";
 
@@ -72,15 +72,13 @@
 
 "wallet_choice_wallet_option_title" = "Choisir une variante de portefeuille";
 
-
-
 "wallet_balance_token_title" = "Jeton d'authentification";
+
 "wallet_balance_tokens_title" = "Jetons d'authentification";
 
 "wallet_balance_verified" = "Solde confirmé";
 
 "wallet_balance_blockchain_unreachable" = "Blockchain est inaccessible";
-
 
 "wallet_error_no_account" = "Compte n’est pas créé";
 
@@ -97,22 +95,23 @@
 "wallet_balance_tx_in_progress" = "Transaction en cours...";
 
 
-
 "pendingTxView_sending_format" = "Sending %@ to %@";
 
 "pendingTxView_receiving_format" = "Receiving %@ from %@";
+
+
 
 "wallet_pending_tx_receiving" = "Réception ";
 "wallet_pending_tx_receiving_address_format" = " de %с ";
 "wallet_pending_tx_sending" = "Envoi ";
 "wallet_pending_tx_sending_address_format" = " jusqu’à %с ";
 
+
 "wallet_address_button_explore" = "Explorer l'adresse";
 
 "wallet_address_button_create_payid" = "Créer PayString";
 
 "wallet_qr_title_format" = "Portefeuille %@";
-
 
 "wallet_create_payid" = "Créer PayString";
 
@@ -132,7 +131,6 @@
 
 "wallet_create_payid_error_already_created" = "Ce PayString existe déjà. Essayez une autre variante.";
 
-"wallet_button_topup" = "Top up";
 
 
 "send_destination_hint" = "Adresse ou PayString";
@@ -170,9 +168,11 @@
 "send_balance_subtitle_format" = "Solde : %@";
 "send_transaction_success" = "La transaction a été signée avec succès et envoyée au nœud de blockchain. Le solde du portefeuille sera mis à jour après un certain temps";
 
+
 "send_extras_hint_destination_tag" = "Destination Tag";
 
 "send_extras_hint_memo" = "Memo Id";
+
 
 "details_title" = "Référénces";
 
@@ -200,13 +200,11 @@
 
 "details_row_title_send_feedback" = "Send feedback";
 
-"details_currency_search_placeholder" = "Search";
+"details_currency_search_placeholder" = "Recherche";
 
 "details_section_title_blockchain" = "Blockchain";
 
 "details_row_title_manage_tokens" = "Manage tokens";
-
-"details_currency_search_placeholder" = "Recherche";
 
 "details_erase_wallet_warning" = "Cette action est irréversible. Si, après avoir annulé le portefeuille, quelqu'un lui envoie des fonds, vous ne pourrez pas les retirer.";
 
@@ -228,7 +226,7 @@
 
 "details_manage_security_access_code_description" = "Vous devrez entrer le mot de passe correct avant de scanner la carte";
 
-// MARK: Alert
+// MARK: - Alert
 
 "alert_old_device_this_card" = "Vous pouvez rencontrer des problèmes NFC avec certains iPhone 7/7 + lors de l’extraction";
 
@@ -259,7 +257,16 @@
 "alert_button_request_support" = "Request support";
 "alert_button_send_feedback" = "Send feedback";
 
-// MARK: Initial message
+"alert_signed_hashes_message" = "This card is not a bearer note. We can’t currently match the signature count on the card with the information on the blockchain. This is normal but in rare cases can mean a previous holder is holding back an offline signature, which is a security concern.
+
+Do not accept this card as physical payment from someone you don’t trust.
+
+It’s perfectly safe in all other respects.
+
+Tangem is the only hardware wallet to offer signature count protection.";
+"alert_button_i_understand" = "I understand";
+
+// MARK: - Initial message
 
 "initial_message_sign_header" = "Touchez pour signer";
 
@@ -277,7 +284,7 @@
 
 "payid_service_error_loading" = "PayString incorrect";
 
-
+// MARK: - Disclaimer
 
 "disclaimer_text" = "Avertissement
  
@@ -285,22 +292,28 @@
  
 Le logiciel est destiné à l’utilisation exclusivement avec les e-portefeuilles Tangem (Cartes) à l’aide de l’interface NFC. Le logiciel NE réalise pas ce qui suit :
  
-a.	Génération, stockage, transmission ou octroi d’accès aux clés privées (confidentiels) de chiffrement des blockchain-portefeuilles, qui contiennent les avoirs numériques, y compris la crypto-monnaie.
-b.	Génération, stockage, transmission ou octroi d’accès aux clés confidentielles, aux mots de passe, phrases secrètes, phrases de restitution, qui pourront être utilisées pour la restitution ou pour le clonage des clés privées (confidentiels) de chiffrement des blockchain-portefeuilles, contenant les avoirs numériques, y compris la crypto-monnaie.
-c.	Prestation des services de bourse, de commerce, d’investissement du nom de Tangem AG.
+a)	Génération, stockage, transmission ou octroi d’accès aux clés privées (confidentiels) de chiffrement des blockchain-portefeuilles, qui contiennent les avoirs numériques, y compris la crypto-monnaie.
+
+b)	Génération, stockage, transmission ou octroi d’accès aux clés confidentielles, aux mots de passe, phrases secrètes, phrases de restitution, qui pourront être utilisées pour la restitution ou pour le clonage des clés privées (confidentiels) de chiffrement des blockchain-portefeuilles, contenant les avoirs numériques, y compris la crypto-monnaie.
+
+c)	Prestation des services de bourse, de commerce, d’investissement du nom de Tangem AG.
  
  
 2.	Risques, liés avec l’utilisation du logiciel
  
 Tangem n’assume aucune responsabilité pour tous les dommages, préjudice ou prétentions, qui peuvent survenir comme résultat des évènements, se rapportant à une de cinq catégories suivantes :
  
- 
-a.	Les erreurs, commises par l’utilisateur de tout logiciel ou service liés avec la crypto-monnaie, par exemple, les mots de passe oubliés, les paiements envoyés aux adresses incorrectes, et élimination occasionnelle des blockchain-portefeuilles sur les Cartes.
-b.	Les problèmes du Logiciel et/ou de tout progiciel ou service liés avec blockchain ou avec la crypto-monnaie, par exemple, les fichiers endommagés, les transaction créées d’une manière incorrecte, les bibliothèques cryptographiques non sécurisées, les logiciels malveillants.
-c.	Les défaillances techniques du hardware de l’utilisateur, y compris les Cartes, de tout logiciel ou service liés avec la crypto-monnaie, par exemple, la perte des données à cause des périphériques défectives ou endommagées de stockage.
-d.	Les problèmes de la sécurité, subis par l’utilisateur de tout logiciel ou service liés avec la crypto-monnaie, par exemple, l’accès non autorisé aux portefeuilles et/ou comptes des utilisateurs.
-e.	Les actions ou l’inaction des tierces personnes et/ou les évènements subis par les tierces personnes, par exemple, la faillite du prestataire de services, les attaques sur la sécurité informatique des prestataires de services et la fraude commise par des tierces personnes.
- 	
+a)	Les erreurs, commises par l’utilisateur de tout logiciel ou service liés avec la crypto-monnaie, par exemple, les mots de passe oubliés, les paiements envoyés aux adresses incorrectes, et élimination occasionnelle des blockchain-portefeuilles sur les Cartes.
+
+b)	Les problèmes du Logiciel et/ou de tout progiciel ou service liés avec blockchain ou avec la crypto-monnaie, par exemple, les fichiers endommagés, les transaction créées d’une manière incorrecte, les bibliothèques cryptographiques non sécurisées, les logiciels malveillants.
+
+c)	Les défaillances techniques du hardware de l’utilisateur, y compris les Cartes, de tout logiciel ou service liés avec la crypto-monnaie, par exemple, la perte des données à cause des périphériques défectives ou endommagées de stockage.
+
+d)	Les problèmes de la sécurité, subis par l’utilisateur de tout logiciel ou service liés avec la crypto-monnaie, par exemple, l’accès non autorisé aux portefeuilles et/ou comptes des utilisateurs.
+
+e)	Les actions ou l’inaction des tierces personnes et/ou les évènements subis par les tierces personnes, par exemple, la faillite du prestataire de services, les attaques sur la sécurité informatique des prestataires de services et la fraude commise par des tierces personnes.
+
+
 3.  Risques commerciales et d’investissement
  
 Toute échange de crypto-monnaie ou d’autres avoirs numériques implique les risques importants. Toute transaction liée avec la monnaie implique les risques, qui incluent, entre autres, la possibilité de modification des conditions économiques, qui peuvent influencer d’une manière significative le prix ou la disponibilité de la monnaie. Les investissements dans les spéculations boursières avec les crypto-monnaies peuvent aussi être exposés aux montées et chutes en flèche lors des fluctuations des valeurs marchandes correspondants. C'est pour cette raison, que lors de la spéculation sur tels marchés, il est conseillé d’utiliser seulement le capital-risque.
@@ -309,16 +322,18 @@ Toute échange de crypto-monnaie ou d’autres avoirs numériques implique les r
 4. Risques de commerce électronique
  
 Avant de passer aux transactions en utilisant le système électronique, Vous devez prendre connaissance, d’une manière bien attentive, des règles et des dispositions stipulées par les bourses qui offrent ce système, et/ou les listes des titres de placement que vous voulez négocier. Le commerce en ligne possède le risque inaliénable lié avec la vitesse de réponse du système et avec le temps d’accès qui peuvent varier en fonction des conditions de marché, du rendement du système et d’autres facteurs. Avant de commencer les négoces, vous devez comprendre ces risques aussi que les risques supplémentaires.
- 
+
+
 5. Respect des obligations fiscales
  
 Les utilisateurs du Logiciel assument toute la responsabilité pour définir, quels impôts sont appliqués à leurs transactions avec la crypto-monnaie, au cas où il y a de tels impôts. Les propriétaires et les participants à l’élaboration du Logiciel n’assument pas la responsabilité pour la définition des impôts qui sont appliqués aux transactions avec la crypto-monnaie.
- 
-6. Absence de garanties
 
+
+6. Absence de garanties
 
 Le logiciel est concédé sous les conditions « tel quel », sans aucune garantie à l’égard du Logiciel et/ou de tout le contenu, données, matériaux et/ou services, présentes dans ce Logiciel.
  
+
 7. Restriction de la responsabilité
  
 Sauf disposition contraire prévue par la législation, les propriétaires et les participants à l’élaboration du Logiciel n’assument pas la responsabilité pour aucun dommage, y compris l’indisponibilité, la perte de profit ou la perte des données, qui surviennent comme résultat de l’utilisation ou bien qui sont liés d’une certaine manière avec l’utilisation du Logiciel. Les propriétaires et les participants à l’élaboration du Logiciel n’assument pas la responsabilité pour les actions, les résolutions ou pour une autre conduite que vous manifestez ou pas par l’intermédiaire du Logiciel.
@@ -331,7 +346,6 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "disclaimer_title" = "Conditions d'utilisation";
 
 "common_accept" = "J'accepte";
-
 
 "send_error_payid_verification_failed" = "La vérification de PayString a échoué";
 "send_error_payid_unsupported_by_blockchain" = "PayString non pris en charge par la blockchain";
@@ -394,21 +408,26 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "twin_wallet_creation_tap_first_card" = "Tap the card #1";
 "twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
 
+
 "wallet_button_create_twin_wallet" = "Create twin wallet";
 "wallet_error_empty_twin_card" = "Create twin wallet";
 "wallet_error_empty_twin_card_subtitle" = "Generate wallet keys on both cards to start using your Twins";
 
-// MARK: Warnings
+// MARK: - Warnings
 
 "warning_button_ok" = "Ok, je l'ai!";
 
 "warning_button_really_cool" = "Really cool!";
 "warning_button_can_be_better" = "Can be better";
 
+"warning_button_learn_more" = "Learn more";
+
 "warning_rate_app_title" = "One question";
 
 "warning_rate_app_message" = "How do you like Tangem?";
 
+"warning_important_security_info" = "Important security information ⚠️";
+"warning_signed_tx_previously" = "This card has signed transactions in the past";
 "warning_failed_to_verify_card_title" = "Authenticity check failed";
 "warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
 
@@ -438,10 +457,10 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "custom_token_name_input_placeholder" = "ex. USD Coin";
 "custom_token_token_symbol_input_placeholder" = "ex. USDC";
 
-"details_row_title_card_tou" = "Card terms of use";
-
 "wallet_add_tokens" = "Add Tokens";
 "wallet_remove_token" = "Remove token";
+
+"details_row_title_card_tou" = "Card terms of use";
 
 "common_copy" = "Copy";
 "common_share" = "Share";
@@ -452,6 +471,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "token_details_tx_note_message" = "Please wait for %@ transaction to complete to be able to send funds";
 
 "warning_low_signatures_format" = "There are only %@ signatures available on this card. You must withdraw all of your funds.";
+
 
 "voice_over_copy_address" = "Copy address";
 "voice_over_share_address" = "Share address";
