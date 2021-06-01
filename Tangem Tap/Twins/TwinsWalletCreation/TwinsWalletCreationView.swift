@@ -137,5 +137,6 @@ struct TwinsWalletCreationView: View {
 struct TwinsWalletCreationView_Previews: PreviewProvider {
     static var previews: some View {
         TwinsWalletCreationView(viewModel: Assembly.previewAssembly.makeTwinsWalletCreationViewModel(isRecreating: false))
+            .deviceForPreviewZoomed(.iPhone7)
     }
 }
