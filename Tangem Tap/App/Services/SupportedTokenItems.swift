@@ -24,8 +24,7 @@ class SupportedTokenItems {
             .stellar(testnet: false),
             .cardano(shelley: true),
             .dogecoin,
-            .bsc(testnet: false),
-            .matic(testnet: false)
+            .bsc(testnet: false)
         ]
     }()
     
