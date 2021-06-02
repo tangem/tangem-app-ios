@@ -46,8 +46,8 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                     switch res {
                     case .success(let signature):
                         self.delegate?.send(.signature(signature, for: request), for: self.action)
-                    case .failure:
-                        self.delegate?.send(.invalid(request), for: self.action)
+                    case .failure(let error):
+                        self.delegate?.sendReject(for: request, with: error, for: self.action)
                     }
                 }
             }
