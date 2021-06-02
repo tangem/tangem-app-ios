@@ -236,6 +236,7 @@ extension WalletConnectService: ServerDelegate {
     
     func server(_ server: Server, didFailToConnect url: WCURL) {
         handle(WalletConnectServiceError.failedToConnect)
+        resetSessionConnectTimer()
     }
     
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
