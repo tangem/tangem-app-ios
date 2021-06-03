@@ -239,3 +239,6 @@
 
 "alert_unsupported_card" = "This card is not designed to work with Tangem Clip";
 "alert_wrong_card_scanned" = "You've scanned wrong card. Try again, please.";
+
+"wallet_balance_tx_in_progress" = "Transaction is in progress...";
+"wallet_error_no_account" = "Account is not created";
