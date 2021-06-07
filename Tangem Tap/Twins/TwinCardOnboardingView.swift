@@ -13,14 +13,6 @@ struct TwinCardOnboardingView: View {
     @ObservedObject var viewModel: TwinCardOnboardingViewModel
     @Environment(\.presentationMode) var presentationMode
     
-    private let backHeightAspect: CGFloat = 1.3
-    private let backgroundMinBottomOffset: CGFloat = 300
-    private let screenSize: CGSize = UIScreen.main.bounds.size
-    
-    private var backgroundHeight: CGFloat {
-        screenSize.width * backHeightAspect
-    }
-    
     var navigationLinks: some View {
         Group {
             //activate link only if we need it, because of navigation issues with shared state
@@ -73,41 +65,38 @@ struct TwinCardOnboardingView: View {
         ZStack {
             navigationLinks
             
-            VStack {
-                ZStack(alignment: .bottom) {
-                    TwinOnboardingBackground(colorSet: viewModel.state.backgroundColorSet)
+            GeometryReader { geo in
+                
+                let cardWidth = min(0.36 * geo.size.height, 800)
+                let cardHeight = cardWidth * 0.52
+                TwinOnboardingBackground(colorSet: viewModel.state.backgroundColorSet)
+                
+                VStack {
                     VStack(spacing: 30) {
                         Image(uiImage: viewModel.firstTwinImage)
                             .resizable()
-                            .frame(width: 316, height: 166)
+                            .frame(width: cardWidth, height: cardHeight)
                             .cornerRadius(9)
                             .shadow(color: Color.black.opacity(0.7), radius: 2, x: 0, y: 1)
-                            .offset(x: -57)
+                            .offset(x: -0.38 * cardWidth)
                             .rotationEffect(.init(degrees: -22))
                         Image(uiImage: viewModel.secondTwinImage)
                             .resizable()
-                            .frame(width: 316, height: 166)
+                            .frame(width: cardWidth, height: cardHeight)
                             .cornerRadius(9)
                             .shadow(color: Color.black.opacity(0.7), radius: 2, x: 0, y: 1)
-                            .offset(x: -9)
+                            .offset(x: -0.24 * cardWidth)
                             .rotationEffect(.init(degrees: -22))
                     }
-                    .offset(y: -70)
-                    .frame(maxWidth: screenSize.width, alignment: .leading)
+                    .offset(y: 0.12 * cardHeight)
                     
+                    Color.clear.frame(height: 0.1 * geo.size.height)
+                    
+                    content()
+                        .edgesIgnoringSafeArea(.bottom)
                 }
-                .offset(y: backgroundOffset())
-                .edgesIgnoringSafeArea(.top)
-                Spacer()
             }
-            .clipped()
-            .edgesIgnoringSafeArea(.top)
-            content()
-                .edgesIgnoringSafeArea(.top)
-                .frame(width: UIScreen.main.bounds.width)
         }
-        .frame(width: UIScreen.main.bounds.width)
-        .clipped()
         .edgesIgnoringSafeArea(.top)
         .background(Color(.tangemTapBgGray2).edgesIgnoringSafeArea(.all))
         .navigationBarBackButtonHidden(true)
@@ -134,53 +123,60 @@ struct TwinCardOnboardingView: View {
     }
     
     @ViewBuilder private func content() -> some View {
-        let buttonEdgeInsets = EdgeInsets(top: 0, leading: 30, bottom: 16, trailing: 30)
         let button = TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: { self.viewModel.buttonAction() })
         
         switch viewModel.state {
         case let .onboarding(pairCid, _):
-             VStack {
+            VStack {
                 Spacer()
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text("twins_onboarding_title")
-                        .font(.system(size: 30, weight: .bold))
+                        .font(.system(size: 27, weight: .bold))
+                        .fixedSize(horizontal: false, vertical: true)
                     Text("twins_onboarding_subtitle")
-                        .font(.system(size: 17, weight: .medium))
+                        .font(.system(size: 15, weight: .medium))
+                        .fixedSize(horizontal: false, vertical: true)
                     Text(String(format: "twins_onboarding_description_format".localized, pairCid))
                         .foregroundColor(.tangemTapGrayDark3)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .font(.system(size: 13, weight: .regular))
-                .lineSpacing(8)
+                .lineSpacing(4)
                 .padding(.horizontal, 37)
-                .padding(.bottom, 24)
+
+                Spacer()
+                
                 HStack {
                     Spacer()
                     button
                         .buttonStyle(TangemButtonStyle(color: .black, isDisabled: false))
-                        .padding(buttonEdgeInsets)
-                    
+                        .padding(.bottom, 30)
+                        .padding(.trailing, 30)
                 }
             }
             
         case .warning(let isRecreating):
-             VStack {
+            VStack {
                 Spacer()
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack {
-                        Image(systemName: "exclamationmark.circle")
-                            .resizable()
-                            .frame(width: 26, height: 26)
-                        Text("common_warning")
-                            .font(.system(size: 30, weight: .bold))
-                    }
-                    Text(isRecreating ? "details_twins_recreate_warning" : "details_twins_create_warning")
-                        .foregroundColor(.tangemTapGrayDark3)
-                        .font(.system(size: 13, weight: .regular))
-                        .lineSpacing(8)
-                        .fixedSize(horizontal: false, vertical: true)
+                
+                HStack {
+                    Image(systemName: "exclamationmark.circle")
+                        .resizable()
+                        .frame(width: 26, height: 26)
+                    Text("common_warning")
+                        .font(.system(size: 30, weight: .bold))
+                    
+                    Spacer()
                 }
-                .padding(.horizontal, 30)
-                .padding(.bottom, 44)
+                
+                Text(isRecreating ? "details_twins_recreate_warning" : "details_twins_create_warning")
+                    .foregroundColor(.tangemTapGrayDark3)
+                    .font(.system(size: 13, weight: .regular))
+                    .lineSpacing(6)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer()
+                
                 HStack(alignment: .center, spacing: 12) {
                     TangemButton(isLoading: false,
                                  title: "common_back",
@@ -196,25 +192,23 @@ struct TwinCardOnboardingView: View {
                     button
                         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
                 }
-                .padding(buttonEdgeInsets)
+                .padding(.bottom, 16)
             }
+            .padding(.horizontal, 20)
         }
     }
-    
-    private func backgroundOffset() -> CGFloat {
-        let bottomSpace = screenSize.height - backgroundHeight
-        return bottomSpace < backgroundMinBottomOffset ?
-            bottomSpace -  backgroundMinBottomOffset :
-            0
-    }
-    
 }
 
 struct TwinCardOnboardingView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
+    
     static var previews: some View {
-        TwinCardOnboardingView(viewModel: assembly.makeTwinCardWarningViewModel(isRecreating: true))
+        TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: "", isFromMain: false)))
             .environmentObject(assembly.services.navigationCoordinator)
-            .previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
+            //.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
+        
+        TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(state: .warning(isRecreating: false)))
+            .environmentObject(assembly.services.navigationCoordinator)
+            //.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
     }
 }
