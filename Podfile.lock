@@ -155,7 +155,7 @@ PODS:
   - SwiftDate (6.0.3)
   - SwiftProtobuf (1.15.0)
   - SwiftyJSON (5.0.0)
-  - TangemSdk (2.4.2)
+  - TangemSdk (3.0.2)
   - WalletConnectSwift (1.3.1):
     - CryptoSwift (~> 1.2)
     - Starscream (~> 3.1)
@@ -176,7 +176,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.13`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-11`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-25`)
   - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
@@ -189,7 +189,7 @@ DEPENDENCIES:
   - Sodium
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-18`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `CSS-158_Wallet-not-found-error-40`)
   - WalletConnectSwift
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
@@ -239,13 +239,13 @@ EXTERNAL SOURCES:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-11
+    :tag: develop-25
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-18
+    :tag: CSS-158_Wallet-not-found-error-40
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
     :tag: 2.2.6
@@ -259,13 +259,13 @@ CHECKOUT OPTIONS:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-11
+    :tag: develop-25
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-18
+    :tag: CSS-158_Wallet-not-found-error-40
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
     :tag: 2.2.6
@@ -307,11 +307,11 @@ SPEC CHECKSUMS:
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftProtobuf: 3320217e9d8fb75f36b40282e78c482640fd75dd
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
-  TangemSdk: 511458380dddc9b71e29d064cfb35c44806e5d5e
+  TangemSdk: 26b8d99c941d307ce44c2eb0bb73d5337ced5bed
   WalletConnectSwift: cd5e056cec5a2f44e92b8595199e7f2f9f0bd92d
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 8267290ebe9242b033bfece2c00f9b6c44af671d
+PODFILE CHECKSUM: 7d9a242f165a800e9e2a012366daa2f356cacde7
 
 COCOAPODS: 1.10.1
