@@ -24,6 +24,20 @@ extension UIApplication {
     static func modalFromTop(_ vc: UIViewController) {
         guard let top = topViewController else { return }
         
-        top.present(vc, animated: true, completion: nil)
+        if top.isBeingDismissed {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                modalFromTop(vc)
+            }
+        } else {
+            top.present(vc, animated: true, completion: nil)
+        }
+    }
+    
+    static func openSystemSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
     }
 }
