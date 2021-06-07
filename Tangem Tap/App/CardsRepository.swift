@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import Intents
 
 struct CardInfo {
     var card: Card
@@ -86,6 +87,8 @@ class CardsRepository {
 				}
 				
 				Analytics.logScan(card: response.card)
+                let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
+                interaction.donate(completion: nil)
                 self.scannedCardsRepository.add(response.card)
 				completion(.success(processScan(response.getCardInfo())))
             }
@@ -96,10 +99,10 @@ class CardsRepository {
         delegate?.onDidScan(cardInfo)
         
         let cm = assembly.makeCardModel(from: cardInfo)
-        let result: ScanResult = cm == nil ? .unsupported : .card(model: cm!)
+        let result: ScanResult = .card(model: cm)
         cards[cardInfo.card.cardId!] = result
         lastScanResult = result
-        cm?.getCardInfo()
+        cm.getCardInfo()
         return result
 	}
 }

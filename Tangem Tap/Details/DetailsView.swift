@@ -113,7 +113,7 @@ struct DetailsView: View {
                         .foregroundColor(.tangemTapGrayDark6)
                 })
                 .sheet(isPresented: $navigation.detailsToSendEmail, content: {
-                    MailView(dataCollector: viewModel.dataCollector, emailType: EmailType.appFeedback)
+                    MailView(dataCollector: viewModel.dataCollector, support: viewModel.cardModel.emailSupport, emailType: EmailType.appFeedback)
                 })
                 
                 if let cardTouURL = viewModel.cardTouURL {
@@ -214,6 +214,7 @@ struct SettingsView_Previews: PreviewProvider {
                 .environmentObject(assembly.services.navigationCoordinator)
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .deviceForPreviewZoomed(.iPhone7)
     }
 }
 
