@@ -10,6 +10,7 @@ import Foundation
 import WalletConnectSwift
 
 protocol TangemWalletConnectRequestHandler: RequestHandler {
+    var action: WalletConnectAction { get }
     var delegate: WalletConnectHandlerDelegate? { get }
     var dataSource: WalletConnectHandlerDataSource? { get }
 }

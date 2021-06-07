@@ -140,7 +140,7 @@ class CoinMarketCapService {
                     .filterSuccessfulStatusAndRedirectCodes()
                     .map(RateInfoResponse.self)
                     .map { $0.data }
-                    .map { (item.key, $0.quote.mapValues {  $0.price }) }
+                    .map { (item.key, $0.quote.mapValues {  $0.price.rounded(scale: 2, roundingMode: .plain) }) }
                     .catch { _ in Empty(completeImmediately: true) }
         }
         .collect()

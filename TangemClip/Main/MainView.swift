@@ -35,10 +35,10 @@ struct MainView: View {
                                 .padding(.vertical, 2)
                         case .card(let cardModel):
                             if viewModel.isCardEmpty {
-                                ErrorView(title: "main_error_empty_card_title".localized, subtitle: "main_error_empty_card_subtitle".localized)
+                                MessageView(title: "main_error_empty_card_title".localized, subtitle: "main_error_empty_card_subtitle".localized, type: .error)
                             } else {
                                 if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.count == 0 {
-                                    ErrorView(title: "main_error_empty_wallets_title".localized, subtitle: "main_error_empty_wallets_subtitle".localized)
+                                    MessageView(title: "main_error_empty_wallets_title".localized, subtitle: "main_error_empty_wallets_subtitle".localized, type: .message)
                                         .animation(.easeInOut)
                                 } else {
                                     ForEach(viewModel.tokenItemViewModels) { item in
@@ -54,7 +54,7 @@ struct MainView: View {
                                 }
                             }
                         case .unsupported:
-                            ErrorView(title: "main_error_unsupported_card_title".localized, subtitle: "main_error_unsupported_card_subtitle".localized)
+                            MessageView(title: "main_error_unsupported_card_title".localized, subtitle: "main_error_unsupported_card_subtitle".localized, type: .error)
                         }
                     }
                 }

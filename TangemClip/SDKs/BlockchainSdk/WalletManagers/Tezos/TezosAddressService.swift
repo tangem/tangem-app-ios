@@ -10,10 +10,25 @@ import Foundation
 import Sodium
 
 public class TezosAddressService: AddressService {
+    private let curve: EllipticCurve
+    
+    init(curve: EllipticCurve) {
+        self.curve = curve
+    }
+    
     public func makeAddress(from walletPublicKey: Data) -> String {
-        let publicKeyHash = Sodium().genericHash.hash(message: walletPublicKey.bytes, outputLength: 20)!
-        let tz1Prefix = Data(hex: "06A19F")
-        let prefixedHash = tz1Prefix + publicKeyHash
+        var key: Data
+        switch curve {
+        case .ed25519:
+            key = walletPublicKey
+        case .secp256k1:
+            key = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
+        case .secp256r1:
+            fatalError("Not implemented")
+        }
+        let publicKeyHash = Sodium().genericHash.hash(message: key.bytes, outputLength: 20)!
+        let prefix = TezosPrefix.addressPrefix(for: curve)
+        let prefixedHash = prefix + publicKeyHash
         let checksum = prefixedHash.sha256().sha256().prefix(4)
         let prefixedHashWithChecksum = prefixedHash + checksum
         return Base58.base58FromBytes(prefixedHashWithChecksum.bytes)

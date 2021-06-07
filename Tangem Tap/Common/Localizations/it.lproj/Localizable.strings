@@ -18,9 +18,15 @@
 
 "common_no" = "No";
 
-"common_save_changes" = "Mantieni le modifiche";
+"common_start" = "Start";
+
+"common_cancel" = "Cancel";
+
+"common_back" = "Back";
 
 "common_continue" = "Continua";
+
+"common_save_changes" = "Mantieni le modifiche";
 
 "common_warning" = "Avviso";
 
@@ -29,12 +35,6 @@
 "common_camera_denied_alert_message" = "Non hai fornito l'accesso alla tua videocamera, modifica le tue impostazioni sulla privacy";
 
 "common_camera_alert_button_settings" = "Impostazioni";
-
-"common_start" = "Start";
-
-"common_cancel" = "Cancel";
-
-"common_back" = "Back";
 
 "common_add" = "Add";
 
@@ -47,6 +47,7 @@
 "home_welcome" = "Benvenuti in Tangem. Hai una delle nostre schede?";
 
 "home_welcome_back" = "Benevenuti di nuovo su Tangem. Scansiona la tua carta per iniziare.";
+
 "home_button_yes" = "Si! Scansiona carta.";
 
 "home_button_shop" = "Shop";
@@ -57,11 +58,13 @@
 
 "home_button_scan" = "Scansiona carta";
 
-
+"wallet_error_no_account_subtitle_format" = "Carica %@+ %@ per creare un conto";
 
 "wallet_button_scan" = "Scansiona";
 
 "wallet_button_send" = "Invia";
+
+"wallet_button_topup" = "Ricarica";
 
 "wallet_button_create_wallet" = "Crea portafoglio";
 
@@ -69,20 +72,15 @@
 
 "wallet_choice_wallet_option_title" = "Scegli l'opzione del portafoglio";
 
-
-
 "wallet_balance_token_title" = "Token";
+
 "wallet_balance_tokens_title" = "Token";
 
 "wallet_balance_verified" = "Saldo verificato";
-"wallet_balance_loading" = "Il saldo sta per essere caricato…";
 
 "wallet_balance_blockchain_unreachable" = "Blockchain non raggiungibile";
 
-
-
 "wallet_error_no_account" = "Conto non creato";
-"wallet_error_no_account_subtitle_format" = "Carica %@+ %@ per creare un conto";
 
 "wallet_error_empty_card" = "Carta vuota";
 
@@ -92,25 +90,28 @@
 
 "wallet_error_unsupported_blockchain_subtitle" = " La tua carta Tangem è stata creata per funzionare con un'altra applicazione. Leggere il nome e le istruzioni sulla carta e installare l'applicazione corretta";
 
+"wallet_balance_loading" = "Il saldo sta per essere caricato…";
+
 "wallet_balance_tx_in_progress" = "Transazione in corso...";
 
-"wallet_pending_tx_sending" = "Invia\u0020";
 
-"wallet_pending_tx_sending_address_format" = " su %@ ";
+"pendingTxView_sending_format" = "Sending %@ to %@";
+
+"pendingTxView_receiving_format" = "Receiving %@ from %@";
+
+
 
 "wallet_pending_tx_receiving" = "Ricevi\u0020";
-
 "wallet_pending_tx_receiving_address_format" = " da %@ ";
+"wallet_pending_tx_sending" = "Invia\u0020";
+"wallet_pending_tx_sending_address_format" = " su %@ ";
 
-
-"wallet_button_topup" = "Ricarica";
 
 "wallet_address_button_explore" = "Cerca indirizzo";
 
 "wallet_address_button_create_payid" = "Crea PayString";
 
 "wallet_qr_title_format" = "portafoglio %@";
-
 
 "wallet_create_payid" = "Crea PayString";
 
@@ -150,12 +151,6 @@
 
 "send_validation_invalid_address" = "Indirizzo non valido";
 
-"send_validation_invalid_amount" = "Importo non valido"; //"L'importo supera il saldo";
-
-"send_validation_invalid_total" = "Il totale supera il saldo";
-
-"send_validation_invalid_fee" = "La commissione supera il saldo";
-
 "send_fee_picker_low" = "Insufficiente";
 
 "send_fee_picker_normal" = "Normale";
@@ -173,9 +168,11 @@
 "send_balance_subtitle_format" = "Saldo: %@";
 "send_transaction_success" = "La transazione è stata firmata con successo e inviata al nodo blockchain. Il saldo del portafoglio verrà aggiornato dopo un po' di tempo";
 
+
 "send_extras_hint_destination_tag" = "Destination Tag";
 
 "send_extras_hint_memo" = "Memo Id";
+
 
 "details_title" = "Requisiti";
 
@@ -203,13 +200,11 @@
 
 "details_row_title_send_feedback" = "Send feedback";
 
-"details_currency_search_placeholder" = "Search";
+"details_currency_search_placeholder" = "Cerca";
 
 "details_section_title_blockchain" = "Blockchain";
 
 "details_row_title_manage_tokens" = "Manage tokens";
-
-"details_currency_search_placeholder" = "Cerca";
 
 "details_erase_wallet_warning" = "Questa azione è irreversibile. Se dopo aver eliminato il portafoglio qualcuno invia dei fondi, non potrai ritirarli.";
 
@@ -233,7 +228,7 @@
 
 // MARK: - Alert
 
-"alert_old_device_this_card"="Potresti riscontrare problemi con l'NFC su alcuni iPhone 7/7 + durante la rimozione";
+"alert_old_device_this_card" = "Potresti riscontrare problemi con l'NFC su alcuni iPhone 7/7 + durante la rimozione";
 
 "alert_card_signed_transactions" = "Questa carta è già stata ricaricata e ha firmato transazioni in passato. Valuta la possibilità di prelevare immediatamente tutti i fondi se hai ricevuto questa carta da una fonte inaffidabile.";
 
@@ -241,7 +236,7 @@
 
 "alert_developer_card" = "La carta che hai scansionato è una carta di sviluppo. Non utilizzarla come strumento di pagamento";
 
-"alert_old_card" = "Le schede emesse prima di settembre 2019 non possono attualmente essere utilizzate con un iPhone. Stiamo lavorando a stretto contatto con Apple per renderle disponibili nelle future versioni di iOS. ";
+"alert_old_card" = "I fondi delle carte Tangem emesse prima di settembre 2019 non possono essere recuperati utilizzando un iPhone a causa delle restrizioni di iOS. È necessario utilizzare un telefono Android per recuperare i fondi. Le carte rilasciate dopo settembre 2019 funzionano correttamente con entrambe le piattaforme.";
 
 "alert_app_feedback_sent_title" = "Sent successfully";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
@@ -262,7 +257,16 @@
 "alert_button_request_support" = "Request support";
 "alert_button_send_feedback" = "Send feedback";
 
-// MARK: Initial message
+"alert_signed_hashes_message" = "This card is not a bearer note. We can’t currently match the signature count on the card with the information on the blockchain. This is normal but in rare cases can mean a previous holder is holding back an offline signature, which is a security concern.
+
+Do not accept this card as physical payment from someone you don’t trust.
+
+It’s perfectly safe in all other respects.
+
+Tangem is the only hardware wallet to offer signature count protection.";
+"alert_button_i_understand" = "I understand";
+
+// MARK: - Initial message
 
 "initial_message_sign_header" = "Avvicina per firmare";
 
@@ -280,26 +284,35 @@
 
 "payid_service_error_loading" = "PayString non valido";
 
+// MARK: - Disclaimer
+
 "disclaimer_text" = "NOTA LEGALE
 
-App Tangem (software)
+1.  App Tangem (software)
 
 Il software può essere utilizzato solo con i portafogli hardware Tangem (schede) tramite l'interfaccia NFC. Il software NON esegue le seguenti operazioni:
 
-Generazione, archiviazione, trasferimento o accesso a chiavi crittografiche private (segrete) di portafogli blockchain contenenti risorse digitali, inclusa la criptovaluta.
-Generazione, archiviazione, trasferimento o accesso a chiavi segrete, password, passphrase, frasi di ripristino che possono essere utilizzate per recuperare o copiare chiavi private (segrete) su portafogli blockchain contenenti risorse digitali, inclusa la criptovaluta.
-Fornitura di servizi di scambio, negoziazione e investimento per conto di Tandem AG.
+a) Generazione, archiviazione, trasferimento o accesso a chiavi crittografiche private (segrete) di portafogli blockchain contenenti risorse digitali, inclusa la criptovaluta.
 
-Rischi associati al funzionamento del Software
+b) Generazione, archiviazione, trasferimento o accesso a chiavi segrete, password, passphrase, frasi di ripristino che possono essere utilizzate per recuperare o copiare chiavi private (segrete) su portafogli blockchain contenenti risorse digitali, inclusa la criptovaluta.
+
+c) Fornitura di servizi di scambio, negoziazione e investimento per conto di Tandem AG.
+
+
+2. Rischi associati al funzionamento del Software
 
 Tandem non sarà ritenuta responsabile per eventuali perdite, danni o reclami derivanti da eventi che rientrano nelle seguenti cinque categorie:
 
+a) Errori commessi dall'utente di qualsiasi software o servizio relativo alla criptovaluta, ad esempio password dimenticate, pagamenti inviati a indirizzi errati e cancellazione accidentale di portafogli blockchain su Schede.
 
-Errori commessi dall'utente di qualsiasi software o servizio relativo alla criptovaluta, ad esempio password dimenticate, pagamenti inviati a indirizzi errati e cancellazione accidentale di portafogli blockchain su Schede.
-Problemi con il software e/o qualsiasi software o servizio correlato a blockchain o criptovaluta, come file danneggiati, transazioni generate in modo improprio, librerie crittografiche non sicure, malware.
-Malfunzionamenti tecnici nell'hardware dell'utente, incluse le Schede, qualsiasi software o servizio relativo alla criptovaluta, ad esempio, perdita di dati a causa di un dispositivo di archiviazione difettoso o danneggiato.
-Problemi di sicurezza affrontati dall'utente di qualsiasi software o servizio relativo alla criptovaluta, ad esempio l'accesso non autorizzato a portafogli e/o account utente.
-Azioni o inattività di terze parti e/o eventi con cui si sono scontrate terze parti, come la bancarotta di fornitori di servizi, attacchi alla sicurezza delle informazioni relative ai fornitori di servizi e frodi perpetrate da terzi.
+b) Problemi con il software e/o qualsiasi software o servizio correlato a blockchain o criptovaluta, come file danneggiati, transazioni generate in modo improprio, librerie crittografiche non sicure, malware.
+
+c) Malfunzionamenti tecnici nell'hardware dell'utente, incluse le Schede, qualsiasi software o servizio relativo alla criptovaluta, ad esempio, perdita di dati a causa di un dispositivo di archiviazione difettoso o danneggiato.
+
+d) Problemi di sicurezza affrontati dall'utente di qualsiasi software o servizio relativo alla criptovaluta, ad esempio l'accesso non autorizzato a portafogli e/o account utente.
+
+e) Azioni o inattività di terze parti e/o eventi con cui si sono scontrate terze parti, come la bancarotta di fornitori di servizi, attacchi alla sicurezza delle informazioni relative ai fornitori di servizi e frodi perpetrate da terzi.
+
 
 3. Rischi commerciali e di investimento
 
@@ -310,13 +323,16 @@ Qualsiasi transazione che coinvolge lo scambio di criptovalute o altre risorse d
 
 Prima di effettuare transazioni utilizzando un sistema elettronico, è necessario leggere attentamente le norme e i regolamenti delle borse che offrono questo sistema e/o elencano i titoli che si intende negoziare. Il trading online presenta un rischio intrinseco dovuto alla risposta del sistema e ai tempi di accesso, che possono variare a seconda delle condizioni di mercato, delle prestazioni del sistema ed altri fattori. È necessario comprendere questi e altri rischi prima di fare trading.
 
+
 5. Rispetto degli obblighi fiscali
 
 Gli utenti del Software sono gli unici responsabili del determinare le eventuali tasse applicate alle loro transazioni in criptovaluta.  I proprietari o i contributori del Software NON sono responsabili della determinazione delle tasse che si applicano alle transazioni in criptovaluta.
 
+
 6. Assenza di garanzie
 
 Il Software viene fornito \"così com'è\" senza garanzia di alcun tipo riguardo al Software e/o a qualsiasi contenuto, dato, materiale e/o servizio fornito con il Software.
+
 
 7. Limitazione di responsabilità
 
@@ -404,10 +420,14 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "warning_button_really_cool" = "Really cool!";
 "warning_button_can_be_better" = "Can be better";
 
+"warning_button_learn_more" = "Learn more";
+
 "warning_rate_app_title" = "One question";
 
 "warning_rate_app_message" = "How do you like Tangem?";
 
+"warning_important_security_info" = "Important security information ⚠️";
+"warning_signed_tx_previously" = "This card has signed transactions in the past";
 "warning_failed_to_verify_card_title" = "Authenticity check failed";
 "warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
 
@@ -437,10 +457,10 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "custom_token_name_input_placeholder" = "ex. USD Coin";
 "custom_token_token_symbol_input_placeholder" = "ex. USDC";
 
-"details_row_title_card_tou" = "Card terms of use";
-
 "wallet_add_tokens" = "Add Tokens";
 "wallet_remove_token" = "Remove token";
+
+"details_row_title_card_tou" = "Card terms of use";
 
 "common_copy" = "Copy";
 "common_share" = "Share";
@@ -451,3 +471,68 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "token_details_tx_note_message" = "Please wait for %@ transaction to complete to be able to send funds";
 
 "warning_low_signatures_format" = "There are only %@ signatures available on this card. You must withdraw all of your funds.";
+
+
+"voice_over_copy_address" = "Copy address";
+"voice_over_share_address" = "Share address";
+"voice_over_show_address_qr" = "Show address, QR, code";
+"voice_over_open_card_details" = "Open card details";
+"voice_over_open_new_wallet_connect_session" = "Scan QR code to open new WalletConnect session";
+"voice_over_nothing_to_paste" = "Nothing to paste from clipboard";
+"voice_over_paste_from_clipboard" = "Paste address from clipboard";
+"voice_over_scan_qr_with_address" = "Scan, QR, code with address";
+"voice_over_open_network_fee_settings" = "Open network fee settings";
+"voice_over_close_network_fee_settings" = "Close network fee settings";
+
+"wallet_connect" = "Wallet Connect";
+"wallet_connect_sessions_title" = "Wallet Connect Sessions";
+"wallet_connect_session_opened" = "WalletConnect session opened with %@";
+"wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
+"wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
+"wallet_connect_clipboard_alert" = "Clipboard contain WalletConnect code. Use copied value or scan QR-code";
+"wallet_connect_paste_from_clipboard" = "Paste from clipboard";
+"wallet_connect_scan_new_code" = "Scan new code";
+"wallet_connect_card_number" = "Card: %@";
+"wallet_connect_scan_card_message" = "Tap card to bind to wallet connect";
+
+"wallet_connect_message_signed" = "The message has been successfully signed and sent to the Dapp";
+"wallet_connect_transaction_signed" = "The transaction has been successfully signed and sent to the Dapp";
+"wallet_connect_transaction_signed_and_send" = "The transaction has been succesfully signed and sent to the blockchain";
+
+"wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error. \nPlease, try again later.";
+"wallet_connect_error_failed_to_connect" = "Failed to establish WalletConnect session. \nPlease, try again later.";
+"wallet_connect_error_sing_failed" = "Failed to sign message. \nPlease, try again";
+"wallet_connect_scanner_error_no_card_id" = "Failed to read card id. \nPlaease, try again";
+"wallet_connect_scanner_error_no_ethereum_wallet" = "This card can’t be used to establish WalletConnect session";
+
+"wallet_connect_card_not_found" = "Failed to find target card";
+
+"wallet_connect_create_tx_message" = "Card: %@
+Request to create transaction for %@
+%@
+
+Amount: %@
+Fee: %@
+Total: %@
+Balance: %@";
+"wallet_connect_create_tx_not_enough_funds" = "\n\nCan't send transaction. Not enough funds.";
+
+"common_select_action" = "Select action";
+
+"common_disconnect" = "Disconnect";
+
+"common_sign" = "Sign";
+"common_sign_and_send" = "Sign and send";
+"common_reject" = "Reject";
+
+"wallet_connect_tx_not_found" = "Failed to find transaction hash";
+"wallet_connect_session_not_found" = "Failed to find session for request";
+"wallet_connect_request_session_start" = "Request to start a session for card with ID %@
+for
+%@
+
+URL: %@";
+
+"wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data";
+"wallet_connect_personal_sign_message" = "Message for %@:\n";
+"wallet_connect_alert_sign_message" = "Requesting to sign a message\nwith card %@\n\n%@";
