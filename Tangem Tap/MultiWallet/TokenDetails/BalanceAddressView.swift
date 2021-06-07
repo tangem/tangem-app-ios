@@ -116,10 +116,12 @@ struct BalanceAddressView: View {
             
             GeometryReader { geometry in
                 HStack(alignment: .center, spacing: 0) {
-                    Image(uiImage: self.getQrCodeImage(width: 114, height: 114))
+                    let imageSize = geometry.size.width * 0.3
+                    let imageSizeInPixels = imageSize * UIScreen.main.scale
+                    Image(uiImage: self.getQrCodeImage(width: imageSizeInPixels, height: imageSizeInPixels))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: geometry.size.width * 0.3)
+                        .frame(width: imageSize)
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text(walletModel.displayAddress(for: selectedAddressIndex))
