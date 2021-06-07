@@ -62,38 +62,36 @@ class WalletConnectCardScanner {
             throw WalletConnectCardScannerError.notValidCard
         }
         
-        let cardInfo = CardInfo(card: card)
-        let isLastScannedCard: Bool
-        let cardModel: CardViewModel
-        var tokenRepoCardId: String?
+        let blockchain = Blockchain.ethereum(testnet: false)
         
-        if cardsRepository.lastScanResult.cardModel?.cardInfo.card.cardId == cid {
-            isLastScannedCard = true
-            cardModel = cardsRepository.lastScanResult.cardModel!
-        } else {
-            tokenRepoCardId = tokenItemsRepository.cardId
-            isLastScannedCard = false
-            tokenItemsRepository.setCard(cid)
-            cardModel = assembly.makeCardModel(from: cardInfo)
+        func findEthWallet(in wallets: [Wallet]) -> Wallet? {
+            wallets.first(where: { $0.blockchain == blockchain || $0.blockchain == .ethereum(testnet: true) })
         }
         
-        let wallets = cardModel.wallets ?? []
+        let cardInfo = CardInfo(card: card)
+        var wallet: Wallet
         
-        let wallet: Wallet
-        if let ethWallet = wallets.first(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) {
-            wallet = ethWallet
+        if cardsRepository.lastScanResult.cardModel?.cardInfo.card.cardId == cid {
+            let model = cardsRepository.lastScanResult.cardModel!
+            if let eth = findEthWallet(in: model.wallets ?? []) {
+                wallet = eth
+            } else {
+                model.addBlockchain(blockchain)
+                wallet = model.wallets!.first(where: { $0.blockchain == blockchain })!
+            }
+            
         } else {
-            let blockchain = Blockchain.ethereum(testnet: false)
-            if isLastScannedCard {
-                cardModel.addBlockchain(blockchain)
-                wallet = cardModel.wallets!.first(where: { $0.blockchain == blockchain })!
+            let tokenRepoCardId = tokenItemsRepository.cardId
+            tokenItemsRepository.setCard(cid)
+            
+            if let eth = findEthWallet(in: assembly.loadWallets(from: cardInfo).map { $0.wallet }) {
+                wallet = eth
             } else {
                 tokenItemsRepository.append(.blockchain(blockchain))
                 wallet = assembly.makeWallets(from: cardInfo, blockchains: [blockchain]).first!.wallet
             }
-        }
-        if let tokenRepoCardId = tokenRepoCardId {
             tokenItemsRepository.setCard(tokenRepoCardId)
+            
         }
         
         scannedCardsRepository.add(card)
