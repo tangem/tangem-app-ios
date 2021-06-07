@@ -20,7 +20,9 @@ enum SupportedBlockchains {
                 .xrp(curve: .secp256k1),
                 .rsk,
                 .tezos(curve: .secp256k1),
-                .binance(testnet: testnet)
+                .binance(testnet: testnet),
+                .bsc(testnet: testnet),
+                .dogecoin
             ]
         case .ed25519:
             return [
