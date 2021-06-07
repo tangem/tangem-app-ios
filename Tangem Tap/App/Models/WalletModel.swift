@@ -278,7 +278,9 @@ class WalletModel: ObservableObject, Identifiable {
                 case .finished:
                     break
                 }
-            }) {[unowned self] rates in
+            }) { [weak self] rates in
+                guard let self = self else { return }
+                
                 if self.rates.count > 0 && rates.count == 0 {
                     return
                 }

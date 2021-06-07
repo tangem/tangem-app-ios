@@ -11,7 +11,7 @@ import Combine
 
 class MultiNetworkProvider<Provider> {
     
-    private let providers: [Provider]
+    internal let providers: [Provider]
     private var currentProviderIndex = 0
     
     var provider: Provider {
