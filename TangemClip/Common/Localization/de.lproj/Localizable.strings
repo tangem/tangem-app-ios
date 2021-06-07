@@ -5,6 +5,7 @@
   Created by Alexander Osokin on 02/10/2019.
   Copyright © 2019 Tangem AG. All rights reserved.
 */
+
 // Error message. When NFC session time is over
 "nfc_session_timeout" = "Die Sitzung ist abgelaufen. Bitte versuchen Sie es erneut.";
 
@@ -38,7 +39,6 @@
 // Label. Writing data: 30%
 "writing_data_progress" = "Die Daten werden geschrieben: %@%%";
 
-
 "pin1" = "Zugangscode";
 "pin2" = "Passcode";
 "pin_enter" = "Anmelden %@";
@@ -47,7 +47,6 @@
 "pin_change_new_code_format" = "Neu %@";
 "pin_change_current_code_format" = "Aktuell %@";
 "pin_set_code_confirm_format" = "Bestätigen %@";
-
 
 "common_ok" = "OK";
 "common_cancel" = "Abbrechen";
@@ -97,6 +96,7 @@
 
 "error_no_space_for_new_wallet" = "Max number of wallets already created";
 "error_card_read_wrong_wallet" = "Card read wrong wallet";
+
 "error_wrong_pin1" = "Wrong Access Сode";
 "error_wrong_pin2" = "Wrong Passcode";
 //Android only
@@ -163,6 +163,7 @@
 "no_account_bnb" = "Senden Sie Geld an diese Andresse um ein Konto zu erstellen";
 
 
+
 "common_build_tx_error" = "Transaktion fehlgeschlagen";
 
 "common_fee_error" = "Erhalt der Gebühr fehlgeschlagen";
@@ -209,6 +210,7 @@
 "xlm_empty_response_error" = "Leere Antwort";
 
 
+
 "xtz_withdrawal_message_warning" = "Damit Sie beim nächsten Aufladen Ihrer Brieftasche keine erhöhte Provision zahlen, soll der Betrag um %@ XTZ reduziert werden";
 
 "xtz_withdrawal_message_reduce" = "Um %@ XTZ reduzieren";
@@ -216,25 +218,27 @@
 "xtz_withdrawal_message_ignore" = "Nein, alles senden";
 
 
+// MARK: - AppClips
 
-"send_validation_invalid_amount" =  "Ungültiger Betrag";
+"main_title" = "Tangem Clip";
+"main_hint" = "Tap \"Read wallets\" button to load wallet information from card";
+"main_button_read_wallets" = "Read wallets";
+"main_button_get_full_app" = "Get full app";
 
-"send_validation_invalid_total" = "Der Gesamtbetrag geht über die Bilanz hinaus";
+// Errors
+"main_error_empty_card_title" = "Empty card";
+"main_error_empty_card_subtitle" = "To start using Tangem card, please, download full app and create wallets";
+"main_error_empty_wallets_title" = "Empty wallets";
+"main_error_empty_wallets_subtitle" = "All wallets on card are empty. Please use full app to learn more";
+"main_error_unsupported_card_title" = "Unsupported card";
+"main_error_unsupported_card_subtitle" = "Can't read card wallet information.\nPlease, use full app to load info from blockchain";
 
-"send_validation_invalid_fee" = "Die Gebühr geht über die Bilanz hinaus";
+"wallet_error_no_account_subtitle_format" = "Load %@+ %@ to create account";
+"wallet_balance_loading" = "Balance is loading…";
+"wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
 
-"send_validation_amount_exceeds_balance" = "Der Betrag geht über die Bilanz hinaus";
+"alert_unsupported_card" = "This card is not designed to work with Tangem Clip";
+"alert_wrong_card_scanned" = "You've scanned wrong card. Try again, please.";
 
-"send_error_dust_amount_format" = "Minimaler Betrag ist %@";
-
-"send_error_dust_change_format" = "Minimaler Wechselgeld ist %@";
-
-"send_error_invalid_fee_value" = "Falsche Gebühr";
-
-"send_error_unknown" = "Unbekannter Fehler";
-
-"send_error_insufficient_balance" = "Nicht genug Geld";
-
-"send_error_blockchain_internal" = "Interner Fehler der Blockchain";
-
-
+"wallet_balance_tx_in_progress" = "Transaction is in progress...";
+"wallet_error_no_account" = "Account is not created";

@@ -218,28 +218,6 @@
 "xtz_withdrawal_message_ignore" = "No, send all";
 
 
-
-"send_validation_invalid_amount" =  "Invalid amount";
-
-"send_validation_invalid_total" = "Total exceeds balance";
-
-"send_validation_invalid_fee" = "Fee exceeds balance";
-
-"send_validation_amount_exceeds_balance" = "Amount exceeds balance";
-
-"send_error_dust_amount_format" = "Minimum amount is %@";
-
-"send_error_dust_change_format" = "Minimum change is %@";
-
-"send_error_invalid_fee_value" = "Invalid Fee";
-
-"send_error_insufficient_balance" = "Insufficient balance";
-
-"send_error_blockchain_internal" = "Blockchain internal error";
-
-"send_error_unknown" = "Unknown error";
-
-
 // MARK: - AppClips
 
 "main_title" = "Tangem Clip";
@@ -261,3 +239,6 @@
 
 "alert_unsupported_card" = "This card is not designed to work with Tangem Clip";
 "alert_wrong_card_scanned" = "You've scanned wrong card. Try again, please.";
+
+"wallet_balance_tx_in_progress" = "Transaction is in progress...";
+"wallet_error_no_account" = "Account is not created";

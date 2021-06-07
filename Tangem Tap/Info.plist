@@ -23,9 +23,11 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>wc</string>
+				<string>tangem</string>
 			</array>
 		</dict>
 	</array>
@@ -51,6 +53,10 @@
 			<string>Any</string>
 		</dict>
 	</dict>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>ScanTangemCardIntent</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SairaSemiCondensed-Bold.ttf</string>
