@@ -79,7 +79,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             return .anyFail(error: WalletConnectServiceError.failedToBuildTx)
         }
         
-        let valueAmount = Amount(with: blockchain, address: wallet.address, type: .coin, value: value)
+        let valueAmount = Amount(with: blockchain, type: .coin, value: value)
         ethWalletModel.update()
         
         // This zip attempting to load gas price and update wallet balance.
@@ -103,9 +103,9 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                                     .filter { $0 == .idle })
             .flatMap { (gasPrice, state) -> AnyPublisher<Transaction, Error> in
                 Future { [weak self] promise in
-                    let gasAmount = Amount(with: blockchain, address: wallet.address, type: .coin, value: Decimal(gas * gasPrice) / blockchain.decimalValue)
+                    let gasAmount = Amount(with: blockchain, type: .coin, value: Decimal(gas * gasPrice) / blockchain.decimalValue)
                     let totalAmount = valueAmount + gasAmount
-                    let balance = ethWalletModel.wallet.amounts[.coin] ?? .zeroCoin(for: blockchain, address: transaction.from)
+                    let balance = ethWalletModel.wallet.amounts[.coin] ?? .zeroCoin(for: blockchain)
                     let dApp = session.session.dAppInfo
                     let message: String = {
                         
