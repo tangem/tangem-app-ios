@@ -14,14 +14,12 @@ extension Wallet {
     var incomingTransactions: [BlockchainSdk.Transaction] {
         return transactions.filter { $0.destinationAddress == address
             && $0.status == .unconfirmed
-            && $0.sourceAddress != "unknown"
         }
     }
     
     var outgoingTransactions: [BlockchainSdk.Transaction] {
         return transactions.filter { $0.sourceAddress == address
             && $0.status == .unconfirmed
-            && $0.destinationAddress != "unknown"
         }
     }
     
