@@ -24,6 +24,10 @@ class AddNewTokensViewModel: ViewModel {
     
     let cardModel: CardViewModel
     
+    var isTestnet: Bool {
+        cardModel.isTestnet
+    }
+    
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
     }

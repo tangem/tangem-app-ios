@@ -81,11 +81,19 @@ extension Card {
     }
     
     public var isTestnet: Bool? {
-        guard let major = firmwareVersion?.major, major < 4 else {
-            return nil
+        if firmwareVersion?.major ?? 0 >= 4 {
+            guard
+                let batch = cardData?.batchId,
+                let cid = cardId,
+                batch == "99FF"
+            else {
+                return nil
+            }
+            
+            return cid.starts(with: batch.reversed())
+        } else {
+            return defaultBlockchain?.isTestnet
         }
-        
-        return defaultBlockchain?.isTestnet
     }
     
     public var defaultToken: Token? {
