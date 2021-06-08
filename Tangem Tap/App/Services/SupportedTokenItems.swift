@@ -44,7 +44,7 @@ class SupportedTokenItems {
         var availableBlockchains = Set<Blockchain>()
         
         for curve in card.walletCurves {
-            let blockchains = card.isTestnet ?? false ? testnetBlockchains : blockchains
+            let blockchains = card.isTestnet ? testnetBlockchains : blockchains
             blockchains.filter { $0.curve == curve }.forEach {
                 availableBlockchains.insert($0)
             }
