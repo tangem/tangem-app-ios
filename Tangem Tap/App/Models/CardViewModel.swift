@@ -203,7 +203,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canTopup: Bool { featuresService.canTopup }
     
-    var isTestnet: Bool { cardInfo.card.isTestnet ?? false }
+    var isTestnet: Bool { cardInfo.card.isTestnet }
     
     private var erc20TokenWalletModel: WalletModel? {
         get {
@@ -521,7 +521,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         if ethWalletModel == nil {
             sholdAddWalletManager = true
-            let isTestnet = cardInfo.card.isTestnet ?? false
+            let isTestnet = cardInfo.card.isTestnet
             ethWalletModel = assembly.makeWallets(from: cardInfo, blockchains: [.ethereum(testnet: isTestnet)]).first!
         }
         
@@ -557,7 +557,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func addToken(_ token: Token, completion: @escaping (Result<Token, Error>) -> Void) {
         if self.erc20TokenWalletModel == nil {
-            let isTestnet = cardInfo.card.isTestnet ?? false
+            let isTestnet = cardInfo.card.isTestnet
             self.addBlockchain(.ethereum(testnet: isTestnet))
         }
         
