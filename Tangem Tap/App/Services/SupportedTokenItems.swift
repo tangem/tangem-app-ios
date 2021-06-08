@@ -28,10 +28,23 @@ class SupportedTokenItems {
         ]
     }()
     
+    private lazy var testnetBlockchains: Set<Blockchain> = {
+        [
+            .bitcoin(testnet: true),
+            .bitcoinCash(testnet: true),
+            .ethereum(testnet: true),
+            .binance(testnet: true),
+            .stellar(testnet: true),
+            .bsc(testnet: true),
+            .matic(testnet: true)
+        ]
+    }()
+    
     func blockchains(for card: Card) -> Set<Blockchain> {
         var availableBlockchains = Set<Blockchain>()
         
         for curve in card.walletCurves {
+            let blockchains = card.isTestnet ?? false ? testnetBlockchains : blockchains
             blockchains.filter { $0.curve == curve }.forEach {
                 availableBlockchains.insert($0)
             }
