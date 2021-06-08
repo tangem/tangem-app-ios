@@ -119,22 +119,22 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
     
     private func appendWalletsIfNeeded(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         if card.firmwareVersion >= FirmwareConstraints.AvailabilityVersions.walletData {
-            let existingCurves: Set<EllipticCurve> = Set(card.wallets.compactMap({$0.curve}))
-            let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
-            let missingCurves = mandatoryСurves.subtracting(existingCurves)
+            let existingCurves: Set<EllipticCurve> = Set(card.wallets.compactMap({ $0.curve }))
+            let mandatoryСurves: [EllipticCurve] = [.secp256k1, .ed25519, .secp256r1]
+            let missingCurves = mandatoryСurves.filter { !existingCurves.contains($0) }
             
             if existingCurves.count > 0, // not empty card
                missingCurves.count > 0, //not enough curvse
                let maxIndex = card.walletsCount {
                 
-                let busyIndexes = card.wallets.filter {$0.status != .empty }.map { $0.index }
+                let occupiedIndices = card.wallets.filter {$0.status != .empty }.map { $0.index }
                 let allIndexes = 0..<maxIndex
-                let availableIndexes = allIndexes.filter { !busyIndexes.contains($0) }.sorted()
+                let availableIndices = allIndexes.filter { !occupiedIndices.contains($0) }
                 
-                if availableIndexes.count >= missingCurves.count {
-                    var infos: [CreateWalletInfo] = .init()
-                    for (index, curve) in missingCurves.sorted(by: { $0.rawValue < $1.rawValue }).enumerated() {
-                        infos.append(CreateWalletInfo(index: availableIndexes[index], config: WalletConfig(curveId: curve)))
+                if availableIndices.count >= missingCurves.count {
+                    var infos: [CreateWalletInfo] = []
+                    for (index, curve) in missingCurves.enumerated() {
+                        infos.append(CreateWalletInfo(index: availableIndices[index], config: WalletConfig(curveId: curve)))
                     }
                     appendWallets(infos, session: session, completion: completion)
                     return
