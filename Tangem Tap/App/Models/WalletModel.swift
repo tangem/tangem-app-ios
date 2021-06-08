@@ -50,7 +50,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     var isTestnet: Bool {
-        cardInfo.card.isTestnet ?? false
+        cardInfo.card.isTestnet
     }
     
     let walletManager: WalletManager
