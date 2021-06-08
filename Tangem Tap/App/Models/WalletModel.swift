@@ -49,6 +49,10 @@ class WalletModel: ObservableObject, Identifiable {
         getFiat(for: wallet.amounts[.coin]) ?? 0
     }
     
+    var isTestnet: Bool {
+        cardInfo.card.isTestnet ?? false
+    }
+    
     let walletManager: WalletManager
     let cardInfo: CardInfo
     private var bag = Set<AnyCancellable>()
