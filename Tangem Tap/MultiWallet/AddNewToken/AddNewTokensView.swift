@@ -10,6 +10,8 @@ import SwiftUI
 import BlockchainSdk
 
 fileprivate struct TokenView: View {
+    let isTestnet: Bool
+    
     var isAdded: Bool
     var isLoading: Bool
     var name: String
@@ -21,6 +23,7 @@ fileprivate struct TokenView: View {
     var body: some View {
         HStack {
             TokenIconView(token: tokenItem)
+                .saturation(isTestnet ? 0 : 1.0)
                 .frame(width: 40, height: 40, alignment: .center)
             
             VStack(alignment: .leading, spacing: 6) {
@@ -68,7 +71,8 @@ struct AddNewTokensView: View {
                         searchText.isEmpty || $0.displayName.lowercased().contains(searchText.lowercased())
                             || $0.currencySymbol.lowercased().contains(searchText.lowercased())
                     }) { blockchain in
-                        TokenView(isAdded: viewModel.isAdded(blockchain),
+                        TokenView(isTestnet: viewModel.isTestnet,
+                                  isAdded: viewModel.isAdded(blockchain),
                                   isLoading: false,
                                   name: blockchain.displayName,
                                   symbol: blockchain.currencySymbol,
@@ -81,7 +85,8 @@ struct AddNewTokensView: View {
                 Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized)) {
                     ForEach(viewModel.availableTokens.filter {
                                 searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
-                        TokenView(isAdded: viewModel.isAdded(token),
+                        TokenView(isTestnet: viewModel.isTestnet,
+                                  isAdded: viewModel.isAdded(token),
                                   isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
                                   symbol: token.symbol,
                                   tokenItem: .token(token),
