@@ -203,6 +203,8 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canTopup: Bool { featuresService.canTopup }
     
+    var isTestnet: Bool { cardInfo.card.isTestnet ?? false }
+    
     private var erc20TokenWalletModel: WalletModel? {
         get {
              walletModels?.first(where: {$0.wallet.blockchain == .ethereum(testnet: true)
