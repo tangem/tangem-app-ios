@@ -97,7 +97,7 @@ class WalletConnectCardScanner {
         scannedCardsRepository.add(card)
         return WalletInfo(cid: cid,
                           walletPublicKey: wallet.publicKey,
-                          isTestnet: card.isTestnet ?? false)
+                          isTestnet: card.isTestnet)
     }
     
 }
