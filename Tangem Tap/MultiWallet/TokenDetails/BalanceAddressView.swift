@@ -106,6 +106,7 @@ struct BalanceAddressView: View {
                 Spacer()
                 
                 TokenIconView(token: walletModel.getTokenItem(for: amountType))
+                    .saturation(walletModel.isTestnet ? 0 : 1)
                     .frame(width: 40, height: 40, alignment: .center)
             }
             
@@ -193,7 +194,7 @@ struct BalanceAddressView: View {
 }
 
 struct BalanceAddressView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly(for: .ethereum)
+    static let assembly = Assembly.previewAssembly(for: .twin)
     
     @State static var cardViewModel = assembly.previewCardViewModel
     
@@ -222,6 +223,6 @@ struct BalanceAddressView_Previews: PreviewProvider {
                 .padding()
             }
         }
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax])
+        .previewGroup(devices: [.iPhone7])
     }
 }
