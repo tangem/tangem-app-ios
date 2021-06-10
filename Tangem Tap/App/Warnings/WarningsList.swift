@@ -18,6 +18,7 @@ struct WarningsList {
     static let rateApp = TapWarning(title: "warning_rate_app_title".localized, message: "warning_rate_app_message".localized, priority: .info, type: .temporary, event: .rateApp)
     static let failedToVerifyCard = TapWarning(title: "warning_failed_to_verify_card_title".localized, message: "warning_failed_to_verify_card_message".localized, priority: .critical, type: .permanent, event: .failedToValidateCard)
     static let multiWalletSignedHashes = TapWarning(title: "warning_important_security_info".localized, message: "warning_signed_tx_previously".localized, priority: .info, type: .temporary, location: [.main], event: .multiWalletSignedHashes)
+    static let testnetCard = TapWarning(title: warningTitle, message: "warning_testnet_card_message".localized, priority: .critical, type: .permanent, location: [.main, .send], event: .testnetCard)
     
     static func lowSignatures(count: Int) -> TapWarning {
         let message = String(format: "warning_low_signatures_format".localized, "\(count)")
