@@ -31,13 +31,28 @@ class SupportedTokenItems {
     private lazy var testnetBlockchains: Set<Blockchain> = {
         [
             .bitcoin(testnet: true),
-            .bitcoinCash(testnet: true),
             .ethereum(testnet: true),
             .binance(testnet: true),
             .stellar(testnet: true),
             .bsc(testnet: true),
             .matic(testnet: true)
         ]
+    }()
+    
+    lazy var erc20Tokens: [Token] = {
+        let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
+                                                   type: [Token].self,
+                                                   shouldAddCompilationCondition: false)
+        
+        return tokens ?? []
+    }()
+    
+    lazy var erc20TokensTestnet: [Token] = {
+        let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens_testnet",
+                                                 type: [Token].self,
+                                                 shouldAddCompilationCondition: false)
+      
+      return tokens ?? []
     }()
     
     func blockchains(for card: Card) -> Set<Blockchain> {
@@ -52,12 +67,4 @@ class SupportedTokenItems {
         
         return availableBlockchains
     }
-    
-    lazy var erc20Tokens: [Token] = {
-        let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
-                                                   type: [Token].self,
-                                                   shouldAddCompilationCondition: false)
-        
-        return tokens ?? []
-    }()
 }
