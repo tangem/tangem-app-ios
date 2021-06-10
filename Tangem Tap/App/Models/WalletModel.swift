@@ -49,6 +49,10 @@ class WalletModel: ObservableObject, Identifiable {
         getFiat(for: wallet.amounts[.coin]) ?? 0
     }
     
+    var isTestnet: Bool {
+        cardInfo.card.isTestnet
+    }
+    
     let walletManager: WalletManager
     let cardInfo: CardInfo
     private var bag = Set<AnyCancellable>()
@@ -278,7 +282,9 @@ class WalletModel: ObservableObject, Identifiable {
                 case .finished:
                     break
                 }
-            }) {[unowned self] rates in
+            }) { [weak self] rates in
+                guard let self = self else { return }
+                
                 if self.rates.count > 0 && rates.count == 0 {
                     return
                 }
