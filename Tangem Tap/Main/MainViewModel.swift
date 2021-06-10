@@ -95,6 +95,11 @@ class MainViewModel: ViewModel {
     
     var topupURL: URL? {
         if let wallet = wallets?.first {
+            let blockchain = wallet.blockchain
+            if blockchain.isTestnet {
+                return URL(string: blockchain.testnetTopupLink ?? "")
+            }
+            
             return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
                                      walletAddress: wallet.address)
         }
