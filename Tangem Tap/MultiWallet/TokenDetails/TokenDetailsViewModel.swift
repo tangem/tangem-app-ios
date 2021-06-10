@@ -42,6 +42,12 @@ class TokenDetailsViewModel: ViewModel {
     
     var topupURL: URL? {
         if let wallet = wallet {
+            let blockchain = wallet.blockchain
+            
+            if card.isTestnet {
+                return URL(string: blockchain.testnetTopupLink ?? "")
+            }
+            
             return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
                                             walletAddress: wallet.address)
         }
