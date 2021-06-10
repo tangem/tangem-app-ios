@@ -21,9 +21,21 @@ struct AlertBinder: Identifiable {
 }
 
 enum AlertBuilder {
+    static var successTitle: String {
+        "common_success".localized
+    }
+    
+    static var okButtonTitle: String { "common_ok".localized }
+    
     static func makeSuccessAlert(message: String, okAction: (() -> Void)? = nil) -> Alert {
-        Alert(title: Text("common_success"),
+        Alert(title: Text(successTitle),
               message: Text(message),
-              dismissButton: Alert.Button.default(Text("common_ok"), action: okAction))
+              dismissButton: Alert.Button.default(Text(okButtonTitle), action: okAction))
+    }
+    
+    static func makeSuccessAlertController(message: String, okAction: (() -> Void)? = nil) -> UIAlertController {
+        let alert = UIAlertController(title: successTitle, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: okButtonTitle, style: .default, handler: { _ in okAction?() }))
+        return alert
     }
 }
