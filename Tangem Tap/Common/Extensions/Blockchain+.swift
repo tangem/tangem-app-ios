@@ -60,8 +60,7 @@ extension Blockchain: Identifiable {
         case .bsc:
             return "https://testnet.binance.org/faucet-smart"
         case .binance:
-            return nil
-//            return "https://academy.binance.com/en/articles/binance-dex-funding-your-testnet-account"
+            return "https://docs.binance.org/smart-chain/wallet/binance.html"
 //            return "https://docs.binance.org/guides/testnet.html"
         case .matic:
             return "https://faucet.matic.network"
