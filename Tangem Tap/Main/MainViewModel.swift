@@ -95,6 +95,11 @@ class MainViewModel: ViewModel {
     
     var topupURL: URL? {
         if let wallet = wallets?.first {
+            let blockchain = wallet.blockchain
+            if blockchain.isTestnet {
+                return URL(string: blockchain.testnetTopupLink ?? "")
+            }
+            
             return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
                                      walletAddress: wallet.address)
         }
@@ -437,6 +442,25 @@ class MainViewModel: ViewModel {
         selectedWallet = tokenItem
         assembly.reset()
         navigation.mainToTokenDetails = true
+    }
+    
+    func topupAction() {
+        guard let card = cardModel?.cardInfo.card else { return }
+        
+        guard
+            card.isTestnet,
+            !card.isMultiWallet,
+            let walletModel = cardModel?.walletModels?.first,
+            let token = walletModel.tokenItemViewModels.first?.amountType.token
+        else {
+            if topupURL != nil {
+                navigation.mainToTopup = true
+            }
+            return
+        }
+        
+        TestnetTopupService.topup(.erc20Token(walletManager: walletModel.walletManager, token: token))
+        
     }
 
     // MARK: - Private functions

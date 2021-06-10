@@ -42,7 +42,12 @@ class TokenDetailsViewModel: ViewModel {
     
     var topupURL: URL? {
         if let wallet = wallet {
-            return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
+            
+            if card.isTestnet {
+                return URL(string: blockchain.testnetTopupLink ?? "")
+            }
+            
+            return topupService.getTopupURL(currencySymbol: blockchain.currencySymbol,
                                             walletAddress: wallet.address)
         }
         return nil
@@ -125,6 +130,19 @@ class TokenDetailsViewModel: ViewModel {
                 walletModel.removeToken(token)
             }
         }
+    }
+    
+    func topupAction() {
+        guard card.isTestnet, let token = amountType.token else {
+            if topupURL != nil {
+                navigation.detailsToTopup = true
+            }
+            return
+        }
+        
+        guard let model = walletModel else { return }
+        
+        TestnetTopupService.topup(.erc20Token(walletManager: model.walletManager, token: token))
     }
     
     private func bind() {
