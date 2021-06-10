@@ -32,7 +32,7 @@ class TestnetTopupService {
             return
         }
         
-        let amountToSend = Amount(with: walletManager.wallet.blockchain, address: "", value: 0)
+        let amountToSend = Amount(with: walletManager.wallet.blockchain, value: 0)
         let destinationAddress = token.contractAddress
         
         var subs: AnyCancellable!
