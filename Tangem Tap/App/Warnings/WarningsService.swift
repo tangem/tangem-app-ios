@@ -54,6 +54,7 @@ class WarningsService {
     private func warningsForMain(for card: Card) -> WarningsContainer {
         let container = WarningsContainer()
         
+        addTestnetCardWarningIfNeeded(in: container, for: card)
         addDevCardWarningIfNeeded(in: container, for: card)
         addLowRemainingSignaturesWarningIfNeeded(in: container, for: card)
         addOldCardWarning(in: container, for: card)
@@ -72,6 +73,7 @@ class WarningsService {
     private func warningsForSend(for card: Card) -> WarningsContainer {
         let container = WarningsContainer()
         
+        addTestnetCardWarningIfNeeded(in: container, for: card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
         
         let remoteWarnings = self.remoteWarnings(for: card, location: .send)
@@ -125,6 +127,14 @@ class WarningsService {
            remainingSignatures <= 10 {
             container.add(WarningsList.lowSignatures(count: remainingSignatures))
         }
+    }
+    
+    private func addTestnetCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
+        guard card.isTestnet else {
+            return
+        }
+        
+        container.add(WarningEvent.testnetCard.warning)
     }
     
 }
