@@ -45,7 +45,7 @@ struct TokenDetailsView: View {
             if viewModel.canTopup  {
                 TwinButton(leftImage: "arrow.up",
                            leftTitle: "wallet_button_topup",
-                           leftAction: { navigation.detailsToTopup = true },
+                           leftAction: { viewModel.topupAction() },
                            leftIsDisabled: false,
                            
                            rightImage: "arrow.right",
