@@ -73,6 +73,7 @@ class WarningsService {
     private func warningsForSend(for card: Card) -> WarningsContainer {
         let container = WarningsContainer()
         
+        addTestnetCardWarningIfNeeded(in: container, for: card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
         
         let remoteWarnings = self.remoteWarnings(for: card, location: .send)
