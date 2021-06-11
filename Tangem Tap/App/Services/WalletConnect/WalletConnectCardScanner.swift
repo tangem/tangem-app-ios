@@ -62,7 +62,7 @@ class WalletConnectCardScanner {
             throw WalletConnectCardScannerError.notValidCard
         }
         
-        let blockchain = Blockchain.ethereum(testnet: false)
+        let blockchain = Blockchain.ethereum(testnet: card.isTestnet)
         
         func findEthWallet(in wallets: [Wallet]) -> Wallet? {
             wallets.first(where: { $0.blockchain == blockchain || $0.blockchain == .ethereum(testnet: true) })
@@ -97,7 +97,7 @@ class WalletConnectCardScanner {
         scannedCardsRepository.add(card)
         return WalletInfo(cid: cid,
                           walletPublicKey: wallet.publicKey,
-                          isTestnet: card.isTestnet ?? false)
+                          isTestnet: card.isTestnet)
     }
     
 }
