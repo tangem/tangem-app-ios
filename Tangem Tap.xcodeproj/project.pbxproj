@@ -606,6 +606,8 @@
 		B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */; };
 		B0C04BBE2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */; };
 		B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */; };
+		B0C4A1D12671EB2400DCB921 /* erc20tokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C4A1D02671E39B00DCB921 /* erc20tokens_testnet.json */; };
+		B0C4A1D32671F3FC00DCB921 /* TestnetTopupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4A1D22671F3FB00DCB921 /* TestnetTopupService.swift */; };
 		B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */; };
 		B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
 		B0C87B482566492000F861DE /* TwinCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinCardInfo.swift */; };
@@ -1444,6 +1446,8 @@
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationLink+EmptyLabel.swift"; sourceTree = "<group>"; };
 		B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAccessDeniedModifier.swift; sourceTree = "<group>"; };
+		B0C4A1D02671E39B00DCB921 /* erc20tokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = erc20tokens_testnet.json; sourceTree = "<group>"; };
+		B0C4A1D22671F3FB00DCB921 /* TestnetTopupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTopupService.swift; sourceTree = "<group>"; };
 		B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionItemView.swift; sourceTree = "<group>"; };
 		B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsFileCoder.swift; sourceTree = "<group>"; };
 		B0C87B472566492000F861DE /* TwinCardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardInfo.swift; sourceTree = "<group>"; };
@@ -1697,6 +1701,7 @@
 				B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */,
 				B07AE16B25DD548A0045179A /* RateAppService.swift */,
 				5D6784CD25EB92F300149995 /* SupportedTokenItems.swift */,
+				B0C4A1D22671F3FB00DCB921 /* TestnetTopupService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3431,6 +3436,7 @@
 			isa = PBXGroup;
 			children = (
 				B080765E25D10667006CF606 /* erc20tokens.json */,
+				B0C4A1D02671E39B00DCB921 /* erc20tokens_testnet.json */,
 				B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */,
 			);
 			path = Resources;
@@ -3925,6 +3931,7 @@
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
 				5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
+				B0C4A1D12671EB2400DCB921 /* erc20tokens_testnet.json in Resources */,
 				5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
@@ -4303,6 +4310,7 @@
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
 				B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */,
 				5D9DCADE2551744F0059799C /* ViewModel.swift in Sources */,
+				B0C4A1D32671F3FC00DCB921 /* TestnetTopupService.swift in Sources */,
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
