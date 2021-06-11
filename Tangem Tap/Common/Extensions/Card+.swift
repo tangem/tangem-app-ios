@@ -80,12 +80,20 @@ extension Card {
         return nil
     }
     
-    public var isTestnet: Bool? {
-        guard let major = firmwareVersion?.major, major < 4 else {
-            return nil
+    public var isTestnet: Bool {
+        if firmwareVersion?.major ?? 0 >= 4 {
+            guard
+                let batch = cardData?.batchId,
+                let cid = cardId,
+                batch == "99FF"
+            else {
+                return false
+            }
+            
+            return cid.starts(with: batch.reversed())
+        } else {
+            return defaultBlockchain?.isTestnet ?? false
         }
-        
-        return defaultBlockchain?.isTestnet
     }
     
     public var defaultToken: Token? {
