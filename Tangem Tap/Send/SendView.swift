@@ -231,7 +231,7 @@ struct SendView: View {
                         self.viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                     })
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, 16)
+                    .padding(.vertical, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
                         TangemLongButton(isLoading: false,
