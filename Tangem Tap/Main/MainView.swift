@@ -152,9 +152,7 @@ struct MainView: View {
         TangemVerticalButton(isLoading: false,
                              title: "wallet_button_topup",
                              image: "arrow.up") {
-            if viewModel.topupURL != nil {
-                navigation.mainToTopup = true
-            }
+            viewModel.topupAction()
         }
         .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
     }
