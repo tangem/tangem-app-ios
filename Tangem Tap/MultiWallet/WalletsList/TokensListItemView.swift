@@ -50,6 +50,7 @@ struct TokensListItemView: View {
         HStack(alignment: .top) {
             
             TokenIconView(token: item.tokenItem)
+                .saturation(item.isTestnet ? 0.0 : 1.0)
                 .frame(width: 40, height: 40, alignment: .center)
 
             VStack(alignment: .leading, spacing: 6) {
