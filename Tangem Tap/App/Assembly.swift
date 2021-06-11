@@ -74,6 +74,7 @@ class ServicesAssembly {
                                    initialMessage: Message(header: nil,
                                                            body: "initial_message_sign_header".localized))
         signer.delegate = cardsRepository
+        TestnetTopupService.signer = signer
         return signer
     }()
     
@@ -218,7 +219,7 @@ class Assembly: ObservableObject {
                        let ethereumWalletManager = services.walletManagerFactory.makeEthereumWalletManager(from: cid,
                                                                                                            walletPublicKey: secpWalletPublicKey,
                                                                                                            erc20Tokens: erc20Tokens,
-                                                                                                           isTestnet: false) { //[REDACTED_TODO_COMMENT]
+                                                                                                           isTestnet: cardInfo.card.isTestnet) {
                         walletManagers.append(ethereumWalletManager)
                     }
                 }
