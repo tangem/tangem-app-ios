@@ -28,17 +28,16 @@ class SupportedTokenItems {
         ]
     }()
     
-    func blockchains(for card: Card) -> Set<Blockchain> {
-        var availableBlockchains = Set<Blockchain>()
-        
-        for curve in card.walletCurves {
-            blockchains.filter { $0.curve == curve }.forEach {
-                availableBlockchains.insert($0)
-            }
-        }
-        
-        return availableBlockchains
-    }
+    private lazy var testnetBlockchains: Set<Blockchain> = {
+        [
+            .bitcoin(testnet: true),
+            .ethereum(testnet: true),
+            .binance(testnet: true),
+            .stellar(testnet: true),
+            .bsc(testnet: true),
+            .matic(testnet: true)
+        ]
+    }()
     
     lazy var erc20Tokens: [Token] = {
         let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
@@ -47,4 +46,25 @@ class SupportedTokenItems {
         
         return tokens ?? []
     }()
+    
+    lazy var erc20TokensTestnet: [Token] = {
+        let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens_testnet",
+                                                 type: [Token].self,
+                                                 shouldAddCompilationCondition: false)
+      
+      return tokens ?? []
+    }()
+    
+    func blockchains(for card: Card) -> Set<Blockchain> {
+        var availableBlockchains = Set<Blockchain>()
+        
+        for curve in card.walletCurves {
+            let blockchains = card.isTestnet ? testnetBlockchains : blockchains
+            blockchains.filter { $0.curve == curve }.forEach {
+                availableBlockchains.insert($0)
+            }
+        }
+        
+        return availableBlockchains
+    }
 }
