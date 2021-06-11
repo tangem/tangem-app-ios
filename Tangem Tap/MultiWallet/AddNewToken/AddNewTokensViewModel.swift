@@ -16,13 +16,24 @@ class AddNewTokensViewModel: ViewModel {
     weak var tokenItemsRepository: TokenItemsRepository!
     
     var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains(for: cardModel.cardInfo.card ).sorted(by: { $0.displayName < $1.displayName }) } }
-    var availableTokens: [Token]  { get { tokenItemsRepository.supportedItems.erc20Tokens.map {$0} } }
+    var availableTokens: [Token]  {
+        get {
+            isTestnet ?
+                tokenItemsRepository.supportedItems.erc20TokensTestnet :
+                tokenItemsRepository.supportedItems.erc20Tokens
+            
+        }
+    }
     
     @Published var searchText: String = ""
     @Published private(set) var pendingTokensUpdate: Set<Token> = []
     @Published var error: AlertBinder?
     
     let cardModel: CardViewModel
+    
+    var isTestnet: Bool {
+        cardModel.isTestnet
+    }
     
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
