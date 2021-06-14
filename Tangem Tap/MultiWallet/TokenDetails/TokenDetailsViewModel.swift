@@ -28,12 +28,12 @@ class TokenDetailsViewModel: ViewModel {
         return card.walletModels?.first(where: { $0.wallet.blockchain == blockchain })
     }
     
-    var incomingTransactions: [BlockchainSdk.Transaction] {
-        wallet?.incomingTransactions.filter { $0.amount.type == amountType } ?? []
+    var incomingTransactions: [PendingTransaction] {
+        walletModel?.incomingPendingTransactions ?? []
     }
     
-    var outgoingTransactions: [BlockchainSdk.Transaction] {
-        wallet?.outgoingTransactions.filter { $0.amount.type == amountType } ?? []
+    var outgoingTransactions: [PendingTransaction] {
+        walletModel?.outgoingPendingTransactions ?? []
     }
     
     var canTopup: Bool {
@@ -143,6 +143,10 @@ class TokenDetailsViewModel: ViewModel {
         guard let model = walletModel else { return }
         
         TestnetTopupService.topup(.erc20Token(walletManager: model.walletManager, token: token))
+    }
+    
+    func pushOutgoingTx(at index: Int) {
+        
     }
     
     private func bind() {

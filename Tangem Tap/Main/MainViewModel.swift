@@ -126,12 +126,12 @@ class MainViewModel: ViewModel {
         return wallet.canSend(amountType: .coin)
     }
     
-    var incomingTransactions: [BlockchainSdk.Transaction] {
-        wallets?.first?.incomingTransactions ?? []
+    var incomingTransactions: [PendingTransaction] {
+        cardModel?.walletModels?.first?.incomingPendingTransactions ?? []
     }
     
-    var outgoingTransactions: [BlockchainSdk.Transaction] {
-        wallets?.first?.outgoingTransactions ?? []
+    var outgoingTransactions: [PendingTransaction] {
+        cardModel?.walletModels?.first?.outgoingPendingTransactions ?? []
     }
 	
 	var cardNumber: Int? {
@@ -460,6 +460,9 @@ class MainViewModel: ViewModel {
         }
         
         TestnetTopupService.topup(.erc20Token(walletManager: walletModel.walletManager, token: token))
+    }
+    
+    func pushOutgoingTx(at index: Int) {
         
     }
 
