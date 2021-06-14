@@ -36,7 +36,7 @@ class TestnetTopupService {
         let destinationAddress = token.contractAddress
         
         var subs: AnyCancellable!
-        subs = transactionSender.getFee(amount: amountToSend, destination: destinationAddress, includeFee: false)
+        subs = transactionSender.getFee(amount: amountToSend, destination: destinationAddress)
             .flatMap { (fees: [Amount]) -> AnyPublisher<Void, Error> in
                 let fee = fees[0]
                 
