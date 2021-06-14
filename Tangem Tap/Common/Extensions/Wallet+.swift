@@ -11,17 +11,6 @@ import BlockchainSdk
 import SwiftUI
 
 extension Wallet {
-    var incomingTransactions: [BlockchainSdk.Transaction] {
-        return transactions.filter { $0.destinationAddress == address
-            && $0.status == .unconfirmed
-        }
-    }
-    
-    var outgoingTransactions: [BlockchainSdk.Transaction] {
-        return transactions.filter { $0.sourceAddress == address
-            && $0.status == .unconfirmed
-        }
-    }
     
     public func canSend(amountType: Amount.AmountType) -> Bool {
         if hasPendingTx {
