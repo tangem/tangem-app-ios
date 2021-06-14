@@ -38,11 +38,13 @@ struct MainView: View {
     
     var pendingTransactionViews: [PendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
-            return PendingTxView(txState: .incoming, amount: $0.amount.description, address: $0.sourceAddress)
+            PendingTxView(pendingTx: $0)
         }
         
-        let outgTx = viewModel.outgoingTransactions.map {
-            return PendingTxView(txState: .outgoing, amount: $0.amount.description, address: $0.destinationAddress)
+        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) -> PendingTxView in
+            PendingTxView(pendingTx: pendingTx) {
+                viewModel.pushOutgoingTx(at: index)
+            }
         }
         
         return incTx + outgTx
