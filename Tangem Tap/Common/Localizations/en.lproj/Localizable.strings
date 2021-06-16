@@ -544,3 +544,7 @@ URL: %@";
 "testnet_address_topuped" = "Transaction signed and sent to testnet. Wait for a while and reload balance";
 
 "common_push" = "Push";
+"push_previous_fee" = "Previous fee";
+"push_current_fee" = "Current fee";
+"push_previous_total" = "Previous total";
+"push_current_total" = "Current total";
