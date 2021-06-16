@@ -49,6 +49,7 @@ class MainViewModel: ViewModel {
         }
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
+    @Published var txIndexToPush: Int? = nil
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -132,6 +133,12 @@ class MainViewModel: ViewModel {
     
     var outgoingTransactions: [PendingTransaction] {
         cardModel?.walletModels?.first?.outgoingPendingTransactions ?? []
+    }
+    
+    var transactionToPush: BlockchainSdk.Transaction? {
+        guard let index = txIndexToPush else { return nil }
+        
+        return cardModel?.walletModels?.first?.wallet.pendingOutgoingTransactions[index]
     }
 	
 	var cardNumber: Int? {
@@ -463,7 +470,8 @@ class MainViewModel: ViewModel {
     }
     
     func pushOutgoingTx(at index: Int) {
-        
+        assembly.reset(key: String(describing: PushTxViewModel.self))
+        txIndexToPush = index
     }
 
     // MARK: - Private functions
