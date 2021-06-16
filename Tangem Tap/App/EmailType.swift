@@ -9,7 +9,7 @@
 import Foundation
 
 enum EmailType {
-    case negativeRateAppFeedback, failedToScanCard, failedToSendTx, appFeedback
+    case negativeRateAppFeedback, failedToScanCard, failedToSendTx, failedToPushTx, appFeedback
     
     var emailSubject: String {
         switch self {
@@ -17,6 +17,7 @@ enum EmailType {
         case .failedToScanCard: return "Can't scan a card"
         case .failedToSendTx: return "Can't send a transaction"
         case .appFeedback: return "Tangem feedback"
+        case .failedToPushTx: return  "Can't push a transaction"
         }
     }
     
@@ -26,6 +27,7 @@ enum EmailType {
         case .failedToScanCard: return "Please tell us what card do you have?"
         case .failedToSendTx: return "Please tell us more about your issue. Every small detail can help."
         case .appFeedback: return "Hi Tangem,"
+        case .failedToPushTx: return "Please tell us more about your issue. Every small detail can help."
         }
     }
     
@@ -78,7 +80,7 @@ enum EmailCollectedDataType {
     }
     
     enum SendData: String {
-        case sourceAddress = "Source address", destinationAddress = "Destination address", amount, fee, transactionHex = "Transaction HEX"
+        case sourceAddress = "Source address", destinationAddress = "Destination address", amount, fee, transactionHex = "Transaction HEX", pushingTxHash = "Pushing Transaction Hash", pushingFee = "Pushing Transaction New Fee"
     }
     
     enum WalletData: String {
