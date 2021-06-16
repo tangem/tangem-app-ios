@@ -85,6 +85,15 @@ struct TokenDetailsView: View {
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
                         ForEach(self.pendingTransactionViews) { $0 }
+                            .sheet(item: $viewModel.txIndexToPush) { index in
+                                if let tx = viewModel.transactionToPush {
+                                    PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
+                                                                                               blockchain: viewModel.blockchain,
+                                                                                               card: viewModel.card),
+                                               onSuccess: {})
+                                        .environmentObject(navigation)
+                                }
+                            }
                         
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(walletModel: walletModel, amountType: viewModel.amountType)

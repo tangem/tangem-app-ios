@@ -416,6 +416,18 @@ class Assembly: ObservableObject {
         vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
         return vm
     }
+    
+    func makePushViewModel(for tx: Transaction, blockchain: Blockchain, card: CardViewModel) -> PushTxViewModel {
+        if let restored: PushTxViewModel = get() {
+            restored.transaction = tx
+            return restored
+        }
+        
+        let vm = PushTxViewModel(transaction: tx, blockchain: blockchain, cardViewModel: card, signer: services.signer, ratesService: services.ratesService)
+        initialize(vm)
+        vm.emailDataCollector = PushScreenDataCollector(pushTxViewModel: vm)
+        return vm
+    }
 	
     func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
         let scanResult = services.cardsRepository.lastScanResult
@@ -560,7 +572,7 @@ extension Assembly {
     }
     
     static var previewAssembly: Assembly {
-        .previewAssembly(for: .v4)
+        .previewAssembly(for: .twin)
     }
     
     var previewCardViewModel: CardViewModel {
