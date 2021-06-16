@@ -67,7 +67,7 @@ class WalletModel: ObservableObject, Identifiable {
         let txPusher = walletManager as? TransactionPusher
         
         return wallet.pendingOutgoingTransactions.map {
-            let isTxStuckByTime = Date().timeIntervalSince1970 - ($0.date ?? Date()).timeIntervalSince1970 > Constants.bitcoinTxStuckTimeSec
+            let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
             
             return PendingTransaction(destination: $0.destinationAddress,
                                       transferAmount: $0.amount.description,
