@@ -82,6 +82,42 @@ struct SendScreenDataCollector: EmailDataCollector {
     
 }
 
+struct PushScreenDataCollector: EmailDataCollector {
+    
+    unowned var pushTxViewModel: PushTxViewModel
+    
+    var lastError: Error? = nil
+    
+    var dataForEmail: String {
+        let card = pushTxViewModel.cardViewModel.cardInfo.card
+        var data = collectData(from: card)
+        data.append(.separator(.dashes))
+        switch pushTxViewModel.amountToSend.type {
+        case .coin:
+            data.append(EmailCollectedData(type: .card(.blockchain), data: pushTxViewModel.amountToSend.currencySymbol))
+        case .token(let token):
+            data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
+        default:
+            break
+        }
+        
+        data.append(contentsOf: [
+            EmailCollectedData(type: .wallet(.walletManagerHost), data: pushTxViewModel.walletModel.walletManager.currentHost),
+            EmailCollectedData(type: .error, data: lastError?.localizedDescription ?? "Unknown error"),
+            .separator(.dashes),
+            EmailCollectedData(type: .send(.pushingTxHash), data: pushTxViewModel.transaction.hash ?? .unknown),
+            EmailCollectedData(type: .send(.pushingFee), data: pushTxViewModel.selectedFee?.description ?? .unknown),
+            EmailCollectedData(type: .send(.sourceAddress), data: pushTxViewModel.transaction.sourceAddress),
+            EmailCollectedData(type: .send(.destinationAddress), data: pushTxViewModel.transaction.destinationAddress),
+            EmailCollectedData(type: .send(.amount), data: pushTxViewModel.amount),
+            EmailCollectedData(type: .send(.fee), data: pushTxViewModel.sendFee),
+        ])
+        
+        return formatData(data)
+    }
+    
+}
+
 struct DetailsFeedbackDataCollector: EmailDataCollector {
     
     unowned var cardModel: CardViewModel
