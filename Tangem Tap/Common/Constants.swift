@@ -13,6 +13,6 @@ enum Constants {
     static var tangemDomainUrl: URL { URL(string: "https://tangem.com")! }
     static var bitcoinTxStuckTimeSec: TimeInterval {
 //        3600 * 24 * 1
-        1
+        200 // for testing RBF
     }
 }
