@@ -213,6 +213,17 @@ struct MainView: View {
                             if !viewModel.cardModel!.isMultiWallet {
                                 ForEach(pendingTransactionViews) { $0 }
                                     .padding(.horizontal, 16.0)
+                                    .sheet(item: $viewModel.txIndexToPush) { index in
+                                        if let tx = viewModel.transactionToPush,
+                                           let blockchain = viewModel.cardModel?.walletModels?.first?.wallet.blockchain,
+                                           let cardModel = viewModel.cardModel {
+                                            PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
+                                                                                                       blockchain: blockchain,
+                                                                                                       card: cardModel),
+                                                       onSuccess: {})
+                                                .environmentObject(navigation)
+                                        }
+                                    }
                             }
                             
                             if shouldShowEmptyView {
