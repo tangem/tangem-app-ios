@@ -46,10 +46,6 @@ struct TokensListItemView: View {
         return .tangemTapWarning
     }
     
-    var isToken: Bool {
-        item.tokenItem.token != nil
-    }
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top) {
@@ -93,18 +89,8 @@ struct TokensListItemView: View {
                     .foregroundColor(accentColor)
                 }
             }
-            .padding(EdgeInsets(top: 16, leading: 16, bottom: isToken ? 4 : 16, trailing: 16))
-            if isToken {
-                Text(item.blockchain.displayName)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 2)
-                    .font(.system(size: 12, weight: .regular, design: .default))
-                    .foregroundColor(.white)
-                    .background(Color.tangemTapGrayDark)
-                    .cornerRadius(8, corners: .topRight)
-            }
-            
         }
+        .padding(16)
         .background(Color.white)
         .cornerRadius(6.0)
         .shadow(color: .tangemTapGrayLight5, radius: 2, x: 0, y: 1)
