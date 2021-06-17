@@ -46,49 +46,65 @@ struct TokensListItemView: View {
         return .tangemTapWarning
     }
     
+    var isToken: Bool {
+        item.tokenItem.token != nil
+    }
+    
     var body: some View {
-        HStack(alignment: .top) {
-            
-            TokenIconView(token: item.tokenItem)
-                .saturation(item.isTestnet ? 0.0 : 1.0)
-                .frame(width: 40, height: 40, alignment: .center)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top) {
+                
+                TokenIconView(token: item.tokenItem)
+                    .saturation(item.isTestnet ? 0.0 : 1.0)
+                    .frame(width: 40, height: 40, alignment: .center)
 
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(item.name)
-                        .layoutPriority(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer()
-                    Text(item.balance)
-                        .multilineTextAlignment(.trailing)
-                        .truncationMode(.middle)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .lineLimit(2)
-                .minimumScaleFactor(0.8)
-                .foregroundColor(Color.tangemTapGrayDark6)
-                .font(Font.system(size: 17.0, weight: .medium, design: .default))
-                
-                
-                HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                    if item.state.errorDescription != nil  || item.hasTransactionInProgress {
-                        Image("exclamationmark.circle" )
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 10.0, height: 10.0)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(item.name)
+                            .layoutPriority(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer()
+                        Text(item.balance)
+                            .multilineTextAlignment(.trailing)
+                            .truncationMode(.middle)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    Text(secondaryText)
-                        .lineLimit(1)
-                    Spacer()
-                    Text(item.fiatBalance)
-                        .lineLimit(1)
-                        .foregroundColor(Color.tangemTapGrayDark)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+                    .foregroundColor(Color.tangemTapGrayDark6)
+                    .font(Font.system(size: 17.0, weight: .medium, design: .default))
+                    
+                    
+                    HStack(alignment: .firstTextBaseline, spacing: 5.0) {
+                        if item.state.errorDescription != nil  || item.hasTransactionInProgress {
+                            Image("exclamationmark.circle" )
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 10.0, height: 10.0)
+                        }
+                        Text(secondaryText)
+                            .lineLimit(1)
+                        Spacer()
+                        Text(item.fiatBalance)
+                            .lineLimit(1)
+                            .foregroundColor(Color.tangemTapGrayDark)
+                    }
+                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                    .foregroundColor(accentColor)
                 }
-                .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                .foregroundColor(accentColor)
             }
+            .padding(EdgeInsets(top: 16, leading: 16, bottom: isToken ? 4 : 16, trailing: 16))
+            if isToken {
+                Text(item.blockchain.displayName)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 2)
+                    .font(.system(size: 12, weight: .regular, design: .default))
+                    .foregroundColor(.white)
+                    .background(Color.tangemTapGrayDark)
+                    .cornerRadius(8, corners: .topRight)
+            }
+            
         }
-        .padding(16.0)
         .background(Color.white)
         .cornerRadius(6.0)
         .shadow(color: .tangemTapGrayLight5, radius: 2, x: 0, y: 1)
