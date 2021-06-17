@@ -19,8 +19,8 @@ class AddNewTokensViewModel: ViewModel {
     var availableTokens: [Token]  {
         get {
             isTestnet ?
-                tokenItemsRepository.supportedItems.erc20TokensTestnet :
-                tokenItemsRepository.supportedItems.erc20Tokens
+                tokenItemsRepository.supportedItems.ethereumTokensTestnet :
+                tokenItemsRepository.supportedItems.ethereumTokens
             
         }
     }
