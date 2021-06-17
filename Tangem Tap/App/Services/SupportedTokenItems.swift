@@ -39,16 +39,16 @@ class SupportedTokenItems {
         ]
     }()
     
-    lazy var erc20Tokens: [Token] = {
-        let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
+    lazy var ethereumTokens: [Token] = {
+        let tokens = try? JsonUtils.readBundleFile(with: "ethereumTokens",
                                                    type: [Token].self,
                                                    shouldAddCompilationCondition: false)
         
         return tokens ?? []
     }()
     
-    lazy var erc20TokensTestnet: [Token] = {
-        let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens_testnet",
+    lazy var ethereumTokensTestnet: [Token] = {
+        let tokens = try? JsonUtils.readBundleFile(with: "ethereumTokens_testnet",
                                                  type: [Token].self,
                                                  shouldAddCompilationCondition: false)
       
