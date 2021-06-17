@@ -78,6 +78,13 @@ struct TokenDetailsView: View {
             
             Text(viewModel.title)
                 .font(Font.system(size: 36, weight: .bold, design: .default))
+            if let subtitle = viewModel.tokenSubtitle {
+                Text(subtitle)
+                    .font(.system(size: 14, weight: .regular, design: .default))
+                    .foregroundColor(.tangemTapGrayDark)
+                    .padding(.bottom, 8)
+            }
+            
             
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
