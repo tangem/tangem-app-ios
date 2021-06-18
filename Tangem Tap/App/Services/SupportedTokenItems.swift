@@ -55,6 +55,18 @@ class SupportedTokenItems {
       return tokens ?? []
     }()
     
+    lazy var binanceSmartChainTokens: [Token] = {
+       []
+    }()
+    
+    var binanceSmartChainTokensTestnet: [Token] {
+        let tokens = try? JsonUtils.readBundleFile(with: "binanceSmartChainTokens_testnet",
+                                                   type: [Token].self,
+                                                   shouldAddCompilationCondition: false)
+        
+        return tokens ?? []
+    }
+    
     func blockchains(for card: Card) -> Set<Blockchain> {
         var availableBlockchains = Set<Blockchain>()
         
