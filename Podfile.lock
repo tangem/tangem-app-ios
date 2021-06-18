@@ -176,7 +176,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.7`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.13`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-26`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-27`)
   - DeviceGuru
   - EFQRCode
   - Firebase/Analytics
@@ -239,7 +239,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-26
+    :tag: develop-27
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -259,7 +259,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.13
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-26
+    :tag: develop-27
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -312,6 +312,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 0b07aeb14c28a30440cf7ed0c01f4b2f592d1ace
+PODFILE CHECKSUM: 25cfae6862bfef9271d5716bfa8a3e5e1830ee84
 
 COCOAPODS: 1.10.1
