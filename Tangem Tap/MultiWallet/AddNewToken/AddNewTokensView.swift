@@ -92,7 +92,20 @@ struct AddNewTokensView: View {
                                       symbol: token.symbol,
                                       tokenItem: .token(token),
                                       addAction: {
-                                        viewModel.addTokenToList(token: token)
+                                        viewModel.addTokenToList(token: token, blockchain: .ethereum(testnet: viewModel.isTestnet))
+                                      }, removeAction: { })
+                        }
+                    }
+                    Section(header: HeaderView(text: "add_token_section_title_binance_smart_chain_tokens".localized)) {
+                        ForEach(viewModel.availableBscTokens.filter {
+                                    searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
+                            TokenView(isTestnet: viewModel.isTestnet,
+                                      isAdded: viewModel.isAdded(token),
+                                      isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
+                                      symbol: token.symbol,
+                                      tokenItem: .token(token),
+                                      addAction: {
+                                        viewModel.addTokenToList(token: token, blockchain: .bsc(testnet: viewModel.isTestnet))
                                       }, removeAction: { })
                         }
                     }
