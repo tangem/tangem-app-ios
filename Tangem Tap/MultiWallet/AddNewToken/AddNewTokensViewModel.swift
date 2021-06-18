@@ -25,6 +25,12 @@ class AddNewTokensViewModel: ViewModel {
         }
     }
     
+    var availableBscTokens: [Token] {
+        isTestnet ?
+            tokenItemsRepository.supportedItems.binanceSmartChainTokensTestnet :
+            tokenItemsRepository.supportedItems.binanceSmartChainTokens
+    }
+    
     @Published var searchText: String = ""
     @Published private(set) var pendingTokensUpdate: Set<Token> = []
     @Published var error: AlertBinder?
@@ -51,9 +57,9 @@ class AddNewTokensViewModel: ViewModel {
         cardModel.wallets!.contains(where: { $0.blockchain == blockchain })
     }
     
-    func addTokenToList(token: Token) {
+    func addTokenToList(token: Token, blockchain: Blockchain) {
         pendingTokensUpdate.insert(token)
-        cardModel.addToken(token) {[weak self] result in
+        cardModel.addToken(token, blockchain: blockchain) {[weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let token):

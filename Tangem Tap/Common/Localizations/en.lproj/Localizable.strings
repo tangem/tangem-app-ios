@@ -542,3 +542,5 @@ URL: %@";
 "testnet_error_not_enough_ether_message" = "Not enough funds on ETH wallet balance. You need to topup ETH wallet first";
 "testnet_error_failed_create_tx" = "Failed to create topup transaction for token. Try again later";
 "testnet_address_topuped" = "Transaction signed and sent to testnet. Wait for a while and reload balance";
+
+"add_token_section_title_binance_smart_chain_tokens" = "Binance Smart Chain tokens";
