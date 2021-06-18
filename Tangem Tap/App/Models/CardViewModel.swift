@@ -205,11 +205,13 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var isTestnet: Bool { cardInfo.card.isTestnet }
     
-    private var erc20TokenWalletModel: WalletModel? {
-        get {
-             walletModels?.first(where: {$0.wallet.blockchain == .ethereum(testnet: true)
-                                                                    || $0.wallet.blockchain == .ethereum(testnet: false)})
-        }
+    private var ethereumTokenWalletModel: WalletModel? {
+        walletModels?.first(where: { $0.wallet.blockchain == .ethereum(testnet: true)
+                                || $0.wallet.blockchain == .ethereum(testnet: false) })
+    }
+    
+    private var bscTokenWalletModel: WalletModel? {
+        walletModels?.first(where: { $0.wallet.blockchain == .bsc(testnet: true) || $0.wallet.blockchain == .bsc(testnet: false) })
     }
     
     private var searchBlockchainsCancellable: AnyCancellable? = nil
@@ -517,7 +519,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         var sholdAddWalletManager = false
-        var ethWalletModel = erc20TokenWalletModel
+        var ethWalletModel = ethereumTokenWalletModel
         
         if ethWalletModel == nil {
             sholdAddWalletManager = true
@@ -555,22 +557,35 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    func addToken(_ token: Token, completion: @escaping (Result<Token, Error>) -> Void) {
-        if self.erc20TokenWalletModel == nil {
-            let isTestnet = cardInfo.card.isTestnet
-            self.addBlockchain(.ethereum(testnet: isTestnet))
+    func addToken(_ token: Token, blockchain: Blockchain, completion: @escaping (Result<Token, Error>) -> Void) {
+        let publisher: AnyPublisher<Amount, Error>?
+        switch blockchain {
+        case .ethereum:
+            if ethereumTokenWalletModel == nil {
+                addBlockchain(blockchain)
+            }
+            
+            publisher = ethereumTokenWalletModel?.addToken(token)
+        case .bsc:
+            if bscTokenWalletModel == nil {
+                addBlockchain(blockchain)
+            }
+            
+            publisher = bscTokenWalletModel?.addToken(token)
+        default:
+            completion(.failure("Blockchain doesn't support adding tokens"))
+            return
         }
         
-        erc20TokenWalletModel?.addToken(token)?
-            .sink(receiveCompletion: { addCompletion in
-                if case let .failure(error) = addCompletion {
-                    print("Failed to add token to model", error)
-                    completion(.failure(error))
-                }
-            }, receiveValue: { _ in
-                completion(.success(token))
-            })
-            .store(in: &self.bag)
+        publisher?.sink(receiveCompletion: { addCompletion in
+            if case let .failure(error) = addCompletion {
+                print("Failed to add token to model", error)
+                completion(.failure(error))
+            }
+        }, receiveValue: { _ in
+            completion(.success(token))
+        })
+        .store(in: &self.bag)
     }
   
     func addBlockchain(_ blockchain: Blockchain) {
