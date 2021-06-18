@@ -40,18 +40,18 @@ class SupportedTokenItems {
     }()
     
     lazy var erc20Tokens: [Token] = {
-        let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
+        var tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
                                                    type: [Token].self,
                                                    shouldAddCompilationCondition: false)
-        
+        tokens?.sort(by: { $0.name < $1.name || $0.symbol < $1.symbol })
         return tokens ?? []
     }()
     
     lazy var erc20TokensTestnet: [Token] = {
-        let tokens = try? JsonUtils.readBundleFile(with: "erc20tokens_testnet",
+        var tokens = try? JsonUtils.readBundleFile(with: "erc20tokens_testnet",
                                                  type: [Token].self,
                                                  shouldAddCompilationCondition: false)
-      
+        tokens?.sort(by: { $0.name < $1.name || $0.symbol < $1.symbol })
       return tokens ?? []
     }()
     
