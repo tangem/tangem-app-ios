@@ -38,20 +38,20 @@ class SupportedTokenItems {
             .matic(testnet: true)
         ]
     }()
-    
+
     lazy var ethereumTokens: [Token] = {
-        let tokens = try? JsonUtils.readBundleFile(with: "ethereumTokens",
+        var tokens = try? JsonUtils.readBundleFile(with: "ethereumTokens",
                                                    type: [Token].self,
                                                    shouldAddCompilationCondition: false)
-        
+        tokens?.sort(by: { $0.name < $1.name || $0.symbol < $1.symbol })
         return tokens ?? []
     }()
     
     lazy var ethereumTokensTestnet: [Token] = {
-        let tokens = try? JsonUtils.readBundleFile(with: "ethereumTokens_testnet",
+        var tokens = try? JsonUtils.readBundleFile(with: "ethereumTokens_testnet",
                                                  type: [Token].self,
                                                  shouldAddCompilationCondition: false)
-      
+        tokens?.sort(by: { $0.name < $1.name || $0.symbol < $1.symbol })
       return tokens ?? []
     }()
     
