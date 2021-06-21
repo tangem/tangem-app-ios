@@ -142,7 +142,6 @@
 		B00BC54D260B0F7F00F0647D /* TokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00BC54C260B0F7F00F0647D /* TokenItemViewModel.swift */; };
 		B00BC553260B0FB600F0647D /* TokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00BC552260B0FB600F0647D /* TokenItem.swift */; };
 		B00BC562260B102800F0647D /* WalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00BC561260B102800F0647D /* WalletModel.swift */; };
-		B00BC570260B105100F0647D /* TokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */; };
 		B00BC57F260B11A100F0647D /* AddressDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00BC57E260B11A100F0647D /* AddressDetailsView.swift */; };
 		B00BC584260B178000F0647D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D15F9E7258A522500392BA5 /* PickerView.swift */; };
 		B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
@@ -560,7 +559,7 @@
 		B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
 		B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */; };
 		B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */; };
-		B08ACD9425D2E056007387BD /* erc20tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B080765E25D10667006CF606 /* erc20tokens.json */; };
+		B08ACD9425D2E056007387BD /* ethereumTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B080765E25D10667006CF606 /* ethereumTokens.json */; };
 		B08D5DD226371AA7008535E4 /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08D5DD126371AA7008535E4 /* UserPrefsService.swift */; };
 		B09421452614BBA400827A48 /* SupportedBlockchains.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09421442614BBA400827A48 /* SupportedBlockchains.swift */; };
 		B09BB85E259A075600B92000 /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
@@ -606,7 +605,9 @@
 		B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */; };
 		B0C04BBE2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */; };
 		B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */; };
-		B0C4A1D12671EB2400DCB921 /* erc20tokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C4A1D02671E39B00DCB921 /* erc20tokens_testnet.json */; };
+		B0C34952267B177D0027CC9D /* TokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */; };
+		B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05209BD261F1FF3000DD204 /* RoundedCorner.swift */; };
+		B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */; };
 		B0C4A1D32671F3FC00DCB921 /* TestnetTopupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4A1D22671F3FB00DCB921 /* TestnetTopupService.swift */; };
 		B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */; };
 		B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */; };
@@ -1409,7 +1410,7 @@
 		B069F3B02631D57500ACFD19 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		B069F3E92631FCF600ACFD19 /* TokenIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconView.swift; sourceTree = "<group>"; };
 		B07AE16B25DD548A0045179A /* RateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppService.swift; sourceTree = "<group>"; };
-		B080765E25D10667006CF606 /* erc20tokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = erc20tokens.json; sourceTree = "<group>"; };
+		B080765E25D10667006CF606 /* ethereumTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ethereumTokens.json; sourceTree = "<group>"; };
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
 		B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensView.swift; sourceTree = "<group>"; };
 		B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensViewModel.swift; sourceTree = "<group>"; };
@@ -1446,7 +1447,7 @@
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationLink+EmptyLabel.swift"; sourceTree = "<group>"; };
 		B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAccessDeniedModifier.swift; sourceTree = "<group>"; };
-		B0C4A1D02671E39B00DCB921 /* erc20tokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = erc20tokens_testnet.json; sourceTree = "<group>"; };
+		B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ethereumTokens_testnet.json; sourceTree = "<group>"; };
 		B0C4A1D22671F3FB00DCB921 /* TestnetTopupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTopupService.swift; sourceTree = "<group>"; };
 		B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionItemView.swift; sourceTree = "<group>"; };
 		B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsFileCoder.swift; sourceTree = "<group>"; };
@@ -3435,8 +3436,8 @@
 		B0CC817C25CD626A006D49B9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B080765E25D10667006CF606 /* erc20tokens.json */,
-				B0C4A1D02671E39B00DCB921 /* erc20tokens_testnet.json */,
+				B080765E25D10667006CF606 /* ethereumTokens.json */,
+				B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */,
 				B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */,
 			);
 			path = Resources;
@@ -3931,7 +3932,7 @@
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
 				5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
-				B0C4A1D12671EB2400DCB921 /* erc20tokens_testnet.json in Resources */,
+				B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */,
 				5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
@@ -3940,7 +3941,7 @@
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				B0CC817E25CD6281006D49B9 /* breadwallet_tokens.json in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
-				B08ACD9425D2E056007387BD /* erc20tokens.json in Resources */,
+				B08ACD9425D2E056007387BD /* ethereumTokens.json in Resources */,
 				B0A359EE2589117200E25B34 /* features_prod.json in Resources */,
 				5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */,
 				5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
@@ -4515,7 +4516,6 @@
 				B066B498262D6EFA00EB85A5 /* HDCrypto.swift in Sources */,
 				B066B4A4262D6EFA00EB85A5 /* HorizonRequestError.swift in Sources */,
 				B066B1C0262D6B1100EB85A5 /* OP_2DUP.swift in Sources */,
-				B00BC570260B105100F0647D /* TokensListItemView.swift in Sources */,
 				B066B49D262D6EFA00EB85A5 /* MuxedAccountXDR.swift in Sources */,
 				B066B13D262D6B1100EB85A5 /* StellarNetworkService.swift in Sources */,
 				B066B43F262D6EFA00EB85A5 /* Int+Extension.swift in Sources */,
@@ -4759,6 +4759,7 @@
 				B066B44A262D6EFA00EB85A5 /* ZeroPadding.swift in Sources */,
 				B0FC4A5D2630245F000444D7 /* CustomInfixOpeators.swift in Sources */,
 				B066B171262D6B1100EB85A5 /* BlockchainSdkConfig.swift in Sources */,
+				B0C34952267B177D0027CC9D /* TokensListItemView.swift in Sources */,
 				B066B163262D6B1100EB85A5 /* MoyaProvider+Combine.swift in Sources */,
 				B082944A260C6D3800014A18 /* Decimal+.swift in Sources */,
 				B066B44B262D6EFA00EB85A5 /* String+Extension.swift in Sources */,
@@ -4824,6 +4825,7 @@
 				B066B1AA262D6B1100EB85A5 /* OP_2MUL.swift in Sources */,
 				B066B4AF262D6EFA00EB85A5 /* StreamResponseEnum.swift in Sources */,
 				B066B460262D6EFA00EB85A5 /* Ed25519Derivation.swift in Sources */,
+				B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */,
 				B066B130262D6B1100EB85A5 /* XRPAccountInfo.swift in Sources */,
 				B066B1FE262D6B1100EB85A5 /* RosettaBody.swift in Sources */,
 				B0FC4AA62630245F000444D7 /* VerifyCardCommand.swift in Sources */,
