@@ -16,15 +16,23 @@ class AddNewTokensViewModel: ViewModel {
     weak var tokenItemsRepository: TokenItemsRepository!
     
     var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains(for: cardModel.cardInfo.card ).sorted(by: { $0.displayName < $1.displayName }) } }
-    var availableTokens: [Token]  {
-        get {
-            isTestnet ?
-                tokenItemsRepository.supportedItems.erc20TokensTestnet :
-                tokenItemsRepository.supportedItems.erc20Tokens
-            
-        }
+    
+    var visibleEthTokens: [Token] {
+        isEthTokensVisible ?
+            availableEthereumTokens :
+            []
+    }
+    var availableEthereumTokens: [Token]  {
+        isTestnet ?
+            tokenItemsRepository.supportedItems.erc20TokensTestnet :
+            tokenItemsRepository.supportedItems.erc20Tokens
     }
     
+    var visibleBscTokens: [Token] {
+        isBscTokensVisible ?
+            availableBscTokens :
+            []
+    }
     var availableBscTokens: [Token] {
         isTestnet ?
             tokenItemsRepository.supportedItems.binanceSmartChainTokensTestnet :
@@ -34,6 +42,8 @@ class AddNewTokensViewModel: ViewModel {
     @Published var searchText: String = ""
     @Published private(set) var pendingTokensUpdate: Set<Token> = []
     @Published var error: AlertBinder?
+    @Published var isEthTokensVisible: Bool = true
+    @Published var isBscTokensVisible: Bool = true
     
     let cardModel: CardViewModel
     
