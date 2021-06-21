@@ -40,31 +40,19 @@ class SupportedTokenItems {
     }()
     
     lazy var erc20Tokens: [Token] = {
-        var tokens = try? JsonUtils.readBundleFile(with: "erc20tokens",
-                                                   type: [Token].self,
-                                                   shouldAddCompilationCondition: false)
-        tokens?.sort(by: { $0.name < $1.name || $0.symbol < $1.symbol })
-        return tokens ?? []
+        tokens(fromFile: "erc20tokens", for: .ethereum(testnet: false), shouldSortByName: true, shouldPrintJson: true)
     }()
     
     lazy var erc20TokensTestnet: [Token] = {
-        var tokens = try? JsonUtils.readBundleFile(with: "erc20tokens_testnet",
-                                                 type: [Token].self,
-                                                 shouldAddCompilationCondition: false)
-        tokens?.sort(by: { $0.name < $1.name || $0.symbol < $1.symbol })
-      return tokens ?? []
+        tokens(fromFile: "erc20tokens_testnet", for: .ethereum(testnet: true))
     }()
     
     lazy var binanceSmartChainTokens: [Token] = {
-       []
+        tokens(fromFile: "binanceSmartChainTokens", for: .bsc(testnet: false), shouldSortByName: true)
     }()
     
     var binanceSmartChainTokensTestnet: [Token] {
-        let tokens = try? JsonUtils.readBundleFile(with: "binanceSmartChainTokens_testnet",
-                                                   type: [Token].self,
-                                                   shouldAddCompilationCondition: false)
-        
-        return tokens ?? []
+        tokens(fromFile: "binanceSmartChainTokens_testnet", for: .bsc(testnet: true))
     }
     
     func blockchains(for card: Card) -> Set<Blockchain> {
@@ -78,5 +66,23 @@ class SupportedTokenItems {
         }
         
         return availableBlockchains
+    }
+    
+    private func tokens(fromFile fileName: String, for blockchain: Blockchain, shouldSortByName: Bool = false, shouldPrintJson: Bool = true) -> [Token] {
+        var tokens = try? JsonUtils.readBundleFile(with: fileName,
+                                                   type: [Token].self,
+                                                   shouldAddCompilationCondition: false)
+        if shouldSortByName {
+            tokens?.sort(by: { $0.name < $1.name && $0.symbol < $1.symbol })
+        }
+        
+        if shouldPrintJson, let tokens = tokens {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let json = String(data: try! encoder.encode(tokens), encoding: .utf8)
+            print(json!)
+        }
+        
+        return tokens ?? []
     }
 }
