@@ -451,7 +451,8 @@ class MainViewModel: ViewModel {
             card.isTestnet,
             !card.isMultiWallet,
             let walletModel = cardModel?.walletModels?.first,
-            let token = walletModel.tokenItemViewModels.first?.amountType.token
+            let token = walletModel.tokenItemViewModels.first?.amountType.token,
+            case .ethereum(testnet: true) = token.blockchain
         else {
             if topupURL != nil {
                 navigation.mainToTopup = true
