@@ -66,7 +66,7 @@ struct AddNewTokensView: View {
                 .padding(.horizontal, 8)
             
             List {
-                Section(header: HeaderView(text: "add_token_section_title_blockchains".localized)) {
+                Section(header: HeaderView(text: "add_token_section_title_blockchains".localized, collapsible: false)) {
                     ForEach(viewModel.availableBlockchains.filter {
                         searchText.isEmpty || $0.displayName.lowercased().contains(searchText.lowercased())
                             || $0.currencySymbol.lowercased().contains(searchText.lowercased())
@@ -82,9 +82,13 @@ struct AddNewTokensView: View {
                                   }, removeAction: {})}
                 }
                 
-                if viewModel.availableTokens.count > 0 {
-                    Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized)) {
-                        ForEach(viewModel.availableTokens.filter {
+                if viewModel.availableEthereumTokens.count > 0 {
+                    Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized, collapsible: true, isExpanded: viewModel.isEthTokensVisible, onCollapseAction: {
+                        withAnimation {
+                            viewModel.isEthTokensVisible.toggle()
+                        }
+                    })) {
+                        ForEach(viewModel.visibleEthTokens.filter {
                                     searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
                             TokenView(isTestnet: viewModel.isTestnet,
                                       isAdded: viewModel.isAdded(token),
@@ -96,8 +100,14 @@ struct AddNewTokensView: View {
                                       }, removeAction: { })
                         }
                     }
-                    Section(header: HeaderView(text: "add_token_section_title_binance_smart_chain_tokens".localized)) {
-                        ForEach(viewModel.availableBscTokens.filter {
+                }
+                if viewModel.availableBscTokens.count > 0 {
+                    Section(header: HeaderView(text: "add_token_section_title_binance_smart_chain_tokens".localized, collapsible: true, isExpanded: viewModel.isBscTokensVisible, onCollapseAction: {
+                        withAnimation {
+                            viewModel.isBscTokensVisible.toggle()
+                        }
+                    })) {
+                        ForEach(viewModel.visibleBscTokens.filter {
                                     searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
                             TokenView(isTestnet: viewModel.isTestnet,
                                       isAdded: viewModel.isAdded(token),
@@ -110,6 +120,9 @@ struct AddNewTokensView: View {
                         }
                     }
                 }
+                Color.white
+                    .frame(width: 50, height: 150, alignment: .center)
+                    .listRowInsets(EdgeInsets())
             }
         }
         .onDisappear(perform: {
@@ -136,19 +149,34 @@ extension AddNewTokensView {
     struct HeaderView: View {
         var text: String
         var additionalTopPadding: CGFloat = 0
+        var collapsible: Bool
+        var isExpanded: Bool = true
+        var onCollapseAction: (() -> Void)?
+        
         var body: some View {
             HStack {
                 Text(text)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.tangemTapGrayDark)
-                    .padding(.top, 16)
                     .padding(.leading, 20)
-                    .padding(.vertical, 5)
+                
                 Spacer()
+                if collapsible {
+                    Image(systemName: "chevron.down")
+                        .rotationEffect(isExpanded ? .zero : Angle(degrees: -90))
+                        .padding(.trailing, 16)
+                        .foregroundColor(.tangemTapGrayDark)
+                }
             }
+            
+            .padding(.top, 16)
+            .padding(.vertical, 5)
             .padding(.top, additionalTopPadding)
             .background(Color.white)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .onTapGesture(perform: {
+                onCollapseAction?()
+            })
         }
     }
 }
