@@ -112,6 +112,14 @@ class TokenDetailsViewModel: ViewModel {
         }
     }
     
+    var tokenSubtitle: String? {
+        if amountType.token == nil {
+            return nil
+        }
+        
+        return blockchain.tokenDisplayName
+    }
+    
     @Published var isRefreshing = false
     @Published var txIndexToPush: Int? = nil
     
