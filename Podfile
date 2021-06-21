@@ -19,13 +19,13 @@ target 'Tangem Tap' do
   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'CSS-158_Wallet-not-found-error-40'
 #  pod 'TangemSdk', :path => '../tangem-sdk-ios'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-26'
-#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+#  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-31'
+  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
 #  pod 'web3swift', :path => '../web3swift'
   
-  pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.13'
+  pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.15'
   #pod 'BitcoinCore.swift', :path => '../bitcoincore'
 
   pod 'Moya'
