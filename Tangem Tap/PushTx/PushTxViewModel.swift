@@ -105,7 +105,7 @@ class PushTxViewModel: ViewModel {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         pusher.pushTransaction(with: previousTxHash, newTransaction: tx, signer: signer)
-            .receive(on: RunLoop.main)
+            .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
                 
