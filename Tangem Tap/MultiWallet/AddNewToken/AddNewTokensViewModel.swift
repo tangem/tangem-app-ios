@@ -24,8 +24,8 @@ class AddNewTokensViewModel: ViewModel {
     }
     var availableEthereumTokens: [Token]  {
         isTestnet ?
-            tokenItemsRepository.supportedItems.erc20TokensTestnet :
-            tokenItemsRepository.supportedItems.erc20Tokens
+            tokenItemsRepository.supportedItems.ethereumTokensTestnet :
+            tokenItemsRepository.supportedItems.ethereumTokens
     }
     
     var visibleBscTokens: [Token] {
