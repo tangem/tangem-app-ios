@@ -39,12 +39,12 @@ class SupportedTokenItems {
         ]
     }()
     
-    lazy var erc20Tokens: [Token] = {
-        tokens(fromFile: "erc20tokens", for: .ethereum(testnet: false), shouldSortByName: true, shouldPrintJson: true)
+    lazy var ethereumTokens: [Token] = {
+        tokens(fromFile: "ethereumTokens", for: .ethereum(testnet: false), shouldSortByName: true, shouldPrintJson: true)
     }()
     
-    lazy var erc20TokensTestnet: [Token] = {
-        tokens(fromFile: "erc20tokens_testnet", for: .ethereum(testnet: true))
+    lazy var ethereumTokensTestnet: [Token] = {
+        tokens(fromFile: "ethereumTokens_testnet", for: .ethereum(testnet: true))
     }()
     
     lazy var binanceSmartChainTokens: [Token] = {
