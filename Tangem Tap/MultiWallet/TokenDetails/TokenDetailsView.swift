@@ -15,11 +15,13 @@ struct TokenDetailsView: View {
     
     var pendingTransactionViews: [PendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
-            return PendingTxView(txState: .incoming, amount: $0.amount.description, address: $0.sourceAddress)
+            PendingTxView(pendingTx: $0)
         }
         
-        let outgTx = viewModel.outgoingTransactions.map {
-            return PendingTxView(txState: .outgoing, amount: $0.amount.description, address: $0.destinationAddress)
+        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) in
+            PendingTxView(pendingTx: pendingTx) {
+                viewModel.pushOutgoingTx(at: index)
+            }
         }
         
         return incTx + outgTx
@@ -90,6 +92,15 @@ struct TokenDetailsView: View {
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
                         ForEach(self.pendingTransactionViews) { $0 }
+                            .sheet(item: $viewModel.txIndexToPush) { index in
+                                if let tx = viewModel.transactionToPush {
+                                    PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
+                                                                                               blockchain: viewModel.blockchain,
+                                                                                               card: viewModel.card),
+                                               onSuccess: {})
+                                        .environmentObject(navigation)
+                                }
+                            }
                         
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(walletModel: walletModel, amountType: viewModel.amountType)
