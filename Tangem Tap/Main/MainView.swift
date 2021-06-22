@@ -38,11 +38,13 @@ struct MainView: View {
     
     var pendingTransactionViews: [PendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
-            return PendingTxView(txState: .incoming, amount: $0.amount.description, address: $0.sourceAddress)
+            PendingTxView(pendingTx: $0)
         }
         
-        let outgTx = viewModel.outgoingTransactions.map {
-            return PendingTxView(txState: .outgoing, amount: $0.amount.description, address: $0.destinationAddress)
+        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) -> PendingTxView in
+            PendingTxView(pendingTx: pendingTx) {
+                viewModel.pushOutgoingTx(at: index)
+            }
         }
         
         return incTx + outgTx
@@ -211,6 +213,17 @@ struct MainView: View {
                             if !viewModel.cardModel!.isMultiWallet {
                                 ForEach(pendingTransactionViews) { $0 }
                                     .padding(.horizontal, 16.0)
+                                    .sheet(item: $viewModel.txIndexToPush) { index in
+                                        if let tx = viewModel.transactionToPush,
+                                           let blockchain = viewModel.cardModel?.walletModels?.first?.wallet.blockchain,
+                                           let cardModel = viewModel.cardModel {
+                                            PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
+                                                                                                       blockchain: blockchain,
+                                                                                                       card: cardModel),
+                                                       onSuccess: {})
+                                                .environmentObject(navigation)
+                                        }
+                                    }
                             }
                             
                             if shouldShowEmptyView {
