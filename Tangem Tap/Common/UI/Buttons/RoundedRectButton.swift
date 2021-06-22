@@ -11,7 +11,7 @@ import SwiftUI
 struct RoundedRectButton: View {
     var action: () -> Void = { }
     var backgroundColor: Color = .init(red: 224.0/255.0, green: 230.0/255.0, blue: 250.0/255.0, opacity: 1)
-    let imageName: String
+    var imageName: String?
     let title: String
     var foregroundColor: Color = .tangemTapBlue
     var withVerification: Bool = false
@@ -27,11 +27,13 @@ struct RoundedRectButton: View {
             }
         }, label: {
             HStack(alignment: .lastTextBaseline, spacing: 6) {
-                Image(isVerify ? "checkmark" : imageName )
+                if let imageName = imageName {
+                    Image(isVerify ? "checkmark" : imageName )
+                }
                 Text(title)
             }
             .padding(.horizontal, 8)
-            .frame(minWidth: 74,
+            .frame(minWidth: 62,
                    idealWidth: 84,
                    maxWidth: 84,
                    minHeight: 28,

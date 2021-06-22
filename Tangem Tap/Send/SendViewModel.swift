@@ -170,7 +170,6 @@ class SendViewModel: ViewModel {
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
         let feeDummyAmount = Amount(with: walletModel.wallet.blockchain,
-                                    address: walletModel.wallet.address,
                                     type: .coin,
                                     value: 0)
         self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount, isFiat: isFiatCalculation)
@@ -303,10 +302,10 @@ class SendViewModel: ViewModel {
         
         $amountValidated //update fee
             .filter { $0 }
-            .combineLatest($validatedDestination.compactMap { $0 },  $isFeeIncluded.uiPublisherWithFirst, $amountToSend)
-            .flatMap { [unowned self] _, dest, includeFee, amountToSend -> AnyPublisher<[Amount], Never> in
+            .combineLatest($validatedDestination.compactMap { $0 }, $amountToSend)
+            .flatMap { [unowned self] _, dest, amountToSend -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-				return self.walletModel.txSender.getFee(amount: amountToSend, destination: dest, includeFee: includeFee)
+				return self.walletModel.txSender.getFee(amount: amountToSend, destination: dest)
                     .catch { error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
@@ -382,7 +381,7 @@ class SendViewModel: ViewModel {
             .uiPublisher
             .combineLatest($isFiatCalculation)
             .sink{ [unowned self] newAmount, isFiat in
-                let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, address: self.walletModel.wallet.address, type: .coin, value: 0)
+                let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, type: .coin, value: 0)
                 self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
             }
             .store(in: &bag)
