@@ -396,6 +396,18 @@
         }
     },
     {
+        "decimalCount" : 18,
+        "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0/logo.png",
+        "symbol" : "MATIC",
+        "name" : "Matic Token",
+        "contractAddress" : "0xcc42724c6683b7e57334c4e856f4c9965ed682bd",
+        "blockchain" : {
+            "key" : "bsc",
+            "curve" : "secp256k1",
+            "testnet" : false
+        }
+    },
+    {
         "decimalCount" : 9,
         "customIconUrl" : "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0xC7FB8c5eFE8564205eE5CbA4dE8eeA8a086a4bd2/logo.png",
         "symbol" : "POCROC",
