@@ -205,14 +205,17 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var isTestnet: Bool { cardInfo.card.isTestnet }
     
-    private var ethereumTokenWalletModel: WalletModel? {
-        walletModels?.first(where: { $0.wallet.blockchain == .ethereum(testnet: true)
-                                || $0.wallet.blockchain == .ethereum(testnet: false) })
-    }
-    
-    private var bscTokenWalletModel: WalletModel? {
-        walletModels?.first(where: { $0.wallet.blockchain == .bsc(testnet: true) || $0.wallet.blockchain == .bsc(testnet: false) })
-    }
+    private lazy var tokenWalletModels: [Blockchain: WalletModel] = {
+        Dictionary((walletModels?.filter {
+            let blockchain = $0.wallet.blockchain
+            if case .ethereum = blockchain { return true }
+            
+            if case .bsc = blockchain { return true }
+            
+            return false
+        } ?? []).map { ($0.wallet.blockchain, $0)}, uniquingKeysWith: { first, _ in first })
+        
+    }()
     
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
@@ -519,12 +522,12 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         var sholdAddWalletManager = false
-        var ethWalletModel = ethereumTokenWalletModel
+        let blockchain: Blockchain = .ethereum(testnet: isTestnet)
+        var ethWalletModel = tokenWalletModels[blockchain]
         
         if ethWalletModel == nil {
             sholdAddWalletManager = true
-            let isTestnet = cardInfo.card.isTestnet
-            ethWalletModel = assembly.makeWallets(from: cardInfo, blockchains: [.ethereum(testnet: isTestnet)]).first!
+            ethWalletModel = assembly.makeWallets(from: cardInfo, blockchains: [blockchain]).first!
         }
         
         (ethWalletModel!.walletManager as! TokenFinder).findErc20Tokens() {[weak self] result in
@@ -558,26 +561,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func addToken(_ token: Token, blockchain: Blockchain, completion: @escaping (Result<Token, Error>) -> Void) {
-        let publisher: AnyPublisher<Amount, Error>?
-        switch blockchain {
-        case .ethereum:
-            if ethereumTokenWalletModel == nil {
-                addBlockchain(blockchain)
-            }
-            
-            publisher = ethereumTokenWalletModel?.addToken(token)
-        case .bsc:
-            if bscTokenWalletModel == nil {
-                addBlockchain(blockchain)
-            }
-            
-            publisher = bscTokenWalletModel?.addToken(token)
-        default:
-            completion(.failure("Blockchain doesn't support adding tokens"))
-            return
+        let walletModel: WalletModel? = tokenWalletModels[blockchain] ?? addBlockchain(blockchain)
+        if tokenWalletModels[blockchain] == nil, let model = walletModel {
+            tokenWalletModels[blockchain] = model
         }
         
-        publisher?.sink(receiveCompletion: { addCompletion in
+        walletModel?.addToken(token)?.sink(receiveCompletion: { addCompletion in
             if case let .failure(error) = addCompletion {
                 print("Failed to add token to model", error)
                 completion(.failure(error))
@@ -588,11 +577,13 @@ class CardViewModel: Identifiable, ObservableObject {
         .store(in: &self.bag)
     }
   
-    func addBlockchain(_ blockchain: Blockchain) {
+    @discardableResult
+    func addBlockchain(_ blockchain: Blockchain) -> WalletModel? {
         tokenItemsRepository.append(.blockchain(blockchain))
         let newWalletModels = assembly.makeWallets(from: cardInfo, blockchains: [blockchain])
         newWalletModels.forEach {$0.update()}
         updateLoadedState(with: newWalletModels)
+        return newWalletModels.first
     }
     
     func removeBlockchain(_ blockchain: Blockchain) {
