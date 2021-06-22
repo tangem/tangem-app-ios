@@ -15,6 +15,7 @@ class Analytics {
     enum Event: String {
         case cardIsScanned = "card_is_scanned"
         case transactionIsSent = "transaction_is_sent"
+        case transactionIsPushed = "transaction_is_pushed"
         case readyToScan = "ready_to_scan"
         case displayRateAppWarning = "rate_app_warning_displayed"
         case negativeRateAppFeedback = "negative_rate_app_feedback"
@@ -34,6 +35,7 @@ class Analytics {
     enum Action: String {
         case scan = "tap_scan_task"
         case sendTx = "send_transaction"
+        case pushTx = "push_transaction"
         case walletConnectSign = "wallet_connect_personal_sign"
         case walletConnectTxSend = "wallet_connect_tx_sign"
         case readPinSettings = "read_pin_settings"
@@ -68,9 +70,9 @@ class Analytics {
         Crashlytics.crashlytics().setCustomValue(blockchainName, forKey: ParameterKey.blockchain.rawValue)
     }
     
-    static func logTx(blockchainName: String?) {
-          FirebaseAnalytics.Analytics.logEvent(Event.transactionIsSent.rawValue,
-                                               parameters: [ParameterKey.blockchain.rawValue: blockchainName ?? ""])
+    static func logTx(blockchainName: String?, isPushed: Bool = false) {
+        FirebaseAnalytics.Analytics.logEvent(isPushed ? Event.transactionIsPushed.rawValue : Event.transactionIsSent.rawValue,
+                                             parameters: [ParameterKey.blockchain.rawValue: blockchainName ?? ""])
     }
     
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: Any] = [:]) {
