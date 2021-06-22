@@ -106,6 +106,14 @@ class TokenDetailsViewModel: ViewModel {
         }
     }
     
+    var tokenSubtitle: String? {
+        if amountType.token == nil {
+            return nil
+        }
+        
+        return blockchain.tokenDisplayName
+    }
+    
     @Published var isRefreshing = false
     
     let amountType: Amount.AmountType
