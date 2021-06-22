@@ -49,6 +49,7 @@ class MainViewModel: ViewModel {
         }
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
+    @Published var txIndexToPush: Int? = nil
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -126,12 +127,18 @@ class MainViewModel: ViewModel {
         return wallet.canSend(amountType: .coin)
     }
     
-    var incomingTransactions: [BlockchainSdk.Transaction] {
-        wallets?.first?.incomingTransactions ?? []
+    var incomingTransactions: [PendingTransaction] {
+        cardModel?.walletModels?.first?.incomingPendingTransactions ?? []
     }
     
-    var outgoingTransactions: [BlockchainSdk.Transaction] {
-        wallets?.first?.outgoingTransactions ?? []
+    var outgoingTransactions: [PendingTransaction] {
+        cardModel?.walletModels?.first?.outgoingPendingTransactions ?? []
+    }
+    
+    var transactionToPush: BlockchainSdk.Transaction? {
+        guard let index = txIndexToPush else { return nil }
+        
+        return cardModel?.walletModels?.first?.wallet.pendingOutgoingTransactions[index]
     }
 	
 	var cardNumber: Int? {
@@ -461,7 +468,11 @@ class MainViewModel: ViewModel {
         }
         
         TestnetTopupService.topup(.erc20Token(walletManager: walletModel.walletManager, token: token))
-        
+    }
+    
+    func pushOutgoingTx(at index: Int) {
+        assembly.reset(key: String(describing: PushTxViewModel.self))
+        txIndexToPush = index
     }
 
     // MARK: - Private functions
