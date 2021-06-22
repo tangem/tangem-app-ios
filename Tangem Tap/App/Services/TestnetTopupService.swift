@@ -32,11 +32,11 @@ class TestnetTopupService {
             return
         }
         
-        let amountToSend = Amount(with: walletManager.wallet.blockchain, address: "", value: 0)
+        let amountToSend = Amount(with: walletManager.wallet.blockchain, value: 0)
         let destinationAddress = token.contractAddress
         
         var subs: AnyCancellable!
-        subs = transactionSender.getFee(amount: amountToSend, destination: destinationAddress, includeFee: false)
+        subs = transactionSender.getFee(amount: amountToSend, destination: destinationAddress)
             .flatMap { (fees: [Amount]) -> AnyPublisher<Void, Error> in
                 let fee = fees[0]
                 
