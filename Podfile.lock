@@ -1,6 +1,6 @@
 PODS:
   - Alamofire (5.4.3)
-  - AnyCodable-FlightSchool (0.4.1)
+  - AnyCodable-FlightSchool (0.4.0)
   - BigInt (5.2.0)
   - BinanceChain (1.0.1-beta):
     - BinanceChain/Core (= 1.0.1-beta)
@@ -290,7 +290,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Alamofire: e447a2774a40c996748296fa2c55112fdbbc42f9
-  AnyCodable-FlightSchool: d27283db6e9feaddb0fa73a25835e5cdf41b3213
+  AnyCodable-FlightSchool: 9bf42632b5256c78710e2f4fb18ce78e89180883
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: 590254fcbe333b0374c69f5ea80f56afb291bb26
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
