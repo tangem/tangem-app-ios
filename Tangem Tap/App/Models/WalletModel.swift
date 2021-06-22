@@ -50,7 +50,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     var isTestnet: Bool {
-        cardInfo.card.isTestnet
+        wallet.blockchain.isTestnet
     }
     
     var pendingTransactions: [PendingTransaction] {
