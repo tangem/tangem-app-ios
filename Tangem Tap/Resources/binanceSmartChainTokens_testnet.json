@@ -49,6 +49,18 @@
     },
     {
         "decimalCount" : 18,
+        "symbol" : "USDT",
+        "name" : "Tether USD",
+        "customIconUrl" : "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0x55d398326f99059fF775485246999027B3197955/logo.png",
+        "contractAddress" : "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684",
+        "blockchain" : {
+          "key" : "bsc",
+          "curve" : "secp256k1",
+          "testnet" : true
+        }
+    },
+    {
+        "decimalCount" : 18,
         "symbol" : "XRP",
         "name" : "Binance-Peg XRP",
         "customIconUrl" : "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE/logo.png",
