@@ -101,6 +101,27 @@ struct AddNewTokensView: View {
                         }
                     }
                 }
+                
+                if viewModel.availableBnbTokens.count > 0 {
+                    Section(header: HeaderView(text: "add_token_section_title_binance_tokens".localized, collapsible: true, isExpanded: viewModel.isBnbTokensVisible, onCollapseAction: {
+                        withAnimation {
+                            viewModel.isBnbTokensVisible.toggle()
+                        }
+                    })) {
+                        ForEach(viewModel.visibleBnbTokens.filter {
+                                    searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
+                            TokenView(isTestnet: viewModel.isTestnet,
+                                      isAdded: viewModel.isAdded(token),
+                                      isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
+                                      symbol: token.symbol,
+                                      tokenItem: .token(token),
+                                      addAction: {
+                                        viewModel.addTokenToList(token: token, blockchain: .binance(testnet: viewModel.isTestnet))
+                                      }, removeAction: { })
+                        }
+                    }
+                }
+                
                 if viewModel.availableBscTokens.count > 0 {
                     Section(header: HeaderView(text: "add_token_section_title_binance_smart_chain_tokens".localized, collapsible: true, isExpanded: viewModel.isBscTokensVisible, onCollapseAction: {
                         withAnimation {

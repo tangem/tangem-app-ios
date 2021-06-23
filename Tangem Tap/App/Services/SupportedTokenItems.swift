@@ -41,15 +41,23 @@ class SupportedTokenItems {
     }()
     
     lazy var ethereumTokens: [Token] = {
-        tokens(fromFile: "ethereumTokens", for: .ethereum(testnet: false), shouldSortByName: true, shouldPrintJson: true)
+        tokens(fromFile: "ethereumTokens", for: .ethereum(testnet: false))
     }()
     
     lazy var ethereumTokensTestnet: [Token] = {
         tokens(fromFile: "ethereumTokens_testnet", for: .ethereum(testnet: true))
     }()
     
+    lazy var binanceTokens: [Token] = {
+        tokens(fromFile: "binanceTokens", for: .binance(testnet: false))
+    }()
+    
+    lazy var binanceTokensTestnet: [Token] = {
+        tokens(fromFile: "binanceTokens_testnet", for: .binance(testnet: false), shouldSortByName: true, shouldPrintJson: true)
+    }()
+    
     lazy var binanceSmartChainTokens: [Token] = {
-        tokens(fromFile: "binanceSmartChainTokens", for: .bsc(testnet: false), shouldSortByName: true)
+        tokens(fromFile: "binanceSmartChainTokens", for: .bsc(testnet: false))
     }()
     
     var binanceSmartChainTokensTestnet: [Token] {
@@ -69,7 +77,7 @@ class SupportedTokenItems {
         return availableBlockchains
     }
     
-    private func tokens(fromFile fileName: String, for blockchain: Blockchain, shouldSortByName: Bool = false, shouldPrintJson: Bool = true) -> [Token] {
+    private func tokens(fromFile fileName: String, for blockchain: Blockchain, shouldSortByName: Bool = false, shouldPrintJson: Bool = false) -> [Token] {
         var tokens = try? JsonUtils.readBundleFile(with: fileName,
                                                    type: [Token].self,
                                                    shouldAddCompilationCondition: false)
