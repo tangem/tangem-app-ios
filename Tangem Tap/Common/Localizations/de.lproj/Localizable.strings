@@ -550,3 +550,5 @@ URL: %@";
 "push_current_total" = "Current total";
 
 "add_token_section_title_binance_smart_chain_tokens" = "Binance Smart Chain tokens";
+
+"add_token_section_title_binance_tokens" = "Binance tokens";
