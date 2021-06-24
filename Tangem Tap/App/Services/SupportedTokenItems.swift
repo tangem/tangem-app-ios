@@ -24,7 +24,8 @@ class SupportedTokenItems {
             .stellar(testnet: false),
             .cardano(shelley: true),
             .dogecoin,
-            .bsc(testnet: false)
+            .bsc(testnet: false),
+            .polygon(testnet: false)
         ]
     }()
     
@@ -35,25 +36,25 @@ class SupportedTokenItems {
             .binance(testnet: true),
             .stellar(testnet: true),
             .bsc(testnet: true),
-            .matic(testnet: true)
+            .polygon(testnet: true)
         ]
     }()
-
+    
     lazy var ethereumTokens: [Token] = {
-        var tokens = try? JsonUtils.readBundleFile(with: "ethereumTokens",
-                                                   type: [Token].self,
-                                                   shouldAddCompilationCondition: false)
-        tokens?.sort(by: { $0.name < $1.name || $0.symbol < $1.symbol })
-        return tokens ?? []
+        tokens(fromFile: "ethereumTokens", for: .ethereum(testnet: false), shouldSortByName: true, shouldPrintJson: true)
     }()
     
     lazy var ethereumTokensTestnet: [Token] = {
-        var tokens = try? JsonUtils.readBundleFile(with: "ethereumTokens_testnet",
-                                                 type: [Token].self,
-                                                 shouldAddCompilationCondition: false)
-        tokens?.sort(by: { $0.name < $1.name || $0.symbol < $1.symbol })
-      return tokens ?? []
+        tokens(fromFile: "ethereumTokens_testnet", for: .ethereum(testnet: true))
     }()
+    
+    lazy var binanceSmartChainTokens: [Token] = {
+        tokens(fromFile: "binanceSmartChainTokens", for: .bsc(testnet: false), shouldSortByName: true)
+    }()
+    
+    var binanceSmartChainTokensTestnet: [Token] {
+        tokens(fromFile: "binanceSmartChainTokens_testnet", for: .bsc(testnet: true))
+    }
     
     func blockchains(for card: Card) -> Set<Blockchain> {
         var availableBlockchains = Set<Blockchain>()
@@ -66,5 +67,23 @@ class SupportedTokenItems {
         }
         
         return availableBlockchains
+    }
+    
+    private func tokens(fromFile fileName: String, for blockchain: Blockchain, shouldSortByName: Bool = false, shouldPrintJson: Bool = true) -> [Token] {
+        var tokens = try? JsonUtils.readBundleFile(with: fileName,
+                                                   type: [Token].self,
+                                                   shouldAddCompilationCondition: false)
+        if shouldSortByName {
+            tokens?.sort(by: { $0.name < $1.name && $0.symbol < $1.symbol })
+        }
+        
+        if shouldPrintJson, let tokens = tokens {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let json = String(data: try! encoder.encode(tokens), encoding: .utf8)
+            print(json!)
+        }
+        
+        return tokens ?? []
     }
 }
