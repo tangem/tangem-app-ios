@@ -211,17 +211,13 @@ class Assembly: ObservableObject {
             walletManagers.append(twinWalletManager)
         } else {
             //If this card supports multiwallet feature, load all saved tokens from persistent storage
-            if cardInfo.card.isMultiWallet && services.tokenItemsRepository.items.count > 0 {
+            if cardInfo.card.isMultiWallet, services.tokenItemsRepository.items.count > 0 {
+                
                 //Load erc20 tokens if exists
-                let erc20Tokens = services.tokenItemsRepository.items.compactMap { $0.token }
-                if !erc20Tokens.isEmpty {
-                    if let secpWalletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == .some(.secp256k1) })?.publicKey,
-                       let ethereumWalletManager = services.walletManagerFactory.makeEthereumWalletManager(from: cid,
-                                                                                                           walletPublicKey: secpWalletPublicKey,
-                                                                                                           erc20Tokens: erc20Tokens,
-                                                                                                           isTestnet: cardInfo.card.isTestnet) {
-                        walletManagers.append(ethereumWalletManager)
-                    }
+                let tokens = services.tokenItemsRepository.items.compactMap { $0.token }
+                if let secpWalletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey {
+                    let tokenManagers = services.walletManagerFactory.makeWalletManagers(for: cid, with: secpWalletPublicKey, and: tokens)
+                    walletManagers.append(contentsOf: tokenManagers)
                 }
                 
                 //Load blockchains if exists
