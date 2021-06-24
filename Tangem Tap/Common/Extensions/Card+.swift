@@ -107,7 +107,8 @@ extension Card {
            let decimal = cardData?.tokenDecimal {
             return Token(symbol: symbol,
                          contractAddress: contractAddress,
-                         decimalCount: decimal)
+                         decimalCount: decimal,
+                         blockchain: defaultBlockchain ?? .ethereum(testnet: isTestnet))
         }
         return nil
     }
