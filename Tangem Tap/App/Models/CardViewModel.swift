@@ -591,6 +591,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
+        tokenWalletModels[blockchain] = nil
         tokenItemsRepository.remove(.blockchain(blockchain))
         
         stateUpdateQueue.sync {
