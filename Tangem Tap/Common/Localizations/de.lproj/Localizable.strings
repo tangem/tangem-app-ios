@@ -548,3 +548,5 @@ URL: %@";
 "push_current_fee" = "Current fee";
 "push_previous_total" = "Previous total";
 "push_current_total" = "Current total";
+
+"push_additional_fee" = "Additional fee";
