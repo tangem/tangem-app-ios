@@ -16,18 +16,34 @@ class AddNewTokensViewModel: ViewModel {
     weak var tokenItemsRepository: TokenItemsRepository!
     
     var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains(for: cardModel.cardInfo.card ).sorted(by: { $0.displayName < $1.displayName }) } }
-    var availableTokens: [Token]  {
-        get {
-            isTestnet ?
-                tokenItemsRepository.supportedItems.ethereumTokensTestnet :
-                tokenItemsRepository.supportedItems.ethereumTokens
-            
-        }
+    
+    var visibleEthTokens: [Token] {
+        isEthTokensVisible ?
+            availableEthereumTokens :
+            []
+    }
+    var availableEthereumTokens: [Token]  {
+        isTestnet ?
+            tokenItemsRepository.supportedItems.ethereumTokensTestnet :
+            tokenItemsRepository.supportedItems.ethereumTokens
+    }
+    
+    var visibleBscTokens: [Token] {
+        isBscTokensVisible ?
+            availableBscTokens :
+            []
+    }
+    var availableBscTokens: [Token] {
+        isTestnet ?
+            tokenItemsRepository.supportedItems.binanceSmartChainTokensTestnet :
+            tokenItemsRepository.supportedItems.binanceSmartChainTokens
     }
     
     @Published var searchText: String = ""
     @Published private(set) var pendingTokensUpdate: Set<Token> = []
     @Published var error: AlertBinder?
+    @Published var isEthTokensVisible: Bool = true
+    @Published var isBscTokensVisible: Bool = true
     
     let cardModel: CardViewModel
     
@@ -51,9 +67,9 @@ class AddNewTokensViewModel: ViewModel {
         cardModel.wallets!.contains(where: { $0.blockchain == blockchain })
     }
     
-    func addTokenToList(token: Token) {
+    func addTokenToList(token: Token, blockchain: Blockchain) {
         pendingTokensUpdate.insert(token)
-        cardModel.addToken(token) {[weak self] result in
+        cardModel.addToken(token, blockchain: blockchain) {[weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let token):
