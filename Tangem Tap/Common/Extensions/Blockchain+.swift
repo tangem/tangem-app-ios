@@ -40,7 +40,7 @@ extension Blockchain: Identifiable {
             return nil
         case .bsc:
             return nil
-        case .matic:
+        case .polygon:
             return nil
         }
     }
@@ -62,7 +62,7 @@ extension Blockchain: Identifiable {
         case .binance:
             return "https://docs.binance.org/smart-chain/wallet/binance.html"
 //            return "https://docs.binance.org/guides/testnet.html"
-        case .matic:
+        case .polygon:
             return "https://faucet.matic.network"
         case .stellar:
             return "https://laboratory.stellar.org/#account-creator?network=test"
