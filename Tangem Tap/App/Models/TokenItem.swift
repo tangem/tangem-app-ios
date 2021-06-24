@@ -64,6 +64,10 @@ enum TokenItem: Codable, Hashable {
         case .token(let token):
             guard token.customIcon == nil else { return nil }
             
+            if let url = token.customIconUrl {
+                return url
+            }
+            
             return IconsUtils.getTokenIconUrl(for: .ethereum(testnet: false), token: token)?.absoluteString
         }
     }
@@ -74,6 +78,14 @@ enum TokenItem: Codable, Hashable {
             self = .blockchain(blockchain)
         } else if let token = try? container.decode(Token.self) {
             self = .token(token)
+        } else if let tokenDto = try? container.decode(TokenDTO.self) {
+            self = .token(Token(name: tokenDto.name,
+                                symbol: tokenDto.symbol,
+                                contractAddress: tokenDto.contractAddress,
+                                decimalCount: tokenDto.decimalCount,
+                                customIcon: tokenDto.customIcon,
+                                customIconUrl: tokenDto.customIconUrl,
+                                blockchain: .ethereum(testnet: false)))
         } else {
             throw BlockchainSdkError.decodingFailed
         }
@@ -88,4 +100,13 @@ enum TokenItem: Codable, Hashable {
             try container.encode(token)
         }
     }
+}
+
+fileprivate struct TokenDTO: Decodable {
+    let name: String
+    let symbol: String
+    let contractAddress: String
+    let decimalCount: Int
+    let customIcon: String?
+    let customIconUrl: String?
 }
