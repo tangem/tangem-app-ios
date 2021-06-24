@@ -161,7 +161,7 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     func pushOutgoingTx(at index: Int) {
-        assembly.reset(key: String(describing: PushTxViewModel.self))
+        assembly.reset(key: String(describing: PushTxViewModel.Type.self))
         txIndexToPush = index
     }
     
