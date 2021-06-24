@@ -43,7 +43,7 @@ class TokenDetailsViewModel: ViewModel {
     var topupURL: URL? {
         if let wallet = wallet {
             
-            if card.isTestnet {
+            if blockchain.isTestnet {
                 return URL(string: blockchain.testnetTopupLink ?? "")
             }
             
@@ -148,7 +148,11 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     func topupAction() {
-        guard card.isTestnet, let token = amountType.token else {
+        guard
+            card.isTestnet,
+            let token = amountType.token,
+            case .ethereum(testnet: true) = token.blockchain
+        else {
             if topupURL != nil {
                 navigation.detailsToTopup = true
             }
