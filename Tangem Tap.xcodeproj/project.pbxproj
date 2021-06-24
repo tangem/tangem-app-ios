@@ -158,6 +158,7 @@
 		B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F36E2631AD3C00ACFD19 /* ImageLoader.swift */; };
 		B01416B12632A93800D82A9C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F3B02631D57500ACFD19 /* ImageCache.swift */; };
 		B01416B72632AA1E00D82A9C /* IconsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01416B62632AA1D00D82A9C /* IconsUtils.swift */; };
+		B016E6C026807053007178B9 /* binanceSmartChainTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B016E6BF26805BA3007178B9 /* binanceSmartChainTokens_testnet.json */; };
 		B018F2FD2591FE8600D8F89A /* TapWarning.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018F2FC2591FE8600D8F89A /* TapWarning.swift */; };
 		B018F304259204A200D8F89A /* WarningEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018F303259204A200D8F89A /* WarningEvent.swift */; };
 		B01983C82660C7EA00107390 /* DogecoinNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01983C52660C7EA00107390 /* DogecoinNetworkService.swift */; };
@@ -626,7 +627,6 @@
 		B0CA5ADD25F786B90078F42F /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CA5ADC25F786B90078F42F /* BalanceView.swift */; };
 		B0CBE9FE26260D3F00072191 /* ScannedCardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CBE9FD26260D3F00072191 /* ScannedCardsRepository.swift */; };
 		B0CC670C26455C44007D227A /* WalletConnectCardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC670B26455C44007D227A /* WalletConnectCardScanner.swift */; };
-		B0CC817E25CD6281006D49B9 /* breadwallet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */; };
 		B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC818225CD63FB006D49B9 /* Token+.swift */; };
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
 		B0D34E6F2626CEEB00625AC5 /* WalletConnectSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */; };
@@ -642,6 +642,7 @@
 		B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D76D4C25D4E4610073FA98 /* AddCustomTokenViewModel.swift */; };
 		B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B0E1D17D257DE79000A3AB98 /* FeaturesConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */; };
+		B0ED200E267C730D00D5C3E5 /* binanceSmartChainTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */; };
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
 		B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FE2679DA8000269C7A /* AmountView.swift */; };
 		B0EC1200267386FC00137059 /* PendingTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EC11FF267386FC00137059 /* PendingTransaction.swift */; };
@@ -1013,6 +1014,7 @@
 		B00D714F258A1B6C00A9442C /* JsonUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonUtils.swift; sourceTree = "<group>"; };
 		B013A7B72621CC510032F2AE /* SendTransactionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTransactionHandler.swift; sourceTree = "<group>"; };
 		B01416B62632AA1D00D82A9C /* IconsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconsUtils.swift; sourceTree = "<group>"; };
+		B016E6BF26805BA3007178B9 /* binanceSmartChainTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceSmartChainTokens_testnet.json; sourceTree = "<group>"; };
 		B018F2FC2591FE8600D8F89A /* TapWarning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapWarning.swift; sourceTree = "<group>"; };
 		B018F303259204A200D8F89A /* WarningEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningEvent.swift; sourceTree = "<group>"; };
 		B01983C52660C7EA00107390 /* DogecoinNetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DogecoinNetworkService.swift; sourceTree = "<group>"; };
@@ -1456,6 +1458,7 @@
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationLink+EmptyLabel.swift"; sourceTree = "<group>"; };
 		B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAccessDeniedModifier.swift; sourceTree = "<group>"; };
+		B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceSmartChainTokens.json; sourceTree = "<group>"; };
 		B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ethereumTokens_testnet.json; sourceTree = "<group>"; };
 		B0C4A1D22671F3FB00DCB921 /* TestnetTopupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetTopupService.swift; sourceTree = "<group>"; };
 		B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionItemView.swift; sourceTree = "<group>"; };
@@ -3464,6 +3467,8 @@
 			children = (
 				B080765E25D10667006CF606 /* ethereumTokens.json */,
 				B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */,
+				B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */,
+				B016E6BF26805BA3007178B9 /* binanceSmartChainTokens_testnet.json */,
 				B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */,
 			);
 			path = Resources;
@@ -3965,7 +3970,8 @@
 				5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
 				B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
-				B0CC817E25CD6281006D49B9 /* breadwallet_tokens.json in Resources */,
+				B0ED200E267C730D00D5C3E5 /* binanceSmartChainTokens.json in Resources */,
+				B016E6C026807053007178B9 /* binanceSmartChainTokens_testnet.json in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
 				B08ACD9425D2E056007387BD /* ethereumTokens.json in Resources */,
 				B0A359EE2589117200E25B34 /* features_prod.json in Resources */,
