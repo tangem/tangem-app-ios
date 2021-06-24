@@ -9,7 +9,6 @@
 import Foundation
 import BlockchainSdk
 import Combine
-import SwiftUI
 
 class PushTxViewModel: ViewModel {
     
