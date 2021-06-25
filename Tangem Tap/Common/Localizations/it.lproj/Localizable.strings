@@ -551,3 +551,5 @@ URL: %@";
 
 "push_additional_fee" = "Additional fee";
 "add_token_section_title_binance_smart_chain_tokens" = "Binance Smart Chain tokens";
+
+"add_token_section_title_binance_tokens" = "Binance tokens";
