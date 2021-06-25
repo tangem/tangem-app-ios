@@ -53,6 +53,10 @@ struct PushTxView: View {
                         .opacity(0.6)
                     HStack {
                         Text(viewModel.amountDecimal)
+                            .blink(publisher: viewModel.$shouldAmountBlink,
+                                   originalColor: .tangemTapBlue,
+                                   color: .red,
+                                   duration: 0.25)
                             .opacity(0.6)
                         Spacer()
                         Button(action: {
@@ -97,30 +101,29 @@ struct PushTxView: View {
                             .font(.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor((viewModel.amountHint?.isError ?? false ) ?
                                                 Color.red : Color.tangemTapGrayDark)
+                        Toggle(isOn: self.$viewModel.isFeeIncluded) {
+                            Text("send_fee_include_description")
+                                .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                                .foregroundColor(Color.tangemTapGrayDark6)
+                        }
                     }
                     Spacer()
                     VStack (spacing: 8.0) {
                         AmountView(label: "send_amount_label",
                                    labelColor: .tangemTapGrayDark6,
-                                   amountText: viewModel.amount)
+                                   amountText: viewModel.amount,
+                                   blinkPublisher: viewModel.$shouldAmountBlink)
                         
                         AmountView(label: "push_previous_fee",
                                    labelColor: .tangemTapGrayDark,
                                    amountText: viewModel.previousFee)
                             .opacity(0.6)
-                        AmountView(label: "push_current_fee",
+                        AmountView(label: "push_additional_fee",
                                    labelColor: .tangemTapGrayDark,
                                    isLoading: viewModel.isFeeLoading,
-                                   amountText: viewModel.sendFee)
+                                   amountText: viewModel.additionalFee)
                         Separator()
                         
-                        AmountView(label: "push_previous_total",
-                                   labelColor: .tangemTapGrayDark6,
-                                   labelFont: .system(size: 15, weight: .bold, design: .default),
-                                   amountText: viewModel.previousTotal,
-                                   amountScaleFactor: 0.5,
-                                   amountLineLimit: 1)
-                            .opacity(0.6)
                         AmountView(label: "push_current_total",
                                    labelColor: .tangemTapGrayDark6,
                                    labelFont: .system(size: 20, weight: .bold, design: .default),
@@ -193,5 +196,6 @@ struct PushTxView_Previews: PreviewProvider {
                         blockchain: .bitcoin(testnet: false),
                         card: assembly.previewCardViewModel),
                    onSuccess: { })
+            .environmentObject(assembly.services.navigationCoordinator)
     }
 }
