@@ -19,7 +19,11 @@ class PushTxViewModel: ViewModel {
     
     var destination: String { transaction.destinationAddress }
     
-    var previousTotal: String { getDescription(for: (transaction.amount + transaction.fee), isFiat: isFiatCalculation) }
+    var previousTotal: String {
+        isFiatCalculation ?
+            walletModel.getFiat(for: previousTotalAmount)?.description ?? "" :
+            previousTotalAmount.value.description
+    }
     
     var currency: String {
         isFiatCalculation ? ratesService.selectedCurrencyCode : transaction.amount.currencySymbol
@@ -42,6 +46,10 @@ class PushTxViewModel: ViewModel {
     }
         
     var previousFeeAmount: Amount { transaction.fee }
+    
+    var previousTotalAmount: Amount {
+        previousFeeAmount + transaction.amount
+    }
     
     var newFee: String {
         newTransaction?.fee.description ?? "Not loaded"
