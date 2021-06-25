@@ -22,6 +22,28 @@ struct AmountView: View {
     var amountScaleFactor: CGFloat? = nil
     var amountLineLimit: Int? = nil
     
+    var blinkPublisher: Published<Bool>.Publisher? = nil
+    
+    @ViewBuilder
+    var valueText: some View {
+        let mainColor = amountColor ?? labelColor
+        let txt = Text(amountText)
+            .font(amountFont ?? labelFont)
+            .lineLimit(amountLineLimit)
+            .minimumScaleFactor(amountScaleFactor ?? 1)
+            .fixedSize(horizontal: false, vertical: true)
+        
+        if blinkPublisher != nil {
+            txt
+                .blink(publisher: blinkPublisher!,
+                       originalColor: mainColor,
+                       color: .red,
+                       duration: 0.25)
+        } else {
+            txt
+        }
+    }
+    
     var body: some View {
         HStack{
             Text(label)
@@ -32,28 +54,34 @@ struct AmountView: View {
                 ActivityIndicatorView(color: UIColor.tangemTapGrayDark)
                     .offset(x: 8)
             } else {
-                Text(amountText)
-                    .font(amountFont ?? labelFont)
-                    .lineLimit(amountLineLimit)
-                    .minimumScaleFactor(amountScaleFactor ?? 1)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .foregroundColor(amountColor ?? labelColor)
+                valueText
             }
         }
     }
 }
 
+fileprivate class Blinker: ObservableObject {
+    @Published var blink: Bool = false
+}
+
 struct AmountView_Previews: PreviewProvider {
+    @ObservedObject fileprivate static var blinker = Blinker()
     static let assembly = Assembly.previewAssembly
     static var previews: some View {
-        AmountView(label: "Amount",
-                   labelColor: .tangemTapGrayDark6,
-                   labelFont: .system(size: 14, weight: .regular, design: .default),
-                   isLoading: false,
-                   amountText: "0 BTC",
-                   amountColor: .tangemTapGrayDark6,
-                   amountFont: .system(size: 15, weight: .regular, design: .default),
-                   amountScaleFactor: 1,
-                   amountLineLimit: 1)
+        VStack {
+            Button("Blink") {
+                blinker.blink.toggle()
+            }
+            AmountView(label: "Amount",
+                       labelColor: .tangemTapGrayDark6,
+                       labelFont: .system(size: 14, weight: .regular, design: .default),
+                       isLoading: false,
+                       amountText: "0 BTC",
+                       amountColor: .tangemTapGrayDark6,
+                       amountFont: .system(size: 15, weight: .regular, design: .default),
+                       amountScaleFactor: 1,
+                       amountLineLimit: 1,
+                       blinkPublisher: blinker.$blink)
+        }
     }
 }
