@@ -40,23 +40,33 @@ class PushTxViewModel: ViewModel {
     var walletModel: WalletModel {
         cardViewModel.walletModels!.first(where: { $0.wallet.blockchain ==  blockchain })!
     }
-    
-    var amountToSend: Amount { transaction.amount }
+        
     var previousFeeAmount: Amount { transaction.fee }
     
+    var newFee: String {
+        newTransaction?.fee.description ?? "Not loaded"
+    }
+    
     @Published var amountHint: TextHint?
-    @Published var selectedFeeLevel: Int = 1
+    @Published var sendError: AlertBinder?
+    
     @Published var isFeeLoading: Bool = false
     @Published var isSendEnabled: Bool = false
-    @Published var sendError: AlertBinder?
+    
     @Published var canFiatCalculation: Bool = true
     @Published var isFiatCalculation: Bool = false
+    @Published var isFeeIncluded: Bool = false
+    
+    @Published var amountToSend: Amount
+    @Published var selectedFeeLevel: Int = 1
     @Published var fees: [Amount] = []
     @Published var selectedFee: Amount? = nil
     
-    @Published var sendFee: String = ""
+    @Published var additionalFee: String = ""
     @Published var sendTotal: String = ""
     @Published var sendTotalSubtitle: String = ""
+    
+    @Published var shouldAmountBlink: Bool = false
     
     let cardViewModel: CardViewModel
     let blockchain: Blockchain
@@ -78,13 +88,15 @@ class PushTxViewModel: ViewModel {
     
     @Published private var newTransaction: BlockchainSdk.Transaction?
     
-    init(transaction: Transaction, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CoinMarketCapService) {
+    init(transaction: BlockchainSdk.Transaction, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CoinMarketCapService) {
         self.blockchain = blockchain
         self.cardViewModel = cardViewModel
         self.signer = signer
         self.ratesService = ratesService
         self.transaction = transaction
-        sendFee = emptyValue
+        self.amountToSend = transaction.amount
+        
+        additionalFee = emptyValue
         sendTotal = emptyValue
         sendTotalSubtitle = emptyValue
         
@@ -174,10 +186,20 @@ class PushTxViewModel: ViewModel {
             }
             .assign(to: \.selectedFee, on: self)
             .store(in: &bag)
+
+        $isFeeIncluded
+            .dropFirst()
+            .map { [unowned self] isFeeIncluded in
+                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: self.selectedFee)
+                self.shouldAmountBlink = true
+            }
+            .sink(receiveValue: { _ in })
+            .store(in: &bag)
         
         $selectedFee
             .dropFirst()
-            .map { [unowned self] fee -> (BlockchainSdk.Transaction?, Amount?) in
+            .combineLatest($isFeeIncluded)
+            .map { [unowned self] (fee, isFeeIncluded) -> (BlockchainSdk.Transaction?, Amount?) in
                 var errorMessage: String?
                 defer {
                     self.amountHint = errorMessage == nil ? nil : .init(isError: true, message: errorMessage!)
@@ -193,12 +215,16 @@ class PushTxViewModel: ViewModel {
                     return (nil, fee)
                 }
                 
-                let txResult = walletModel.walletManager.createTransaction(amount: self.transaction.amount, fee: fee, destinationAddress: self.destination)
+                let newAmount = isFeeIncluded ? self.transaction.amount + self.previousFeeAmount - fee : self.transaction.amount
+                let txResult = walletModel.walletManager.createTransaction(amount: newAmount,
+                                                                           fee: fee,
+                                                                           destinationAddress: self.destination)
+                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee)
                 switch txResult {
                 case .success(let tx):
                     return (tx, fee)
                 case .failure(let error):
-                    errorMessage = error.localizedDescription
+                    errorMessage = error.errors.first?.errorDescription
                     return (nil, fee)
                 }
             }
@@ -209,6 +235,7 @@ class PushTxViewModel: ViewModel {
                 self.isSendEnabled = tx != nil
                 self.fillTotalBlock(tx: tx, isFiat: self.isFiatCalculation)
                 self.updateFeeLabel(fee: fee)
+                
             })
             .store(in: &bag)
     }
@@ -245,10 +272,17 @@ class PushTxViewModel: ViewModel {
     private func updateFeeLabel(fee: Amount?, isFiat: Bool? = nil) {
         let isFiat = isFiat ?? isFiatCalculation
         if let fee = fee {
-            sendFee = getDescription(for: fee, isFiat: isFiat)
+            additionalFee = getDescription(for: fee - previousFeeAmount, isFiat: isFiat)
         } else {
-            sendFee = getDescription(for: Amount.zeroCoin(for: blockchain), isFiat: isFiat)
+            additionalFee = getDescription(for: Amount.zeroCoin(for: blockchain), isFiat: isFiat)
         }
+    }
+    
+    private func updateAmount(isFeeIncluded: Bool, selectedFee: Amount?) {
+        amountToSend = isFeeIncluded && selectedFee != nil ?
+            transaction.amount + previousFeeAmount - selectedFee! :
+            transaction.amount
+        fillPreviousTxInfo(isFiat: isFiatCalculation)
     }
     
     private func fillTotalBlock(tx: BlockchainSdk.Transaction? = nil, isFiat: Bool) {
@@ -261,7 +295,7 @@ class PushTxViewModel: ViewModel {
         let totalAmount = transaction.amount + fee
         var totalFiatAmount: Decimal? = nil
         
-        if let fiatAmount = self.walletModel.getFiat(for: transaction.amount), let fiatFee = self.walletModel.getFiat(for: fee) {
+        if let fiatAmount = self.walletModel.getFiat(for: amountToSend), let fiatFee = self.walletModel.getFiat(for: fee) {
             totalFiatAmount = fiatAmount + fiatFee
         }
         
