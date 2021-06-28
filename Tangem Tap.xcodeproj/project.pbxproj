@@ -647,6 +647,7 @@
 		B0F7360925F7AF9E00DD348F /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F7360825F7AF9E00DD348F /* CardViewModel.swift */; };
 		B0F7361325F7AFFB00DD348F /* TwinCardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C87B472566492000F861DE /* TwinCardInfo.swift */; };
 		B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
+		B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */; };
 		B0F920CC25932DCF007C176C /* WarningListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F920CB25932DCE007C176C /* WarningListView.swift */; };
 		B0FB2995263BD3ED007B400F /* EthereumUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB2994263BD3ED007B400F /* EthereumUtils.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
@@ -1476,6 +1477,7 @@
 		B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfoProvider.swift; sourceTree = "<group>"; };
 		B0F7358F25F788DD00DD348F /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		B0F7360825F7AF9E00DD348F /* CardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewModel.swift; sourceTree = "<group>"; };
+		B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileEncryptionUtility.swift; sourceTree = "<group>"; };
 		B0F920CB25932DCE007C176C /* WarningListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningListView.swift; sourceTree = "<group>"; };
 		B0FB2994263BD3ED007B400F /* EthereumUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumUtils.swift; sourceTree = "<group>"; };
 		B0FB98A42598D24300B769A3 /* Card+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+.swift"; sourceTree = "<group>"; };
@@ -1697,6 +1699,7 @@
 				B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */,
 				B07AE16B25DD548A0045179A /* RateAppService.swift */,
 				5D6784CD25EB92F300149995 /* SupportedTokenItems.swift */,
+				B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -4299,6 +4302,7 @@
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */,
+				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
 				B069F3EA2631FCF600ACFD19 /* TokenIconView.swift in Sources */,
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
 				B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */,
