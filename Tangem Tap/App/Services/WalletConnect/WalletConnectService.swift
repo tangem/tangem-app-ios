@@ -42,12 +42,14 @@ enum WalletConnectAction: String {
     case personalSign = "personal_sign"
     case signTransaction = "eth_signTransaction"
     case sendTransaction = "eth_sendTransaction"
+    case sessionRequest = "wc_sessionRequest"
     
     var successMessage: String {
         switch self {
         case .personalSign: return "wallet_connect_message_signed".localized
         case .signTransaction: return "wallet_connect_transaction_signed".localized
         case .sendTransaction: return "wallet_connect_transaction_signed_and_send".localized
+        case .sessionRequest: return "".localized
         }
     }
 }
@@ -101,23 +103,15 @@ class WalletConnectService: ObservableObject {
     }
     
     private func connect(to url: WCURL) {
-        isServiceBusy.send(true)
-        cardScanner.scanCard()
-            .sink { [unowned self] completion in
-                if case let .failure(error) = completion {
-                    self.handle(error, delay: 0.5)
-                }
-            } receiveValue: { [unowned self] wallet in
-                self.wallet = wallet
-                self.setupSessionConnectTimer()
-                do {
-                    try self.server.connect(to: url)
-                } catch {
-                    self.handle(error)
-                    self.resetSessionConnectTimer()
-                }
-            }
-            .store(in: &bag)
+        setupSessionConnectTimer()
+        do {
+            try server.connect(to: url)
+        } catch {
+            print(error)
+            resetSessionConnectTimer()
+            handle(error)
+            isServiceBusy.send(false)
+        }
     }
     
     private func save() {
@@ -240,39 +234,64 @@ extension WalletConnectService: ServerDelegate {
     }
     
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
-        guard isWaitingToConnect,
-            let wallet = self.wallet else {
-            isServiceBusy.send(false)
-            completion(rejectedResponse)
+        let failureCompletion = { [unowned self] in
+            self.isServiceBusy.send(false)
+            completion(self.rejectedResponse)
+        }
+        
+        guard isWaitingToConnect else {
+            failureCompletion()
+            return
+        }
+        
+        guard let chainId = session.dAppInfo.chainId else {
+            handle(WalletConnectServiceError.noChainId)
+            failureCompletion()
             return
         }
         
         resetSessionConnectTimer()
-        let peerMeta = session.dAppInfo.peerMeta
-        var message = String(format: "wallet_connect_request_session_start".localized, wallet.cid, peerMeta.name, peerMeta.url.absoluteString)
-        if let description = peerMeta.description, !description.isEmpty {
-            message += "\n\n" + description
-        }
-        let onAccept = {
-            self.sessions.filter {
-                $0.wallet == wallet &&
-                    $0.session.dAppInfo.peerMeta.url == session.dAppInfo.peerMeta.url
-            }.forEach { try? server.disconnect(from: $0.session) }
-            completion(Session.WalletInfo(approved: true,
-                                          accounts: [wallet.address],
-                                          chainId: wallet.chainId,
-                                          peerId: UUID().uuidString,
-                                          peerMeta: self.walletMeta))
-        }
-        
-        presentOnTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
-                                                      message: message,
-                                                      onAcceptAction: onAccept,
-                                                      onReject: {
-                                                        completion(self.rejectedResponse)
-                                                        self.isServiceBusy.send(false)
-                                                      }),
-                     delay: 0.5)
+        cardScanner.scanCard(for: chainId)
+            .sink { [unowned self] completion in
+                if case let .failure(error) = completion {
+                    self.handle(error, delay: 0.5)
+                    failureCompletion()
+                }
+            } receiveValue: { [unowned self] wallet in
+                self.wallet = wallet
+                
+                let peerMeta = session.dAppInfo.peerMeta
+                var message = String(format: "wallet_connect_request_session_start".localized, wallet.cid, peerMeta.name, peerMeta.url.absoluteString)
+                if let description = peerMeta.description, !description.isEmpty {
+                    message += "\n\n" + description
+                }
+                let onAccept = {
+                    self.sessions.filter {
+                        let savedUrlComponents = URLComponents(url: $0.session.dAppInfo.peerMeta.url, resolvingAgainstBaseURL: true)
+                        let newUrlComponents = URLComponents(url: session.dAppInfo.peerMeta.url, resolvingAgainstBaseURL: true)
+                        
+                        savedUrlComponents.
+                        
+                        return $0.wallet == wallet &&
+                            $0.wallet.chainId == chainId
+                    }.forEach { try? server.disconnect(from: $0.session) }
+                    completion(Session.WalletInfo(approved: true,
+                                                  accounts: [wallet.address],
+                                                  chainId: wallet.chainId,
+                                                  peerId: UUID().uuidString,
+                                                  peerMeta: self.walletMeta))
+                }
+                
+                self.presentOnTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
+                                                              message: message,
+                                                              onAcceptAction: onAccept,
+                                                              onReject: {
+                                                                completion(self.rejectedResponse)
+                                                                self.isServiceBusy.send(false)
+                                                              }),
+                             delay: 0.5)
+            }
+            .store(in: &bag)
     }
     
     func server(_ server: Server, didConnect session: Session) {
@@ -354,6 +373,7 @@ enum WalletConnectServiceError: LocalizedError {
     case txNotFound
     case failedToBuildTx
     case other(Error)
+    case noChainId
     
     var shouldHandle: Bool {
         switch self {
@@ -372,6 +392,7 @@ enum WalletConnectServiceError: LocalizedError {
         case .sessionNotFound: return "wallet_connect_session_not_found".localized
         case .failedToBuildTx: return "wallet_connect_failed_to_build_tx".localized
         case .other(let error): return error.localizedDescription
+        case .noChainId: return "wallet_connect_service_no_chain_id".localized
         default: return ""
         }
     }
