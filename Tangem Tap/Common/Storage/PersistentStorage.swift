@@ -135,8 +135,4 @@ class PersistentStorage {
             }
         }
     }
-    
-    private func writeToLocalStorage() {
-        
-    }
 }
