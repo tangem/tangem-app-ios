@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import KeychainSwift
 
 class ServicesAssembly {
     weak var assembly: Assembly!
@@ -21,6 +22,11 @@ class ServicesAssembly {
     }
     
     let logger = Logger()
+    lazy var keychain: KeychainSwift = {
+        let keychain = KeychainSwift()
+        keychain.synchronizable = true
+        return keychain
+    }()
     lazy var navigationCoordinator = NavigationCoordinator()
     lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
     lazy var userPrefsService = UserPrefsService()
@@ -30,12 +36,13 @@ class ServicesAssembly {
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
     lazy var persistentStorage = PersistentStorage()
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
-    lazy var keychainService = ValidatedCardsService()
+    lazy var keychainService = ValidatedCardsService(keychain: keychain)
     lazy var imageLoaderService: CardImageLoaderService = CardImageLoaderService(networkService: networkService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
+    lazy var fileEncriptionUtils: FileEncryptionUtility = .init(keychain: keychain)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
