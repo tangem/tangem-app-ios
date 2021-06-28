@@ -19,8 +19,8 @@ target 'Tangem Tap' do
   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'CSS-158_Wallet-not-found-error-40'
 #  pod 'TangemSdk', :path => '../tangem-sdk-ios'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-32'
-#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+#  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-32'
+  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
 #  pod 'web3swift', :path => '../web3swift'
@@ -28,6 +28,8 @@ target 'Tangem Tap' do
   pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.15'
   #pod 'BitcoinCore.swift', :path => '../bitcoincore'
 
+  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.4.0'
+  
   pod 'Moya'
   pod 'KeychainSwift', '~> 19.0'
   pod 'EFQRCode' #//TODO: remove
@@ -35,7 +37,6 @@ target 'Tangem Tap' do
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
-  pod 'WalletConnectSwift'
   pod 'Kingfisher'
 
   target 'Tangem TapTests' do
