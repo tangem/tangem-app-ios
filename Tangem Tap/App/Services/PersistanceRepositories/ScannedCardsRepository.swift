@@ -9,8 +9,6 @@
 import Foundation
 import TangemSdk
 
-
-
 class ScannedCardsRepository {
     private(set) var cards: [String: SavedCard] = [:]
     private let storage: PersistentStorage
