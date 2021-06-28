@@ -641,10 +641,10 @@
 		B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D76D4C25D4E4610073FA98 /* AddCustomTokenViewModel.swift */; };
 		B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B0E1D17D257DE79000A3AB98 /* FeaturesConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */; };
-		B0ED200E267C730D00D5C3E5 /* binanceSmartChainTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */; };
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
 		B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FE2679DA8000269C7A /* AmountView.swift */; };
 		B0EC1200267386FC00137059 /* PendingTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EC11FF267386FC00137059 /* PendingTransaction.swift */; };
+		B0ED200E267C730D00D5C3E5 /* binanceSmartChainTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */; };
 		B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */; };
 		B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */; };
 		B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */; };
