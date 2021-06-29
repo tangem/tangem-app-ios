@@ -549,4 +549,10 @@ URL: %@";
 "push_previous_total" = "Previous total";
 "push_current_total" = "Current total";
 
+"push_additional_fee" = "Additional fee";
 "add_token_section_title_binance_smart_chain_tokens" = "Binance Smart Chain tokens";
+
+"add_token_section_title_binance_tokens" = "Binance tokens";
+
+"wallet_connect_service_no_chain_id" = "Dapp didn't provide essential data to establish WalletConnect session";
+"wallet_connect_scanner_error_unsupported_network" = "This network is not supported";
