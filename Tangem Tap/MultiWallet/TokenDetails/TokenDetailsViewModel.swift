@@ -66,18 +66,19 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     var canDelete: Bool {
-        if case .noAccount = walletModel?.state {
-            return true
-        }
-        
-        guard let amount = amountToSend, let walletModel = self.walletModel else {
+        guard let walletModel = self.walletModel else {
             return false
         }
         
-        if amount.type == .coin {
+        let canRemoveAmountType = walletModel.canRemove(amountType: amountType)
+        if case .noAccount = walletModel.state, canRemoveAmountType {
+            return true
+        }
+        
+        if amountType == .coin {
             return card.canRemoveBlockchain(walletModel.wallet.blockchain)
         } else {
-            return walletModel.canRemove(amountType: amount.type)
+            return canRemoveAmountType
         }
     }
     
@@ -133,7 +134,7 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     func onRemove() {
-        if let walletModel = self.walletModel, case .noAccount = walletModel.state {
+        if let walletModel = self.walletModel, amountType == .coin, case .noAccount = walletModel.state {
             card.removeBlockchain(walletModel.wallet.blockchain)
             return
         }
@@ -165,7 +166,7 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     func pushOutgoingTx(at index: Int) {
-        assembly.reset(key: String(describing: PushTxViewModel.self))
+        assembly.reset(key: String(describing: PushTxViewModel.Type.self))
         txIndexToPush = index
     }
     
