@@ -110,7 +110,7 @@ struct PushScreenDataCollector: EmailDataCollector {
             EmailCollectedData(type: .send(.sourceAddress), data: pushTxViewModel.transaction.sourceAddress),
             EmailCollectedData(type: .send(.destinationAddress), data: pushTxViewModel.transaction.destinationAddress),
             EmailCollectedData(type: .send(.amount), data: pushTxViewModel.amount),
-            EmailCollectedData(type: .send(.fee), data: pushTxViewModel.sendFee),
+            EmailCollectedData(type: .send(.fee), data: pushTxViewModel.newFee),
         ])
         
         return formatData(data)
