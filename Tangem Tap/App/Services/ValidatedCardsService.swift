@@ -16,9 +16,8 @@ class ValidatedCardsService {
     
     private let validatedCardPrefix = "validated_"
     
-    init() {
-        keychain = KeychainSwift()
-        keychain.synchronizable = true
+    init(keychain: KeychainSwift) {
+        self.keychain = keychain
     }
     
     deinit {
