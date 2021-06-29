@@ -51,28 +51,36 @@ struct PushTxView: View {
                     .padding(.bottom)
                     FilledInputView(title: "Address", text: viewModel.destination)
                         .opacity(0.6)
-                    HStack {
-                        Text(viewModel.amountDecimal)
+                    VStack(alignment: .leading) {
+                        Text("Previous transaction total including fee")
+                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                            .foregroundColor(Color.tangemTapGrayDark)
                             .opacity(0.6)
-                        Spacer()
-                        Button(action: {
-                            self.viewModel.isFiatCalculation.toggle()
-                        }) { HStack(alignment: .center, spacing: 8.0) {
-                            Text(self.viewModel.currency)
-                                .font(Font.system(size: 38.0, weight: .light, design: .default))
-                                .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                    Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
-                            Image("arrow.up.arrow.down")
-                                .font(Font.system(size: 17.0, weight: .regular, design: .default))
-                                .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                    Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                            .padding(.bottom, 4)
+                        HStack {
+                            Text(viewModel.previousTotal)
+                                .foregroundColor(.tangemTapGrayDark6)
+                                .opacity(0.6)
+                            Spacer()
+                            Button(action: {
+                                self.viewModel.isFiatCalculation.toggle()
+                            }) { HStack(alignment: .center, spacing: 8.0) {
+                                Text(self.viewModel.currency)
+                                    .font(Font.system(size: 38.0, weight: .light, design: .default))
+                                    .foregroundColor(self.viewModel.canFiatCalculation ?
+                                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                                Image("arrow.up.arrow.down")
+                                    .font(Font.system(size: 17.0, weight: .regular, design: .default))
+                                    .foregroundColor(self.viewModel.canFiatCalculation ?
+                                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                            }
+                            }
+                            .foregroundColor(.tangemTapBlue)
+                            .disabled(!self.viewModel.canFiatCalculation)
                         }
-                        }
-                        .disabled(!self.viewModel.canFiatCalculation)
+                        .font(.system(size: 38, weight: .light))
                     }
-                    .font(.system(size: 38, weight: .light))
-                    .foregroundColor(.tangemTapBlue)
-                    .padding(.top, 40)
+                    .padding(.top, 15)
                     
                     Separator()
                     HStack {
@@ -97,6 +105,11 @@ struct PushTxView: View {
                             .font(.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor((viewModel.amountHint?.isError ?? false ) ?
                                                 Color.red : Color.tangemTapGrayDark)
+                        Toggle(isOn: self.$viewModel.isFeeIncluded) {
+                            Text("send_fee_include_description")
+                                .font(Font.system(size: 13.0, weight: .medium, design: .default))
+                                .foregroundColor(Color.tangemTapGrayDark6)
+                        }
                     }
                     Spacer()
                     VStack (spacing: 8.0) {
@@ -108,20 +121,13 @@ struct PushTxView: View {
                                    labelColor: .tangemTapGrayDark,
                                    amountText: viewModel.previousFee)
                             .opacity(0.6)
-                        AmountView(label: "push_current_fee",
+                        AmountView(label: "push_additional_fee",
                                    labelColor: .tangemTapGrayDark,
                                    isLoading: viewModel.isFeeLoading,
-                                   amountText: viewModel.sendFee)
+                                   amountText: viewModel.additionalFee)
                         Separator()
                         
-                        AmountView(label: "push_previous_total",
-                                   labelColor: .tangemTapGrayDark6,
-                                   labelFont: .system(size: 15, weight: .bold, design: .default),
-                                   amountText: viewModel.previousTotal,
-                                   amountScaleFactor: 0.5,
-                                   amountLineLimit: 1)
-                            .opacity(0.6)
-                        AmountView(label: "push_current_total",
+                        AmountView(label: "send_total_label",
                                    labelColor: .tangemTapGrayDark6,
                                    labelFont: .system(size: 20, weight: .bold, design: .default),
                                    amountText: viewModel.sendTotal,
@@ -193,5 +199,6 @@ struct PushTxView_Previews: PreviewProvider {
                         blockchain: .bitcoin(testnet: false),
                         card: assembly.previewCardViewModel),
                    onSuccess: { })
+            .environmentObject(assembly.services.navigationCoordinator)
     }
 }
