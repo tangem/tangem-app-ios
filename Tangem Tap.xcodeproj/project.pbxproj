@@ -191,6 +191,7 @@
 		B059414C260A135D00F90053 /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B059414B260A135D00F90053 /* Assembly.swift */; };
 		B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */; };
 		B05B85A92589F0CF008A4452 /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05B85A82589F0CF008A4452 /* AppFeature.swift */; };
+		B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0606E112684A946004004ED /* BlinkingModifier.swift */; };
 		B0608CBE2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0608CBD2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift */; };
 		B0651737259CACD8001D966C /* WarningsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0651736259CACD8001D966C /* WarningsList.swift */; };
 		B06682482656730F00CB86CF /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B06682472656730F00CB86CF /* Intents.intentdefinition */; };
@@ -560,6 +561,8 @@
 		B086906E260A2D73005976CD /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
 		B0869073260A2D7B005976CD /* TangemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB855259A075500B92000 /* TangemButton.swift */; };
 		B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
+		B087635F26830795000A35F9 /* binanceTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B087635E2683077E000A35F9 /* binanceTokens_testnet.json */; };
+		B087636026830795000A35F9 /* binanceTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B087635D2683077E000A35F9 /* binanceTokens.json */; };
 		B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */; };
 		B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */; };
 		B08ACD9425D2E056007387BD /* ethereumTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B080765E25D10667006CF606 /* ethereumTokens.json */; };
@@ -1047,6 +1050,7 @@
 		B059414B260A135D00F90053 /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
 		B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTroublehootingView.swift; sourceTree = "<group>"; };
 		B05B85A82589F0CF008A4452 /* AppFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
+		B0606E112684A946004004ED /* BlinkingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkingModifier.swift; sourceTree = "<group>"; };
 		B0608CBD2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseJsonConfigFetcher.swift; sourceTree = "<group>"; };
 		B0651736259CACD8001D966C /* WarningsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsList.swift; sourceTree = "<group>"; };
 		B066822426564ADB00CB86CF /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
@@ -1421,6 +1425,8 @@
 		B07AE16B25DD548A0045179A /* RateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppService.swift; sourceTree = "<group>"; };
 		B080765E25D10667006CF606 /* ethereumTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ethereumTokens.json; sourceTree = "<group>"; };
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
+		B087635D2683077E000A35F9 /* binanceTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceTokens.json; sourceTree = "<group>"; };
+		B087635E2683077E000A35F9 /* binanceTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceTokens_testnet.json; sourceTree = "<group>"; };
 		B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensView.swift; sourceTree = "<group>"; };
 		B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensViewModel.swift; sourceTree = "<group>"; };
 		B08D5DD126371AA7008535E4 /* UserPrefsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPrefsService.swift; sourceTree = "<group>"; };
@@ -3415,6 +3421,7 @@
 			isa = PBXGroup;
 			children = (
 				B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */,
+				B0606E112684A946004004ED /* BlinkingModifier.swift */,
 			);
 			path = Modifiers;
 			sourceTree = "<group>";
@@ -3466,6 +3473,8 @@
 				B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */,
 				B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */,
 				B016E6BF26805BA3007178B9 /* binanceSmartChainTokens_testnet.json */,
+				B087635D2683077E000A35F9 /* binanceTokens.json */,
+				B087635E2683077E000A35F9 /* binanceTokens_testnet.json */,
 				B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */,
 			);
 			path = Resources;
@@ -3958,6 +3967,7 @@
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
+				B087636026830795000A35F9 /* binanceTokens.json in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
 				5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
 				B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */,
@@ -3966,6 +3976,7 @@
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
 				5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
 				B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */,
+				B087635F26830795000A35F9 /* binanceTokens_testnet.json in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				B0ED200E267C730D00D5C3E5 /* binanceSmartChainTokens.json in Resources */,
 				B016E6C026807053007178B9 /* binanceSmartChainTokens_testnet.json in Resources */,
@@ -4312,6 +4323,7 @@
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
 				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
+				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
 				5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */,
