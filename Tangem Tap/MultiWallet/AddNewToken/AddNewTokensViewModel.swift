@@ -22,10 +22,23 @@ class AddNewTokensViewModel: ViewModel {
             availableEthereumTokens :
             []
     }
+    
     var availableEthereumTokens: [Token]  {
         isTestnet ?
             tokenItemsRepository.supportedItems.ethereumTokensTestnet :
             tokenItemsRepository.supportedItems.ethereumTokens
+    }
+    
+    var visibleBnbTokens: [Token] {
+        isBnbTokensVisible ?
+            availableBnbTokens :
+            []
+    }
+    
+    var availableBnbTokens: [Token] {
+        isTestnet ?
+            tokenItemsRepository.supportedItems.binanceTokensTestnet :
+            tokenItemsRepository.supportedItems.binanceTokens
     }
     
     var visibleBscTokens: [Token] {
@@ -43,6 +56,7 @@ class AddNewTokensViewModel: ViewModel {
     @Published private(set) var pendingTokensUpdate: Set<Token> = []
     @Published var error: AlertBinder?
     @Published var isEthTokensVisible: Bool = true
+    @Published var isBnbTokensVisible: Bool = true
     @Published var isBscTokensVisible: Bool = true
     
     let cardModel: CardViewModel
