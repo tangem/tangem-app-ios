@@ -13,17 +13,17 @@ import WalletConnectSwift
 struct WalletInfo: Codable, Hashable {
     let cid: String
     let walletPublicKey: Data
-    let isTestnet: Bool
-    let chainId: Int
+    let blockchain: Blockchain
+    let chainId: Int?
     
     var address: String {
-        EthereumNetwork.network(for: chainId)?.blockchain.makeAddresses(from: walletPublicKey, with: nil).first!.value ?? .unknown
+        blockchain.makeAddresses(from: walletPublicKey, with: nil).first!.value
     }
     
-    internal init(cid: String, walletPublicKey: Data, isTestnet: Bool, chainId: Int) {
+    internal init(cid: String, walletPublicKey: Data, blockchain: Blockchain, chainId: Int?) {
         self.cid = cid
         self.walletPublicKey = walletPublicKey
-        self.isTestnet = isTestnet
+        self.blockchain = blockchain
         self.chainId = chainId
     }
 }
