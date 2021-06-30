@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import KeychainSwift
 
 class ServicesAssembly {
     weak var assembly: Assembly!
@@ -21,6 +22,12 @@ class ServicesAssembly {
     }
     
     let logger = Logger()
+    lazy var keychain: KeychainSwift = {
+        let keychain = KeychainSwift()
+        keychain.synchronizable = true
+        return keychain
+    }()
+    lazy var fileEncriptionUtility: FileEncryptionUtility = .init(keychain: keychain)
     lazy var navigationCoordinator = NavigationCoordinator()
     lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
     lazy var userPrefsService = UserPrefsService()
@@ -28,14 +35,15 @@ class ServicesAssembly {
     lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
-    lazy var persistentStorage = PersistentStorage()
+    lazy var persistentStorage = PersistentStorage(encryptionUtility: fileEncriptionUtility)
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
-    lazy var keychainService = ValidatedCardsService()
+    lazy var keychainService = ValidatedCardsService(keychain: keychain)
     lazy var imageLoaderService: CardImageLoaderService = CardImageLoaderService(networkService: networkService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
+    
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -191,7 +199,12 @@ class Assembly: ObservableObject {
     ///Make wallets for blockchains
     func makeWallets(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
         let walletManagers = makeWalletManagers(from: cardInfo, blockchains: blockchains)
-        return makeWalletModels(from: cardInfo, walletManagers: walletManagers)
+        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.card.defaultToken)
+    }
+    
+    func makeWallets(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletModel] {
+        let walletManagers = makeWalletManagers(from: cardDto, blockchains: blockchains)
+        return makeWalletModels(walletManagers: walletManagers, cardToken: nil)
     }
     
     ///Load all possible wallets for card
@@ -233,13 +246,13 @@ class Assembly: ObservableObject {
                 walletManagers.append(nativeWalletManager)
             }
         }
-        return makeWalletModels(from: cardInfo, walletManagers: walletManagers)
+        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.card.defaultToken)
     }
     
     //Make walletModel from walletManager
-    private func makeWalletModels(from cardInfo: CardInfo, walletManagers: [WalletManager]) -> [WalletModel] {
+    private func makeWalletModels(walletManagers: [WalletManager], cardToken: Token?) -> [WalletModel] {
         return walletManagers.map { manager -> WalletModel in
-            let model = WalletModel(cardInfo: cardInfo, walletManager: manager)
+            let model = WalletModel(walletManager: manager, defaultToken: cardToken)
             model.tokenItemsRepository = services.tokenItemsRepository
             model.ratesService = services.ratesService
             return model
@@ -270,6 +283,23 @@ class Assembly: ObservableObject {
         
         for blockchain in blockchains {
             if let walletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
+               let wm = services.walletManagerFactory.makeWalletManager(from: cid,
+                                                                        walletPublicKey: walletPublicKey,
+                                                                        blockchain: blockchain) {
+                walletManagers.append(wm)
+            }
+        }
+        
+        return walletManagers
+    }
+    
+    private func makeWalletManagers(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletManager] {
+        let cid = cardDto.cardId
+        
+        var walletManagers = [WalletManager]()
+        
+        for blockchain in blockchains {
+            if let walletPublicKey = cardDto.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
                let wm = services.walletManagerFactory.makeWalletManager(from: cid,
                                                                         walletPublicKey: walletPublicKey,
                                                                         blockchain: blockchain) {
