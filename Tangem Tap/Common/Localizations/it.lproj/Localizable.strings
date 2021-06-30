@@ -554,6 +554,12 @@ URL: %@";
 
 "add_token_section_title_binance_tokens" = "Binance tokens";
 
+"keychain_failed_to_create_key" = "Failed to create SecKey representation";
+"keychain_failed_to_store_key" = "Failed to store key: ";
+"keychain_failed_to_read_key" = "Failed to read key from Keychain: ";
+"keychain_failed_to_convert_to_key" = "Keychain failed to convert to key: ";
+"keychain_failed_to_delete_key" = "Keychain failed to remove key from DB: ";
+
 "wallet_connect_service_no_chain_id" = "Dapp didn't provide essential data to establish WalletConnect session";
 "wallet_connect_scanner_error_unsupported_network" = "This network is not supported";
 
