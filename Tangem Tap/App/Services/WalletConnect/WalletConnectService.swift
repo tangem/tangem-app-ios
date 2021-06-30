@@ -42,14 +42,29 @@ enum WalletConnectAction: String {
     case personalSign = "personal_sign"
     case signTransaction = "eth_signTransaction"
     case sendTransaction = "eth_sendTransaction"
-    case sessionRequest = "wc_sessionRequest"
+    case bnbSign = "bnb_sign"
+    case bnbTxConfirmation = "bnb_tx_confirmation"
     
     var successMessage: String {
         switch self {
         case .personalSign: return "wallet_connect_message_signed".localized
         case .signTransaction: return "wallet_connect_transaction_signed".localized
         case .sendTransaction: return "wallet_connect_transaction_signed_and_send".localized
-        case .sessionRequest: return "".localized
+        case .bnbSign: return "wallet_connect_bnb_transaction_signed".localized
+        case .bnbTxConfirmation: return "".localized
+        }
+    }
+}
+
+enum WalletConnectNetwork {
+    case eth(chainId: Int), bnb(testnet: Bool)
+    
+    var blockchain: Blockchain? {
+        switch self {
+        case .eth(let chainId):
+            return EthereumNetwork.network(for: chainId)?.blockchain
+        case .bnb(let testnet):
+            return .binance(testnet: testnet)
         }
     }
 }
@@ -68,7 +83,7 @@ class WalletConnectService: ObservableObject {
     private unowned var cardScanner: WalletConnectCardScanner
     private var bag: Set<AnyCancellable> = []
     private var isWaitingToConnect: Bool = false
-    private var timer: Timer?
+    private var timer: DispatchWorkItem?
     
     init(assembly: Assembly, cardScanner: WalletConnectCardScanner, signer: TangemSigner, scannedCardsRepository: ScannedCardsRepository) {
         self.cardScanner = cardScanner
@@ -76,6 +91,8 @@ class WalletConnectService: ObservableObject {
         server.register(handler: PersonalSignHandler(signer: signer, delegate: self, dataSource: self))
         server.register(handler: SignTransactionHandler(signer: signer, delegate: self, dataSource: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
         server.register(handler: SendTransactionHandler(signer: signer, delegate: self, dataSource: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
+        server.register(handler: BnbSignHandler(signer: signer, delegate: self, dataSource: self))
+        server.register(handler: BnbSuccessHandler(delegate: self, dataSource: self))
     }
     
     func disconnect(from session: Session) {
@@ -124,10 +141,11 @@ class WalletConnectService: ObservableObject {
     private func setupSessionConnectTimer() {
         isWaitingToConnect = true
         isServiceBusy.send(true)
-        timer = .scheduledTimer(withTimeInterval: 20, repeats: false, block: { [unowned self] timer in
+        timer = DispatchWorkItem(block: { [unowned self] in
             self.isWaitingToConnect = false
             self.handle(WalletConnectServiceError.timeout)
         })
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: timer!)
     }
     
     private func handle(_ error: Error, for action: WalletConnectAction? = nil, delay: TimeInterval = 0) {
@@ -150,7 +168,7 @@ class WalletConnectService: ObservableObject {
     }
     
     private func resetSessionConnectTimer() {
-        timer?.invalidate()
+        timer?.cancel()
         isWaitingToConnect = false
     }
     
@@ -244,14 +262,35 @@ extension WalletConnectService: ServerDelegate {
             return
         }
         
-        guard let chainId = session.dAppInfo.chainId else {
-            handle(WalletConnectServiceError.noChainId)
-            failureCompletion()
-            return
+        resetSessionConnectTimer()
+        let wcNetwork: WalletConnectNetwork
+        var chainId: Int = -1
+        if let id = session.dAppInfo.chainId {
+            chainId = id
+            wcNetwork = .eth(chainId: id)
+            
+        } else if session.dAppInfo.peerMeta.url.absoluteString.hasSuffix("binance.org") {
+            // There is no adequate way to determine which network we are trying to connect to and create a WC session,
+            // icon links are the only thing that is different and allows us to determine whether we are connecting to testnet or mainnet.
+            // But this only applies to binance.org. So far, I could not find alternative services where you can connect Binance wallet via WC.
+            if session.dAppInfo.peerMeta.icons.first?.absoluteString.contains("dex-bin") ?? false {
+                wcNetwork = .bnb(testnet: false)
+            } else if session.dAppInfo.peerMeta.icons.filter({ $0.absoluteString.contains("testnet-bin") }).count > 0 {
+                wcNetwork = .bnb(testnet: true)
+            } else {
+                failureCompletion()
+                return
+            }
+        } else {
+            // WC interface doesn't provide info about network. So in cases when chainId is null we use ethereum main network
+            // Dapps on ethereum mainnet sending null in chainId
+            let id = EthereumNetwork.mainnet(projectId: "").id
+            chainId = id
+            wcNetwork = .eth(chainId: id)
         }
         
-        resetSessionConnectTimer()
-        cardScanner.scanCard(for: chainId)
+        
+        cardScanner.scanCard(for: wcNetwork)
             .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
                     self.handle(error, delay: 0.5)
@@ -267,17 +306,16 @@ extension WalletConnectService: ServerDelegate {
                 }
                 let onAccept = {
                     self.sessions.filter {
-                        let savedUrlComponents = URLComponents(url: $0.session.dAppInfo.peerMeta.url, resolvingAgainstBaseURL: true)
-                        let newUrlComponents = URLComponents(url: session.dAppInfo.peerMeta.url, resolvingAgainstBaseURL: true)
-                        
-                        savedUrlComponents.
+                        let savedUrl = $0.session.dAppInfo.peerMeta.url.host ?? ""
+                        let newUrl = session.dAppInfo.peerMeta.url.host ?? ""
                         
                         return $0.wallet == wallet &&
-                            $0.wallet.chainId == chainId
+                            $0.wallet.chainId == chainId &&
+                            (savedUrl.count > newUrl.count ? savedUrl.contains(newUrl) : newUrl.contains(savedUrl))
                     }.forEach { try? server.disconnect(from: $0.session) }
                     completion(Session.WalletInfo(approved: true,
                                                   accounts: [wallet.address],
-                                                  chainId: wallet.chainId,
+                                                  chainId: wallet.chainId ?? 1,
                                                   peerId: UUID().uuidString,
                                                   peerMeta: self.walletMeta))
                 }
@@ -374,6 +412,7 @@ enum WalletConnectServiceError: LocalizedError {
     case failedToBuildTx
     case other(Error)
     case noChainId
+    case unsupportedNetwork
     
     var shouldHandle: Bool {
         switch self {
@@ -393,6 +432,7 @@ enum WalletConnectServiceError: LocalizedError {
         case .failedToBuildTx: return "wallet_connect_failed_to_build_tx".localized
         case .other(let error): return error.localizedDescription
         case .noChainId: return "wallet_connect_service_no_chain_id".localized
+        case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
         default: return ""
         }
     }
