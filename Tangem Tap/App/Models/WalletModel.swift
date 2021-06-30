@@ -77,7 +77,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     let walletManager: WalletManager
-    let cardInfo: CardInfo
+    private let defaultToken: Token?
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
@@ -85,8 +85,8 @@ class WalletModel: ObservableObject, Identifiable {
         print("🗑 WalletModel deinit")
     }
     
-    init(cardInfo: CardInfo, walletManager: WalletManager) {
-        self.cardInfo = cardInfo
+    init(walletManager: WalletManager, defaultToken: Token?) {
+        self.defaultToken = defaultToken
         self.walletManager = walletManager
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
@@ -224,7 +224,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func canRemove(amountType: Amount.AmountType) -> Bool {
-        if let token = amountType.token, token == cardInfo.card.defaultToken {
+        if let token = amountType.token, token == defaultToken {
             return false
         }
         
