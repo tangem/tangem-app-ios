@@ -12,13 +12,12 @@ import Combine
 import BlockchainSdk
 
 enum WalletConnectCardScannerError: LocalizedError {
-    case noCardId, notValidCard, unsupportedNetwork
+    case noCardId, notValidCard
     
     var errorDescription: String? {
         switch self {
         case .noCardId: return "wallet_connect_scanner_error_no_card_id".localized
         case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
-        case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
         }
     }
 }
@@ -30,7 +29,7 @@ class WalletConnectCardScanner {
     weak var tokenItemsRepository: TokenItemsRepository!
     weak var cardsRepository: CardsRepository!
     
-    func scanCard(for chainId: Int) -> AnyPublisher<WalletInfo, Error> {
+    func scanCard(for wcNetwork: WalletConnectNetwork) -> AnyPublisher<WalletInfo, Error> {
         Deferred {
             Future { [weak self] promise in
                 self?.tangemSdk.startSession(with: TapScanTask(), initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { result in
@@ -39,7 +38,7 @@ class WalletConnectCardScanner {
                     switch result {
                     case .success(let card):
                         do {
-                            promise(.success(try self.walletInfo(for: card.card, for: chainId)))
+                            promise(.success(try self.walletInfo(for: card.card, wcNetwork: wcNetwork)))
                         } catch {
                             print("Failed to receive wallet info for with id: \(card.card.cardId ?? "")")
                             promise(.failure(error))
@@ -53,7 +52,7 @@ class WalletConnectCardScanner {
         .eraseToAnyPublisher()
     }
     
-    func walletInfo(for card: Card, for chainId: Int) throws -> WalletInfo {
+    func walletInfo(for card: Card, wcNetwork: WalletConnectNetwork) throws -> WalletInfo {
         guard let cid = card.cardId else {
             throw WalletConnectCardScannerError.noCardId
         }
@@ -63,11 +62,14 @@ class WalletConnectCardScanner {
             throw WalletConnectCardScannerError.notValidCard
         }
         
-        guard let network = EthereumNetwork.network(for: chainId) else {
-            throw WalletConnectCardScannerError.unsupportedNetwork
+        var chainId: Int?
+        guard let blockchain = wcNetwork.blockchain else {
+            throw WalletConnectServiceError.unsupportedNetwork
         }
         
-        let blockchain = network.blockchain
+        if case let .eth(id) = wcNetwork {
+            chainId = id
+        }
         
         func findWallet(in wallets: [Wallet]) -> Wallet? {
             wallets.first(where: { $0.blockchain == blockchain })
@@ -102,7 +104,7 @@ class WalletConnectCardScanner {
         scannedCardsRepository.add(card)
         return WalletInfo(cid: cid,
                           walletPublicKey: wallet.publicKey,
-                          isTestnet: card.isTestnet,
+                          blockchain: blockchain,
                           chainId: chainId)
     }
     
