@@ -14,3 +14,9 @@ protocol TangemWalletConnectRequestHandler: RequestHandler {
     var delegate: WalletConnectHandlerDelegate? { get }
     var dataSource: WalletConnectHandlerDataSource? { get }
 }
+
+extension TangemWalletConnectRequestHandler {
+    func canHandle(request: Request) -> Bool {
+        action.rawValue == request.method
+    }
+}
