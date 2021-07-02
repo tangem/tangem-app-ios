@@ -13,18 +13,18 @@ import WalletConnectSwift
 struct WalletInfo: Codable, Hashable {
     let cid: String
     let walletPublicKey: Data
-    let isTestnet: Bool
+    let blockchain: Blockchain
+    let chainId: Int?
     
     var address: String {
-        Blockchain.ethereum(testnet: isTestnet).makeAddresses(from: walletPublicKey, with: nil).first!.value
+        blockchain.makeAddresses(from: walletPublicKey, with: nil).first!.value
     }
     
-    var chainId: Int { isTestnet ? 4 : 1 }
-    
-    internal init(cid: String, walletPublicKey: Data, isTestnet: Bool) {
+    internal init(cid: String, walletPublicKey: Data, blockchain: Blockchain, chainId: Int?) {
         self.cid = cid
         self.walletPublicKey = walletPublicKey
-        self.isTestnet = isTestnet
+        self.blockchain = blockchain
+        self.chainId = chainId
     }
 }
 
