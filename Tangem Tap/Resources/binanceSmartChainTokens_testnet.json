@@ -85,6 +85,18 @@
     },
     {
         "decimalCount" : 18,
+        "symbol" : "DAI",
+        "name" : "Dai Token",
+        "customIconUrl" : "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3/logo.png",
+        "contractAddress" : "0x8a9424745056eb399fd19a0ec26a14316684e274",
+        "blockchain" : {
+          "key" : "bsc",
+          "curve" : "secp256k1",
+          "testnet" : true
+        }
+    },
+    {
+        "decimalCount" : 18,
         "symbol" : "USDC",
         "name" : "Binance-Peg USDC Token",
         "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
