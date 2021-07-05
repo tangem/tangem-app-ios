@@ -45,15 +45,16 @@ struct TokenDetailsView: View {
         
         HStack(alignment: .center) {
             if viewModel.canTopup  {
-                TwinButton(leftImage: "arrow.up",
-                           leftTitle: "wallet_button_topup",
-                           leftAction: { viewModel.topupAction() },
-                           leftIsDisabled: false,
-                           
-                           rightImage: "arrow.right",
-                           rightTitle: "wallet_button_send",
-                           rightAction: sendAction,
-                           rightIsDisabled: !viewModel.canSend)
+                HorizontalButtonStack(buttons: [
+                    .init(imageName: "arrow.up",
+                          title: "wallet_button_topup",
+                          action: { viewModel.topupAction() },
+                          isDisabled: viewModel.canTopup),
+                    .init(imageName: "arrow.right",
+                          title: "wallet_button_send",
+                          action: sendAction,
+                          isDisabled: !viewModel.canSend)
+                ])
             } else {
                 TangemLongButton(isLoading: false,
                                  title: "wallet_button_send",
