@@ -15,7 +15,7 @@ import TangemSdk
 class MainViewModel: ViewModel {
     // MARK: Dependencies -
     weak var imageLoaderService: CardImageLoaderService!
-    weak var topupService: TopupService!
+    weak var topupService: MoonPayService!
 	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
     weak var warningsManager: WarningsManager!
@@ -91,7 +91,7 @@ class MainViewModel: ViewModel {
     }
     
     var canTopup: Bool {
-        return cardModel?.canTopup ?? false
+        cardModel?.canTopup ?? false && topupURL != nil
     }
     
     var topupURL: URL? {
@@ -101,14 +101,14 @@ class MainViewModel: ViewModel {
                 return URL(string: blockchain.testnetTopupLink ?? "")
             }
             
-            return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
-                                     walletAddress: wallet.address)
+            return topupService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                          walletAddress: wallet.address)
         }
         return nil
     }
     
     var topupCloseUrl: String {
-        return topupService.topupCloseUrl.removeLatestSlash()
+        return topupService.buyCloseUrl.removeLatestSlash()
     }
     
     public var canSend: Bool {
