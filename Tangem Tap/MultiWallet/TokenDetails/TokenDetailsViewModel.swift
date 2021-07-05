@@ -12,7 +12,7 @@ import Combine
 class TokenDetailsViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var topupService: TopupService!
+    weak var topupService: MoonPayService!
     
     var card: CardViewModel! {
         didSet {
@@ -37,7 +37,7 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     var canTopup: Bool {
-        card.canTopup
+        card.canTopup && topupURL != nil
     }
     
     var topupURL: URL? {
@@ -47,14 +47,21 @@ class TokenDetailsViewModel: ViewModel {
                 return URL(string: blockchain.testnetTopupLink ?? "")
             }
             
-            return topupService.getTopupURL(currencySymbol: blockchain.currencySymbol,
-                                            walletAddress: wallet.address)
+            let address = wallet.address
+            switch amountType {
+            case .coin:
+                return topupService.getBuyUrl(currencySymbol: blockchain.currencySymbol, walletAddress: address)
+            case .token(let token):
+                return topupService.getBuyUrl(currencySymbol: token.symbol, walletAddress: address)
+            case .reserve:
+                break
+            }
         }
         return nil
     }
     
     var topupCloseUrl: String {
-        topupService.topupCloseUrl.removeLatestSlash()
+        topupService.buyCloseUrl.removeLatestSlash()
     }
     
     var canSend: Bool {
