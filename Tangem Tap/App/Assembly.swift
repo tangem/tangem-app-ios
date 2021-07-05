@@ -40,7 +40,7 @@ class ServicesAssembly {
     lazy var keychainService = ValidatedCardsService(keychain: keychain)
     lazy var imageLoaderService: CardImageLoaderService = CardImageLoaderService(networkService: networkService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
-    lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
+    lazy var topupService: MoonPayService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
