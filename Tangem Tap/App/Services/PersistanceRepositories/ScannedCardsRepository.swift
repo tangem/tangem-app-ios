@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 
 class ScannedCardsRepository {
-    private(set) var cards: [String: Card] = [:]
+    private(set) var cards: [String: SavedCard] = [:]
     private let storage: PersistentStorage
     private var storageKey: PersistentStorageKey { .cards }
     
@@ -22,7 +22,7 @@ class ScannedCardsRepository {
     func add(_ card: Card) {
         guard let cid = card.cardId else { return }
         
-        cards[cid] = card
+        cards[cid] = .savedCard(from: card)
         save()
     }
     
@@ -31,6 +31,11 @@ class ScannedCardsRepository {
     }
     
     private func fetch() {
+        if let cards: [String: Card] = try? storage.value(for: storageKey) {
+            self.cards = cards.compactMapValues { .savedCard(from: $0) }
+            save()
+            return
+        }
         cards = (try? storage.value(for: storageKey)) ?? [:]
     }
 }
