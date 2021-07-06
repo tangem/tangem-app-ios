@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import TangemSdk
 
+@available(iOS 13.0, *)
 public enum Blockchain {
     case bitcoin(testnet: Bool)
     case litecoin
@@ -22,7 +24,7 @@ public enum Blockchain {
     case tezos(curve: EllipticCurve)
     case dogecoin
     case bsc(testnet: Bool)
-    case matic(testnet: Bool)
+    case polygon(testnet: Bool)
     
     public var isTestnet: Bool {
         switch self {
@@ -38,7 +40,7 @@ public enum Blockchain {
             return testnet
         case .binance(let testnet):
             return testnet
-        case .matic(let testnet):
+        case .polygon(let testnet):
             return testnet
         }
     }
@@ -60,7 +62,7 @@ public enum Blockchain {
         switch self {
         case .bitcoin, .litecoin, .bitcoinCash, .ducatus, .binance, .dogecoin:
             return 8
-        case .ethereum, .rsk, .bsc, .matic:
+        case .ethereum, .rsk, .bsc, .polygon:
             return 18
         case  .cardano, .xrp, .tezos:
             return 6
@@ -101,29 +103,30 @@ public enum Blockchain {
             return "DOGE"
         case .bsc:
             return "BNB"
-        case .matic:
+        case .polygon:
             return "MATIC"
         }
     }
     
     public var displayName: String {
+        let testnetSuffix = " Testnet"
         switch self {
-        case .bitcoinCash:
-            return "Bitcoin Cash"
+        case .bitcoinCash(let testnet):
+            return "Bitcoin Cash" + (testnet ? testnetSuffix : "")
         case .xrp:
             return "XRP Ledger"
         case .rsk:
             return "\(self)".uppercased()
         case .bsc(let testnet):
-            return testnet ? "Binance Smart Chain - Testnet" : "Binance Smart Chain"
-        case .matic(let testnet):
-            return testnet ? "Polygon (Matic) Testnet" : "Polygon (Matic)"
+            return "Binance Smart Chain" + (testnet ? testnetSuffix : "")
+        case .polygon(let testnet):
+            return "Polygon" + (testnet ? testnetSuffix : "")
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
                 name = String(name.prefix(upTo: index))
             }
-            return isTestnet ?  name + " test" : name
+            return isTestnet ?  name + testnetSuffix : name
         }
     }
     
@@ -135,6 +138,8 @@ public enum Blockchain {
             return "Ethereum smart contract token"
         case .binance:
             return "Binance Asset"
+        case .bsc:
+            return "Binance Smart Chain token"
         default:
             return displayName
         }
@@ -192,8 +197,9 @@ public enum Blockchain {
     
     public func getExploreURL(from address: String, tokenContractAddress: String? = nil) -> URL? {
         switch self {
-        case .binance:
-            return URL(string: "https://explorer.binance.org/address/\(address)")
+        case .binance(let testnet):
+            let baseUrl = testnet ? "https://testnet-explorer.binance.org/address/" : "https://explorer.binance.org/address/"
+            return URL(string: baseUrl + address)
         case .bitcoin:
             return URL(string: "https://blockchain.info/address/\(address)")
         case .bitcoinCash:
@@ -229,8 +235,8 @@ public enum Blockchain {
             let baseUrl = testnet ? "https://testnet.bscscan.com/address/" : "https://bscscan.com/address/"
             let link = baseUrl + address
             return URL(string: link)
-        case .matic(let testnet):
-            let baseUrl = testnet ? "https://explorer-mumbai.maticvigil.com/address/" : "https://explorer-mainnet.maticvigil.com/address/"
+        case .polygon(let testnet):
+            let baseUrl = testnet ? "https://explorer-mumbai.maticvigil.com/address/" : "https://polygonscan.com/address/"
             let link = baseUrl + address
             return URL(string: link)
         }
@@ -255,7 +261,7 @@ public enum Blockchain {
         case "xtz": return .tezos(curve: curve)
         case "doge": return .dogecoin
         case "bsc": return .bsc(testnet: isTestnet)
-        case "matic": return .matic(testnet: isTestnet)
+        case "polygon": return .polygon(testnet: isTestnet)
         default: return nil
         }
     }
@@ -270,7 +276,7 @@ public enum Blockchain {
             return BitcoinLegacyAddressService(networkParams: LitecoinNetworkParams())
         case .stellar:
             return StellarAddressService()
-        case .ethereum, .bsc, .matic:
+        case .ethereum, .bsc, .polygon:
             return EthereumAddressService()
         case .rsk:
             return RskAddressService()
@@ -309,7 +315,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case .xrp: return "xrp"
         case .dogecoin: return "dogecoin"
         case .bsc: return "bsc"
-        case .matic: return "matic"
+        case .polygon: return "polygon"
         }
     }
     
@@ -345,7 +351,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case "tezos": self = .tezos(curve: curve)
         case "dogecoin": self = .dogecoin
         case "bsc": self = .bsc(testnet: isTestnet)
-        case "matic": self = .matic(testnet: isTestnet)
+        case "polygon", "matic": self = .polygon(testnet: isTestnet)
         default: throw BlockchainSdkError.decodingFailed
         }
     }
