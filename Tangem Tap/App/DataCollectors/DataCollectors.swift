@@ -20,11 +20,11 @@ extension EmailDataCollector {
     
     fileprivate func collectData(from card: Card) -> [EmailCollectedData] {
         var data = [
-            EmailCollectedData(type: .card(.cardId), data: card.cardId ?? ""),
-            EmailCollectedData(type: .card(.firmwareVersion), data: card.firmwareVersion?.version ?? ""),
+            EmailCollectedData(type: .card(.cardId), data: card.cardId),
+            EmailCollectedData(type: .card(.firmwareVersion), data: card.firmwareVersion.stringValue),
         ]
         
-        if let blockchain = card.cardData?.blockchainName {
+        if let blockchain = card.defaultBlockchain?.displayName {
             data.append(EmailCollectedData(type: .card(.cardBlockchain), data: blockchain))
         }
         
@@ -126,7 +126,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
         let card = cardModel.cardInfo.card
         
         var dataToFormat = collectData(from: card)
-        let signedHashesConsolidated = card.wallets.filter { $0.curve != nil }.map { " \($0.curve!.rawValue) - \($0.signedHashes?.description ?? "0")" }.joined(separator: ";")
+        let signedHashesConsolidated = card.wallets.map { " \($0.curve.rawValue) - \($0.totalSignedHashes ?? 0)" }.joined(separator: ";")
         dataToFormat.append(EmailCollectedData(type: .wallet(.signedHashes), data: "\(signedHashesConsolidated)"))
         
         if case let .loaded(walletModels) = cardModel.state {
