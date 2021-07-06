@@ -9,11 +9,11 @@
 import Foundation
 import StoreKit
 
-protocol RateAppChecker: class {
+protocol RateAppChecker: AnyObject {
     var shouldShowRateAppWarning: Bool { get }
 }
 
-protocol RateAppController: class {
+protocol RateAppController: AnyObject {
     var shouldCheckBalanceForRateApp: Bool { get }
     func registerPositiveBalanceDate()
     func dismissRateAppWarning()
