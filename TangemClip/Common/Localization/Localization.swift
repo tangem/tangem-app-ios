@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import TangemSdk
 
 public final class Localization {
     public static var localizationsBundle: Bundle?
