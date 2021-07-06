@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 struct CardInfo {
     var card: Card
