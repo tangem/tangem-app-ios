@@ -595,7 +595,7 @@ class SendViewModel: ViewModel {
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-                    Analytics.logTx(blockchainName: self.cardViewModel.cardInfo.card.cardData?.blockchainName)
+                    Analytics.logTx(blockchainName: walletModel.wallet.blockchain.displayName)
                     callback()
                 }
                 
