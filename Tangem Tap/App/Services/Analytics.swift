@@ -63,11 +63,8 @@ class Analytics {
     }
     
     static func logScan(card: Card) {
-        let blockchainName = card.cardData?.blockchainName ?? ""
-        
-        let params = collectCardData(card, additionalParams: [.blockchain: blockchainName])
+        let params = collectCardData(card)
         FirebaseAnalytics.Analytics.logEvent(Event.cardIsScanned.rawValue, parameters: params.firebaseParams)
-        Crashlytics.crashlytics().setCustomValue(blockchainName, forKey: ParameterKey.blockchain.rawValue)
     }
     
     static func logTx(blockchainName: String?, isPushed: Bool = false) {
@@ -132,8 +129,8 @@ class Analytics {
     
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
-        params[.batchId] = card.cardData?.batchId ?? ""
-        params[.firmware] = card.firmwareVersionString
+        params[.batchId] = card.batchId
+        params[.firmware] = card.firmwareVersion.stringValue
         return params
     }
 }
