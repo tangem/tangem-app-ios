@@ -59,17 +59,18 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canSetAccessCode: Bool {
-       return (cardInfo.card.settingsMask?.contains(.allowSetPIN1) ?? false ) &&
-			featuresService.canSetAccessCode
+        return cardInfo.card.settings.isAllowSetAccessCode
+            && featuresService.canSetAccessCode
     }
     
     var canSetPasscode: Bool {
-        return !(cardInfo.card.settingsMask?.contains(.prohibitDefaultPIN1) ?? false) &&
-			featuresService.canSetPasscode
+        return cardInfo.card.settings.isAllowSetPasscode
+            && !cardInfo.card.settings.isProhibitDefaultAccessCode
+            && featuresService.canSetPasscode
     }
     
     var canSetLongTap: Bool {
-        return cardInfo.card.settingsMask?.contains(.allowSetPIN2) ?? false
+        return cardInfo.card.settings.isAllowSetPasscode
     }
     
     var canSign: Bool {
@@ -89,7 +90,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         let card = cardInfo.card
         
-        if card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+        if card.settings.isPermanentWallet {
             return TangemSdkError.purgeWalletProhibited.localizedDescription
         }
         
@@ -98,7 +99,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return nil
         }
         
-        if !(card.settingsMask?.contains(.isReusable) ?? true) || card.firmwareVersion >= FirmwareConstraints.AvailabilityVersions.walletData {
+        if card.isNotReusableLegacyWallet || card.firmwareVersion >= .multiwalletAvailable {
             return "details_notification_not_reusable_wallet".localized
         }
         
@@ -110,19 +111,20 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canPurgeWallet: Bool {
-        if let major = cardInfo.card.firmwareVersion?.major, major >= 4 {
+        if cardInfo.card.firmwareVersion >= .multiwalletAvailable {
             return false
         }
         
-        if let status = cardInfo.card.status, status == .empty {
+        if cardInfo.card.wallets.count == 0 {
             return false
         }
         
-        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+        
+        if cardInfo.card.settings.isPermanentWallet {
             return false
         }
         
-        if !(cardInfo.card.settingsMask?.contains(.isReusable) ?? false) {
+        if cardInfo.card.isNotReusableLegacyWallet {
             return false
         }
         
@@ -150,10 +152,10 @@ class CardViewModel: Identifiable, ObservableObject {
         
         if case .empty = state {
             
-            if cardInfo.card.status == .empty {
+            if cardInfo.card.wallets.count == 0 {
                 return true
             }
-            
+
             if twinInfo.pairPublicKey != nil {
                 return false
             }
@@ -171,7 +173,7 @@ class CardViewModel: Identifiable, ObservableObject {
 			return false
 		}
         
-        if cardInfo.card.settingsMask?.contains(.prohibitPurgeWallet) ?? false {
+        if cardInfo.card.settings.isPermanentWallet {
             return false
         }
         
@@ -271,14 +273,9 @@ class CardViewModel: Identifiable, ObservableObject {
         searchTokens()
     }
     
-    func onSign(_ signResponse: SignResponse) {
-        if let fw = cardInfo.card.firmwareVersion, fw < FirmwareConstraints.AvailabilityVersions.walletData,
-           var wallet = cardInfo.card.wallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex)) {
-            wallet.remainingSignatures = signResponse.walletRemainingSignatures
-            wallet.signedHashes = signResponse.walletSignedHashes
-            cardInfo.card.updateWallet(at: .index(TangemSdkConstants.oldCardDefaultWalletIndex), with: wallet)
-            warningsConfigurator.setupWarnings(for: cardInfo.card)
-        }
+    func onSign(_ card: Card) {
+        cardInfo.card = card
+        warningsConfigurator.setupWarnings(for: cardInfo.card)
     }
     
     // MARK: - Security
@@ -300,7 +297,7 @@ class CardViewModel: Identifiable, ObservableObject {
         switch option {
         case .accessCode:
             tangemSdk.startSession(with: SetPinCommand(pinType: .pin1, isExclusive: true),
-                                   cardId: cardInfo.card.cardId!,
+                                   cardId: cardInfo.card.cardId,
                                    initialMessage: Message(header: nil, body: "initial_message_change_access_code_body".localized)) {[weak self] result in
                 guard let self = self else { return }
                 
@@ -316,7 +313,9 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
         case .longTap:
-            tangemSdk.startSession(with: SetPinCommand(), cardId: cardInfo.card.cardId!) {[weak self] result in
+            tangemSdk.startSession(with: SetPinCommand(pinType: .pin2,
+                                                       pin: PinCode.defaultPin2,
+                                                       isExclusive: true), cardId: cardInfo.card.cardId) {[weak self] result in
                 guard let self = self else { return }
                 
                 switch result {
@@ -332,7 +331,7 @@ class CardViewModel: Identifiable, ObservableObject {
             }
         case .passCode:
             tangemSdk.startSession(with: SetPinCommand(pinType: .pin2, isExclusive: true),
-                                   cardId: cardInfo.card.cardId!,
+                                   cardId: cardInfo.card.cardId,
                                    initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) {[weak self] result in
                 guard let self = self else { return }
                 
@@ -353,35 +352,36 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
     
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let cid = cardInfo.card.cardId else {
-            completion(.failure(TangemSdkError.unsupportedCommand))
-            return
-        }
-        
-        tangemSdk.startSession(with: CreateWalletAndReadTask(),
-                               cardId: cid,
-                               initialMessage: Message(header: nil,
-                                                       body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
-            switch result {
-            case .success(let card):
-                self.update(with: card)
-                completion(.success(()))
-            case .failure(let error):
-                Analytics.logCardSdkError(error, for: .createWallet, card: cardInfo.card)
-                completion(.failure(error))
-            }
-        }
+        fatalError()
+//        guard let cid = cardInfo.card.cardId else {
+//            completion(.failure(TangemSdkError.unsupportedCommand))
+//            return
+//        }
+//
+//        tangemSdk.startSession(with: CreateWalletAndReadTask(),
+//                               cardId: cid,
+//                               initialMessage: Message(header: nil,
+//                                                       body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
+//            switch result {
+//            case .success(let card):
+//                self.update(with: card)
+//                completion(.success(()))
+//            case .failure(let error):
+//                Analytics.logCardSdkError(error, for: .createWallet, card: cardInfo.card)
+//                completion(.failure(error))
+//            }
+//        }
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let fw = cardInfo.card.firmwareVersion, fw.major < 4,
-              let cid = cardInfo.card.cardId else {
+        guard cardInfo.card.firmwareVersion < .multiwalletAvailable,
+              let wallet = cardInfo.card.wallets.first else {
             completion(.failure(TangemSdkError.unsupportedCommand))
             return
         }
         
-        tangemSdk.startSession(with: PurgeWalletAndReadTask(),
-                               cardId: cid,
+        tangemSdk.startSession(with: PurgeWalletAndReadTask(publicKey: wallet.publicKey),
+                               cardId: cardInfo.card.cardId,
                                initialMessage: Message(header: nil,
                                                       body: "initial_message_purge_wallet_body".localized)) {[unowned self] result in
             switch result {
@@ -400,11 +400,11 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Update
     
     func getCardInfo() {
-        guard cardInfo.card.cardType == .release else {
+        guard cardInfo.card.firmwareVersion.type == .release else {
             return
         }
         
-        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey ?? Data(), cardId: cardInfo.card.cardId ?? "") {[weak self] result in
+        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardInfo.card.cardId) {[weak self] result in
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else { return }
@@ -434,7 +434,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func updateState() {
         print("‼️ Updating Card view model state")
-        let hasWallets = cardInfo.card.wallets.filter { $0.status == .loaded }.count > 0
+        let hasWallets = cardInfo.card.wallets.count > 0
         if !hasWallets {
             self.state = .empty
         } else {
@@ -499,7 +499,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     private func searchTokens() {
         guard cardInfo.card.isMultiWallet,
-            let cid = cardInfo.card.cardId, !userPrefsService.searchedCards.contains(cid) else {
+            !userPrefsService.searchedCards.contains(cardInfo.card.cardId) else {
             return
         }
         
@@ -537,7 +537,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 print(error)
             }
             
-            self.userPrefsService.searchedCards.append(cid)
+            self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
             self.searchBlockchains()
         }
     }

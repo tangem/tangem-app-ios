@@ -2,11 +2,19 @@
 platform :ios, '13.0'
         pod 'SwiftyJSON'
 
+def common_pods_for_target
+  # pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'CSS-158_Wallet-not-found-error-40'
+   pod 'TangemSdk', :path => '../tangem-sdk-ios'
+end
+
+
 target 'Tangem Tap' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
   inhibit_all_warnings!
 
+  common_pods_for_target
+  
   # Pods for Tangem Tap
   pod 'AnyCodable-FlightSchool'
   
@@ -16,11 +24,8 @@ target 'Tangem Tap' do
   pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'CSS-158_Wallet-not-found-error-40'
-#  pod 'TangemSdk', :path => '../tangem-sdk-ios'
-  
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-35'
-#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+#  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-35'
+  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
 #  pod 'web3swift', :path => '../web3swift'
@@ -54,6 +59,8 @@ target 'TangemClip' do
   use_frameworks!
   inhibit_all_warnings!
 
+  common_pods_for_target
+  
   pod 'BigInt'
   pod 'SwiftyJSON'
   pod 'Alamofire'
