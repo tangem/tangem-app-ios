@@ -10,11 +10,11 @@ import Foundation
 import TangemSdk
 import Combine
 
-protocol WarningsConfigurator: class {
+protocol WarningsConfigurator: AnyObject {
     func setupWarnings(for card: Card)
 }
 
-protocol WarningAppendor: class {
+protocol WarningAppendor: AnyObject {
     func appendWarning(for event: WarningEvent)
 }
 
@@ -83,17 +83,20 @@ class WarningsService {
     }
     
     private func remoteWarnings(for card: Card, location: WarningsLocation) -> [TapWarning] {
-        let remoteWarnings = remoteWarningProvider.warnings
-        let mainRemoteWarnings = remoteWarnings.filter { $0.location.contains { $0 == location } }
-        let cardRemoteWarnings = mainRemoteWarnings.filter {
-            $0.blockchains == nil ||
-            $0.blockchains?.contains { $0.lowercased() == (card.cardData?.blockchainName ?? "").lowercased() } ?? false
-        }
-        return cardRemoteWarnings
+        return []
+        //[REDACTED_TODO_COMMENT]
+//        let remoteWarnings = remoteWarningProvider.warnings
+//        let mainRemoteWarnings = remoteWarnings.filter { $0.location.contains { $0 == location } }
+//
+//        let cardRemoteWarnings = mainRemoteWarnings.filter {
+//            $0.blockchains == nil ||
+//            $0.blockchains?.contains { $0.lowercased() == (card.cardData?.blockchainName ?? "").lowercased() } ?? false
+//        }
+//        return cardRemoteWarnings
     }
     
     private func addDevCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        guard card.firmwareVersion?.type == .sdk else {
+        guard card.firmwareVersion.type == .sdk else {
             return
         }
         
@@ -107,11 +110,7 @@ class WarningsService {
     }
     
     private func addOldDeviceOldCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        guard let fw = card.firmwareVersionValue else {
-            return
-        }
-        
-        guard fw < 2.28 else { //old cards
+        guard  card.firmwareVersion.doubleValue < 2.28 else { //old cards
             return
         }
         
