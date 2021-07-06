@@ -221,6 +221,33 @@ class MainViewModel: ViewModel {
             }
             .store(in: &bag)
         
+    
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$cardInfo }
+            .map { $0.imageLoadDTO }
+            .removeDuplicates()
+            .setFailureType(to: Error.self)
+            .flatMap {[unowned self] info in
+                self.imageLoaderService
+                    .loadImage(cid: info.cardId,
+                               cardPublicKey: info.cardPublicKey,
+                               artworkInfo: info.artwotkInfo)
+            }
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        Analytics.log(error: error)
+                        print(error.localizedDescription)
+                    case .finished:
+                        break
+                    }}){ [unowned self] image in
+                print(image)
+                self.image = image
+            }
+            .store(in: &bag)
+        
         $state
             .compactMap { $0.cardModel }
             .flatMap { $0.$state }
@@ -230,7 +257,6 @@ class MainViewModel: ViewModel {
                 self.fetchWarnings()
             }
             .store(in: &bag)
-        
         
         $state
             .compactMap { $0.cardModel }
@@ -257,34 +283,6 @@ class MainViewModel: ViewModel {
                 if !self.showTwinCardOnboardingIfNeeded() {
                     self.showUntrustedDisclaimerIfNeeded()
                 }
-            }
-            .store(in: &bag)
-        
-        state.cardModel?.$cardInfo
-            .tryMap { cardInfo -> (String, Data, ArtworkInfo?) in
-                if let cid = cardInfo.card.cardId,
-                   let key = cardInfo.card.cardPublicKey  {
-                    return (cid, key, cardInfo.artworkInfo)
-                }
-                
-                throw "Some error"
-            }
-            .flatMap {[unowned self] info in
-                return self.imageLoaderService
-                    .loadImage(cid: info.0,
-                               cardPublicKey: info.1,
-                               artworkInfo: info.2)
-            }
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
-                    switch completion {
-                    case .failure(let error):
-                        Analytics.log(error: error)
-                        print(error.localizedDescription)
-                    case .finished:
-                        break
-                    }}){ [unowned self] image in
-                self.image = image
             }
             .store(in: &bag)
         
@@ -392,7 +390,7 @@ class MainViewModel: ViewModel {
             return
         }
         
-        if card.cardType == .release {
+        if card.firmwareVersion.type == .release {
             validateHashesCount()
         }
     }
@@ -496,18 +494,16 @@ class MainViewModel: ViewModel {
         if isHashesCounted { return }
         
 		if card.isTwinCard { return }
-		
-		guard let cardId = card.cardId else { return }
-		
-        if validatedSignedHashesCards.contains(cardId) { return }
+
+        if validatedSignedHashesCards.contains(card.cardId) { return }
         
         if cardModel?.isMultiWallet ?? false {
-            if cardModel?.cardInfo.card.wallets.filter({ $0.signedHashes ?? 0 > 0 }).count ?? 0 > 0 {
+            if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
                 withAnimation {
                     warningsManager.appendWarning(for: .multiWalletSignedHashes)
                 }
             } else {
-                validatedSignedHashesCards.append(cardId)
+                validatedSignedHashesCards.append(card.cardId)
             }
             return
         }
@@ -519,7 +515,7 @@ class MainViewModel: ViewModel {
 		}
         
         guard
-            let numberOfSignedHashes = card.wallets.first?.signedHashes,
+            let numberOfSignedHashes = card.wallets.first?.totalSignedHashes,
             numberOfSignedHashes > 0
         else { return }
 		

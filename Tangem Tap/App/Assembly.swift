@@ -37,13 +37,12 @@ class ServicesAssembly {
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
     lazy var persistentStorage = PersistentStorage(encryptionUtility: fileEncriptionUtility)
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
-    lazy var keychainService = ValidatedCardsService(keychain: keychain)
+    lazy var validatedCards = ValidatedCardsService(keychain: keychain)
     lazy var imageLoaderService: CardImageLoaderService = CardImageLoaderService(networkService: networkService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
-    
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
         let collector = NegativeFeedbackDataCollector()
@@ -61,7 +60,6 @@ class ServicesAssembly {
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
-        crepo.validatedCardsService = keychainService
         crepo.assembly = assembly
         crepo.delegate = self
         crepo.scannedCardsRepository = scannedCardsRepository
@@ -72,8 +70,7 @@ class ServicesAssembly {
     lazy var twinsWalletCreationService = {
         TwinsWalletCreationService(tangemSdk: tangemSdk,
                                    twinFileEncoder: TwinCardTlvFileEncoder(),
-                                   cardsRepository: cardsRepository,
-                                   validatedCardsService: keychainService)
+                                   cardsRepository: cardsRepository)
     }()
     
     
@@ -102,6 +99,10 @@ class ServicesAssembly {
     private lazy var defaultSdkConfig: Config = {
         var config = Config()
         config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
+        config.batchIdFilter = .deny(["0027",
+                                      "0030",
+                                      "0031",
+                                      "0035"])
         return config
     }()
 }
@@ -110,7 +111,7 @@ extension ServicesAssembly: CardsRepositoryDelegate {
     func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
         warningsService.setupWarnings(for: cardInfo.card)
-        tokenItemsRepository.setCard(cardInfo.card.cardId ?? "")
+        tokenItemsRepository.setCard(cardInfo.card.cardId)
         
         if !featuresService.linkedTerminal {
             tangemSdk.config.linkedTerminal = false
@@ -133,6 +134,10 @@ class Assembly: ObservableObject {
     init() {
         services = ServicesAssembly()
         services.assembly = self
+        
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+            self.services.validatedCards.clean()
+        }
     }
     
     deinit {
@@ -209,15 +214,13 @@ class Assembly: ObservableObject {
     
     ///Load all possible wallets for card
     func loadWallets(from cardInfo: CardInfo) -> [WalletModel] {
-        guard let cid = cardInfo.card.cardId else { return [] }
-        
         var walletManagers: [WalletManager] = .init()
         
         //If this card is Twin, return twinWallet
         if cardInfo.card.isTwinCard,
            let savedPairKey = cardInfo.twinCardInfo?.pairPublicKey,
            let publicKey = cardInfo.card.wallets.first?.publicKey,
-           let twinWalletManager = services.walletManagerFactory.makeTwinWalletManager(from: cid,
+           let twinWalletManager = services.walletManagerFactory.makeTwinWalletManager(from: cardInfo.card.cardId,
                                                                                        walletPublicKey: publicKey,
                                                                                        pairKey: savedPairKey,
                                                                                        isTestnet: false) {  //[REDACTED_TODO_COMMENT]
@@ -229,7 +232,7 @@ class Assembly: ObservableObject {
                 //Load erc20 tokens if exists
                 let tokens = services.tokenItemsRepository.items.compactMap { $0.token }
                 if let secpWalletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey {
-                    let tokenManagers = services.walletManagerFactory.makeWalletManagers(for: cid, with: secpWalletPublicKey, and: tokens)
+                    let tokenManagers = services.walletManagerFactory.makeWalletManagers(for: cardInfo.card.cardId, with: secpWalletPublicKey, and: tokens)
                     walletManagers.append(contentsOf: tokenManagers)
                 }
                 
@@ -277,13 +280,11 @@ class Assembly: ObservableObject {
     
     ///Try to make WalletManagers for blockchains with suitable wallet
     private func makeWalletManagers(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletManager] {
-        guard let cid = cardInfo.card.cardId else { return [] }
-        
         var walletManagers = [WalletManager]()
         
         for blockchain in blockchains {
             if let walletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
-               let wm = services.walletManagerFactory.makeWalletManager(from: cid,
+               let wm = services.walletManagerFactory.makeWalletManager(from: cardInfo.card.cardId,
                                                                         walletPublicKey: walletPublicKey,
                                                                         blockchain: blockchain) {
                 walletManagers.append(wm)
@@ -564,7 +565,7 @@ extension Assembly {
                               twinCardInfo: preview.twinInfo)
             let vm = assembly.makeCardModel(from: ci)
             let scanResult = ScanResult.card(model: vm)
-            assembly.services.cardsRepository.cards[card.cardId!] = scanResult
+            assembly.services.cardsRepository.cards[card.cardId] = scanResult
             return scanResult
         }
         
@@ -594,7 +595,7 @@ extension Assembly {
     }
     
     static func previewCardViewModel(for card: PreviewCard) -> CardViewModel {
-        previewAssembly(for: card).services.cardsRepository.cards[card.card.cardId!]!.cardModel!
+        previewAssembly(for: card).services.cardsRepository.cards[card.card.cardId]!.cardModel!
     }
     
     static var previewAssembly: Assembly {

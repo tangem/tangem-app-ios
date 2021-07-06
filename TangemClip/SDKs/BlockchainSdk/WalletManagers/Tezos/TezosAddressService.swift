@@ -8,6 +8,7 @@
 
 import Foundation
 import Sodium
+import TangemSdk
 
 public class TezosAddressService: AddressService {
     private let curve: EllipticCurve

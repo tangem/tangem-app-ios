@@ -15,6 +15,18 @@ struct CardInfo {
     var card: Card
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
+    
+    var imageLoadDTO: ImageLoadDTO {
+        ImageLoadDTO(cardId: card.cardId,
+                     cardPublicKey: card.cardPublicKey,
+                     artwotkInfo: artworkInfo)
+    }
+}
+
+struct ImageLoadDTO: Equatable {
+    let cardId: String
+    let cardPublicKey: Data
+    let artwotkInfo: ArtworkInfo?
 }
 
 enum ScanResult: Equatable {
@@ -60,7 +72,6 @@ protocol CardsRepositoryDelegate: AnyObject {
 class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
-    weak var validatedCardsService: ValidatedCardsService!
     weak var scannedCardsRepository: ScannedCardsRepository!
     
     var cards = [String: ScanResult]()
@@ -75,17 +86,12 @@ class CardsRepository {
     func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         delegate?.onWillScan()
-        tangemSdk.startSession(with: TapScanTask(validatedCardsService: validatedCardsService)) {[unowned self] result in
+        tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-				guard response.card.cardId != nil else {
-					completion(.failure(TangemSdkError.unknownError))
-					return
-				}
-				
 				Analytics.logScan(card: response.card)
                 let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
                 interaction.donate(completion: nil)
@@ -100,7 +106,7 @@ class CardsRepository {
         
         let cm = assembly.makeCardModel(from: cardInfo)
         let result: ScanResult = .card(model: cm)
-        cards[cardInfo.card.cardId!] = result
+        cards[cardInfo.card.cardId] = result
         lastScanResult = result
         cm.getCardInfo()
         return result
@@ -108,9 +114,9 @@ class CardsRepository {
 }
 
 extension CardsRepository: SignerDelegate {
-    func onSign(_ signResponse: SignResponse) {
-        if let cm = cards[signResponse.cardId] {
-            cm.cardModel?.onSign(signResponse)
+    func onSign(_ card: Card) {
+        if let cm = cards[card.cardId] {
+            cm.cardModel?.onSign(card)
         }
     }
 }

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemSdkClips_secp256k1
+import TangemSdk
 
 public struct HDPublicKey {
     public let compressedPublicKey: Data
@@ -48,7 +48,7 @@ public struct HDPublicKey {
 }
 
 extension Secp256k1Utils {
-    public static func generatePublicKey(for privateKey: Data) -> Data? {
+    static func generatePublicKey(for privateKey: Data) -> Data? {
         guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN|SECP256K1_CONTEXT_VERIFY)) else { return nil }
         let privateKey = privateKey.bytes
         guard secp256k1_ec_seckey_verify(ctx, privateKey) == 1 else { return nil }

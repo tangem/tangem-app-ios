@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public class BinanceAddressService: AddressService {
     let testnet: Bool
