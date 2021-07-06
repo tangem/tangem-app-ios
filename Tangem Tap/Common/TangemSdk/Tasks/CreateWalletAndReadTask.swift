@@ -9,20 +9,16 @@
 import Foundation
 import TangemSdk
 
-class CreateWalletAndReadTask: CardSessionRunnable, PreflightReadCapable {
-    typealias CommandResponse = Card
-    
-    public var preflightReadSettings: PreflightReadSettings { .fullCardRead }
-    
-    func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+class CreateWalletAndReadTask: CardSessionRunnable {
+    func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         if let fw = session.environment.card?.firmwareVersion, fw.major < 4 {
             createLegacyWallet(in: session, completion: completion)
         } else {
             createMultiWallet(in: session, completion: completion)
         }
     }
-    
-    private func createMultiWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+
+    private func createMultiWallet(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         let createWalletCommand = CreateMultiWalletTask()
         createWalletCommand.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
@@ -33,9 +29,19 @@ class CreateWalletAndReadTask: CardSessionRunnable, PreflightReadCapable {
             }
         }
     }
-    
-    private func createLegacyWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let createWalletCommand = CreateWalletCommand(config: nil, walletIndex: 0)
+
+    private func createLegacyWallet(in session: CardSession, completion: @escaping CompletionResult<Card>) {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+        
+        guard let supportedCurve = card.supportedCurves.first else {
+            completion(.failure(.cardError))
+            return
+        }
+        
+        let createWalletCommand = CreateWalletCommand(curve: supportedCurve, isPermanent: card.isPermanentLegacyWallet)
         createWalletCommand.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
             case .failure(let error):
@@ -45,9 +51,9 @@ class CreateWalletAndReadTask: CardSessionRunnable, PreflightReadCapable {
             }
         }
     }
-    
-    private func scanCard(session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let scanTask = PreflightReadTask(readSettings: .fullCardRead)
+
+    private func scanCard(session: CardSession, completion: @escaping CompletionResult<Card>) {
+        let scanTask = PreflightReadTask(readMode: .fullCardRead, cardId: nil)
         scanTask.run(in: session, completion: completion)
     }
 }
