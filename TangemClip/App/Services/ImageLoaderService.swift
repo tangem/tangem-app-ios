@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import TangemSdk
 
 class ImageLoaderService {
     enum ImageEndpoint: NetworkEndpoint {
