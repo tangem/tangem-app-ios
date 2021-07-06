@@ -25,7 +25,7 @@ struct TapScanTaskResponse: JSONStringConvertible {
 
 extension TapScanTaskResponse {
     private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
-        guard card.isTwinCard, let cardId = response.card.cardId else {
+        guard card.isTwinCard else {
             return nil
         }
         
@@ -39,7 +39,10 @@ extension TapScanTaskResponse {
             }
         }
     
-        return TwinCardInfo(cid: cardId, series: TwinCardSeries.series(for: card.cardId), pairCid: TwinCardsUtils.makePairCid(for: cardId), pairPublicKey: pairPublicKey)
+        return TwinCardInfo(cid: response.card.cardId,
+                            series: TwinCardSeries.series(for: card.cardId),
+                            pairCid: TwinCardsUtils.makePairCid(for: response.card.cardId),
+                            pairPublicKey: pairPublicKey)
     }
     
     func getCardInfo() -> CardInfo {
@@ -50,16 +53,7 @@ extension TapScanTaskResponse {
     }
 }
 //todo: add missing wallets
-final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
-    var preflightReadSettings: PreflightReadSettings { .fullCardRead }
-
-    let excludeBatches = ["0027",
-                          "0030",
-                          "0031",
-                          "0035"]
-    
-    let excludeIssuers = ["TTM BANK"]
-    
+final class TapScanTask: CardSessionRunnable {
     deinit {
         print("TapScanTask deinit")
     }
@@ -70,75 +64,30 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
         self.validatedCardsService = validatedCardsService
     }
     
-    
-    /// read -> verify -> checkwallet -> appendWallets(createwallets + scan) -> readTwinData or
     /// read -> appendWallets(createwallets+ scan)  -> readTwinData
     public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard let card = session.environment.card else {
-            completion(.failure(.cardError))
-            return
-        }
-        
-        do {
-            try checkCard(card)
-        } catch let error as TangemSdkError {
-            completion(.failure(error))
-            return
-        } catch { print(error) }
-        
-        if validatedCardsService?.isCardValidated(card) ?? true {
-            appendWalletsIfNeeded(card, session: session, completion: completion)
-        } else {
-            verifyCard(card, session: session, completion: completion)
-        }
-    }
-    
-    private func checkCard(_ card: Card) throws {
-        if let product = card.cardData?.productMask, !(product.contains(ProductMask.note) || product.contains(.twinCard)) { //filter product
-            throw TangemSdkError.underlying(error: "alert_unsupported_card".localized)
-        }
-        
-        if let status = card.status { //filter status
-            if status == .notPersonalized {
-                throw TangemSdkError.notPersonalized
+        let scanTask = ScanTask()
+        scanTask.run(in: session) { result in
+            switch result {
+            case .success(let card):
+                self.appendWalletsIfNeeded(card, session: session, completion: completion)
+            case.failure(let error):
+                return completion(.failure(error))
             }
-            
-            if status == .purged {
-                throw TangemSdkError.walletIsPurged
-            }
-        }
-        
-        if let batch = card.cardData?.batchId, self.excludeBatches.contains(batch) { //filter batch
-            throw TangemSdkError.underlying(error: "alert_unsupported_card".localized)
-        }
-        
-        if let issuer = card.cardData?.issuerName, excludeIssuers.contains(issuer) { //filter issuer
-            throw TangemSdkError.underlying(error: "alert_unsupported_card".localized)
         }
     }
     
     private func appendWalletsIfNeeded(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        if card.firmwareVersion >= FirmwareConstraints.AvailabilityVersions.walletData {
-            let existingCurves: Set<EllipticCurve> = Set(card.wallets.compactMap({ $0.curve }))
-            let mandatoryСurves: [EllipticCurve] = [.secp256k1, .ed25519, .secp256r1]
-            let missingCurves = mandatoryСurves.filter { !existingCurves.contains($0) }
+        if card.firmwareVersion >= .multiwalletAvailable {
+            let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
+            let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
+            let missingCurves = mandatoryСurves.subtracting(existingCurves)
             
             if existingCurves.count > 0, // not empty card
-               missingCurves.count > 0, //not enough curvse
-               let maxIndex = card.walletsCount {
-                
-                let occupiedIndices = card.wallets.filter {$0.status != .empty }.map { $0.index }
-                let allIndexes = 0..<maxIndex
-                let availableIndices = allIndexes.filter { !occupiedIndices.contains($0) }
-                
-                if availableIndices.count >= missingCurves.count {
-                    var infos: [CreateWalletInfo] = []
-                    for (index, curve) in missingCurves.enumerated() {
-                        infos.append(CreateWalletInfo(index: availableIndices[index], config: WalletConfig(curveId: curve)))
-                    }
-                    appendWallets(infos, session: session, completion: completion)
-                    return
-                }
+               missingCurves.count > 0 //not enough curves
+            {
+                appendWallets(Array(missingCurves), session: session, completion: completion)
+                return
             }
         }
         
@@ -146,8 +95,8 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
     }
     
     
-    private func appendWallets(_ wallets: [CreateWalletInfo], session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        CreateMultiWalletTask(walletInfos: wallets).run(in: session) { result in
+    private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        CreateMultiWalletTask(curves: curves).run(in: session) { result in
             switch result {
             case .success:
                 self.scanCard(session: session, completion: completion)
@@ -158,50 +107,13 @@ final class TapScanTask: CardSessionRunnable, PreflightReadCapable {
     }
     
     private func scanCard(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        let scanTask = PreflightReadTask(readSettings: .fullCardRead)
+        let scanTask = PreflightReadTask(readMode: .fullCardRead, cardId: nil)
         scanTask.run(in: session) { scanCompletion in
             switch scanCompletion {
             case .failure(let error):
                 completion(.failure(error))
             case .success(let card):
                 self.readTwinIssuerDataIfNeeded(card, session: session, completion: completion)
-            }
-        }
-    }
-    
-    private func checkWallet(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard let cardStatus = card.status, cardStatus == .loaded,
-              let major = card.firmwareVersion?.major, major < 4 else {
-            self.appendWalletsIfNeeded(card, session: session, completion: completion)
-            return
-        }
-        
-        guard let cardWallet = card.wallets.first,
-              let curve = cardWallet.curve,
-              let publicKey = cardWallet.publicKey else {
-                completion(.failure(.cardError))
-                return
-        }
-        
-        CheckWalletCommand(curve: curve, publicKey: publicKey).run(in: session) { checkWalletResult in
-            switch checkWalletResult {
-            case .success(_):
-                self.appendWalletsIfNeeded(card, session: session, completion: completion)
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-    
-    private func verifyCard(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        VerifyCardCommand().run(in: session) { verifyResult in
-            switch verifyResult {
-            case .success:
-                self.validatedCardsService?.saveValidatedCard(card)
-                
-                self.checkWallet(card, session: session, completion: completion)
-            case .failure(let error):
-                completion(.failure(error))
             }
         }
     }

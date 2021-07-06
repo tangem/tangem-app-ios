@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import ed25519C
 
 /// Holds a Stellar public key.
 public class StellarPublicKey: XDRCodable {
