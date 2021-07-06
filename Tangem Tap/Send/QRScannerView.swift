@@ -79,7 +79,7 @@ struct QRScannerView: UIViewRepresentable {
 
 
 /// Delegate callback for the QRScannerView.
-protocol QRScannerViewDelegate: class {
+protocol QRScannerViewDelegate: AnyObject {
     func qrScanningDidFail()
     func qrScanningSucceededWithCode(_ str: String?)
     func qrScanningDidStop()
