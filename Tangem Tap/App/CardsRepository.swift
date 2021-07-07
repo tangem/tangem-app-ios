@@ -16,6 +16,7 @@ import Intents
 
 struct CardInfo {
     var card: Card
+    var artwork: CardArtwork = .notLoaded
     var artworkInfo: ArtworkInfo?
 	var twinCardInfo: TwinCardInfo?
     
@@ -24,6 +25,10 @@ struct CardInfo {
                      cardPublicKey: card.cardPublicKey,
                      artwotkInfo: artworkInfo)
     }
+}
+
+enum CardArtwork {
+    case notLoaded, noArtwork, artwork(ArtworkInfo)
 }
 
 struct ImageLoadDTO: Equatable {
@@ -86,19 +91,21 @@ class CardsRepository {
         print("CardsRepository deinit")
     }
     
-    func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
+    func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         delegate?.onWillScan()
-        tangemSdk.startSession(with: TapScanTask()) {[unowned self] result in
+        tangemSdk.startSession(with: TapScanTask(targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
 				Analytics.logScan(card: response.card)
+                #if !CLIP
                 let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
                 interaction.donate(completion: nil)
                 self.scannedCardsRepository.add(response.card)
+                #endif
 				completion(.success(processScan(response.getCardInfo())))
             }
         }
@@ -118,8 +125,10 @@ class CardsRepository {
 
 extension CardsRepository: SignerDelegate {
     func onSign(_ card: Card) {
+        #if !CLIP
         if let cm = cards[card.cardId] {
             cm.cardModel?.onSign(card)
         }
+        #endif
     }
 }
