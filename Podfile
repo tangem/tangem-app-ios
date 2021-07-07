@@ -5,6 +5,7 @@ platform :ios, '13.0'
 def common_pods_for_target
   # pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'CSS-158_Wallet-not-found-error-40'
    pod 'TangemSdk', :path => '../tangem-sdk-ios'
+   pod 'KeychainSwift', '~> 19.0'
 end
 
 
@@ -36,7 +37,6 @@ target 'Tangem Tap' do
   pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.4.0'
   
   pod 'Moya'
-  pod 'KeychainSwift', '~> 19.0'
   pod 'EFQRCode' #//TODO: remove
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
