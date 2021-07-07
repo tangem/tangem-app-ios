@@ -98,3 +98,84 @@ class CardImageLoaderService {
 		backedLoadImage(name: image.name)
 	}
 }
+
+
+extension CardImageLoaderService {
+    enum ImageEndpoint: NetworkEndpoint {
+        case byBatch(String)
+        case byNdefLink(URL)
+
+        private var baseURL: URL {
+            URL(string: "https://raw.githubusercontent.com/tangem/ndef-registry/main")!
+        }
+
+        private var imageSuffix: String { "card.png" }
+
+        var url: URL {
+            switch self {
+            case .byBatch(let batch):
+                let url = baseURL.appendingPathComponent(batch)
+                    .appendingPathComponent(imageSuffix)
+                return url
+            case .byNdefLink(let link):
+                let url = link.appendingPathComponent(imageSuffix)
+                return url
+            }
+        }
+
+        var method: String {
+            switch self {
+            case .byBatch, .byNdefLink:
+                return "GET"
+            }
+        }
+
+        var body: Data? {
+            nil
+        }
+        
+        var headers: [String : String] {
+            ["application/json" : "Content-Type"]
+        }
+
+    }
+    
+    func loadImage(batch: String) -> AnyPublisher<UIImage, Error> {
+        if batch.isEmpty {
+            return backedLoadImage(.default)
+        }
+
+        let endpoint = ImageEndpoint.byBatch(batch)
+
+        return publisher(for: endpoint)
+    }
+
+    func loadImage(byNdefLink link: String) -> AnyPublisher<UIImage, Error> {
+        guard let url = URL(string: link) else {
+            return backedLoadImage(.default)
+        }
+
+        return publisher(for: ImageEndpoint.byNdefLink(url))
+    }
+    
+    private func publisher(for endpoint: NetworkEndpoint) -> AnyPublisher<UIImage, Error> {
+        return networkService
+            .requestPublisher(endpoint)
+            .subscribe(on: DispatchQueue.global())
+            .tryMap { data -> UIImage in
+                if let image = UIImage(data: data) {
+                    return image
+                }
+
+                throw "Image mapping failed"
+            }
+            .tryCatch {[weak self] error -> AnyPublisher<UIImage, Error> in
+                guard let self = self else {
+                    throw error
+                }
+
+                return self.backedLoadImage(name: BackedImages.default.name)
+            }
+            .eraseToAnyPublisher()
+    }
+}
