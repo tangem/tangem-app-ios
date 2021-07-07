@@ -8,7 +8,10 @@
 
 import Foundation
 import TangemSdk
+#if !CLIP
 import BlockchainSdk
+#endif
+
 import Intents
 
 struct CardInfo {
