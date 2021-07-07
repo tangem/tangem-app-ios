@@ -296,7 +296,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func changeSecOption(_ option: SecurityManagementOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
-            tangemSdk.startSession(with: SetPinCommand(pinType: .pin1, isExclusive: true),
+            tangemSdk.startSession(with: SetPinCommand(accessCode: .request, passcode: .none),
                                    cardId: cardInfo.card.cardId,
                                    initialMessage: Message(header: nil, body: "initial_message_change_access_code_body".localized)) {[weak self] result in
                 guard let self = self else { return }
@@ -313,9 +313,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
         case .longTap:
-            tangemSdk.startSession(with: SetPinCommand(pinType: .pin2,
-                                                       pin: PinCode.defaultPin2,
-                                                       isExclusive: true), cardId: cardInfo.card.cardId) {[weak self] result in
+            tangemSdk.startSession(with: SetPinCommand(accessCode: .none, passcode: .none),
+                                   cardId: cardInfo.card.cardId) {[weak self] result in
                 guard let self = self else { return }
                 
                 switch result {
@@ -330,7 +329,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
         case .passCode:
-            tangemSdk.startSession(with: SetPinCommand(pinType: .pin2, isExclusive: true),
+            tangemSdk.startSession(with: SetPinCommand(accessCode: .none, passcode: .request),
                                    cardId: cardInfo.card.cardId,
                                    initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) {[weak self] result in
                 guard let self = self else { return }
