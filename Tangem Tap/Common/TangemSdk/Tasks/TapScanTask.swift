@@ -58,11 +58,7 @@ final class TapScanTask: CardSessionRunnable {
         print("TapScanTask deinit")
     }
     
-    private weak var validatedCardsService: ValidatedCardsService?
-    
-    init(validatedCardsService: ValidatedCardsService? = nil) {
-        self.validatedCardsService = validatedCardsService
-    }
+    init() {}
     
     /// read -> appendWallets(createwallets+ scan)  -> readTwinData
     public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
