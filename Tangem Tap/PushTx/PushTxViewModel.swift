@@ -16,7 +16,6 @@ class PushTxViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
     
-    
     var destination: String { transaction.destinationAddress }
     
     var previousTotal: String {
