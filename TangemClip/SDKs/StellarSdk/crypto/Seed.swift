@@ -24,19 +24,19 @@ public class Seed {
         buffer = bytes
     }
 
-    public convenience init() throws {
-        var buffer = [UInt8](repeating: 0, count: 32)
-        
-        let result = buffer.withUnsafeMutableBufferPointer {
-            ed25519_create_seed($0.baseAddress)
-        }
-        
-        guard result == 0 else {
-            throw Ed25519Error.seedGenerationFailed
-        }
-        
-        self.init(unchecked: buffer)
-    }
+//    public convenience init() throws {
+//        var buffer = [UInt8](repeating: 0, count: 32)
+//
+//        let result = buffer.withUnsafeMutableBufferPointer {
+//            ed25519_create_seed($0.baseAddress)
+//        }
+//
+//        guard result == 0 else {
+//            throw Ed25519Error.seedGenerationFailed
+//        }
+//
+//        self.init(unchecked: buffer)
+//    }
     
     public convenience init(secret: String) throws {
         
