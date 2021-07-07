@@ -15,7 +15,6 @@ import BlockchainSdk
 struct LegacyCardData {
     let isReusable: Bool
     let isTwin: Bool
-    let isStart2Coin: Bool
     
     let blockchainName: String
     
@@ -128,7 +127,7 @@ extension Card {
             return ProductionInfo.shared.defaultBlockchain(batchId)?.isTestnet ?? false
         }
         
-        if batchId == "99FF" { // ??
+        if batchId == "99FF" { //[REDACTED_TODO_COMMENT]
             return cardId.starts(with: batchId.reversed())
         }
        
