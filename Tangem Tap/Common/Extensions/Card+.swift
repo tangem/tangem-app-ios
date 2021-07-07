@@ -7,7 +7,22 @@
 //
 
 import TangemSdk
+
+#if !CLIP
 import BlockchainSdk
+#endif
+
+struct LegacyCardData {
+    let isReusable: Bool
+    let isTwin: Bool
+    let isStart2Coin: Bool
+    
+    let blockchainName: String
+    
+    let tokenSymbol: String?
+    let tokenContractAddress: String?
+    let tokenDecimal: Int?
+}
 
 fileprivate struct ProductionInfo {
     static let shared = ProductionInfo()
@@ -40,10 +55,6 @@ fileprivate struct ProductionInfo {
     
     func defaultBlockchain(_ batchId: String) -> Blockchain? {
        return nil
-    }
-    
-    func isV3WithPermanentWallet(_ batchId: String) -> Bool {
-       return false
     }
     
     func isV3WithNotReusableWallet(_ batchId: String) -> Bool {
@@ -100,7 +111,7 @@ extension Card {
     
     var isPermanentLegacyWallet: Bool {
         if firmwareVersion < .multiwalletAvailable {
-            return ProductionInfo.shared.isV3WithPermanentWallet(batchId)
+            return settings.isPermanentWallet
         }
         
         return false

@@ -15,13 +15,13 @@ class ImageLoaderService {
     enum ImageEndpoint: NetworkEndpoint {
         case byBatch(String)
         case byNdefLink(URL)
-        
+
         private var baseURL: URL {
             URL(string: "https://raw.githubusercontent.com/tangem/ndef-registry/main")!
         }
-        
+
         private var imageSuffix: String { "card.png" }
-        
+
         var url: URL {
             switch self {
             case .byBatch(let batch):
@@ -33,14 +33,14 @@ class ImageLoaderService {
                 return url
             }
         }
-        
+
         var method: String {
             switch self {
             case .byBatch, .byNdefLink:
                 return "GET"
             }
         }
-        
+
         var body: Data? {
             nil
         }
@@ -48,12 +48,12 @@ class ImageLoaderService {
         var headers: [String : String] {
             ["application/json" : "Content-Type"]
         }
-        
+
     }
-    
+
     enum BackedImages {
         case sergio, marta, `default`, twinCardOne, twinCardTwo
-        
+
         var name: String {
             switch self {
             case .sergio: return "card_tg059"
@@ -64,36 +64,36 @@ class ImageLoaderService {
             }
         }
     }
-    
+
     let networkService: NetworkService
-    
+
     init(networkService: NetworkService) {
         self.networkService = networkService
     }
-    
+
     func loadImage(with cid: String, pubkey: Data, for artworkInfo: ArtworkInfo) -> AnyPublisher<UIImage?, Error> {
         let endpoint = TangemEndpoint.artwork(cid: cid, cardPublicKey: pubkey, artworkId: artworkInfo.id)
         return publisher(for: endpoint)
     }
-    
+
     func loadImage(batch: String) -> AnyPublisher<UIImage?, Error> {
         if batch.isEmpty {
             return backedLoadImage(.default)
         }
-        
+
         let endpoint = ImageEndpoint.byBatch(batch)
-        
+
         return publisher(for: endpoint)
     }
-    
+
     func loadImage(byNdefLink link: String) -> AnyPublisher<UIImage?, Error> {
         guard let url = URL(string: link) else {
             return backedLoadImage(.default)
         }
-        
+
         return publisher(for: ImageEndpoint.byNdefLink(url))
     }
-    
+
     func backedLoadImage(name: String) -> AnyPublisher<UIImage?, Error> {
         let configuration = URLSessionConfiguration.default
         configuration.requestCachePolicy = .returnCacheDataElseLoad
@@ -105,15 +105,15 @@ class ImageLoaderService {
                 if let image = UIImage(data: data) {
                     return image
                 }
-                
+
                 return nil
             }.eraseToAnyPublisher()
     }
-    
+
     func backedLoadImage(_ image: BackedImages) -> AnyPublisher<UIImage?, Error> {
         backedLoadImage(name: image.name)
     }
-    
+
     private func publisher(for endpoint: NetworkEndpoint) -> AnyPublisher<UIImage?, Error> {
         return networkService
             .requestPublisher(endpoint)
@@ -122,14 +122,14 @@ class ImageLoaderService {
                 if let image = UIImage(data: data) {
                     return image
                 }
-                
+
                 return nil
             }
             .tryCatch {[weak self] error -> AnyPublisher<UIImage?, Error> in
                 guard let self = self else {
                     throw error
                 }
-                
+
                 return self.backedLoadImage(name: BackedImages.default.name)
             }
             .eraseToAnyPublisher()
