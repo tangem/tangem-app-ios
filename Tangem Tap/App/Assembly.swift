@@ -563,50 +563,47 @@ class Assembly: ObservableObject {
     }
     
     #else
-//        func getMainViewModel() -> MainViewModel {
-//            guard let model: MainViewModel = get() else {
-//                let mainModel = MainViewModel(cardsRepository: services.cardsRepository, imageLoaderService: services.imageLoaderService)
-//                store(mainModel)
-//                return mainModel
-//            }
-//
-//            return model
-//        }
-//
-//        // MARK: Card model
-//        func makeCardModel(from info: CardInfo) -> CardViewModel {
-//            let vm = CardViewModel(cardInfo: info)
-//            vm.assembly = self
-//            vm.tangemSdk = services.tangemSdk
-//            vm.updateState()
-//            return vm
-//        }
-//
-//        // MARK: Wallets
-//        func makeWalletModels(from info: CardInfo) -> AnyPublisher<[WalletModel], Never> {
-//            info.card.wallets.publisher
-//                .removeDuplicates(by: { $0.curve == $1.curve })
-//                .filter { $0.status == .loaded }
-//                .compactMap { cardWallet -> [WalletModel]? in
-//                    guard let curve = cardWallet.curve else { return nil }
-//
-//                    let blockchains = SupportedBlockchains.blockchains(from: curve, testnet: false)
-//                    let managers = self.services.walletManagerFactory.makeWalletManagers(for: cardWallet, cardId: info.card.cardId!, blockchains: blockchains)
-//
-//                    return managers.map {
-//                        let model = WalletModel(cardWallet: cardWallet, walletManager: $0)
-//                        model.ratesService = self.services.ratesService
-//                        return model
-//                    }
-//                }
-//                .reduce([], { $0 + $1 })
-//                .eraseToAnyPublisher()
-//        }
+        func getMainViewModel() -> MainViewModel {
+            guard let model: MainViewModel = get() else {
+                let mainModel = MainViewModel(cardsRepository: services.cardsRepository, imageLoaderService: services.imageLoaderService)
+                store(mainModel)
+                return mainModel
+            }
+
+            return model
+        }
+
+        // MARK: Card model
+        func makeCardModel(from info: CardInfo) -> CardViewModel {
+            let vm = CardViewModel(cardInfo: info)
+            vm.assembly = self
+            vm.tangemSdk = services.tangemSdk
+            vm.updateState()
+            return vm
+        }
+
+        // MARK: Wallets
+        func makeWalletModels(from info: CardInfo) -> AnyPublisher<[WalletModel], Never> {
+            info.card.wallets.publisher
+                .removeDuplicates(by: { $0.curve == $1.curve })
+                .compactMap { cardWallet -> [WalletModel]? in
+                    let blockchains = SupportedBlockchains.blockchains(from: cardWallet.curve, testnet: false)
+                    let managers = self.services.walletManagerFactory.makeWalletManagers(for: cardWallet, cardId: info.card.cardId, blockchains: blockchains)
+
+                    return managers.map {
+                        let model = WalletModel(cardWallet: cardWallet, walletManager: $0)
+                        model.ratesService = self.services.ratesService
+                        return model
+                    }
+                }
+                .reduce([], { $0 + $1 })
+                .eraseToAnyPublisher()
+        }
     
-//        func updateAppClipCard(with batch: String?, fullLink: String) {
-//            let mainModel: MainViewModel? = get()
-//            mainModel?.updateCardBatch(batch, fullLink: fullLink)
-//        }
+        func updateAppClipCard(with batch: String?, fullLink: String) {
+            let mainModel: MainViewModel? = get()
+            mainModel?.updateCardBatch(batch, fullLink: fullLink)
+        }
     
     private func get<T>(key: String) -> T? {
         let val = modelsStorage[key]
