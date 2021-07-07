@@ -40,7 +40,7 @@ class ServicesAssembly {
     lazy var keychainService = ValidatedCardsService(keychain: keychain)
     lazy var imageLoaderService: CardImageLoaderService = CardImageLoaderService(networkService: networkService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
-    lazy var topupService: MoonPayService = .init(keys: keysManager.moonPayKeys)
+    lazy var exchangeService: ExchangeService = MoonPayService(keys: keysManager.moonPayKeys)
     lazy var tangemSdk: TangemSdk = .init()
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
@@ -82,7 +82,7 @@ class ServicesAssembly {
                                    initialMessage: Message(header: nil,
                                                            body: "initial_message_sign_header".localized))
         signer.delegate = cardsRepository
-        TestnetTopupService.signer = signer
+        TestnetBuyCryptoService.signer = signer
         return signer
     }()
     
@@ -139,6 +139,21 @@ class Assembly: ObservableObject {
         print("Assembly deinit")
     }
     
+    public func reset() {
+        var persistentKeys = [String]()
+        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
+        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
+        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
+        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
+        
+        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
+        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
+    }
+    
+    public func reset(key: String) {
+        modelsStorage.removeValue(forKey: key)
+    }
+    
     func makeReadViewModel(with navigation: NavigationCoordinator? = nil) -> ReadViewModel {
         if let restored: ReadViewModel = get() {
             return restored
@@ -166,7 +181,7 @@ class Assembly: ObservableObject {
         initialize(vm)
         vm.cardsRepository = services.cardsRepository
         vm.imageLoaderService = services.imageLoaderService
-        vm.topupService = services.topupService
+        vm.exchangeService = services.exchangeService
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
         vm.rateAppController = services.rateAppService
@@ -192,7 +207,7 @@ class Assembly: ObservableObject {
         if let cardModel = services.cardsRepository.lastScanResult.cardModel {
             vm.card = cardModel
         }
-        vm.topupService = services.topupService
+        vm.exchangeService = services.exchangeService
         return vm
     }
     
@@ -247,67 +262,6 @@ class Assembly: ObservableObject {
             }
         }
         return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.card.defaultToken)
-    }
-    
-    //Make walletModel from walletManager
-    private func makeWalletModels(walletManagers: [WalletManager], cardToken: Token?) -> [WalletModel] {
-        return walletManagers.map { manager -> WalletModel in
-            let model = WalletModel(walletManager: manager, defaultToken: cardToken)
-            model.tokenItemsRepository = services.tokenItemsRepository
-            model.ratesService = services.ratesService
-            return model
-        }
-    }
-        
-    /// Try to load native walletmanager from card
-    private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
-        if let defaultBlockchain = cardInfo.card.defaultBlockchain,
-           let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
-            
-            if let defaultToken = cardInfo.card.defaultToken {
-                _ = cardWalletManager.addToken(defaultToken)
-            }
-            
-            return cardWalletManager
-            
-        }
-        
-        return nil
-    }
-    
-    ///Try to make WalletManagers for blockchains with suitable wallet
-    private func makeWalletManagers(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletManager] {
-        guard let cid = cardInfo.card.cardId else { return [] }
-        
-        var walletManagers = [WalletManager]()
-        
-        for blockchain in blockchains {
-            if let walletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
-               let wm = services.walletManagerFactory.makeWalletManager(from: cid,
-                                                                        walletPublicKey: walletPublicKey,
-                                                                        blockchain: blockchain) {
-                walletManagers.append(wm)
-            }
-        }
-        
-        return walletManagers
-    }
-    
-    private func makeWalletManagers(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletManager] {
-        let cid = cardDto.cardId
-        
-        var walletManagers = [WalletManager]()
-        
-        for blockchain in blockchains {
-            if let walletPublicKey = cardDto.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
-               let wm = services.walletManagerFactory.makeWalletManager(from: cid,
-                                                                        walletPublicKey: walletPublicKey,
-                                                                        blockchain: blockchain) {
-                walletManagers.append(wm)
-            }
-        }
-        
-        return walletManagers
     }
     
     // MARK: Card model
@@ -431,15 +385,27 @@ class Assembly: ObservableObject {
             return restored
         }
         
+        let vm: SendViewModel = SendViewModel(amountToSend: amount,
+                                              blockchain: blockchain,
+                                              cardViewModel: card,
+                                              signer: services.signer,
+                                              warningsManager: services.warningsService)
+        prepareSendViewModel(vm)
+        return vm
+    }
+    
+    func makeSellCryptoSendViewModel(with amount: Amount, destination: String, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
+        if let restored: SendViewModel = get() {
+            return restored
+        }
+        
         let vm = SendViewModel(amountToSend: amount,
+                               destination: destination,
                                blockchain: blockchain,
                                cardViewModel: card,
                                signer: services.signer,
                                warningsManager: services.warningsService)
-        initialize(vm)
-        vm.ratesService = services.ratesService
-        vm.featuresService = services.featuresService
-        vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
+        prepareSendViewModel(vm)
         return vm
     }
     
@@ -501,21 +467,6 @@ class Assembly: ObservableObject {
         vm.walletConnectController = services.walletConnectService
         return vm
     }
-
-    public func reset() {
-        var persistentKeys = [String]()
-        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
-        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
-        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
-        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
-        
-        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
-        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
-    }
-    
-    public func reset(key: String) {
-        modelsStorage.removeValue(forKey: key)
-    }
     
     // MARK: - Private funcs
     
@@ -551,6 +502,74 @@ class Assembly: ObservableObject {
         val?.navigation = services.navigationCoordinator
         return val as? T
 	}
+    
+    //Make walletModel from walletManager
+    private func makeWalletModels(walletManagers: [WalletManager], cardToken: Token?) -> [WalletModel] {
+        return walletManagers.map { manager -> WalletModel in
+            let model = WalletModel(walletManager: manager, defaultToken: cardToken)
+            model.tokenItemsRepository = services.tokenItemsRepository
+            model.ratesService = services.ratesService
+            return model
+        }
+    }
+        
+    /// Try to load native walletmanager from card
+    private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
+        if let defaultBlockchain = cardInfo.card.defaultBlockchain,
+           let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
+            
+            if let defaultToken = cardInfo.card.defaultToken {
+                _ = cardWalletManager.addToken(defaultToken)
+            }
+            
+            return cardWalletManager
+            
+        }
+        
+        return nil
+    }
+    
+    ///Try to make WalletManagers for blockchains with suitable wallet
+    private func makeWalletManagers(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletManager] {
+        guard let cid = cardInfo.card.cardId else { return [] }
+        
+        var walletManagers = [WalletManager]()
+        
+        for blockchain in blockchains {
+            if let walletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
+               let wm = services.walletManagerFactory.makeWalletManager(from: cid,
+                                                                        walletPublicKey: walletPublicKey,
+                                                                        blockchain: blockchain) {
+                walletManagers.append(wm)
+            }
+        }
+        
+        return walletManagers
+    }
+    
+    private func makeWalletManagers(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletManager] {
+        let cid = cardDto.cardId
+        
+        var walletManagers = [WalletManager]()
+        
+        for blockchain in blockchains {
+            if let walletPublicKey = cardDto.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey,
+               let wm = services.walletManagerFactory.makeWalletManager(from: cid,
+                                                                        walletPublicKey: walletPublicKey,
+                                                                        blockchain: blockchain) {
+                walletManagers.append(wm)
+            }
+        }
+        
+        return walletManagers
+    }
+    
+    private func prepareSendViewModel(_ vm: SendViewModel) {
+        initialize(vm)
+        vm.ratesService = services.ratesService
+        vm.featuresService = services.featuresService
+        vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
+    }
 }
 
 extension Assembly {
