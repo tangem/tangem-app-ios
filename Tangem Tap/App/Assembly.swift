@@ -115,10 +115,13 @@ class ServicesAssembly {
     private lazy var defaultSdkConfig: Config = {
         var config = Config()
         config.logСonfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger])
-        config.batchIdFilter = .deny(["0027",
-                                      "0030",
-                                      "0031",
-                                      "0035"])
+        config.filter.batchIdFilter = .deny(["0027",
+                                             "0030",
+                                             "0031",
+                                             "0035"])
+        
+        config.filter.issuerFilter = .deny(["TTM BANK"])
+        
         return config
     }()
 }
