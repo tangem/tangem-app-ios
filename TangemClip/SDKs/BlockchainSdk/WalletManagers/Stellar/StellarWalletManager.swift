@@ -48,10 +48,12 @@ class StellarWalletManager: WalletManager {
         wallet.add(coinValue: response.balance - fullReserve)
 
         if cardTokens.isEmpty {
+            let blockchain = wallet.blockchain
             _ = response.assetBalances
                 .map { (Token(symbol: $0.code,
                               contractAddress: $0.issuer,
-                              decimalCount: wallet.blockchain.decimalCount),
+                              decimalCount: blockchain.decimalCount,
+                              blockchain: blockchain),
                         $0.balance) }
                 .map { token, balance in
                     wallet.add(tokenValue: balance, for: token)
