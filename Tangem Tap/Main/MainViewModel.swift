@@ -15,7 +15,7 @@ import TangemSdk
 class MainViewModel: ViewModel {
     // MARK: Dependencies -
     weak var imageLoaderService: CardImageLoaderService!
-    weak var topupService: MoonPayService!
+    weak var exchangeService: ExchangeService!
 	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
     weak var warningsManager: WarningsManager!
@@ -25,14 +25,9 @@ class MainViewModel: ViewModel {
     weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
     weak var failedCardScanTracker: FailedCardScanTracker!
     
-    // MARK: Variables
+    //MARK: - Published variables
     
-    var amountToSend: Amount? = nil
-    private var bag = Set<AnyCancellable>()
     @Published var isRefreshing = false
-    
-    var selectedWallet: TokenItemViewModel = .default
-    //MARK: - Output
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
@@ -63,10 +58,17 @@ class MainViewModel: ViewModel {
                 .store(in: &bag)
         }
     }
-	
+    
+    // MARK: Variables
+    
+    var amountToSend: Amount? = nil
+    var selectedWallet: TokenItemViewModel = .default
+    var sellCryptoRequest: SellCryptoRequest? = nil
+    
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
     
+    private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     
     public var canCreateWallet: Bool {
@@ -80,35 +82,6 @@ class MainViewModel: ViewModel {
         }
         
         return false
-    }
-    
-    var cardModel: CardViewModel? {
-        return state.cardModel
-    }
-    
-    var wallets: [Wallet]? {
-        return cardModel?.wallets
-    }
-    
-    var canTopup: Bool {
-        cardModel?.canTopup ?? false && topupURL != nil
-    }
-    
-    var topupURL: URL? {
-        if let wallet = wallets?.first {
-            let blockchain = wallet.blockchain
-            if blockchain.isTestnet {
-                return URL(string: blockchain.testnetTopupLink ?? "")
-            }
-            
-            return topupService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                          walletAddress: wallet.address)
-        }
-        return nil
-    }
-    
-    var topupCloseUrl: String {
-        return topupService.buyCloseUrl.removeLatestSlash()
     }
     
     public var canSend: Bool {
@@ -125,6 +98,51 @@ class MainViewModel: ViewModel {
         }
         
         return wallet.canSend(amountType: .coin)
+    }
+    
+    var cardModel: CardViewModel? {
+        state.cardModel
+    }
+    
+    var wallets: [Wallet]? {
+        cardModel?.wallets
+    }
+    
+    var canBuyCrypto: Bool {
+        cardModel?.canExchangeCrypto ?? false && buyCryptoURL != nil
+    }
+    
+    var canSellCrypto: Bool {
+        cardModel?.canExchangeCrypto ?? false && sellCryptoURL != nil
+    }
+    
+    var buyCryptoURL: URL? {
+        if let wallet = wallets?.first {
+            let blockchain = wallet.blockchain
+            if blockchain.isTestnet {
+                return URL(string: blockchain.testnetBuyCryptoLink ?? "")
+            }
+            
+            return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                          walletAddress: wallet.address)
+        }
+        return nil
+    }
+    
+    var sellCryptoURL: URL? {
+        if let wallet = wallets?.first {
+            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol, walletAddress: wallet.address)
+        }
+        
+        return nil
+    }
+    
+    var buyCryptoCloseUrl: String {
+        exchangeService.successCloseUrl.removeLatestSlash()
+    }
+    
+    var sellCryptoCloseUrl: String {
+        exchangeService.sellRequestUrl.removeLatestSlash()
     }
     
     var incomingTransactions: [PendingTransaction] {
@@ -384,6 +402,7 @@ class MainViewModel: ViewModel {
     
     func showSendScreen() {
         assembly.reset()
+        sellCryptoRequest = nil
         navigation.mainToSend = true
     }
     
@@ -451,7 +470,7 @@ class MainViewModel: ViewModel {
         navigation.mainToTokenDetails = true
     }
     
-    func topupAction() {
+    func buyCryptoAction() {
         guard let card = cardModel?.cardInfo.card else { return }
         
         guard
@@ -461,13 +480,26 @@ class MainViewModel: ViewModel {
             let token = walletModel.tokenItemViewModels.first?.amountType.token,
             case .ethereum(testnet: true) = token.blockchain
         else {
-            if topupURL != nil {
-                navigation.mainToTopup = true
+            if buyCryptoURL != nil {
+                navigation.mainToBuyCrypto = true
             }
             return
         }
         
-        TestnetTopupService.topup(.erc20Token(walletManager: walletModel.walletManager, token: token))
+        TestnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
+    }
+    
+    func sellCryptoAction() {
+        navigation.mainToSellCrypto = true
+    }
+    
+    func extractSellCryptoRequest(from response: String) {
+        guard let request = exchangeService.extractSellCryptoRequest(from: response) else {
+            return
+        }
+        
+        sellCryptoRequest = request
+        navigation.mainToSend = true
     }
     
     func pushOutgoingTx(at index: Int) {
