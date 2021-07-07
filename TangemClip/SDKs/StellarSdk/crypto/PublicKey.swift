@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 /// Holds a Stellar public key.
 public class StellarPublicKey: XDRCodable {
     private let buffer: [UInt8]
@@ -124,20 +123,21 @@ public class StellarPublicKey: XDRCodable {
     ///
     /// - Throws: Ed25519Error.invalidSignatureLength if the signature length is not 64
     ///
-    public func verify(signature: [UInt8], message: [UInt8]) throws -> Bool {
-        guard signature.count == 64 else {
-            throw Ed25519Error.invalidSignatureLength
-        }
-
-        return signature.withUnsafeBufferPointer { signature in
-            message.withUnsafeBufferPointer { msg in
-                buffer.withUnsafeBufferPointer { pub in
-                    ed25519_verify(signature.baseAddress,
-                                   msg.baseAddress,
-                                   message.count,
-                                   pub.baseAddress) == 1
-                }
-            }
-        }
-    }
+//    public func verify(signature: [UInt8], message: [UInt8]) throws -> Bool {
+//        guard signature.count == 64 else {
+//            throw Ed25519Error.invalidSignatureLength
+//        }
+//
+//
+//        return signature.withUnsafeBufferPointer { signature in
+//            message.withUnsafeBufferPointer { msg in
+//                buffer.withUnsafeBufferPointer { pub in
+//                    ed25519_verify(signature.baseAddress,
+//                                   msg.baseAddress,
+//                                   message.count,
+//                                   pub.baseAddress) == 1
+//                }
+//            }
+//        }
+//    }
 }
