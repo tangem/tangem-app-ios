@@ -10,6 +10,7 @@ import SwiftUI
 
 struct HorizontalButtonStack: View {
     struct ButtonInfo {
+        let id = UUID()
         let imageName: String
         let title: LocalizedStringKey
         let action: () -> Void
@@ -23,17 +24,25 @@ struct HorizontalButtonStack: View {
         GeometryReader { geo in
             HStack(spacing: 0) {
                 if buttons.count > 0 {
-                    ForEach(0..<buttons.count) { (buttonIndex) in
-                        Button(action: buttons[buttonIndex].action) {
-                            HStack {
-                                Text(buttons[buttonIndex].title)
-                                Image(buttons[buttonIndex].imageName)
+                    ForEach(Array(buttons.enumerated()), id: \.offset) { item in
+                        let buttonIndex: Int = item.offset
+                        let button: ButtonInfo = item.element
+                        let buttonsCount: Int = buttons.count
+                        if buttonIndex < buttonsCount {
+                            let width: CGFloat = (geo.size.width - (buttonsCount > 1 ? CGFloat(1) : CGFloat(0))) / CGFloat(buttonsCount)
+                            Button(action: button.action) {
+                                HStack {
+                                    Text(button.title)
+                                    Image(button.imageName)
+                                }
                             }
+                            .disabled(button.isDisabled)
+                            .frame(width: width, height: height)
+                            .overlay(!button.isDisabled ? Color.clear : Color.white.opacity(0.4))
+                        } else {
+                            EmptyView()
                         }
-                        .disabled(buttons[buttonIndex].isDisabled)
-                        .frame(width: (geo.size.width - (buttons.count > 1 ? CGFloat(1) : CGFloat(0))) / CGFloat(buttons.count), height: height)
-                        .overlay(!buttons[buttonIndex].isDisabled ? Color.clear : Color.white.opacity(0.4))
-                        if buttonIndex < buttons.count - 1 {
+                        if buttonIndex < buttonsCount - 1 {
                             Color.white
                                 .opacity(0.3)
                                 .frame(width: 1)
@@ -41,6 +50,30 @@ struct HorizontalButtonStack: View {
                                 .cornerRadius(0.5)
                         }
                     }
+//                    ForEach(0..<buttons.count) { (buttonIndex: Int) in
+//                        let buttonsCount: Int = buttons.count
+//                        if buttonIndex < buttonsCount {
+//                            let width: CGFloat = (geo.size.width - (buttonsCount > 1 ? CGFloat(1) : CGFloat(0))) / CGFloat(buttonsCount)
+//                            Button(action: buttons[buttonIndex].action) {
+//                                HStack {
+//                                    Text(buttons[buttonIndex].title)
+//                                    Image(buttons[buttonIndex].imageName)
+//                                }
+//                            }
+//                            .disabled(buttons[buttonIndex].isDisabled)
+//                            .frame(width: width, height: height)
+//                            .overlay(!buttons[buttonIndex].isDisabled ? Color.clear : Color.white.opacity(0.4))
+//                        } else {
+//                            EmptyView()
+//                        }
+//                        if buttonIndex < buttonsCount - 1 {
+//                            Color.white
+//                                .opacity(0.3)
+//                                .frame(width: 1)
+//                                .padding(.vertical, 10)
+//                                .cornerRadius(0.5)
+//                        }
+//                    }
                 }
             }
             .frame(width: geo.size.width, height: height)
