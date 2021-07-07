@@ -16,11 +16,11 @@ enum ScanError: Error {
 struct TapScanTaskResponse: JSONStringConvertible {
     let card: Card
     let twinIssuerData: Data
-
+    
     internal init(card: Card, twinIssuerData: Data = Data()) {
-		self.card = card
+        self.card = card
         self.twinIssuerData = twinIssuerData
-	}
+    }
 }
 
 extension TapScanTaskResponse {
@@ -35,10 +35,10 @@ extension TapScanTaskResponse {
             let pairPubKey = fullData[0..<65]
             let signature = fullData[65..<fullData.count]
             if Secp256k1Utils.verify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
-               pairPublicKey = pairPubKey
+                pairPublicKey = pairPubKey
             }
         }
-    
+        
         return TwinCardInfo(cid: response.card.cardId,
                             series: TwinCardSeries.series(for: card.cardId),
                             pairCid: TwinCardsUtils.makePairCid(for: response.card.cardId),
@@ -58,7 +58,11 @@ final class TapScanTask: CardSessionRunnable {
         print("TapScanTask deinit")
     }
     
-    init() {}
+    private let targetBatch: String?
+    
+    init(targetBatch: String? = nil) {
+        self.targetBatch = targetBatch
+    }
     
     /// read -> appendWallets(createwallets+ scan)  -> readTwinData
     public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
@@ -66,6 +70,13 @@ final class TapScanTask: CardSessionRunnable {
         scanTask.run(in: session) { result in
             switch result {
             case .success(let card):
+                
+                if let targetBatch = self.targetBatch?.lowercased(),
+                   targetBatch.lowercased() != targetBatch {
+                    completion(.failure(TangemSdkError.underlying(error: "alert_wrong_card_scanned".localized)))
+                    return
+                }
+                
                 self.appendWalletsIfNeeded(card, session: session, completion: completion)
             case.failure(let error):
                 return completion(.failure(error))
