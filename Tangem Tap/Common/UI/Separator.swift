@@ -12,7 +12,6 @@ struct Separator: View {
     var body: some View {
         Color.tangemTapGrayLight5
             .frame(width: nil, height: 1.0, alignment: .center)
-            .padding(.top, 4)
-            .padding(.bottom, 4.0)
+            .padding(.vertical, 4.0)
     }
 }
