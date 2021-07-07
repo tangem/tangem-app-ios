@@ -136,10 +136,25 @@
 		5DE7DD232695C27E00472205 /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* UserPrefsService.swift */; };
 		5DE7DD242695C37D00472205 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		5DE7DD262695C57B00472205 /* SavedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C72268A2E98008C9B30 /* SavedCard.swift */; };
-		5DE7DD292695C86900472205 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
 		5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */; };
 		5DE7DD2C2695CFFE00472205 /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
-		5DE7DD2E2695DB9F00472205 /* TokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5332B025F9091900D32CA5 /* TokenItem.swift */; };
+		5DE7DD312696235F00472205 /* WalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00BC561260B102800F0647D /* WalletModel.swift */; };
+		5DE7DD332696236500472205 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F7360825F7AF9E00DD348F /* CardViewModel.swift */; };
+		5DE7DD352696236500472205 /* TokenBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FFC32608EC44002B61CD /* TokenBalanceViewModel.swift */; };
+		5DE7DD362696236500472205 /* TokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00BC54C260B0F7F00F0647D /* TokenItemViewModel.swift */; };
+		5DE7DD3B2696238000472205 /* SupportedBlockchains.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09421442614BBA400827A48 /* SupportedBlockchains.swift */; };
+		5DE7DD422696238700472205 /* AddressDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00BC57E260B11A100F0647D /* AddressDetailsView.swift */; };
+		5DE7DD432696238700472205 /* TokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FF8814264AABCD003E000A /* TokenIconView.swift */; };
+		5DE7DD452696240200472205 /* TokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5332B025F9091900D32CA5 /* TokenItem.swift */; };
+		5DE7DD462696241F00472205 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
+		5DE7DD472696246700472205 /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499724E54A340037E76F /* BalanceView.swift */; };
+		5DE7DD48269624B100472205 /* BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39516025597DB1002CC452 /* BalanceViewModel.swift */; };
+		5DE7DD49269625D200472205 /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAE225517D450059799C /* Assembly.swift */; };
+		5DE7DD4A269625F800472205 /* TapScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* TapScanTask.swift */; };
+		5DE7DD4B2696267D00472205 /* CardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAEA25517FB50059799C /* CardsRepository.swift */; };
+		5DE7DD4C269627EF00472205 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D3600725F26C7400929564 /* MainView.swift */; };
+		5DE7DD4D269627EF00472205 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CA5A9B25F77A5B0078F42F /* MainViewModel.swift */; };
+		5DE7DD4E2696286500472205 /* TokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */; };
 		5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEC50A425F160930022CE83 /* CircleImageTextView.swift */; };
 		5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* TapScanTask.swift */; };
 		5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522824F93C2A0015B429 /* QRCodeView.swift */; };
@@ -200,7 +215,6 @@
 		B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */; };
 		B05209BE261F1FF3000DD204 /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05209BD261F1FF3000DD204 /* RoundedCorner.swift */; };
 		B05209C3261F2B4E000DD204 /* WalletConnectUIBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05209C2261F2B4E000DD204 /* WalletConnectUIBuilder.swift */; };
-		B0594146260A0FE300F90053 /* ImageLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0594145260A0FE300F90053 /* ImageLoaderService.swift */; };
 		B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */; };
 		B05B85A92589F0CF008A4452 /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05B85A82589F0CF008A4452 /* AppFeature.swift */; };
 		B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0606E112684A946004004ED /* BlinkingModifier.swift */; };
@@ -607,7 +621,6 @@
 		B0A9E939259213E7007B6D36 /* WarningsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9E938259213E7007B6D36 /* WarningsService.swift */; };
 		B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9E93E25921D21007B6D36 /* WarningView.swift */; };
 		B0B06972260CB2F100AE10B0 /* CoinMarketCapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */; };
-		B0B0FFD32608ECE9002B61CD /* TapScanTask1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0FFD22608ECE9002B61CD /* TapScanTask1.swift */; };
 		B0B34CC52611CDD600ACFAB3 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
 		B0B34CC62611CDD600ACFAB3 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
 		B0B34CC72611CDD600ACFAB3 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
@@ -665,7 +678,6 @@
 		B0FB2995263BD3ED007B400F /* EthereumUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB2994263BD3ED007B400F /* EthereumUtils.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		B0FC4A822630245F000444D7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B0FC49BF2630245E000444D7 /* Localizable.strings */; };
-		B0FF8815264AABCD003E000A /* TokenIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FF8814264AABCD003E000A /* TokenIconView.swift */; };
 		E7B877C2D1F9ECC207398075 /* Pods_Tangem_Tap_Tangem_TapUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADB806044AD0786B3B757F4E /* Pods_Tangem_Tap_Tangem_TapUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -1306,7 +1318,7 @@
 		B0A9E93E25921D21007B6D36 /* WarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningView.swift; sourceTree = "<group>"; };
 		B0B0FFB42608EC09002B61CD /* CardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsRepository.swift; sourceTree = "<group>"; };
 		B0B0FFC32608EC44002B61CD /* TokenBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceViewModel.swift; sourceTree = "<group>"; };
-		B0B0FFD22608ECE9002B61CD /* TapScanTask1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapScanTask1.swift; sourceTree = "<group>"; };
+		B0B0FFD22608ECE9002B61CD /* TapScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapScanTask.swift; sourceTree = "<group>"; };
 		B0B4556825E0E63000D7572F /* FailedCardScanTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailedCardScanTracker.swift; sourceTree = "<group>"; };
 		B0B9E0B52629779500408726 /* AlertBinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertBinder.swift; sourceTree = "<group>"; };
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
@@ -3033,7 +3045,7 @@
 		B0B0FFD12608ECDD002B61CD /* Tangem */ = {
 			isa = PBXGroup;
 			children = (
-				B0B0FFD22608ECE9002B61CD /* TapScanTask1.swift */,
+				B0B0FFD22608ECE9002B61CD /* TapScanTask.swift */,
 			);
 			path = Tangem;
 			sourceTree = "<group>";
@@ -3759,6 +3771,7 @@
 				B066B141262D6B1100EB85A5 /* TezosPrefix.swift in Sources */,
 				B066B1BF262D6B1100EB85A5 /* OP_FROMALTSTACK.swift in Sources */,
 				B066B47F262D6EFA00EB85A5 /* KeyedCoding+Collections.swift in Sources */,
+				5DE7DD422696238700472205 /* AddressDetailsView.swift in Sources */,
 				B066B1B5262D6B1100EB85A5 /* OP_SPLIT.swift in Sources */,
 				B066B1AD262D6B1100EB85A5 /* OP_ABS.swift in Sources */,
 				B066B4A2262D6EFA00EB85A5 /* NotFoundErrorResponse.swift in Sources */,
@@ -3789,6 +3802,7 @@
 				B066B1DB262D6B1100EB85A5 /* Opcode.swift in Sources */,
 				B066B1D1262D6B1100EB85A5 /* OP_VER.swift in Sources */,
 				B02D4281262EAC0E00BCA3D9 /* HexEncoding.swift in Sources */,
+				5DE7DD4E2696286500472205 /* TokensListItemView.swift in Sources */,
 				B066B144262D6B1100EB85A5 /* TezosWalletManager.swift in Sources */,
 				5D17EC7426946F48002782DE /* Token+.swift in Sources */,
 				B066B201262D6B1100EB85A5 /* BlockchairResponses.swift in Sources */,
@@ -3811,6 +3825,7 @@
 				B066B15D262D6B1100EB85A5 /* BinanceWalletManager.swift in Sources */,
 				B0FB2995263BD3ED007B400F /* EthereumUtils.swift in Sources */,
 				B066B145262D6B1100EB85A5 /* TezosFee.swift in Sources */,
+				5DE7DD312696235F00472205 /* WalletModel.swift in Sources */,
 				B066B485262D6EFA00EB85A5 /* String+Base32.swift in Sources */,
 				B066B199262D6B1100EB85A5 /* OP_RSHIFT.swift in Sources */,
 				B066B12A262D6B1100EB85A5 /* XrpData.swift in Sources */,
@@ -3824,6 +3839,7 @@
 				B066B1EF262D6B1100EB85A5 /* XrpResponse.swift in Sources */,
 				B066B198262D6B1100EB85A5 /* OP_BOOLOR.swift in Sources */,
 				5DE7DD242695C37D00472205 /* KeysManager.swift in Sources */,
+				5DE7DD3B2696238000472205 /* SupportedBlockchains.swift in Sources */,
 				B066B481262D6EFA00EB85A5 /* DateFormatter+ISOParsing.swift in Sources */,
 				B066B478262D6EFA00EB85A5 /* XDRDecoder.swift in Sources */,
 				B066B13C262D6B1100EB85A5 /* XRPWalletManager.swift in Sources */,
@@ -3844,6 +3860,7 @@
 				B066B1BD262D6B1100EB85A5 /* OP_DROP.swift in Sources */,
 				B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */,
 				B066B479262D6EFA00EB85A5 /* Data+Hash.swift in Sources */,
+				5DE7DD4C269627EF00472205 /* MainView.swift in Sources */,
 				B01416A72632A92300D82A9C /* WebImage.swift in Sources */,
 				B066B59F262DAC7F00EB85A5 /* BitcoinCoreSigHashType.swift in Sources */,
 				B066B1A1262D6B1100EB85A5 /* OP_MUL.swift in Sources */,
@@ -3855,7 +3872,6 @@
 				B066B174262D6B1100EB85A5 /* ScriptFactory.swift in Sources */,
 				B066B1A2262D6B1100EB85A5 /* OP_DIV.swift in Sources */,
 				5DE7DD222695C17800472205 /* Card+.swift in Sources */,
-				B0594146260A0FE300F90053 /* ImageLoaderService.swift in Sources */,
 				B066B189262D6B1100EB85A5 /* OP_HASH256.swift in Sources */,
 				B066B162262D6B1100EB85A5 /* MoyaPublisher.swift in Sources */,
 				B066B47D262D6EFA00EB85A5 /* String+Base64.swift in Sources */,
@@ -3867,6 +3883,7 @@
 				B066B129262D6B1100EB85A5 /* XRPLResponse.swift in Sources */,
 				B066B14B262D6B1100EB85A5 /* BitcoinNetworkProvider.swift in Sources */,
 				B066B202262D6B1100EB85A5 /* BlockchairNetworkProvider.swift in Sources */,
+				5DE7DD48269624B100472205 /* BalanceViewModel.swift in Sources */,
 				B066B188262D6B1100EB85A5 /* OP_CHECKSIG.swift in Sources */,
 				B066B49C262D6EFA00EB85A5 /* MuxedAccount.swift in Sources */,
 				B066B45C262D6EFA00EB85A5 /* PBKDF1.swift in Sources */,
@@ -3917,8 +3934,8 @@
 				B066B1AC262D6B1100EB85A5 /* OP_MIN.swift in Sources */,
 				B066B1DA262D6B1100EB85A5 /* OP_ENDIF.swift in Sources */,
 				B066B1BE262D6B1100EB85A5 /* OP_DEPTH.swift in Sources */,
-				5DE7DD2E2695DB9F00472205 /* TokenItem.swift in Sources */,
 				B066B1A0262D6B1100EB85A5 /* OP_MOD.swift in Sources */,
+				5DE7DD4D269627EF00472205 /* MainViewModel.swift in Sources */,
 				B066B451262D6EFA00EB85A5 /* DigestType.swift in Sources */,
 				B066B1EB262D6B1100EB85A5 /* AdaliteNetworkProvider.swift in Sources */,
 				B066B167262D6B1100EB85A5 /* Decimal+Clips.swift in Sources */,
@@ -3935,6 +3952,7 @@
 				B066B19F262D6B1100EB85A5 /* OP_LESSTHANOREQUAL.swift in Sources */,
 				B066B1DC262D6B1100EB85A5 /* OpCodeFactory.swift in Sources */,
 				B066B161262D6B1100EB85A5 /* AnyPublisher+Response.swift in Sources */,
+				5DE7DD452696240200472205 /* TokenItem.swift in Sources */,
 				B066B1D9262D6B1100EB85A5 /* OP_VERIF.swift in Sources */,
 				B066B4AD262D6EFA00EB85A5 /* AccountService.swift in Sources */,
 				B066B1D7262D6B1100EB85A5 /* OP_ELSE.swift in Sources */,
@@ -3951,6 +3969,7 @@
 				B066B1C6262D6B1100EB85A5 /* OP_IFDUP.swift in Sources */,
 				B066B1A3262D6B1100EB85A5 /* OP_GREATERTHANOREQUAL.swift in Sources */,
 				B066B1D3262D6B1100EB85A5 /* OP_RETURN.swift in Sources */,
+				5DE7DD362696236500472205 /* TokenItemViewModel.swift in Sources */,
 				5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */,
 				B066B1CD262D6B1100EB85A5 /* OP_1NEGATE.swift in Sources */,
 				B066B136262D6B1100EB85A5 /* Extensions.swift in Sources */,
@@ -3990,6 +4009,7 @@
 				B066B1F0262D6B1100EB85A5 /* TezosAddress.swift in Sources */,
 				B066B43B262D6EFA00EB85A5 /* Array+Extensions.swift in Sources */,
 				B066B150262D6B1100EB85A5 /* CardanoAddressService.swift in Sources */,
+				5DE7DD4B2696267D00472205 /* CardsRepository.swift in Sources */,
 				B066B5AF262DAD3F00EB85A5 /* BitcoinLegacyAddress.swift in Sources */,
 				B066B49F262D6EFA00EB85A5 /* Account.swift in Sources */,
 				B07FE4D12616F686000F0EF9 /* MessageView.swift in Sources */,
@@ -3998,9 +4018,9 @@
 				B066B18A262D6B1100EB85A5 /* OP_EXAMPLE.swift in Sources */,
 				B066B13E262D6B1100EB85A5 /* StellarSdk+.swift in Sources */,
 				B066B1F3262D6B1100EB85A5 /* EthereumNetwork.swift in Sources */,
+				5DE7DD472696246700472205 /* BalanceView.swift in Sources */,
 				B066B15F262D6B1100EB85A5 /* Int+.swift in Sources */,
 				B066B458262D6EFA00EB85A5 /* PKCS7Padding.swift in Sources */,
-				5DE7DD292695C86900472205 /* CardView.swift in Sources */,
 				5DE7DD1F2695C06200472205 /* PersistentStorage.swift in Sources */,
 				B066B465262D6EFA00EB85A5 /* AccountThresholdsResponse.swift in Sources */,
 				B066B1B7262D6B1100EB85A5 /* OP_2SWAP.swift in Sources */,
@@ -4014,6 +4034,7 @@
 				B066B480262D6EFA00EB85A5 /* Data+Base16.swift in Sources */,
 				B066B17D262D6B1100EB85A5 /* BinaryConvertable.swift in Sources */,
 				B066B164262D6B1100EB85A5 /* Uint64+.swift in Sources */,
+				5DE7DD332696236500472205 /* CardViewModel.swift in Sources */,
 				B066B48C262D6EFA00EB85A5 /* ge.c in Sources */,
 				B066B472262D6EFA00EB85A5 /* EventSource.swift in Sources */,
 				B066B46E262D6EFA00EB85A5 /* PagingLinksResponse.swift in Sources */,
@@ -4031,9 +4052,9 @@
 				B066B445262D6EFA00EB85A5 /* Digest.swift in Sources */,
 				B066B126262D6B1100EB85A5 /* WebSocket+Convenience.swift in Sources */,
 				B066B1C7262D6B1100EB85A5 /* OP_DUP.swift in Sources */,
-				B0FF8815264AABCD003E000A /* TokenIconView.swift in Sources */,
 				B066B46B262D6EFA00EB85A5 /* LedgerLinksResponse.swift in Sources */,
 				B066B1F2262D6B1100EB85A5 /* EthereumTarget.swift in Sources */,
+				5DE7DD432696238700472205 /* TokenIconView.swift in Sources */,
 				B066B1F4262D6B1100EB85A5 /* BitcoreProvider.swift in Sources */,
 				B066B4A0262D6EFA00EB85A5 /* NotImplementedErrorResponse.swift in Sources */,
 				B066B200262D6B1100EB85A5 /* BitcoinfeesResponse.swift in Sources */,
@@ -4044,6 +4065,7 @@
 				B066B1D5262D6B1100EB85A5 /* OP_IF.swift in Sources */,
 				B066B1A7262D6B1100EB85A5 /* OP_WITHIN.swift in Sources */,
 				B066B49E262D6EFA00EB85A5 /* MuxedAccountMed25519XDR.swift in Sources */,
+				5DE7DD352696236500472205 /* TokenBalanceViewModel.swift in Sources */,
 				B066B204262D6B1100EB85A5 /* EstimateFeeTarget.swift in Sources */,
 				B066B151262D6B1100EB85A5 /* CardanoAddressUtils.swift in Sources */,
 				B066B456262D6EFA00EB85A5 /* Padding.swift in Sources */,
@@ -4072,6 +4094,7 @@
 				B066B157262D6B1100EB85A5 /* EthereumNetworkService.swift in Sources */,
 				B066B1BC262D6B1100EB85A5 /* OP_TOTALSTACK.swift in Sources */,
 				B066B469262D6EFA00EB85A5 /* DataForAccountResponse.swift in Sources */,
+				5DE7DD49269625D200472205 /* Assembly.swift in Sources */,
 				B066B45B262D6EFA00EB85A5 /* PBKDF2.swift in Sources */,
 				B066B476262D6EFA00EB85A5 /* XDRCodable.swift in Sources */,
 				5DE7DD162695BF9700472205 /* FileEncryptionUtility.swift in Sources */,
@@ -4082,8 +4105,8 @@
 				B066B1F1262D6B1100EB85A5 /* TezosTarget.swift in Sources */,
 				B01983CA2660C7EA00107390 /* DogecoinNetworkParams.swift in Sources */,
 				B066B152262D6B1100EB85A5 /* CardanoNetworkService.swift in Sources */,
+				5DE7DD4A269625F800472205 /* TapScanTask.swift in Sources */,
 				B066B4A8262D6EFA00EB85A5 /* StaleHistoryErrorResponse.swift in Sources */,
-				B0B0FFD32608ECE9002B61CD /* TapScanTask1.swift in Sources */,
 				B066B4AB262D6EFA00EB85A5 /* NotAcceptableErrorResponse.swift in Sources */,
 				B066B170262D6B1100EB85A5 /* Amount.swift in Sources */,
 				B066B482262D6EFA00EB85A5 /* Data+Extension.swift in Sources */,
@@ -4108,6 +4131,7 @@
 				B066B468262D6EFA00EB85A5 /* AccountResponse.swift in Sources */,
 				B066B1D0262D6B1100EB85A5 /* OP_PUSHDATA.swift in Sources */,
 				B066B5B5262DAD6200EB85A5 /* BitcoinCoreScriptType.swift in Sources */,
+				5DE7DD462696241F00472205 /* CardView.swift in Sources */,
 				B066B443262D6EFA00EB85A5 /* Collection+Extension.swift in Sources */,
 				B066B4A1262D6EFA00EB85A5 /* ForbiddenErrorResponse.swift in Sources */,
 				B066B17B262D6B1100EB85A5 /* Coin.swift in Sources */,
