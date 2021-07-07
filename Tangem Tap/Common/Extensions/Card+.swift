@@ -29,7 +29,6 @@ fileprivate struct ProductionInfo {
     
     //all twins productMask
     //all cards with permanent wallet
-    //sc2 issuerName "start2coin"
     //all !isreusable cards
     
     //blockchainName and curve?
@@ -41,10 +40,6 @@ fileprivate struct ProductionInfo {
     //productmask != note and twin
     
     func isTwinCard(_ batchId: String) -> Bool {
-       return false
-    }
-    
-    func isStar2Coin(_ batchId: String) -> Bool {
        return false
     }
     
@@ -88,7 +83,7 @@ extension Card {
     
     
     var isStart2Coin: Bool {
-        ProductionInfo.shared.isStar2Coin(batchId)
+        issuer.name.lowercased() == "start2coin"
     }
     
     var isMultiWallet: Bool {
