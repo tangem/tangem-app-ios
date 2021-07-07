@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if !CLIP
 import BlockchainSdk
+#endif
 import TangemSdk
 
 class SupportedTokenItems {
