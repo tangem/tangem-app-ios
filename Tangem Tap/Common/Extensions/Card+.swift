@@ -38,7 +38,6 @@ fileprivate struct ProductionInfo {
     //tokenDecimal
     
     //All batches of:
-    //"TTM BANK"
     //productmask != note and twin
     
     func isTwinCard(_ batchId: String) -> Bool {
