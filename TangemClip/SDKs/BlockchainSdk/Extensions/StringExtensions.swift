@@ -22,6 +22,15 @@ extension String {
         
         return self
     }
+    
+    var toUInt8: [UInt8] {
+        let v = self.utf8CString.map({ UInt8($0) })
+        return Array(v[0 ..< (v.count-1)])
+    }
+    
+    static var unknown: String {
+        "Unknown"
+    }
 }
 
 extension String: Error, LocalizedError {
