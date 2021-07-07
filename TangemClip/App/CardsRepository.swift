@@ -98,8 +98,8 @@
 //        onScan?(cardInfo)
 //        
 //        let cm = assembly.makeCardModel(from: cardInfo)
-//        let result: ScanResult = cardInfo.card.firmwareVersion >= FirmwareConstraints.AvailabilityVersions.walletData ? .card(model: cm) : .unsupported
-//        cards[cardInfo.card.cardId!] = result
+//        let result: ScanResult = cardInfo.card.firmwareVersion >= .multiwalletAvailable ? .card(model: cm) : .unsupported
+//        cards[cardInfo.card.cardId] = result
 //        lastScanResult = result
 //        return result
 //    }
