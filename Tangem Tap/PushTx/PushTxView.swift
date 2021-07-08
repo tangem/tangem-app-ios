@@ -49,10 +49,10 @@ struct PushTxView: View {
                         Spacer()
                     }
                     .padding(.bottom)
-                    FilledInputView(title: "Address", text: viewModel.destination)
+                    FilledInputView(title: "send_destination_hint_address".localized, text: viewModel.destination)
                         .opacity(0.6)
                     VStack(alignment: .leading) {
-                        Text("Previous transaction total including fee")
+                        Text("push_tx_address_hint")
                             .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor(Color.tangemTapGrayDark)
                             .opacity(0.6)
