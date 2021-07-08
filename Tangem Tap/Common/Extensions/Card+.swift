@@ -62,7 +62,7 @@ extension Card {
 //        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
         
         if firmwareVersion.doubleValue < 2.28 {
-            if settings.securityDelay > 1500 {
+            if settings.securityDelay > 15000 {
 //                && !canSkipSD {
                 return false
             }
