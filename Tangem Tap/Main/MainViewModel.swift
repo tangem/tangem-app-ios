@@ -514,7 +514,7 @@ class MainViewModel: ViewModel {
     
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
-        case .userBoughtCrypto, .userAttemptToSellCrypto:
+        case .userBoughtCrypto:
             Analytics.log(event: event, with: [.currencyCode: currenyCode])
         default:
             break
