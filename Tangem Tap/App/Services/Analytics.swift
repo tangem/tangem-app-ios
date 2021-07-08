@@ -26,7 +26,6 @@ class Analytics {
         case wcNewSession = "wallet_connect_new_session"
         case wcSessionDisconnected = "wallet_connect_session_disconnected"
         case userBoughtCrypto = "user_bought_crypto"
-        case userAttemptToSellCrypto = "user_attempt_sell_crypto"
         case userSoldCrypto = "user_sold_crypto"
         
         fileprivate static var nfcError: String {
