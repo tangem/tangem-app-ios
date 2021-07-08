@@ -71,5 +71,5 @@ extension AppFeaturesService {
 	
 	var canReceiveToPayId: Bool { features.contains(.payIDReceive) }
 	
-	var canTopup: Bool { features.contains(.topup) }
+	var canExchangeCrypto: Bool { features.contains(.topup) }
 }
