@@ -39,35 +39,39 @@ struct SendView: View {
                     TextInputField(placeholder: self.addressHint,
                                    text: self.$viewModel.destination,
                                    suplementView: {
-                                    CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
-                                                       backgroundColor: .tangemTapBgGray,
-                                                       imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
-                                                       isSystemImage: false,
-                                                       imageColor: .tangemTapGrayDark6,
-                                                       isDisabled: self.viewModel.validatedClipboard == nil)
-                                        .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
-                                        .disabled(self.viewModel.validatedClipboard == nil)
-                                    CircleActionButton(
-                                        action: {
-                                            if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-                                                self.viewModel.showCameraDeniedAlert = true
-                                            } else {
-                                                self.viewModel.navigation.sendToQR = true
-                                            }
-                                        },
-                                        backgroundColor: .tangemTapBgGray,
-                                        imageName: "qrcode.viewfinder",
-                                        isSystemImage: false,
-                                        imageColor: .tangemTapGrayDark6
-                                    )
-                                    .accessibility(label: Text("voice_over_scan_qr_with_address"))
-                                    .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
-                                        QRScanView(code: self.$viewModel.scannedQRCode)
-                                            .edgesIgnoringSafeArea(.all)
+                                    if !viewModel.isSellingCrypto {
+                                        CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
+                                                           backgroundColor: .tangemTapBgGray,
+                                                           imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+                                                           isSystemImage: false,
+                                                           imageColor: .tangemTapGrayDark6,
+                                                           isDisabled: self.viewModel.validatedClipboard == nil)
+                                            .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
+                                            .disabled(self.viewModel.validatedClipboard == nil)
+                                        CircleActionButton(
+                                            action: {
+                                                if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+                                                    self.viewModel.showCameraDeniedAlert = true
+                                                } else {
+                                                    self.viewModel.navigation.sendToQR = true
+                                                }
+                                            },
+                                            backgroundColor: .tangemTapBgGray,
+                                            imageName: "qrcode.viewfinder",
+                                            isSystemImage: false,
+                                            imageColor: .tangemTapGrayDark6
+                                        )
+                                        .accessibility(label: Text("voice_over_scan_qr_with_address"))
+                                        .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
+                                            QRScanView(code: self.$viewModel.scannedQRCode)
+                                                .edgesIgnoringSafeArea(.all)
+                                        }
+                                        .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
                                     }
-                                    .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
-                                   }, message: self.viewModel.destinationHint?.message ?? " " ,
+                                   },
+                                   message: self.viewModel.destinationHint?.message ?? " " ,
                                    isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
+                        .disabled(viewModel.isSellingCrypto)
                     
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
@@ -100,29 +104,31 @@ struct SendView: View {
                                             handleKeyboard: true,
                                             actionButton: "send_max_amount_label".localized,
                                             keyboard: UIKeyboardType.decimalPad,
-                                            textColor: UIColor.tangemTapGrayDark6,
+                                            textColor: viewModel.isSellingCrypto ? UIColor.tangemTapGrayDark6.withAlphaComponent(0.6) : UIColor.tangemTapGrayDark6,
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
                                             placeholder: "",
                                             decimalCount: self.viewModel.inputDecimalsCount)
+                                .disabled(viewModel.isSellingCrypto)
                             Button(action: {
-                                self.viewModel.isFiatCalculation.toggle()
+                                if !viewModel.isSellingCrypto {
+                                    self.viewModel.isFiatCalculation.toggle()
+                                }
                             }) { HStack(alignment: .center, spacing: 8.0) {
                                 Text(self.viewModel.currencyUnit)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
-                                    .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
-                                Image("arrow.up.arrow.down")
-                                    .font(Font.system(size: 17.0, weight: .regular, design: .default))
-                                    .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                                    .foregroundColor(!viewModel.isSellingCrypto ?
+                                                        Color.tangemTapBlue : Color.tangemTapGrayDark6.opacity(0.5))
+                                if !viewModel.isSellingCrypto {
+                                    Image("arrow.up.arrow.down")
+                                        .font(Font.system(size: 17.0, weight: .regular, design: .default))
+                                        .foregroundColor(Color.tangemTapBlue)
+                                }
                             }
                             }
-                            .disabled(!self.viewModel.canFiatCalculation)
+                            .disabled(!viewModel.isSellingCrypto)
                         }
                         .padding(.top, 25.0)
-                        Color.tangemTapGrayLight5
-                            .frame(width: nil, height: 1.0, alignment: .center)
-                            .padding(.vertical, 8.0)
+                        Separator()
                         HStack {
                             Text(self.viewModel.amountHint?.message ?? " " )
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
@@ -148,14 +154,17 @@ struct SendView: View {
                                         self.viewModel.isNetworkFeeBlockOpen.toggle()
                                     }
                                 }) {
-                                    Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
-                                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                        .foregroundColor(Color.tangemTapGrayDark6)
-                                        .padding()
+                                    if !viewModel.isSellingCrypto {
+                                        Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
+                                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
+                                            .foregroundColor(Color.tangemTapGrayDark6)
+                                            .padding()
+                                    }
                                 }
                                 .accessibility(label: Text(self.viewModel.isNetworkFeeBlockOpen ? "voice_over_close_network_fee_settings" : "voice_over_open_network_fee_settings"))
+                                .disabled(viewModel.isSellingCrypto)
                             }
-                            if self.viewModel.isNetworkFeeBlockOpen {
+                            if self.viewModel.isNetworkFeeBlockOpen || viewModel.isSellingCrypto {
                                 VStack(spacing: 16.0) {
                                     if self.viewModel.shoudShowFeeSelector {
                                         PickerView(contents: ["send_fee_picker_low".localized,
@@ -219,12 +228,14 @@ struct SendView: View {
                                 .foregroundColor(Color.tangemTapGrayDark6)
                             
                         }
-                        HStack{
-                            Spacer()
-                            Text(self.viewModel.sendTotalSubtitle)
-                                .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                .fixedSize(horizontal: false, vertical: true)
-                                .foregroundColor(Color.tangemTapGrayDark)
+                        if !viewModel.isSellingCrypto {
+                            HStack{
+                                Spacer()
+                                Text(self.viewModel.sendTotalSubtitle)
+                                    .font(Font.system(size: 14.0, weight: .bold, design: .default))
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .foregroundColor(Color.tangemTapGrayDark)
+                            }
                         }
                     }
                     WarningListView(warnings: viewModel.warnings, warningButtonAction: {
@@ -288,13 +299,24 @@ struct ExtractView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .ethereum)
     
     static var previews: some View {
-        SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: assembly.previewBlockchain,
-                                                                    type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18, blockchain: .ethereum(testnet: false))),
-                                                                    value: 0.0),
-                                                       blockchain: assembly.previewBlockchain,
-                                                       card: assembly.previewCardViewModel),
-                 onSuccess: {})
-            .environmentObject(assembly.services.navigationCoordinator)
-            .previewLayout(.iphone7Zoomed)
+        Group {
+            SendView(viewModel: assembly.makeSellCryptoSendViewModel(with: Amount(with: assembly.previewBlockchain,
+                                                                                  type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18, blockchain: .ethereum(testnet: false))),
+                                                                                  value: 0.0),
+                                                                     destination: "Target",
+                                                                     blockchain: assembly.previewBlockchain,
+                                                                     card: assembly.previewCardViewModel),
+                     onSuccess: {})
+                .environmentObject(assembly.services.navigationCoordinator)
+                .previewLayout(.iphone7Zoomed)
+            SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: assembly.previewBlockchain,
+                                                                        type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18, blockchain: .ethereum(testnet: false))),
+                                                                        value: 0.0),
+                                                           blockchain: assembly.previewBlockchain,
+                                                           card: assembly.previewCardViewModel),
+                     onSuccess: {})
+                .environmentObject(assembly.services.navigationCoordinator)
+                .previewLayout(.iphone7Zoomed)
+        }
     }
 }
