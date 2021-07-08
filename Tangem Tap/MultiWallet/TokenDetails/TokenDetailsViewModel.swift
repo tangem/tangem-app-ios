@@ -225,6 +225,15 @@ class TokenDetailsViewModel: ViewModel {
         navigation.detailsToSend = true
     }
     
+    func sendAnalyticsEvent(_ event: Analytics.Event) {
+        switch event {
+        case .userBoughtCrypto, .userAttemptToSellCrypto:
+            Analytics.log(event: event, with: [.currencyCode: blockchain.currencySymbol])
+        default:
+            break
+        }
+    }
+    
     private func resetViewModel<T>(of typeToReset: T) {
         assembly.reset(key: String(describing: type(of: typeToReset)))
     }
