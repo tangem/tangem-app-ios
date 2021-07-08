@@ -64,7 +64,7 @@
 
 "wallet_button_send" = "Invia";
 
-"wallet_button_topup" = "Ricarica";
+"wallet_button_topup" = "Compra";
 
 "wallet_button_create_wallet" = "Crea portafoglio";
 
@@ -577,3 +577,8 @@ Amount: %@";
 Price: %@
 Amount to receive: %@
 Amount to pay: %@";
+
+"wallet_button_sell_crypto" = "Sell";
+"push_tx_address_hint" = "Previous transaction total including fee";
+"wallet_button_trade" = "Trade";
+"action_sheet_trade_hint" = "Do you want to buy or sell crypto?";
