@@ -208,7 +208,6 @@ struct MainView: View {
                                                          addLoadingIndicator: true,
                                                          urlActions: [ viewModel.sellCryptoCloseUrl : { request in
                                                             viewModel.extractSellCryptoRequest(from: request)
-                                                            viewModel.sendAnalyticsEvent(.userAttemptToSellCrypto)
                                                          }
                                                          ]),
                            isActive: $navigation.mainToSellCrypto)
