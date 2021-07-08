@@ -25,6 +25,9 @@ class Analytics {
         case wcInvalidRequest = "wallet_connect_invalid_request"
         case wcNewSession = "wallet_connect_new_session"
         case wcSessionDisconnected = "wallet_connect_session_disconnected"
+        case userBoughtCrypto = "user_bought_crypto"
+        case userAttemptToSellCrypto = "user_attempt_sell_crypto"
+        case userSoldCrypto = "user_sold_crypto"
         
         fileprivate static var nfcError: String {
             "nfc_error"
@@ -56,10 +59,11 @@ class Analytics {
         case walletConnectAction = "wallet_connect_action"
         case walletConnectRequest = "wallet_connect_request"
         case walletConnectDappUrl = "wallet_connect_dapp_url"
+        case currencyCode = "currency_code"
     }
     
-    static func log(event: Event, parameters: [String: Any]? = nil) {
-        FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: parameters)
+    static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
+        FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: params?.firebaseParams)
     }
     
     static func logScan(card: Card) {
