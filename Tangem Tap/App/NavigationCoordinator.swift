@@ -99,6 +99,8 @@ class NavigationCoordinator: ObservableObject {
         mainToAddTokens = false
         mainToTroubleshootingScan = false
         mainToWalletConnectQR = false
+        mainToTradeSheet = false
+        mainToSellCrypto = false
         
         // MARK: SendView
         sendToQR = false
