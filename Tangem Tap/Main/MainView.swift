@@ -196,7 +196,10 @@ struct MainView: View {
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
                                                          title: "wallet_button_topup",
                                                          addLoadingIndicator: true,
-                                                         urlActions: [ viewModel.buyCryptoCloseUrl : { _ in navigation.mainToBuyCrypto = false }
+                                                         urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
+                                                            navigation.mainToBuyCrypto = false
+                                                            viewModel.sendAnalyticsEvent(.userBoughtCrypto)
+                                                         }
                                                          ]),
                            isActive: $navigation.mainToBuyCrypto)
             
@@ -205,6 +208,7 @@ struct MainView: View {
                                                          addLoadingIndicator: true,
                                                          urlActions: [ viewModel.sellCryptoCloseUrl : { request in
                                                             viewModel.extractSellCryptoRequest(from: request)
+                                                            viewModel.sendAnalyticsEvent(.userAttemptToSellCrypto)
                                                          }
                                                          ]),
                            isActive: $navigation.mainToSellCrypto)
