@@ -38,6 +38,7 @@ class ServicesAssembly {
         walletConnectService
     ]
     
+    lazy var exchangeService: ExchangeService = MoonPayService(keys: keysManager.moonPayKeys)
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
@@ -66,7 +67,7 @@ class ServicesAssembly {
                                    initialMessage: Message(header: nil,
                                                            body: "initial_message_sign_header".localized))
         signer.delegate = cardsRepository
-        TestnetTopupService.signer = signer
+        TestnetBuyCryptoService.signer = signer
         return signer
     }()
     
@@ -84,7 +85,6 @@ class ServicesAssembly {
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
-    lazy var topupService: TopupService = .init(keys: keysManager.moonPayKeys)
     private let configManager = try! FeaturesConfigManager()
     #endif
 
@@ -196,7 +196,7 @@ class Assembly: ObservableObject {
         initialize(vm)
         vm.cardsRepository = services.cardsRepository
         vm.imageLoaderService = services.imageLoaderService
-        vm.topupService = services.topupService
+        vm.exchangeService = services.exchangeService
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
         vm.rateAppController = services.rateAppService
@@ -222,7 +222,7 @@ class Assembly: ObservableObject {
         if let cardModel = services.cardsRepository.lastScanResult.cardModel {
             vm.card = cardModel
         }
-        vm.topupService = services.topupService
+        vm.exchangeService = services.exchangeService
         return vm
     }
     
@@ -457,15 +457,27 @@ class Assembly: ObservableObject {
             return restored
         }
         
+        let vm: SendViewModel = SendViewModel(amountToSend: amount,
+                                              blockchain: blockchain,
+                                              cardViewModel: card,
+                                              signer: services.signer,
+                                              warningsManager: services.warningsService)
+        prepareSendViewModel(vm)
+        return vm
+    }
+    
+    func makeSellCryptoSendViewModel(with amount: Amount, destination: String, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
+        if let restored: SendViewModel = get() {
+            return restored
+        }
+        
         let vm = SendViewModel(amountToSend: amount,
+                               destination: destination,
                                blockchain: blockchain,
                                cardViewModel: card,
                                signer: services.signer,
                                warningsManager: services.warningsService)
-        initialize(vm)
-        vm.ratesService = services.ratesService
-        vm.featuresService = services.featuresService
-        vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
+        prepareSendViewModel(vm)
         return vm
     }
     
@@ -527,17 +539,6 @@ class Assembly: ObservableObject {
         vm.walletConnectController = services.walletConnectService
         return vm
     }
-
-    public func reset() {
-        var persistentKeys = [String]()
-        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
-        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
-        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
-        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
-        
-        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
-        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
-    }
     
     private func initialize<V: ViewModel>(_ vm: V) {
         vm.navigation = services.navigationCoordinator
@@ -560,6 +561,24 @@ class Assembly: ObservableObject {
     private func get<T>() -> T? {
         let key = String(describing: type(of: T.self))
         return get(key: key)
+    }
+    
+    public func reset() {
+        var persistentKeys = [String]()
+        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
+        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
+        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
+        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
+        
+        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
+        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
+    }
+    
+    private func prepareSendViewModel(_ vm: SendViewModel) {
+        initialize(vm)
+        vm.ratesService = services.ratesService
+        vm.featuresService = services.featuresService
+        vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
     }
     
     #else
@@ -605,6 +624,7 @@ class Assembly: ObservableObject {
             mainModel?.updateCardBatch(batch, fullLink: fullLink)
         }
     
+    
     private func get<T>(key: String) -> T? {
         let val = modelsStorage[key]
         return val as? T
@@ -617,10 +637,6 @@ class Assembly: ObservableObject {
     
     #endif
     
-    public func reset(key: String) {
-        modelsStorage.removeValue(forKey: key)
-    }
-    
     // MARK: - Private funcs
 
     private func store<T>(_ object: T ) {
@@ -632,6 +648,10 @@ class Assembly: ObservableObject {
 		//print(key)
 		modelsStorage[key] = object
 	}
+    
+    public func reset(key: String) {
+        modelsStorage.removeValue(forKey: key)
+    }
 }
 
 #if !CLIP
