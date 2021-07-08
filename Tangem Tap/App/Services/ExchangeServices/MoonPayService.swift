@@ -74,7 +74,6 @@ class MoonPayService {
         URLSession.shared.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!)
             .sink { _ in } receiveValue: { (data, response) in
                 let decoder = JSONDecoder()
-                print("Check IP response data: \(String(data: data, encoding: .utf8) ?? "unknown")")
                 do {
                     let decodedResponse = try decoder.decode(IpCheckResponse.self, from: data)
                     self.canBuyCrypto = decodedResponse.isBuyAllowed
@@ -152,7 +151,7 @@ extension MoonPayService: ExchangeService {
         return url
     }
     
-    func extractSellCryptoTxInfo(from data: String) -> SellCryptoRequest? {
+    func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
         guard
             data.starts(with: sellRequestUrl),
             let url = URL(string: data),
