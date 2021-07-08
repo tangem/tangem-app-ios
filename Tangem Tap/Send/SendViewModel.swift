@@ -57,15 +57,15 @@ class SendViewModel: ViewModel {
     
     // MARK: UI
     var shoudShowFeeSelector: Bool {
-        return walletModel.txSender.allowsFeeSelection
+        walletModel.txSender.allowsFeeSelection
     }
     
     var shoudShowFeeIncludeSelector: Bool {
-        return amountToSend.type == .coin
+        amountToSend.type == .coin && !isSellingCrypto
     }
     
     var shouldShowNetworkBlock: Bool  {
-        return shoudShowFeeSelector || shoudShowFeeIncludeSelector
+        shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
 
     var isPayIdSupported: Bool {
@@ -112,6 +112,7 @@ class SendViewModel: ViewModel {
     @Published var sendError: AlertBinder?
     
     var signer: TransactionSigner
+    
     var cardViewModel: CardViewModel {
         didSet {
             cardViewModel
@@ -159,6 +160,8 @@ class SendViewModel: ViewModel {
     @Published private var amountValidated: Bool = false
     @Published private(set) var amountToSend: Amount
     
+    private(set) var isSellingCrypto: Bool
+    
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
     private var blockchain: Blockchain
@@ -169,6 +172,7 @@ class SendViewModel: ViewModel {
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
+        isSellingCrypto = false
         let feeDummyAmount = Amount(with: walletModel.wallet.blockchain,
                                     type: .coin,
                                     value: 0)
@@ -177,6 +181,16 @@ class SendViewModel: ViewModel {
         fillTotalBlockWithDefaults()
         bind()
         setupWarnings()
+    }
+    
+    convenience init(amountToSend: Amount, destination: String, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
+        self.init(amountToSend: amountToSend, blockchain: blockchain, cardViewModel: cardViewModel, signer: signer, warningsManager: warningsManager)
+        isSellingCrypto = true
+        self.destination = destination
+        canFiatCalculation = false
+        sendAmount = amountToSend.value.description
+        amountText = sendAmount
+
     }
     
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
@@ -595,7 +609,11 @@ class SendViewModel: ViewModel {
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-                    Analytics.logTx(blockchainName: walletModel.wallet.blockchain.displayName)
+                    if self.isSellingCrypto {
+                        Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchain.currencySymbol])
+                    } else {
+                        Analytics.logTx(blockchainName: self.blockchain.displayName)
+                    }
                     callback()
                 }
                 

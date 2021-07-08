@@ -47,7 +47,7 @@ extension Blockchain: Identifiable {
         }
     }
     
-    var testnetTopupLink: String? {
+    var testnetBuyCryptoLink: String? {
         guard isTestnet else { return nil }
         
         switch self {
