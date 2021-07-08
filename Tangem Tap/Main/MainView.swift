@@ -155,7 +155,7 @@ struct MainView: View {
         if viewModel.canSellCrypto {
             TangemVerticalButton(isLoading: false,
                                  title: "wallet_button_trade",
-                                 image: "arrow.up.arrow.down") {
+                                 image: "arrow.up.down.wide") {
                 navigation.mainToTradeSheet = true
             }
             .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
