@@ -80,7 +80,6 @@ struct TokenDetailsView: View {
                                                          urlActions: [
                                                             viewModel.sellCryptoRequestUrl: { response in
                                                                 viewModel.processSellCryptoRequest(response)
-                                                                viewModel.sendAnalyticsEvent(.userAttemptToSellCrypto)
                                                             }
                                                          ]),
                            isActive: $navigation.detailsToSellCrypto)
