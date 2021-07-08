@@ -31,7 +31,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToSend = false
     @Published var mainToSendChoise = false
     @Published var mainToCreatePayID = false
-    @Published var mainToTopup = false
+    @Published var mainToBuyCrypto = false
     @Published var mainToTwinOnboarding = false
     @Published var mainToTwinsWalletWarning = false
     @Published var mainToQR = false
@@ -39,6 +39,8 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToAddTokens: Bool = false
     @Published var mainToTroubleshootingScan = false
     @Published var mainToWalletConnectQR: Bool = false
+    @Published var mainToTradeSheet: Bool = false
+    @Published var mainToSellCrypto: Bool = false
     
     // MARK: SendView
     @Published var sendToQR = false
@@ -62,8 +64,9 @@ class NavigationCoordinator: ObservableObject {
     @Published var addNewTokensToCreateCustomToken = false
     
     // MARK: TokenDetailsView
-    @Published var detailsToTopup = false
+    @Published var detailsToBuyCrypto = false
     @Published var detailsToSend = false
+    @Published var detailsToSellCrypto = false
     
     // MARK: WalletConnectView
     @Published var walletConnectToQR = false
@@ -88,7 +91,7 @@ class NavigationCoordinator: ObservableObject {
         mainToSend = false
         mainToSendChoise = false
         mainToCreatePayID = false
-        mainToTopup = false
+        mainToBuyCrypto = false
         mainToTwinOnboarding = false
         mainToTwinsWalletWarning = false
         mainToQR = false
@@ -96,10 +99,15 @@ class NavigationCoordinator: ObservableObject {
         mainToAddTokens = false
         mainToTroubleshootingScan = false
         mainToWalletConnectQR = false
+        mainToTradeSheet = false
+        mainToSellCrypto = false
         
         // MARK: SendView
         sendToQR = false
         sendToSendEmail = false
+        
+        // MARK: PushView
+        pushToSendEmail = false
         
         // MARK: TwinCardOnboardingView
         twinOnboardingToTwinWalletCreation = false
@@ -116,8 +124,9 @@ class NavigationCoordinator: ObservableObject {
         addNewTokensToCreateCustomToken = false
         
         // MARK: TokenDetailsView
-        detailsToTopup = false
+        detailsToBuyCrypto = false
         detailsToSend = false
+        detailsToSellCrypto = false
         
         // MARK: WalletConnectView
         walletConnectToQR = false
