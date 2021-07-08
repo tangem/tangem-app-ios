@@ -134,7 +134,7 @@ extension MoonPayService: ExchangeService {
         
         var components = URLComponents()
         components.scheme = "https"
-        components.host = "sell-staging.moonpay.com"
+        components.host = "sell.moonpay.com"
         
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(key: .apiKey, value: keys.apiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
