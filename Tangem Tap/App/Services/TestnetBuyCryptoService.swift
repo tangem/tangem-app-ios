@@ -11,8 +11,8 @@ import BlockchainSdk
 import Combine
 import UIKit
 
-class TestnetTopupService {
-    enum TopupTarget {
+class TestnetBuyCryptoService {
+    enum CryptoToBuy {
         case erc20Token(walletManager: WalletManager, token: Token)
     }
     
@@ -20,14 +20,14 @@ class TestnetTopupService {
     
     private static var bag: Set<AnyCancellable> = []
     
-    static func topup(_ target: TopupTarget) {
+    static func buyCrypto(_ target: CryptoToBuy) {
         switch target {
         case let .erc20Token(walletManager, token):
-            topupErc20Token(walletManager: walletManager, token: token)
+            buyErc20Token(walletManager: walletManager, token: token)
         }
     }
     
-    private static func topupErc20Token(walletManager: WalletManager, token: Token) {
+    private static func buyErc20Token(walletManager: WalletManager, token: Token) {
         guard let transactionSender = walletManager as? TransactionSender else {
             return
         }
