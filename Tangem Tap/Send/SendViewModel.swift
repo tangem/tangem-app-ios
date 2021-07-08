@@ -609,7 +609,11 @@ class SendViewModel: ViewModel {
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-                    Analytics.logTx(blockchainName: self.cardViewModel.cardInfo.card.cardData?.blockchainName)
+                    if self.isSellingCrypto {
+                        Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchain.currencySymbol])
+                    } else {
+                        Analytics.logTx(blockchainName: self.blockchain.displayName)
+                    }
                     callback()
                 }
                 
