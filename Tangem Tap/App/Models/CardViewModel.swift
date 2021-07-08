@@ -59,18 +59,18 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canSetAccessCode: Bool {
-        return cardInfo.card.settings.isAllowSetAccessCode
+        return cardInfo.card.settings.isSettingAccessCodeAllowed
             && featuresService.canSetAccessCode
     }
     
     var canSetPasscode: Bool {
-        return cardInfo.card.settings.isAllowSetPasscode
-            && !cardInfo.card.settings.isProhibitDefaultAccessCode
+        return cardInfo.card.settings.isSettingPasscodeAllowed
+            && !cardInfo.card.settings.isRemovingAccessCodeAllowed
             && featuresService.canSetPasscode
     }
     
     var canSetLongTap: Bool {
-        return cardInfo.card.settings.isAllowSetPasscode
+        return cardInfo.card.settings.isSettingPasscodeAllowed
     }
     
     var canSign: Bool {
