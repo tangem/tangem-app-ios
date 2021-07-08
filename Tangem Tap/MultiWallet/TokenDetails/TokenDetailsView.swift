@@ -69,6 +69,7 @@ struct TokenDetailsView: View {
                                                          urlActions: [
                                                             viewModel.buyCryptoCloseUrl: { _ in
                                                                 navigation.detailsToBuyCrypto = false
+                                                                viewModel.sendAnalyticsEvent(.userBoughtCrypto)
                                                             }
                                                          ]),
                            isActive: $navigation.detailsToBuyCrypto)
@@ -79,6 +80,7 @@ struct TokenDetailsView: View {
                                                          urlActions: [
                                                             viewModel.sellCryptoRequestUrl: { response in
                                                                 viewModel.processSellCryptoRequest(response)
+                                                                viewModel.sendAnalyticsEvent(.userAttemptToSellCrypto)
                                                             }
                                                          ]),
                            isActive: $navigation.detailsToSellCrypto)
