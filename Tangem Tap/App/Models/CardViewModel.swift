@@ -185,7 +185,7 @@ class CardViewModel: Identifiable, ObservableObject {
 		return true
 	}
     
-    var canTopup: Bool { featuresService.canTopup }
+    var canExchangeCrypto: Bool { featuresService.canExchangeCrypto }
     
     var isTestnet: Bool { cardInfo.card.isTestnet }
     
