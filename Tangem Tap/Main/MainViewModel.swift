@@ -108,6 +108,10 @@ class MainViewModel: ViewModel {
         cardModel?.wallets
     }
     
+    var currenyCode: String {
+        wallets?.first?.blockchain.currencySymbol ?? .unknown
+    }
+    
     var canBuyCrypto: Bool {
         cardModel?.canExchangeCrypto ?? false && buyCryptoURL != nil
     }
@@ -499,12 +503,22 @@ class MainViewModel: ViewModel {
         }
         
         sellCryptoRequest = request
+        resetViewModel(of: SendViewModel.self)
         navigation.mainToSend = true
     }
     
     func pushOutgoingTx(at index: Int) {
-        assembly.reset(key: String(describing: PushTxViewModel.self))
+        resetViewModel(of: PushTxViewModel.self)
         txIndexToPush = index
+    }
+    
+    func sendAnalyticsEvent(_ event: Analytics.Event) {
+        switch event {
+        case .userBoughtCrypto, .userAttemptToSellCrypto:
+            Analytics.log(event: event, with: [.currencyCode: currenyCode])
+        default:
+            break
+        }
     }
 
     // MARK: - Private functions
@@ -597,6 +611,10 @@ class MainViewModel: ViewModel {
 
         self.error = error
         return
+    }
+    
+    private func resetViewModel<T>(of typeToReset: T) {
+        assembly.reset(key: String(describing: type(of: typeToReset)))
     }
 }
 
