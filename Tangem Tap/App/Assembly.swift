@@ -654,7 +654,6 @@ class Assembly: ObservableObject {
     }
 }
 
-#if !CLIP
 extension Assembly {
     enum PreviewCard {
         case withoutWallet, twin, ethereum, stellar, v4
@@ -707,8 +706,9 @@ extension Assembly {
         services.cardsRepository.lastScanResult.cardModel!
     }
     
+    #if !CLIP
     var previewBlockchain: Blockchain {
         previewCardViewModel.wallets!.first!.blockchain
     }
+    #endif
 }
-#endif
