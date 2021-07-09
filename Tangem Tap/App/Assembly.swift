@@ -700,7 +700,7 @@ extension Assembly {
     }
     
     static var previewAssembly: Assembly {
-        .previewAssembly(for: .twin)
+        .previewAssembly(for: .v4)
     }
     
     var previewCardViewModel: CardViewModel {
