@@ -55,6 +55,7 @@
 		5D3F77E824BF56DC00E8695B /* Tangem_TapUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77E724BF56DC00E8695B /* Tangem_TapUITests.swift */; };
 		5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D43E2D62514D5B700697E5B /* CardOperationView.swift */; };
 		5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5332B025F9091900D32CA5 /* TokenItem.swift */; };
+		5D549FCB2698A5DD00CE763A /* Card+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499924E554140037E76F /* Card+Preview.swift */; };
 		5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D559BCB25406BB40009E0F6 /* AppFeaturesService.swift */; };
 		5D5CE1A82625FF00009023EC /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A62625FF00009023EC /* config_dev.json */; };
 		5D5CE1A92625FF00009023EC /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A72625FF00009023EC /* config_prod.json */; };
@@ -3796,6 +3797,7 @@
 				B066B1F7262D6B1100EB85A5 /* BlockcypherNetworkProvider.swift in Sources */,
 				B066B176262D6B1100EB85A5 /* SigHashType.swift in Sources */,
 				B066B17E262D6B1100EB85A5 /* BigNum.swift in Sources */,
+				5D549FCB2698A5DD00CE763A /* Card+Preview.swift in Sources */,
 				B066B45E262D6EFA00EB85A5 /* VersionByte.swift in Sources */,
 				B066B1D6262D6B1100EB85A5 /* OP_NOP.swift in Sources */,
 				B066B457262D6EFA00EB85A5 /* Array+Foundation.swift in Sources */,
