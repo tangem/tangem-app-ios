@@ -80,8 +80,8 @@ struct MainView: View {
     
 }
 
-//struct MainView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        MainView(viewModel: Assembly.previewAssembly.getMainViewModel())
-//    }
-//}
+struct MainView_Previews: PreviewProvider {
+    static var previews: some View {
+        MainView(viewModel: Assembly.previewAssembly.getMainViewModel())
+    }
+}
