@@ -280,11 +280,11 @@ class CardViewModel: Identifiable, ObservableObject {
     
     // MARK: - Security
     
-    func checkPin(_ completion: @escaping (Result<CheckPinResponse, Error>) -> Void) {
-        tangemSdk.startSession(with: CheckPinCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
+    func checkPin(_ completion: @escaping (Result<CheckUserCodesResponse, Error>) -> Void) {
+        tangemSdk.startSession(with: CheckUserCodesCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
             switch result {
             case .success(let resp):
-                self?.cardPinSettings = CardPinSettings(isPin1Default: resp.isPin1Default, isPin2Default: resp.isPin2Default)
+                self?.cardPinSettings = CardPinSettings(isPin1Default: !resp.isAccessCodeSet, isPin2Default: !resp.isPasscodeSet)
                 self?.updateCurrentSecOption()
                 completion(.success(resp))
             case .failure(let error):
@@ -296,7 +296,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func changeSecOption(_ option: SecurityManagementOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
-            tangemSdk.startSession(with: SetPinCommand(accessCode: .request, passcode: .none),
+            tangemSdk.startSession(with: SetUserCodeCommand(accessCode: nil),
                                    cardId: cardInfo.card.cardId,
                                    initialMessage: Message(header: nil, body: "initial_message_change_access_code_body".localized)) {[weak self] result in
                 guard let self = self else { return }
@@ -313,7 +313,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
         case .longTap:
-            tangemSdk.startSession(with: SetPinCommand(accessCode: .none, passcode: .none),
+            tangemSdk.startSession(with: SetUserCodeCommand.resetUserCodes,
                                    cardId: cardInfo.card.cardId) {[weak self] result in
                 guard let self = self else { return }
                 
@@ -329,7 +329,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
         case .passCode:
-            tangemSdk.startSession(with: SetPinCommand(accessCode: .none, passcode: .request),
+            tangemSdk.startSession(with: SetUserCodeCommand(passcode: nil),
                                    cardId: cardInfo.card.cardId,
                                    initialMessage: Message(header: nil, body: "initial_message_change_passcode_body".localized)) {[weak self] result in
                 guard let self = self else { return }
@@ -351,25 +351,21 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
     
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
-        fatalError()
-//        guard let cid = cardInfo.card.cardId else {
-//            completion(.failure(TangemSdkError.unsupportedCommand))
-//            return
-//        }
-//
-//        tangemSdk.startSession(with: CreateWalletAndReadTask(),
-//                               cardId: cid,
-//                               initialMessage: Message(header: nil,
-//                                                       body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
-//            switch result {
-//            case .success(let card):
-//                self.update(with: card)
-//                completion(.success(()))
-//            case .failure(let error):
-//                Analytics.logCardSdkError(error, for: .createWallet, card: cardInfo.card)
-//                completion(.failure(error))
-//            }
-//        }
+        let cid = cardInfo.card.cardId
+
+        tangemSdk.startSession(with: CreateWalletAndReadTask(),
+                               cardId: cid,
+                               initialMessage: Message(header: nil,
+                                                       body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
+            switch result {
+            case .success(let card):
+                self.update(with: card)
+                completion(.success(()))
+            case .failure(let error):
+                Analytics.logCardSdkError(error, for: .createWallet, card: cardInfo.card)
+                completion(.failure(error))
+            }
+        }
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void) {
@@ -541,7 +537,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    func addToken(_ token: Token, blockchain: Blockchain, completion: @escaping (Result<Token, Error>) -> Void) {
+    func addToken(_ token: BlockchainSdk.Token, blockchain: Blockchain, completion: @escaping (Result<BlockchainSdk.Token, Error>) -> Void) {
         let walletModel: WalletModel? = tokenWalletModels[blockchain] ?? addBlockchain(blockchain)
         if tokenWalletModels[blockchain] == nil, let model = walletModel {
             tokenWalletModels[blockchain] = model
