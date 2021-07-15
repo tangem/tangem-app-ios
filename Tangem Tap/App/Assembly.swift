@@ -279,7 +279,7 @@ class Assembly: ObservableObject {
     }
     
     //Make walletModel from walletManager
-    private func makeWalletModels(walletManagers: [WalletManager], cardToken: Token?) -> [WalletModel] {
+    private func makeWalletModels(walletManagers: [WalletManager], cardToken: BlockchainSdk.Token?) -> [WalletModel] {
         return walletManagers.map { manager -> WalletModel in
             let model = WalletModel(walletManager: manager, defaultToken: cardToken)
             model.tokenItemsRepository = services.tokenItemsRepository
