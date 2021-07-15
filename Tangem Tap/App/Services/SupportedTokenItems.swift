@@ -8,7 +8,8 @@
 
 import Foundation
 #if !CLIP
-import BlockchainSdk
+import struct BlockchainSdk.Token
+import enum BlockchainSdk.Blockchain
 #endif
 import TangemSdk
 
