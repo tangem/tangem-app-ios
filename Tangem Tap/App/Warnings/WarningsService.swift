@@ -64,7 +64,7 @@ class WarningsService {
             container.add(WarningEvent.rateApp.warning)
         }
         
-        let remoteWarnings = self.remoteWarnings(for: cardInfo.card, location: .main)
+        let remoteWarnings = self.remoteWarnings(for: cardInfo, location: .main)
         container.add(remoteWarnings)
         
         return container
@@ -76,23 +76,21 @@ class WarningsService {
         addTestnetCardWarningIfNeeded(in: container, for: cardInfo)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: cardInfo.card)
         
-        let remoteWarnings = self.remoteWarnings(for: cardInfo.card, location: .send)
+        let remoteWarnings = self.remoteWarnings(for: cardInfo, location: .send)
         container.add(remoteWarnings)
         
         return container
     }
     
-    private func remoteWarnings(for card: Card, location: WarningsLocation) -> [TapWarning] {
-        return []
-        //[REDACTED_TODO_COMMENT]
-//        let remoteWarnings = remoteWarningProvider.warnings
-//        let mainRemoteWarnings = remoteWarnings.filter { $0.location.contains { $0 == location } }
-//
-//        let cardRemoteWarnings = mainRemoteWarnings.filter {
-//            $0.blockchains == nil ||
-//            $0.blockchains?.contains { $0.lowercased() == (card.cardData?.blockchainName ?? "").lowercased() } ?? false
-//        }
-//        return cardRemoteWarnings
+    private func remoteWarnings(for cardInfo: CardInfo, location: WarningsLocation) -> [TapWarning] {
+        let remoteWarnings = remoteWarningProvider.warnings
+        let mainRemoteWarnings = remoteWarnings.filter { $0.location.contains { $0 == location } }
+
+        let cardRemoteWarnings = mainRemoteWarnings.filter {
+            $0.blockchains == nil ||
+                $0.blockchains?.contains { $0.lowercased() == (cardInfo.walletData?.blockchain ?? "").lowercased() } ?? false
+        }
+        return cardRemoteWarnings
     }
     
     private func addDevCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
