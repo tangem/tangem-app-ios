@@ -182,13 +182,13 @@ class MainViewModel: ViewModel {
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
             .sorted(by: { lhs, rhs in
-                if lhs.blockchain == cardModel.cardInfo.card.defaultBlockchain && rhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
+                if lhs.blockchain == cardModel.cardInfo.defaultBlockchain && rhs.blockchain == cardModel.cardInfo.defaultBlockchain {
                     if lhs.amountType.isToken && rhs.amountType.isToken {
-                        if lhs.amountType.token == cardModel.cardInfo.card.defaultToken {
+                        if lhs.amountType.token == cardModel.cardInfo.defaultToken {
                             return true
                         }
 
-                        if rhs.amountType.token == cardModel.cardInfo.card.defaultToken {
+                        if rhs.amountType.token == cardModel.cardInfo.defaultToken {
                             return false
                         }
                     }
@@ -202,11 +202,11 @@ class MainViewModel: ViewModel {
                     }
                 }
 
-                if lhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
+                if lhs.blockchain == cardModel.cardInfo.defaultBlockchain {
                    return true
                 }
 
-                if rhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
+                if rhs.blockchain == cardModel.cardInfo.defaultBlockchain {
                     return false
                 }
 
@@ -473,11 +473,11 @@ class MainViewModel: ViewModel {
     }
     
     func buyCryptoAction() {
-        guard let card = cardModel?.cardInfo.card else { return }
+        guard let cardInfo = cardModel?.cardInfo else { return }
         
         guard
-            card.isTestnet,
-            !card.isMultiWallet,
+            cardInfo.isTestnet,
+            !cardInfo.card.isMultiWallet,
             let walletModel = cardModel?.walletModels?.first,
             let token = walletModel.tokenItemViewModels.first?.amountType.token,
             case .ethereum(testnet: true) = token.blockchain
