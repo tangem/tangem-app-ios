@@ -99,10 +99,6 @@ class CardViewModel: Identifiable, ObservableObject {
             return nil
         }
         
-        if card.isNotReusableLegacyWallet || card.firmwareVersion >= .multiwalletAvailable {
-            return "details_notification_not_reusable_wallet".localized
-        }
-        
         if !canPurgeWallet {
             return "details_notification_erase_wallet_not_possible".localized
         }
@@ -121,10 +117,6 @@ class CardViewModel: Identifiable, ObservableObject {
         
         
         if cardInfo.card.settings.isPermanentWallet {
-            return false
-        }
-        
-        if cardInfo.card.isNotReusableLegacyWallet {
             return false
         }
         
@@ -187,7 +179,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canExchangeCrypto: Bool { featuresService.canExchangeCrypto }
     
-    var isTestnet: Bool { cardInfo.card.isTestnet }
+    var isTestnet: Bool { cardInfo.isTestnet }
     
     private lazy var tokenWalletModels: [Blockchain: WalletModel] = {
         Dictionary((walletModels?.filter {
@@ -275,7 +267,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func onSign(_ card: Card) {
         cardInfo.card = card
-        warningsConfigurator.setupWarnings(for: cardInfo.card)
+        warningsConfigurator.setupWarnings(for: cardInfo)
     }
     
     // MARK: - Security
@@ -441,7 +433,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     private func updateModel() {
         print("🔶 Updating Card view model")
-        warningsConfigurator.setupWarnings(for: cardInfo.card)
+        warningsConfigurator.setupWarnings(for: cardInfo)
         updateState()
     }
     
@@ -472,7 +464,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let unusedBlockhains = tokenItemsRepository.supportedItems.blockchains(for: cardInfo.card).subtracting(currentBlockhains).map { $0 }
+        let unusedBlockhains = tokenItemsRepository.supportedItems.blockchains(for: cardInfo).subtracting(currentBlockhains).map { $0 }
         let models = assembly.makeWallets(from: cardInfo, blockchains: unusedBlockhains)
         if models.isEmpty {
             return
@@ -514,7 +506,7 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success(let tokensAdded):
                 if tokensAdded {
                     var tokens = ethWalletModel!.walletManager.cardTokens
-                    if let defaultToken = self.cardInfo.card.defaultToken {
+                    if let defaultToken = self.cardInfo.defaultToken {
                         tokens = tokens.filter { $0 != defaultToken }
                     }
                     let tokenItems = tokens.map { TokenItem.token($0) }
@@ -579,7 +571,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func canRemoveBlockchain(_ blockchain: Blockchain) -> Bool {
-        if let defaultBlockchain = cardInfo.card.defaultBlockchain,
+        if let defaultBlockchain = cardInfo.defaultBlockchain,
            defaultBlockchain == blockchain {
             return false
         }
