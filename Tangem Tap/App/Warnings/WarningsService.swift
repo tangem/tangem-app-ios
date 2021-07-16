@@ -112,7 +112,7 @@ class WarningsService {
             return
         }
         
-        guard NfcUtils.isPoorNfcQualityDevice else { //old phone
+        guard NFCUtils.isPoorNfcQualityDevice else { //old phone
             return
         }
         
