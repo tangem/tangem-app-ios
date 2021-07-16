@@ -13,8 +13,8 @@ import BlockchainSdk
 enum SendAdditionalFields {
     case memo, destinationTag, none
     
-    static func fields(for card: Card) -> SendAdditionalFields {
-        guard let blockchain = card.defaultBlockchain else { return .none }
+    static func fields(for cardInfo: CardInfo) -> SendAdditionalFields {
+        guard let blockchain = cardInfo.defaultBlockchain else { return .none }
         
         switch blockchain {
         case .stellar:
