@@ -9,28 +9,24 @@
 import Foundation
 import TangemSdk
 
-enum ScanError: Error {
-    case wrongState
-}
-
-struct TapScanTaskResponse: JSONStringConvertible {
+struct TapScanTaskResponse {
     let card: Card
-    let twinIssuerData: Data
+    let walletData: WalletData?
+    let twinIssuerData: Data?
     
-    internal init(card: Card, twinIssuerData: Data = Data()) {
-        self.card = card
-        self.twinIssuerData = twinIssuerData
+    func getCardInfo() -> CardInfo {
+        return CardInfo(card: card,
+                        walletData: walletData,
+                        artworkInfo: nil,
+                        twinCardInfo: decodeTwinFile(from: self))
     }
-}
-
-extension TapScanTaskResponse {
+    
     private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
-        guard card.isTwinCard else {
+        guard let fullData = twinIssuerData else {
             return nil
         }
         
         var pairPublicKey: Data?
-        let fullData = twinIssuerData
         if let walletPubKey = card.wallets.first?.publicKey, fullData.count == 129 {
             let pairPubKey = fullData[0..<65]
             let signature = fullData[65..<fullData.count]
@@ -44,14 +40,8 @@ extension TapScanTaskResponse {
                             pairCid: TwinCardsUtils.makePairCid(for: response.card.cardId),
                             pairPublicKey: pairPublicKey)
     }
-    
-    func getCardInfo() -> CardInfo {
-        let cardInfo = CardInfo(card: card,
-                                artworkInfo: nil,
-                                twinCardInfo: decodeTwinFile(from: self))
-        return cardInfo
-    }
 }
+
 //todo: add missing wallets
 final class TapScanTask: CardSessionRunnable {
     deinit {
@@ -127,7 +117,7 @@ final class TapScanTask: CardSessionRunnable {
     
     private func readTwinIssuerDataIfNeeded(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         guard card.isTwinCard else {
-            completion(.success(TapScanTaskResponse(card: card)))
+            completion(.success(TapScanTaskResponse(card: card, walletData: session.environment.walletData, twinIssuerData: nil)))
             return
         }
         
@@ -135,7 +125,7 @@ final class TapScanTask: CardSessionRunnable {
         readIssuerDataCommand.run(in: session) { (result) in
             switch result {
             case .success(let response):
-                completion(.success(TapScanTaskResponse(card: card, twinIssuerData: response.issuerData)))
+                completion(.success(TapScanTaskResponse(card: card, walletData: session.environment.walletData, twinIssuerData: response.issuerData)))
             case .failure(let error):
                 completion(.failure(error))
             }

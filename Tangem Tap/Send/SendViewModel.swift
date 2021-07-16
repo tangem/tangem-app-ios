@@ -78,7 +78,7 @@ class SendViewModel: ViewModel {
     }
     
     var additionalInputFields: SendAdditionalFields {
-        .fields(for: cardViewModel.cardInfo.card)
+        .fields(for: cardViewModel.cardInfo)
     }
     
     var inputDecimalsCount: Int? {

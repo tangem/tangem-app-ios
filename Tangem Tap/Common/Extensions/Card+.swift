@@ -13,49 +13,6 @@ import struct BlockchainSdk.Token
 import enum BlockchainSdk.Blockchain
 #endif
 
-struct LegacyCardData {
-    let isReusable: Bool
-    let isTwin: Bool
-    
-    let blockchainName: String
-    
-    let tokenSymbol: String?
-    let tokenContractAddress: String?
-    let tokenDecimal: Int?
-}
-
-fileprivate struct ProductionInfo {
-    static let shared = ProductionInfo()
-    
-    //all twins productMask
-    //all cards with permanent wallet
-    //all !isreusable cards
-    
-    //blockchainName and curve?
-    //tokenSymbol
-    //tokenContractAddress
-    //tokenDecimal
-    
-    //All batches of:
-    //productmask != note and twin
-    
-    func isTwinCard(_ batchId: String) -> Bool {
-       return false
-    }
-    
-    func defaultToken(_ batchId: String) -> Token? {
-       return nil
-    }
-    
-    func defaultBlockchain(_ batchId: String) -> Blockchain? {
-       return nil
-    }
-    
-    func isV3WithNotReusableWallet(_ batchId: String) -> Bool {
-       return false
-    }
-}
-
 extension Card {
     var canSign: Bool {
 //        let isPin2Default = self.isPin2Default ?? true
@@ -73,7 +30,7 @@ extension Card {
     }
     
     var isTwinCard: Bool {
-        ProductionInfo.shared.isTwinCard(batchId)
+        batchId == "0073" || batchId == "0074"
     }
     
     
@@ -111,44 +68,8 @@ extension Card {
         return false
     }
     
-    var isNotReusableLegacyWallet: Bool {
-        if firmwareVersion < .multiwalletAvailable {
-            return ProductionInfo.shared.isV3WithNotReusableWallet(batchId)
-        }
-        
-        return false
-    }
-    
     var walletSignedHashes: Int {
         wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
-    }
-    
-    public var isTestnet: Bool {
-        if firmwareVersion < .multiwalletAvailable {
-            return ProductionInfo.shared.defaultBlockchain(batchId)?.isTestnet ?? false
-        }
-        
-        if batchId == "99FF" { //[REDACTED_TODO_COMMENT]
-            return cardId.starts(with: batchId.reversed())
-        }
-       
-        return false
-    }
-    
-    public var defaultBlockchain: Blockchain? {
-        if firmwareVersion < .multiwalletAvailable {
-            return nil
-        }
-        
-        return ProductionInfo.shared.defaultBlockchain(batchId)
-    }
-    
-    public var defaultToken: Token? {
-        if firmwareVersion < .multiwalletAvailable {
-            return nil
-        }
-        
-        return ProductionInfo.shared.defaultToken(batchId)
     }
     
     public var walletCurves: [EllipticCurve] {
