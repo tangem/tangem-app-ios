@@ -25,7 +25,7 @@ class CreateWalletAndReadTask: CardSessionRunnable {
             case .failure(let error):
                 completion(.failure(error))
             case .success:
-                self.scanCard(session: session, completion: completion)
+                completion(.success(session.environment.card!))
             }
         }
     }
@@ -47,13 +47,8 @@ class CreateWalletAndReadTask: CardSessionRunnable {
             case .failure(let error):
                 completion(.failure(error))
             case .success:
-                 self.scanCard(session: session, completion: completion)
+                completion(.success(session.environment.card!))
             }
         }
-    }
-
-    private func scanCard(session: CardSession, completion: @escaping CompletionResult<Card>) {
-        let scanTask = PreflightReadTask(readMode: .fullCardRead, cardId: nil)
-        scanTask.run(in: session, completion: completion)
     }
 }
