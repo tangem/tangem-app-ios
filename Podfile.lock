@@ -284,7 +284,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
-    :commit: 98dddc280ca2b8873435499e7122ae655c518dad
+    :commit: 409c1004d60e8d6b58216e7b10d881b1a5ac6718
     :git: https://github.com/Tangem/tangem-sdk-ios.git
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
