@@ -132,7 +132,7 @@ extension ServicesAssembly: CardsRepositoryDelegate {
     func onDidScan(_ cardInfo: CardInfo) {
         #if !CLIP
         featuresService.setupFeatures(for: cardInfo.card)
-        warningsService.setupWarnings(for: cardInfo.card)
+        warningsService.setupWarnings(for: cardInfo)
         tokenItemsRepository.setCard(cardInfo.card.cardId)
         
         if !featuresService.linkedTerminal {
@@ -230,7 +230,7 @@ class Assembly: ObservableObject {
     ///Make wallets for blockchains
     func makeWallets(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
         let walletManagers = makeWalletManagers(from: cardInfo, blockchains: blockchains)
-        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.card.defaultToken)
+        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.defaultToken)
     }
     
     func makeWallets(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletModel] {
@@ -275,7 +275,7 @@ class Assembly: ObservableObject {
                 walletManagers.append(nativeWalletManager)
             }
         }
-        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.card.defaultToken)
+        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.defaultToken)
     }
     
     //Make walletModel from walletManager
@@ -290,10 +290,10 @@ class Assembly: ObservableObject {
         
     /// Try to load native walletmanager from card
     private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
-        if let defaultBlockchain = cardInfo.card.defaultBlockchain,
+        if let defaultBlockchain = cardInfo.defaultBlockchain,
            let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
             
-            if let defaultToken = cardInfo.card.defaultToken {
+            if let defaultToken = cardInfo.defaultToken {
                 _ = cardWalletManager.addToken(defaultToken)
             }
             
