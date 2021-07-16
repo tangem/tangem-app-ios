@@ -7,7 +7,10 @@
 //
 
 import Foundation
-import TangemSdk
+import struct TangemSdk.Card
+import struct TangemSdk.WalletData
+import struct TangemSdk.ArtworkInfo
+import class TangemSdk.TangemSdk
 #if !CLIP
 import BlockchainSdk
 #endif
@@ -16,14 +19,39 @@ import Intents
 
 struct CardInfo {
     var card: Card
+    var walletData: WalletData?
     var artwork: CardArtwork = .notLoaded
     var artworkInfo: ArtworkInfo?
-	var twinCardInfo: TwinCardInfo?
+    var twinCardInfo: TwinCardInfo?
     
     var imageLoadDTO: ImageLoadDTO {
         ImageLoadDTO(cardId: card.cardId,
                      cardPublicKey: card.cardPublicKey,
                      artwotkInfo: artworkInfo)
+    }
+    
+    var isTestnet: Bool {
+        if card.batchId == "99FF" { //[REDACTED_TODO_COMMENT]
+            return card.cardId.starts(with: card.batchId.reversed())
+        }
+        
+        return defaultBlockchain?.isTestnet ?? false
+    }
+    
+    var defaultBlockchain: Blockchain? {
+        guard let walletData = walletData, let curve = card.supportedCurves.first else { return nil }
+        
+        return Blockchain.from(blockchainName: walletData.blockchain, curve: curve)
+    }
+    
+    var defaultToken: Token? {
+        guard let token = walletData?.token, let blockchain = defaultBlockchain else { return nil }
+        
+        return Token(name: token.name,
+                     symbol: token.symbol,
+                     contractAddress: token.contractAddress,
+                     decimalCount: token.decimals,
+                     blockchain: blockchain)
     }
 }
 
