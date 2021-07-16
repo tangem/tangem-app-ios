@@ -375,7 +375,7 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success(let response):
                 self.tokenItemsRepository.removeAll()
                 self.clearTwinPairKey()
-                self.update(with: response.card)
+                self.update(with: response)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: cardInfo.card)
