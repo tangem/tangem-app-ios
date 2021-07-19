@@ -7,7 +7,11 @@
 //
 
 import TangemSdk
-import BlockchainSdk
+
+#if !CLIP
+import struct BlockchainSdk.Token
+import enum BlockchainSdk.Blockchain
+#endif
 
 extension Card {
     var canSign: Bool {
@@ -15,8 +19,8 @@ extension Card {
 //        let hasSmartSecurityDelay = settingsMask?.contains(.smartSecurityDelay) ?? false
 //        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
         
-        if let fw = firmwareVersionValue, fw < 2.28 {
-            if let securityDelay = pauseBeforePin2, securityDelay > 1500 {
+        if firmwareVersion.doubleValue < 2.28 {
+            if settings.securityDelay > 15000 {
 //                && !canSkipSD {
                 return false
             }
@@ -25,21 +29,18 @@ extension Card {
         return true
     }
     
-    var cardValidationData: (cid: String, pubKey: String)? {
-        guard
-            let cid = cardId,
-            let pubKey = cardPublicKey?.asHexString()
-        else { return nil }
-        
-        return (cid, pubKey)
+    var isTwinCard: Bool {
+        batchId == "0073" || batchId == "0074"
     }
     
+    
+    var twinNumber: Int {
+        TwinCardSeries.series(for: cardId)?.number ?? 0
+    }
+    
+    
     var isStart2Coin: Bool {
-        if let issuerName = cardData?.issuerName,
-           issuerName.lowercased() == "start2coin" {
-            return true
-        }
-        return false
+        issuer.name.lowercased() == "start2coin"
     }
     
     var isMultiWallet: Bool {
@@ -51,61 +52,27 @@ extension Card {
             return false
         }
         
-        if let major = firmwareVersion?.major, major < 4,
-           !walletCurves.contains(.secp256k1) {
+        if firmwareVersion.major < 4,
+           !supportedCurves.contains(.secp256k1) {
             return false
         }
         
         return true
     }
     
-    var firmwareVersionString: String {
-        firmwareVersion?.version ?? "unknown"
+    var isPermanentLegacyWallet: Bool {
+        if firmwareVersion < .multiwalletAvailable {
+            return settings.isPermanentWallet
+        }
+        
+        return false
     }
     
     var walletSignedHashes: Int {
-        wallets.reduce(into: 0, { $0 += ($1.signedHashes ?? 0) })
-    }
-    
-    public var defaultBlockchain: Blockchain? {
-        guard let major = firmwareVersion?.major, major < 4 else {
-            return nil
-        }
-        
-        
-        if let name = cardData?.blockchainName,
-           let curve = walletCurves.first {
-            return Blockchain.from(blockchainName: name, curve: curve)
-        }
-        return nil
-    }
-    
-    public var isTestnet: Bool? {
-        guard let major = firmwareVersion?.major, major < 4 else {
-            return nil
-        }
-        
-        return defaultBlockchain?.isTestnet
-    }
-    
-    public var defaultToken: Token? {
-        guard let major = firmwareVersion?.major, major < 4 else {
-            return nil
-        }
-        
-        if let symbol = cardData?.tokenSymbol,
-           let contractAddress = cardData?.tokenContractAddress,
-           !contractAddress.isEmpty,
-           let decimal = cardData?.tokenDecimal {
-            return Token(symbol: symbol,
-                         contractAddress: contractAddress,
-                         decimalCount: decimal)
-        }
-        return nil
+        wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
     }
     
     public var walletCurves: [EllipticCurve] {
         wallets.compactMap { $0.curve }
     }
 }
-
