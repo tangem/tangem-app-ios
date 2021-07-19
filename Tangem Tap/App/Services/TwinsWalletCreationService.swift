@@ -23,7 +23,6 @@ class TwinsWalletCreationService {
     private let tangemSdk: TangemSdk
     private let twinFileEncoder: TwinCardFileEncoder
     private let cardsRepository: CardsRepository
-    private unowned var validatedCardsService: ValidatedCardsService
     
     private var firstTwinCid: String = ""
     private var secondTwinCid: String = ""
@@ -55,11 +54,10 @@ class TwinsWalletCreationService {
         }
     }
     
-    init(tangemSdk: TangemSdk, twinFileEncoder: TwinCardFileEncoder, cardsRepository: CardsRepository, validatedCardsService: ValidatedCardsService) {
+    init(tangemSdk: TangemSdk, twinFileEncoder: TwinCardFileEncoder, cardsRepository: CardsRepository) {
         self.tangemSdk = tangemSdk
         self.twinFileEncoder = twinFileEncoder
         self.cardsRepository = cardsRepository
-        self.validatedCardsService = validatedCardsService
     }
     
     func executeCurrentStep() {
@@ -96,7 +94,7 @@ class TwinsWalletCreationService {
             case .success(let response):
                 self.cardsRepository.lastScanResult.cardModel?.clearTwinPairKey()
                 self.cardsRepository.lastScanResult.cardModel?.update(with: response.card)
-                self.firstTwinPublicKey = response.createWalletResponse.walletPublicKey
+                self.firstTwinPublicKey = response.createWalletResponse.wallet.publicKey
                 self.step.send(.second)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -118,7 +116,7 @@ class TwinsWalletCreationService {
         tangemSdk.startSession(with: task, cardId: secondTwinCid, initialMessage: initialMessage(for: secondTwinCid)) { (result) in
             switch result {
             case .success(let response):
-                self.secondTwinPublicKey = response.createWalletResponse.walletPublicKey
+                self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
                 self.step.send(.third)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -140,7 +138,7 @@ class TwinsWalletCreationService {
         
         //		switch twinFileToWrite(publicKey: secondTwinKey) {
         //		case .success(let file):
-        let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey, validatedCardsService: validatedCardsService)
+        let task = TwinsFinalizeWalletCreationTask(fileToWrite: secondTwinKey)
         tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { [weak self] (result) in
             guard let self = self else { return }
             
