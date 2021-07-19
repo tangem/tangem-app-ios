@@ -34,7 +34,12 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	
 	func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         session.viewDelegate.showAlertMessage("twin_process_preparing_card".localized)
-		if session.environment.card?.status == .empty {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+        
+        if card.wallets.count == 0 {
             createWallet(in: session, completion: completion)
 		} else {
 			eraseWallet(in: session, completion: completion)
@@ -54,7 +59,8 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 //	}
 	
 	private func eraseWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let erase = PurgeWalletCommand(walletIndex: .index(TangemSdkConstants.oldCardDefaultWalletIndex))
+        let walletPublicKey = session.environment.card?.wallets.first?.publicKey
+        let erase = PurgeWalletCommand(publicKey: walletPublicKey!)
 		erase.run(in: session) { (result) in
 			switch result {
 			case .success:
@@ -66,7 +72,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
 	
 	private func createWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-		let createWalletCommand = CreateWalletTask()
+        let createWalletCommand = CreateWalletCommand(curve: .secp256k1, isPermanent: false)
 		createWalletCommand.run(in: session) { (result) in
 			switch result {
 			case .success(let response):
