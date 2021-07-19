@@ -11,13 +11,10 @@ import TangemSdk
 class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
 	
 	private let fileToWrite: Data
-    private unowned var validatedCardsService: ValidatedCardsService
-	
 	var requiresPin2: Bool { true }
 	
-    init(fileToWrite: Data, validatedCardsService: ValidatedCardsService) {
+    init(fileToWrite: Data) {
 		self.fileToWrite = fileToWrite
-        self.validatedCardsService = validatedCardsService
 	}
 	
 	func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
@@ -42,7 +39,7 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
 	}
 	
 	func readCard(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        let task = TapScanTask(validatedCardsService: validatedCardsService)
+        let task = TapScanTask()
 		task.run(in: session, completion: completion)
 	}
 	
