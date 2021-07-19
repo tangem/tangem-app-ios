@@ -15,7 +15,7 @@ import TangemSdk
 class MainViewModel: ViewModel {
     // MARK: Dependencies -
     weak var imageLoaderService: CardImageLoaderService!
-    weak var topupService: TopupService!
+    weak var exchangeService: ExchangeService!
 	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
     weak var warningsManager: WarningsManager!
@@ -25,14 +25,9 @@ class MainViewModel: ViewModel {
     weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
     weak var failedCardScanTracker: FailedCardScanTracker!
     
-    // MARK: Variables
+    //MARK: - Published variables
     
-    var amountToSend: Amount? = nil
-    private var bag = Set<AnyCancellable>()
     @Published var isRefreshing = false
-    
-    var selectedWallet: TokenItemViewModel = .default
-    //MARK: - Output
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
@@ -49,6 +44,7 @@ class MainViewModel: ViewModel {
         }
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
+    @Published var txIndexToPush: Int? = nil
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -62,10 +58,17 @@ class MainViewModel: ViewModel {
                 .store(in: &bag)
         }
     }
-	
+    
+    // MARK: Variables
+    
+    var amountToSend: Amount? = nil
+    var selectedWallet: TokenItemViewModel = .default
+    var sellCryptoRequest: SellCryptoRequest? = nil
+    
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
     
+    private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     
     public var canCreateWallet: Bool {
@@ -79,30 +82,6 @@ class MainViewModel: ViewModel {
         }
         
         return false
-    }
-    
-    var cardModel: CardViewModel? {
-        return state.cardModel
-    }
-    
-    var wallets: [Wallet]? {
-        return cardModel?.wallets
-    }
-    
-    var canTopup: Bool {
-        return cardModel?.canTopup ?? false
-    }
-    
-    var topupURL: URL? {
-        if let wallet = wallets?.first {
-            return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
-                                     walletAddress: wallet.address)
-        }
-        return nil
-    }
-    
-    var topupCloseUrl: String {
-        return topupService.topupCloseUrl.removeLatestSlash()
     }
     
     public var canSend: Bool {
@@ -121,12 +100,67 @@ class MainViewModel: ViewModel {
         return wallet.canSend(amountType: .coin)
     }
     
-    var incomingTransactions: [BlockchainSdk.Transaction] {
-        wallets?.first?.incomingTransactions ?? []
+    var cardModel: CardViewModel? {
+        state.cardModel
     }
     
-    var outgoingTransactions: [BlockchainSdk.Transaction] {
-        wallets?.first?.outgoingTransactions ?? []
+    var wallets: [Wallet]? {
+        cardModel?.wallets
+    }
+    
+    var currenyCode: String {
+        wallets?.first?.blockchain.currencySymbol ?? .unknown
+    }
+    
+    var canBuyCrypto: Bool {
+        cardModel?.canExchangeCrypto ?? false && buyCryptoURL != nil
+    }
+    
+    var canSellCrypto: Bool {
+        cardModel?.canExchangeCrypto ?? false && sellCryptoURL != nil
+    }
+    
+    var buyCryptoURL: URL? {
+        if let wallet = wallets?.first {
+            let blockchain = wallet.blockchain
+            if blockchain.isTestnet {
+                return URL(string: blockchain.testnetBuyCryptoLink ?? "")
+            }
+            
+            return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                          walletAddress: wallet.address)
+        }
+        return nil
+    }
+    
+    var sellCryptoURL: URL? {
+        if let wallet = wallets?.first {
+            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol, walletAddress: wallet.address)
+        }
+        
+        return nil
+    }
+    
+    var buyCryptoCloseUrl: String {
+        exchangeService.successCloseUrl.removeLatestSlash()
+    }
+    
+    var sellCryptoCloseUrl: String {
+        exchangeService.sellRequestUrl.removeLatestSlash()
+    }
+    
+    var incomingTransactions: [PendingTransaction] {
+        cardModel?.walletModels?.first?.incomingPendingTransactions ?? []
+    }
+    
+    var outgoingTransactions: [PendingTransaction] {
+        cardModel?.walletModels?.first?.outgoingPendingTransactions ?? []
+    }
+    
+    var transactionToPush: BlockchainSdk.Transaction? {
+        guard let index = txIndexToPush else { return nil }
+        
+        return cardModel?.walletModels?.first?.wallet.pendingOutgoingTransactions[index]
     }
 	
 	var cardNumber: Int? {
@@ -148,13 +182,13 @@ class MainViewModel: ViewModel {
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
             .sorted(by: { lhs, rhs in
-                if lhs.blockchain == cardModel.cardInfo.card.defaultBlockchain && rhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
+                if lhs.blockchain == cardModel.cardInfo.defaultBlockchain && rhs.blockchain == cardModel.cardInfo.defaultBlockchain {
                     if lhs.amountType.isToken && rhs.amountType.isToken {
-                        if lhs.amountType.token == cardModel.cardInfo.card.defaultToken {
+                        if lhs.amountType.token == cardModel.cardInfo.defaultToken {
                             return true
                         }
 
-                        if rhs.amountType.token == cardModel.cardInfo.card.defaultToken {
+                        if rhs.amountType.token == cardModel.cardInfo.defaultToken {
                             return false
                         }
                     }
@@ -168,11 +202,11 @@ class MainViewModel: ViewModel {
                     }
                 }
 
-                if lhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
+                if lhs.blockchain == cardModel.cardInfo.defaultBlockchain {
                    return true
                 }
 
-                if rhs.blockchain == cardModel.cardInfo.card.defaultBlockchain {
+                if rhs.blockchain == cardModel.cardInfo.defaultBlockchain {
                     return false
                 }
 
@@ -209,6 +243,33 @@ class MainViewModel: ViewModel {
             }
             .store(in: &bag)
         
+    
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$cardInfo }
+            .map { $0.imageLoadDTO }
+            .removeDuplicates()
+            .setFailureType(to: Error.self)
+            .flatMap {[unowned self] info in
+                self.imageLoaderService
+                    .loadImage(cid: info.cardId,
+                               cardPublicKey: info.cardPublicKey,
+                               artworkInfo: info.artwotkInfo)
+            }
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        Analytics.log(error: error)
+                        print(error.localizedDescription)
+                    case .finished:
+                        break
+                    }}){ [unowned self] image in
+                print(image)
+                self.image = image
+            }
+            .store(in: &bag)
+        
         $state
             .compactMap { $0.cardModel }
             .flatMap { $0.$state }
@@ -218,7 +279,6 @@ class MainViewModel: ViewModel {
                 self.fetchWarnings()
             }
             .store(in: &bag)
-        
         
         $state
             .compactMap { $0.cardModel }
@@ -245,34 +305,6 @@ class MainViewModel: ViewModel {
                 if !self.showTwinCardOnboardingIfNeeded() {
                     self.showUntrustedDisclaimerIfNeeded()
                 }
-            }
-            .store(in: &bag)
-        
-        state.cardModel?.$cardInfo
-            .tryMap { cardInfo -> (String, Data, ArtworkInfo?) in
-                if let cid = cardInfo.card.cardId,
-                   let key = cardInfo.card.cardPublicKey  {
-                    return (cid, key, cardInfo.artworkInfo)
-                }
-                
-                throw "Some error"
-            }
-            .flatMap {[unowned self] info in
-                return self.imageLoaderService
-                    .loadImage(cid: info.0,
-                               cardPublicKey: info.1,
-                               artworkInfo: info.2)
-            }
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
-                    switch completion {
-                    case .failure(let error):
-                        Analytics.log(error: error)
-                        print(error.localizedDescription)
-                    case .finished:
-                        break
-                    }}){ [unowned self] image in
-                self.image = image
             }
             .store(in: &bag)
         
@@ -372,6 +404,7 @@ class MainViewModel: ViewModel {
     
     func showSendScreen() {
         assembly.reset()
+        sellCryptoRequest = nil
         navigation.mainToSend = true
     }
     
@@ -380,7 +413,7 @@ class MainViewModel: ViewModel {
             return
         }
         
-        if card.cardType == .release {
+        if card.firmwareVersion.type == .release {
             validateHashesCount()
         }
     }
@@ -438,6 +471,53 @@ class MainViewModel: ViewModel {
         assembly.reset()
         navigation.mainToTokenDetails = true
     }
+    
+    func buyCryptoAction() {
+        guard let cardInfo = cardModel?.cardInfo else { return }
+        
+        guard
+            cardInfo.isTestnet,
+            !cardInfo.card.isMultiWallet,
+            let walletModel = cardModel?.walletModels?.first,
+            let token = walletModel.tokenItemViewModels.first?.amountType.token,
+            case .ethereum(testnet: true) = token.blockchain
+        else {
+            if buyCryptoURL != nil {
+                navigation.mainToBuyCrypto = true
+            }
+            return
+        }
+        
+        TestnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
+    }
+    
+    func sellCryptoAction() {
+        navigation.mainToSellCrypto = true
+    }
+    
+    func extractSellCryptoRequest(from response: String) {
+        guard let request = exchangeService.extractSellCryptoRequest(from: response) else {
+            return
+        }
+        
+        sellCryptoRequest = request
+        resetViewModel(of: SendViewModel.self)
+        navigation.mainToSend = true
+    }
+    
+    func pushOutgoingTx(at index: Int) {
+        resetViewModel(of: PushTxViewModel.self)
+        txIndexToPush = index
+    }
+    
+    func sendAnalyticsEvent(_ event: Analytics.Event) {
+        switch event {
+        case .userBoughtCrypto:
+            Analytics.log(event: event, with: [.currencyCode: currenyCode])
+        default:
+            break
+        }
+    }
 
     // MARK: - Private functions
     
@@ -460,18 +540,16 @@ class MainViewModel: ViewModel {
         if isHashesCounted { return }
         
 		if card.isTwinCard { return }
-		
-		guard let cardId = card.cardId else { return }
-		
-        if validatedSignedHashesCards.contains(cardId) { return }
+
+        if validatedSignedHashesCards.contains(card.cardId) { return }
         
         if cardModel?.isMultiWallet ?? false {
-            if cardModel?.cardInfo.card.wallets.filter({ $0.signedHashes ?? 0 > 0 }).count ?? 0 > 0 {
+            if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
                 withAnimation {
                     warningsManager.appendWarning(for: .multiWalletSignedHashes)
                 }
             } else {
-                validatedSignedHashesCards.append(cardId)
+                validatedSignedHashesCards.append(card.cardId)
             }
             return
         }
@@ -483,7 +561,7 @@ class MainViewModel: ViewModel {
 		}
         
         guard
-            let numberOfSignedHashes = card.wallets.first?.signedHashes,
+            let numberOfSignedHashes = card.wallets.first?.totalSignedHashes,
             numberOfSignedHashes > 0
         else { return }
 		
@@ -529,6 +607,10 @@ class MainViewModel: ViewModel {
 
         self.error = error
         return
+    }
+    
+    private func resetViewModel<T>(of typeToReset: T) {
+        assembly.reset(key: String(describing: type(of: typeToReset)))
     }
 }
 
