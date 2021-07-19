@@ -34,8 +34,7 @@ class AppFeaturesService {
 		var features = AppFeatures.all
         let configFeatures = configProvider.features
 		
-        if card.cardData?.blockchainName?.lowercased() == "btc" ||
-			card.isTwinCard ||
+        if card.isTwinCard ||
 			!configFeatures.isWalletPayIdEnabled {
 			features.remove(.payIDReceive)
         }
@@ -72,5 +71,5 @@ extension AppFeaturesService {
 	
 	var canReceiveToPayId: Bool { features.contains(.payIDReceive) }
 	
-	var canTopup: Bool { features.contains(.topup) }
+	var canExchangeCrypto: Bool { features.contains(.topup) }
 }
