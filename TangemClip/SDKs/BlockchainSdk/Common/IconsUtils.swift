@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public enum IconsUtils {
     private static var baseUrl: String {
@@ -96,7 +97,7 @@ fileprivate extension Blockchain {
             return "doge"
         case .bsc:
             return "smartchain"
-        case .matic:
+        case .polygon:
             return "polygon"
         }
     }
