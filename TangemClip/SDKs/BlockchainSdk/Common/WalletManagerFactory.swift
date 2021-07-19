@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public class WalletManagerFactory {
     private let config: BlockchainSdkConfig
@@ -15,18 +16,17 @@ public class WalletManagerFactory {
         self.config = config
     }
     
-    public func makeWalletManagers(for wallet: CardWallet, cardId: String, blockchains: [Blockchain]) -> [WalletManager] {
+    public func makeWalletManagers(for wallet: Card.Wallet, cardId: String, blockchains: [Blockchain]) -> [WalletManager] {
         blockchains.compactMap { makeWalletManager(from: cardId, wallet: wallet, blockchain: $0) }
     }
     
-    public func makeWalletManagers(from card: Card, blockchainsProvider: (CardWallet) -> [Blockchain]) -> [WalletManager] {
-        guard let cardId = card.cardId else { return [] }
-        
+    public func makeWalletManagers(from card: Card, blockchainsProvider: (Card.Wallet) -> [Blockchain]) -> [WalletManager] {
+
         return card.wallets.reduce([]) { (managers: [WalletManager], wallet) in
             var mangs = managers
             mangs.append(contentsOf:
                 blockchainsProvider(wallet).compactMap {
-                    makeWalletManager(from: cardId, wallet: wallet, blockchain: $0)
+                    makeWalletManager(from: card.cardId , wallet: wallet, blockchain: $0)
                 }
             )
             return mangs
@@ -38,30 +38,20 @@ public class WalletManagerFactory {
     ///   - card: Tangem card
     ///   - blockchain: blockhain to create. If nil, card native blockchain will be used
     /// - Returns: WalletManager?
-    public func makeWalletManager(from cardId: String, wallet: CardWallet, blockchain: Blockchain) -> WalletManager? {
-        guard let walletPublicKey = wallet.publicKey,
-              let curve = wallet.curve else {
-            return nil
-        }
-        
+    public func makeWalletManager(from cardId: String, wallet: Card.Wallet, blockchain: Blockchain) -> WalletManager? {
         return makeWalletManager(from: blockchain,
-                                 walletPublicKey: walletPublicKey,
+                                 walletPublicKey: wallet.publicKey,
                                  cardId: cardId,
-                                 cardCurve: curve,
+                                 cardCurve: wallet.curve ,
                                  walletPairPublicKey: nil,
                                  tokens: [])
     }
     
-    public func makeTwinWalletManager(from cardId: String, wallet: CardWallet, blockchain: Blockchain, pairKey: Data) -> WalletManager? {
-        guard
-            let pubkey = wallet.publicKey,
-            let curve = wallet.curve
-        else { return nil }
-        
+    public func makeTwinWalletManager(from cardId: String, wallet: Card.Wallet, blockchain: Blockchain, pairKey: Data) -> WalletManager? {
         return makeWalletManager(from: blockchain,
-                                 walletPublicKey: pubkey,
+                                 walletPublicKey: wallet.publicKey,
                                  cardId: cardId,
-                                 cardCurve: curve,
+                                 cardCurve: wallet.curve,
                                  walletPairPublicKey: pairKey,
                                  tokens: [])
     }
@@ -140,9 +130,9 @@ public class WalletManagerFactory {
                 $0.networkService = EthereumNetworkService(network: network, providers: [EthereumJsonRpcProvider(network: network)], blockchairProvider: nil)
             }
             
-        case .matic(let testnet):
+        case .polygon(let testnet):
             return EthereumWalletManager(wallet: wallet).then {
-                let network: EthereumNetwork = testnet ? .maticTestnet : .maticMainnet
+                let network: EthereumNetwork = testnet ? .polygonTestnet : .polygon
                 $0.networkService = EthereumNetworkService(network: network, providers: [EthereumJsonRpcProvider(network: network)], blockchairProvider: nil)
             }
             
