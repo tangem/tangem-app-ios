@@ -184,12 +184,12 @@ public class HDWalletScript {
         return .p2pk
     }
 
-    public var isStandard: Bool {
-        return isPayToPublicKeyHashScript
-            || isPayToScriptHashScript
-            || isPublicKeyScript
-            || isStandardMultisignatureScript
-    }
+//    public var isStandard: Bool {
+//        return isPayToPublicKeyHashScript
+//            || isPayToScriptHashScript
+//            || isPublicKeyScript
+//            || isStandardMultisignatureScript
+//    }
 
     public var isPublicKeyScript: Bool {
         guard chunks.count == 2 else {
@@ -268,26 +268,26 @@ public class HDWalletScript {
             && opcode(at: -1) == OpCode.OP_EQUAL
     }
 
-    public var isStandardMultisignatureScript: Bool {
-        guard isMultisignatureScript else {
-            return false
-        }
-        guard let multisigPublicKeys = multisigRequirements?.publickeys else {
-            return false
-        }
-        return multisigPublicKeys.count <= 3
-    }
+//    public var isStandardMultisignatureScript: Bool {
+//        guard isMultisignatureScript else {
+//            return false
+//        }
+//        guard let multisigPublicKeys = multisigRequirements?.publickeys else {
+//            return false
+//        }
+//        return multisigPublicKeys.count <= 3
+//    }
 
-    public var isMultisignatureScript: Bool {
-        guard let requirements = multisigRequirements else {
-            return false
-        }
-        if requirements.nSigRequired == 0 {
-            detectMultisigScript()
-        }
-
-        return requirements.nSigRequired > 0
-    }
+//    public var isMultisignatureScript: Bool {
+//        guard let requirements = multisigRequirements else {
+//            return false
+//        }
+//        if requirements.nSigRequired == 0 {
+//            detectMultisigScript()
+//        }
+//
+//        return requirements.nSigRequired > 0
+//    }
 
     public var isStandardOpReturnScript: Bool {
         guard chunks.count == 2 else {
@@ -305,49 +305,49 @@ public class HDWalletScript {
     }
 
     // If typical multisig tx is detected, sets requirements:
-    private func detectMultisigScript() {
-        // multisig script must have at least 4 ops ("OP_1 <pubkey> OP_1 OP_CHECKMULTISIG")
-        guard chunks.count >= 4 else {
-            return
-        }
-
-        // The last op is multisig check.
-        guard opcode(at: -1) == OpCode.OP_CHECKMULTISIG else {
-            return
-        }
-
-        let mOpcode: OpCode = opcode(at: 0)
-        let nOpcode: OpCode = opcode(at: -2)
-
-        let m: Int = OpCodeFactory.smallInteger(from: mOpcode)
-        let n: Int = OpCodeFactory.smallInteger(from: nOpcode)
-
-        guard m > 0 && m != Int.max else {
-            return
-        }
-        guard n > 0 && n != Int.max && n >= m else {
-            return
-        }
-
-        // We must have correct number of pubkeys in the script. 3 extra ops: OP_<M>, OP_<N> and OP_CHECKMULTISIG
-        guard chunks.count == 3 + n else {
-            return
-        }
-
-        var pubkeys: [HDPublicKey] = []
-        for i in 0...n {
-            guard
-                let data = pushedData(at: i),
-                let pubkey = HDPublicKey(privateKey: data, coin: .bitcoin)
-            else { return }
-            
-            // [REDACTED_TODO_COMMENT]
-            pubkeys.append(pubkey)
-        }
-
-        // Now we extracted all pubkeys and verified the numbers.
-        multisigRequirements = (UInt(m), pubkeys)
-    }
+//    private func detectMultisigScript() {
+//        // multisig script must have at least 4 ops ("OP_1 <pubkey> OP_1 OP_CHECKMULTISIG")
+//        guard chunks.count >= 4 else {
+//            return
+//        }
+//
+//        // The last op is multisig check.
+//        guard opcode(at: -1) == OpCode.OP_CHECKMULTISIG else {
+//            return
+//        }
+//
+//        let mOpcode: OpCode = opcode(at: 0)
+//        let nOpcode: OpCode = opcode(at: -2)
+//
+//        let m: Int = OpCodeFactory.smallInteger(from: mOpcode)
+//        let n: Int = OpCodeFactory.smallInteger(from: nOpcode)
+//
+//        guard m > 0 && m != Int.max else {
+//            return
+//        }
+//        guard n > 0 && n != Int.max && n >= m else {
+//            return
+//        }
+//
+//        // We must have correct number of pubkeys in the script. 3 extra ops: OP_<M>, OP_<N> and OP_CHECKMULTISIG
+//        guard chunks.count == 3 + n else {
+//            return
+//        }
+//
+//        var pubkeys: [HDPublicKey] = []
+//        for i in 0...n {
+//            guard
+//                let data = pushedData(at: i),
+//                let pubkey = HDPublicKey(privateKey: data, coin: .bitcoin)
+//            else { return }
+//
+//            // [REDACTED_TODO_COMMENT]
+//            pubkeys.append(pubkey)
+//        }
+//
+//        // Now we extracted all pubkeys and verified the numbers.
+//        multisigRequirements = (UInt(m), pubkeys)
+//    }
 
     // Include both PUSHDATA ops and OP_0..OP_16 literals.
     public var isDataOnly: Bool {

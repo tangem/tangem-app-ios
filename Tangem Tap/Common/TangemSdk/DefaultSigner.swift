@@ -5,9 +5,9 @@
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
-
 import Foundation
 import TangemSdk
+#if !CLIP
 import BlockchainSdk
 import Combine
 
@@ -26,11 +26,11 @@ public class DefaultSigner: TangemSigner {
     
     public func sign(hashes: [Data], cardId: String, walletPublicKey: Data) -> AnyPublisher<[Data], Error> {
         let future = Future<[Data], Error> {[unowned self] promise in
-            let signCommand = SignCommand(hashes: hashes, walletIndex: .publicKey(walletPublicKey))
+            let signCommand = SignAndReadTask(hashes: hashes, walletPublicKey: walletPublicKey)
             self.tangemSdk.startSession(with: signCommand, cardId: cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
-                    self.delegate?.onSign(response)
+                    self.delegate?.onSign(response.card)
                     promise(.success(response.signatures))
                 case .failure(let error):
                     promise(.failure(error))
@@ -42,11 +42,11 @@ public class DefaultSigner: TangemSigner {
     
     public func sign(hash: Data, cardId: String, walletPublicKey: Data) -> AnyPublisher<Data, Error> {
         let future = Future<Data, Error> {[unowned self] promise in
-            let signCommand = SignCommand(hashes: [hash], walletIndex: .publicKey(walletPublicKey))
+            let signCommand = SignAndReadTask(hashes: [hash], walletPublicKey: walletPublicKey)
             self.tangemSdk.startSession(with: signCommand, cardId: cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
-                    self.delegate?.onSign(response)
+                    self.delegate?.onSign(response.card)
                     promise(.success(response.signatures[0]))
                 case .failure(let error):
                     promise(.failure(error))
@@ -57,6 +57,7 @@ public class DefaultSigner: TangemSigner {
     }
 }
 
+#endif
 protocol SignerDelegate: AnyObject {
-    func onSign(_ signResponse: SignResponse)
+    func onSign(_ card: Card)
 }
