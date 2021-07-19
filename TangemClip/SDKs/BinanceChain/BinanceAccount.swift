@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 class BinanceAccount: CustomStringConvertible {
     public var accountNumber: Int = 0
@@ -16,7 +17,7 @@ class BinanceAccount: CustomStringConvertible {
     public var sequence: Int = 0
     
     var description: String {
-        "Binance account info with number: \(accountNumber), with address: \(address), balance: \(balances), pubkey: \(publicKey.asHexString()), sequence: \(sequence)"
+        "Binance account info with number: \(accountNumber), with address: \(address), balance: \(balances), pubkey: \(publicKey.hexString), sequence: \(sequence)"
     }
 }
 

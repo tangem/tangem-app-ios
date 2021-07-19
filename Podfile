@@ -2,11 +2,20 @@
 platform :ios, '13.0'
         pod 'SwiftyJSON'
 
+def common_pods
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :branch => 'CSS_160_refactoring_sdk_epic'
+   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
+   pod 'KeychainSwift', '~> 19.0'
+end
+
+
 target 'Tangem Tap' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
   inhibit_all_warnings!
 
+  common_pods
+  
   # Pods for Tangem Tap
   pod 'AnyCodable-FlightSchool'
   
@@ -16,26 +25,23 @@ target 'Tangem Tap' do
   pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'CSS-158_Wallet-not-found-error-40'
-#  pod 'TangemSdk', :path => '../tangem-sdk-ios'
-  
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-25'
-#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-38'
+ # pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
 #  pod 'web3swift', :path => '../web3swift'
   
-  pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.13'
+  pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.15'
   #pod 'BitcoinCore.swift', :path => '../bitcoincore'
 
+  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.4.0'
+  
   pod 'Moya'
-  pod 'KeychainSwift', '~> 19.0'
   pod 'EFQRCode' #//TODO: remove
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
-  pod 'WalletConnectSwift'
   pod 'Kingfisher'
 
   target 'Tangem TapTests' do
@@ -53,6 +59,8 @@ target 'TangemClip' do
   use_frameworks!
   inhibit_all_warnings!
 
+  common_pods
+  
   pod 'BigInt'
   pod 'SwiftyJSON'
   pod 'Alamofire'

@@ -50,9 +50,9 @@ class MainViewModel: ObservableObject {
     }
     
     unowned var cardsRepository: CardsRepository
-    unowned var imageLoaderService: ImageLoaderService
+    unowned var imageLoaderService: CardImageLoaderService
     
-    init(cardsRepository: CardsRepository, imageLoaderService: ImageLoaderService) {
+    init(cardsRepository: CardsRepository, imageLoaderService: CardImageLoaderService) {
         self.cardsRepository = cardsRepository
         self.imageLoaderService = imageLoaderService
         updateCardBatch(nil, fullLink: "")

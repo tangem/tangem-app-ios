@@ -37,6 +37,10 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
         return .blockchain(blockchain)
     }
     
+    var isTestnet: Bool {
+        blockchain.isTestnet
+    }
+    
     static let `default` = TokenItemViewModel(state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchain: .bitcoin(testnet: false), fiatValue: 0)
     
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {

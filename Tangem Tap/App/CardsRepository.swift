@@ -7,14 +7,62 @@
 //
 
 import Foundation
-import TangemSdk
+import struct TangemSdk.Card
+import struct TangemSdk.WalletData
+import struct TangemSdk.ArtworkInfo
+import class TangemSdk.TangemSdk
+#if !CLIP
 import BlockchainSdk
+#endif
+
 import Intents
 
 struct CardInfo {
     var card: Card
+    var walletData: WalletData?
+    var artwork: CardArtwork = .notLoaded
     var artworkInfo: ArtworkInfo?
-	var twinCardInfo: TwinCardInfo?
+    var twinCardInfo: TwinCardInfo?
+    
+    var imageLoadDTO: ImageLoadDTO {
+        ImageLoadDTO(cardId: card.cardId,
+                     cardPublicKey: card.cardPublicKey,
+                     artwotkInfo: artworkInfo)
+    }
+    
+    var isTestnet: Bool {
+        if card.batchId == "99FF" { //[REDACTED_TODO_COMMENT]
+            return card.cardId.starts(with: card.batchId.reversed())
+        }
+        
+        return defaultBlockchain?.isTestnet ?? false
+    }
+    
+    var defaultBlockchain: Blockchain? {
+        guard let walletData = walletData, let curve = card.supportedCurves.first else { return nil }
+        
+        return Blockchain.from(blockchainName: walletData.blockchain, curve: curve)
+    }
+    
+    var defaultToken: Token? {
+        guard let token = walletData?.token, let blockchain = defaultBlockchain else { return nil }
+        
+        return Token(name: token.name,
+                     symbol: token.symbol,
+                     contractAddress: token.contractAddress,
+                     decimalCount: token.decimals,
+                     blockchain: blockchain)
+    }
+}
+
+enum CardArtwork {
+    case notLoaded, noArtwork, artwork(ArtworkInfo)
+}
+
+struct ImageLoadDTO: Equatable {
+    let cardId: String
+    let cardPublicKey: Data
+    let artwotkInfo: ArtworkInfo?
 }
 
 enum ScanResult: Equatable {
@@ -60,7 +108,6 @@ protocol CardsRepositoryDelegate: AnyObject {
 class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
-    weak var validatedCardsService: ValidatedCardsService!
     weak var scannedCardsRepository: ScannedCardsRepository!
     
     var cards = [String: ScanResult]()
@@ -72,24 +119,21 @@ class CardsRepository {
         print("CardsRepository deinit")
     }
     
-    func scan(_ completion: @escaping (Result<ScanResult, Error>) -> Void) {
+    func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         delegate?.onWillScan()
-        tangemSdk.startSession(with: TapScanTask(validatedCardsService: validatedCardsService)) {[unowned self] result in
+        tangemSdk.startSession(with: TapScanTask(targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-				guard response.card.cardId != nil else {
-					completion(.failure(TangemSdkError.unknownError))
-					return
-				}
-				
 				Analytics.logScan(card: response.card)
+                #if !CLIP
                 let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
                 interaction.donate(completion: nil)
                 self.scannedCardsRepository.add(response.card)
+                #endif
 				completion(.success(processScan(response.getCardInfo())))
             }
         }
@@ -100,7 +144,7 @@ class CardsRepository {
         
         let cm = assembly.makeCardModel(from: cardInfo)
         let result: ScanResult = .card(model: cm)
-        cards[cardInfo.card.cardId!] = result
+        cards[cardInfo.card.cardId] = result
         lastScanResult = result
         cm.getCardInfo()
         return result
@@ -108,9 +152,11 @@ class CardsRepository {
 }
 
 extension CardsRepository: SignerDelegate {
-    func onSign(_ signResponse: SignResponse) {
-        if let cm = cards[signResponse.cardId] {
-            cm.cardModel?.onSign(signResponse)
+    func onSign(_ card: Card) {
+        #if !CLIP
+        if let cm = cards[card.cardId] {
+            cm.cardModel?.onSign(card)
         }
+        #endif
     }
 }
