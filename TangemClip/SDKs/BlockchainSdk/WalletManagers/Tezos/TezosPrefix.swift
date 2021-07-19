@@ -1,6 +1,7 @@
 // Copyright Keefer Taylor, 2019
 
 import Foundation
+import TangemSdk
 
 /// Common prefixes used across Tezos Cryptography.
 enum TezosPrefix {

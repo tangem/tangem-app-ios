@@ -14,16 +14,18 @@ enum WarningEvent: String, Decodable {
     case multiWalletSignedHashes
     case rateApp
     case failedToValidateCard
+    case testnetCard
     
     var locationsToDisplay: Set<WarningsLocation> {
         switch self {
         case .numberOfSignedHashesIncorrect, .rateApp, .failedToValidateCard, .multiWalletSignedHashes: return [.main]
+        case .testnetCard: return [.main, .send]
         }
     }
     
     var canBeDismissed: Bool {
         switch self {
-        case .numberOfSignedHashesIncorrect, .failedToValidateCard, .multiWalletSignedHashes: return false
+        case .numberOfSignedHashesIncorrect, .failedToValidateCard, .multiWalletSignedHashes, .testnetCard: return false
         case .rateApp: return true
         }
     }
@@ -33,7 +35,7 @@ enum WarningEvent: String, Decodable {
         case .numberOfSignedHashesIncorrect: return [.okGotIt]
         case .multiWalletSignedHashes: return [.learnMore]
         case .rateApp: return [.reportProblem, .rateApp]
-        case .failedToValidateCard: return []
+        case .failedToValidateCard, .testnetCard: return []
         }
     }
     
