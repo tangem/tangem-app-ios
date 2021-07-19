@@ -7,7 +7,10 @@
 //
 
 import Foundation
-import BlockchainSdk
+#if !CLIP
+import struct BlockchainSdk.Token
+import enum BlockchainSdk.Blockchain
+#endif
 import TangemSdk
 
 class SupportedTokenItems {
@@ -64,11 +67,11 @@ class SupportedTokenItems {
         tokens(fromFile: "binanceSmartChainTokens_testnet", for: .bsc(testnet: true))
     }
     
-    func blockchains(for card: Card) -> Set<Blockchain> {
+    func blockchains(for cardInfo: CardInfo) -> Set<Blockchain> {
         var availableBlockchains = Set<Blockchain>()
         
-        for curve in card.walletCurves {
-            let blockchains = card.isTestnet ? testnetBlockchains : blockchains
+        for curve in cardInfo.card.walletCurves {
+            let blockchains = cardInfo.isTestnet ? testnetBlockchains : blockchains
             blockchains.filter { $0.curve == curve }.forEach {
                 availableBlockchains.insert($0)
             }
