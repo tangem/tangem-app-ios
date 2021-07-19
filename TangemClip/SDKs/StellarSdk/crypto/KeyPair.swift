@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import ed25519C
 
 /// Holds a Stellar keypair.
 public final class StellarKeyPair {
@@ -28,14 +27,14 @@ public final class StellarKeyPair {
         }
     }
     
-    /// Generates a random Stellar keypair.
-    public static func generateRandomKeyPair() throws -> StellarKeyPair {
-        let seed = try Seed()
-        let keyPair = StellarKeyPair(seed: seed)
-        
-        return keyPair
-        
-    }
+//    /// Generates a random Stellar keypair.
+//    public static func generateRandomKeyPair() throws -> StellarKeyPair {
+//        let seed = try Seed()
+//        let keyPair = StellarKeyPair(seed: seed)
+//
+//        return keyPair
+//
+//    }
     
     /// Creates a new KeyPair from the given public and private keys.
     ///
@@ -59,10 +58,10 @@ public final class StellarKeyPair {
     /// Creates a new Stellar keypair from a Stellar secret seed. The new KeyPair contains public and private key.
     ///
     /// - Parameter secretSeed: the Stellar secret seed.
-    public convenience init(secretSeed: String) throws {
-        let seedFromSecret = try Seed(secret:secretSeed)
-        self.init(seed: seedFromSecret)
-    }
+//    public convenience init(secretSeed: String) throws {
+//        let seedFromSecret = try Seed(secret:secretSeed)
+//        self.init(seed: seedFromSecret)
+//    }
     
     /// Creates a new KeyPair without a private key. Useful e.g. to simply verify a signature from a given public address
     ///
@@ -77,26 +76,26 @@ public final class StellarKeyPair {
     ///
     /// - Parameter seed: the seed object
     ///
-    public convenience init(seed: Seed) {
-        
-        var pubBuffer = [UInt8](repeating: 0, count: 32)
-        var privBuffer = [UInt8](repeating: 0, count: 64)
-
-        privBuffer.withUnsafeMutableBufferPointer { priv in
-            pubBuffer.withUnsafeMutableBufferPointer { pub in
-                seed.bytes.withUnsafeBufferPointer { seed in
-                    ed25519_create_keypair(pub.baseAddress,
-                                           priv.baseAddress,
-                                           seed.baseAddress)
-                }
-            }
-        }
-
-        self.init(publicKey: StellarPublicKey(unchecked: pubBuffer),
-                  privateKey: PrivateKey(unchecked: privBuffer))
-        
-        self.seed = seed
-    }
+//    public convenience init(seed: Seed) {
+//
+//        var pubBuffer = [UInt8](repeating: 0, count: 32)
+//        var privBuffer = [UInt8](repeating: 0, count: 64)
+//
+//        privBuffer.withUnsafeMutableBufferPointer { priv in
+//            pubBuffer.withUnsafeMutableBufferPointer { pub in
+//                seed.bytes.withUnsafeBufferPointer { seed in
+//                    ed25519_create_keypair(pub.baseAddress,
+//                                           priv.baseAddress,
+//                                           seed.baseAddress)
+//                }
+//            }
+//        }
+//
+//        self.init(publicKey: StellarPublicKey(unchecked: pubBuffer),
+//                  privateKey: PrivateKey(unchecked: privBuffer))
+//
+//        self.seed = seed
+//    }
     
     /// Creates a new Stellar keypair from a public key byte array and a private key byte array.
     ///
@@ -118,28 +117,28 @@ public final class StellarKeyPair {
     ///
     /// - Returns signed bytes, "empty" byte array containing only 0 if the private key for this keypair is null.
     ///
-    public func sign(_ message: [UInt8]) -> [UInt8] {
-        
-        var signature = [UInt8](repeating: 0, count: 64)
-        
-        if (privateKey == nil) { return signature}
-        
-        signature.withUnsafeMutableBufferPointer { signature in
-            privateKey?.bytes.withUnsafeBufferPointer { priv in
-                publicKey.bytes.withUnsafeBufferPointer { pub in
-                    message.withUnsafeBufferPointer { msg in
-                        ed25519_sign(signature.baseAddress,
-                                     msg.baseAddress,
-                                     message.count,
-                                     pub.baseAddress,
-                                     priv.baseAddress)
-                    }
-                }
-            }
-        }
-        
-        return signature
-    }
+//    public func sign(_ message: [UInt8]) -> [UInt8] {
+//
+//        var signature = [UInt8](repeating: 0, count: 64)
+//
+//        if (privateKey == nil) { return signature}
+//
+//        signature.withUnsafeMutableBufferPointer { signature in
+//            privateKey?.bytes.withUnsafeBufferPointer { priv in
+//                publicKey.bytes.withUnsafeBufferPointer { pub in
+//                    message.withUnsafeBufferPointer { msg in
+//                        ed25519_sign(signature.baseAddress,
+//                                     msg.baseAddress,
+//                                     message.count,
+//                                     pub.baseAddress,
+//                                     priv.baseAddress)
+//                    }
+//                }
+//            }
+//        }
+//
+//        return signature
+//    }
 
     ///  Verify the provided data and signature match this keypair's public key.
     ///
@@ -150,7 +149,7 @@ public final class StellarKeyPair {
     ///
     /// - Throws: Ed25519Error.invalidSignatureLength if the signature length is not 64
     ///
-    public func verify(signature: [UInt8], message: [UInt8]) throws -> Bool {
-        return try publicKey.verify(signature: signature, message: message)
-    }
+//    public func verify(signature: [UInt8], message: [UInt8]) throws -> Bool {
+//        return try publicKey.verify(signature: signature, message: message)
+//    }
 }

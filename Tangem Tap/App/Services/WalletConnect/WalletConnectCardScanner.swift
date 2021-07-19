@@ -12,11 +12,10 @@ import Combine
 import BlockchainSdk
 
 enum WalletConnectCardScannerError: LocalizedError {
-    case noCardId, notValidCard
+    case notValidCard
     
     var errorDescription: String? {
         switch self {
-        case .noCardId: return "wallet_connect_scanner_error_no_card_id".localized
         case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
         }
     }
@@ -40,7 +39,7 @@ class WalletConnectCardScanner {
                         do {
                             promise(.success(try self.walletInfo(for: card.card, wcNetwork: wcNetwork)))
                         } catch {
-                            print("Failed to receive wallet info for with id: \(card.card.cardId ?? "")")
+                            print("Failed to receive wallet info for with id: \(card.card.cardId)")
                             promise(.failure(error))
                         }
                     case .failure(let error):
@@ -53,10 +52,6 @@ class WalletConnectCardScanner {
     }
     
     func walletInfo(for card: Card, wcNetwork: WalletConnectNetwork) throws -> WalletInfo {
-        guard let cid = card.cardId else {
-            throw WalletConnectCardScannerError.noCardId
-        }
-        
         guard card.isMultiWallet,
             card.wallets.contains(where: { $0.curve == .secp256k1 }) else {
             throw WalletConnectCardScannerError.notValidCard
@@ -78,7 +73,7 @@ class WalletConnectCardScanner {
         let cardInfo = CardInfo(card: card)
         var wallet: Wallet
         
-        if cardsRepository.lastScanResult.cardModel?.cardInfo.card.cardId == cid {
+        if cardsRepository.lastScanResult.cardModel?.cardInfo.card.cardId == card.cardId {
             let model = cardsRepository.lastScanResult.cardModel!
             if let targetWallet = findWallet(in: model.wallets ?? []) {
                 wallet = targetWallet
@@ -89,7 +84,7 @@ class WalletConnectCardScanner {
             
         } else {
             let tokenRepoCardId = tokenItemsRepository.cardId
-            tokenItemsRepository.setCard(cid)
+            tokenItemsRepository.setCard(card.cardId)
             
             if let targetWallet = findWallet(in: assembly.loadWallets(from: cardInfo).map { $0.wallet }) {
                 wallet = targetWallet
@@ -102,7 +97,7 @@ class WalletConnectCardScanner {
         }
         
         scannedCardsRepository.add(card)
-        return WalletInfo(cid: cid,
+        return WalletInfo(cid: card.cardId,
                           walletPublicKey: wallet.publicKey,
                           blockchain: blockchain,
                           chainId: chainId)
