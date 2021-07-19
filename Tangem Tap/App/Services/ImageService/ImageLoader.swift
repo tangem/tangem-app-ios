@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import TangemSdk
 
 struct DownloadedImage: Equatable {
     let path: URL
@@ -44,12 +45,12 @@ class ImageLoader {
                 if let image = UIImage(data: data) {
                     return DownloadedImage(path: url, image: image)
                 }
-                
+
                 throw "Failed to parse image from response"
             }
             .handleEvents(receiveOutput: { (image) in
                 guard let image = image.image else { return }
-                
+
                 self.cache[url] = image
             })
             .replaceError(with: DownloadedImage(path: url, image: nil))
