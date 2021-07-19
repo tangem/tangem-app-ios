@@ -7,8 +7,9 @@
 //
 
 import Foundation
+#if !CLIP
 import BlockchainSdk
-
+#endif
 struct MoonPayKeys {
     let apiKey: String
     let secretApiKey: String
