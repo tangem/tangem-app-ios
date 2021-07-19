@@ -14,16 +14,11 @@ struct SavedCard: Codable {
     let wallets: [SavedCardWallet]
     
     static func savedCard(from card: Card) -> SavedCard {
-        let wallets: [SavedCardWallet] = card.wallets.compactMap {
-            guard
-                let pubKey = $0.publicKey,
-                let curve = $0.curve
-            else { return nil }
-            
-            return SavedCardWallet(publicKey: pubKey, curve: curve)
+        let wallets: [SavedCardWallet] = card.wallets.map {
+            .init(publicKey: $0.publicKey, curve: $0.curve)
         }
         
-        return .init(cardId: card.cardId ?? "", wallets: wallets)
+        return .init(cardId: card.cardId, wallets: wallets)
     }
 }
 
