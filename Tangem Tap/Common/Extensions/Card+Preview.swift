@@ -18,14 +18,6 @@ extension Card {
         fromJson(twinCardJson)
     }()
     
-    static var testEthCard: Card = {
-        fromJson(ethCardJson)
-    }()
-    
-    static var testXlmCard: Card = {
-        fromJson(stellarCardJson)
-    }()
-    
     static var v4Card: Card = {
         fromJson(v4CardJson)
     }()
@@ -44,19 +36,123 @@ extension Card {
     
     private static let noWalletJson =
         """
+                {
+                  "linkedTerminalStatus" : "none",
+                  "supportedCurves" : [
+                    "secp256k1",
+                    "ed25519",
+                    "secp256r1"
+                  ],
+                  "cardPublicKey" : "0400D05BCAC34B58AA48BF998FB68667A3112262275200431EA235EC4616A15287B5D21F15E45740AB6B829F415950DBC7A68493DCF5FD270C8CAAB0E975E9A0D9",
+                  "settings" : {
+                    "isSettingPasscodeAllowed" : true,
+                    "maxWalletsCount" : 36,
+                    "isOverwritingIssuerExtraDataRestricted" : false,
+                    "isRemovingAccessCodeAllowed" : false,
+                    "isLinkedTerminalEnabled" : true,
+                    "securityDelay" : 3000,
+                    "isSettingAccessCodeAllowed" : false,
+                    "supportedEncryptionModes" : [
+                      "strong",
+                      "fast",
+                      "none"
+                    ],
+                    "isPermanentWallet" : true,
+                    "isSelectBlockchainAllowed" : true,
+                    "isIssuerDataProtectedAgainstReplay" : true
+                  },
+                  "issuer" : {
+                    "name" : "TANGEM AG",
+                    "publicKey" : "0456E7C3376329DFAE7388DF1695670386103C92486A87644FA9E512C9CF4E92FE970EFDFBB7A35446F2A937505E6C70D78E965533B31C252B607F3C6B3112B603"
+                  },
+                  "firmwareVersion" : {
+                    "minor" : 12,
+                    "patch" : 0,
+                    "major" : 4,
+                    "stringValue" : "4.12r",
+                    "type" : "r"
+                  },
+                  "batchId" : "CB79",
+                  "attestation" : {
+                    "cardKeyAttestation" : "verified",
+                    "walletKeysAttestation" : "verified",
+                    "firmwareAttestation" : "skipped",
+                    "cardUniquenessAttestation" : "skipped"
+                  },
+                  "manufacturer" : {
+                    "name" : "TANGEM",
+                    "manufactureDate" : "2021-04-01",
+                    "signature" : "1671A9AB2D9D5B99177E841C8DC35842452A095088CD01B48D753631571AAB21EEAC0F96BC87142268C32EFB3AF8A8C80DB55BE6D1970FAFBC72E00F896F69EA"
+                  },
+                  "cardId" : "CB79000000018201",
+                  "wallets" : [],
+                  "isPin2Default" : true
+                }
         """
     
     private static let twinCardJson =
         """
+                {
+                  "linkedTerminalStatus" : "none",
+                  "supportedCurves" : [
+                    "secp256k1"
+                  ],
+                  "cardPublicKey" : "0400D05BCAC34B58AA48BF998FB68667A3112262275200431EA235EC4616A15287B5D21F15E45740AB6B829F415950DBC7A68493DCF5FD270C8CAAB0E975E9A0D9",
+                  "settings" : {
+                    "isSettingPasscodeAllowed" : true,
+                    "maxWalletsCount" : 36,
+                    "isOverwritingIssuerExtraDataRestricted" : false,
+                    "isRemovingAccessCodeAllowed" : false,
+                    "isLinkedTerminalEnabled" : true,
+                    "securityDelay" : 3000,
+                    "isSettingAccessCodeAllowed" : false,
+                    "supportedEncryptionModes" : [
+                      "strong",
+                      "fast",
+                      "none"
+                    ],
+                    "isPermanentWallet" : true,
+                    "isSelectBlockchainAllowed" : true,
+                    "isIssuerDataProtectedAgainstReplay" : true
+                  },
+                  "issuer" : {
+                    "name" : "TANGEM AG",
+                    "publicKey" : "0456E7C3376329DFAE7388DF1695670386103C92486A87644FA9E512C9CF4E92FE970EFDFBB7A35446F2A937505E6C70D78E965533B31C252B607F3C6B3112B603"
+                  },
+                  "firmwareVersion" : {
+                    "minor" : 12,
+                    "patch" : 0,
+                    "major" : 4,
+                    "stringValue" : "4.12r",
+                    "type" : "r"
+                  },
+                  "batchId" : "0073",
+                  "attestation" : {
+                    "cardKeyAttestation" : "verified",
+                    "walletKeysAttestation" : "verified",
+                    "firmwareAttestation" : "skipped",
+                    "cardUniquenessAttestation" : "skipped"
+                  },
+                  "manufacturer" : {
+                    "name" : "TANGEM",
+                    "manufactureDate" : "2021-04-01",
+                    "signature" : "1671A9AB2D9D5B99177E841C8DC35842452A095088CD01B48D753631571AAB21EEAC0F96BC87142268C32EFB3AF8A8C80DB55BE6D1970FAFBC72E00F896F69EA"
+                  },
+                  "cardId" : "CB79000000018201",
+                  "wallets" : [
+                    {
+                      "publicKey" : "FA3F41EE40DAB4DB96B4AD5BEC697A552EEB1AACF2C6A10B1B37A9A724608533",
+                      "totalSignedHashes" : 1,
+                      "curve" : "ed25519",
+                      "settings" : {
+                        "isPermanent" : false
+                      },
+                      "index" : 0
+                    }
+                  ],
+                  "isPin2Default" : true
+                }
         """
-    
-    private static let stellarCardJson =
-        """
-        """
-    
-    private static let ethCardJson =
-        """
-    """
     
     private static let v4CardJson =
         """
@@ -140,6 +236,5 @@ extension Card {
           ],
           "isPin2Default" : true
         }
-
         """
 }
