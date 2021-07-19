@@ -359,7 +359,6 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "initial_message_scan_header" = "Avvicina per scansionare";
 "initial_message_tap_header" = "Avvicina la carta";
 "details_notification_erase_wallet_not_possible" = "Il tuo saldo su questo portafoglio non è pari a zero o hai transazioni non confermate. Non è possibile eliminare la funzione portafoglio.";
-"details_notification_not_reusable_wallet" = "Non è possibile eliminare la funzione portafoglio.";
 "details_notification_security_option_already_active" = "E' l'opzione attualmente attiva";
 
 // MARK: - Twin Cards
@@ -502,7 +501,6 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "wallet_connect_error_timeout" = "Failed to establish WalletConnect session: timeout error. \nPlease, try again later.";
 "wallet_connect_error_failed_to_connect" = "Failed to establish WalletConnect session. \nPlease, try again later.";
 "wallet_connect_error_sing_failed" = "Failed to sign message. \nPlease, try again";
-"wallet_connect_scanner_error_no_card_id" = "Failed to read card id. \nPlaease, try again";
 "wallet_connect_scanner_error_no_ethereum_wallet" = "This card can’t be used to establish WalletConnect session";
 
 "wallet_connect_card_not_found" = "Failed to find target card";
