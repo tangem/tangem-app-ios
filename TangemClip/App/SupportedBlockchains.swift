@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 enum SupportedBlockchains {
     static func blockchains(from curve: EllipticCurve, testnet: Bool) -> [Blockchain] {
