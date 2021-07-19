@@ -49,7 +49,7 @@ enum Bit: Int {
     case zero, one
 }
 
-extension Byte {
+extension UInt8 {
     var bits: [Bit] {
         let bitsOfAbyte = 8
         var bitsArray = [Bit](repeating: Bit.zero, count: bitsOfAbyte)
