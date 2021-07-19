@@ -47,8 +47,8 @@ class PersonalSignHandler: WalletConnectSignHandler {
                                                                   hash: hash,
                                                                   publicKey: walletPublicKey) {
                     
-                    let strSig =  "0x" + unmarshalledSig.r.asHexString() + unmarshalledSig.s.asHexString() +
-                        unmarshalledSig.v.asHexString()
+                    let strSig =  "0x" + unmarshalledSig.r.hexString + unmarshalledSig.s.hexString +
+                        unmarshalledSig.v.hexString
                     return strSig
                 } else {
                     throw WalletConnectServiceError.signFailed
