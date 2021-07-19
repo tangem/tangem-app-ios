@@ -38,11 +38,13 @@ struct MainView: View {
     
     var pendingTransactionViews: [PendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
-            return PendingTxView(txState: .incoming, amount: $0.amount.description, address: $0.sourceAddress)
+            PendingTxView(pendingTx: $0)
         }
         
-        let outgTx = viewModel.outgoingTransactions.map {
-            return PendingTxView(txState: .outgoing, amount: $0.amount.description, address: $0.destinationAddress)
+        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) -> PendingTxView in
+            PendingTxView(pendingTx: pendingTx) {
+                viewModel.pushOutgoingTx(at: index)
+            }
         }
         
         return incTx + outgTx
@@ -102,7 +104,7 @@ struct MainView: View {
             }
         }
         
-        if viewModel.canTopup && !viewModel.canCreateWallet {
+        if viewModel.canBuyCrypto && !viewModel.canCreateWallet {
             if  (viewModel.cardModel?.isMultiWallet ?? false) {
                 TangemButton(isLoading: viewModel.isScanning,
                              title: "wallet_button_scan",
@@ -133,7 +135,7 @@ struct MainView: View {
     @ViewBuilder var sendButton: some View {
         let action = { viewModel.sendTapped() }
         
-        if viewModel.canTopup {
+        if viewModel.canBuyCrypto {
             TangemVerticalButton(isLoading: false,
                                  title: "wallet_button_send",
                                  image: "arrow.right") { action() }
@@ -148,37 +150,71 @@ struct MainView: View {
         }
     }
     
-    var topupButton: some View {
-        TangemVerticalButton(isLoading: false,
-                             title: "wallet_button_topup",
-                             image: "arrow.up") {
-            if viewModel.topupURL != nil {
-                navigation.mainToTopup = true
+    @ViewBuilder
+    var exchangeCryptoButton: some View {
+        if viewModel.canSellCrypto {
+            TangemVerticalButton(isLoading: false,
+                                 title: "wallet_button_trade",
+                                 image: "arrow.up.down.wide") {
+                navigation.mainToTradeSheet = true
             }
+            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
+            .actionSheet(isPresented: $navigation.mainToTradeSheet, content: {
+                ActionSheet(title: Text("action_sheet_trade_hint"),
+                            buttons: [
+                                .default(Text("wallet_button_topup"), action: {
+                                    viewModel.buyCryptoAction()
+                                }),
+                                .default(Text("wallet_button_sell_crypto"), action: {
+                                    viewModel.sellCryptoAction()
+                                }),
+                                .cancel()
+                            ])
+            })
+        } else {
+            TangemVerticalButton(isLoading: false,
+                                 title: "wallet_button_topup",
+                                 image: "arrow.up") {
+                viewModel.buyCryptoAction()
+            }
+            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
         }
-        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
     }
     
     var navigationLinks: some View {
         VStack {
-                NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
-                               isActive: $viewModel.navigation.mainToSettings)
-                
-                NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(blockchain: viewModel.selectedWallet.blockchain,
-                                                                                                                     amountType: viewModel.selectedWallet.amountType)),
-                               isActive: $navigation.mainToTokenDetails)
-                
-                NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: false)),
-                               isActive: $navigation.mainToTwinsWalletWarning)
-                
-                NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
-                                                             closeUrl: viewModel.topupCloseUrl,
-                                                             title: "wallet_button_topup",
-                                                             addLoadingIndicator: true),
-                               isActive: $navigation.mainToTopup)
-                
-                NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
-                               isActive: $navigation.mainToTwinOnboarding)
+            NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
+                           isActive: $viewModel.navigation.mainToSettings)
+            
+            NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(blockchain: viewModel.selectedWallet.blockchain,
+                                                                                                                 amountType: viewModel.selectedWallet.amountType)),
+                           isActive: $navigation.mainToTokenDetails)
+            
+            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: false)),
+                           isActive: $navigation.mainToTwinsWalletWarning)
+            
+            NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
+                                                         title: "wallet_button_topup",
+                                                         addLoadingIndicator: true,
+                                                         urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
+                                                            navigation.mainToBuyCrypto = false
+                                                            viewModel.sendAnalyticsEvent(.userBoughtCrypto)
+                                                         }
+                                                         ]),
+                           isActive: $navigation.mainToBuyCrypto)
+            
+            NavigationLink(destination: WebViewContainer(url: viewModel.sellCryptoURL,
+                                                         title: "wallet_button_sell_crypto",
+                                                         addLoadingIndicator: true,
+                                                         urlActions: [ viewModel.sellCryptoCloseUrl : { request in
+                                                            viewModel.extractSellCryptoRequest(from: request)
+                                                         }
+                                                         ]),
+                           isActive: $navigation.mainToSellCrypto)
+            
+            
+            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
+                           isActive: $navigation.mainToTwinOnboarding)
         }
     }
     
@@ -213,6 +249,17 @@ struct MainView: View {
                             if !viewModel.cardModel!.isMultiWallet {
                                 ForEach(pendingTransactionViews) { $0 }
                                     .padding(.horizontal, 16.0)
+                                    .sheet(item: $viewModel.txIndexToPush) { index in
+                                        if let tx = viewModel.transactionToPush,
+                                           let blockchain = viewModel.cardModel?.walletModels?.first?.wallet.blockchain,
+                                           let cardModel = viewModel.cardModel {
+                                            PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
+                                                                                                       blockchain: blockchain,
+                                                                                                       card: cardModel),
+                                                       onSuccess: {})
+                                                .environmentObject(navigation)
+                                        }
+                                    }
                             }
                             
                             if shouldShowEmptyView {
@@ -298,7 +345,7 @@ struct MainView: View {
                 .padding(.bottom, 8.0)
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarTitle(navigation.mainToSettings || navigation.mainToTopup || navigation.mainToTokenDetails ? "" : "wallet_title", displayMode: .inline)
+        .navigationBarTitle(navigation.mainToSettings || navigation.mainToBuyCrypto || navigation.mainToTokenDetails ? "" : "wallet_title", displayMode: .inline)
         .navigationBarItems(trailing: Button(action: {
             if viewModel.state.cardModel != nil {
                 viewModel.navigation.mainToSettings.toggle()
@@ -322,11 +369,12 @@ struct MainView: View {
                         && !navigation.mainToSend
                         && !navigation.mainToCreatePayID
                         && !navigation.mainToSendChoise
-                        && !navigation.mainToTopup
+                        && !navigation.mainToBuyCrypto
                         && !navigation.mainToTwinOnboarding
                         && !navigation.mainToTwinsWalletWarning
                         && !navigation.mainToAddTokens
                         && !navigation.mainToTokenDetails
+                        && !navigation.mainToSellCrypto
                     }
                     .delay(for: 0.5, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
@@ -356,18 +404,27 @@ struct MainView: View {
                 createWalletButton
             } else {
                 if let cardModel = viewModel.cardModel, !cardModel.isMultiWallet {
-                    if viewModel.canTopup  {
-                        topupButton
+                    if viewModel.canBuyCrypto  {
+                        exchangeCryptoButton
                     }
                     
                     sendButton
                         .sheet(isPresented: $navigation.mainToSend) {
-                            SendView(viewModel: viewModel.assembly.makeSendViewModel(
-                                        with: viewModel.amountToSend!,
-                                        blockchain: viewModel.wallets!.first!.blockchain,
-                                        card: viewModel.state.cardModel!), onSuccess: {})
-                                                                    .environmentObject(navigation) // Fix for crash (Fatal error: No ObservableObject of type NavigationCoordinator found.) which appearse time to time. May be some bug with environment object O_o
-                                        
+                            if let sellRequest = viewModel.sellCryptoRequest {
+                                let blockchain = viewModel.wallets!.first!.blockchain
+                                SendView(viewModel: viewModel.assembly.makeSellCryptoSendViewModel(
+                                            with: Amount(with: blockchain, value: sellRequest.amount),
+                                            destination: sellRequest.targetAddress,
+                                            blockchain: blockchain,
+                                            card: viewModel.state.cardModel!), onSuccess: {})
+                                    .environmentObject(navigation)
+                            } else {
+                                SendView(viewModel: viewModel.assembly.makeSendViewModel(
+                                            with: viewModel.amountToSend!,
+                                            blockchain: viewModel.wallets!.first!.blockchain,
+                                            card: viewModel.state.cardModel!), onSuccess: {})
+                                                                        .environmentObject(navigation) // Fix for crash (Fatal error: No ObservableObject of type NavigationCoordinator found.) which appearse time to time. May be some bug with environment object O_o
+                            }
                         }
                         .actionSheet(isPresented: $navigation.mainToSendChoise) {
                             ActionSheet(title: Text("wallet_choice_wallet_option_title"),
@@ -390,7 +447,7 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: assembly.makeMainViewModel())
                 .environmentObject(assembly.services.navigationCoordinator)
         }
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax])
+        .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
         .environment(\.locale, .init(identifier: "en"))
     }
