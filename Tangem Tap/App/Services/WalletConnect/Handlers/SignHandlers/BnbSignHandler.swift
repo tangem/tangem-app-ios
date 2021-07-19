@@ -95,7 +95,7 @@ class BnbSignHandler: WalletConnectSignHandler {
         do {
             let jsonEncoder = JSONEncoder()
             jsonEncoder.outputFormatting = .sortedKeys
-            let pubkey = session.wallet.walletPublicKey.asHexString()
+            let pubkey = session.wallet.walletPublicKey.hexString
             let signResponse = BnbSignResponse(signature: signature, publicKey: pubkey)
             
             // Important note!
@@ -116,7 +116,7 @@ class BnbSignHandler: WalletConnectSignHandler {
         let hash = data.sha256()
         
         return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
-            .map { $0.asHexString() }
+            .map { $0.hexString }
             .eraseToAnyPublisher()
     }
     
