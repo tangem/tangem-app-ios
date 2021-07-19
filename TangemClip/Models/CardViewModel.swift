@@ -9,13 +9,14 @@
 import Foundation
 import Combine
 import SwiftUI
+import TangemSdk
 
 class CardViewModel: ObservableObject {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
-    
+
     @Published var state: State = .created
-    
+
     @Published var cardInfo: CardInfo
     @Published var isLoadingArtwork: Bool = false
     @Published private(set) var loadingBalancesCounter: Int = 0 {
@@ -23,42 +24,41 @@ class CardViewModel: ObservableObject {
             print("Current loadingBalanceCounter value: \(loadingBalancesCounter)")
         }
     }
-    
+
     var isMultiWallet: Bool {
         cardInfo.card.isMultiWallet
     }
-    
+
     var isCardEmpty: Bool {
-        cardInfo.card.wallets.count == 0 ||
-            cardInfo.card.wallets.filter { $0.status != .empty }.count == 0
+        cardInfo.card.wallets.count == 0
     }
-    
+
     @Published private(set) var walletModels: [WalletModel] = []
-    
+
     private var erc20TokenWalletModel: WalletModel? {
         get {
             state.walletModels?.first(where: { $0.wallet.blockchain == .ethereum(testnet: true)
                                         || $0.wallet.blockchain == .ethereum(testnet: false)})
         }
     }
-    
+
     private var bag: Set<AnyCancellable> = [] {
         didSet {
             loadingBalancesCounter = bag.count
         }
     }
-    
+
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
     }
-    
+
     func getCardInfo() {
-        guard cardInfo.card.cardType == .release else {
+        guard cardInfo.card.firmwareVersion.type == .release else {
             cardInfo.artwork = .noArtwork
             return
         }
-        
-        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey ?? Data(), cardId: cardInfo.card.cardId ?? "") {[weak self] result in
+
+        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardInfo.card.cardId) {[weak self] result in
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else {
@@ -74,7 +74,7 @@ class CardViewModel: ObservableObject {
             }
         }
     }
-    
+
     func updateState() {
         assembly.makeWalletModels(from: cardInfo)
             .map { $0.isEmpty ? State.empty : State.loaded(walletModel: $0) }
@@ -82,13 +82,13 @@ class CardViewModel: ObservableObject {
         searchTokens()
         updateWallets()
     }
-    
+
     func updateWallets() {
         state.walletModels?.forEach {
             updateWallet($0)
         }
     }
-    
+
     private func updateWallet(_ walletModel: WalletModel) {
         guard let publisher: AnyPublisher<WalletModel, Error> = walletModel.update() else { return }
         var cancellable: AnyCancellable!
@@ -104,10 +104,10 @@ class CardViewModel: ObservableObject {
             })
         bag.insert(cancellable)
     }
-    
+
     private func searchTokens() {
         guard let ethWalletModel = erc20TokenWalletModel else { return }
-        
+
         (ethWalletModel.walletManager as! TokenFinder).findErc20Tokens() { result in
             switch result {
             case .success(let isAdded):
@@ -127,7 +127,7 @@ extension CardViewModel {
         case created
         case empty
         case loaded(walletModel: [WalletModel])
-        
+
         var walletModels: [WalletModel]? {
             switch self {
             case .loaded(let models):
@@ -136,7 +136,7 @@ extension CardViewModel {
                 return nil
             }
         }
-        
+
         var canUpdate: Bool {
             switch self {
             case .loaded:
@@ -148,13 +148,13 @@ extension CardViewModel {
     }
 }
 
-extension CardViewModel {
-    static var previewCardViewModel: CardViewModel {
-        viewModel(for: Card.testCard)
-    }
-    
-    private static func viewModel(for card: Card) -> CardViewModel {
-        let assembly = Assembly.previewAssembly
-        return assembly.services.cardsRepository.cards[card.cardId!]!.cardModel!
-    }
-}
+//extension CardViewModel {
+//    static var previewCardViewModel: CardViewModel {
+//        viewModel(for: Card.testCard)
+//    }
+//
+//    private static func viewModel(for card: Card) -> CardViewModel {
+//        let assembly = Assembly.previewAssembly
+//        return assembly.services.cardsRepository.cards[card.cardId]!.cardModel!
+//    }
+//}
