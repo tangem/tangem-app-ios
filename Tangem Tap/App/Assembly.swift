@@ -662,6 +662,7 @@ extension Assembly {
         static func scanResult(for preview: PreviewCard, assembly: Assembly) -> ScanResult {
             let card = preview.card
             let ci = CardInfo(card: card,
+                              walletData: preview.walletData,
                               artworkInfo: nil,
                               twinCardInfo: preview.twinInfo)
             let vm = assembly.makeCardModel(from: ci)
@@ -674,9 +675,20 @@ extension Assembly {
             switch self {
             case .withoutWallet: return .testCardNoWallet
             case .twin: return .testTwinCard
-            case .ethereum: return .testEthCard
-            case .stellar: return .testXlmCard
+            case .ethereum: return .v4Card
+            case .stellar: return .v4Card
             case .v4: return .v4Card
+            }
+        }
+        
+        var walletData: WalletData? {
+            switch self {
+            case .ethereum:
+                return WalletData(blockchain: "ETH", token: nil)
+            case .stellar:
+                return WalletData(blockchain: "XLM", token: nil)
+            default:
+                return nil
             }
         }
         
