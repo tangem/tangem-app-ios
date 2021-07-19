@@ -24,22 +24,25 @@ class ValidatedCardsService {
         print("ValidatedCardsService deinit")
     }
     
-    func isCardValidated(_ card: Card) -> Bool {
-        guard let data = card.cardValidationData else {
-            return false
+    func clean() {
+        let allKeys = keychain.allKeys
+        let validatedKeys = allKeys.filter { $0.starts(with: validatedCardPrefix )}
+        
+        validatedKeys.forEach { key in
+            keychain.delete(key)
         }
-        
-        return keychain.get(validatedCardPrefix + data.cid) == data.pubKey
     }
     
-    func saveValidatedCard(_ card: Card) {
-        guard let data = card.cardValidationData else { return }
-        
-        keychain.set(data.pubKey, forKey: validatedCardPrefix + data.cid)
-    }
+//    func isCardValidated(_ card: Card) -> Bool {
+//        return keychain.get(validatedCardPrefix + card.cardId) == card.cardPublicKey.hexString
+//    }
+//
+//    func saveValidatedCard(_ card: Card) {
+//        keychain.set(card.cardPublicKey.hexString, forKey: validatedCardPrefix + card.cardId)
+//    }
     
-    func pubkey(for cid: String) -> String? {
-        keychain.get(validatedCardPrefix + cid)
-    }
+//    func pubkey(for cid: String) -> String? {
+//        keychain.get(validatedCardPrefix + cid)
+//    }
     
 }

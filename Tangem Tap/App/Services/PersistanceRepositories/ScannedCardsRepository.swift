@@ -20,9 +20,7 @@ class ScannedCardsRepository {
     }
     
     func add(_ card: Card) {
-        guard let cid = card.cardId else { return }
-        
-        cards[cid] = .savedCard(from: card)
+        cards[card.cardId] = .savedCard(from: card)
         save()
     }
     
