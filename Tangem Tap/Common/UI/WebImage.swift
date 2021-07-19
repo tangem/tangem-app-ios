@@ -14,11 +14,11 @@ struct WebImage: View {
     @State var downloadedImage: DownloadedImage? = nil
     let imagePath: URL
     var placeholder: AnyView? = nil
-    
+
     var img: UIImage {
         downloadedImage?.image ?? UIImage()
     }
-    
+
     var isLoadingImage: Bool {
         downloadedImage?.image == nil
     }
@@ -33,11 +33,11 @@ struct WebImage: View {
             )
             .onReceive(ImageLoader.service.downloadImage(at: imagePath), perform: { loadedImage in
                 guard downloadedImage != loadedImage else { return }
-                
+
                 withAnimation {
                     downloadedImage = loadedImage
                 }
             })
     }
-    
+
 }
