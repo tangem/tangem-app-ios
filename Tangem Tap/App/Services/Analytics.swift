@@ -7,14 +7,17 @@
 //
 
 import Foundation
+#if !CLIP
 import FirebaseAnalytics
 import FirebaseCrashlytics
+#endif
 import TangemSdk
 
 class Analytics {
     enum Event: String {
         case cardIsScanned = "card_is_scanned"
         case transactionIsSent = "transaction_is_sent"
+        case transactionIsPushed = "transaction_is_pushed"
         case readyToScan = "ready_to_scan"
         case displayRateAppWarning = "rate_app_warning_displayed"
         case negativeRateAppFeedback = "negative_rate_app_feedback"
@@ -24,6 +27,8 @@ class Analytics {
         case wcInvalidRequest = "wallet_connect_invalid_request"
         case wcNewSession = "wallet_connect_new_session"
         case wcSessionDisconnected = "wallet_connect_session_disconnected"
+        case userBoughtCrypto = "user_bought_crypto"
+        case userSoldCrypto = "user_sold_crypto"
         
         fileprivate static var nfcError: String {
             "nfc_error"
@@ -34,6 +39,7 @@ class Analytics {
     enum Action: String {
         case scan = "tap_scan_task"
         case sendTx = "send_transaction"
+        case pushTx = "push_transaction"
         case walletConnectSign = "wallet_connect_personal_sign"
         case walletConnectTxSend = "wallet_connect_tx_sign"
         case readPinSettings = "read_pin_settings"
@@ -54,26 +60,32 @@ class Analytics {
         case walletConnectAction = "wallet_connect_action"
         case walletConnectRequest = "wallet_connect_request"
         case walletConnectDappUrl = "wallet_connect_dapp_url"
+        case currencyCode = "currency_code"
     }
     
-    static func log(event: Event, parameters: [String: Any]? = nil) {
-        FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: parameters)
+    static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
+        #if !CLIP
+        FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: params?.firebaseParams)
+        #endif
     }
     
     static func logScan(card: Card) {
-        let blockchainName = card.cardData?.blockchainName ?? ""
-        
-        let params = collectCardData(card, additionalParams: [.blockchain: blockchainName])
+        #if !CLIP
+        let params = collectCardData(card)
         FirebaseAnalytics.Analytics.logEvent(Event.cardIsScanned.rawValue, parameters: params.firebaseParams)
-        Crashlytics.crashlytics().setCustomValue(blockchainName, forKey: ParameterKey.blockchain.rawValue)
+        #endif
     }
     
-    static func logTx(blockchainName: String?) {
-          FirebaseAnalytics.Analytics.logEvent(Event.transactionIsSent.rawValue,
-                                               parameters: [ParameterKey.blockchain.rawValue: blockchainName ?? ""])
+    static func logTx(blockchainName: String?, isPushed: Bool = false) {
+        #if !CLIP
+        FirebaseAnalytics.Analytics.logEvent(isPushed ? Event.transactionIsPushed.rawValue : Event.transactionIsSent.rawValue,
+                                             parameters: [ParameterKey.blockchain.rawValue: blockchainName ?? ""])
+        #endif
     }
+   
     
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: Any] = [:]) {
+        #if !CLIP
         if case .userCancelled = error { return }
         
         var params = parameters
@@ -82,22 +94,28 @@ class Analytics {
         
         let nsError = NSError(domain: "Tangem SDK Error #\(error.code)", code: error.code, userInfo: params.firebaseParams)
         Crashlytics.crashlytics().record(error: nsError)
+        #endif
     }
     
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: Any] = [:]) {
+        #if !CLIP
         let params = collectCardData(card, additionalParams: parameters)
         
         logCardSdkError(error, for: action, parameters: params)
+        #endif
     }
     
     static func log(error: Error) {
+        #if !CLIP
         if case .userCancelled = error.toTangemSdkError() {
             return
         }
 
         Crashlytics.crashlytics().record(error: error)
+        #endif
     }
     
+    #if !CLIP
     static func logWcEvent(_ event: WalletConnectEvent) {
         var params = [ParameterKey: Any]()
         let firEvent: Event
@@ -127,11 +145,12 @@ class Analytics {
         }
         FirebaseAnalytics.Analytics.logEvent(firEvent.rawValue, parameters: params.firebaseParams)
     }
+    #endif
     
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
-        params[.batchId] = card.cardData?.batchId ?? ""
-        params[.firmware] = card.firmwareVersionString
+        params[.batchId] = card.batchId
+        params[.firmware] = card.firmwareVersion.stringValue
         return params
     }
 }
@@ -144,6 +163,7 @@ fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == A
     }
 }
 
+#if !CLIP
 extension Analytics {
     enum WalletConnectEvent {
         enum SessionEvent {
@@ -153,3 +173,4 @@ extension Analytics {
         case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
     }
 }
+#endif
