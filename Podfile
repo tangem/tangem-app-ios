@@ -3,7 +3,7 @@ platform :ios, '13.0'
         pod 'SwiftyJSON'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :branch => 'CSS_160_refactoring_sdk_epic'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'beta-1'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end
@@ -19,14 +19,14 @@ target 'Tangem Tap' do
   # Pods for Tangem Tap
   pod 'AnyCodable-FlightSchool'
   
-  pod 'BinanceChain', :git => 'https://github.com/lazutkin-andrey/swiftbinancechain.git', :tag => '0.0.7'
+  pod 'BinanceChain', :git => 'https://github.com/lazutkin-andrey/swiftbinancechain.git', :tag => '0.0.8'
   #pod 'BinanceChain', :path => '../SwiftBinanceChain'
   
   pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-38'
- # pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-39'
+  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
 #  pod 'web3swift', :path => '../web3swift'
