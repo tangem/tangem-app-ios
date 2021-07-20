@@ -17,7 +17,7 @@ enum SendAdditionalFields {
         guard let blockchain = cardInfo.defaultBlockchain else { return .none }
         
         switch blockchain {
-        case .stellar:
+        case .stellar, .binance:
             return .memo
         case .xrp:
             return .destinationTag
