@@ -71,7 +71,7 @@ class WalletModel: ObservableObject, Identifiable {
             
             return PendingTransaction(destination: $0.destinationAddress,
                                       transferAmount: $0.amount.description,
-                                      canBePushed: (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime,
+                                      canBePushed: false, // (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime, //[REDACTED_TODO_COMMENT]
                                       direction: .outgoing)
         }
     }
