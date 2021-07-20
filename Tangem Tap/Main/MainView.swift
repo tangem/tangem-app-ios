@@ -303,11 +303,13 @@ struct MainView: View {
                                         }
                                     }
                                     
-                                    AddressDetailView(showCreatePayID: $navigation.mainToCreatePayID,
-                                                      showQr: $navigation.mainToQR,
-                                                      selectedAddressIndex: $viewModel.selectedAddressIndex,
-                                                      walletModel: viewModel.cardModel!.walletModels!.first!,
-                                                      payID: viewModel.cardModel!.payId)
+                                    if let walletModel = viewModel.cardModel?.walletModels?.first {
+                                        AddressDetailView(showCreatePayID: $navigation.mainToCreatePayID,
+                                                          showQr: $navigation.mainToQR,
+                                                          selectedAddressIndex: $viewModel.selectedAddressIndex,
+                                                          walletModel: walletModel,
+                                                          payID: viewModel.cardModel!.payId)
+                                    }
                                     
                                     //                                Color.clear.frame(width: 1, height: 1, alignment: .center)
                                     //                                    .sheet(isPresented: $navigation.mainToCreatePayID, content: {
