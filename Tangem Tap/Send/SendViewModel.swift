@@ -81,6 +81,17 @@ class SendViewModel: ViewModel {
         .fields(for: cardViewModel.cardInfo)
     }
     
+    var memoPlaceholder: String {
+        switch blockchain {
+        case .xrp:
+            return "send_extras_hint_memo_id".localized
+        case .binance:
+            return "send_extras_hint_memo".localized
+        default:
+            return ""
+        }
+    }
+    
     var inputDecimalsCount: Int? {
         isFiatCalculation ? 2 : amountToSend.decimals
     }
@@ -106,6 +117,7 @@ class SendViewModel: ViewModel {
 	@Published var memo: String = ""
     @Published var memoHint: TextHint? = nil
     @Published var validatedMemoId: UInt64? = nil
+    @Published var validatedMemo: String? = nil
     @Published var destinationTagStr: String = ""
     @Published var destinationTagHint: TextHint? = nil
     
@@ -418,14 +430,21 @@ class SendViewModel: ViewModel {
         $memo
             .uiPublisher
             .sink(receiveValue: { [unowned self] memo in
-                self.validatedMemoId = nil
-                self.memoHint = nil
-                
-                if memo.isEmpty { return }
-                
-                let memoId = UInt64(memo)
-                self.validatedMemoId = memoId
-                self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
+                switch blockchain {
+                case .binance:
+                    self.validatedMemo = memo
+                case .xrp:
+                    self.validatedMemoId = nil
+                    self.memoHint = nil
+                    
+                    if memo.isEmpty { return }
+                    
+                    let memoId = UInt64(memo)
+                    self.validatedMemoId = memoId
+                    self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
+                default:
+                    break
+                }
             })
             .store(in: &bag)
         
@@ -589,8 +608,12 @@ class SendViewModel: ViewModel {
             tx.params = XRPTransactionParams(destinationTag: destinationTag)
         }
         
-        if let memo = self.validatedMemoId, isAdditionalInputEnabled {
-            tx.params = StellarTransactionParams(memo: .id(memo))
+        if let memoId = self.validatedMemoId, isAdditionalInputEnabled {
+            tx.params = StellarTransactionParams(memo: .id(memoId))
+        }
+        
+        if let memo = self.validatedMemo, isAdditionalInputEnabled {
+            tx.params = BinanceTransactionParams(memo: memo)
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
