@@ -171,7 +171,8 @@
 
 "send_extras_hint_destination_tag" = "Destination Tag";
 
-"send_extras_hint_memo" = "Memo Id";
+"send_extras_hint_memo" = "Memo";
+"send_extras_hint_memo_id" = "Memo Id";
 
 
 "details_title" = "Référénces";
