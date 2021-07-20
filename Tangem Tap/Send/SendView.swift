@@ -75,7 +75,7 @@ struct SendView: View {
                     
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
-                            TextInputField(placeholder: "send_extras_hint_memo".localized,
+                            TextInputField(placeholder: self.viewModel.memoPlaceholder,
                                            text: self.$viewModel.memo,
                                            keyboardType: .numberPad,
                                            clearButtonMode: .whileEditing,
