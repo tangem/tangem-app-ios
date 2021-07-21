@@ -541,6 +541,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 completion(.failure(error))
             }
         }, receiveValue: { _ in
+            self.updateState()
             completion(.success(token))
         })
         .store(in: &self.bag)
