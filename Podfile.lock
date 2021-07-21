@@ -207,7 +207,7 @@ DEPENDENCIES:
   - Sodium
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `beta-1`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `beta-2`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.4.0`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
@@ -262,7 +262,7 @@ EXTERNAL SOURCES:
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: beta-1
+    :tag: beta-2
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -285,7 +285,7 @@ CHECKOUT OPTIONS:
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: beta-1
+    :tag: beta-2
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -335,6 +335,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: f5b363d8bfac59884355017107273796fe9a5830
+PODFILE CHECKSUM: 02c9765fb2672ed72d1178f231a3e42c4b6c4763
 
 COCOAPODS: 1.10.1
