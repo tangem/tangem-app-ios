@@ -122,7 +122,7 @@ class ServicesAssembly {
                                              "0035"])
         
         config.filter.issuerFilter = .deny(["TTM BANK"])
-        
+        config.allowUntrustedCards = true
         return config
     }()
 }
