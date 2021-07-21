@@ -26,7 +26,7 @@ enum EmailType {
         case .negativeRateAppFeedback: return "Tell us what functions you are missing, and we will try to help you."
         case .failedToScanCard: return "Please tell us what card do you have?"
         case .failedToSendTx: return "Please tell us more about your issue. Every small detail can help."
-        case .appFeedback: return "Hi Tangem,"
+        case .appFeedback: return "Hi support team,"
         case .failedToPushTx: return "Please tell us more about your issue. Every small detail can help."
         }
     }
