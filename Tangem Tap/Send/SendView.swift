@@ -125,7 +125,7 @@ struct SendView: View {
                                 }
                             }
                             }
-                            .disabled(!viewModel.isSellingCrypto)
+                            .disabled(viewModel.isSellingCrypto)
                         }
                         .padding(.top, 25.0)
                         Separator()
