@@ -67,7 +67,7 @@ class SendViewModel: ViewModel {
     var shouldShowNetworkBlock: Bool  {
         shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
-
+    
     var isPayIdSupported: Bool {
         featuresService.canSendToPayId
             && cardViewModel.payIDService != nil
@@ -83,7 +83,7 @@ class SendViewModel: ViewModel {
     
     var memoPlaceholder: String {
         switch blockchain {
-        case .xrp:
+        case .xrp, .stellar:
             return "send_extras_hint_memo_id".localized
         case .binance:
             return "send_extras_hint_memo".localized
@@ -114,7 +114,7 @@ class SendViewModel: ViewModel {
     
     // MARK: Additional input
     @Published var isAdditionalInputEnabled: Bool = false
-	@Published var memo: String = ""
+    @Published var memo: String = ""
     @Published var memoHint: TextHint? = nil
     @Published var validatedMemoId: UInt64? = nil
     @Published var validatedMemo: String? = nil
@@ -202,7 +202,7 @@ class SendViewModel: ViewModel {
         canFiatCalculation = false
         sendAmount = amountToSend.value.description
         amountText = sendAmount
-
+        
     }
     
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
@@ -238,7 +238,7 @@ class SendViewModel: ViewModel {
         
         $transaction
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
-        //.debounce(for: 0.3, scheduler: RunLoop.main)
+            //.debounce(for: 0.3, scheduler: RunLoop.main)
             //update total block
             .sink { [unowned self] tx, isFiatCalculation in
                 if let tx = tx {
@@ -331,7 +331,7 @@ class SendViewModel: ViewModel {
             .combineLatest($validatedDestination.compactMap { $0 }, $amountToSend)
             .flatMap { [unowned self] _, dest, amountToSend -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-				return self.walletModel.txSender.getFee(amount: amountToSend, destination: dest)
+                return self.walletModel.txSender.getFee(amount: amountToSend, destination: dest)
                     .catch { error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
@@ -357,10 +357,10 @@ class SendViewModel: ViewModel {
                 if !amountValidated || destination == nil || fee == nil {
                     return nil
                 }
-
+                
                 let result = self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? self.amountToSend - fee! : self.amountToSend,
-                                                                                 fee: fee!,
-                                                                                 destinationAddress: destination!)
+                                                                              fee: fee!,
+                                                                              destinationAddress: destination!)
                 switch result {
                 case .success(let tx):
                     DispatchQueue.main.async {
@@ -433,7 +433,7 @@ class SendViewModel: ViewModel {
                 switch blockchain {
                 case .binance:
                     self.validatedMemo = memo
-                case .xrp:
+                case .xrp, .stellar:
                     self.validatedMemoId = nil
                     self.memoHint = nil
                     
@@ -491,7 +491,7 @@ class SendViewModel: ViewModel {
     
     func validateAddress(_ address: String) -> Bool {
         return walletModel.wallet.blockchain.validate(address: address)
-			&& !walletModel.wallet.addresses.contains(where: { $0.value == address })
+            && !walletModel.wallet.addresses.contains(where: { $0.value == address })
     }
     
     
@@ -615,7 +615,7 @@ class SendViewModel: ViewModel {
         if let memo = self.validatedMemo, isAdditionalInputEnabled {
             tx.params = BinanceTransactionParams(memo: memo)
         }
-
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         walletModel.txSender.send(tx, signer: signer)
