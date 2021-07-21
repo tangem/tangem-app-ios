@@ -78,7 +78,7 @@ class SendViewModel: ViewModel {
     }
     
     var additionalInputFields: SendAdditionalFields {
-        .fields(for: cardViewModel.cardInfo)
+        .fields(for: blockchain)
     }
     
     var memoPlaceholder: String {
