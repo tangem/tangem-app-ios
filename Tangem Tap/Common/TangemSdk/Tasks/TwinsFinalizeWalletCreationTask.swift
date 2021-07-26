@@ -18,7 +18,17 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
 	}
 	
 	func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        let task = WriteIssuerDataTask(pairPubKey: fileToWrite, keys: SignerUtils.signerKeys)
+        guard let card = session.environment.card else {
+            completion(.failure(TangemSdkError.missingPreflightRead))
+            return
+        }
+        
+        guard let issuerKeys = SignerUtils.signerKeys(for: card.issuer.name) else {
+            completion(.failure(TangemSdkError.unknownError))
+            return
+        }
+        
+        let task = WriteIssuerDataTask(pairPubKey: fileToisWrite, keys: issuerKeys)
         task.run(in: session) { (response) in
             switch response {
             case .success:
