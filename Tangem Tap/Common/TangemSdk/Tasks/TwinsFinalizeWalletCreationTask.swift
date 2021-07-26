@@ -28,7 +28,7 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
             return
         }
         
-        let task = WriteIssuerDataTask(pairPubKey: fileToisWrite, keys: issuerKeys)
+        let task = WriteIssuerDataTask(pairPubKey: fileToWrite, keys: issuerKeys)
         task.run(in: session) { (response) in
             switch response {
             case .success:
