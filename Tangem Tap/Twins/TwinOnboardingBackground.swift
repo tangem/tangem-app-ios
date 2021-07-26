@@ -51,18 +51,24 @@ struct TwinOnboardingBackground: View {
 	
 	var colorSet: ColorSet = .orange
 	
+    @ViewBuilder
+    func lines(baseHeight: CGFloat) -> some View {
+        ForEach(colorSet.lines) { line in
+            line.color
+                .frame(width: 600,
+                       height: baseHeight * line.height)
+                .rotationEffect(.degrees(-22))
+                .offset(y: -0.1 * baseHeight * line.offset)
+                .toAnyView() //Important!. fix iOS13 crash
+        }
+    }
+    
     var body: some View {
         GeometryReader { geo in
             let baseHeight = geo.size.height * 0.25
             ZStack(alignment: .top) {
                 VStack(spacing: 0.1 * baseHeight) {
-                    ForEach(colorSet.lines) { line in
-                        line.color
-                            .frame(width: 600,
-                                   height: baseHeight * line.height)
-                            .rotationEffect(.degrees(-22))
-                            .offset(y: -0.1 * baseHeight * line.offset)
-                    }
+                    lines(baseHeight: baseHeight)
                 }
             }.frame(width: geo.size.width,
                     height: geo.size.height,
