@@ -16,16 +16,9 @@ struct SignerUtils {
         return try! JSONDecoder.tangemSdkDecoder.decode([KeyPair].self, from: fileData)
     }()
     
-    /// PROD
-    static var signerKeys: KeyPair = {
-        return issuers.first(where: {$0.id == "TANGEM"})!
-    }()
-    
-    
-    /// DEV
-//    static var signerKeys: KeyPair = {
-//        return issuers.first(where: {$0.id == "TANGEM SDK"})!
-//    }()
+    static func signerKeys(for issuer: String) -> KeyPair? {
+        return issuers.first(where: {$0.id.lowercased() == issuer.lowercased()})
+    }
 }
 
 struct KeyPair: Equatable, Codable {
