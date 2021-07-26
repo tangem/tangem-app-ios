@@ -122,7 +122,8 @@ class BnbSignHandler: WalletConnectSignHandler {
     
     private func extractMessage(from request: Request) -> BnbMessageDTO? {
         let jsonEncoder = JSONEncoder()
-        jsonEncoder.outputFormatting = [.sortedKeys]
+        // Data for sign must not contain escaping slashes. Otherwise Dapp most likely will return signature verification failed
+        jsonEncoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
         let blockchain = Blockchain.binance(testnet: false)
         let decimalValue = blockchain.decimalValue
         
@@ -142,6 +143,7 @@ class BnbSignHandler: WalletConnectSignHandler {
                                    (Decimal(amountToSend) / decimalValue).description)
             
             let encodedData = try! jsonEncoder.encode(transactionMessage)
+            print("Encoded BNB transaction message: \(String(data: encodedData, encoding: .utf8)!)")
             return .init(address: address, data: encodedData, message: uiMessage)
             
             // Trading can be tested here: https://testnet.binance.org/en/
@@ -194,13 +196,18 @@ class BnbSuccessHandler: TangemWalletConnectRequestHandler {
         do {
             let response = try request.parameter(of: ConfirmationResponse.self, at: 0)
             
-            guard let error = response.error else {
-                try delegate?.send(Response(url: request.url, jsonString: ""), for: action)
+            if response.ok {
+                try delegate?.send(Response(url: request.url, value: "", id: request.id!), for: action)
+                return
+            }
+            
+            guard let error = response.error, !error.isEmpty else {
                 return
             }
             
             delegate?.sendReject(for: request, with: error, for: action)
         } catch {
+            print(error)
             delegate?.sendInvalid(request)
         }
     }
