@@ -45,6 +45,13 @@ enum WalletConnectAction: String {
     case bnbSign = "bnb_sign"
     case bnbTxConfirmation = "bnb_tx_confirmation"
     
+    var shouldDisplaySuccessAlert: Bool {
+        switch self {
+        case .bnbTxConfirmation: return false
+        default: return true
+        }
+    }
+    
     var successMessage: String {
         switch self {
         case .personalSign: return "wallet_connect_message_signed".localized
@@ -189,7 +196,10 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
     func send(_ response: Response, for action: WalletConnectAction) {
         server.send(response)
         Analytics.logWcEvent(.action(action))
-        presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
+        
+        if action.shouldDisplaySuccessAlert {
+            presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
+        }
     }
     
     func sendInvalid(_ request: Request) {
