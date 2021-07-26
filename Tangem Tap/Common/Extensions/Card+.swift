@@ -30,7 +30,7 @@ extension Card {
     }
     
     var isTwinCard: Bool {
-        batchId == "0073" || batchId == "0074"
+        batchId == "0073" || batchId == "0074" || batchId == "CB88" || batchId == "CB87"
     }
     
     
