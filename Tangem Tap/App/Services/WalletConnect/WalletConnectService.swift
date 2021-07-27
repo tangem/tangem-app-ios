@@ -273,34 +273,13 @@ extension WalletConnectService: ServerDelegate {
         }
         
         resetSessionConnectTimer()
-        let wcNetwork: WalletConnectNetwork
-        var chainId: Int = -1
-        if let id = session.dAppInfo.chainId {
-            chainId = id
-            wcNetwork = .eth(chainId: id)
-            
-        } else if session.dAppInfo.peerMeta.url.absoluteString.hasSuffix("binance.org") {
-            // There is no adequate way to determine which network we are trying to connect to and create a WC session,
-            // icon links are the only thing that is different and allows us to determine whether we are connecting to testnet or mainnet.
-            // But this only applies to binance.org. So far, I could not find alternative services where you can connect Binance wallet via WC.
-            if session.dAppInfo.peerMeta.icons.first?.absoluteString.contains("dex-bin") ?? false {
-                wcNetwork = .bnb(testnet: false)
-            } else if session.dAppInfo.peerMeta.icons.filter({ $0.absoluteString.contains("testnet-bin") }).count > 0 {
-                wcNetwork = .bnb(testnet: true)
-            } else {
-                failureCompletion()
-                return
-            }
-        } else {
-            // WC interface doesn't provide info about network. So in cases when chainId is null we use ethereum main network
-            // Dapps on ethereum mainnet sending null in chainId
-            let id = EthereumNetwork.mainnet(projectId: "").id
-            chainId = id
-            wcNetwork = .eth(chainId: id)
+        guard let parsedNetworkInfo = WalletConnectNetworkParserUtility.parse(dAppInfo: session.dAppInfo) else {
+            failureCompletion()
+            return
         }
+        let chainId = parsedNetworkInfo.chainId
         
-        
-        cardScanner.scanCard(for: wcNetwork)
+        cardScanner.scanCard(for: parsedNetworkInfo.network)
             .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
                     self.handle(error, delay: 0.5)
