@@ -211,6 +211,7 @@
 		B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03A9338259877790061FB2D /* WarningsContainer.swift */; };
 		B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
 		B0453672264D4B730005B23E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0453671264D4B730005B23E /* Constants.swift */; };
+		B0462F9826AFD8DF00FB44B7 /* TestnetBuyCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */; };
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1AF262192A300809FD2 /* WalletConnectModels.swift */; };
 		B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */; };
@@ -1492,7 +1493,6 @@
 				B07AE16B25DD548A0045179A /* RateAppService.swift */,
 				5D6784CD25EB92F300149995 /* SupportedTokenItems.swift */,
 				B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */,
-				B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -2899,6 +2899,7 @@
 			children = (
 				5D39514C2556CDDF002CC452 /* MoonPayService.swift */,
 				B06997CF2692EC5E0014A676 /* ExchangeService.swift */,
+				B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */,
 			);
 			path = ExchangeServices;
 			sourceTree = "<group>";
@@ -3758,6 +3759,7 @@
 				B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */,
 				B09BB875259A085600B92000 /* FirebaseJsonConfigFetcher.swift in Sources */,
 				5D3F77DD24BF56DC00E8695B /* Tangem_TapTests.swift in Sources */,
+				B0462F9826AFD8DF00FB44B7 /* TestnetBuyCryptoService.swift in Sources */,
 				5D7CA0FB2589F9A300B12C25 /* MoonPayService.swift in Sources */,
 				B0BD73682696D6210071DD21 /* ExchangeService.swift in Sources */,
 				B09BB879259A092B00B92000 /* WarningEvent.swift in Sources */,
