@@ -651,6 +651,7 @@
 		B0CC670C26455C44007D227A /* WalletConnectCardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC670B26455C44007D227A /* WalletConnectCardScanner.swift */; };
 		B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC818225CD63FB006D49B9 /* Token+.swift */; };
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
+		B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */; };
 		B0D34E6F2626CEEB00625AC5 /* WalletConnectSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */; };
 		B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E762626DF2F00625AC5 /* WalletConnectRequestHandler.swift */; };
 		B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */; };
@@ -1343,6 +1344,7 @@
 		B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = breadwallet_tokens.json; sourceTree = "<group>"; };
 		B0CC818225CD63FB006D49B9 /* Token+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Token+.swift"; sourceTree = "<group>"; };
 		B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsCreateWalletTask.swift; sourceTree = "<group>"; };
+		B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectNetworkParserUtility.swift; sourceTree = "<group>"; };
 		B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSignHandler.swift; sourceTree = "<group>"; };
 		B0D34E762626DF2F00625AC5 /* WalletConnectRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRequestHandler.swift; sourceTree = "<group>"; };
 		B0D3600125F26C7400929564 /* TangemClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TangemClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1441,6 +1443,7 @@
 				5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */,
 				B05209C2261F2B4E000DD204 /* WalletConnectUIBuilder.swift */,
 				B0CC670B26455C44007D227A /* WalletConnectCardScanner.swift */,
+				B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */,
 			);
 			path = WalletConnect;
 			sourceTree = "<group>";
@@ -3659,6 +3662,7 @@
 				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
 				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
+				B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
 				B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */,
