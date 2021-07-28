@@ -58,7 +58,7 @@ final class TapScanTask: CardSessionRunnable {
     /// read -> appendWallets(createwallets+ scan)  -> readTwinData
     public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         if let targetBatch = self.targetBatch?.lowercased(),
-           targetBatch.lowercased() != targetBatch {
+           targetBatch != session.environment.card?.batchId.lowercased() {
             completion(.failure(TangemSdkError.underlying(error: "alert_wrong_card_scanned".localized)))
             return
         }
