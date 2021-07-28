@@ -9,14 +9,21 @@
 import Foundation
 
 enum EmailType {
-    case negativeRateAppFeedback, failedToScanCard, failedToSendTx, failedToPushTx, appFeedback
+    case negativeRateAppFeedback, failedToScanCard, failedToSendTx, failedToPushTx, appFeedback(support: EmailSupport)
     
     var emailSubject: String {
         switch self {
         case .negativeRateAppFeedback: return "My suggestions"
         case .failedToScanCard: return "Can't scan a card"
         case .failedToSendTx: return "Can't send a transaction"
-        case .appFeedback: return "Tangem feedback"
+        case .appFeedback(let support):
+            switch support {
+            case .tangem:
+                return "Tangem feedback"
+            case .start2coin:
+                return "Feedback"
+            }
+            
         case .failedToPushTx: return  "Can't push a transaction"
         }
     }
