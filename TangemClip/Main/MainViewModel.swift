@@ -76,7 +76,7 @@ class MainViewModel: ObservableObject {
     
     func scanCard() {
         isScanning = true
-        cardsRepository.scan(with: savedBatch ?? "") { [unowned self] (result) in
+        cardsRepository.scan(with: savedBatch) { [unowned self] (result) in
             switch result {
             case .success(let result):
                 self.shouldShowGetFullApp = true
