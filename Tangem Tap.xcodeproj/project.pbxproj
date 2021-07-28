@@ -211,6 +211,11 @@
 		B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03A9338259877790061FB2D /* WarningsContainer.swift */; };
 		B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
 		B0453672264D4B730005B23E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0453671264D4B730005B23E /* Constants.swift */; };
+		B0462F9826AFD8DF00FB44B7 /* TestnetBuyCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */; };
+		B0462F9926B0065700FB44B7 /* Error+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFE855624EF051400194106 /* Error+.swift */; };
+		B0462F9A26B0066100FB44B7 /* AlertBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B9E0B52629779500408726 /* AlertBinder.swift */; };
+		B0462F9B26B0067700FB44B7 /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED412550172A0008DEF0 /* UIApplication+.swift */; };
+		B0462F9C26B0069F00FB44B7 /* UIViewController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */; };
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1AF262192A300809FD2 /* WalletConnectModels.swift */; };
 		B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */; };
@@ -651,6 +656,7 @@
 		B0CC670C26455C44007D227A /* WalletConnectCardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC670B26455C44007D227A /* WalletConnectCardScanner.swift */; };
 		B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC818225CD63FB006D49B9 /* Token+.swift */; };
 		B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */; };
+		B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */; };
 		B0D34E6F2626CEEB00625AC5 /* WalletConnectSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */; };
 		B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E762626DF2F00625AC5 /* WalletConnectRequestHandler.swift */; };
 		B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */; };
@@ -1343,6 +1349,7 @@
 		B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = breadwallet_tokens.json; sourceTree = "<group>"; };
 		B0CC818225CD63FB006D49B9 /* Token+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Token+.swift"; sourceTree = "<group>"; };
 		B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsCreateWalletTask.swift; sourceTree = "<group>"; };
+		B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectNetworkParserUtility.swift; sourceTree = "<group>"; };
 		B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSignHandler.swift; sourceTree = "<group>"; };
 		B0D34E762626DF2F00625AC5 /* WalletConnectRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRequestHandler.swift; sourceTree = "<group>"; };
 		B0D3600125F26C7400929564 /* TangemClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TangemClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1441,6 +1448,7 @@
 				5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */,
 				B05209C2261F2B4E000DD204 /* WalletConnectUIBuilder.swift */,
 				B0CC670B26455C44007D227A /* WalletConnectCardScanner.swift */,
+				B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */,
 			);
 			path = WalletConnect;
 			sourceTree = "<group>";
@@ -1489,7 +1497,6 @@
 				B07AE16B25DD548A0045179A /* RateAppService.swift */,
 				5D6784CD25EB92F300149995 /* SupportedTokenItems.swift */,
 				B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */,
-				B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1671,7 +1678,6 @@
 				5D15F9E7258A522500392BA5 /* PickerView.swift */,
 				5D12D21225B60AA3006060A1 /* SearchBar.swift */,
 				5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */,
-				B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */,
 				B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */,
 				B05209BD261F1FF3000DD204 /* RoundedCorner.swift */,
 				B0B9E0B52629779500408726 /* AlertBinder.swift */,
@@ -1686,6 +1692,7 @@
 		5D9DCADC255174140059799C /* App */ = {
 			isa = PBXGroup;
 			children = (
+				B043FA1826B16B1D00D77729 /* Email */,
 				B020FFB225DE7F7A00EF422C /* DataCollectors */,
 				B072A728257A118200C5029C /* Config */,
 				5D39515725597D89002CC452 /* Models */,
@@ -1696,7 +1703,6 @@
 				5D9DCAE225517D450059799C /* Assembly.swift */,
 				5D9DCAEA25517FB50059799C /* CardsRepository.swift */,
 				5D1BCFB7259CDCCA00EDA274 /* ContentView.swift */,
-				B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */,
 				5DDE22E92608DC94008657C6 /* UrlHandler.swift */,
 				5D00FC8F2615FA9D004626DE /* CardDelegate.swift */,
 			);
@@ -1919,6 +1925,15 @@
 				B0FC49BF2630245E000444D7 /* Localizable.strings */,
 			);
 			path = Localization;
+			sourceTree = "<group>";
+		};
+		B043FA1826B16B1D00D77729 /* Email */ = {
+			isa = PBXGroup;
+			children = (
+				B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */,
+				B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */,
+			);
+			path = Email;
 			sourceTree = "<group>";
 		};
 		B066AFC6262D679300EB85A5 /* SDKs */ = {
@@ -2896,6 +2911,7 @@
 			children = (
 				5D39514C2556CDDF002CC452 /* MoonPayService.swift */,
 				B06997CF2692EC5E0014A676 /* ExchangeService.swift */,
+				B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */,
 			);
 			path = ExchangeServices;
 			sourceTree = "<group>";
@@ -3659,6 +3675,7 @@
 				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
 				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
+				B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
 				B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */,
@@ -3751,9 +3768,14 @@
 			files = (
 				B00D7154258A1CCC00A9442C /* JsonUtils.swift in Sources */,
 				B0B4556425E0E3F400D7572F /* String+.swift in Sources */,
+				B0462F9C26B0069F00FB44B7 /* UIViewController+.swift in Sources */,
+				B0462F9B26B0067700FB44B7 /* UIApplication+.swift in Sources */,
 				B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */,
 				B09BB875259A085600B92000 /* FirebaseJsonConfigFetcher.swift in Sources */,
+				B0462F9926B0065700FB44B7 /* Error+.swift in Sources */,
 				5D3F77DD24BF56DC00E8695B /* Tangem_TapTests.swift in Sources */,
+				B0462F9826AFD8DF00FB44B7 /* TestnetBuyCryptoService.swift in Sources */,
+				B0462F9A26B0066100FB44B7 /* AlertBinder.swift in Sources */,
 				5D7CA0FB2589F9A300B12C25 /* MoonPayService.swift in Sources */,
 				B0BD73682696D6210071DD21 /* ExchangeService.swift in Sources */,
 				B09BB879259A092B00B92000 /* WarningEvent.swift in Sources */,
