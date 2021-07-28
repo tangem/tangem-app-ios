@@ -23,7 +23,8 @@ enum SupportedBlockchains {
                 .tezos(curve: .secp256k1),
                 .binance(testnet: testnet),
                 .bsc(testnet: testnet),
-                .dogecoin
+                .dogecoin,
+                .polygon(testnet: testnet)
             ]
         case .ed25519:
             return [
