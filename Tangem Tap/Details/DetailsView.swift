@@ -115,7 +115,7 @@ struct DetailsView: View {
                 .sheet(isPresented: $navigation.detailsToSendEmail, content: {
                     MailView(dataCollector: viewModel.dataCollector,
                              support: viewModel.cardModel.emailSupport,
-                             emailType: viewModel.cardModel.isStart2CoinCard ? .appFeedback(support: .start2coin) : .appFeedback(support: .tangem))
+                             emailType: .appFeedback(support: viewModel.cardModel.isStart2CoinCard ? .start2coin : .tangem))
                 })
                 
                 if let cardTouURL = viewModel.cardTouURL {
