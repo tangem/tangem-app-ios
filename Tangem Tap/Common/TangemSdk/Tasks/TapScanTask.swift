@@ -57,9 +57,19 @@ final class TapScanTask: CardSessionRunnable {
     
     /// read -> appendWallets(createwallets+ scan)  -> readTwinData
     public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        guard let currentBatch = session.environment.card?.batchId.lowercased() else {
+            completion(.failure(TangemSdkError.missingPreflightRead))
+            return
+        }
+        
         if let targetBatch = self.targetBatch?.lowercased(),
-           targetBatch.lowercased() != targetBatch {
+           targetBatch != currentBatch {
             completion(.failure(TangemSdkError.underlying(error: "alert_wrong_card_scanned".localized)))
+            return
+        }
+        
+        if currentBatch == "ac01" { //temporary restrict new multiwallet cards
+            completion(.failure(TangemSdkError.wrongCardType))
             return
         }
         
