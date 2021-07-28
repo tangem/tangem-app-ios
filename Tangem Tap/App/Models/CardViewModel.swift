@@ -82,15 +82,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var purgeWalletProhibitedDescription: String? {
-        if isTwinCard {
+        if isTwinCard || !hasWallet {
             return nil
         }
         
-        guard hasWallet else { return nil }
-        
-        let card = cardInfo.card
-        
-        if card.settings.isPermanentWallet {
+        if cardInfo.card.settings.isPermanentWallet || cardInfo.card.firmwareVersion >= .multiwalletAvailable {
             return TangemSdkError.purgeWalletProhibited.localizedDescription
         }
         
