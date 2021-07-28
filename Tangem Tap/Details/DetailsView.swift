@@ -113,7 +113,9 @@ struct DetailsView: View {
                         .foregroundColor(.tangemTapGrayDark6)
                 })
                 .sheet(isPresented: $navigation.detailsToSendEmail, content: {
-                    MailView(dataCollector: viewModel.dataCollector, support: viewModel.cardModel.emailSupport, emailType: EmailType.appFeedback)
+                    MailView(dataCollector: viewModel.dataCollector,
+                             support: viewModel.cardModel.emailSupport,
+                             emailType: .appFeedback(support: viewModel.cardModel.isStart2CoinCard ? .start2coin : .tangem))
                 })
                 
                 if let cardTouURL = viewModel.cardTouURL {
