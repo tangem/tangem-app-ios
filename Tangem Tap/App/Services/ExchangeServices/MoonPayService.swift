@@ -25,27 +25,43 @@ fileprivate enum QueryKey: String {
 
 fileprivate struct IpCheckResponse: Decodable {
     let countryCode: String
+    let stateCode: String
     let isMoonpayAllowed: Bool
     let isBuyAllowed: Bool
     let isSellAllowed: Bool
     
     private enum CodingKeys: String, CodingKey {
         case countryCode = "alpha3",
-             isMoonpayAllowed = "isAllowed"
+             isMoonpayAllowed = "isAllowed",
+             stateCode = "state"
         case isBuyAllowed, isSellAllowed
     }
+}
+
+fileprivate struct MoonpayCurrency: Decodable {
+    enum CurrencyType: String, Decodable {
+        case crypto, fiat
+    }
+    
+    let type: CurrencyType
+    let code: String
+    let supportsLiveMode: Bool?
+    let isSuspended: Bool?
+    let isSupportedInUS: Bool?
+    let isSellSupported: Bool?
+    let notAllowedUSStates: [String]?
 }
 
 class MoonPayService {
 	private let keys: MoonPayKeys
     
-    private let availableToBuy: Set<String> = [
+    private var availableToBuy: Set<String> = [
         "ZRX", "AAVE", "ALGO", "AXS", "BAT", "BNB", "BUSD", "BTC", "BCH", "BTT", "ADA", "CELO", "CUSD", "LINK", "CHZ", "COMP", "ATOM", "DAI", "DASH", "MANA", "DGB", "DOGE", "EGLD",
         "ENJ", "EOS", "ETC", "ETH", "KETH", "RINKETH", "FIL", "HBAR", "MIOTA", "KAVA", "KLAY", "LBC", "LTC", "LUNA", "MKR", "OM", "MATIC", "NANO", "NEAR", "XEM", "NEO", "NIM", "OKB",
         "OMG", "ONG", "ONT", "DOT", "QTUM", "RVN", "RFUEL", "KEY", "SRM", "SOL", "XLM", "STMX", "SNX", "KRT", "UST", "USDT", "XTZ", "RUNE", "SAND", "TOMO", "AVA", "TRX", "TUSD", "UNI",
         "USDC", "UTK", "VET", "WAXP", "WBTC", "XRP", "ZEC", "ZIL"
     ]
-    private let availableToSell: Set<String> = [
+    private var availableToSell: Set<String> = [
         "BTC", "ETH", "BCH"
     ]
     
@@ -55,7 +71,7 @@ class MoonPayService {
 	
 	init(keys: MoonPayKeys) {
 		self.keys = keys
-        checkIpAddress()
+        setupService()
 	}
     
     deinit {
@@ -70,20 +86,59 @@ class MoonPayService {
         return .init(key: .signature, value: Data(signature).base64EncodedString().addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed))
     }
     
-    private func checkIpAddress() {
-        URLSession.shared.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!)
-            .sink { _ in } receiveValue: { (data, response) in
-                let decoder = JSONDecoder()
-                do {
-                    let decodedResponse = try decoder.decode(IpCheckResponse.self, from: data)
-                    self.canBuyCrypto = decodedResponse.isBuyAllowed
-                    self.canSellCrypto = decodedResponse.isSellAllowed
-                } catch {
-                    print("Failed to check IP address: \(error)")
-                }
+    private func setupService() {
+        Publishers.Zip(
+            URLSession.shared.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!),
+            URLSession.shared.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
+        )
+        .sink(receiveCompletion: { _ in }) { [weak self] (ipOutput, currenciesOutput) in
+            guard let self = self else { return }
+            let decoder = JSONDecoder()
+            var countryCode: String = ""
+            var stateCode: String = ""
+            do {
+                let decodedResponse = try decoder.decode(IpCheckResponse.self, from: ipOutput.data)
+                self.canBuyCrypto = decodedResponse.isBuyAllowed
+                self.canSellCrypto = decodedResponse.isSellAllowed
+                countryCode = decodedResponse.countryCode
+                stateCode = decodedResponse.stateCode
+            } catch {
+                print("Failed to check IP address: \(error)")
             }
-            .store(in: &bag)
-
+            do {
+                var currenciesToBuy = Set<String>()
+                var currenciesToSell = Set<String>()
+                let decodedResponse = try decoder.decode([MoonpayCurrency].self, from: currenciesOutput.data)
+                decodedResponse.forEach {
+                    guard
+                        $0.type == .crypto,
+                        let isSuspended = $0.isSuspended, !isSuspended,
+                        let supportsLiveMode = $0.supportsLiveMode, supportsLiveMode
+                    else { return }
+                    
+                    if countryCode == "USA" {
+                        if let isSupportedInUS = $0.isSupportedInUS, !isSupportedInUS {
+                            return
+                        }
+                        
+                        if let notAllowedUSStates = $0.notAllowedUSStates, notAllowedUSStates.contains(stateCode) {
+                            return
+                        }
+                    }
+                    
+                    currenciesToBuy.insert($0.code.uppercased())
+                    
+                    if let isSellSupported = $0.isSellSupported, isSellSupported {
+                        currenciesToSell.insert($0.code.uppercased())
+                    }
+                }
+                self.availableToBuy = currenciesToBuy
+                self.availableToSell = currenciesToSell
+            } catch {
+                print("Failed to load currencies: \(error)")
+            }
+        }
+        .store(in: &bag)
     }
 }
 
@@ -96,11 +151,11 @@ extension MoonPayService: ExchangeService {
     }
     
     func canBuy(_ currency: String) -> Bool {
-        availableToBuy.contains(currency) && canBuyCrypto
+        availableToBuy.contains(currency.uppercased()) && canBuyCrypto
     }
     
     func canSell(_ currency: String) -> Bool {
-        availableToSell.contains(currency) && canSellCrypto
+        availableToSell.contains(currency.uppercased()) && canSellCrypto
     }
     
     func getBuyUrl(currencySymbol: String, walletAddress: String) -> URL? {
