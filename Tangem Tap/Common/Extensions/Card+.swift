@@ -30,7 +30,7 @@ extension Card {
     }
     
     var isTwinCard: Bool {
-        batchId == "0073" || batchId == "0074" || batchId == "CB88" || batchId == "CB87"
+        TwinCardSeries.series(for: cardId) != nil
     }
     
     
@@ -44,6 +44,12 @@ extension Card {
     }
     
     var isMultiWallet: Bool {
+        let notes = ["ab01","ab02","ab03","ab04","ab05","ab06"]
+        
+        if notes.contains(batchId.lowercased()) {
+            return false
+        }
+        
         if isTwinCard {
             return false
         }
