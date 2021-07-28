@@ -1678,7 +1678,6 @@
 				5D15F9E7258A522500392BA5 /* PickerView.swift */,
 				5D12D21225B60AA3006060A1 /* SearchBar.swift */,
 				5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */,
-				B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */,
 				B05A645525E0F57B00F154B7 /* ScanTroublehootingView.swift */,
 				B05209BD261F1FF3000DD204 /* RoundedCorner.swift */,
 				B0B9E0B52629779500408726 /* AlertBinder.swift */,
@@ -1693,6 +1692,7 @@
 		5D9DCADC255174140059799C /* App */ = {
 			isa = PBXGroup;
 			children = (
+				B043FA1826B16B1D00D77729 /* Email */,
 				B020FFB225DE7F7A00EF422C /* DataCollectors */,
 				B072A728257A118200C5029C /* Config */,
 				5D39515725597D89002CC452 /* Models */,
@@ -1703,7 +1703,6 @@
 				5D9DCAE225517D450059799C /* Assembly.swift */,
 				5D9DCAEA25517FB50059799C /* CardsRepository.swift */,
 				5D1BCFB7259CDCCA00EDA274 /* ContentView.swift */,
-				B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */,
 				5DDE22E92608DC94008657C6 /* UrlHandler.swift */,
 				5D00FC8F2615FA9D004626DE /* CardDelegate.swift */,
 			);
@@ -1926,6 +1925,15 @@
 				B0FC49BF2630245E000444D7 /* Localizable.strings */,
 			);
 			path = Localization;
+			sourceTree = "<group>";
+		};
+		B043FA1826B16B1D00D77729 /* Email */ = {
+			isa = PBXGroup;
+			children = (
+				B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */,
+				B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */,
+			);
+			path = Email;
 			sourceTree = "<group>";
 		};
 		B066AFC6262D679300EB85A5 /* SDKs */ = {
