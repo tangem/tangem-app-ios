@@ -164,7 +164,7 @@ struct PushTxView: View {
                                                         isDisabled: !self.viewModel.isSendEnabled))
                         .disabled(!viewModel.isSendEnabled)
                         .sheet(isPresented: $navigation.pushToSendEmail, content: {
-                            MailView(dataCollector: viewModel.emailDataCollector, support: viewModel.cardViewModel.emailSupport, emailType: .failedToSendTx)
+                            MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
                         })
                         .alert(item: self.$viewModel.sendError) { binder in
                             if binder.error == nil {
