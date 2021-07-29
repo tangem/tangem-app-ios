@@ -580,3 +580,5 @@ Amount to pay: %@";
 "push_tx_address_hint" = "Previous transaction total including fee";
 "wallet_button_trade" = "Trade";
 "action_sheet_trade_hint" = "Do you want to buy or sell crypto?";
+
+"error_old_app_need_update" = "Oops, the current version of the application is not ready to work with this card, please check for updates.";
