@@ -44,9 +44,7 @@ extension Card {
     }
     
     var isMultiWallet: Bool {
-        let notes = ["ab01","ab02","ab03","ab04","ab05","ab06"]
-        
-        if notes.contains(batchId.lowercased()) {
+        if TangemNote.isNoteBatch(batchId) {
             return false
         }
         
