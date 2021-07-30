@@ -1602,7 +1602,7 @@
         }
     },
     {
-        "contractAddress": "SOUL",
+        "contractAddress": "SOUL-D11M",
         "symbol": "SOUL",
         "name": "CryptoSoul",
         "decimalCount": 8,
@@ -1674,7 +1674,7 @@
         }
     },
     {
-        "contractAddress": "FIO",
+        "contractAddress": "FIO-0CDM",
         "symbol": "FIO",
         "name": "FIO",
         "decimalCount": 8,
