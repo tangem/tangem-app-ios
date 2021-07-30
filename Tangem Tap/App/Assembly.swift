@@ -251,6 +251,10 @@ class Assembly: ObservableObject {
                                                                                        pairKey: savedPairKey,
                                                                                        isTestnet: false) {  //[REDACTED_TODO_COMMENT]
             walletManagers.append(twinWalletManager)
+        } else if let note = TangemNote(rawValue: cardInfo.card.batchId),
+                  let wallet = cardInfo.card.wallets.first(where: { $0.curve == note.curve }),
+                  let wm = services.walletManagerFactory.makeWalletManager(from: cardInfo.card.cardId, walletPublicKey: wallet.publicKey, blockchain: note.blockchain) {
+            walletManagers.append(wm)
         } else {
             //If this card supports multiwallet feature, load all saved tokens from persistent storage
             if cardInfo.card.isMultiWallet, services.tokenItemsRepository.items.count > 0 {
@@ -604,20 +608,30 @@ class Assembly: ObservableObject {
 
         // MARK: Wallets
         func makeWalletModels(from info: CardInfo) -> AnyPublisher<[WalletModel], Never> {
-            info.card.wallets.publisher
-                .removeDuplicates(by: { $0.curve == $1.curve })
-                .compactMap { cardWallet -> [WalletModel]? in
-                    let blockchains = SupportedBlockchains.blockchains(from: cardWallet.curve, testnet: false)
-                    let managers = self.services.walletManagerFactory.makeWalletManagers(for: cardWallet, cardId: info.card.cardId, blockchains: blockchains)
-
-                    return managers.map {
-                        let model = WalletModel(cardWallet: cardWallet, walletManager: $0)
-                        model.ratesService = self.services.ratesService
-                        return model
+            if let note = TangemNote(rawValue: info.card.batchId),
+               let wallet = info.card.wallets.first(where: { $0.curve == note.curve }),
+               let wm = services.walletManagerFactory.makeWalletManager(from: info.card.cardId, wallet: wallet, blockchain: note.blockchain) {
+                
+                let model = WalletModel(cardWallet: wallet, walletManager: wm)
+                model.ratesService = services.ratesService
+                return Just([model])
+                    .eraseToAnyPublisher()
+            } else {
+                return info.card.wallets.publisher
+                    .removeDuplicates(by: { $0.curve == $1.curve })
+                    .compactMap { cardWallet -> [WalletModel]? in
+                        let blockchains = SupportedBlockchains.blockchains(from: cardWallet.curve, testnet: false)
+                        let managers = self.services.walletManagerFactory.makeWalletManagers(for: cardWallet, cardId: info.card.cardId, blockchains: blockchains)
+                        
+                        return managers.map {
+                            let model = WalletModel(cardWallet: cardWallet, walletManager: $0)
+                            model.ratesService = self.services.ratesService
+                            return model
+                        }
                     }
-                }
-                .reduce([], { $0 + $1 })
-                .eraseToAnyPublisher()
+                    .reduce([], { $0 + $1 })
+                    .eraseToAnyPublisher()
+            }
         }
     
         func updateAppClipCard(with batch: String?, fullLink: String) {
