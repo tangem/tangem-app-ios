@@ -53,7 +53,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "_XCAppClipURL"
-            value = "https://tangem.com/ndef/AB03"
+            value = "https://tangem.com/ndef/AC01"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
