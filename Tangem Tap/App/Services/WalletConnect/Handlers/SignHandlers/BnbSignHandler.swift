@@ -10,6 +10,7 @@ import Foundation
 import WalletConnectSwift
 import Combine
 import BlockchainSdk
+import TangemSdk
 
 fileprivate protocol BinanceMessage: Codable {}
 
@@ -117,7 +118,16 @@ class BnbSignHandler: WalletConnectSignHandler {
         let hash = data.sha256()
         
         return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
-            .map { $0.hexString }
+            .tryMap {
+                guard let normalizedSignature = Secp256k1Utils.normalizeVerify(secp256k1Signature: $0, hash: hash, publicKey: walletPublicKey) else {
+                    throw "Failed to normalize signature"
+                }
+                
+                let signature = normalizedSignature.hexString
+                print("Signature: \($0.hexString)\nNomalized: \(signature)")
+                return signature
+            }
+
             .eraseToAnyPublisher()
     }
     
