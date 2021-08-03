@@ -668,6 +668,16 @@
 		B0D3601025F26C7600929564 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B0D3600E25F26C7600929564 /* LaunchScreen.storyboard */; };
 		B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D76D4425D4E4560073FA98 /* AddCustomTokenView.swift */; };
 		B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D76D4C25D4E4610073FA98 /* AddCustomTokenViewModel.swift */; };
+		B0E1564B26B941A4005B33E4 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1564A26B941A4005B33E4 /* OnboardingView.swift */; };
+		B0E1564D26B941AF005B33E4 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1564C26B941AF005B33E4 /* OnboardingViewModel.swift */; };
+		B0E1564F26B948B3005B33E4 /* OnboardingNavigationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1564E26B948B3005B33E4 /* OnboardingNavigationService.swift */; };
+		B0E1565226B97F8C005B33E4 /* RotatingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* RotatingCardView.swift */; };
+		B0E1565526B9887F005B33E4 /* BaseAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565426B9887F005B33E4 /* BaseAssembly.swift */; };
+		B0E1565726B9891D005B33E4 /* CardModelCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565626B9891D005B33E4 /* CardModelCreator.swift */; };
+		B0E1565826B9894F005B33E4 /* CardModelCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565626B9891D005B33E4 /* CardModelCreator.swift */; };
+		B0E1565926B98956005B33E4 /* CardModelCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565626B9891D005B33E4 /* CardModelCreator.swift */; };
+		B0E1565A26B98984005B33E4 /* BaseAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565426B9887F005B33E4 /* BaseAssembly.swift */; };
+		B0E1565B26B98985005B33E4 /* BaseAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565426B9887F005B33E4 /* BaseAssembly.swift */; };
 		B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B0E1D17D257DE79000A3AB98 /* FeaturesConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */; };
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
@@ -1365,6 +1375,12 @@
 		B0D3601225F26C7600929564 /* TangemClip.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TangemClip.entitlements; sourceTree = "<group>"; };
 		B0D76D4425D4E4560073FA98 /* AddCustomTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenView.swift; sourceTree = "<group>"; };
 		B0D76D4C25D4E4610073FA98 /* AddCustomTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenViewModel.swift; sourceTree = "<group>"; };
+		B0E1564A26B941A4005B33E4 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		B0E1564C26B941AF005B33E4 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		B0E1564E26B948B3005B33E4 /* OnboardingNavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingNavigationService.swift; sourceTree = "<group>"; };
+		B0E1565126B97F8C005B33E4 /* RotatingCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotatingCardView.swift; sourceTree = "<group>"; };
+		B0E1565426B9887F005B33E4 /* BaseAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAssembly.swift; sourceTree = "<group>"; };
+		B0E1565626B9891D005B33E4 /* CardModelCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardModelCreator.swift; sourceTree = "<group>"; };
 		B0E1D174257DE75D00A3AB98 /* KeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysManager.swift; sourceTree = "<group>"; };
 		B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesConfigManager.swift; sourceTree = "<group>"; };
 		B0E9E2FC2679DA5B00269C7A /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
@@ -1572,12 +1588,13 @@
 			isa = PBXGroup;
 			children = (
 				5D9DCADC255174140059799C /* App */,
-				5D6C127025E122CE0010A0C5 /* MultiWallet */,
+				B0E1564926B9417E005B33E4 /* Onboarding */,
 				5D011A222530776A00758010 /* Disclaimer */,
+				5DFCCB6D24C372830014A293 /* Main */,
+				5D6C127025E122CE0010A0C5 /* MultiWallet */,
 				5D384B9224FD51B200C2C92C /* Details */,
 				5DFCCB7224C3817E0014A293 /* Send */,
 				B074BABF26779B14005D641B /* PushTx */,
-				5DFCCB6D24C372830014A293 /* Main */,
 				5DFCCB6A24C372020014A293 /* Read */,
 				B07826652562913D00395918 /* Twins */,
 				5DFCCB6324C371AC0014A293 /* Common */,
@@ -1695,6 +1712,7 @@
 		5D9DCADC255174140059799C /* App */ = {
 			isa = PBXGroup;
 			children = (
+				B0E1565326B9886E005B33E4 /* Assembly */,
 				B043FA1826B16B1D00D77729 /* Email */,
 				B020FFB225DE7F7A00EF422C /* DataCollectors */,
 				B072A728257A118200C5029C /* Config */,
@@ -1703,7 +1721,6 @@
 				B068A7E525678A6E00D28CD2 /* Utilities */,
 				B018F3022592046C00D8F89A /* Warnings */,
 				5D9DCAD2255172520059799C /* NavigationCoordinator.swift */,
-				5D9DCAE225517D450059799C /* Assembly.swift */,
 				5D9DCAEA25517FB50059799C /* CardsRepository.swift */,
 				5D1BCFB7259CDCCA00EDA274 /* ContentView.swift */,
 				5DDE22E92608DC94008657C6 /* UrlHandler.swift */,
@@ -3200,6 +3217,35 @@
 			path = AddCustomToken;
 			sourceTree = "<group>";
 		};
+		B0E1564926B9417E005B33E4 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B0E1565026B97F81005B33E4 /* Views */,
+				B0E1564A26B941A4005B33E4 /* OnboardingView.swift */,
+				B0E1564C26B941AF005B33E4 /* OnboardingViewModel.swift */,
+				B0E1564E26B948B3005B33E4 /* OnboardingNavigationService.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		B0E1565026B97F81005B33E4 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B0E1565126B97F8C005B33E4 /* RotatingCardView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B0E1565326B9886E005B33E4 /* Assembly */ = {
+			isa = PBXGroup;
+			children = (
+				5D9DCAE225517D450059799C /* Assembly.swift */,
+				B0E1565426B9887F005B33E4 /* BaseAssembly.swift */,
+				B0E1565626B9891D005B33E4 /* CardModelCreator.swift */,
+			);
+			path = Assembly;
+			sourceTree = "<group>";
+		};
 		BBA154748909F0AB4121528D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -3585,6 +3631,7 @@
 				5DD966F925499E8B006070F3 /* WebView.swift in Sources */,
 				B09BB861259A075600B92000 /* NavigationBar.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
+				B0E1564F26B948B3005B33E4 /* OnboardingNavigationService.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
@@ -3679,6 +3726,7 @@
 				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
 				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
+				B0E1565726B9891D005B33E4 /* CardModelCreator.swift in Sources */,
 				B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
@@ -3717,10 +3765,12 @@
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
 				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
 				5D74F719262722FF00B03897 /* Publisher+.swift in Sources */,
+				B0E1565226B97F8C005B33E4 /* RotatingCardView.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */,
+				B0E1564D26B941AF005B33E4 /* OnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
 				B0A0A2DC25825E8A005FC94D /* TwinOnboardingBackground.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
@@ -3750,9 +3800,11 @@
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */,
 				B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */,
+				B0E1564B26B941A4005B33E4 /* OnboardingView.swift in Sources */,
 				B0CC670C26455C44007D227A /* WalletConnectCardScanner.swift in Sources */,
 				5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */,
 				5D1BCFB8259CDCCA00EDA274 /* ContentView.swift in Sources */,
+				B0E1565526B9887F005B33E4 /* BaseAssembly.swift in Sources */,
 				5D9DCAEB25517FB50059799C /* CardsRepository.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
 				5DFCCB7124C372980014A293 /* MainViewModel.swift in Sources */,
@@ -3783,7 +3835,9 @@
 				B0462F9A26B0066100FB44B7 /* AlertBinder.swift in Sources */,
 				5D7CA0FB2589F9A300B12C25 /* MoonPayService.swift in Sources */,
 				B0BD73682696D6210071DD21 /* ExchangeService.swift in Sources */,
+				B0E1565926B98956005B33E4 /* CardModelCreator.swift in Sources */,
 				B09BB879259A092B00B92000 /* WarningEvent.swift in Sources */,
+				B0E1565B26B98985005B33E4 /* BaseAssembly.swift in Sources */,
 				B09BB871259A085100B92000 /* TapWarning.swift in Sources */,
 				B09FC1B1257DFB6E009524D4 /* FeaturesConfigManager.swift in Sources */,
 			);
@@ -3902,6 +3956,7 @@
 				B066B19D262D6B1100EB85A5 /* OP_LESSTHAN.swift in Sources */,
 				B066B1BD262D6B1100EB85A5 /* OP_DROP.swift in Sources */,
 				B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */,
+				B0E1565826B9894F005B33E4 /* CardModelCreator.swift in Sources */,
 				B066B479262D6EFA00EB85A5 /* Data+Hash.swift in Sources */,
 				5DE7DD4C269627EF00472205 /* MainView.swift in Sources */,
 				B01416A72632A92300D82A9C /* WebImage.swift in Sources */,
@@ -3996,6 +4051,7 @@
 				B066B1DC262D6B1100EB85A5 /* OpCodeFactory.swift in Sources */,
 				B066B161262D6B1100EB85A5 /* AnyPublisher+Response.swift in Sources */,
 				5DE7DD452696240200472205 /* TokenItem.swift in Sources */,
+				B0E1565A26B98984005B33E4 /* BaseAssembly.swift in Sources */,
 				B066B1D9262D6B1100EB85A5 /* OP_VERIF.swift in Sources */,
 				B066B4AD262D6EFA00EB85A5 /* AccountService.swift in Sources */,
 				B066B1D7262D6B1100EB85A5 /* OP_ELSE.swift in Sources */,
