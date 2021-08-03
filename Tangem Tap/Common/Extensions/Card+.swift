@@ -44,7 +44,7 @@ extension Card {
     }
     
     var isMultiWallet: Bool {
-        if TangemNote.isNoteBatch(batchId) {
+        if isTangemNote {
             return false
         }
         
@@ -62,6 +62,10 @@ extension Card {
         }
         
         return true
+    }
+    
+    var isTangemNote: Bool {
+        TangemNote.isNoteBatch(batchId)
     }
     
     var isPermanentLegacyWallet: Bool {
