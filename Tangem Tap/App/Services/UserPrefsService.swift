@@ -39,6 +39,9 @@ class UserPrefsService {
     @Storage(type: StorageType.lastScannedNdef, defaultValue: "")
     var lastScannedNdef: String
     
+    @Storage(type: StorageType.tangemNoteCardsStartedActivation, defaultValue: [])
+    var noteCardsStartedActivation: Set<String>
+    
     deinit {
         print("UserPrefsService deinit")
     }
