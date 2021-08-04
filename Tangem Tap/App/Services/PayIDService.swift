@@ -107,10 +107,10 @@ enum PayIdTarget: TargetType {
             return .requestPlain
         case .getPayId(let cid, let cardPublicKey):
             return .requestParameters(parameters: ["cid" : cid,
-                                                   "key" : cardPublicKey.asHexString()], encoding: URLEncoding.default)
+                                                   "key" : cardPublicKey.hexString], encoding: URLEncoding.default)
         case .createPayId(let cid, let cardPublicKey, let payId, let address, let network):
             return .requestParameters(parameters: ["cid" : cid,
-                                                   "key" : cardPublicKey.asHexString(),
+                                                   "key" : cardPublicKey.hexString,
                                                    "payid" : payId,
                                                    "address" : address,
                                                    "network" : network.rawValue
@@ -189,14 +189,7 @@ class PayIDService {
     
     
     func loadPayIDInfo (for card: Card) -> AnyPublisher<PayIdStatus, Error> {
-        guard let cid = card.cardId,
-              let key = card.cardPublicKey else {
-            return Just(.notSupported)
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
-        }
-        
-        return loadPayId(cid: cid, key: key)
+        return loadPayId(cid: card.cardId, key: card.cardPublicKey)
     }
     
     

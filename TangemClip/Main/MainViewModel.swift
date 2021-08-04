@@ -50,9 +50,9 @@ class MainViewModel: ObservableObject {
     }
     
     unowned var cardsRepository: CardsRepository
-    unowned var imageLoaderService: ImageLoaderService
+    unowned var imageLoaderService: CardImageLoaderService
     
-    init(cardsRepository: CardsRepository, imageLoaderService: ImageLoaderService) {
+    init(cardsRepository: CardsRepository, imageLoaderService: CardImageLoaderService) {
         self.cardsRepository = cardsRepository
         self.imageLoaderService = imageLoaderService
         updateCardBatch(nil, fullLink: "")
@@ -76,7 +76,7 @@ class MainViewModel: ObservableObject {
     
     func scanCard() {
         isScanning = true
-        cardsRepository.scan(with: savedBatch ?? "") { [unowned self] (result) in
+        cardsRepository.scan(with: savedBatch) { [unowned self] (result) in
             switch result {
             case .success(let result):
                 self.shouldShowGetFullApp = true
