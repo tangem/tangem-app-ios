@@ -15,6 +15,11 @@ class AppServicesAssembly: ServicesAssembly {
         walletConnectService
     ]
     
+    lazy var onboardingNaviService: OnboardingNavigationService = {
+        let service = OnboardingNavigationService()
+        service.userPrefs = userPrefsService
+        return service
+    }()
     lazy var exchangeService: ExchangeService = MoonPayService(keys: keysManager.moonPayKeys)
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     

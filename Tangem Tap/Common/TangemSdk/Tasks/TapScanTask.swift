@@ -68,11 +68,6 @@ final class TapScanTask: CardSessionRunnable {
             return
         }
         
-        if currentBatch == "ac01" { //temporary restrict new multiwallet cards
-            completion(.failure(TangemSdkError.underlying(error: "error_old_app_need_update".localized)))
-            return
-        }
-        
         self.appendWalletsIfNeeded(session: session, completion: completion)
     }
     
