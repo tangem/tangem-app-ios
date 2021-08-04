@@ -12,7 +12,19 @@ import BlockchainSdk
 
 extension Assembly {
     
-    func makeReadViewModel(with navigation: NavigationCoordinator? = nil) -> ReadViewModel {
+    func makeOnboardingViewModel() -> OnboardingViewModel {
+        if let restored: OnboardingViewModel = get() {
+            return restored
+        }
+        
+        let vm = OnboardingViewModel()
+        initialize(vm)
+        vm.cardsRepository = services.cardsRepository
+        vm.onboardingNaviService = services.onboardingNaviService
+        return vm
+    }
+    
+    func makeReadViewModel() -> ReadViewModel {
         if let restored: ReadViewModel = get() {
             return restored
         }
