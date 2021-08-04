@@ -9,33 +9,23 @@
 import Foundation
 import TangemSdk
 
-struct PurgeWalletAndReadResponse: JSONStringConvertible {
-    let purgeWalletResponse: PurgeWalletResponse
-    let card: Card
-}
-
-class PurgeWalletAndReadTask: CardSessionRunnable, PreflightReadCapable {
-    typealias CommandResponse = PurgeWalletAndReadResponse
+class PurgeWalletAndReadTask: CardSessionRunnable {
+    public var preflightReadMode: PreflightReadMode { .readWallet(publicKey: publicKey) }
     
-    public var preflightReadSettings: PreflightReadSettings { .readWallet(index: .index(TangemSdkConstants.oldCardDefaultWalletIndex)) }
+    let publicKey: Data
     
-    func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let purgeWalletCommand = PurgeWalletCommand(walletIndex: .index(TangemSdkConstants.oldCardDefaultWalletIndex))
+    init(publicKey: Data) {
+        self.publicKey = publicKey
+    }
+    
+    func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
+        let purgeWalletCommand = PurgeWalletCommand(publicKey: publicKey)
         purgeWalletCommand.run(in: session) { purgeWalletCompletion in
             switch purgeWalletCompletion {
             case .failure(let error):
                 completion(.failure(error))
-            case .success(let purgeWalletResponse):
-                let scanTask = PreflightReadTask(readSettings: .fullCardRead)
-                scanTask.run(in: session) { scanCompletion in
-                    switch scanCompletion {
-                    case .failure(let error):
-                        completion(.failure(error))
-                    case .success(let scanResponse):
-                        completion(.success(PurgeWalletAndReadResponse(purgeWalletResponse: purgeWalletResponse,
-                                                                        card: scanResponse)))
-                    }
-                }
+            case .success:
+                completion(.success(session.environment.card!))
             }
         }
     }

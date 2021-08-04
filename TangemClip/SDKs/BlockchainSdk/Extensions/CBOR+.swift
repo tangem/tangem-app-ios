@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftCBOR
+import TangemSdk
 
 extension CBOR {
     public static func indefiniteLenghtArrayWith(_ elements: [CBOR]) -> [UInt8] {
