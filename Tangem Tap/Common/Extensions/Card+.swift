@@ -68,6 +68,10 @@ extension Card {
         TangemNote.isNoteBatch(batchId)
     }
     
+    var isTangemWallet: Bool {
+        TangemWallet.isWalletBatch(batchId)
+    }
+    
     var isPermanentLegacyWallet: Bool {
         if firmwareVersion < .multiwalletAvailable {
             return settings.isPermanentWallet
