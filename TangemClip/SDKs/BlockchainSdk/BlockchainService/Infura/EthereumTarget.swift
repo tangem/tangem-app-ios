@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemSdk
 
 enum EthereumTarget: TargetType {
     static let infuraTokenId = 03

@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if !CLIP
 import BlockchainSdk
+#endif
 
 extension Blockchain: Identifiable {
     public var id: Int { return hashValue }
@@ -40,7 +42,33 @@ extension Blockchain: Identifiable {
             return nil
         case .bsc:
             return nil
-        case .matic:
+        case .polygon:
+            return nil
+        }
+    }
+    
+    var testnetBuyCryptoLink: String? {
+        guard isTestnet else { return nil }
+        
+        switch self {
+        case .bitcoin:
+            return "https://coinfaucet.eu/en/btc-testnet/"
+        case .ethereum:
+            return "https://faucet.rinkeby.io"
+        case .bitcoinCash:
+            // alt
+            // return "https://faucet.fullstack.cash"
+            return "https://coinfaucet.eu/en/bch-testnet/"
+        case .bsc:
+            return "https://testnet.binance.org/faucet-smart"
+        case .binance:
+            return "https://docs.binance.org/smart-chain/wallet/binance.html"
+//            return "https://docs.binance.org/guides/testnet.html"
+        case .polygon:
+            return "https://faucet.matic.network"
+        case .stellar:
+            return "https://laboratory.stellar.org/#account-creator?network=test"
+        default:
             return nil
         }
     }
