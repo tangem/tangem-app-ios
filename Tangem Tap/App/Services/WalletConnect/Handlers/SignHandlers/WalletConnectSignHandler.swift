@@ -19,7 +19,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
         fatalError("WalletConnect action not specified")
     }
     
-    private let signer: TangemSigner
+    let signer: TangemSigner
     
     private var signerSubscription: AnyCancellable?
     
@@ -29,11 +29,15 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
         self.dataSource = dataSource
     }
     
-    func canHandle(request: Request) -> Bool {
-        fatalError("Must be overriden by subclass")
+    func handle(request: Request) { }
+    
+    func signatureResponse(for signature: String, session: WalletConnectSession, request: Request) -> Response {
+        fatalError("Must be overriden by a subclass")
     }
     
-    func handle(request: Request) { }
+    func sign(data: Data, cardId: String, walletPublicKey: Data) -> AnyPublisher<String, Error> {
+        fatalError("Must be overriden by a subclass")
+    }
     
     func askToSign(in session: WalletConnectSession, request: Request, message: String, dataToSign: Data) {
         let wallet = session.wallet
@@ -45,7 +49,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                     
                     switch res {
                     case .success(let signature):
-                        self.delegate?.send(.signature(signature, for: request), for: self.action)
+                        self.delegate?.send(self.signatureResponse(for: signature, session: session, request: request), for: self.action)
                     case .failure(let error):
                         self.delegate?.sendReject(for: request, with: error, for: self.action)
                     }
@@ -67,26 +71,14 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     }
     
     func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
-        let hash = data.sha3(.keccak256)
-        
-        signerSubscription = signer.sign(hash: hash, cardId: wallet.cid, walletPublicKey: wallet.walletPublicKey)
-            .sink(receiveCompletion: { [weak self] (subsCompletion) in
+        signerSubscription = sign(data: data, cardId: wallet.cid, walletPublicKey: wallet.walletPublicKey)
+            .sink(receiveCompletion: { [weak self] subsCompletion in
                 if case let .failure(error) = subsCompletion {
                     completion(.failure(error))
                 }
                 self?.signerSubscription = nil
-            }, receiveValue: { (response) in
-                if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response,
-                                                                  hash: hash,
-                                                                  publicKey: wallet.walletPublicKey) {
-                    
-                    let strSig =  "0x" + unmarshalledSig.r.asHexString() + unmarshalledSig.s.asHexString() +
-                        unmarshalledSig.v.asHexString()
-                    completion(.success(strSig))
-                } else {
-                    completion(.failure(WalletConnectServiceError.signFailed))
-                }
+            }, receiveValue: { signature in
+                completion(.success(signature))
             })
     }
-    
 }

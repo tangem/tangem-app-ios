@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public class XRPAddressService: AddressService {
     let curve: EllipticCurve
