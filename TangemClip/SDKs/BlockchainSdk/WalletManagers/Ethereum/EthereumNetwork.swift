@@ -9,31 +9,29 @@
 import Foundation
 import BigInt
 
-enum EthereumNetwork {
+public enum EthereumNetwork {
     case mainnet(projectId: String)
     case testnet(projectId: String)
     case tangem
     case rsk
     case bscMainnet
     case bscTestnet
-    case maticMainnet
-    case maticTestnet
+    case polygon
+    case polygonTestnet
     
-    var chainId: BigUInt { return BigUInt(self.id) }
-    
-    var blockchain: Blockchain {
+    public var blockchain: Blockchain {
         switch self {
         case .mainnet, .tangem: return .ethereum(testnet: false)
         case .testnet: return .ethereum(testnet: true)
         case .rsk: return .rsk
         case .bscMainnet: return .bsc(testnet: false)
         case .bscTestnet: return .bsc(testnet: true)
-        case .maticMainnet: return .matic(testnet: false)
-        case .maticTestnet: return .matic(testnet: true)
+        case .polygon: return .polygon(testnet: false)
+        case .polygonTestnet: return .polygon(testnet: true)
         }
     }
     
-    var id: Int {
+    public var id: Int {
         switch self {
         case .mainnet, .tangem:
            return 1
@@ -45,12 +43,14 @@ enum EthereumNetwork {
             return 56
         case .bscTestnet:
             return 97
-        case .maticMainnet:
+        case .polygon:
             return 137
-        case .maticTestnet:
+        case .polygonTestnet:
             return 80001
         }
     }
+    
+    var chainId: BigUInt { return BigUInt(self.id) }
     
     var url: URL {
         switch self {
@@ -66,10 +66,29 @@ enum EthereumNetwork {
             return URL(string: "https://bsc-dataseed.binance.org/")!
         case .bscTestnet:
             return URL(string: "https://data-seed-prebsc-1-s1.binance.org:8545/")!
-        case .maticMainnet:
+        case .polygon:
             return URL(string: "https://rpc-mainnet.maticvigil.com/")!
-        case .maticTestnet:
+        case .polygonTestnet:
             return URL(string: "https://rpc-mumbai.maticvigil.com/")!
+        }
+    }
+    
+    public static func network(for id: Int) -> EthereumNetwork? {
+        switch id {
+        case EthereumNetwork.bscMainnet.id:
+            return .bscMainnet
+        case EthereumNetwork.bscTestnet.id:
+            return .bscTestnet
+        case EthereumNetwork.mainnet(projectId: "").id:
+            return .mainnet(projectId: "")
+        case EthereumNetwork.testnet(projectId: "").id:
+            return .testnet(projectId: "")
+        case EthereumNetwork.polygon.id:
+            return .polygon
+        case EthereumNetwork.polygonTestnet.id:
+            return .polygonTestnet
+        default:
+            return nil
         }
     }
 }

@@ -10,6 +10,8 @@ import SwiftUI
 import BlockchainSdk
 
 fileprivate struct TokenView: View {
+    let isTestnet: Bool
+    
     var isAdded: Bool
     var isLoading: Bool
     var name: String
@@ -21,6 +23,7 @@ fileprivate struct TokenView: View {
     var body: some View {
         HStack {
             TokenIconView(token: tokenItem)
+                .saturation(isTestnet ? 0 : 1.0)
                 .frame(width: 40, height: 40, alignment: .center)
             
             VStack(alignment: .leading, spacing: 6) {
@@ -63,12 +66,13 @@ struct AddNewTokensView: View {
                 .padding(.horizontal, 8)
             
             List {
-                Section(header: HeaderView(text: "add_token_section_title_blockchains".localized)) {
+                Section(header: HeaderView(text: "add_token_section_title_blockchains".localized, collapsible: false)) {
                     ForEach(viewModel.availableBlockchains.filter {
                         searchText.isEmpty || $0.displayName.lowercased().contains(searchText.lowercased())
                             || $0.currencySymbol.lowercased().contains(searchText.lowercased())
                     }) { blockchain in
-                        TokenView(isAdded: viewModel.isAdded(blockchain),
+                        TokenView(isTestnet: viewModel.isTestnet,
+                                  isAdded: viewModel.isAdded(blockchain),
                                   isLoading: false,
                                   name: blockchain.displayName,
                                   symbol: blockchain.currencySymbol,
@@ -78,18 +82,68 @@ struct AddNewTokensView: View {
                                   }, removeAction: {})}
                 }
                 
-                Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized)) {
-                    ForEach(viewModel.availableTokens.filter {
-                                searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
-                        TokenView(isAdded: viewModel.isAdded(token),
-                                  isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
-                                  symbol: token.symbol,
-                                  tokenItem: .token(token),
-                                  addAction: {
-                                    viewModel.addTokenToList(token: token)
-                                  }, removeAction: { })
+                if viewModel.availableEthereumTokens.count > 0 {
+                    Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized, collapsible: true, isExpanded: viewModel.isEthTokensVisible, onCollapseAction: {
+                        withAnimation {
+                            viewModel.isEthTokensVisible.toggle()
+                        }
+                    })) {
+                        ForEach(viewModel.visibleEthTokens.filter {
+                                    searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
+                            TokenView(isTestnet: viewModel.isTestnet,
+                                      isAdded: viewModel.isAdded(token),
+                                      isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
+                                      symbol: token.symbol,
+                                      tokenItem: .token(token),
+                                      addAction: {
+                                        viewModel.addTokenToList(token: token, blockchain: .ethereum(testnet: viewModel.isTestnet))
+                                      }, removeAction: { })
+                        }
                     }
                 }
+                
+                if viewModel.availableBnbTokens.count > 0 {
+                    Section(header: HeaderView(text: "add_token_section_title_binance_tokens".localized, collapsible: true, isExpanded: viewModel.isBnbTokensVisible, onCollapseAction: {
+                        withAnimation {
+                            viewModel.isBnbTokensVisible.toggle()
+                        }
+                    })) {
+                        ForEach(viewModel.visibleBnbTokens.filter {
+                                    searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
+                            TokenView(isTestnet: viewModel.isTestnet,
+                                      isAdded: viewModel.isAdded(token),
+                                      isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
+                                      symbol: token.symbol,
+                                      tokenItem: .token(token),
+                                      addAction: {
+                                        viewModel.addTokenToList(token: token, blockchain: .binance(testnet: viewModel.isTestnet))
+                                      }, removeAction: { })
+                        }
+                    }
+                }
+                
+                if viewModel.availableBscTokens.count > 0 {
+                    Section(header: HeaderView(text: "add_token_section_title_binance_smart_chain_tokens".localized, collapsible: true, isExpanded: viewModel.isBscTokensVisible, onCollapseAction: {
+                        withAnimation {
+                            viewModel.isBscTokensVisible.toggle()
+                        }
+                    })) {
+                        ForEach(viewModel.visibleBscTokens.filter {
+                                    searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
+                            TokenView(isTestnet: viewModel.isTestnet,
+                                      isAdded: viewModel.isAdded(token),
+                                      isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
+                                      symbol: token.symbol,
+                                      tokenItem: .token(token),
+                                      addAction: {
+                                        viewModel.addTokenToList(token: token, blockchain: .bsc(testnet: viewModel.isTestnet))
+                                      }, removeAction: { })
+                        }
+                    }
+                }
+                Color.white
+                    .frame(width: 50, height: 150, alignment: .center)
+                    .listRowInsets(EdgeInsets())
             }
         }
         .onDisappear(perform: {
@@ -116,19 +170,34 @@ extension AddNewTokensView {
     struct HeaderView: View {
         var text: String
         var additionalTopPadding: CGFloat = 0
+        var collapsible: Bool
+        var isExpanded: Bool = true
+        var onCollapseAction: (() -> Void)?
+        
         var body: some View {
             HStack {
                 Text(text)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.tangemTapGrayDark)
-                    .padding(.top, 16)
                     .padding(.leading, 20)
-                    .padding(.vertical, 5)
+                
                 Spacer()
+                if collapsible {
+                    Image(systemName: "chevron.down")
+                        .rotationEffect(isExpanded ? .zero : Angle(degrees: -90))
+                        .padding(.trailing, 16)
+                        .foregroundColor(.tangemTapGrayDark)
+                }
             }
+            
+            .padding(.top, 16)
+            .padding(.vertical, 5)
             .padding(.top, additionalTopPadding)
             .background(Color.white)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .onTapGesture(perform: {
+                onCollapseAction?()
+            })
         }
     }
 }

@@ -8,14 +8,12 @@
 
 import Foundation
 import WalletConnectSwift
+import Combine
+import TangemSdk
 
 class PersonalSignHandler: WalletConnectSignHandler {
     
     override var action: WalletConnectAction { .personalSign }
-    
-    override func canHandle(request: Request) -> Bool {
-        request.method == action.rawValue
-    }
 
     override func handle(request: Request) {
         do {
@@ -35,11 +33,35 @@ class PersonalSignHandler: WalletConnectSignHandler {
             delegate?.sendInvalid(request)
         }
     }
+    
+    override func signatureResponse(for signature: String, session: WalletConnectSession, request: Request) -> Response {
+        .signature(signature, for: request)
+    }
+    
+    override func sign(data: Data, cardId: String, walletPublicKey: Data) -> AnyPublisher<String, Error> {
+        let hash = data.sha3(.keccak256)
+        
+        return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
+            .tryMap { response -> String in
+                if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response,
+                                                                  hash: hash,
+                                                                  publicKey: walletPublicKey) {
+                    
+                    let strSig =  "0x" + unmarshalledSig.r.hexString + unmarshalledSig.s.hexString +
+                        unmarshalledSig.v.hexString
+                    return strSig
+                } else {
+                    throw WalletConnectServiceError.signFailed
+                }
+            }
+            .eraseToAnyPublisher()
+    }
 
     private func makePersonalMessageData(_ data: Data) -> Data {
         let prefix = "\u{19}Ethereum Signed Message:\n"
         let prefixData = (prefix + "\(data.count)").data(using: .utf8)!
         return prefixData + data
     }
+    
 }
 
