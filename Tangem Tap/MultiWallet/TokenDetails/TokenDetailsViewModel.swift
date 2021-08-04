@@ -12,7 +12,7 @@ import Combine
 class TokenDetailsViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var topupService: TopupService!
+    weak var exchangeService: ExchangeService!
     
     var card: CardViewModel! {
         didSet {
@@ -28,28 +28,65 @@ class TokenDetailsViewModel: ViewModel {
         return card.walletModels?.first(where: { $0.wallet.blockchain == blockchain })
     }
     
-    var incomingTransactions: [BlockchainSdk.Transaction] {
-        wallet?.incomingTransactions.filter { $0.amount.type == amountType } ?? []
+    var incomingTransactions: [PendingTransaction] {
+        walletModel?.incomingPendingTransactions ?? []
     }
     
-    var outgoingTransactions: [BlockchainSdk.Transaction] {
-        wallet?.outgoingTransactions.filter { $0.amount.type == amountType } ?? []
+    var outgoingTransactions: [PendingTransaction] {
+        walletModel?.outgoingPendingTransactions ?? []
     }
     
-    var canTopup: Bool {
-        card.canTopup
+    var canBuyCrypto: Bool {
+        card.canExchangeCrypto && buyCryptoUrl != nil
     }
     
-    var topupURL: URL? {
+    var canSellCrypto: Bool {
+        card.canExchangeCrypto && sellCryptoUrl != nil
+    }
+    
+    var buyCryptoUrl: URL? {
         if let wallet = wallet {
-            return topupService.getTopupURL(currencySymbol: wallet.blockchain.currencySymbol,
-                                            walletAddress: wallet.address)
+            
+            if blockchain.isTestnet {
+                return URL(string: blockchain.testnetBuyCryptoLink ?? "")
+            }
+            
+            let address = wallet.address
+            switch amountType {
+            case .coin:
+                return exchangeService.getBuyUrl(currencySymbol: blockchain.currencySymbol, walletAddress: address)
+            case .token(let token):
+                return exchangeService.getBuyUrl(currencySymbol: token.symbol, walletAddress: address)
+            case .reserve:
+                break
+            }
         }
         return nil
     }
     
-    var topupCloseUrl: String {
-        topupService.topupCloseUrl.removeLatestSlash()
+    var buyCryptoCloseUrl: String {
+        exchangeService.successCloseUrl.removeLatestSlash()
+    }
+    
+    var sellCryptoRequestUrl: String {
+        exchangeService.sellRequestUrl.removeLatestSlash()
+    }
+    
+    var sellCryptoUrl: URL? {
+        if let wallet = wallet {
+            
+            let address = wallet.address
+            switch amountType {
+            case .coin:
+                return exchangeService.getSellUrl(currencySymbol: blockchain.currencySymbol, walletAddress: address)
+            case .token(let token):
+                return exchangeService.getSellUrl(currencySymbol: token.symbol, walletAddress: address)
+            case .reserve:
+                break
+            }
+        }
+        
+        return nil
     }
     
     var canSend: Bool {
@@ -61,18 +98,19 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     var canDelete: Bool {
-        if case .noAccount = walletModel?.state {
-            return true
-        }
-        
-        guard let amount = amountToSend, let walletModel = self.walletModel else {
+        guard let walletModel = self.walletModel else {
             return false
         }
         
-        if amount.type == .coin {
+        let canRemoveAmountType = walletModel.canRemove(amountType: amountType)
+        if case .noAccount = walletModel.state, canRemoveAmountType {
+            return true
+        }
+        
+        if amountType == .coin {
             return card.canRemoveBlockchain(walletModel.wallet.blockchain)
         } else {
-            return walletModel.canRemove(amountType: amount.type)
+            return canRemoveAmountType
         }
     }
     
@@ -93,6 +131,12 @@ class TokenDetailsViewModel: ViewModel {
         wallet?.amounts[amountType]
     }
     
+    var transactionToPush: BlockchainSdk.Transaction? {
+        guard let index = txIndexToPush else { return nil }
+        
+        return wallet?.pendingOutgoingTransactions[index]
+    }
+    
     var title: String {
         if let token = amountType.token {
             return token.name
@@ -101,10 +145,22 @@ class TokenDetailsViewModel: ViewModel {
         }
     }
     
+    var tokenSubtitle: String? {
+        if amountType.token == nil {
+            return nil
+        }
+        
+        return blockchain.tokenDisplayName
+    }
+    
     @Published var isRefreshing = false
+    @Published var txIndexToPush: Int? = nil
     
     let amountType: Amount.AmountType
     let blockchain: Blockchain
+    
+    var sellCryptoRequest: SellCryptoRequest? = nil
+    
     private var bag = Set<AnyCancellable>()
     
     init(blockchain: Blockchain, amountType: Amount.AmountType) {
@@ -113,7 +169,7 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     func onRemove() {
-        if let walletModel = self.walletModel, case .noAccount = walletModel.state {
+        if let walletModel = self.walletModel, amountType == .coin, case .noAccount = walletModel.state {
             card.removeBlockchain(walletModel.wallet.blockchain)
             return
         }
@@ -125,6 +181,61 @@ class TokenDetailsViewModel: ViewModel {
                 walletModel.removeToken(token)
             }
         }
+    }
+    
+    func buyCryptoAction() {
+        guard
+            card.isTestnet,
+            let token = amountType.token,
+            case .ethereum(testnet: true) = token.blockchain
+        else {
+            if buyCryptoUrl != nil {
+                navigation.detailsToBuyCrypto = true
+            }
+            return
+        }
+        
+        guard let model = walletModel else { return }
+        
+        TestnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
+    }
+    
+    func sellCryptoAction() {
+        navigation.detailsToSellCrypto = true
+    }
+    
+    func pushOutgoingTx(at index: Int) {
+        resetViewModel(of: PushTxViewModel.self)
+        txIndexToPush = index
+    }
+    
+    func processSellCryptoRequest(_ request: String) {
+        guard let request = exchangeService.extractSellCryptoRequest(from: request) else {
+            return
+        }
+        
+        resetViewModel(of: SendViewModel.self)
+        sellCryptoRequest = request
+        navigation.detailsToSend = true
+    }
+    
+    func sendButtonAction() {
+        resetViewModel(of: SendViewModel.self)
+        sellCryptoRequest = nil
+        navigation.detailsToSend = true
+    }
+    
+    func sendAnalyticsEvent(_ event: Analytics.Event) {
+        switch event {
+        case .userBoughtCrypto:
+            Analytics.log(event: event, with: [.currencyCode: blockchain.currencySymbol])
+        default:
+            break
+        }
+    }
+    
+    private func resetViewModel<T>(of typeToReset: T) {
+        assembly.reset(key: String(describing: type(of: typeToReset)))
     }
     
     private func bind() {
@@ -166,4 +277,8 @@ class TokenDetailsViewModel: ViewModel {
             }
             .store(in: &bag)
     }
+}
+
+extension Int: Identifiable {
+    public var id: Int { self }
 }

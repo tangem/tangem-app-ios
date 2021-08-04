@@ -8,6 +8,7 @@
 
 import Foundation
 import Alamofire
+import TangemSdk
 
 struct HexEncoding: ParameterEncoding {
     
@@ -20,7 +21,7 @@ struct HexEncoding: ParameterEncoding {
     func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
         var urlRequest = try urlRequest.asURLRequest()
         urlRequest.setValue("text/plain", forHTTPHeaderField: "Content-Type")
-        urlRequest.httpBody = data.asHexString().data(using: .utf8)
+        urlRequest.httpBody = data.hexString.data(using: .utf8)
         return urlRequest
     }
 
