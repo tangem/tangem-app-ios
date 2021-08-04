@@ -13,8 +13,8 @@ enum TwinCardSeries: String, CaseIterable {
 	
 	var number: Int {
 		switch self {
-		case .cb61, .cb64: return 1
-		case .cb62, .cb65: return 2
+        case .cb61, .cb64: return 1
+        case .cb62, .cb65: return 2
 		}
 	}
 	
@@ -27,8 +27,8 @@ enum TwinCardSeries: String, CaseIterable {
 		}
 	}
 	
-	static func series(for cardId: String?) -> TwinCardSeries? {
-		TwinCardSeries.allCases.first(where: { cardId?.hasPrefix($0.rawValue) ?? false })
+	static func series(for cardId: String) -> TwinCardSeries? {
+		TwinCardSeries.allCases.first(where: { cardId.hasPrefix($0.rawValue) })
 	}
 }
 

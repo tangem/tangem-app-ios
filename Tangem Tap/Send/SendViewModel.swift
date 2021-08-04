@@ -57,17 +57,17 @@ class SendViewModel: ViewModel {
     
     // MARK: UI
     var shoudShowFeeSelector: Bool {
-        return walletModel.txSender.allowsFeeSelection
+        walletModel.txSender.allowsFeeSelection
     }
     
     var shoudShowFeeIncludeSelector: Bool {
-        return amountToSend.type == .coin
+        amountToSend.type == .coin && !isSellingCrypto
     }
     
     var shouldShowNetworkBlock: Bool  {
-        return shoudShowFeeSelector || shoudShowFeeIncludeSelector
+        shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
-
+    
     var isPayIdSupported: Bool {
         featuresService.canSendToPayId
             && cardViewModel.payIDService != nil
@@ -78,7 +78,18 @@ class SendViewModel: ViewModel {
     }
     
     var additionalInputFields: SendAdditionalFields {
-        .fields(for: cardViewModel.cardInfo.card)
+        .fields(for: blockchain)
+    }
+    
+    var memoPlaceholder: String {
+        switch blockchain {
+        case .xrp, .stellar:
+            return "send_extras_hint_memo_id".localized
+        case .binance:
+            return "send_extras_hint_memo".localized
+        default:
+            return ""
+        }
     }
     
     var inputDecimalsCount: Int? {
@@ -103,15 +114,17 @@ class SendViewModel: ViewModel {
     
     // MARK: Additional input
     @Published var isAdditionalInputEnabled: Bool = false
-	@Published var memo: String = ""
+    @Published var memo: String = ""
     @Published var memoHint: TextHint? = nil
     @Published var validatedMemoId: UInt64? = nil
+    @Published var validatedMemo: String? = nil
     @Published var destinationTagStr: String = ""
     @Published var destinationTagHint: TextHint? = nil
     
     @Published var sendError: AlertBinder?
     
     var signer: TransactionSigner
+    
     var cardViewModel: CardViewModel {
         didSet {
             cardViewModel
@@ -159,6 +172,8 @@ class SendViewModel: ViewModel {
     @Published private var amountValidated: Bool = false
     @Published private(set) var amountToSend: Amount
     
+    private(set) var isSellingCrypto: Bool
+    
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
     private var blockchain: Blockchain
@@ -169,8 +184,8 @@ class SendViewModel: ViewModel {
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
+        isSellingCrypto = false
         let feeDummyAmount = Amount(with: walletModel.wallet.blockchain,
-                                    address: walletModel.wallet.address,
                                     type: .coin,
                                     value: 0)
         self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount, isFiat: isFiatCalculation)
@@ -178,6 +193,16 @@ class SendViewModel: ViewModel {
         fillTotalBlockWithDefaults()
         bind()
         setupWarnings()
+    }
+    
+    convenience init(amountToSend: Amount, destination: String, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
+        self.init(amountToSend: amountToSend, blockchain: blockchain, cardViewModel: cardViewModel, signer: signer, warningsManager: warningsManager)
+        isSellingCrypto = true
+        self.destination = destination
+        canFiatCalculation = false
+        sendAmount = amountToSend.value.description
+        amountText = sendAmount
+        
     }
     
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
@@ -213,7 +238,7 @@ class SendViewModel: ViewModel {
         
         $transaction
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
-        //.debounce(for: 0.3, scheduler: RunLoop.main)
+            //.debounce(for: 0.3, scheduler: RunLoop.main)
             //update total block
             .sink { [unowned self] tx, isFiatCalculation in
                 if let tx = tx {
@@ -303,10 +328,10 @@ class SendViewModel: ViewModel {
         
         $amountValidated //update fee
             .filter { $0 }
-            .combineLatest($validatedDestination.compactMap { $0 },  $isFeeIncluded.uiPublisherWithFirst, $amountToSend)
-            .flatMap { [unowned self] _, dest, includeFee, amountToSend -> AnyPublisher<[Amount], Never> in
+            .combineLatest($validatedDestination.compactMap { $0 }, $amountToSend)
+            .flatMap { [unowned self] _, dest, amountToSend -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-				return self.walletModel.txSender.getFee(amount: amountToSend, destination: dest, includeFee: includeFee)
+                return self.walletModel.txSender.getFee(amount: amountToSend, destination: dest)
                     .catch { error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
@@ -332,10 +357,10 @@ class SendViewModel: ViewModel {
                 if !amountValidated || destination == nil || fee == nil {
                     return nil
                 }
-
+                
                 let result = self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? self.amountToSend - fee! : self.amountToSend,
-                                                                                 fee: fee!,
-                                                                                 destinationAddress: destination!)
+                                                                              fee: fee!,
+                                                                              destinationAddress: destination!)
                 switch result {
                 case .success(let tx):
                     DispatchQueue.main.async {
@@ -382,7 +407,7 @@ class SendViewModel: ViewModel {
             .uiPublisher
             .combineLatest($isFiatCalculation)
             .sink{ [unowned self] newAmount, isFiat in
-                let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, address: self.walletModel.wallet.address, type: .coin, value: 0)
+                let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, type: .coin, value: 0)
                 self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
             }
             .store(in: &bag)
@@ -405,14 +430,21 @@ class SendViewModel: ViewModel {
         $memo
             .uiPublisher
             .sink(receiveValue: { [unowned self] memo in
-                self.validatedMemoId = nil
-                self.memoHint = nil
-                
-                if memo.isEmpty { return }
-                
-                let memoId = UInt64(memo)
-                self.validatedMemoId = memoId
-                self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
+                switch blockchain {
+                case .binance:
+                    self.validatedMemo = memo
+                case .xrp, .stellar:
+                    self.validatedMemoId = nil
+                    self.memoHint = nil
+                    
+                    if memo.isEmpty { return }
+                    
+                    let memoId = UInt64(memo)
+                    self.validatedMemoId = memoId
+                    self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
+                default:
+                    break
+                }
             })
             .store(in: &bag)
         
@@ -459,7 +491,7 @@ class SendViewModel: ViewModel {
     
     func validateAddress(_ address: String) -> Bool {
         return walletModel.wallet.blockchain.validate(address: address)
-			&& !walletModel.wallet.addresses.contains(where: { $0.value == address })
+            && !walletModel.wallet.addresses.contains(where: { $0.value == address })
     }
     
     
@@ -576,10 +608,14 @@ class SendViewModel: ViewModel {
             tx.params = XRPTransactionParams(destinationTag: destinationTag)
         }
         
-        if let memo = self.validatedMemoId, isAdditionalInputEnabled {
-            tx.params = StellarTransactionParams(memo: .id(memo))
+        if let memoId = self.validatedMemoId, isAdditionalInputEnabled {
+            tx.params = StellarTransactionParams(memo: .id(memoId))
         }
-
+        
+        if let memo = self.validatedMemo, isAdditionalInputEnabled {
+            tx.params = BinanceTransactionParams(memo: memo)
+        }
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
         walletModel.txSender.send(tx, signer: signer)
@@ -596,7 +632,11 @@ class SendViewModel: ViewModel {
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-                    Analytics.logTx(blockchainName: self.cardViewModel.cardInfo.card.cardData?.blockchainName)
+                    if self.isSellingCrypto {
+                        Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchain.currencySymbol])
+                    } else {
+                        Analytics.logTx(blockchainName: self.blockchain.displayName)
+                    }
                     callback()
                 }
                 
