@@ -18,13 +18,13 @@ protocol EmailDataCollector {
 extension EmailDataCollector {
     var attachment: Data? { nil }
     
-    fileprivate func collectData(from card: Card) -> [EmailCollectedData] {
+    fileprivate func collectData(from cardInfo: CardInfo) -> [EmailCollectedData] {
         var data = [
-            EmailCollectedData(type: .card(.cardId), data: card.cardId ?? ""),
-            EmailCollectedData(type: .card(.firmwareVersion), data: card.firmwareVersion?.version ?? ""),
+            EmailCollectedData(type: .card(.cardId), data: cardInfo.card.cardId),
+            EmailCollectedData(type: .card(.firmwareVersion), data: cardInfo.card.firmwareVersion.stringValue),
         ]
         
-        if let blockchain = card.cardData?.blockchainName {
+        if let blockchain = cardInfo.defaultBlockchain?.displayName {
             data.append(EmailCollectedData(type: .card(.cardBlockchain), data: blockchain))
         }
         
@@ -41,9 +41,9 @@ class NegativeFeedbackDataCollector: EmailDataCollector {
     weak var cardRepository: CardsRepository!
     
     var dataForEmail: String {
-        guard let card = cardRepository.lastScanResult.card else { return "" }
+        guard let cardInfo = cardRepository.lastScanResult.cardModel?.cardInfo else { return "" }
         
-        return formatData(collectData(from: card))
+        return formatData(collectData(from: cardInfo))
     }
 }
 
@@ -55,8 +55,8 @@ struct SendScreenDataCollector: EmailDataCollector {
     var lastError: Error? = nil
     
     var dataForEmail: String {
-        let card = sendViewModel.cardViewModel.cardInfo.card
-        var data = collectData(from: card)
+        let cardInfo = sendViewModel.cardViewModel.cardInfo
+        var data = collectData(from: cardInfo)
         data.append(.separator(.dashes))
         switch sendViewModel.amountToSend.type {
         case .coin:
@@ -82,15 +82,51 @@ struct SendScreenDataCollector: EmailDataCollector {
     
 }
 
+struct PushScreenDataCollector: EmailDataCollector {
+    
+    unowned var pushTxViewModel: PushTxViewModel
+    
+    var lastError: Error? = nil
+    
+    var dataForEmail: String {
+        let cardInfo = pushTxViewModel.cardViewModel.cardInfo
+        var data = collectData(from: cardInfo)
+        data.append(.separator(.dashes))
+        switch pushTxViewModel.amountToSend.type {
+        case .coin:
+            data.append(EmailCollectedData(type: .card(.blockchain), data: pushTxViewModel.amountToSend.currencySymbol))
+        case .token(let token):
+            data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
+        default:
+            break
+        }
+        
+        data.append(contentsOf: [
+            EmailCollectedData(type: .wallet(.walletManagerHost), data: pushTxViewModel.walletModel.walletManager.currentHost),
+            EmailCollectedData(type: .error, data: lastError?.localizedDescription ?? "Unknown error"),
+            .separator(.dashes),
+            EmailCollectedData(type: .send(.pushingTxHash), data: pushTxViewModel.transaction.hash ?? .unknown),
+            EmailCollectedData(type: .send(.pushingFee), data: pushTxViewModel.selectedFee?.description ?? .unknown),
+            EmailCollectedData(type: .send(.sourceAddress), data: pushTxViewModel.transaction.sourceAddress),
+            EmailCollectedData(type: .send(.destinationAddress), data: pushTxViewModel.transaction.destinationAddress),
+            EmailCollectedData(type: .send(.amount), data: pushTxViewModel.amount),
+            EmailCollectedData(type: .send(.fee), data: pushTxViewModel.newFee),
+        ])
+        
+        return formatData(data)
+    }
+    
+}
+
 struct DetailsFeedbackDataCollector: EmailDataCollector {
     
     unowned var cardModel: CardViewModel
     
     var dataForEmail: String {
-        let card = cardModel.cardInfo.card
+        let cardInfo = cardModel.cardInfo
         
-        var dataToFormat = collectData(from: card)
-        let signedHashesConsolidated = card.wallets.filter { $0.curve != nil }.map { " \($0.curve!.rawValue) - \($0.signedHashes?.description ?? "0")" }.joined(separator: ";")
+        var dataToFormat = collectData(from: cardInfo)
+        let signedHashesConsolidated = cardInfo.card.wallets.map { " \($0.curve.rawValue) - \($0.totalSignedHashes ?? 0)" }.joined(separator: ";")
         dataToFormat.append(EmailCollectedData(type: .wallet(.signedHashes), data: "\(signedHashesConsolidated)"))
         
         if case let .loaded(walletModels) = cardModel.state {
