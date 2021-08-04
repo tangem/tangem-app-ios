@@ -45,12 +45,12 @@ struct DetailsView: View {
                 DetailsRowView(title: "details_row_title_cid".localized,
                                subtitle: viewModel.cardCid)
                 DetailsRowView(title: "details_row_title_issuer".localized,
-                               subtitle: viewModel.cardModel.cardInfo.card.cardData?.issuerName ?? " ")
+                               subtitle: viewModel.cardModel.cardInfo.card.issuer.name)
 
                 if viewModel.hasWallet, !viewModel.isTwinCard {
                     DetailsRowView(title: "details_row_title_signed_hashes".localized,
                                    subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
-                                                    viewModel.cardModel.cardInfo.card.walletSignedHashes.description))
+                                                    "\(viewModel.cardModel.cardInfo.card.walletSignedHashes)"))
                 }
                 Button(action: {
                     viewModel.checkPin {
@@ -113,7 +113,9 @@ struct DetailsView: View {
                         .foregroundColor(.tangemTapGrayDark6)
                 })
                 .sheet(isPresented: $navigation.detailsToSendEmail, content: {
-                    MailView(dataCollector: viewModel.dataCollector, support: viewModel.cardModel.emailSupport, emailType: EmailType.appFeedback)
+                    MailView(dataCollector: viewModel.dataCollector,
+                             support: viewModel.cardModel.emailSupport,
+                             emailType: .appFeedback(support: viewModel.cardModel.isStart2CoinCard ? .start2coin : .tangem))
                 })
                 
                 if let cardTouURL = viewModel.cardTouURL {

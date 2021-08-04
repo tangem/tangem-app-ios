@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public class BitcoinCashAddressService: AddressService {
     public func makeAddress(from walletPublicKey: Data) -> String {
