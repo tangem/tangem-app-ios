@@ -57,7 +57,7 @@ struct OnboardingView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     
     static var previews: some View {
-        OnboardingView(viewModel: assembly.)
+        OnboardingView(viewModel: .init(cardsRepository: CardsRepository()))
             .environmentObject(assembly.services.navigationCoordinator)
     }
 }
