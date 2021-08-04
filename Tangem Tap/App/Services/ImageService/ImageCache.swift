@@ -13,8 +13,10 @@ import var CommonCrypto.CC_MD5_DIGEST_LENGTH
 import func CommonCrypto.CC_MD5
 import typealias CommonCrypto.CC_LONG
 
+//[REDACTED_TODO_COMMENT]
+
 // Declares in-memory image cache
-public protocol ImageCacheType: class {
+public protocol ImageCacheType: AnyObject {
     // Returns the image associated with a given url
     func image(for url: URL) -> UIImage?
     // Inserts the image of the specified url in the cache
@@ -35,7 +37,7 @@ public final class ImageCache: ImageCacheType {
 
         public static let defaultConfig = Config(countLimit: 100, memoryLimit: 1024 * 1024 * 70) // 100 MB
     }
-    
+
     private lazy var imageCache: NSCache<AnyObject, AnyObject> = {
         let cache = NSCache<AnyObject, AnyObject>()
         cache.countLimit = config.countLimit
@@ -47,7 +49,7 @@ public final class ImageCache: ImageCacheType {
         return cache
     }()
     private let fileManager: FileManager = .default
-    
+
     private var cacheFolderUrl: URL {
         let url = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("ImageCache")
         if !fileManager.fileExists(atPath: url.path){
@@ -55,9 +57,9 @@ public final class ImageCache: ImageCacheType {
         }
         return url
     }
-    
+
     private let config: Config
-    
+
     public init(config: Config = Config.defaultConfig) {
         self.config = config
     }
@@ -66,17 +68,17 @@ public final class ImageCache: ImageCacheType {
         if let decodedImage = decodedImageCache.object(forKey: url as AnyObject) as? UIImage {
             return decodedImage
         }
-        
+
         func saveToDecodedCache(image: UIImage) {
             decodedImageCache.setObject(image as AnyObject, forKey: url as AnyObject, cost: image.diskSize)
         }
-        
+
         if let image = imageCache.object(forKey: url as AnyObject) as? UIImage {
             let decodedImage = image.decodedImage()
             saveToDecodedCache(image: decodedImage)
             return decodedImage
         }
-        
+
         if let data = try? Data(contentsOf: localFileUrl(for: url)),
            let image = UIImage(data: data) {
             saveToDecodedCache(image: image)
@@ -116,7 +118,7 @@ public final class ImageCache: ImageCacheType {
         get { image(for: key) }
         set { insertImage(newValue, for: key) }
     }
-    
+
     private func localFileUrl(for remoteUrl: URL) -> URL {
         let fileName = remoteUrl.absoluteString.md5String
         return cacheFolderUrl.appendingPathComponent(fileName)
@@ -128,7 +130,7 @@ fileprivate extension String {
         let length = Int(CC_MD5_DIGEST_LENGTH)
         let messageData = data(using:.utf8)!
         var digestData = Data(count: length)
-        
+
         _ = digestData.withUnsafeMutableBytes { digestBytes -> UInt8 in
             messageData.withUnsafeBytes { messageBytes -> UInt8 in
                 if let messageBytesBaseAddress = messageBytes.baseAddress, let digestBytesBlindMemory = digestBytes.bindMemory(to: UInt8.self).baseAddress {
