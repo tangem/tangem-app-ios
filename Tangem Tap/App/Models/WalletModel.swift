@@ -49,6 +49,33 @@ class WalletModel: ObservableObject, Identifiable {
         getFiat(for: wallet.amounts[.coin]) ?? 0
     }
     
+    var isTestnet: Bool {
+        wallet.blockchain.isTestnet
+    }
+    
+    var pendingTransactions: [PendingTransaction] {
+        incomingPendingTransactions + outgoingPendingTransactions
+    }
+    
+    var incomingPendingTransactions: [PendingTransaction] {
+        wallet.pendingIncomingTransactions.map {
+            PendingTransaction(destination: $0.sourceAddress, transferAmount: $0.amount.description, canBePushed: false, direction: .incoming)
+        }
+    }
+    
+    var outgoingPendingTransactions: [PendingTransaction] {
+        let txPusher = walletManager as? TransactionPusher
+        
+        return wallet.pendingOutgoingTransactions.map {
+            let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
+            
+            return PendingTransaction(destination: $0.destinationAddress,
+                                      transferAmount: $0.amount.description,
+                                      canBePushed: false, // (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime, //[REDACTED_TODO_COMMENT]
+                                      direction: .outgoing)
+        }
+    }
+    
     let walletManager: WalletManager
     private let defaultToken: Token?
     private var bag = Set<AnyCancellable>()

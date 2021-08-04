@@ -69,31 +69,31 @@ public class MuxedAccount: Account
     /// Creates a MuxedAccount from a secretSeed "S..." and a sequence number
     /// The account will be of type ED25519 if you do not provide an id
     /// The account will be of type MUXED_ED25519 if you provide an id
-    public convenience init(secretSeed:String, sequenceNumber: Int64, id:UInt64? = nil) throws {
-        let keyPair = try StellarKeyPair(secretSeed: secretSeed)
-        self.init(keyPair: keyPair, sequenceNumber: sequenceNumber, id:id)
-    }
+//    public convenience init(secretSeed:String, sequenceNumber: Int64, id:UInt64? = nil) throws {
+//        let keyPair = try StellarKeyPair(secretSeed: secretSeed)
+//        self.init(keyPair: keyPair, sequenceNumber: sequenceNumber, id:id)
+//    }
     
     /// Creates a MuxedAccount from an account id wich can start with "M" or with "G" and a sequence number
     /// Optionally you can also send the secret seed "S..."
     /// The account will be of type MUXED_ED25519 if the account id starts with "M" (contains the id)
     /// The account will be of type ED25519 if the account id starts with "G" (does not contain the id)
-    public convenience init(accountId:String, secretSeed:String? = nil, sequenceNumber: Int64) throws {
-        
-        let mux = try accountId.decodeMuxedAccount()
-        let keyPair:StellarKeyPair
-        if let oseed = secretSeed {
-            keyPair = try StellarKeyPair(secretSeed: oseed)
-        } else {
-            keyPair = try StellarKeyPair(publicKey: StellarPublicKey(accountId: mux.ed25519AccountId))
-        }
-        var id:UInt64? = nil
-        switch mux {
-        case .med25519(let med):
-            id = med.id
-        default:
-            break
-        }
-        self.init(keyPair: keyPair, sequenceNumber: sequenceNumber, id:id)
-    }
+//    public convenience init(accountId:String, secretSeed:String? = nil, sequenceNumber: Int64) throws {
+//
+//        let mux = try accountId.decodeMuxedAccount()
+//        let keyPair:StellarKeyPair
+//        if let oseed = secretSeed {
+//            keyPair = try StellarKeyPair(secretSeed: oseed)
+//        } else {
+//            keyPair = try StellarKeyPair(publicKey: StellarPublicKey(accountId: mux.ed25519AccountId))
+//        }
+//        var id:UInt64? = nil
+//        switch mux {
+//        case .med25519(let med):
+//            id = med.id
+//        default:
+//            break
+//        }
+//        self.init(keyPair: keyPair, sequenceNumber: sequenceNumber, id:id)
+//    }
 }
