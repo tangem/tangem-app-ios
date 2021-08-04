@@ -112,21 +112,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.assembly.services.navigationCoordinator.reset()
         }
-        
-//                if let window = window {
-//                    let coordinator = NavigationCoordinator()
-//                    assembly.services.navigationCoordinator = coordinator
-//                    window.rootViewController = prepareRootController(with: coordinator)
-//                    UIView.transition(with: window, duration: 0.3, options: .curveEaseIn, animations: { }, completion: nil)
-//                }
-        
     }
     
-    private func prepareRootController(with navigation: NavigationCoordinator? = nil) -> UIViewController {
-        let vm = assembly.makeReadViewModel(with: navigation)
+    private func prepareRootController() -> UIViewController {
+        let vm = assembly.makeReadViewModel()
         let contentView = ContentView() { ReadView(viewModel: vm) }
             .environmentObject(assembly)
-            .environmentObject(navigation ?? assembly.services.navigationCoordinator)
+            .environmentObject(assembly.services.navigationCoordinator)
         return UIHostingController(rootView: contentView)
     }
 }
