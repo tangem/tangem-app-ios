@@ -57,14 +57,12 @@ class DetailsViewModel: ViewModel {
 	}
     
     var cardTouURL: URL? {
-        guard cardModel.isStart2CoinCard,
-              let cid = cardModel.cardInfo.card.cardId
-        else { //is this card is S2C
+        guard cardModel.isStart2CoinCard else { //is this card is S2C
             return nil
         }
         
         let baseurl = "https://app.tangem.com/tou/"
-        let regionCode = self.regionCode(for: cid) ?? "fr"
+        let regionCode = self.regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
         let languageCode = Locale.current.languageCode ?? "fr"
         let filename = self.filename(languageCode: languageCode, regionCode: regionCode)
         let url = URL(string: baseurl + filename)
@@ -111,8 +109,7 @@ class DetailsViewModel: ViewModel {
     }
     
     var cardCid: String {
-        guard let cardId = cardModel.cardInfo.card.cardId else { return "" }
-        
+        let cardId = cardModel.cardInfo.card.cardId
         return isTwinCard ?
             TapTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series?.number) :
             TapCardIdFormatter(cid: cardId).formatted()
