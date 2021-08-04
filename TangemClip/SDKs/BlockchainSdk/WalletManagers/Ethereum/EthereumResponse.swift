@@ -30,6 +30,6 @@ struct EthereumError: Codable {
     let message: String?
     
     var error: Error {
-        NSError(domain: message ?? .unknown, code: code ?? -1, userInfo: nil)
+        NSError(domain: message ?? "unknown", code: code ?? -1, userInfo: nil)
     }
 }

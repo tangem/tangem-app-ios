@@ -14,21 +14,22 @@ import WebKit
 
 struct WebViewContainer: View {
     var url: URL?
-    var closeUrl: String? = nil
+//    var closeUrl: String? = nil
     var title: LocalizedStringKey
     var addLoadingIndicator = false
-    @Environment(\.presentationMode) var presentationMode
+//    [REDACTED_USERNAME](\.presentationMode) var presentationMode
     @State private var isLoading: Bool = true
     
-    var urlActions: [String : (() -> Void)]  {
-        if let closeUrl = closeUrl {
-            return [closeUrl: {
-                self.presentationMode.wrappedValue.dismiss()
-            }]
-        } else {
-            return [:]
-        }
-    }
+    var urlActions: [String : ((String) -> Void)] = [:]
+//    {
+//        if let closeUrl = closeUrl {
+//            return [closeUrl: {
+//                self.presentationMode.wrappedValue.dismiss()
+//            }]
+//        } else {
+//            return [:]
+//        }
+//    }
     
     var body: some View {
         ZStack {
@@ -46,12 +47,13 @@ struct WebViewContainer: View {
 
 struct WebView: UIViewRepresentable {
     var url: URL?
-    var urlActions: [String : (() -> Void)] = [:]
+    var urlActions: [String : ((String) -> Void)] = [:]
     var isLoading:  Binding<Bool>
     
     func makeUIView(context: Context) -> WKWebView {
         let view =  WKWebView()
         if let url = url {
+            print("Loading request with url: \(url)")
             view.load(URLRequest(url: url))
         }
         view.navigationDelegate = context.coordinator
@@ -61,10 +63,10 @@ struct WebView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {}
     
     class Coordinator: NSObject, WKNavigationDelegate {
-        let urlActions: [String: (() -> Void)]
+        let urlActions: [String: ((String) -> Void)]
         var isLoading:  Binding<Bool>
         
-        init(urlActions: [String : (() -> Void)] = [:], isLoading: Binding<Bool>) {
+        init(urlActions: [String : ((String) -> Void)] = [:], isLoading: Binding<Bool>) {
             self.urlActions = urlActions
             self.isLoading = isLoading
         }
@@ -73,7 +75,7 @@ struct WebView: UIViewRepresentable {
             if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
                let actionForURL = urlActions[String(url).removeLatestSlash()] {
                 decisionHandler(.cancel)
-                actionForURL()
+                actionForURL(navigationAction.request.url!.absoluteString)
                 return
             }
             

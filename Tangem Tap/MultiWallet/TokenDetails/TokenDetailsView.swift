@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BlockchainSdk
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
@@ -15,54 +16,95 @@ struct TokenDetailsView: View {
     
     var pendingTransactionViews: [PendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
-            return PendingTxView(txState: .incoming, amount: $0.amount.description, address: $0.sourceAddress)
+            PendingTxView(pendingTx: $0)
         }
         
-        let outgTx = viewModel.outgoingTransactions.map {
-            return PendingTxView(txState: .outgoing, amount: $0.amount.description, address: $0.destinationAddress)
+        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) in
+            PendingTxView(pendingTx: pendingTx) {
+                viewModel.pushOutgoingTx(at: index)
+            }
         }
         
         return incTx + outgTx
     }
     
+    private var buyCryptoButtonInfo: HorizontalButtonStack.ButtonInfo {
+        .init(imageName: "arrow.up",
+              title: "wallet_button_topup",
+              action: { viewModel.buyCryptoAction() },
+              isDisabled: !viewModel.canBuyCrypto)
+    }
+    private var sellCryptoButtonInfo: HorizontalButtonStack.ButtonInfo {
+        .init(imageName: "arrow.down",
+              title: "wallet_button_sell_crypto",
+              action: { viewModel.sellCryptoAction() },
+              isDisabled: !viewModel.canSellCrypto || !viewModel.canSend)
+    }
+    
+    private var sendButtonInfo: HorizontalButtonStack.ButtonInfo {
+        .init(imageName: "arrow.right",
+              title: "wallet_button_send",
+              action: viewModel.sendButtonAction,
+              isDisabled: !viewModel.canSend)
+    }
+    private var bottomButtonsInfo: [HorizontalButtonStack.ButtonInfo] {
+        var buttons = [HorizontalButtonStack.ButtonInfo]()
+        
+        buttons.append(buyCryptoButtonInfo)
+        
+        if viewModel.canSellCrypto {
+            buttons.append(sellCryptoButtonInfo)
+        }
+        
+        buttons.append(sendButtonInfo)
+        return buttons
+    }
+    
     var navigationLinks: some View {
         Group {
-            NavigationLink(destination: WebViewContainer(url: viewModel.topupURL,
-                                                         closeUrl: viewModel.topupCloseUrl,
+            NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoUrl,
+//                                                         closeUrl: viewModel.topupCloseUrl,
                                                          title: "wallet_button_topup",
-                                                         addLoadingIndicator: true),
-                           isActive: $navigation.detailsToTopup)
+                                                         addLoadingIndicator: true,
+                                                         urlActions: [
+                                                            viewModel.buyCryptoCloseUrl: { _ in
+                                                                navigation.detailsToBuyCrypto = false
+                                                                viewModel.sendAnalyticsEvent(.userBoughtCrypto)
+                                                            }
+                                                         ]),
+                           isActive: $navigation.detailsToBuyCrypto)
+            
+            NavigationLink(destination: WebViewContainer(url: viewModel.sellCryptoUrl,
+                                                         title: "wallet_button_sell_crypto",
+                                                         addLoadingIndicator: true,
+                                                         urlActions: [
+                                                            viewModel.sellCryptoRequestUrl: { response in
+                                                                viewModel.processSellCryptoRequest(response)
+                                                            }
+                                                         ]),
+                           isActive: $navigation.detailsToSellCrypto)
+            
+            //https://forums.swift.org/t/14-5-beta3-navigationlink-unexpected-pop/45279
+            // Weird IOS 14.5/XCode 12.5 bug. Navigation link cause an immediate pop, if there are exactly 2 links presented
+            NavigationLink(destination: EmptyView()) {
+                EmptyView()
+            }
         }
     }
     
     @ViewBuilder var bottomButtons: some View {
-        let sendAction = {
-            viewModel.assembly.reset(key: String(describing: type(of: SendViewModel.self)))
-            navigation.detailsToSend = true
-        }
-        
         HStack(alignment: .center) {
-            if viewModel.canTopup  {
-                TwinButton(leftImage: "arrow.up",
-                           leftTitle: "wallet_button_topup",
-                           leftAction: { navigation.detailsToTopup = true },
-                           leftIsDisabled: false,
-                           
-                           rightImage: "arrow.right",
-                           rightTitle: "wallet_button_send",
-                           rightAction: sendAction,
-                           rightIsDisabled: !viewModel.canSend)
-            } else {
-                TangemLongButton(isLoading: false,
-                                 title: "wallet_button_send",
-                                 image: "arrow.right",
-                                 action: sendAction)
-                    .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
-                    .disabled(!self.viewModel.canSend)
-            }
+            HorizontalButtonStack(buttons: bottomButtonsInfo)
         }
         .sheet(isPresented: $navigation.detailsToSend) {
-            if let amountToSend = viewModel.amountToSend {
+            if let sellCryptoRequest = viewModel.sellCryptoRequest {
+                SendView(viewModel: viewModel.assembly.makeSellCryptoSendViewModel(
+                            with: Amount(with: viewModel.blockchain, value: sellCryptoRequest.amount),
+                            destination: sellCryptoRequest.targetAddress,
+                            blockchain: viewModel.blockchain,
+                            card: viewModel.card), onSuccess: {})
+                    .environmentObject(navigation)
+            } else if let amountToSend = viewModel.amountToSend {
                 SendView(viewModel: viewModel.assembly.makeSendViewModel(
                             with: amountToSend,
                             blockchain: viewModel.blockchain,
@@ -78,11 +120,27 @@ struct TokenDetailsView: View {
             
             Text(viewModel.title)
                 .font(Font.system(size: 36, weight: .bold, design: .default))
+            if let subtitle = viewModel.tokenSubtitle {
+                Text(subtitle)
+                    .font(.system(size: 14, weight: .regular, design: .default))
+                    .foregroundColor(.tangemTapGrayDark)
+                    .padding(.bottom, 8)
+            }
+            
             
             GeometryReader { geometry in
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
                         ForEach(self.pendingTransactionViews) { $0 }
+                            .sheet(item: $viewModel.txIndexToPush) { index in
+                                if let tx = viewModel.transactionToPush {
+                                    PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
+                                                                                               blockchain: viewModel.blockchain,
+                                                                                               card: viewModel.card),
+                                               onSuccess: {})
+                                        .environmentObject(navigation)
+                                }
+                            }
                         
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(walletModel: walletModel, amountType: viewModel.amountType)
@@ -120,7 +178,7 @@ struct TokenDetailsView: View {
         .ignoresKeyboard()
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                     .filter {_ in !navigation.detailsToSend
-                        && !navigation.detailsToTopup
+                        && !navigation.detailsToBuyCrypto && !navigation.detailsToSellCrypto
                     }
                     .delay(for: 0.5, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in

@@ -10,11 +10,11 @@ import Foundation
 import TangemSdk
 import Combine
 
-protocol WarningsConfigurator: class {
-    func setupWarnings(for card: Card)
+protocol WarningsConfigurator: AnyObject {
+    func setupWarnings(for cardInfo: CardInfo)
 }
 
-protocol WarningAppendor: class {
+protocol WarningAppendor: AnyObject {
     func appendWarning(for event: WarningEvent)
 }
 
@@ -51,47 +51,50 @@ class WarningsService {
         print("WarningsService deinit")
     }
     
-    private func warningsForMain(for card: Card) -> WarningsContainer {
+    private func warningsForMain(for cardInfo: CardInfo) -> WarningsContainer {
         let container = WarningsContainer()
         
-        addDevCardWarningIfNeeded(in: container, for: card)
-        addLowRemainingSignaturesWarningIfNeeded(in: container, for: card)
-        addOldCardWarning(in: container, for: card)
-        addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
+        addTestnetCardWarningIfNeeded(in: container, for: cardInfo)
+        addDevCardWarningIfNeeded(in: container, for: cardInfo.card)
+        addLowRemainingSignaturesWarningIfNeeded(in: container, for: cardInfo.card)
+        addOldCardWarning(in: container, for: cardInfo.card)
+        addOldDeviceOldCardWarningIfNeeded(in: container, for: cardInfo.card)
         if rateAppChecker.shouldShowRateAppWarning {
             Analytics.log(event: .displayRateAppWarning)
             container.add(WarningEvent.rateApp.warning)
         }
         
-        let remoteWarnings = self.remoteWarnings(for: card, location: .main)
+        let remoteWarnings = self.remoteWarnings(for: cardInfo, location: .main)
         container.add(remoteWarnings)
         
         return container
     }
     
-    private func warningsForSend(for card: Card) -> WarningsContainer {
+    private func warningsForSend(for cardInfo: CardInfo) -> WarningsContainer {
         let container = WarningsContainer()
         
-        addOldDeviceOldCardWarningIfNeeded(in: container, for: card)
+        addTestnetCardWarningIfNeeded(in: container, for: cardInfo)
+        addOldDeviceOldCardWarningIfNeeded(in: container, for: cardInfo.card)
         
-        let remoteWarnings = self.remoteWarnings(for: card, location: .send)
+        let remoteWarnings = self.remoteWarnings(for: cardInfo, location: .send)
         container.add(remoteWarnings)
         
         return container
     }
     
-    private func remoteWarnings(for card: Card, location: WarningsLocation) -> [TapWarning] {
+    private func remoteWarnings(for cardInfo: CardInfo, location: WarningsLocation) -> [TapWarning] {
         let remoteWarnings = remoteWarningProvider.warnings
         let mainRemoteWarnings = remoteWarnings.filter { $0.location.contains { $0 == location } }
+
         let cardRemoteWarnings = mainRemoteWarnings.filter {
             $0.blockchains == nil ||
-            $0.blockchains?.contains { $0.lowercased() == (card.cardData?.blockchainName ?? "").lowercased() } ?? false
+                $0.blockchains?.contains { $0.lowercased() == (cardInfo.walletData?.blockchain ?? "").lowercased() } ?? false
         }
         return cardRemoteWarnings
     }
     
     private func addDevCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        guard card.firmwareVersion?.type == .sdk else {
+        guard card.firmwareVersion.type == .sdk else {
             return
         }
         
@@ -105,15 +108,11 @@ class WarningsService {
     }
     
     private func addOldDeviceOldCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        guard let fw = card.firmwareVersionValue else {
+        guard  card.firmwareVersion.doubleValue < 2.28 else { //old cards
             return
         }
         
-        guard fw < 2.28 else { //old cards
-            return
-        }
-        
-        guard NfcUtils.isPoorNfcQualityDevice else { //old phone
+        guard NFCUtils.isPoorNfcQualityDevice else { //old phone
             return
         }
         
@@ -125,6 +124,14 @@ class WarningsService {
            remainingSignatures <= 10 {
             container.add(WarningsList.lowSignatures(count: remainingSignatures))
         }
+    }
+    
+    private func addTestnetCardWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
+        guard cardInfo.isTestnet else {
+            return
+        }
+        
+        container.add(WarningEvent.testnetCard.warning)
     }
     
 }
@@ -161,8 +168,8 @@ extension WarningsService: WarningsManager {
 }
 
 extension WarningsService: WarningsConfigurator {
-    func setupWarnings(for card: Card) {
-        mainWarnings = warningsForMain(for: card)
-        sendWarnings = warningsForSend(for: card)
+    func setupWarnings(for cardInfo: CardInfo) {
+        mainWarnings = warningsForMain(for: cardInfo)
+        sendWarnings = warningsForSend(for: cardInfo)
     }
 }
