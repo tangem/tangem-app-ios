@@ -9,10 +9,6 @@
 import Foundation
 import TangemSdk
 
-enum OnboardingStep: Int, CaseIterable {
-    case read, disclaimer, createWallet, topup, confetti
-}
-
 class OnboardingNavigationService {
     
     weak var userPrefs: UserPrefsService!
@@ -28,12 +24,13 @@ class OnboardingNavigationService {
             steps.append(.createWallet)
         }
         
-        if card.isTangemNote {
+        if card.isTangemWallet {
+            steps.append(.backup)
+        } else if card.isTangemNote {
             steps.append(.topup)
         }
         
         if steps.count > 0 {
-            steps.insert(.read, at: 0)
             steps.append(.confetti)
         }
         
