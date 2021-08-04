@@ -9,8 +9,6 @@
 import TangemSdk
 
 class WriteIssuerDataTask: CardSessionRunnable {
-    typealias CommandResponse = WriteIssuerDataResponse
-    
     var message: Message? { Message(header: "twin_process_creating_wallet".localized) }
     
     private let pairPubKey: Data
@@ -23,12 +21,22 @@ class WriteIssuerDataTask: CardSessionRunnable {
         self.keys = keys
     }
     
-    func run(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
-        let sign = SignCommand(hashes: [pairPubKey.sha256()], walletIndex: .index(TangemSdkConstants.oldCardDefaultWalletIndex))
+    func run(in session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+        
+        guard let publicKey = card.wallets.first?.publicKey else {
+            completion(.failure(.cardError))
+            return
+        }
+        
+        let sign = SignHashCommand(hash: pairPubKey.sha256(), walletPublicKey: publicKey)
         sign.run(in: session) { (result) in
             switch result {
             case .success(let response):
-                self.signedPubKeyHash = response.signatures.first
+                self.signedPubKeyHash = response.signature
                 self.readIssuerCounter(in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
@@ -36,7 +44,7 @@ class WriteIssuerDataTask: CardSessionRunnable {
         }
     }
     
-    private func readIssuerCounter(in session: CardSession, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
+    private func readIssuerCounter(in session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
         let readCommand = ReadIssuerDataCommand()
         readCommand.run(in: session) { (result) in
             switch result {
@@ -48,7 +56,7 @@ class WriteIssuerDataTask: CardSessionRunnable {
         }
     }
     
-    private func writeIssuerData(in session: CardSession, counter: Int?, completion: @escaping CompletionResult<WriteIssuerDataResponse>) {
+    private func writeIssuerData(in session: CardSession, counter: Int?, completion: @escaping CompletionResult<SuccessResponse>) {
         guard let cardId = session.environment.card?.cardId else {
             completion(.failure(.cardError))
             return
