@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public class BitcoinAddressService: AddressService {
     let legacy: BitcoinLegacyAddressService
