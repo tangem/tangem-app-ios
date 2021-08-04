@@ -1,5 +1,5 @@
 //
-//  BaseAssembly.swift
+//  Assembly+App.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,32 +8,10 @@
 
 import Foundation
 import TangemSdk
-#if !CLIP
 import BlockchainSdk
-#else
-import Combine
-#endif
 
-class BaseAssembly: ObservableObject {
-    public let services: ServicesAssembly
-    private var modelsStorage = [String : Any]()
+extension Assembly {
     
-    init() {
-        services = ServicesAssembly()
-        services.assembly = self
-        
-        #if !CLIP
-        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-            self.services.validatedCards.clean()
-        }
-        #endif
-    }
-    
-    deinit {
-        print("Assembly deinit")
-    }
-    
-    #if !CLIP
     func makeReadViewModel(with navigation: NavigationCoordinator? = nil) -> ReadViewModel {
         if let restored: ReadViewModel = get() {
             return restored
@@ -65,7 +43,7 @@ class BaseAssembly: ObservableObject {
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
         vm.rateAppController = services.rateAppService
-
+        
         vm.state = services.cardsRepository.lastScanResult
         
         vm.negativeFeedbackDataCollector = services.negativeFeedbackDataCollector
@@ -155,7 +133,7 @@ class BaseAssembly: ObservableObject {
             return model
         }
     }
-        
+    
     /// Try to load native walletmanager from card
     private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
         if let defaultBlockchain = cardInfo.defaultBlockchain,
@@ -216,9 +194,9 @@ class BaseAssembly: ObservableObject {
         vm.tokenItemsRepository = services.tokenItemsRepository
         vm.userPrefsService = services.userPrefsService
         //[REDACTED_TODO_COMMENT]
-//        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
-//            vm.payIDService = payIdService
-//        }
+        //        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
+        //            vm.payIDService = payIdService
+        //        }
         vm.updateState()
         return vm
     }
@@ -291,15 +269,6 @@ class BaseAssembly: ObservableObject {
         return vm
     }
     
-//    func makeManageTokensViewModel(with walletModels: [WalletModel]) -> ManageTokensViewModel {
-//        if let restored: ManageTokensViewModel = get() {
-//            return restored
-//        }
-//
-//        let vm = ManageTokensViewModel(walletModels: walletModels)
-//        initialize(vm)
-//        return vm
-//    }
     
     func makeAddTokensViewModel(for cardModel: CardViewModel) -> AddNewTokensViewModel {
         if let restored: AddNewTokensViewModel = get() {
@@ -311,15 +280,6 @@ class BaseAssembly: ObservableObject {
         vm.tokenItemsRepository = services.tokenItemsRepository
         return vm
     }
-    
-//    func makeAddCustomTokenViewModel(for wallet: WalletModel) -> AddCustomTokenViewModel {
-//        if let restored: AddCustomTokenViewModel = get() {
-//            return restored
-//        }
-//        let vm = AddCustomTokenViewModel(walletModel: wallet)
-//        initialize(vm)
-//        return vm
-//    }
     
     func makeSendViewModel(with amount: Amount, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
@@ -450,85 +410,4 @@ class BaseAssembly: ObservableObject {
         vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
     }
     
-    #else
-        func getMainViewModel() -> MainViewModel {
-            guard let model: MainViewModel = get() else {
-                let mainModel = MainViewModel(cardsRepository: services.cardsRepository, imageLoaderService: services.imageLoaderService)
-                store(mainModel)
-                return mainModel
-            }
-
-            return model
-        }
-
-        // MARK: Card model
-        func makeCardModel(from info: CardInfo) -> CardViewModel {
-            let vm = CardViewModel(cardInfo: info)
-            vm.assembly = self
-            vm.tangemSdk = services.tangemSdk
-            vm.updateState()
-            return vm
-        }
-
-        // MARK: Wallets
-        func makeWalletModels(from info: CardInfo) -> AnyPublisher<[WalletModel], Never> {
-            if let note = TangemNote(rawValue: info.card.batchId),
-               let wallet = info.card.wallets.first(where: { $0.curve == note.curve }),
-               let wm = services.walletManagerFactory.makeWalletManager(from: info.card.cardId, wallet: wallet, blockchain: note.blockchain) {
-                
-                let model = WalletModel(cardWallet: wallet, walletManager: wm)
-                model.ratesService = services.ratesService
-                return Just([model])
-                    .eraseToAnyPublisher()
-            } else {
-                return info.card.wallets.publisher
-                    .removeDuplicates(by: { $0.curve == $1.curve })
-                    .compactMap { cardWallet -> [WalletModel]? in
-                        let blockchains = SupportedBlockchains.blockchains(from: cardWallet.curve, testnet: false)
-                        let managers = self.services.walletManagerFactory.makeWalletManagers(for: cardWallet, cardId: info.card.cardId, blockchains: blockchains)
-                        
-                        return managers.map {
-                            let model = WalletModel(cardWallet: cardWallet, walletManager: $0)
-                            model.ratesService = self.services.ratesService
-                            return model
-                        }
-                    }
-                    .reduce([], { $0 + $1 })
-                    .eraseToAnyPublisher()
-            }
-        }
-    
-        func updateAppClipCard(with batch: String?, fullLink: String) {
-            let mainModel: MainViewModel? = get()
-            mainModel?.updateCardBatch(batch, fullLink: fullLink)
-        }
-    
-    
-    private func get<T>(key: String) -> T? {
-        let val = modelsStorage[key]
-        return val as? T
-    }
-    
-    private func get<T>() -> T? {
-        let key = String(describing: type(of: T.self))
-        return get(key: key)
-    }
-    
-    #endif
-    
-    // MARK: - Private funcs
-
-    private func store<T>(_ object: T ) {
-        let key = String(describing: type(of: T.self))
-        store(object, with: key)
-    }
-    
-    private func store<T>(_ object: T, with key: String) {
-        //print(key)
-        modelsStorage[key] = object
-    }
-    
-    public func reset(key: String) {
-        modelsStorage.removeValue(forKey: key)
-    }
 }
