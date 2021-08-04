@@ -28,15 +28,17 @@ class BinanceWalletManager: WalletManager {
     }
     
     private func updateWallet(with response: BinanceInfoResponse) {
+        let blockchain = wallet.blockchain
         let coinBalance = response.balances[wallet.blockchain.currencySymbol] ?? 0 //if withdrawal all funds, there is no balance from network
         wallet.add(coinValue: coinBalance)
         
         if cardTokens.isEmpty {
             _ = response.balances
-                .filter { $0.key != wallet.blockchain.currencySymbol }
+                .filter { $0.key != blockchain.currencySymbol }
                 .map { (Token(symbol: $0.key.split(separator: "-").first.map {String($0)} ?? $0.key,
                               contractAddress: $0.key,
-                              decimalCount: wallet.blockchain.decimalCount),
+                              decimalCount: blockchain.decimalCount,
+                              blockchain: blockchain),
                         $0.value) }
                 .map { token, balance in
                     wallet.add(tokenValue: balance, for: token)

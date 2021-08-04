@@ -83,8 +83,11 @@ class ReadViewModel: ViewModel {
                 if self.failedCardScanTracker.shouldDisplayAlert {
                     self.navigation.readToTroubleshootingScan = true
                 } else {
-                    if case .unknownError = error.toTangemSdkError() {
+                    switch error.toTangemSdkError() {
+                    case .unknownError, .cardVerificationFailed:
                         self.scanError = error.alertBinder
+                    default:
+                        break
                     }
                 }
             }
