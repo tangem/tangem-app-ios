@@ -105,6 +105,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             // ex.
             // {"id":1,"jsonrpc":"2.0","result":"{\"publicKey\":\"042446499C8D252964AB7AE7FD10785641BFAD8222780430CEF003DEC0E5B632CBA57CC468C1A76AF540B4A3A5D050DBA2AEE43052D6A9D6BF00B6D3A6CA9F2D5E\",\"signature\":\"5152CB5BB8C7594DD07231C6934D4CFB6A113124B6B21A98CBB60636C8F3CA9C4662EB70D3F75FFB5B3C5AD17BA0FF5D8C8E54A2BFFD4D780213B15246DB04E2\"}"}
             let encodedString = String(data: try jsonEncoder.encode(signResponse), encoding: .utf8)!
+            print("Encoded string result for BNB sing: \(encodedString)")
             return try .init(url: request.url, value: encodedString, id: request.id!)
         } catch {
             print(error)
@@ -177,6 +178,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             }
             
             let encodedData = try! jsonEncoder.encode(tradeMessage)
+            print("Encoded BNB trade order: \(String(data: encodedData, encoding: .utf8)!)")
             return .init(address: address, data: encodedData, message: uiMessage)
         }
         
