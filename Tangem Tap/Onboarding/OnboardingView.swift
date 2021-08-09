@@ -192,7 +192,8 @@ struct OnboardingView: View {
                      title: currentStep.secondaryButtonTitle,
                      image: "",
                      size: .wide) {
-            viewModel.reset()
+//            viewModel.reset()
+            viewModel.shouldFireConfetti = true
         }
         .opacity(currentStep.withSecondaryButton ? 1.0 : 0.1)
         .buttonStyle(TangemButtonStyle(color: .transparentWhite, isDisabled: false))
@@ -255,42 +256,48 @@ struct OnboardingView: View {
     var currentStep: OnboardingStep { viewModel.currentStep }
     
     var body: some View {
-        VStack {
-            navigationLinks
-            
-            if viewModel.steps.count > 1 {
-                ProgressOnboardingView(steps: viewModel.steps, currentStep: viewModel.currentStepIndex)
-                    .frame(minHeight: 62)
-                    .padding(.top, 26)
-            }
-            
-            GeometryReader { proxy in
-                ZStack(alignment: .center) {
-                    Image("light_card")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(size: CardLayout.supplementary.frame(for: currentStep))
-                        .rotationEffect(CardLayout.supplementary.rotationAngle(at: currentStep))
-                        .offset(CardLayout.supplementary.offset(at: currentStep))
-                        .opacity(CardLayout.supplementary.opacity(at: currentStep))
-                    Rectangle()
-                        .frame(size: currentStep.cardBackgroundFrame)
-                        .cornerRadius(currentStep.cardBackgroundCornerRadius)
-                        .foregroundColor(Color.tangemTapBgGray)
-                        .opacity(0.8)
-                    RotatingCardView(baseCardName: "dark_card",
-                                     backCardImage: viewModel.cardImage,
-                                     cardScanned: currentStep != .read)
-                        .frame(size: CardLayout.main.frame(for: currentStep))
-                        .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
-                        .offset(CardLayout.main.offset(at: currentStep))
+        ZStack {
+            ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
+                .allowsHitTesting(false)
+                .zIndex(!viewModel.shouldFireConfetti ? 95 : 100)
+            VStack {
+                navigationLinks
+                
+                if viewModel.steps.count > 1 {
+                    ProgressOnboardingView(steps: viewModel.steps, currentStep: viewModel.currentStepIndex)
+                        .frame(minHeight: 62)
+                        .padding(.top, 26)
                 }
-                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                
+                GeometryReader { proxy in
+                    ZStack(alignment: .center) {
+                        Image("light_card")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(size: CardLayout.supplementary.frame(for: currentStep))
+                            .rotationEffect(CardLayout.supplementary.rotationAngle(at: currentStep))
+                            .offset(CardLayout.supplementary.offset(at: currentStep))
+                            .opacity(CardLayout.supplementary.opacity(at: currentStep))
+                        Rectangle()
+                            .frame(size: currentStep.cardBackgroundFrame)
+                            .cornerRadius(currentStep.cardBackgroundCornerRadius)
+                            .foregroundColor(Color.tangemTapBgGray)
+                            .opacity(0.8)
+                        RotatingCardView(baseCardName: "dark_card",
+                                         backCardImage: viewModel.cardImage,
+                                         cardScanned: currentStep != .read)
+                            .frame(size: CardLayout.main.frame(for: currentStep))
+                            .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
+                            .offset(CardLayout.main.offset(at: currentStep))
+                    }
+                    .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                }
+                messages
+                buttons
+                Spacer()
+                    .frame(width: 1, height: 20)
             }
-            messages
-            buttons
-            Spacer()
-                .frame(width: 1, height: 20)
+//            .zIndex(96)
         }
         .navigationBarHidden(true)
         .onAppear(perform: {
