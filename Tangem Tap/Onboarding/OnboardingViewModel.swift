@@ -28,6 +28,7 @@ class OnboardingViewModel: ViewModel {
     @Published var executingRequestOnCard = false
     @Published var currentStepIndex: Int = 0
     @Published var cardImage: UIImage?
+    @Published var shouldFireConfetti: Bool = false
     
     var previewUpdatePublisher: PassthroughSubject<Void, Never> = PassthroughSubject<Void, Never>()
     
