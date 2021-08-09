@@ -20,7 +20,7 @@ extension Assembly {
             let card = preview.card
             let ci = CardInfo(card: card,
                               walletData: preview.walletData,
-                              artworkInfo: nil,
+//                              artworkInfo: nil,
                               twinCardInfo: preview.twinInfo)
             let vm = assembly.makeCardModel(from: ci)
             let scanResult = ScanResult.card(model: vm)
