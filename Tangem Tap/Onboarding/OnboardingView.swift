@@ -279,7 +279,7 @@ struct OnboardingView: View {
                         .foregroundColor(Color.tangemTapBgGray)
                         .opacity(0.8)
                     RotatingCardView(baseCardName: "dark_card",
-                                     backCardImage: UIImage(named: "card_btc")!,
+                                     backCardImage: viewModel.cardImage,
                                      cardScanned: currentStep != .read)
                         .frame(size: CardLayout.main.frame(for: currentStep))
                         .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
