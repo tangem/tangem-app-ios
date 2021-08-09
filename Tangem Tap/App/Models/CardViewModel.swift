@@ -383,7 +383,9 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Update
     
     func getCardInfo() {
+        cardInfo.artwork = .notLoaded
         guard cardInfo.card.firmwareVersion.type == .release else {
+            cardInfo.artwork = .noArtwork
             return
         }
         
@@ -392,8 +394,9 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success(let info):
                 guard let artwork = info.artwork else { return }
 
-                self?.cardInfo.artworkInfo = artwork
+                self?.cardInfo.artwork = .artwork(artwork)
             case .failure:
+                self?.cardInfo.artwork = .noArtwork
                 self?.warningsAppendor.appendWarning(for: WarningEvent.failedToValidateCard)
             }
         }
