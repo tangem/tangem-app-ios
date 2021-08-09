@@ -23,6 +23,7 @@ extension Assembly {
         vm.stepsSetupService = services.onboardingStepsSetupService
         vm.userPrefsService = services.userPrefsService
         vm.exchangeService = services.exchangeService
+        vm.imageLoaderService = services.imageLoaderService
         return vm
     }
     
