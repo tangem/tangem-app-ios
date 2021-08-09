@@ -17,7 +17,7 @@ struct TapScanTaskResponse {
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         walletData: walletData,
-                        artworkInfo: nil,
+//                        artworkInfo: nil,
                         twinCardInfo: decodeTwinFile(from: self))
     }
     
