@@ -115,8 +115,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func prepareRootController() -> UIViewController {
-        let vm = assembly.makeReadViewModel()
-        let contentView = ContentView() { ReadView(viewModel: vm) }
+        let vm = assembly.makeOnboardingViewModel()
+        let contentView = ContentView() { OnboardingView(viewModel: vm) }
             .environmentObject(assembly)
             .environmentObject(assembly.services.navigationCoordinator)
         return UIHostingController(rootView: contentView)
