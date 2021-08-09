@@ -582,3 +582,23 @@ Amount to pay: %@";
 "action_sheet_trade_hint" = "Do you want to buy or sell crypto?";
 
 "error_old_app_need_update" = "Oops, the current version of the application is not ready to work with this card, please check for updates.";
+
+"onboarding_button_read_card" = "Read card";
+"onboarding_button_shop" = "Get a new card";
+"onboarding_read_title" = "Welcome to Tangem";
+"onboarding_read_subtitle" = "The safest way to buy, use and store cryptocurrency";
+
+"onboarding_button_create_wallet" = "Create wallet";
+"onboarding_button_how_it_works" = "How it works?";
+"onboarding_create_title" = "Create a wallet";
+"onboarding_create_subtitle" = "Let's create a secure wallet on your card";
+
+"onboarding_button_topup" = "Top up";
+"onboarding_button_topup_qr" = "Top up with a QR-code";
+"onboarding_topup_title" = "Activate a wallet";
+"onboarding_topup_subtitle" = "To get started, simply top up the wallet with any amount";
+
+"onboarding_button_confetti" = "Continue";
+"onboarding_confetti_title" = "Done!";
+"onboarding_confetti_subtitle" = "Your crypto card is activated and ready to be used";
+"onboarding_balance" = "Balance";

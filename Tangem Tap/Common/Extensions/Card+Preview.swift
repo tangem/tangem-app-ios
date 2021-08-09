@@ -22,6 +22,18 @@ extension Card {
         fromJson(v4CardJson)
     }()
     
+    static var cardanoNote: Card = {
+        fromJson(cardanoNoteJson)
+    }()
+    
+    static var ethEmptyNote: Card = {
+        fromJson(ethEmptyNoteJson)
+    }()
+    
+    static var tangemWallet: Card = {
+        fromJson(tangemWalletJson)
+    }()
+    
     private static func fromJson(_ json: String) -> Card {
         let jsonData = json.data(using: .utf8)!
         let decoder = JSONDecoder.tangemSdkDecoder
@@ -29,9 +41,20 @@ extension Card {
             let card = try decoder.decode(Card.self, from: jsonData)
             return card
         } catch {
-            print(error)
+            guard let error = error as? DecodingError else {
+                fatalError(error.localizedDescription)
+            }
+            if case let DecodingError.keyNotFound(_, context) = error {
+                fatalError(context.debugDescription)
+                
+                /// If preview throw you this error check your card JSON. May be there missing fields in Card.Settings
+                /// You can try add folowing fields to fix preview carsh
+                /// "isOverwritingIssuerExtraDataRestricted" : false,
+                /// "isIssuerDataProtectedAgainstReplay" : true,
+                /// "isSelectBlockchainAllowed" : true
+            }
+            fatalError(error.errorDescription ?? error.localizedDescription)
         }
-        fatalError()
     }
     
     private static let noWalletJson =
@@ -237,4 +260,204 @@ extension Card {
           "isPin2Default" : true
         }
         """
+    
+    private static let cardanoNoteJson =
+    """
+        {
+          "linkedTerminalStatus" : "none",
+          "supportedCurves" : [
+            "secp256k1",
+            "ed25519",
+            "secp256r1"
+          ],
+          "cardPublicKey" : "04D328D24A10A142DE0FAF8F49CCDE93BD173C391ADC7319EA833659B4F6D0716ED3CD5A096A1AE10B5CA6ACFC0A9DCCF789427709BE35024E6795C50DA53353A1",
+          "settings" : {
+            "isPermanentWallet" : false,
+            "maxWalletsCount" : 3,
+            "isLinkedTerminalEnabled" : true,
+            "supportedEncryptionModes" : [
+              "strong",
+              "fast",
+              "none"
+            ],
+            "securityDelay" : 5000,
+            "isSettingAccessCodeAllowed" : true,
+            "isRemovingAccessCodeAllowed" : false,
+            "isSettingPasscodeAllowed" : true,
+            "isOverwritingIssuerExtraDataRestricted" : false,
+            "isIssuerDataProtectedAgainstReplay" : true,
+            "isSelectBlockchainAllowed" : true
+          },
+          "issuer" : {
+            "name" : "TANGEM SDK",
+            "publicKey" : "045F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22F553C7DEEFB54FD3D4F361D14E6DC3F11B7D4EA183250A60720EBDF9E110CD26"
+          },
+          "firmwareVersion" : {
+            "minor" : 12,
+            "patch" : 0,
+            "major" : 4,
+            "stringValue" : "4.12d SDK",
+            "type" : "d SDK"
+          },
+          "batchId" : "AB03",
+          "isPasscodeSet" : false,
+          "manufacturer" : {
+            "name" : "TANGEM",
+            "manufactureDate" : "2021-07-28",
+            "signature" : "CE27C98C0FE9C57DC205BE9B4077C4CF6CBE5248E0BB03C00D6FD9C868CB7F96DFF228B74FFE88783524119B4B3E31494BB592DCB59207AA6DB7635F45D691C9"
+          },
+          "attestation" : {
+            "cardKeyAttestation" : "failed",
+            "walletKeysAttestation" : "skipped",
+            "firmwareAttestation" : "skipped",
+            "cardUniquenessAttestation" : "skipped"
+          },
+          "cardId" : "AB03000000046298",
+          "wallets" : [
+            {
+              "publicKey" : "04FCD0CE2067A0573F6E9E5F985ABF234E07BBA7EC1D09381F53C9399E536DBE38D90402DB3D05B6A9EFDEB1B82A6C90E6706509FAAC614830C273D5FDC4F8931E",
+              "totalSignedHashes" : 0,
+              "curve" : "secp256k1",
+              "settings" : {
+                "isPermanent" : false
+              },
+              "index" : 0
+            },
+            {
+              "publicKey" : "04DE4B97A6F23F53CA1E01D5317DEE3B597346F7FBB220117894D76222A4B5CC6CAAD30AB22B0DBF2D595F18BF82B73AA4792C2471D0F1BBF95A57167B6830871C",
+              "totalSignedHashes" : 0,
+              "curve" : "secp256r1",
+              "settings" : {
+                "isPermanent" : false
+              },
+              "index" : 1
+            },
+            {
+              "publicKey" : "AD601190A88E271798D3B54DA853DEE3AC35C6F66E6A2E7E4F758CDA958FE365",
+              "totalSignedHashes" : 0,
+              "curve" : "ed25519",
+              "settings" : {
+                "isPermanent" : false
+              },
+              "index" : 2
+            }
+          ]
+        }
+    """
+    
+    private static let ethEmptyNoteJson =
+    """
+    {
+      "linkedTerminalStatus" : "none",
+      "supportedCurves" : [
+        "secp256k1",
+        "ed25519",
+        "secp256r1"
+      ],
+      "cardPublicKey" : "04E09490FAF76B27DB193268D84C0F91C8B705B2B79C7257714C39ACCFEA157B2CBCF9DD7E72E779F114BEC5BF1B47481B85A7D8F3698F79C453C186ECFEEEADE4",
+      "settings" : {
+        "isPermanentWallet" : false,
+        "maxWalletsCount" : 3,
+        "isLinkedTerminalEnabled" : true,
+        "supportedEncryptionModes" : [
+          "strong",
+          "fast",
+          "none"
+        ],
+        "securityDelay" : 5000,
+        "isSettingAccessCodeAllowed" : true,
+        "isRemovingAccessCodeAllowed" : false,
+        "isSettingPasscodeAllowed" : true,
+        "isOverwritingIssuerExtraDataRestricted" : false,
+        "isIssuerDataProtectedAgainstReplay" : true,
+        "isSelectBlockchainAllowed" : true
+      },
+      "issuer" : {
+        "name" : "TANGEM SDK",
+        "publicKey" : "045F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22F553C7DEEFB54FD3D4F361D14E6DC3F11B7D4EA183250A60720EBDF9E110CD26"
+      },
+      "firmwareVersion" : {
+        "minor" : 12,
+        "patch" : 0,
+        "major" : 4,
+        "stringValue" : "4.12d SDK",
+        "type" : "d SDK"
+      },
+      "batchId" : "AB02",
+      "isPasscodeSet" : false,
+      "manufacturer" : {
+        "name" : "TANGEM",
+        "manufactureDate" : "2021-07-28",
+        "signature" : "457D2D85B983ED3872A0FA8A44400236B347752D49E64F71BD375EDF77E3317EF2E352A44CB97AAF377CF44F8DB6D178819A223CF2CFCED09AE4E270EB29FD91"
+      },
+      "attestation" : {
+        "cardKeyAttestation" : "failed",
+        "walletKeysAttestation" : "skipped",
+        "firmwareAttestation" : "skipped",
+        "cardUniquenessAttestation" : "skipped"
+      },
+      "cardId" : "AB02000000016433",
+      "wallets" : [
+      
+      ]
+    }
+    """
+    
+    private static let tangemWalletJson =
+    """
+        {
+          "linkedTerminalStatus" : "none",
+          "supportedCurves" : [
+            "secp256k1",
+            "ed25519",
+            "secp256r1"
+          ],
+          "cardPublicKey" : "049BE092BE8D41DBA49A0CD861DC3C4E6DF43983331701A92EDBA47319D5BCB5CE32AB5876971B0025ED9EDB4A4900C364E7E3BA7F7D5C001BD35A104442E29C42",
+          "settings" : {
+            "isPermanentWallet" : false,
+            "maxWalletsCount" : 40,
+            "isLinkedTerminalEnabled" : true,
+            "supportedEncryptionModes" : [
+              "strong",
+              "fast",
+              "none"
+            ],
+            "securityDelay" : 5000,
+            "isSettingAccessCodeAllowed" : true,
+            "isRemovingAccessCodeAllowed" : false,
+            "isSettingPasscodeAllowed" : true,
+            "isOverwritingIssuerExtraDataRestricted" : false,
+            "isIssuerDataProtectedAgainstReplay" : true,
+            "isSelectBlockchainAllowed" : true
+          },
+          "issuer" : {
+            "name" : "TANGEM SDK",
+            "publicKey" : "045F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22F553C7DEEFB54FD3D4F361D14E6DC3F11B7D4EA183250A60720EBDF9E110CD26"
+          },
+          "firmwareVersion" : {
+            "minor" : 12,
+            "patch" : 0,
+            "major" : 4,
+            "stringValue" : "4.12d SDK",
+            "type" : "d SDK"
+          },
+          "batchId" : "AC01",
+          "isPasscodeSet" : false,
+          "manufacturer" : {
+            "name" : "TANGEM",
+            "manufactureDate" : "2021-07-28",
+            "signature" : "60D4C520BE3F0C3567F7DBC49AF457B94BEBED50F5779C9DDB16196D94FADFC112593AD60C6ABDE9E34C336CC44ACAE31A548EA7D7EF4607793F382B04C45511"
+          },
+          "attestation" : {
+            "cardKeyAttestation" : "failed",
+            "walletKeysAttestation" : "skipped",
+            "firmwareAttestation" : "skipped",
+            "cardUniquenessAttestation" : "skipped"
+          },
+          "cardId" : "AC01000000028396",
+          "wallets" : [
+    
+          ]
+        }
+    """
 }
