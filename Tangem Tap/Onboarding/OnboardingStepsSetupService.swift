@@ -58,7 +58,8 @@ class OnboardingStepsSetupService {
                         steps.append(.topup)
                     } else {
                         if !self.userPrefs.noteCardsStartedActivation.contains(card.cardId) {
-                            promise(.success([.goToMain]))
+                            steps.append(.goToMain)
+                            promise(.success(steps))
                             return
                         }
                     }
