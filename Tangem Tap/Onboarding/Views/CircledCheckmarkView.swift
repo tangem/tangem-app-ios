@@ -26,7 +26,7 @@ struct CircledCheckmarkView: View {
 }
 
 struct Checkmark: View {
-    var lineWidth: CGFloat = 1.0
+    var lineWidth: CGFloat = 1.5
     var filled: Bool
     
     var body: some View {

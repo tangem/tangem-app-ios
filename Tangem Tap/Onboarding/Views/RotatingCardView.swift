@@ -18,15 +18,17 @@ struct RotatingCardView: View {
     
     var body: some View {
         ZStack {
-            Image("card_btc")
+            Image(uiImage: backCardImage)
                 .resizable()
+                .aspectRatio(contentMode: .fit)
                 .rotation3DEffect(
                     .init(degrees: cardScanned ? 0 : 90),
                     axis: (x: 1.0, y: 0.0, z: 0.0)
                 )
                 .animation(.linear(duration: cardRotationAnimDuration).delay(cardScanned ? cardRotationAnimDuration : 0))
-            Image("card_twin")
+            Image(baseCardName)
                 .resizable()
+                .aspectRatio(contentMode: .fit)
                 .rotation3DEffect(
                     .init(degrees: cardScanned ? -90 : 0),
                     axis: (x: 1.0, y: 0.0, z: 0.0)
