@@ -204,6 +204,9 @@
 		B02D4277262EAA8400BCA3D9 /* BinanceAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */; };
 		B02D4281262EAC0E00BCA3D9 /* HexEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4280262EAC0E00BCA3D9 /* HexEncoding.swift */; };
 		B02D4287262EAD0400BCA3D9 /* BinanceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4286262EAD0400BCA3D9 /* BinanceError.swift */; };
+		B031AAB126C1443E00015003 /* Confetti.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB026C1443D00015003 /* Confetti.swift */; };
+		B031AAB326C169E900015003 /* ConfettiType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB226C169E900015003 /* ConfettiType.swift */; };
+		B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB426C16A1B00015003 /* UIColor+.swift */; };
 		B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */; };
 		B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
 		B037A9C92652AEF000A2D394 /* WalletConnectTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B037A9C82652AEF000A2D394 /* WalletConnectTransactionHandler.swift */; };
@@ -928,6 +931,9 @@
 		B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceAccount.swift; sourceTree = "<group>"; };
 		B02D4280262EAC0E00BCA3D9 /* HexEncoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexEncoding.swift; sourceTree = "<group>"; };
 		B02D4286262EAD0400BCA3D9 /* BinanceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceError.swift; sourceTree = "<group>"; };
+		B031AAB026C1443D00015003 /* Confetti.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Confetti.swift; sourceTree = "<group>"; };
+		B031AAB226C169E900015003 /* ConfettiType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiType.swift; sourceTree = "<group>"; };
+		B031AAB426C16A1B00015003 /* UIColor+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+.swift"; sourceTree = "<group>"; };
 		B0323F26258BFCF4005C7CD5 /* WriteIssuerDataTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteIssuerDataTask.swift; sourceTree = "<group>"; };
 		B0323F2B258C041D005C7CD5 /* SignerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignerUtils.swift; sourceTree = "<group>"; };
 		B037A9C82652AEF000A2D394 /* WalletConnectTransactionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectTransactionHandler.swift; sourceTree = "<group>"; };
@@ -1953,6 +1959,15 @@
 				B02D4286262EAD0400BCA3D9 /* BinanceError.swift */,
 			);
 			path = BinanceChain;
+			sourceTree = "<group>";
+		};
+		B031AAAF26C1435E00015003 /* Confetti */ = {
+			isa = PBXGroup;
+			children = (
+				B031AAB026C1443D00015003 /* Confetti.swift */,
+				B031AAB226C169E900015003 /* ConfettiType.swift */,
+			);
+			path = Confetti;
 			sourceTree = "<group>";
 		};
 		B03F23982611FC5E00A99C12 /* Localization */ = {
@@ -3010,6 +3025,7 @@
 				5DF2522C24F95E390015B429 /* UIScreen+.swift */,
 				5D80ED412550172A0008DEF0 /* UIApplication+.swift */,
 				5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */,
+				B031AAB426C16A1B00015003 /* UIColor+.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -3247,6 +3263,7 @@
 		B0E1565026B97F81005B33E4 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B031AAAF26C1435E00015003 /* Confetti */,
 				B0E1565126B97F8C005B33E4 /* RotatingCardView.swift */,
 				B0FAD00D26BAC51F00F45E88 /* CircledCheckmarkView.swift */,
 				B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */,
@@ -3814,6 +3831,7 @@
 				B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */,
 				B05209BE261F1FF3000DD204 /* RoundedCorner.swift in Sources */,
 				5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */,
+				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
@@ -3828,6 +3846,7 @@
 				B0C4A1D32671F3FC00DCB921 /* TestnetBuyCryptoService.swift in Sources */,
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
+				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* VIew+.swift in Sources */,
@@ -3851,6 +3870,7 @@
 				5D9DCB0C255199AA0059799C /* SecurityManagementViewModel.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
 				5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */,
+				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				B0A0A19125822EFF005FC94D /* Storage.swift in Sources */,
 				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
