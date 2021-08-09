@@ -20,7 +20,9 @@ extension Assembly {
         let vm = OnboardingViewModel()
         initialize(vm)
         vm.cardsRepository = services.cardsRepository
-        vm.onboardingNaviService = services.onboardingNaviService
+        vm.stepsSetupService = services.onboardingStepsSetupService
+        vm.userPrefsService = services.userPrefsService
+        vm.exchangeService = services.exchangeService
         return vm
     }
     
