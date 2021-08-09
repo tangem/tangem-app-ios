@@ -21,7 +21,6 @@ struct CardInfo {
     var card: Card
     var walletData: WalletData?
     var artwork: CardArtwork = .notLoaded
-    var artworkInfo: ArtworkInfo?
     var twinCardInfo: TwinCardInfo?
     
     var imageLoadDTO: ImageLoadDTO {
@@ -53,9 +52,24 @@ struct CardInfo {
                      decimalCount: token.decimals,
                      blockchain: blockchain)
     }
+    
+    var artworkInfo: ArtworkInfo? {
+        switch artwork {
+        case .notLoaded, .noArtwork: return nil
+        case .artwork(let artwork): return artwork
+        }
+    }
 }
 
-enum CardArtwork {
+enum CardArtwork: Equatable {
+    static func == (lhs: CardArtwork, rhs: CardArtwork) -> Bool {
+        switch (lhs, rhs) {
+        case (.notLoaded, .notLoaded), (.noArtwork, .noArtwork): return true
+        case (.artwork(let lhsArt), .artwork(let rhsArt)): return lhsArt == rhsArt
+        default: return false
+        }
+    }
+    
     case notLoaded, noArtwork, artwork(ArtworkInfo)
 }
 
