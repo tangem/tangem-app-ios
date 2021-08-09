@@ -18,6 +18,8 @@ class NavigationCoordinator: ObservableObject {
     @Published var readToTwinOnboarding = false
     @Published var readToTroubleshootingScan = false
     @Published var readToSendEmail: Bool = false
+    @Published var onboardingToBuyCrypto: Bool = false
+    @Published var onboardingToQrTopup: Bool = false
     
     // MARK: DisclaimerView
     @Published var disclaimerToMain: Bool = false

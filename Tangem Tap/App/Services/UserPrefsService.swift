@@ -40,7 +40,7 @@ class UserPrefsService {
     var lastScannedNdef: String
     
     @Storage(type: StorageType.tangemNoteCardsStartedActivation, defaultValue: [])
-    var noteCardsStartedActivation: Set<String>
+    var noteCardsStartedActivation: [String]
     
     deinit {
         print("UserPrefsService deinit")
