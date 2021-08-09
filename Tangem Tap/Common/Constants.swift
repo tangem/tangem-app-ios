@@ -15,4 +15,5 @@ enum Constants {
         3600 * 24 * 1
 //        0 // for testing RBF
     }
+    static var shopURL: URL { URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")! }
 }

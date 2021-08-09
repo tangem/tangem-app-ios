@@ -270,6 +270,20 @@ class WalletModel: ObservableObject, Identifiable {
         return .blockchain(wallet.blockchain)
     }
     
+    func startUpdatingTimer() {
+        print("⏰ Starting updating timer for Wallet model")
+        updateTimer = Timer.TimerPublisher(interval: 10.0,
+                                           tolerance: 0.1,
+                                           runLoop: .main,
+                                           mode: .common)
+            .autoconnect()
+            .sink() {[weak self] _ in
+                print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
+                self?.update()
+                self?.updateTimer?.cancel()
+            }
+    }
+    
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         balanceViewModel = BalanceViewModel(isToken: false,
                                             hasTransactionInProgress: wallet.hasPendingTx,
@@ -356,21 +370,6 @@ class WalletModel: ObservableObject, Identifiable {
         }
         
         tokenItemViewModels = [blockchainItem] + items
-    }
-    
-    
-    func startUpdatingTimer() {
-        print("⏰ Starting updating timer for Wallet model")
-        updateTimer = Timer.TimerPublisher(interval: 10.0,
-                                           tolerance: 0.1,
-                                           runLoop: .main,
-                                           mode: .common)
-            .autoconnect()
-            .sink() {[weak self] _ in
-                print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
-                self?.update()
-                self?.updateTimer?.cancel()
-            }
     }
 }
 

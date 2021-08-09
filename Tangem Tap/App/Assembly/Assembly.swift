@@ -16,14 +16,19 @@ class Assembly: ObservableObject {
     public let services: ServicesAssembly
     #endif
     
+    let isPreview: Bool
+    
     var modelsStorage = [String : Any]()
     
-    init() {
+    init(isPreview: Bool = false) {
         #if CLIP
         services = ServicesAssembly()
         #else
         services = AppServicesAssembly()
         #endif
+        
+        self.isPreview = isPreview
+        
         services.assembly = self
         
         #if !CLIP

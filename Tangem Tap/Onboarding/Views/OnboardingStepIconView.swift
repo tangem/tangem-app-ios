@@ -10,10 +10,38 @@ import SwiftUI
 
 struct OnboardingStepIconView: View {
     
-    var imageName: String
-    var filled: Bool
+    enum State {
+        case passed, current, future
+        
+        var checkmarkVisible: Bool {
+            switch self {
+            case .passed: return true
+            default: return false
+            }
+        }
+        
+        var iconColor: Color {
+            switch self {
+            case .passed, .current: return .white
+            case .future: return .tangemTapGrayDark
+            }
+        }
+        
+        var backgroundColor: Color {
+            switch self {
+            case .passed, .current: return .tangemTapGreen
+            case .future: return .tangemTapGrayLight4
+            }
+        }
+    }
     
-    private let circleSize: CGSize = .init(width: 50, height: 50)
+    var image: Image
+    var state: State
+    
+    var imageFont: Font = .system(size: 25, weight: .bold, design: .default)
+    var circleSize: CGSize = .init(width: 50, height: 50)
+    var checkmarkSize: CGSize = .init(width: 17, height: 17)
+    
     private var smallCircleSize: CGSize {
         .init(width: circleSize.width - 4, height: circleSize.height - 4)
     }
@@ -22,33 +50,35 @@ struct OnboardingStepIconView: View {
         ZStack(alignment: .center) {
             Circle()
                 .frame(size: circleSize)
-                .foregroundColor(.tangemTapGreen)
+                .foregroundColor(state.backgroundColor)
                 .animation(.easeIn)
             Circle()
-                .frame(size: filled ? circleSize : .zero)
+                .frame(size: state == .passed ? circleSize : .zero)
                 .foregroundColor(.tangemTapGrayDark6)
                 .animation(.easeIn)
             Circle()
                 .strokeBorder(lineWidth: 4)
                 .frame(size: smallCircleSize)
                 .foregroundColor(.white)
-            Image(systemName: imageName)
-                .foregroundColor(.white)
-                .font(.system(size: 25, weight: .bold))
-            CircledCheckmarkView(filled: filled)
-                .frame(size: CGSize(width: 20, height: 20))
-                .offset(x: circleSize.width / 3.5, y: -smallCircleSize.height / 3)
+            image
+                .foregroundColor(state.iconColor)
+                .animation(.easeIn)
+                .font(imageFont)
+            CircledCheckmarkView(filled: state == .passed)
+                .frame(size: checkmarkSize)
+                .offset(x: circleSize.width / 2 - checkmarkSize.width / 2, y: checkmarkSize.height / 2 - circleSize.height / 2)
         }
     }
 }
 
 struct OnboardingStepIconView_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            OnboardingStepIconView(imageName: "wave.3.right", filled: true)
-            Spacer()
-                .frame(width: 1, height: 100, alignment: .center)
-            OnboardingStepIconView(imageName: "key", filled: false)
+        VStack(spacing: 10) {
+            OnboardingStepIconView(image: Image("onboarding.nfc"), state: .passed)
+            OnboardingStepIconView(image: Image("onboarding.create.wallet"), state: .current)
+            OnboardingStepIconView(image: Image("onboarding.topup"), state: .current)
+            OnboardingStepIconView(image: Image("onboarding.topup"), state: .passed)
+            OnboardingStepIconView(image: Image("onboarding.topup"), state: .future)
         }
         
     }
