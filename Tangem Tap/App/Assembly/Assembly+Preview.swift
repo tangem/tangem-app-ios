@@ -14,7 +14,7 @@ import BlockchainSdk
 
 extension Assembly {
     enum PreviewCard {
-        case withoutWallet, twin, ethereum, stellar, v4
+        case withoutWallet, twin, ethereum, stellar, v4, cardanoNote, ethEmptyNote, tangemWalletEmpty
         
         static func scanResult(for preview: PreviewCard, assembly: Assembly) -> ScanResult {
             let card = preview.card
@@ -35,6 +35,9 @@ extension Assembly {
             case .ethereum: return .v4Card
             case .stellar: return .v4Card
             case .v4: return .v4Card
+            case .cardanoNote: return .cardanoNote
+            case .ethEmptyNote: return .ethEmptyNote
+            case .tangemWalletEmpty: return .tangemWallet
             }
         }
         
@@ -58,7 +61,7 @@ extension Assembly {
     }
     
     static func previewAssembly(for card: PreviewCard) -> Assembly {
-        let assembly = Assembly()
+        let assembly = Assembly(isPreview: true)
         
         assembly.services.cardsRepository.lastScanResult = PreviewCard.scanResult(for: card, assembly: assembly)
         return assembly
@@ -69,7 +72,7 @@ extension Assembly {
     }
     
     static var previewAssembly: Assembly {
-        .previewAssembly(for: .v4)
+        .previewAssembly(for: .ethEmptyNote)
     }
     
     var previewCardViewModel: CardViewModel {
