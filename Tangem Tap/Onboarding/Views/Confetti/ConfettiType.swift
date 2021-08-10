@@ -9,7 +9,7 @@
 import UIKit
 
 enum ConfettiShape {
-    case rectangle, circle
+    case rectangle, circle, triangle
 }
 
 enum ConfettiPosition {
@@ -36,6 +36,8 @@ class ConfettiType {
                 return CGRect(x: 0, y: 0, width: 20, height: 13)
             case .circle:
                 return CGRect(x: 0, y: 0, width: 10, height: 10)
+            case .triangle:
+                return CGRect(x: 0, y: 0, width: 10, height: 15)
             }
         }()
         
@@ -48,6 +50,15 @@ class ConfettiType {
             context.fill(imageRect)
         case .circle:
             context.fillEllipse(in: imageRect)
+        case .triangle:
+            let path = UIBezierPath()
+            path.move(to: CGPoint.zero)
+            path.addLine(to: CGPoint(x: imageRect.maxX, y: imageRect.minY))
+            path.addLine(to: CGPoint(x: imageRect.midX, y: imageRect.maxY))
+            path.addLine(to: .zero)
+            path.close()
+            context.addPath(path.cgPath)
+            context.fillPath()
         }
         
         let image = UIGraphicsGetImageFromCurrentImageContext()
