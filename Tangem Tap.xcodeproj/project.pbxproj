@@ -199,6 +199,7 @@
 		B01983D12660CD2F00107390 /* EthereumResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01983D02660CD2F00107390 /* EthereumResponse.swift */; };
 		B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFB325DE7F9300EF422C /* DataCollectors.swift */; };
 		B020FFBE25DE895E00EF422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* Logger.swift */; };
+		B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */; };
 		B02D4267262EA93F00BCA3D9 /* BinanceChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4266262EA93F00BCA3D9 /* BinanceChain.swift */; };
 		B02D4271262EAA3A00BCA3D9 /* BinanceParsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4270262EAA3A00BCA3D9 /* BinanceParsers.swift */; };
 		B02D4277262EAA8400BCA3D9 /* BinanceAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */; };
@@ -926,6 +927,7 @@
 		B020FFB325DE7F9300EF422C /* DataCollectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectors.swift; sourceTree = "<group>"; };
 		B020FFBD25DE895E00EF422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		B022D30F253746C900D934D7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiGenerator.swift; sourceTree = "<group>"; };
 		B02D4266262EA93F00BCA3D9 /* BinanceChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceChain.swift; sourceTree = "<group>"; };
 		B02D4270262EAA3A00BCA3D9 /* BinanceParsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceParsers.swift; sourceTree = "<group>"; };
 		B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceAccount.swift; sourceTree = "<group>"; };
@@ -1966,6 +1968,7 @@
 			children = (
 				B031AAB026C1443D00015003 /* Confetti.swift */,
 				B031AAB226C169E900015003 /* ConfettiType.swift */,
+				B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */,
 			);
 			path = Confetti;
 			sourceTree = "<group>";
@@ -3780,6 +3783,7 @@
 				B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
 				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
+				B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */,
 				B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
