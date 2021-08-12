@@ -1,5 +1,5 @@
 //
-//  RotatingCardView.swift
+//  OnboardingCircleButton.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,5 +7,3 @@
 //
 
 import SwiftUI
-
-
