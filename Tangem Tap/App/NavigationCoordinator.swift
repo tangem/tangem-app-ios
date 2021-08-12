@@ -12,12 +12,17 @@ import Combine
 
 class NavigationCoordinator: ObservableObject {
     // MARK: ReadView
-    @Published var readToMain: Bool = false
+    @Published var readToMain: Bool = false {
+        didSet {
+            print("Did set read to main: \(readToMain)")
+        }
+    }
     @Published var readToShop: Bool = false
     @Published var readToDisclaimer: Bool = false
     @Published var readToTwinOnboarding = false
     @Published var readToTroubleshootingScan = false
     @Published var readToSendEmail: Bool = false
+    @Published var onboardingToDisclaimer: Bool = false
     @Published var onboardingToBuyCrypto: Bool = false
     @Published var onboardingToQrTopup: Bool = false
     
