@@ -678,7 +678,7 @@
 		B0E1564B26B941A4005B33E4 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1564A26B941A4005B33E4 /* OnboardingView.swift */; };
 		B0E1564D26B941AF005B33E4 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1564C26B941AF005B33E4 /* OnboardingViewModel.swift */; };
 		B0E1564F26B948B3005B33E4 /* OnboardingStepsSetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1564E26B948B3005B33E4 /* OnboardingStepsSetupService.swift */; };
-		B0E1565226B97F8C005B33E4 /* RotatingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* RotatingCardView.swift */; };
+		B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B0E1D17D257DE79000A3AB98 /* FeaturesConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */; };
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
@@ -1399,7 +1399,7 @@
 		B0E1564A26B941A4005B33E4 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		B0E1564C26B941AF005B33E4 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0E1564E26B948B3005B33E4 /* OnboardingStepsSetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepsSetupService.swift; sourceTree = "<group>"; };
-		B0E1565126B97F8C005B33E4 /* RotatingCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotatingCardView.swift; sourceTree = "<group>"; };
+		B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCardView.swift; sourceTree = "<group>"; };
 		B0E1D174257DE75D00A3AB98 /* KeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysManager.swift; sourceTree = "<group>"; };
 		B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesConfigManager.swift; sourceTree = "<group>"; };
 		B0E9E2FC2679DA5B00269C7A /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
@@ -3272,7 +3272,7 @@
 			isa = PBXGroup;
 			children = (
 				B031AAAF26C1435E00015003 /* Confetti */,
-				B0E1565126B97F8C005B33E4 /* RotatingCardView.swift */,
+				B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */,
 				B0FAD00D26BAC51F00F45E88 /* CircledCheckmarkView.swift */,
 				B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */,
 				B046FC3526BC1DB600A7EECE /* OnboardingProgressIndicator.swift */,
@@ -3831,7 +3831,7 @@
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
 				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
 				5D74F719262722FF00B03897 /* Publisher+.swift in Sources */,
-				B0E1565226B97F8C005B33E4 /* RotatingCardView.swift in Sources */,
+				B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
