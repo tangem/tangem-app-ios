@@ -22,21 +22,16 @@ class OnboardingViewModel: ViewModel {
     weak var exchangeService: ExchangeService!
     weak var imageLoaderService: CardImageLoaderService!
     
-    @Published var steps: [OnboardingStep] =
-        []
-//        [.read, .createWallet, .topup, .confetti, .goToMain]
+    @Published var steps: [OnboardingStep] = []
     @Published var executingRequestOnCard = false
     @Published var currentStepIndex: Int = 0
     @Published var cardImage: UIImage? = UIImage(named: "card_btc")
     @Published var shouldFireConfetti: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var isDisclaimer: Bool = false
+    @Published var cardBalance: String = ""
     
     var shopURL: URL { Constants.shopURL }
-    
-    var cardBalance: String {
-        scannedCardModel?.walletModels?.first?.getBalance(for: .coin) ?? ""
-    }
     
     var currentStep: OnboardingStep {
         guard currentStepIndex < steps.count else {
@@ -61,6 +56,9 @@ class OnboardingViewModel: ViewModel {
     private var bag: Set<AnyCancellable> = []
     private var scannedCardModel: CardViewModel?
     private var walletCreatedWhileOnboarding: Bool = false
+    private var walletModelUpdateCancellable: AnyCancellable?
+    private var scheduledUpdate: DispatchWorkItem?
+    private var previewUpdateCounter: Int = 0
     
     // MARK: Functions
 
@@ -68,7 +66,9 @@ class OnboardingViewModel: ViewModel {
         let nextStepIndex = currentStepIndex + 1
         
         func goToMain() {
-            navigation.readToMain = true
+            if !assembly.isPreview {
+                navigation.readToMain = true
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.reset()
             }
@@ -96,6 +96,8 @@ class OnboardingViewModel: ViewModel {
         steps = []
         executingRequestOnCard = false
         refreshButtonState = .refreshButton
+        cardBalance = ""
+        previewUpdateCounter = 0
     }
     
     func executeStep() {
@@ -106,6 +108,10 @@ class OnboardingViewModel: ViewModel {
             сreateWallet()
         case .topup:
             navigation.onboardingToBuyCrypto = true
+        case .confetti:
+            if assembly.isPreview {
+                reset()
+            }
         default:
             break
         }
@@ -115,7 +121,7 @@ class OnboardingViewModel: ViewModel {
         executingRequestOnCard = true
         if assembly.isPreview {
             executingRequestOnCard = false
-            let previewModel = assembly.previewCardViewModel
+            let previewModel = Assembly.PreviewCard.scanResult(for: .ethEmptyNote, assembly: assembly).cardModel!
             self.scannedCardModel = previewModel
             processScannedCard(previewModel)
             return
@@ -142,18 +148,26 @@ class OnboardingViewModel: ViewModel {
         navigation.onboardingToDisclaimer = false
     }
     
-    private var walletModelUpdateCancellable: AnyCancellable?
     func updateCardBalance() {
         guard
             let walletModel = scannedCardModel?.walletModels?.first,
             walletModelUpdateCancellable == nil
         else { return }
         
+        if assembly.isPreview {
+            previewUpdateCounter += 1
+            
+            if previewUpdateCounter >= 5 {
+                scannedCardModel = Assembly.PreviewCard.scanResult(for: .cardanoNote, assembly: assembly).cardModel
+            }
+        }
+        scheduledUpdate?.cancel()
         refreshButtonState = .activityIndicator
         walletModelUpdateCancellable = walletModel.$state
             .receive(on: DispatchQueue.main)
             .dropFirst()
             .sink { [weak self] walletModelState in
+                self?.updateCardBalanceText(for: walletModel)
                 switch walletModelState {
                 case .noAccount(let message):
                     print(message)
@@ -161,7 +175,7 @@ class OnboardingViewModel: ViewModel {
                 case .idle:
                     if !walletModel.wallet.isEmpty {
                         self?.goToNextStep()
-                        break
+                        return
                     }
                     withAnimation {
                         self?.refreshButtonState = .refreshButton
@@ -174,10 +188,12 @@ class OnboardingViewModel: ViewModel {
                 case .loading, .created:
                     return
                 }
-                self?.walletModelUpdateCancellable = nil
-                DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+                let item = DispatchWorkItem(block: {
                     self?.updateCardBalance()
-                }
+                })
+                self?.scheduledUpdate = item
+                DispatchQueue.main.asyncAfter(deadline: .now() + 15, execute: item)
+                self?.walletModelUpdateCancellable = nil
             }
         walletModel.update(silent: false)
     }
@@ -242,9 +258,10 @@ class OnboardingViewModel: ViewModel {
         
         executingRequestOnCard = true
         
-        
         if assembly.isPreview {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.scannedCardModel = Assembly.PreviewCard.scanResult(for: .cardanoNoteEmptyWallet, assembly: self.assembly).cardModel!
+                self.updateCardBalanceText(for: self.scannedCardModel!.walletModels!.first!)
                 self.executingRequestOnCard = false
                 self.goToNextStep()
             }
@@ -286,6 +303,12 @@ class OnboardingViewModel: ViewModel {
             shouldFireConfetti = true
         default:
             break
+        }
+    }
+    
+    private func updateCardBalanceText(for model: WalletModel) {
+        withAnimation {
+            cardBalance = model.getBalance(for: .coin)
         }
     }
     
