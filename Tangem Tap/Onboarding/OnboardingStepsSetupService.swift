@@ -18,10 +18,6 @@ class OnboardingStepsSetupService {
     func steps(for card: Card) -> AnyPublisher<[OnboardingStep], Error> {
         var steps: [OnboardingStep] = [.read]
         
-        if !userPrefs.isTermsOfServiceAccepted {
-            steps.append(.disclaimer)
-        }
-        
         if card.wallets.count == 0 {
             steps.append(.createWallet)
         }
