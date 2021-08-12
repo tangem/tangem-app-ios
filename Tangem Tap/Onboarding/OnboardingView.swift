@@ -324,8 +324,9 @@ struct OnboardingView: View {
                                                    state: viewModel.refreshButtonState)
                                 .padding(.bottom, 19)
                         }
-                        .opacity(currentStep.balanceStackOpacity)
                         .offset(currentStep.cardBackgroundOffset)
+                        .opacity(currentStep.balanceStackOpacity)
+                        
                     }
                     .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
                 }
@@ -360,70 +361,6 @@ struct OnboardingView: View {
             }
         }
         .navigationBarHidden(true)
-        .onAppear(perform: {
-            print("Some on appear action")
-        })
-    }
-    
-    @State var isDisclaimerPresented: Bool = false
-}
-
-struct OnboardingCircleButton: View {
-    
-    enum State {
-        case refreshButton, activityIndicator, doneCheckmark
-    }
-    
-    var refreshAction: () -> Void
-    var state: State
-    
-    private let buttonSize: CGSize = .init(width: 70, height: 70)
-    
-    @ViewBuilder
-    var backgroundView: some View {
-        ZStack {
-            Button(action: {
-                refreshAction()
-            }, label: {
-                Circle()
-                    .foregroundColor(.clear)
-                    .background(
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 28, weight: .semibold))
-                            .foregroundColor(state == .refreshButton ? .tangemTapGrayDark6 : .white)
-                            .frame(size: buttonSize)
-                            .background(Color.white)
-                            .cornerRadius(buttonSize.height / 2)
-                    )
-            })
-            .allowsHitTesting(state == .refreshButton)
-            ActivityIndicatorView(isAnimating: state == .activityIndicator,
-                                  style: .large,
-                                  color: .tangemTapGrayDark6)
-                .frame(size: buttonSize)
-                .background(Color.white)
-                .cornerRadius(buttonSize.height / 2)
-                .opacity(state == .activityIndicator ? 1.0 : 0.0)
-            Circle()
-                .frame(size: buttonSize)
-                .foregroundColor(.tangemTapGreen)
-                .opacity(0.2)
-                .cornerRadius(buttonSize.height / 2)
-            Image(systemName: "checkmark")
-                .frame(size: buttonSize)
-                .font(.system(size: 28, weight: .bold))
-                .foregroundColor(.white)
-                .background(Color.tangemTapGreen)
-                .cornerRadius(buttonSize.height / 2)
-        }
-    }
-    
-    var body: some View {
-        Circle()
-            .strokeBorder(style: StrokeStyle(lineWidth: 2))
-            .foregroundColor(state == .doneCheckmark ? .tangemTapGreen : .tangemTapGrayLight4)
-            .background(backgroundView)
-            .frame(size: buttonSize)
     }
 }
 
