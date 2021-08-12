@@ -24,15 +24,19 @@ class OnboardingViewModel: ViewModel {
     
     @Published var steps: [OnboardingStep] =
         []
-//        [.read, .createWallet, .topup]
+//        [.read, .createWallet, .topup, .confetti, .goToMain]
     @Published var executingRequestOnCard = false
     @Published var currentStepIndex: Int = 0
-    @Published var cardImage: UIImage?
+    @Published var cardImage: UIImage? = UIImage(named: "card_btc")
     @Published var shouldFireConfetti: Bool = false
-    
-    var previewUpdatePublisher: PassthroughSubject<Void, Never> = PassthroughSubject<Void, Never>()
+    @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
+    @Published var isDisclaimer: Bool = false
     
     var shopURL: URL { Constants.shopURL }
+    
+    var cardBalance: String {
+        scannedCardModel?.walletModels?.first?.getBalance(for: .coin) ?? ""
+    }
     
     var currentStep: OnboardingStep {
         guard currentStepIndex < steps.count else {
@@ -82,21 +86,22 @@ class OnboardingViewModel: ViewModel {
         withAnimation {
             self.currentStepIndex = nextStepIndex
         }
+        
+        stepUpdate()
     }
     
     func reset() {
         scannedCardModel = nil
         currentStepIndex = 0
         steps = []
+        executingRequestOnCard = false
+        refreshButtonState = .refreshButton
     }
     
     func executeStep() {
         switch currentStep {
         case .read:
             scanCard()
-        case .disclaimer:
-            userPrefsService.isTermsOfServiceAccepted = true
-            goToNextStep()
         case .createWallet:
             сreateWallet()
         case .topup:
@@ -113,7 +118,6 @@ class OnboardingViewModel: ViewModel {
             let previewModel = assembly.previewCardViewModel
             self.scannedCardModel = previewModel
             processScannedCard(previewModel)
-            previewUpdatePublisher.send()
             return
         }
         
@@ -126,25 +130,62 @@ class OnboardingViewModel: ViewModel {
                 
                 self.scannedCardModel = cardModel
                 self.processScannedCard(cardModel)
-                self.executingRequestOnCard = false
             case .failure(let error):
                 print(error)
             }
+            self.executingRequestOnCard = false
         }
     }
     
+    func acceptDisclaimer() {
+        userPrefsService.isTermsOfServiceAccepted = true
+        navigation.onboardingToDisclaimer = false
+    }
+    
+    private var walletModelUpdateCancellable: AnyCancellable?
     func updateCardBalance() {
-        guard let cardModel = scannedCardModel else { return }
+        guard
+            let walletModel = scannedCardModel?.walletModels?.first,
+            walletModelUpdateCancellable == nil
+        else { return }
         
-        cardModel.walletModels?.forEach {
-            $0.update()
-        }
+        refreshButtonState = .activityIndicator
+        walletModelUpdateCancellable = walletModel.$state
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .sink { [weak self] walletModelState in
+                switch walletModelState {
+                case .noAccount(let message):
+                    print(message)
+                    fallthrough
+                case .idle:
+                    if !walletModel.wallet.isEmpty {
+                        self?.goToNextStep()
+                        break
+                    }
+                    withAnimation {
+                        self?.refreshButtonState = .refreshButton
+                    }
+                case .failed(let error):
+                    print(error)
+                    withAnimation {
+                        self?.refreshButtonState = .refreshButton
+                    }
+                case .loading, .created:
+                    return
+                }
+                self?.walletModelUpdateCancellable = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+                    self?.updateCardBalance()
+                }
+            }
+        walletModel.update(silent: false)
     }
     
     private func processScannedCard(_ cardModel: CardViewModel) {
         stepsSetupService.steps(for: cardModel.cardInfo.card)
             .flatMap { steps -> AnyPublisher<([OnboardingStep], UIImage?), Error> in
-                if steps.count > 2 {
+                if steps.count > 2 && !self.assembly.isPreview {
                     return cardModel.$cardInfo
                         .filter {
                             $0.artwork != .notLoaded
@@ -169,20 +210,24 @@ class OnboardingViewModel: ViewModel {
             }
             .receive(on: DispatchQueue.main)
             .map { [weak self] (steps, image) -> [OnboardingStep] in
-                self?.cardImage = image
+                self?.cardImage = (self?.assembly.isPreview ?? false) ? UIImage(named: "card_btc") : image
                 return steps
             }
             .sink { completion in
                 if case let .failure(error) = completion {
                     print(error)
+                    self.executingRequestOnCard = false
                 }
-                self.executingRequestOnCard = false
             } receiveValue: { [weak self] steps in
                 guard let self = self else { return }
                 
                 withAnimation {
                     self.steps = steps
-                    self.goToNextStep()
+                    if !self.userPrefsService.isTermsOfServiceAccepted {
+                        self.navigation.onboardingToDisclaimer = true
+                    } else {
+                        self.goToNextStep()
+                    }
                     self.executingRequestOnCard = false
                 }
             }
@@ -196,6 +241,16 @@ class OnboardingViewModel: ViewModel {
         }
         
         executingRequestOnCard = true
+        
+        
+        if assembly.isPreview {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.executingRequestOnCard = false
+                self.goToNextStep()
+            }
+            return
+        }
+        
         let card = cardModel.cardInfo.card
         if card.isTangemNote {
 //            userPrefsService.noteCardsStartedActivation.append(card.cardId)
@@ -213,6 +268,24 @@ class OnboardingViewModel: ViewModel {
                 self.executingRequestOnCard = false
                 self.goToNextStep()
             }
+        }
+    }
+    
+    private func stepUpdate() {
+        switch currentStep {
+        case .topup:
+            if walletCreatedWhileOnboarding {
+                return
+            }
+            
+            updateCardBalance()
+        case .confetti:
+            withAnimation {
+                refreshButtonState = .doneCheckmark
+            }
+            shouldFireConfetti = true
+        default:
+            break
         }
     }
     
