@@ -333,7 +333,7 @@ extension Card {
               "index" : 1
             },
             {
-              "publicKey" : "AD601190A88E271798D3B54DA853DEE3AC35C6F66E6A2E7E4F758CDA958FE365",
+              "publicKey" : "AD701190A88E271798D3B54DA853DEE3AC35C6F66E6A2E7E4F758CDA958FE365",
               "totalSignedHashes" : 0,
               "curve" : "ed25519",
               "settings" : {
