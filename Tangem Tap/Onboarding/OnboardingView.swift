@@ -271,39 +271,6 @@ struct OnboardingView: View {
     
     var currentStep: OnboardingStep { viewModel.currentStep }
     
-    struct RotatingCardView: View {
-        
-        var baseCardName: String
-        var backCardImage: UIImage?
-        var cardScanned: Bool
-        
-        private let cardRotationAnimDuration: TimeInterval = 0.2
-        
-        var body: some View {
-            ZStack {
-                if let image = backCardImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .rotation3DEffect(
-                            .init(degrees: cardScanned ? 0 : 90),
-                            axis: (x: 1.0, y: 0.0, z: 0.0)
-                        )
-                        .animation(.linear(duration: cardRotationAnimDuration).delay(cardScanned ? cardRotationAnimDuration : 0))
-                }
-                Image(baseCardName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .rotation3DEffect(
-                        .init(degrees: cardScanned ? -90 : 0),
-                        axis: (x: 1.0, y: 0.0, z: 0.0)
-                    )
-                    .animation(.linear(duration: cardRotationAnimDuration).delay(cardScanned ? 0 : cardRotationAnimDuration))
-            }
-        }
-        
-    }
-    
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
@@ -336,9 +303,9 @@ struct OnboardingView: View {
                             .foregroundColor(Color.tangemTapBgGray)
                             .opacity(0.8)
                             .offset(currentStep.cardBackgroundOffset)
-                        RotatingCardView(baseCardName: "dark_card",
-                                         backCardImage: viewModel.cardImage,
-                                         cardScanned: currentStep != .read)
+                        OnboardingCardView(baseCardName: "dark_card",
+                                           backCardImage: viewModel.cardImage,
+                                           cardScanned: currentStep != .read)
                             .frame(size: CardLayout.main.frame(for: currentStep))
                             .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
                             .offset(CardLayout.main.offset(at: currentStep))
