@@ -72,7 +72,7 @@ extension Assembly {
     }
     
     static var previewAssembly: Assembly {
-        .previewAssembly(for: .ethEmptyNote)
+        .previewAssembly(for: .cardanoNote)
     }
     
     var previewCardViewModel: CardViewModel {
