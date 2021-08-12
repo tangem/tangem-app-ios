@@ -12,7 +12,7 @@ import SwiftUI
 struct TangemButton: View {
     let isLoading: Bool    
     let title: LocalizedStringKey
-    let image: String
+    var image: String = ""
     var size: ButtonSize = .small
     let action: () -> Void
     
