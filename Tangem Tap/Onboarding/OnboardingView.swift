@@ -111,45 +111,6 @@ enum OnboardingStep: Int, CaseIterable {
     }
 }
 
-struct ProgressOnboardingView: View {
-    
-    var steps: [OnboardingStep]
-    var currentStep: Int
-    
-    private let animDuration: TimeInterval = 0.3
-    
-    var body: some View {
-        HStack {
-            ForEach(0..<steps.count) { stepIndex in
-                let step = steps[stepIndex]
-                let state = stepState(for: stepIndex)
-                HStack {
-                    if let icon = step.icon {
-                        if stepIndex > 0 {
-                            ProgressIndicatorGroupView(filled: state == .current || state == .passed, animDuration: animDuration)
-                        }
-                        OnboardingStepIconView(image: icon,
-                                               state: state,
-                                               imageFont: step.iconFont,
-                                               circleSize: .init(width: 50, height: 50))
-                        
-                    }
-                }
-            }
-            
-        }
-    }
-    
-    func stepState(for index: Int) -> OnboardingStepIconView.State {
-        if currentStep == index {
-            return .current
-        } else if currentStep < index {
-            return .future
-        } else {
-            return .passed
-        }
-    }
-}
 
 struct OnboardingView: View {
     
@@ -208,7 +169,13 @@ struct OnboardingView: View {
                      title: currentStep.secondaryButtonTitle,
                      image: "",
                      size: .wide) {
-            viewModel.reset()
+//            viewModel.reset()
+            switch currentStep {
+            case .topup:
+                bottomSheetPresented = true
+            default:
+                viewModel.reset()
+            }
 //            viewModel.shouldFireConfetti = true
         }
         .opacity(currentStep.withSecondaryButton ? 1.0 : 0.1)
@@ -270,6 +237,8 @@ struct OnboardingView: View {
     }
     
     var currentStep: OnboardingStep { viewModel.currentStep }
+    
+    @State var bottomSheetPresented: Bool = false
     
     var body: some View {
         ZStack {
@@ -359,6 +328,9 @@ struct OnboardingView: View {
                 Spacer()
                     .frame(width: 1, height: 20)
             }
+            AddressQrBottomSheetView(isPresented: $bottomSheetPresented,
+                                     shareAddress: viewModel.shareAddress,
+                                     address: viewModel.walletAddress)
         }
         .navigationBarHidden(true)
     }
