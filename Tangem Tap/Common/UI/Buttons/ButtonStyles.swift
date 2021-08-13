@@ -37,6 +37,7 @@ enum ButtonColorStyle {
     case black
     case gray
     case transparentWhite
+    case grayAlt
     
     var defaultColor: Color {
         switch self {
@@ -44,6 +45,7 @@ enum ButtonColorStyle {
         case .black: return .tangemTapGrayDark6
         case .gray: return .tangemTapGrayLight4
         case .transparentWhite: return .clear
+        case .grayAlt: return .tangemTapBgGray
         }
     }
     
@@ -51,14 +53,14 @@ enum ButtonColorStyle {
         switch self {
         case .green: return .tangemTapGreen1
         case .black: return .tangemTapGrayDark6
-        case .gray: return .tangemTapGrayDark
+        case .gray, .grayAlt: return .tangemTapGrayDark
         case .transparentWhite: return .tangemTapGrayLight4
         }
     }
     
     var titleColor: Color {
         switch self {
-        case .transparentWhite: return .tangemTapGrayDark6
+        case .transparentWhite, .grayAlt: return .tangemTapGrayDark6
         default: return .white
         }
     }
@@ -102,6 +104,10 @@ struct ButtonStyles_Previews: PreviewProvider {
                 .buttonStyle(TangemButtonStyle(color: .transparentWhite, isDisabled: false))
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(color: .transparentWhite, isDisabled: true))
+            Button(action: {}) { Text("Go to shop") }
+                .buttonStyle(TangemButtonStyle(color: .grayAlt, isDisabled: false))
+            Button(action: {}) { Text("Go to shop") }
+                .buttonStyle(TangemButtonStyle(color: .grayAlt, isDisabled: true))
         }
     }
 }
