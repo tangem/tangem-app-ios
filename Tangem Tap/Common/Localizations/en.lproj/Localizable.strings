@@ -602,3 +602,5 @@ Amount to pay: %@";
 "onboarding_confetti_title" = "Done!";
 "onboarding_confetti_subtitle" = "Your crypto card is activated and ready to be used";
 "onboarding_balance" = "BALANCE";
+
+"address_qr_code_message" = "Scan the QR code to top up your wallet";
