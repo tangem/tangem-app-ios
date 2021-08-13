@@ -41,6 +41,14 @@ class OnboardingViewModel: ViewModel {
         return steps[currentStepIndex]
     }
     
+    var shareAddress: String {
+        scannedCardModel?.walletModels?.first?.shareAddressString(for: 0) ?? ""
+    }
+    
+    var walletAddress: String {
+        scannedCardModel?.walletModels?.first?.displayAddress(for: 0) ?? ""
+    }
+    
     var isExchangeServiceAvailable: Bool { exchangeService.canBuyCrypto }
     
     var buyCryptoURL: URL? {
@@ -239,7 +247,7 @@ class OnboardingViewModel: ViewModel {
                 
                 withAnimation {
                     self.steps = steps
-                    if !self.userPrefsService.isTermsOfServiceAccepted {
+                    if self.userPrefsService.isTermsOfServiceAccepted {
                         self.navigation.onboardingToDisclaimer = true
                     } else {
                         self.goToNextStep()
