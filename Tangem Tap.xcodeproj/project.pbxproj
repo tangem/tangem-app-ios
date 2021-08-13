@@ -645,6 +645,8 @@
 		B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B9E0B52629779500408726 /* AlertBinder.swift */; };
 		B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */; };
 		B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */; };
+		B0BA7BC926C565D000D7066F /* ProgressOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC826C565D000D7066F /* ProgressOnboardingView.swift */; };
+		B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */; };
 		B0BD73682696D6210071DD21 /* ExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06997CF2692EC5E0014A676 /* ExchangeService.swift */; };
 		B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */; };
 		B0C04BBE2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */; };
@@ -661,6 +663,7 @@
 		B0CA5A8B25F779C60078F42F /* VIew+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED462550186A0008DEF0 /* VIew+.swift */; };
 		B0CA5A9025F779D60078F42F /* Color+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0A24D853B600E78F1C /* Color+.swift */; };
 		B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */; };
+		B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */; };
 		B0CBE9FE26260D3F00072191 /* ScannedCardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CBE9FD26260D3F00072191 /* ScannedCardsRepository.swift */; };
 		B0CC670C26455C44007D227A /* WalletConnectCardScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC670B26455C44007D227A /* WalletConnectCardScanner.swift */; };
 		B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC818225CD63FB006D49B9 /* Token+.swift */; };
@@ -1365,6 +1368,8 @@
 		B0B9E0B52629779500408726 /* AlertBinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertBinder.swift; sourceTree = "<group>"; };
 		B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonDismissableModalView.swift; sourceTree = "<group>"; };
 		B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCircleButton.swift; sourceTree = "<group>"; };
+		B0BA7BC826C565D000D7066F /* ProgressOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressOnboardingView.swift; sourceTree = "<group>"; };
+		B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressQrBottomSheetView.swift; sourceTree = "<group>"; };
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationLink+EmptyLabel.swift"; sourceTree = "<group>"; };
 		B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAccessDeniedModifier.swift; sourceTree = "<group>"; };
@@ -1378,6 +1383,7 @@
 		B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+PreviewDevice.swift"; sourceTree = "<group>"; };
 		B0CA5A9B25F77A5B0078F42F /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		B0CA5ADC25F786B90078F42F /* BalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceView.swift; sourceTree = "<group>"; };
+		B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
 		B0CBE9FD26260D3F00072191 /* ScannedCardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedCardsRepository.swift; sourceTree = "<group>"; };
 		B0CC670B26455C44007D227A /* WalletConnectCardScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCardScanner.swift; sourceTree = "<group>"; };
 		B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = breadwallet_tokens.json; sourceTree = "<group>"; };
@@ -1734,6 +1740,7 @@
 				B0E9E2FC2679DA5B00269C7A /* Separator.swift */,
 				B0E9E2FE2679DA8000269C7A /* AmountView.swift */,
 				B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */,
+				B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2961,6 +2968,7 @@
 				B00D714F258A1B6C00A9442C /* JsonUtils.swift */,
 				B0323F2B258C041D005C7CD5 /* SignerUtils.swift */,
 				B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */,
+				B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -3277,6 +3285,7 @@
 				B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */,
 				B046FC3526BC1DB600A7EECE /* OnboardingProgressIndicator.swift */,
 				B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */,
+				B0BA7BC826C565D000D7066F /* ProgressOnboardingView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3705,6 +3714,7 @@
 				B05209C3261F2B4E000DD204 /* WalletConnectUIBuilder.swift in Sources */,
 				B074BAC326779BC8005D641B /* PushTxViewModel.swift in Sources */,
 				5D79D3152555ABE700650DD7 /* CardImageLoaderService.swift in Sources */,
+				B0BA7BC926C565D000D7066F /* ProgressOnboardingView.swift in Sources */,
 				B069F3772631B24F00ACFD19 /* WebImage.swift in Sources */,
 				B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */,
@@ -3733,6 +3743,7 @@
 				5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */,
 				B09BB883259A09CE00B92000 /* WarningEvent+.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,
+				B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */,
 				5D09383725EAB45C0049B8F0 /* TokenItemViewModel.swift in Sources */,
 				B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */,
 				B074BAC126779B28005D641B /* PushTxView.swift in Sources */,
@@ -3815,6 +3826,7 @@
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
+				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
 				5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */,
 				B09BB862259A075600B92000 /* NavigationButton.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
