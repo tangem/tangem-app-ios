@@ -155,29 +155,8 @@ struct OnboardingView: View {
             .foregroundColor(.tangemTapGrayDark6)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 40)
-        if viewModel.isUserAcceptDisclaimer || currentStep != .read {
-            Spacer()
-                .frame(size: .init(width: 0.01, height: 60))
-        } else {
-            Spacer()
-                .frame(height: 20)
-            HStack(spacing: 0) {
-                CheckmarkSwitch(isChecked: $viewModel.acceptTouSwitch,
-                                settings: .defaultRoundedRect())
-                    .frame(size: .init(width: 26, height: 26))
-                    .padding(.trailing, 8)
-                Text("I accept ")
-                    .foregroundColor(.tangemTapGrayDark6)
-                Button(action: {
-                    viewModel.showDisclaimer()
-                }, label: {
-                    Text("terms and conditions")
-                        .padding(.vertical, 8)
-                })
-            }
-            Spacer()
-                .frame(height: 14)
-        }
+        Spacer()
+            .frame(size: .init(width: 0.01, height: 60))
     }
     
     @ViewBuilder
@@ -188,14 +167,9 @@ struct OnboardingView: View {
                      size: .wide) {
             viewModel.executeStep()
         }
-        .allowsHitTesting(viewModel.isUserAcceptDisclaimer || viewModel.acceptTouSwitch)
-        .buttonStyle((viewModel.isUserAcceptDisclaimer || viewModel.acceptTouSwitch) ?
-                        TangemButtonStyle(color: .green,
-                                          font: .system(size: 18, weight: .semibold),
-                                          isDisabled: false) :
-                        TangemButtonStyle(color: .gray,
-                                          font: .system(size: 18, weight: .semibold),
-                                          isDisabled: false))
+        .buttonStyle(TangemButtonStyle(color: .green,
+                                       font: .system(size: 18, weight: .semibold),
+                                       isDisabled: false))
         .padding(.bottom, 10)
         TangemButton(isLoading: false,
                      title: currentStep.secondaryButtonTitle,
