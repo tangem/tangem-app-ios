@@ -28,8 +28,8 @@ class OnboardingViewModel: ViewModel {
     @Published var cardImage: UIImage? = UIImage(named: "card_btc")
     @Published var shouldFireConfetti: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
-    @Published var isDisclaimer: Bool = false
     @Published var cardBalance: String = ""
+    @Published var acceptTouSwitch: Bool = false
     
     var shopURL: URL { Constants.shopURL }
     
@@ -61,6 +61,10 @@ class OnboardingViewModel: ViewModel {
     
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
     
+    lazy var isUserAcceptDisclaimer: Bool = {
+        userPrefsService.isTermsOfServiceAccepted
+    }()
+    
     private var bag: Set<AnyCancellable> = []
     private var scannedCardModel: CardViewModel?
     private var walletCreatedWhileOnboarding: Bool = false
@@ -78,6 +82,7 @@ class OnboardingViewModel: ViewModel {
                 navigation.readToMain = true
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.userPrefsService.isTermsOfServiceAccepted = true
                 self.reset()
             }
         }
@@ -151,8 +156,12 @@ class OnboardingViewModel: ViewModel {
         }
     }
     
+    func showDisclaimer() {
+        navigation.onboardingToDisclaimer = true
+    }
+    
     func acceptDisclaimer() {
-        userPrefsService.isTermsOfServiceAccepted = true
+        acceptTouSwitch = true
         navigation.onboardingToDisclaimer = false
     }
     
@@ -247,11 +256,11 @@ class OnboardingViewModel: ViewModel {
                 
                 withAnimation {
                     self.steps = steps
-                    if self.userPrefsService.isTermsOfServiceAccepted {
-                        self.navigation.onboardingToDisclaimer = true
-                    } else {
-                        self.goToNextStep()
-                    }
+//                    if self.userPrefsService.isTermsOfServiceAccepted {
+//                        self.navigation.onboardingToDisclaimer = true
+//                    } else {
+                    self.goToNextStep()
+//                    }
                     self.executingRequestOnCard = false
                 }
             }
