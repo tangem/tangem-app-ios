@@ -68,12 +68,13 @@ enum ButtonColorStyle {
 
 struct TangemButtonStyle: ButtonStyle {
     var color: ButtonColorStyle = .green
+    var font: Font = Font.custom("SairaSemiCondensed-Bold", size: 15.0)
     var isDisabled: Bool = false
     
     func makeBody(configuration: Configuration) -> some View {
         configuration
             .label
-            .font(Font.custom("SairaSemiCondensed-Bold", size: 15.0))
+            .font(font)
             .foregroundColor(color.titleColor)
             .background(
                 configuration.isPressed ?
@@ -105,7 +106,7 @@ struct ButtonStyles_Previews: PreviewProvider {
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(color: .transparentWhite, isDisabled: true))
             Button(action: {}) { Text("Go to shop") }
-                .buttonStyle(TangemButtonStyle(color: .grayAlt, isDisabled: false))
+                .buttonStyle(TangemButtonStyle(color: .grayAlt, font: .system(size: 18), isDisabled: false))
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(color: .grayAlt, isDisabled: true))
         }
