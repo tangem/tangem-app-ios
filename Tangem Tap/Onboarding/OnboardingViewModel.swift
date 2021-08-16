@@ -29,7 +29,6 @@ class OnboardingViewModel: ViewModel {
     @Published var shouldFireConfetti: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = ""
-    @Published var acceptTouSwitch: Bool = false
     
     var shopURL: URL { Constants.shopURL }
     
@@ -60,10 +59,6 @@ class OnboardingViewModel: ViewModel {
     }
     
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
-    
-    lazy var isUserAcceptDisclaimer: Bool = {
-        userPrefsService.isTermsOfServiceAccepted
-    }()
     
     private var bag: Set<AnyCancellable> = []
     private var scannedCardModel: CardViewModel?
@@ -116,7 +111,12 @@ class OnboardingViewModel: ViewModel {
     func executeStep() {
         switch currentStep {
         case .read:
-            scanCard()
+            userPrefsService.isTermsOfServiceAccepted = false
+            if userPrefsService.isTermsOfServiceAccepted {
+                scanCard()
+            } else {
+                showDisclaimer()
+            }
         case .createWallet:
             сreateWallet()
         case .topup:
@@ -161,8 +161,12 @@ class OnboardingViewModel: ViewModel {
     }
     
     func acceptDisclaimer() {
-        acceptTouSwitch = true
+        userPrefsService.isTermsOfServiceAccepted = true
         navigation.onboardingToDisclaimer = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.scanCard()
+        }
+        
     }
     
     func updateCardBalance() {
