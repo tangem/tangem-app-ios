@@ -16,7 +16,7 @@ struct AddressQrBottomSheetView: View {
     var address: String
     
     @State private var backgroundOpacity: Double = 0
-    @State private var sheetOffset: CGFloat = 570
+    @State private var sheetOffset: CGFloat = UIScreen.main.bounds.height
     @State private var lastDragValue: DragGesture.Value?
     
     private let backgroundVisibleOpacity: Double = 0.5
@@ -34,9 +34,9 @@ struct AddressQrBottomSheetView: View {
         return speed
     }
     
-    private func hideBottomSheet() {
+    private func hideBottomSheet(safeAreaBottomInset: CGFloat) {
         withAnimation(.linear(duration: defaultAnimDuration)) {
-            sheetOffset = sheetSize.height
+            sheetOffset = sheetSize.height + safeAreaBottomInset
             backgroundOpacity = 0
         }
     }
@@ -59,7 +59,7 @@ struct AddressQrBottomSheetView: View {
                         let distanceToBottomEdge = (screenSize.height - value.location.y)
                         let animDuration = min(defaultAnimDuration, Double(distanceToBottomEdge) / speed)
                         withAnimation(.linear(duration: animDuration)) {
-                            sheetOffset = sheetSize.height
+                            sheetOffset = sheetSize.height + proxy.safeAreaInsets.bottom
                             backgroundOpacity = 0
                         }
                     } else {
@@ -73,7 +73,7 @@ struct AddressQrBottomSheetView: View {
                     .frame(maxHeight: UIScreen.main.bounds.height)
                     .opacity(backgroundOpacity)
                     .onTapGesture {
-                        hideBottomSheet()
+                        hideBottomSheet(safeAreaBottomInset: proxy.safeAreaInsets.bottom)
                     }
                 VStack {
                     Rectangle()
@@ -123,9 +123,9 @@ struct AddressQrBottomSheetView: View {
                     TangemButton(isLoading: false,
                                  title: "common_close",
                                  size: .wide) {
-                        hideBottomSheet()
+                        hideBottomSheet(safeAreaBottomInset: proxy.safeAreaInsets.bottom)
                     }
-                    .buttonStyle(TangemButtonStyle(color: .grayAlt, isDisabled: false))
+                    .buttonStyle(TangemButtonStyle(color: .grayAlt, font: .system(size: 18, weight: .semibold), isDisabled: false))
                     .padding(.bottom, 16 + proxy.safeAreaInsets.bottom)
                 }
                 .frame(maxWidth: .infinity)
