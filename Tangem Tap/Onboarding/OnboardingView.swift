@@ -51,7 +51,7 @@ enum OnboardingStep: Int, CaseIterable {
     
     var primaryButtonTitle: LocalizedStringKey {
         switch self {
-        case .read: return "onboarding_button_read_card"
+        case .read: return "home_button_scan"
         case .createWallet: return "onboarding_button_create_wallet"
         case .topup: return "onboarding_button_topup"
         case .backup: return ""
@@ -145,14 +145,39 @@ struct OnboardingView: View {
             .multilineTextAlignment(.center)
             .foregroundColor(.tangemTapGrayDark6)
             .padding(.bottom, 14)
+            .onTapGesture {
+                // [REDACTED_TODO_COMMENT]
+                viewModel.reset()
+            }
         Text(currentStep.subtitle)
             .multilineTextAlignment(.center)
             .font(.system(size: 18, weight: .regular))
             .foregroundColor(.tangemTapGrayDark6)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 40)
-        Spacer()
-            .frame(minWidth: 1, minHeight: 20, idealHeight: 60, maxHeight: 60)
+        if viewModel.isUserAcceptDisclaimer || currentStep != .read {
+            Spacer()
+                .frame(size: .init(width: 0.01, height: 60))
+        } else {
+            Spacer()
+                .frame(height: 20)
+            HStack(spacing: 0) {
+                CheckmarkSwitch(isChecked: $viewModel.acceptTouSwitch,
+                                settings: .defaultRoundedRect())
+                    .frame(size: .init(width: 26, height: 26))
+                    .padding(.trailing, 8)
+                Text("I accept ")
+                    .foregroundColor(.tangemTapGrayDark6)
+                Button(action: {
+                    viewModel.showDisclaimer()
+                }, label: {
+                    Text("terms and conditions")
+                        .padding(.vertical, 8)
+                })
+            }
+            Spacer()
+                .frame(height: 14)
+        }
     }
     
     @ViewBuilder
@@ -163,7 +188,14 @@ struct OnboardingView: View {
                      size: .wide) {
             viewModel.executeStep()
         }
-        .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
+        .allowsHitTesting(viewModel.isUserAcceptDisclaimer || viewModel.acceptTouSwitch)
+        .buttonStyle((viewModel.isUserAcceptDisclaimer || viewModel.acceptTouSwitch) ?
+                        TangemButtonStyle(color: .green,
+                                          font: .system(size: 18, weight: .semibold),
+                                          isDisabled: false) :
+                        TangemButtonStyle(color: .gray,
+                                          font: .system(size: 18, weight: .semibold),
+                                          isDisabled: false))
         .padding(.bottom, 10)
         TangemButton(isLoading: false,
                      title: currentStep.secondaryButtonTitle,
@@ -179,7 +211,9 @@ struct OnboardingView: View {
 //            viewModel.shouldFireConfetti = true
         }
         .opacity(currentStep.withSecondaryButton ? 1.0 : 0.1)
-        .buttonStyle(TangemButtonStyle(color: .transparentWhite, isDisabled: false))
+        .buttonStyle(TangemButtonStyle(color: .transparentWhite,
+                                       font: .system(size: 18, weight: .semibold),
+                                       isDisabled: false))
     }
     
     enum CardLayout {
@@ -318,11 +352,9 @@ struct OnboardingView: View {
                                          size: .wide) {
                                 viewModel.acceptDisclaimer()
                             }
-                            .buttonStyle(TangemButtonStyle(color: .green))
+                            .buttonStyle(TangemButtonStyle(color: .green,
+                                                           font: .system(size: 18)))
                             .padding(.bottom, 8)
-                        }
-                        .presentation(onDismissalAttempt: nil) {
-                            viewModel.goToNextStep()
                         }
                     })
                 Spacer()
