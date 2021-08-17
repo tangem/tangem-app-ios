@@ -18,28 +18,12 @@ struct AddressQrBottomSheetView: View {
     @State private var backgroundOpacity: Double = 0
     @State private var sheetOffset: CGFloat = UIScreen.main.bounds.height
     @State private var lastDragValue: DragGesture.Value?
+    @State private var sheetSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 570)
     
     private let backgroundVisibleOpacity: Double = 0.5
     private let sheetVisibleOffset: CGFloat = 0
-    private let sheetSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 570)
     private let defaultAnimDuration: Double = 0.22
     private let screenSize: CGSize = UIScreen.main.bounds.size
-    
-    private func speed(for value: DragGesture.Value) -> Double {
-        guard let lastDragValue = lastDragValue else { return 0 }
-        
-        let timeDiff = value.time.timeIntervalSince(lastDragValue.time)
-        let speed: Double = Double(value.location.y - lastDragValue.location.y) / timeDiff
-        
-        return speed
-    }
-    
-    private func hideBottomSheet(safeAreaBottomInset: CGFloat) {
-        withAnimation(.linear(duration: defaultAnimDuration)) {
-            sheetOffset = sheetSize.height + safeAreaBottomInset
-            backgroundOpacity = 0
-        }
-    }
     
     var body: some View {
         GeometryReader { proxy in
@@ -58,10 +42,7 @@ struct AddressQrBottomSheetView: View {
                     if(speed > 200) || shouldDismiss {
                         let distanceToBottomEdge = (screenSize.height - value.location.y)
                         let animDuration = min(defaultAnimDuration, Double(distanceToBottomEdge) / speed)
-                        withAnimation(.linear(duration: animDuration)) {
-                            sheetOffset = sheetSize.height + proxy.safeAreaInsets.bottom
-                            backgroundOpacity = 0
-                        }
+                        hideBottomSheet(with: animDuration)
                     } else {
                         isPresented.wrappedValue = true
                     }
@@ -73,7 +54,7 @@ struct AddressQrBottomSheetView: View {
                     .frame(maxHeight: UIScreen.main.bounds.height)
                     .opacity(backgroundOpacity)
                     .onTapGesture {
-                        hideBottomSheet(safeAreaBottomInset: proxy.safeAreaInsets.bottom)
+                        hideBottomSheet(with: defaultAnimDuration)
                     }
                 VStack {
                     Rectangle()
@@ -123,7 +104,7 @@ struct AddressQrBottomSheetView: View {
                     TangemButton(isLoading: false,
                                  title: "common_close",
                                  size: .wide) {
-                        hideBottomSheet(safeAreaBottomInset: proxy.safeAreaInsets.bottom)
+                        hideBottomSheet(with: defaultAnimDuration)
                     }
                     .buttonStyle(TangemButtonStyle(color: .grayAlt, font: .system(size: 18, weight: .semibold), isDisabled: false))
                     .padding(.bottom, 16 + proxy.safeAreaInsets.bottom)
@@ -133,25 +114,57 @@ struct AddressQrBottomSheetView: View {
                 .cornerRadius(10, corners: [.topLeft, .topRight])
                 .gesture(dragGesture)
                 .offset(x: 0, y: sheetOffset)
+                .background(GeometryReader(content: { geometry in
+                    Color.clear
+                        .preference(key: BottomSheetSize.self, value: geometry.size)
+                }))
             }
             .frame(alignment: .bottom)
             .edgesIgnoringSafeArea(.bottom)
         }
         .onReceive(Just(isPresented.wrappedValue), perform: { presented in
             if presented && sheetOffset > 0 {
-                withAnimation(.linear(duration: defaultAnimDuration)) {
-                    sheetOffset = 0
-                    backgroundOpacity = backgroundVisibleOpacity
-                }
+                showBottomSheet(with: defaultAnimDuration)
                 isPresented.wrappedValue = false
             }
         })
+        .onPreferenceChange(BottomSheetSize.self) { newSize in
+            sheetSize = newSize
+          }
     }
     
-    func showShareSheet() {
+    private func showShareSheet() {
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
         UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
     }
+    
+    private func speed(for value: DragGesture.Value) -> Double {
+        guard let lastDragValue = lastDragValue else { return 0 }
+        
+        let timeDiff = value.time.timeIntervalSince(lastDragValue.time)
+        let speed: Double = Double(value.location.y - lastDragValue.location.y) / timeDiff
+        
+        return speed
+    }
+    
+    private func showBottomSheet(with duration: TimeInterval) {
+        withAnimation(.linear(duration: duration)) {
+            sheetOffset = 0
+            backgroundOpacity = backgroundVisibleOpacity
+        }
+    }
+    
+    private func hideBottomSheet(with duration: TimeInterval) {
+        withAnimation(.linear(duration: duration)) {
+            sheetOffset = sheetSize.height
+            backgroundOpacity = 0
+        }
+    }
+}
+
+struct BottomSheetSize: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {}
 }
 
 struct AddressQrBottomSheetPreviewView: View {
@@ -175,6 +188,7 @@ struct AddressQrBottomSheetPreviewView: View {
 struct AddressQrBottomSheetView_Previews: PreviewProvider {
     static var previews: some View {
         AddressQrBottomSheetPreviewView()
+//            .previewGroup(devices: [.iPhone12Pro])
     }
 }
 
