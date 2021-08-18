@@ -22,7 +22,9 @@ class OnboardingViewModel: ViewModel {
     weak var exchangeService: ExchangeService!
     weak var imageLoaderService: CardImageLoaderService!
     
-    @Published var steps: [OnboardingStep] = []
+    @Published var steps: [OnboardingStep] =
+        []
+//        [.read, .createWallet, .topup, .confetti]
     @Published var executingRequestOnCard = false
     @Published var currentStepIndex: Int = 0
     @Published var cardImage: UIImage? = UIImage(named: "card_btc")
@@ -260,11 +262,7 @@ class OnboardingViewModel: ViewModel {
                 
                 withAnimation {
                     self.steps = steps
-//                    if self.userPrefsService.isTermsOfServiceAccepted {
-//                        self.navigation.onboardingToDisclaimer = true
-//                    } else {
                     self.goToNextStep()
-//                    }
                     self.executingRequestOnCard = false
                 }
             }
