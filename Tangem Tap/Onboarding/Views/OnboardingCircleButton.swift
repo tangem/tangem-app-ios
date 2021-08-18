@@ -21,7 +21,7 @@ struct OnboardingCircleButton: View {
             switch self {
             case .default: return .init(width: 70, height: 70)
             case .medium: return .init(width: 62, height: 62)
-            case .small: return .init(width: 55, height: 55)
+            case .small: return .init(width: 45, height: 45)
             }
         }
         
@@ -29,7 +29,7 @@ struct OnboardingCircleButton: View {
             switch self {
             case .default: return .system(size: 28, weight: .semibold)
             case .medium: return .system(size: 26, weight: .semibold)
-            case .small: return .system(size: 24, weight: .semibold)
+            case .small: return .system(size: 20, weight: .semibold)
             }
         }
         
@@ -37,7 +37,7 @@ struct OnboardingCircleButton: View {
             switch self {
             case .default: return .system(size: 24, weight: .bold)
             case .medium: return .system(size: 21, weight: .bold)
-            case .small: return .system(size: 18, weight: .bold)
+            case .small: return .system(size: 15, weight: .bold)
             }
         }
         
