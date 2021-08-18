@@ -76,7 +76,7 @@
 		5D79D3152555ABE700650DD7 /* CardImageLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D79D3142555ABE700650DD7 /* CardImageLoaderService.swift */; };
 		5D7CA0FB2589F9A300B12C25 /* MoonPayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39514C2556CDDF002CC452 /* MoonPayService.swift */; };
 		5D80ED422550172A0008DEF0 /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED412550172A0008DEF0 /* UIApplication+.swift */; };
-		5D80ED472550186A0008DEF0 /* VIew+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED462550186A0008DEF0 /* VIew+.swift */; };
+		5D80ED472550186A0008DEF0 /* View+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED462550186A0008DEF0 /* View+.swift */; };
 		5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E324FA79F700E90939 /* ViewStateHandler.swift */; };
 		5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */; };
 		5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
@@ -222,6 +222,7 @@
 		B0462F9C26B0069F00FB44B7 /* UIViewController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */; };
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B046FC3626BC1DB600A7EECE /* OnboardingProgressIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046FC3526BC1DB600A7EECE /* OnboardingProgressIndicator.swift */; };
+		B04FBC3A26CB98F000B397CE /* View+SizeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04FBC3926CB98F000B397CE /* View+SizeReader.swift */; };
 		B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1AF262192A300809FD2 /* WalletConnectModels.swift */; };
 		B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */; };
 		B05209BE261F1FF3000DD204 /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05209BD261F1FF3000DD204 /* RoundedCorner.swift */; };
@@ -661,7 +662,7 @@
 		B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0CE2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift */; };
 		B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
 		B0CA5A8625F7797B0078F42F /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */; };
-		B0CA5A8B25F779C60078F42F /* VIew+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED462550186A0008DEF0 /* VIew+.swift */; };
+		B0CA5A8B25F779C60078F42F /* View+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED462550186A0008DEF0 /* View+.swift */; };
 		B0CA5A9025F779D60078F42F /* Color+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0A24D853B600E78F1C /* Color+.swift */; };
 		B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */; };
 		B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */; };
@@ -849,7 +850,7 @@
 		5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateMultiWalletTask.swift; sourceTree = "<group>"; };
 		5D79D3142555ABE700650DD7 /* CardImageLoaderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardImageLoaderService.swift; sourceTree = "<group>"; };
 		5D80ED412550172A0008DEF0 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
-		5D80ED462550186A0008DEF0 /* VIew+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VIew+.swift"; sourceTree = "<group>"; };
+		5D80ED462550186A0008DEF0 /* View+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+.swift"; sourceTree = "<group>"; };
 		5D84352725B84E8C0085C9D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5D9004E324FA79F700E90939 /* ViewStateHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewStateHandler.swift; sourceTree = "<group>"; };
 		5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePayIdView.swift; sourceTree = "<group>"; };
@@ -951,6 +952,7 @@
 		B0453671264D4B730005B23E /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		B046EE172578D38E00EA38A5 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B046FC3526BC1DB600A7EECE /* OnboardingProgressIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressIndicator.swift; sourceTree = "<group>"; };
+		B04FBC3926CB98F000B397CE /* View+SizeReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+SizeReader.swift"; sourceTree = "<group>"; };
 		B051A1AF262192A300809FD2 /* WalletConnectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectModels.swift; sourceTree = "<group>"; };
 		B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBusyButton.swift; sourceTree = "<group>"; };
 		B05209BD261F1FF3000DD204 /* RoundedCorner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCorner.swift; sourceTree = "<group>"; };
@@ -1801,7 +1803,8 @@
 				5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */,
 				5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */,
 				5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */,
-				5D80ED462550186A0008DEF0 /* VIew+.swift */,
+				5D80ED462550186A0008DEF0 /* View+.swift */,
+				B04FBC3926CB98F000B397CE /* View+SizeReader.swift */,
 				B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */,
 				B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */,
 				5D09383125E7A9820049B8F0 /* Wallet+.swift */,
@@ -3707,6 +3710,7 @@
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
+				B04FBC3A26CB98F000B397CE /* View+SizeReader.swift in Sources */,
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
 				5D011A242530778200758010 /* DisclaimerView.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
@@ -3877,7 +3881,7 @@
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */,
-				5D80ED472550186A0008DEF0 /* VIew+.swift in Sources */,
+				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
 				5DDE22FA2609023B008657C6 /* WalletConnectViewModel.swift in Sources */,
@@ -4287,7 +4291,7 @@
 				5DE7DD162695BF9700472205 /* FileEncryptionUtility.swift in Sources */,
 				B066B1DF262D6B1100EB85A5 /* MultipleAddressProvider.swift in Sources */,
 				B086906E260A2D73005976CD /* ActivityIndicatorView.swift in Sources */,
-				B0CA5A8B25F779C60078F42F /* VIew+.swift in Sources */,
+				B0CA5A8B25F779C60078F42F /* View+.swift in Sources */,
 				B066B178262D6B1100EB85A5 /* HDPublicKey.swift in Sources */,
 				B066B1F1262D6B1100EB85A5 /* TezosTarget.swift in Sources */,
 				B01983CA2660C7EA00107390 /* DogecoinNetworkParams.swift in Sources */,
