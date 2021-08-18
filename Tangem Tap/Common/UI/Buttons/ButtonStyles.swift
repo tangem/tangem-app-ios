@@ -9,27 +9,35 @@
 import Foundation
 import SwiftUI
 
-enum ButtonSize: CGFloat {
+enum ButtonSize {
     case small
     case big
     case smallVertical
     case thinHorizontal
     case wide
+    case customWidth(CGFloat)
+    case custom(size: CGSize)
     
     var value: CGSize {
         switch self {
         case .small:
-            return CGSize(width: 95.0, height: 56.0)
+            return CGSize(width: 95.0, height: defaultHeight)
         case .big:
-            return CGSize(width: 200.0, height: 56.0)
+            return CGSize(width: 200.0, height: defaultHeight)
         case .smallVertical:
-            return CGSize(width: 100.0, height: 56.0)
+            return CGSize(width: 100.0, height: defaultHeight)
         case .thinHorizontal:
             return CGSize(width: 109, height: 32)
         case .wide:
-            return CGSize(width: 295, height: 56)
+            return CGSize(width: UIScreen.main.bounds.width - 80, height: 56)
+        case .customWidth(let width):
+            return .init(width: width, height: defaultHeight)
+        case .custom(let size):
+            return size
         }
     }
+    
+    private var defaultHeight: CGFloat { 56 }
 }
 
 enum ButtonColorStyle {
@@ -89,6 +97,21 @@ struct TangemButtonStyle: ButtonStyle {
 struct ButtonStyles_Previews: PreviewProvider {
     static var previews: some View {
         VStack(alignment: .center, spacing: 16.0) {
+            TangemButton(isLoading: false,
+                         title: "Tangem Wide button",
+                         size: .wide,
+                         action: {})
+                .buttonStyle(TangemButtonStyle(color: .green, font: .system(size: 18), isDisabled: false))
+            TangemButton(isLoading: false,
+                         title: "Tangem custom button",
+                         size: .custom(size: CGSize(width: 175, height: 44)),
+                         action: {})
+                .buttonStyle(TangemButtonStyle(color: .green, font: .system(size: 18), isDisabled: false))
+            TangemButton(isLoading: false,
+                         title: "Tangem custom button",
+                         size: .customWidth(234),
+                         action: {})
+                .buttonStyle(TangemButtonStyle(color: .green, font: .system(size: 18), isDisabled: false))
             Button(action:{}){
                 Text("Tap in!")}
                 .buttonStyle(TangemButtonStyle(color: .green))
@@ -107,8 +130,6 @@ struct ButtonStyles_Previews: PreviewProvider {
                 .buttonStyle(TangemButtonStyle(color: .transparentWhite, isDisabled: true))
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(color: .grayAlt, font: .system(size: 18), isDisabled: false))
-            Button(action: {}) { Text("Go to shop") }
-                .buttonStyle(TangemButtonStyle(color: .grayAlt, isDisabled: true))
         }
     }
 }
