@@ -114,10 +114,9 @@ struct AddressQrBottomSheetView: View {
                 .cornerRadius(10, corners: [.topLeft, .topRight])
                 .gesture(dragGesture)
                 .offset(x: 0, y: sheetOffset)
-                .background(GeometryReader(content: { geometry in
-                    Color.clear
-                        .preference(key: BottomSheetSize.self, value: geometry.size)
-                }))
+                .readSize { size in
+                    sheetSize = size
+                }
             }
             .frame(alignment: .bottom)
             .edgesIgnoringSafeArea(.bottom)
@@ -128,9 +127,6 @@ struct AddressQrBottomSheetView: View {
                 isPresented.wrappedValue = false
             }
         })
-        .onPreferenceChange(BottomSheetSize.self) { newSize in
-            sheetSize = newSize
-          }
     }
     
     private func showShareSheet() {
@@ -160,11 +156,6 @@ struct AddressQrBottomSheetView: View {
             backgroundOpacity = 0
         }
     }
-}
-
-struct BottomSheetSize: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {}
 }
 
 struct AddressQrBottomSheetPreviewView: View {
