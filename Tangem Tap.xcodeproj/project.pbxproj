@@ -691,6 +691,7 @@
 		B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* KeysManager.swift */; };
 		B0E1D17D257DE79000A3AB98 /* FeaturesConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */; };
+		B0E92C9726D38A7E004F0855 /* BottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E92C9626D38A7E004F0855 /* BottomSheetView.swift */; };
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
 		B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FE2679DA8000269C7A /* AmountView.swift */; };
 		B0EC1200267386FC00137059 /* PendingTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EC11FF267386FC00137059 /* PendingTransaction.swift */; };
@@ -1422,6 +1423,7 @@
 		B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCardView.swift; sourceTree = "<group>"; };
 		B0E1D174257DE75D00A3AB98 /* KeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysManager.swift; sourceTree = "<group>"; };
 		B0E1D17C257DE79000A3AB98 /* FeaturesConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesConfigManager.swift; sourceTree = "<group>"; };
+		B0E92C9626D38A7E004F0855 /* BottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetView.swift; sourceTree = "<group>"; };
 		B0E9E2FC2679DA5B00269C7A /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
 		B0E9E2FE2679DA8000269C7A /* AmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountView.swift; sourceTree = "<group>"; };
 		B0EC11FF267386FC00137059 /* PendingTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransaction.swift; sourceTree = "<group>"; };
@@ -1728,6 +1730,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				B0E92C9526D38A56004F0855 /* BottomSheets */,
 				B09BB853259A075500B92000 /* Buttons */,
 				B09BB857259A075600B92000 /* Navigation */,
 				B09BB85B259A075600B92000 /* TextInputs */,
@@ -1754,7 +1757,6 @@
 				B0E9E2FC2679DA5B00269C7A /* Separator.swift */,
 				B0E9E2FE2679DA8000269C7A /* AmountView.swift */,
 				B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */,
-				B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -3347,6 +3349,15 @@
 			path = Assembly;
 			sourceTree = "<group>";
 		};
+		B0E92C9526D38A56004F0855 /* BottomSheets */ = {
+			isa = PBXGroup;
+			children = (
+				B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */,
+				B0E92C9626D38A7E004F0855 /* BottomSheetView.swift */,
+			);
+			path = BottomSheets;
+			sourceTree = "<group>";
+		};
 		B0FAD00826BA78E400F45E88 /* CardTypes */ = {
 			isa = PBXGroup;
 			children = (
@@ -3794,6 +3805,7 @@
 				B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */,
 				5D09383725EAB45C0049B8F0 /* TokenItemViewModel.swift in Sources */,
 				B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */,
+				B0E92C9726D38A7E004F0855 /* BottomSheetView.swift in Sources */,
 				B074BAC126779B28005D641B /* PushTxView.swift in Sources */,
 				B0651737259CACD8001D966C /* WarningsList.swift in Sources */,
 				B013A7B82621CC510032F2AE /* SendTransactionHandler.swift in Sources */,
