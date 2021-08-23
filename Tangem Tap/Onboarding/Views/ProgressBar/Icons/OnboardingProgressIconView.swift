@@ -1,5 +1,5 @@
 //
-//  ProgressOnboardingView.swift
+//  OnboardingProgressIconView.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct ProgressOnboardingView: View {
+struct OnboardingProgressIconView: View {
     
     var steps: [OnboardingStep]
     var currentStep: Int
@@ -45,4 +45,17 @@ struct ProgressOnboardingView: View {
             return .passed
         }
     }
+}
+
+struct OnboardingProgressIconView_Previews: PreviewProvider {
+    
+    static var previews: some View {
+        VStack {
+            OnboardingProgressIconView(steps: [.read, .createWallet, .topup], currentStep: 1)
+            OnboardingProgressIconView(steps: [.createWallet], currentStep: 0)
+            OnboardingProgressIconView(steps: [.read, .topup], currentStep: 0)
+        }
+        
+    }
+    
 }
