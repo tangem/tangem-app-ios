@@ -52,3 +52,11 @@ struct ProgressIndicatorGroupView: View {
     }
     
 }
+
+struct ProgressIndicatorGroupView_Previews: PreviewProvider {
+    
+    static var previews: some View {
+        ProgressIndicatorGroupView(filled: true, numberOfIndicators: 3, animDuration: 0.3)
+    }
+    
+}
