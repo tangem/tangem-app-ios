@@ -23,14 +23,18 @@ class OnboardingViewModel: ViewModel {
     weak var imageLoaderService: CardImageLoaderService!
     
     @Published var steps: [OnboardingStep] =
-        []
-//        [.read, .createWallet, .topup, .confetti]
+//        []
+        [.read, .createWallet, .topup, .confetti]
     @Published var executingRequestOnCard = false
-    @Published var currentStepIndex: Int = 0
+    @Published var currentStepIndex: Int = 2
     @Published var cardImage: UIImage? = UIImage(named: "card_btc")
     @Published var shouldFireConfetti: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
-    @Published var cardBalance: String = ""
+    @Published var cardBalance: String = "0.00001237893 ETH"
+    
+    var numberOfProgressBarSteps: Int {
+        steps.filter { $0.hasProgressStep }.count
+    }
     
     var shopURL: URL { Constants.shopURL }
     
@@ -113,8 +117,7 @@ class OnboardingViewModel: ViewModel {
     func executeStep() {
         switch currentStep {
         case .read:
-            userPrefsService.isTermsOfServiceAccepted = false
-            if userPrefsService.isTermsOfServiceAccepted {
+            if userPrefsService.isTermsOfServiceAccepted || assembly.isPreview {
                 scanCard()
             } else {
                 showDisclaimer()
