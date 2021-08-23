@@ -365,7 +365,7 @@ struct OnboardingView: View {
                 messages
                 buttons
                     .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
-                        OnboardingDisclaimerView(acceptDisclaimerCallback: viewModel.acceptDisclaimer)
+                        DisclaimerView(style: .sheet)
                     })
                 Spacer()
                     .frame(width: 1, height: 20)
@@ -384,35 +384,6 @@ struct OnboardingView: View {
         
         .navigationBarHidden(true)
     }
-}
-
-struct OnboardingDisclaimerView: View {
-    
-    var acceptDisclaimerCallback: () -> Void
-    
-    var body: some View {
-        VStack {
-            ScrollView {
-                Text("disclaimer_title")
-                    .font(.system(size: 20, weight: .semibold, design: .default))
-                    .foregroundColor(.tangemTapGrayDark6)
-                    .padding()
-                Text("disclaimer_text")
-                    .font(Font.system(size: 16, weight: .regular, design: .default))
-                    .foregroundColor(.tangemTapGrayDark2)
-                    .padding()
-            }
-            TangemButton(isLoading: false,
-                         title: "common_accept",
-                         size: .wide) {
-                acceptDisclaimerCallback()
-            }
-            .buttonStyle(TangemButtonStyle(color: .green,
-                                           font: .system(size: 18)))
-            .padding(.bottom, 8)
-        }
-    }
-    
 }
 
 struct OnboardingView_Previews: PreviewProvider {
