@@ -9,11 +9,13 @@
 import SwiftUI
 
 extension View {
-    func previewGroup(devices: [PreviewDeviceType] = [.iPhone7, .iPhone8Plus, .iPhoneX, .iPhone12Pro, .iPhone12ProMax]) -> some View {
+    func previewGroup(devices: [PreviewDeviceType] = [.iPhone7, .iPhone8Plus, .iPhoneX, .iPhone12Pro, .iPhone12ProMax], withZoomed: Bool = true) -> some View {
         Group {
             ForEach(devices) {
                 deviceForPreview($0)
-                deviceForPreviewZoomed($0)
+                if withZoomed {
+                    deviceForPreviewZoomed($0)
+                }
             }
         }
     }
