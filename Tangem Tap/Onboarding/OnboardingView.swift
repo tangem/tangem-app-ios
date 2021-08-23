@@ -11,6 +11,13 @@ import SwiftUI
 enum OnboardingStep: Int, CaseIterable {
     case read, createWallet, topup, backup, confetti, goToMain
     
+    var hasProgressStep: Bool {
+        switch self {
+        case .read, .createWallet, .topup, .backup: return true
+        case .confetti, .goToMain: return false
+        }
+    }
+    
     var icon: Image? {
         switch self {
         case .read: return Image("onboarding.nfc")
@@ -190,22 +197,18 @@ enum CardLayout {
     }
 }
 
-public extension String.StringInterpolation {
-    mutating func appendInterpolation(_ value: CGSize) {
-        appendInterpolation("w: \(value.width), h: \(value.height)")
-    }
-}
-
-extension CGSize: CustomStringConvertible {
-    public var description: String {
-        "w: \(width), h: \(height)"
-    }
-}
-
 struct OnboardingView: View {
     
     @EnvironmentObject var navigation: NavigationCoordinator
     @ObservedObject var viewModel: OnboardingViewModel
+    
+    var currentStep: OnboardingStep { viewModel.currentStep }
+    
+    var isSmallScreenSize: Bool {
+        animationContainerSize.height < 250
+    }
+    
+    private let horizontalPadding: CGFloat = 40
     
     var navigationLinks: some View {
         VStack(spacing: 0) {
@@ -236,7 +239,7 @@ struct OnboardingView: View {
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .foregroundColor(.tangemTapGrayDark6)
-            .padding(.horizontal, 40)
+            .padding(.horizontal, horizontalPadding)
             .padding(.bottom, 14)
             .onTapGesture {
                 // [REDACTED_TODO_COMMENT]
@@ -247,7 +250,7 @@ struct OnboardingView: View {
             .font(.system(size: 18, weight: .regular))
             .foregroundColor(.tangemTapGrayDark6)
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 40)
+            .padding(.horizontal, horizontalPadding)
         Spacer()
             .frame(size: .init(width: 0.01, height: isSmallScreenSize ? 15 : 60))
     }
@@ -267,7 +270,7 @@ struct OnboardingView: View {
         TangemButton(isLoading: false,
                      title: currentStep.secondaryButtonTitle,
                      image: "",
-                     size: .customWidth(animationContainerSize.width - 80)) {
+                     size: .customWidth(animationContainerSize.width - horizontalPadding * 2)) {
 //            viewModel.reset()
             switch currentStep {
             case .topup:
@@ -283,14 +286,10 @@ struct OnboardingView: View {
                                        isDisabled: false))
     }
     
-    var currentStep: OnboardingStep { viewModel.currentStep }
     
     @State var bottomSheetPresented: Bool = false
     @State var animationContainerSize: CGSize = .zero
     
-    var isSmallScreenSize: Bool {
-        animationContainerSize.height < 250
-    }
     
     var body: some View {
         ZStack {
@@ -301,10 +300,10 @@ struct OnboardingView: View {
                 navigationLinks
                 
                 if viewModel.steps.count > 1 && currentStep != .read {
-                    ProgressOnboardingView(steps: viewModel.steps, currentStep: viewModel.currentStepIndex)
-//                        .background(Color.blue)
-                        .frame(height: 62)
+                    OnboardingProgressCheckmarksView(numberOfSteps: viewModel.numberOfProgressBarSteps, currentStep: viewModel.$currentStepIndex)
+                        .frame(maxWidth: .infinity, idealHeight: 42)
                         .padding(.top, isSmallScreenSize ? 0 : 26)
+                        .padding(.horizontal, horizontalPadding)
                 }
                 
                 GeometryReader { proxy in
@@ -370,26 +369,7 @@ struct OnboardingView: View {
                 messages
                 buttons
                     .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
-                        VStack {
-                            ScrollView {
-                                Text("disclaimer_title")
-                                    .font(.system(size: 20, weight: .semibold, design: .default))
-                                    .foregroundColor(.tangemTapGrayDark6)
-                                    .padding()
-                                Text("disclaimer_text")
-                                    .font(Font.system(size: 16, weight: .regular, design: .default))
-                                    .foregroundColor(.tangemTapGrayDark2)
-                                    .padding()
-                            }
-                            TangemButton(isLoading: false,
-                                         title: "common_accept",
-                                         size: .wide) {
-                                viewModel.acceptDisclaimer()
-                            }
-                            .buttonStyle(TangemButtonStyle(color: .green,
-                                                           font: .system(size: 18)))
-                            .padding(.bottom, 8)
-                        }
+                        OnboardingDisclaimerView(acceptDisclaimerCallback: viewModel.acceptDisclaimer)
                     })
                 Spacer()
                     .frame(width: 1, height: 20)
@@ -406,6 +386,35 @@ struct OnboardingView: View {
     }
 }
 
+struct OnboardingDisclaimerView: View {
+    
+    var acceptDisclaimerCallback: () -> Void
+    
+    var body: some View {
+        VStack {
+            ScrollView {
+                Text("disclaimer_title")
+                    .font(.system(size: 20, weight: .semibold, design: .default))
+                    .foregroundColor(.tangemTapGrayDark6)
+                    .padding()
+                Text("disclaimer_text")
+                    .font(Font.system(size: 16, weight: .regular, design: .default))
+                    .foregroundColor(.tangemTapGrayDark2)
+                    .padding()
+            }
+            TangemButton(isLoading: false,
+                         title: "common_accept",
+                         size: .wide) {
+                acceptDisclaimerCallback()
+            }
+            .buttonStyle(TangemButtonStyle(color: .green,
+                                           font: .system(size: 18)))
+            .padding(.bottom, 8)
+        }
+    }
+    
+}
+
 struct OnboardingView_Previews: PreviewProvider {
     
     static let assembly = Assembly.previewAssembly
@@ -416,6 +425,7 @@ struct OnboardingView_Previews: PreviewProvider {
                 .environmentObject(assembly)
                 .environmentObject(assembly.services.navigationCoordinator)
         }
-        .previewGroup()
+        .previewGroup(devices: [.iPhoneX], withZoomed: false)
+//        .previewGroup()
     }
 }
