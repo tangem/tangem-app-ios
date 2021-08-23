@@ -1,5 +1,5 @@
 //
-//  DisclamerViewModel.swift
+//  DeprecatedDisclaimerViewModel.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class DisclaimerViewModel: ViewModel {
+class DeprecatedDisclaimerViewModel: ViewModel {
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     weak var userPrefsService: UserPrefsService!
@@ -29,7 +29,7 @@ class DisclaimerViewModel: ViewModel {
     }
 }
 
-extension DisclaimerViewModel {
+extension DeprecatedDisclaimerViewModel {
     enum State {
         case accept
         case read
