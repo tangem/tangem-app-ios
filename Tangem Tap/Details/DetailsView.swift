@@ -98,7 +98,7 @@ struct DetailsView: View {
                     
                 }
                 
-                NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
+                NavigationLink(destination: DisclaimerView(style: .navbar)
                                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
                                tag: NavigationTag.disclaimer, selection: $selection) {
                     DetailsRowView(title: "disclaimer_title".localized,
