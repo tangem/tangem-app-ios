@@ -1,5 +1,5 @@
 //
-//  DisclaimerView.swift
+//  DeprecatedDisclaimerView.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import SwiftUI
 
-struct DisclaimerView: View {
-    @ObservedObject var viewModel: DisclaimerViewModel
+struct DeprecatedDisclaimerView: View {
+    @ObservedObject var viewModel: DeprecatedDisclaimerViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
     private let disclaimerTitle: LocalizedStringKey = "disclaimer_title"
@@ -79,7 +79,7 @@ struct DisclaimerView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     
     static var previews: some View {
-        DisclaimerView(viewModel: assembly.makeDisclaimerViewModel(with: .read))
+        DeprecatedDisclaimerView(viewModel: assembly.makeDisclaimerViewModel(with: .read))
             .environmentObject(assembly.services.navigationCoordinator)
             .deviceForPreviewZoomed(.iPhone7)
     }
