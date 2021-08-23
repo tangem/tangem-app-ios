@@ -75,7 +75,7 @@ struct ReadView: View {
                             MainView(viewModel: viewModel.assembly.makeMainViewModel()),
                            isActive: $navigation.readToMain)
             
-            NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
+            NavigationLink(destination: DeprecatedDisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
                            isActive: $navigation.readToDisclaimer)
             
             NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
