@@ -274,7 +274,7 @@ struct OnboardingView: View {
 //            viewModel.reset()
             switch currentStep {
             case .topup:
-                bottomSheetPresented = true
+                viewModel.isAddressQrBottomSheetPresented = true
             default:
                 viewModel.reset()
             }
@@ -285,11 +285,7 @@ struct OnboardingView: View {
                                        font: .system(size: 18, weight: .semibold),
                                        isDisabled: false))
     }
-    
-    
-    @State var bottomSheetPresented: Bool = false
     @State var animationContainerSize: CGSize = .zero
-    
     
     var body: some View {
         ZStack {
@@ -374,9 +370,13 @@ struct OnboardingView: View {
                 Spacer()
                     .frame(width: 1, height: 20)
             }
-            AddressQrBottomSheetView(isPresented: $bottomSheetPresented,
-                                     shareAddress: viewModel.shareAddress,
-                                     address: viewModel.walletAddress)
+            BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
+                                     hideBottomSheetCallback: {
+                                        viewModel.isAddressQrBottomSheetPresented = false
+                                     }, content: {
+                                        AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
+                                                                    address: viewModel.walletAddress)
+                                     })
         }
 //        .background(Color.pink)
 //        .background(Color.gray.edgesIgnoringSafeArea(.all))
