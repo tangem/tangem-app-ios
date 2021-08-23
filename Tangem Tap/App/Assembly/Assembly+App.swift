@@ -216,7 +216,7 @@ extension Assembly {
         return vm
     }
     
-    func makeDisclaimerViewModel(with state: DisclaimerViewModel.State = .read) -> DisclaimerViewModel {
+    func makeDisclaimerViewModel(with state: DeprecatedDisclaimerViewModel.State = .read) -> DeprecatedDisclaimerViewModel {
         // This is needed to prevent updating state of views that already in view hierarchy. Creating new model for each state
         // not so good solution, but this crucial when creating Navigation link without condition closures and Navigation link
         // recreates every redraw process. If you don't want to reinstantiate Navigation link, then functionality of pop to
@@ -224,14 +224,14 @@ extension Assembly {
         // StackNavigationViewStyle for NavigationView. Probably this is bug in current Apple realisation of NavigationView
         // and NavigationLinks - all navigation logic tightly coupled with View and redraw process.
         
-        let name = String(describing: DisclaimerViewModel.self) + "_\(state)"
+        let name = String(describing: DeprecatedDisclaimerViewModel.self) + "_\(state)"
         let isTwin = services.cardsRepository.lastScanResult.cardModel?.isTwinCard ?? false
-        if let vm: DisclaimerViewModel = get(key: name) {
+        if let vm: DeprecatedDisclaimerViewModel = get(key: name) {
             vm.isTwinCard = isTwin
             return vm
         }
         
-        let vm = DisclaimerViewModel()
+        let vm = DeprecatedDisclaimerViewModel()
         vm.state = state
         vm.isTwinCard = isTwin
         vm.userPrefsService = services.userPrefsService
@@ -411,7 +411,7 @@ extension Assembly {
         var persistentKeys = [String]()
         persistentKeys.append(String(describing: type(of: MainViewModel.self)))
         persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
-        persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
+        persistentKeys.append(String(describing: DeprecatedDisclaimerViewModel.self) + "_\(DeprecatedDisclaimerViewModel.State.accept)")
         persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
         
         let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
