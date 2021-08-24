@@ -75,7 +75,7 @@ struct DeprecatedDisclaimerView: View {
     }
 }
 
-struct DisclaimerView_Previews: PreviewProvider {
+struct DeprecatedDisclaimerView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     
     static var previews: some View {
