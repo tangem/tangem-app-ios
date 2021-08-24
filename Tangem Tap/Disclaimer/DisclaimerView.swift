@@ -90,7 +90,7 @@ struct DisclaimerView: View {
     
 }
 
-struct OnboardingDisclaimerView_Previews: PreviewProvider {
+struct DisclaimerView_Previews: PreviewProvider {
     static var previews: some View {
         DisclaimerView(style: .sheet)
         NavigationView(content: {
