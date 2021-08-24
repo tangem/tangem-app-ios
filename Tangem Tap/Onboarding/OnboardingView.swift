@@ -83,6 +83,13 @@ enum OnboardingStep: Int, CaseIterable {
         }
     }
     
+    var bigCircleBackgroundScale: CGFloat {
+        switch self {
+        case .read: return 1.0
+        default: return 0.0
+        }
+    }
+    
     func cardBackgroundOffset(containerSize: CGSize) -> CGSize {
         switch self {
         case .createWallet:
@@ -202,13 +209,14 @@ struct OnboardingView: View {
     @EnvironmentObject var navigation: NavigationCoordinator
     @ObservedObject var viewModel: OnboardingViewModel
     
+    private let horizontalPadding: CGFloat = 40
+    private let screenSize: CGSize = UIScreen.main.bounds.size
+    
+    @State private  var animationContainerSize: CGSize = .zero
+    
     var currentStep: OnboardingStep { viewModel.currentStep }
     
-    var isSmallScreenSize: Bool {
-        animationContainerSize.height < 250
-    }
-    
-    private let horizontalPadding: CGFloat = 40
+    var isSmallScreenSize: Bool { animationContainerSize.height < 250 }
     
     var navigationLinks: some View {
         VStack(spacing: 0) {
@@ -227,7 +235,6 @@ struct OnboardingView: View {
                                                          }
                                                          ]),
                            isActive: $navigation.onboardingToBuyCrypto)
-            
         }
     }
     
@@ -273,6 +280,8 @@ struct OnboardingView: View {
                      size: .customWidth(animationContainerSize.width - horizontalPadding * 2)) {
 //            viewModel.reset()
             switch currentStep {
+            case .read:
+                navigation.readToShop = true
             case .topup:
                 viewModel.isAddressQrBottomSheetPresented = true
             default:
@@ -285,12 +294,28 @@ struct OnboardingView: View {
                                        font: .system(size: 18, weight: .semibold),
                                        isDisabled: false))
     }
-    @State var animationContainerSize: CGSize = .zero
     
     var body: some View {
         ZStack {
+            Circle()
+                .foregroundColor(.white)
+                .frame(size: .init(width: 664, height: 664))
+                .padding(10)
+                .overlay(
+                    Circle()
+                        .foregroundColor(.tangemTapBgGray)
+                        .padding(38)
+                )
+                .background(
+                    Circle()
+                        .foregroundColor(.tangemTapBgGray)
+                )
+                .edgesIgnoringSafeArea(.all)
+                .scaleEffect(currentStep.bigCircleBackgroundScale)
+                .offset(x: 299, y: -228)
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
+                .frame(maxWidth: screenSize.width)
                 .zIndex(100)
             VStack(spacing: 0) {
                 navigationLinks
@@ -370,6 +395,7 @@ struct OnboardingView: View {
                 Spacer()
                     .frame(width: 1, height: 20)
             }
+            .frame(maxWidth: screenSize.width)
             BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
                                      hideBottomSheetCallback: {
                                         viewModel.isAddressQrBottomSheetPresented = false
@@ -377,7 +403,9 @@ struct OnboardingView: View {
                                         AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
                                                                     address: viewModel.walletAddress)
                                      })
+                .frame(maxWidth: screenSize.width)
         }
+//        .frame(maxWidth: UIScreen.main.bounds.width)
 //        .background(Color.pink)
 //        .background(Color.gray.edgesIgnoringSafeArea(.all))
         
