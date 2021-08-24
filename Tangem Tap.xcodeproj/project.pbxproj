@@ -1527,6 +1527,7 @@
 		5D011A222530776A00758010 /* Disclaimer */ = {
 			isa = PBXGroup;
 			children = (
+				B09536FD26D3D2460040A90D /* DisclaimerView.swift */,
 				5D011A232530778200758010 /* DeprecatedDisclaimerView.swift */,
 				5D9DCB00255191380059799C /* DisclamerViewModel.swift */,
 			);
@@ -3335,7 +3336,6 @@
 				B0FAD00D26BAC51F00F45E88 /* CircledCheckmarkView.swift */,
 				B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */,
 				B053759026CA3EFA0090FCFC /* CheckmarkSwitch.swift */,
-				B09536FD26D3D2460040A90D /* DisclaimerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
