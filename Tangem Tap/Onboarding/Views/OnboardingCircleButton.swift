@@ -19,25 +19,9 @@ struct OnboardingCircleButton: View {
         
         var buttonSize: CGSize {
             switch self {
-            case .default: return .init(width: 70, height: 70)
-            case .medium: return .init(width: 62, height: 62)
-            case .small: return .init(width: 45, height: 45)
-            }
-        }
-        
-        var buttonFont: Font {
-            switch self {
-            case .default: return .system(size: 28, weight: .semibold)
-            case .medium: return .system(size: 26, weight: .semibold)
-            case .small: return .system(size: 20, weight: .semibold)
-            }
-        }
-        
-        var checkmarkFont: Font {
-            switch self {
-            case .default: return .system(size: 24, weight: .bold)
-            case .medium: return .system(size: 21, weight: .bold)
-            case .small: return .system(size: 15, weight: .bold)
+            case .default: return .init(width: 68, height: 68)
+            case .medium: return .init(width: 60, height: 60)
+            case .small: return .init(width: 44, height: 44)
             }
         }
         
@@ -45,6 +29,22 @@ struct OnboardingCircleButton: View {
             switch self {
             case .default, .medium: return .large
             case .small: return .medium
+            }
+        }
+        
+        var refreshImageSize: CGSize {
+            switch self {
+            case .default: return .init(width: 30, height: 30)
+            case .medium: return .init(width: 26, height: 26)
+            case .small: return .init(width: 18, height: 18)
+            }
+        }
+        
+        var checkmarkSize: CGSize {
+            switch self {
+            case .default: return .init(width: 18, height: 18)
+            case .medium: return .init(width: 15, height: 15)
+            case .small: return .init(width: 12, height: 12)
             }
         }
     }
@@ -65,14 +65,13 @@ struct OnboardingCircleButton: View {
                 refreshAction()
             }, label: {
                 Circle()
-                    .foregroundColor(.clear)
-                    .background(
-                        Image(systemName: "arrow.clockwise")
-                            .font(size.buttonFont)
+                    .foregroundColor(.white)
+                    .overlay(
+                        Image("refresh")
+                            .resizable()
+                            .renderingMode(.template)
                             .foregroundColor(state == .refreshButton ? .tangemTapGrayDark6 : .white)
-                            .frame(size: buttonSize)
-                            .background(Color.white)
-                            .cornerRadius(buttonSize.height / 2)
+                            .frame(size: size.refreshImageSize)
                     )
             })
             .allowsHitTesting(state == .refreshButton)
@@ -89,14 +88,15 @@ struct OnboardingCircleButton: View {
                 .opacity(0.2)
                 .cornerRadius(buttonSize.height / 2)
                 .scaleEffect(state == .doneCheckmark ? 1.0 : 0.0001)
-            Image(systemName: "checkmark")
-                .frame(size: buttonSize)
-                .font(size.checkmarkFont)
-                .foregroundColor(.white)
-                .background(Color.tangemTapGreen
-                                .frame(size: successButtonSize)
-                                .cornerRadius(successButtonSize.height))
-                .cornerRadius(buttonSize.height / 2)
+            Color.tangemTapGreen
+                .frame(size: successButtonSize)
+                .cornerRadius(successButtonSize.height)
+                .overlay(
+                    Image("design.checkmark")
+                        .resizable()
+                        .frame(size: size.checkmarkSize)
+                        .cornerRadius(buttonSize.height / 2)
+                )
                 .scaleEffect(state == .doneCheckmark ? 1.0 : 0.0001)
         }
     }
@@ -113,45 +113,47 @@ struct OnboardingCircleButton: View {
 struct OnboardingCircleButton_Previews: PreviewProvider {
     
     static var previews: some View {
-        HStack {
-            VStack {
-                OnboardingCircleButton(refreshAction: {
+        Color.yellow
+            .overlay(
+                HStack {
+                    VStack {
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .refreshButton, size: .default)
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .refreshButton, size: .medium)
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .refreshButton, size: .small)
+                    }
                     
-                }, state: .refreshButton, size: .default)
-                OnboardingCircleButton(refreshAction: {
+                    VStack {
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .activityIndicator, size: .default)
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .activityIndicator, size: .medium)
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .activityIndicator, size: .small)
+                    }
                     
-                }, state: .refreshButton, size: .medium)
-                OnboardingCircleButton(refreshAction: {
-                    
-                }, state: .refreshButton, size: .small)
-            }
-            
-            VStack {
-                OnboardingCircleButton(refreshAction: {
-                    
-                }, state: .activityIndicator, size: .default)
-                OnboardingCircleButton(refreshAction: {
-                    
-                }, state: .activityIndicator, size: .medium)
-                OnboardingCircleButton(refreshAction: {
-                    
-                }, state: .activityIndicator, size: .small)
-            }
-            
-            VStack {
-                OnboardingCircleButton(refreshAction: {
-                    
-                }, state: .doneCheckmark, size: .default)
-                OnboardingCircleButton(refreshAction: {
-                    
-                }, state: .doneCheckmark, size: .medium)
-                OnboardingCircleButton(refreshAction: {
-                    
-                }, state: .doneCheckmark, size: .small)
-                
-            }
-        }
-        
+                    VStack {
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .doneCheckmark, size: .default)
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .doneCheckmark, size: .medium)
+                        OnboardingCircleButton(refreshAction: {
+                            
+                        }, state: .doneCheckmark, size: .small)
+                        
+                    }
+                }
+            )
     }
     
 }
