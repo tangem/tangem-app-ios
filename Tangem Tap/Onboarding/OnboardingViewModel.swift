@@ -106,13 +106,18 @@ class OnboardingViewModel: ViewModel {
     }
     
     func reset() {
-        scannedCardModel = nil
-        currentStepIndex = 0
-        steps = []
-        executingRequestOnCard = false
-        refreshButtonState = .refreshButton
-        cardBalance = ""
-        previewUpdateCounter = 0
+        // [REDACTED_TODO_COMMENT]
+        
+        withAnimation {
+            scannedCardModel = nil
+            currentStepIndex = 0
+            steps = []
+            executingRequestOnCard = false
+            refreshButtonState = .refreshButton
+            cardBalance = ""
+            previewUpdateCounter = 0
+        }
+        
     }
     
     func executeStep() {
@@ -184,7 +189,7 @@ class OnboardingViewModel: ViewModel {
         if assembly.isPreview {
             previewUpdateCounter += 1
             
-            if previewUpdateCounter >= 5 {
+            if previewUpdateCounter >= 3 {
                 scannedCardModel = Assembly.PreviewCard.scanResult(for: .cardanoNote, assembly: assembly).cardModel
             }
         }
