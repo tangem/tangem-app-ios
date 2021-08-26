@@ -28,6 +28,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var warningsAppendor: WarningAppendor!
     weak var tokenItemsRepository: TokenItemsRepository!
     weak var userPrefsService: UserPrefsService!
+    weak var imageLoaderService: CardImageLoaderService!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -176,6 +177,25 @@ class CardViewModel: Identifiable, ObservableObject {
     var canExchangeCrypto: Bool { featuresService.canExchangeCrypto }
     
     var isTestnet: Bool { cardInfo.isTestnet }
+    
+    var imageLoaderPublisher: AnyPublisher<UIImage, Error> {
+        $cardInfo
+            .map { $0.imageLoadDTO }
+            .removeDuplicates()
+            .setFailureType(to: Error.self)
+            .flatMap {[weak self] info -> AnyPublisher<UIImage, Error> in
+                guard let self = self else {
+                    return .justWithError(output: UIImage())
+                }
+                
+                return self.imageLoaderService
+                    .loadImage(cid: info.cardId,
+                               cardPublicKey: info.cardPublicKey,
+                               artworkInfo: info.artwotkInfo)
+            }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }
     
     private lazy var tokenWalletModels: [Blockchain: WalletModel] = {
         Dictionary((walletModels?.filter {
