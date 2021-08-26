@@ -24,6 +24,7 @@ class MainViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
     weak var failedCardScanTracker: FailedCardScanTracker!
+    weak var cardOnboardingStepSetupService: OnboardingStepsSetupService!
     
     //MARK: - Published variables
     
@@ -238,21 +239,12 @@ class MainViewModel: ViewModel {
                 self.checkPositiveBalance()
             }
             .store(in: &bag)
-        
     
+        
         $state
             .compactMap { $0.cardModel }
-            .flatMap { $0.$cardInfo }
-            .map { $0.imageLoadDTO }
-            .removeDuplicates()
             .setFailureType(to: Error.self)
-            .flatMap {[unowned self] info in
-                self.imageLoaderService
-                    .loadImage(cid: info.cardId,
-                               cardPublicKey: info.cardPublicKey,
-                               artworkInfo: info.artwotkInfo)
-            }
-            .receive(on: RunLoop.main)
+            .flatMap { $0.imageLoaderPublisher }
             .sink(receiveCompletion: { completion in
                     switch completion {
                     case .failure(let error):
@@ -336,8 +328,8 @@ class MainViewModel: ViewModel {
         cardsRepository.scan { [weak self] scanResult in
 			guard let self = self else { return }
             switch scanResult {
-            case .success(let state):
-                self.state = state
+            case .success(let result):
+                self.processScannedCard(result)
                 self.failedCardScanTracker.resetCounter()
             case .failure(let error):
                 self.failedCardScanTracker.recordFailure()
@@ -352,8 +344,9 @@ class MainViewModel: ViewModel {
                         break
                     }
                 }
+                self.isScanning = false
             }
-            self.isScanning = false
+            
         }
     }
     
@@ -519,6 +512,53 @@ class MainViewModel: ViewModel {
     }
 
     // MARK: - Private functions
+    
+    private func processScannedCard(_ result: ScanResult) {
+        func updateState() {
+            state = result
+            isScanning = false
+            navigation.mainToCardOnboarding = false
+        }
+        
+        guard
+            let cardModel = result.cardModel
+//            cardsRepository.scannedCardsRepository.cards[cardModel.cardInfo.card.cardId] == nil
+        else {
+            updateState()
+            return
+        }
+        
+        Publishers.Zip(
+            cardOnboardingStepSetupService.steps(for: cardModel.cardInfo),
+            cardModel.imageLoaderPublisher
+        )
+        .sink { completion in
+            switch completion {
+            case .failure(let error):
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+            case .finished:
+                break
+            }
+        } receiveValue: { [weak self] (steps, image) in
+            guard let self = self else { return }
+            
+            if steps.isEmpty {
+                updateState()
+                return
+            }
+            
+            let input = CardOnboardingInput(steps: steps,
+                                            cardModel: cardModel,
+                                            currentStepIndex: 1,
+                                            cardImage: image,
+                                            successCallback: updateState)
+            self.assembly.makeCardOnboardingViewModel(with: input)
+            self.navigation.mainToCardOnboarding = true
+            self.isScanning = false
+        }
+        .store(in: &bag)
+    }
     
     private func checkPositiveBalance() {
         guard rateAppController.shouldCheckBalanceForRateApp else { return }

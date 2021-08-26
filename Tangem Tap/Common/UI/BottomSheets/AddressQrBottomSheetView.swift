@@ -98,6 +98,7 @@ struct AddressQrBottomSheet_Previews: PreviewProvider {
     
     static var previews: some View {
         AddressQrBottomSheetPreviewView(model: BottomSheetPreviewProvider())
+            .previewGroup(devices: [.iPhoneX], withZoomed: false)
     }
     
 }
