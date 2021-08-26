@@ -15,7 +15,12 @@ class OnboardingStepsSetupService {
     weak var userPrefs: UserPrefsService!
     weak var assembly: Assembly!
     
-    func steps(for card: Card) -> AnyPublisher<[OnboardingStep], Error> {
+    static var previewSteps: [OnboardingStep] {
+        [.read, .createWallet, .topup, .confetti, .goToMain]
+    }
+    
+    func steps(for cardInfo: CardInfo) -> AnyPublisher<[OnboardingStep], Error> {
+        let card = cardInfo.card
         var steps: [OnboardingStep] = [.read]
         
         if card.wallets.count == 0 {
@@ -23,20 +28,17 @@ class OnboardingStepsSetupService {
         }
         
         if card.isTangemWallet {
-            steps.append(.backup)
+            return stepsForWallet(cardInfo, selectedSteps: steps)
         } else if card.isTangemNote {
             return stepsForNote(card, selectedSteps: steps)
+        } else if card.isTwinCard {
+            return stepsForTwins(cardInfo, selectedSteps: steps)
         }
         
-        if steps.count > 1 {
-            steps.append(.confetti)
-        }
-        steps.append(.goToMain)
-        
-        return .justWithError(output: steps)
+        return steps.count > 1 ? .justWithError(output: steps) : .justWithError(output: [])
     }
     
-    func stepsForNote(_ card: Card, selectedSteps: [OnboardingStep]) -> AnyPublisher<[OnboardingStep], Error> {
+    private func stepsForNote(_ card: Card, selectedSteps: [OnboardingStep]) -> AnyPublisher<[OnboardingStep], Error> {
         let walletModel = assembly.loadWallets(from: CardInfo(card: card))
         var steps = selectedSteps
         guard walletModel.count == 1 else {
@@ -45,6 +47,7 @@ class OnboardingStepsSetupService {
             steps.append(.goToMain)
             return .justWithError(output: steps)
         }
+        
         let model = walletModel.first!
         return Future { promise in
             model.walletManager.update { [unowned self] result in
@@ -52,12 +55,8 @@ class OnboardingStepsSetupService {
                 case .success:
                     if model.wallet.isEmpty {
                         steps.append(.topup)
-                    } else {
-                        if !self.userPrefs.noteCardsStartedActivation.contains(card.cardId) {
-                            steps.append(.goToMain)
-                            promise(.success(steps))
-                            return
-                        }
+                    } else if !self.userPrefs.noteCardsStartedActivation.contains(card.cardId) {
+                        return promise(.success([]))
                     }
                     steps.append(.confetti)
                     steps.append(.goToMain)
@@ -67,7 +66,14 @@ class OnboardingStepsSetupService {
                 }
             }
         }.eraseToAnyPublisher()
-        
+    }
+    
+    private func stepsForTwins(_ cardInfo: CardInfo, selectedSteps: [OnboardingStep]) -> AnyPublisher<[OnboardingStep], Error> {
+        .justWithError(output: selectedSteps)
+    }
+    
+    private func stepsForWallet(_ cardInfo: CardInfo, selectedSteps: [OnboardingStep]) -> AnyPublisher<[OnboardingStep], Error> {
+        .justWithError(output: selectedSteps)
     }
     
 }
