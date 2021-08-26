@@ -215,6 +215,9 @@ struct MainView: View {
             
             NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
                            isActive: $navigation.mainToTwinOnboarding)
+            
+            NavigationLink(destination: CardOnboardingView(viewModel: viewModel.assembly.getCardOnboardingViewModel()),
+                           isActive: $navigation.mainToCardOnboarding)
         }
     }
     
