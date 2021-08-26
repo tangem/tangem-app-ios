@@ -12,18 +12,57 @@ import BlockchainSdk
 
 extension Assembly {
     
-    func makeOnboardingViewModel() -> OnboardingViewModel {
-        if let restored: OnboardingViewModel = get() {
+    func getLaunchOnboardingViewModel() -> CardOnboardingViewModel {
+        let key = "launch_onboarding_screen"
+        if let restored: CardOnboardingViewModel = get(key: key) {
             return restored
         }
         
-        let vm = OnboardingViewModel()
-        initialize(vm)
+        let vm = CardOnboardingViewModel()
+        initialize(vm, with: key, isResetable: false)
+        vm.userPrefsService = services.userPrefsService
+        
+        return vm
+    }
+    
+    func getCardOnboardingViewModel() -> CardOnboardingViewModel {
+        if let restored: CardOnboardingViewModel = get() {
+            return restored
+        }
+        
+        return getLaunchOnboardingViewModel()
+    }
+    
+    @discardableResult
+    func makeCardOnboardingViewModel(with input: CardOnboardingInput) -> CardOnboardingViewModel {
+        let vm = CardOnboardingViewModel(input: input)
+        initialize(vm, isResetable: false)
+        
+        makeOnboardingViewModel(with: input)
+        return vm
+    }
+    
+    func getOnboardingViewModel() -> NoteOnboardingViewModel {
+        if let restored: NoteOnboardingViewModel = get() {
+            return restored
+        }
+        
+        return makeOnboardingViewModel(with: nil)
+    }
+    
+    @discardableResult
+    func makeOnboardingViewModel(with input: CardOnboardingInput?) -> NoteOnboardingViewModel {
+        let vm = input == nil ? NoteOnboardingViewModel() : NoteOnboardingViewModel(input: input!)
+        initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.stepsSetupService = services.onboardingStepsSetupService
         vm.userPrefsService = services.userPrefsService
         vm.exchangeService = services.exchangeService
         vm.imageLoaderService = services.imageLoaderService
+        
+        if input == nil {
+            print("Nil input passed to creating note onboarding view model")
+        }
         return vm
     }
     
@@ -33,7 +72,7 @@ extension Assembly {
         }
         
         let vm =  ReadViewModel()
-        initialize(vm)
+        initialize(vm, isResetable: false)
         vm.failedCardScanTracker = services.failedCardScanTracker
         vm.userPrefsService = services.userPrefsService
         vm.cardsRepository = services.cardsRepository
@@ -51,13 +90,14 @@ extension Assembly {
             return restored
         }
         let vm =  MainViewModel()
-        initialize(vm)
+        initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.imageLoaderService = services.imageLoaderService
         vm.exchangeService = services.exchangeService
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
         vm.rateAppController = services.rateAppService
+        vm.cardOnboardingStepSetupService = services.onboardingStepsSetupService
         
         vm.state = services.cardsRepository.lastScanResult
         
@@ -208,6 +248,7 @@ extension Assembly {
         vm.warningsAppendor = services.warningsService
         vm.tokenItemsRepository = services.tokenItemsRepository
         vm.userPrefsService = services.userPrefsService
+        vm.imageLoaderService = services.imageLoaderService
         //[REDACTED_TODO_COMMENT]
         //        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
         //            vm.payIDService = payIdService
@@ -235,7 +276,7 @@ extension Assembly {
         vm.state = state
         vm.isTwinCard = isTwin
         vm.userPrefsService = services.userPrefsService
-        initialize(vm, with: name)
+        initialize(vm, with: name, isResetable: false)
         return vm
     }
     
@@ -356,7 +397,7 @@ extension Assembly {
         }
         
         let vm = TwinCardOnboardingViewModel(state: state, imageLoader: services.imageLoaderService)
-        initialize(vm, with: key)
+        initialize(vm, with: key, isResetable: false)
         vm.userPrefsService = services.userPrefsService
         return vm
     }
@@ -384,20 +425,20 @@ extension Assembly {
         return vm
     }
     
-    private func initialize<V: ViewModel>(_ vm: V) {
+    private func initialize<V: ViewModel>(_ vm: V, isResetable: Bool = true) {
         vm.navigation = services.navigationCoordinator
         vm.assembly = self
-        store(vm)
+        store(vm, isResetable: isResetable)
     }
     
-    private func initialize<V: ViewModel>(_ vm: V, with key: String) {
+    private func initialize<V: ViewModel>(_ vm: V, with key: String, isResetable: Bool) {
         vm.navigation = services.navigationCoordinator
         vm.assembly = self
-        store(vm, with: key)
+        store(vm, with: key, isResetable: isResetable)
     }
     
     private func get<T>(key: String) -> T? {
-        let val = modelsStorage[key] as? ViewModelNavigatable
+        let val = (modelsStorage[key] ?? persistenceStorage[key]) as? ViewModelNavigatable
         val?.navigation = services.navigationCoordinator
         return val as? T
     }
@@ -408,14 +449,17 @@ extension Assembly {
     }
     
     public func reset() {
-        var persistentKeys = [String]()
-        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
-        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
-        persistentKeys.append(String(describing: DeprecatedDisclaimerViewModel.self) + "_\(DeprecatedDisclaimerViewModel.State.accept)")
-        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
+//        var persistentKeys = [String]()
+//        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
+//        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
+//        persistentKeys.append(String(describing: DeprecatedDisclaimerViewModel.self) + "_\(DeprecatedDisclaimerViewModel.State.accept)")
+//        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
+//        persistentKeys.append(String(describing: type(of: CardOnboardingViewModel.self)))
+//        persistentKeys.append(String(describing: type(of: NoteOnboardingViewModel.self)))
         
-        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
-        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
+//        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
+//        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
+        modelsStorage.removeAll()
     }
     
     private func prepareSendViewModel(_ vm: SendViewModel) {
