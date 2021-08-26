@@ -207,7 +207,7 @@ enum CardLayout {
 struct OnboardingView: View {
     
     @EnvironmentObject var navigation: NavigationCoordinator
-    @ObservedObject var viewModel: OnboardingViewModel
+    @ObservedObject var viewModel: NoteOnboardingViewModel
     
     private let horizontalPadding: CGFloat = 40
     private let screenSize: CGSize = UIScreen.main.bounds.size
@@ -223,9 +223,11 @@ struct OnboardingView: View {
             NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
                            isActive: $navigation.readToShop)
             
-            NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-                           isActive: $navigation.readToMain)
-                .environmentObject(navigation)
+//            if !navigation.mainToCardOnboarding {
+//                NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
+//                               isActive: $navigation.readToMain)
+//                    .environmentObject(navigation)
+//            }
             
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
                                                          title: "wallet_button_topup",
@@ -240,26 +242,13 @@ struct OnboardingView: View {
     
     @ViewBuilder
     private var messages: some View {
-        Text(currentStep.title)
-            .font(.system(size: 28, weight: .bold))
-            .multilineTextAlignment(.center)
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .foregroundColor(.tangemTapGrayDark6)
-            .padding(.horizontal, horizontalPadding)
-            .padding(.bottom, 14)
-            .onTapGesture {
-                // [REDACTED_TODO_COMMENT]
-                viewModel.reset()
-            }
-        Text(currentStep.subtitle)
-            .multilineTextAlignment(.center)
-            .font(.system(size: 18, weight: .regular))
-            .foregroundColor(.tangemTapGrayDark6)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, horizontalPadding)
-        Spacer()
-            .frame(size: .init(width: 0.01, height: isSmallScreenSize ? 15 : 60))
+        CardOnboardingMessagesView(
+            title: currentStep.title,
+            subtitle: currentStep.subtitle) {
+            viewModel.reset()
+        }
+        .padding(.horizontal, horizontalPadding)
+        .padding(.bottom, isSmallScreenSize ? 15 : 60)
     }
     
     @ViewBuilder
@@ -297,22 +286,6 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Circle()
-                .foregroundColor(.white)
-                .frame(size: .init(width: 664, height: 664))
-                .padding(10)
-                .overlay(
-                    Circle()
-                        .foregroundColor(.tangemTapBgGray)
-                        .padding(38)
-                )
-                .background(
-                    Circle()
-                        .foregroundColor(.tangemTapBgGray)
-                )
-                .edgesIgnoringSafeArea(.all)
-                .scaleEffect(currentStep.bigCircleBackgroundScale)
-                .offset(x: 299, y: -228)
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
                 .frame(maxWidth: screenSize.width)
@@ -329,14 +302,6 @@ struct OnboardingView: View {
                 
                 GeometryReader { proxy in
                     ZStack(alignment: .center) {
-                        Image("light_card")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(size: CardLayout.supplementary.frame(for: currentStep, containerSize: proxy.size))
-                            .rotationEffect(CardLayout.supplementary.rotationAngle(at: currentStep))
-                            .offset(CardLayout.supplementary.offset(at: currentStep, containerSize: proxy.size))
-                            .opacity(CardLayout.supplementary.opacity(at: currentStep))
-                        
                         let backgroundFrame = currentStep.cardBackgroundFrame(containerSize: proxy.size)
                         let backgroundOffset = currentStep.cardBackgroundOffset(containerSize: proxy.size)
                         Rectangle()
@@ -345,6 +310,14 @@ struct OnboardingView: View {
                             .foregroundColor(Color.tangemTapBgGray)
                             .opacity(0.8)
                             .offset(backgroundOffset)
+                        
+                        Image("light_card")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(size: CardLayout.supplementary.frame(for: currentStep, containerSize: proxy.size))
+                            .rotationEffect(CardLayout.supplementary.rotationAngle(at: currentStep))
+                            .offset(CardLayout.supplementary.offset(at: currentStep, containerSize: proxy.size))
+                            .opacity(CardLayout.supplementary.opacity(at: currentStep))
                         OnboardingCardView(baseCardName: "dark_card",
                                            backCardImage: viewModel.cardImage,
                                            cardScanned: currentStep != .read)
@@ -395,7 +368,7 @@ struct OnboardingView: View {
                 Spacer()
                     .frame(width: 1, height: 20)
             }
-            .frame(maxWidth: screenSize.width)
+            .frame(maxWidth: screenSize.width, maxHeight: screenSize.height)
             BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
                                      hideBottomSheetCallback: {
                                         viewModel.isAddressQrBottomSheetPresented = false
@@ -405,7 +378,7 @@ struct OnboardingView: View {
                                      })
                 .frame(maxWidth: screenSize.width)
         }
-//        .frame(maxWidth: UIScreen.main.bounds.width)
+        .frame(maxWidth: screenSize.width, maxHeight: screenSize.height)
 //        .background(Color.pink)
 //        .background(Color.gray.edgesIgnoringSafeArea(.all))
         
@@ -416,15 +389,45 @@ struct OnboardingView: View {
 
 struct OnboardingView_Previews: PreviewProvider {
     
-    static let assembly = Assembly.previewAssembly
+    static var assembly: Assembly = {
+        let assembly = Assembly.previewAssembly
+        let previewModel = assembly.previewCardViewModel
+        assembly.makeOnboardingViewModel(with: assembly.previewNoteCardOnboardingInput)
+        return assembly
+    }()
     
     static var previews: some View {
         ContentView() {
-            OnboardingView(viewModel: assembly.makeOnboardingViewModel())
+            OnboardingView(viewModel: assembly.getOnboardingViewModel())
                 .environmentObject(assembly)
                 .environmentObject(assembly.services.navigationCoordinator)
         }
         .previewGroup(devices: [.iPhoneX], withZoomed: false)
 //        .previewGroup()
     }
+}
+
+struct CardOnboardingBackgroundCircle: View {
+    
+    let scale: CGFloat
+    
+    var body: some View {
+        Circle()
+            .foregroundColor(.white)
+            .frame(size: .init(width: 664, height: 664))
+            .padding(10)
+            .overlay(
+                Circle()
+                    .foregroundColor(.tangemTapBgGray)
+                    .padding(38)
+            )
+            .background(
+                Circle()
+                    .foregroundColor(.tangemTapBgGray)
+            )
+            .edgesIgnoringSafeArea(.all)
+            .scaleEffect(scale)
+            .offset(x: 299, y: -228)
+    }
+    
 }

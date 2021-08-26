@@ -8,9 +8,6 @@
 
 import Foundation
 import TangemSdk
-#if !CLIP
-import BlockchainSdk
-#endif
 
 extension Assembly {
     enum PreviewCard {
@@ -81,9 +78,4 @@ extension Assembly {
         services.cardsRepository.lastScanResult.cardModel!
     }
     
-    #if !CLIP
-    var previewBlockchain: Blockchain {
-        previewCardViewModel.wallets!.first!.blockchain
-    }
-    #endif
 }
