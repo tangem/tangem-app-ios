@@ -15,7 +15,7 @@ extension Assembly {
     func getMainViewModel() -> MainViewModel {
         guard let model: MainViewModel = get() else {
             let mainModel = MainViewModel(cardsRepository: services.cardsRepository, imageLoaderService: services.imageLoaderService)
-            store(mainModel)
+            store(mainModel, isResetable: true)
             return mainModel
         }
         
