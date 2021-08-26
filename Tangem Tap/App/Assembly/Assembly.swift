@@ -19,6 +19,7 @@ class Assembly: ObservableObject {
     let isPreview: Bool
     
     var modelsStorage = [String : Any]()
+    var persistenceStorage = [String : Any]()
     
     init(isPreview: Bool = false) {
         #if CLIP
@@ -42,16 +43,18 @@ class Assembly: ObservableObject {
         print("Assembly deinit")
     }
     
-    // MARK: - Private funcs
-    
-    func store<T>(_ object: T ) {
+    func store<T>(_ object: T, isResetable: Bool) {
         let key = String(describing: type(of: T.self))
-        store(object, with: key)
+        store(object, with: key, isResetable: isResetable)
     }
     
-    func store<T>(_ object: T, with key: String) {
+    func store<T>(_ object: T, with key: String, isResetable: Bool) {
         //print(key)
-        modelsStorage[key] = object
+        if isResetable {
+            modelsStorage[key] = object
+        } else {
+            persistenceStorage[key] = object
+        }
     }
     
     public func reset(key: String) {
