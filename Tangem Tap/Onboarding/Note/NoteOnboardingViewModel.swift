@@ -11,7 +11,15 @@ import SwiftUI
 import TangemSdk
 import Combine
 
-class OnboardingViewModel: ViewModel {
+struct CardOnboardingInput {
+    let steps: [OnboardingStep]
+    let cardModel: CardViewModel
+    let currentStepIndex: Int
+    let cardImage: UIImage
+    let successCallback: (() -> Void)?
+}
+
+class NoteOnboardingViewModel: ViewModel {
     
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
@@ -68,20 +76,44 @@ class OnboardingViewModel: ViewModel {
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
     
     private var bag: Set<AnyCancellable> = []
-    private var scannedCardModel: CardViewModel?
-    private var walletCreatedWhileOnboarding: Bool = false
-    private var walletModelUpdateCancellable: AnyCancellable?
-    private var scheduledUpdate: DispatchWorkItem?
     private var previewUpdateCounter: Int = 0
     
+    private var isFromMain: Bool = false
+    private var walletCreatedWhileOnboarding: Bool = false
+    
+    private var scannedCardModel: CardViewModel?
+    private var walletModelUpdateCancellable: AnyCancellable?
+    private var scheduledUpdate: DispatchWorkItem?
+    
+    private var successCallback: (() -> Void)?
+    
+    
+    init() {}
+    
+    init(with cardModel: CardViewModel) {
+        processScannedCard(cardModel, isWithAnimation: false)
+    }
+    
+    init(input: CardOnboardingInput) {
+        steps = input.steps
+        scannedCardModel = input.cardModel
+        currentStepIndex = input.currentStepIndex
+        cardImage = input.cardImage
+        successCallback = input.successCallback
+        isFromMain = true
+        updateCardBalance()
+    }
+        
     // MARK: Functions
 
     func goToNextStep() {
         let nextStepIndex = currentStepIndex + 1
         
         func goToMain() {
-            if !assembly.isPreview {
-                navigation.readToMain = true
+            if isFromMain {
+                successCallback?()
+            } else if !assembly.isPreview {
+                assembly.getCardOnboardingViewModel().toMain = true
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.userPrefsService.isTermsOfServiceAccepted = true
@@ -89,7 +121,7 @@ class OnboardingViewModel: ViewModel {
             }
         }
         
-        guard nextStepIndex < steps.count else {
+        guard !steps.isEmpty, nextStepIndex < steps.count else {
             goToMain()
             return
         }
@@ -107,6 +139,7 @@ class OnboardingViewModel: ViewModel {
     
     func reset() {
         // [REDACTED_TODO_COMMENT]
+        walletModelUpdateCancellable = nil
         
         withAnimation {
             scannedCardModel = nil
@@ -117,7 +150,6 @@ class OnboardingViewModel: ViewModel {
             cardBalance = ""
             previewUpdateCounter = 0
         }
-        
     }
     
     func executeStep() {
@@ -147,7 +179,7 @@ class OnboardingViewModel: ViewModel {
             executingRequestOnCard = false
             let previewModel = Assembly.PreviewCard.scanResult(for: .ethEmptyNote, assembly: assembly).cardModel!
             self.scannedCardModel = previewModel
-            processScannedCard(previewModel)
+            processScannedCard(previewModel, isWithAnimation: true)
             return
         }
         
@@ -159,7 +191,7 @@ class OnboardingViewModel: ViewModel {
                 guard let cardModel = result.cardModel else { return }
                 
                 self.scannedCardModel = cardModel
-                self.processScannedCard(cardModel)
+                self.processScannedCard(cardModel, isWithAnimation: true)
             case .failure(let error):
                 print(error)
             }
@@ -186,7 +218,7 @@ class OnboardingViewModel: ViewModel {
             walletModelUpdateCancellable == nil
         else { return }
         
-        if assembly.isPreview {
+        if (assembly?.isPreview) ?? false {
             previewUpdateCounter += 1
             
             if previewUpdateCounter >= 3 {
@@ -220,18 +252,18 @@ class OnboardingViewModel: ViewModel {
                 case .loading, .created:
                     return
                 }
-                let item = DispatchWorkItem(block: {
-                    self?.updateCardBalance()
-                })
-                self?.scheduledUpdate = item
-                DispatchQueue.main.asyncAfter(deadline: .now() + 15, execute: item)
+//                let item = DispatchWorkItem(block: {
+//                    self?.updateCardBalance()
+//                })
+//                self?.scheduledUpdate = item
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 15, execute: item)
                 self?.walletModelUpdateCancellable = nil
             }
         walletModel.update(silent: false)
     }
     
-    private func processScannedCard(_ cardModel: CardViewModel) {
-        stepsSetupService.steps(for: cardModel.cardInfo.card)
+    private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
+        stepsSetupService.steps(for: cardModel.cardInfo)
             .flatMap { steps -> AnyPublisher<([OnboardingStep], UIImage?), Error> in
                 if steps.count > 2 && !self.assembly.isPreview {
                     return cardModel.$cardInfo
@@ -269,7 +301,7 @@ class OnboardingViewModel: ViewModel {
             } receiveValue: { [weak self] steps in
                 guard let self = self else { return }
                 
-                withAnimation {
+                withAnimation(.easeInOut(duration: isWithAnimation ? 0.3 : 0)) {
                     self.steps = steps
                     self.goToNextStep()
                     self.executingRequestOnCard = false
