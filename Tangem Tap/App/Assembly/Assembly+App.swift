@@ -33,12 +33,21 @@ extension Assembly {
         return getLaunchOnboardingViewModel()
     }
     
+    
     @discardableResult
     func makeCardOnboardingViewModel(with input: CardOnboardingInput) -> CardOnboardingViewModel {
         let vm = CardOnboardingViewModel(input: input)
         initialize(vm, isResetable: false)
         
-        makeOnboardingViewModel(with: input)
+        switch input.steps {
+        case .note, .older:
+            makeNoteOnboardingViewModel(with: input)
+        case .twins:
+            makeCardTwinOnboardingViewModel(with: input)
+        case .wallet:
+            break
+        }
+        
         return vm
     }
     
@@ -47,11 +56,11 @@ extension Assembly {
             return restored
         }
         
-        return makeOnboardingViewModel(with: nil)
+        return makeNoteOnboardingViewModel(with: nil)
     }
     
     @discardableResult
-    func makeOnboardingViewModel(with input: CardOnboardingInput?) -> NoteOnboardingViewModel {
+    func makeNoteOnboardingViewModel(with input: CardOnboardingInput?) -> NoteOnboardingViewModel {
         let vm = input == nil ? NoteOnboardingViewModel() : NoteOnboardingViewModel(input: input!)
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
@@ -65,6 +74,26 @@ extension Assembly {
         }
         return vm
     }
+    
+    func getTwinsOnboardingViewModel() -> TwinsOnboardingViewModel {
+        if let restored: TwinsOnboardingViewModel = get() {
+            return restored
+        }
+        
+        return makeCardTwinOnboardingViewModel(with: previewTwinOnboardingInput)
+    }
+    
+    @discardableResult
+    func makeCardTwinOnboardingViewModel(with input: CardOnboardingInput) -> TwinsOnboardingViewModel {
+        let vm = TwinsOnboardingViewModel(imageLoaderService: services.imageLoaderService,
+                                          twinsService: services.twinsWalletCreationService,
+                                          input: input)
+        initialize(vm, isResetable: false)
+        vm.exchangeService = services.exchangeService
+        
+        return vm
+    }
+    
     
     func makeReadViewModel() -> ReadViewModel {
         if let restored: ReadViewModel = get() {
