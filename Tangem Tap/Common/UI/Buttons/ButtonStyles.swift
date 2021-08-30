@@ -29,7 +29,7 @@ enum ButtonSize {
         case .thinHorizontal:
             return CGSize(width: 109, height: 32)
         case .wide:
-            return CGSize(width: UIScreen.main.bounds.width - 80, height: 56)
+            return CGSize(width: UIScreen.main.bounds.width - 80, height: defaultHeight)
         case .customWidth(let width):
             return .init(width: width, height: defaultHeight)
         case .custom(let size):

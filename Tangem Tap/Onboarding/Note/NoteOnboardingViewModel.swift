@@ -12,7 +12,7 @@ import TangemSdk
 import Combine
 
 struct CardOnboardingInput {
-    let steps: [OnboardingStep]
+    let steps: OnboardingSteps
     let cardModel: CardViewModel
     let currentStepIndex: Int
     let cardImage: UIImage
@@ -30,7 +30,7 @@ class NoteOnboardingViewModel: ViewModel {
     weak var exchangeService: ExchangeService!
     weak var imageLoaderService: CardImageLoaderService!
     
-    @Published var steps: [OnboardingStep] =
+    @Published var steps: [NoteOnboardingStep] =
         []
 //        [.read, .createWallet, .topup, .confetti]
     @Published var executingRequestOnCard = false
@@ -47,7 +47,7 @@ class NoteOnboardingViewModel: ViewModel {
     
     var shopURL: URL { Constants.shopURL }
     
-    var currentStep: OnboardingStep {
+    var currentStep: NoteOnboardingStep {
         guard currentStepIndex < steps.count else {
             return .read
         }
@@ -95,7 +95,12 @@ class NoteOnboardingViewModel: ViewModel {
     }
     
     init(input: CardOnboardingInput) {
-        steps = input.steps
+        if case let .note(steps) = input.steps {
+            self.steps = steps
+        } else {
+            fatalError("Wrong onboarding steps passed to initializer")
+        }
+        
         scannedCardModel = input.cardModel
         currentStepIndex = input.currentStepIndex
         cardImage = input.cardImage
@@ -264,7 +269,11 @@ class NoteOnboardingViewModel: ViewModel {
     
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
         stepsSetupService.steps(for: cardModel.cardInfo)
-            .flatMap { steps -> AnyPublisher<([OnboardingStep], UIImage?), Error> in
+            .flatMap { onboardingSteps -> AnyPublisher<([NoteOnboardingStep], UIImage?), Error> in
+                guard case let .note(steps) = onboardingSteps else {
+                    return .anyFail(error: "Not valid steps")
+                }
+                
                 if steps.count > 2 && !self.assembly.isPreview {
                     return cardModel.$cardInfo
                         .filter {
@@ -289,7 +298,7 @@ class NoteOnboardingViewModel: ViewModel {
                 }
             }
             .receive(on: DispatchQueue.main)
-            .map { [weak self] (steps, image) -> [OnboardingStep] in
+            .map { [weak self] (steps, image) -> [NoteOnboardingStep] in
                 self?.cardImage = (self?.assembly.isPreview ?? false) ? UIImage(named: "card_btc") : image
                 return steps
             }
