@@ -54,7 +54,7 @@ extension Assembly {
         initialize(vm, isResetable: false)
         
         switch input.steps {
-        case .note, .older:
+        case .singleWallet:
             makeNoteOnboardingViewModel(with: input)
         case .twins:
             makeTwinOnboardingViewModel(with: input)
