@@ -81,9 +81,18 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 				.foregroundColor(settings.titleColor)
 		}
 		.padding(.horizontal, settings.horizontalPadding)
-		.frame(height: settings.height)
+        .frame(maxWidth: .infinity, minHeight: settings.height, maxHeight: settings.height)
 		.background(settings.backgroundColor.edgesIgnoringSafeArea(.all))
 	}
+}
+
+extension NavigationBar where LeftButtons == EmptyView, RightButtons == EmptyView {
+    init(title: LocalizedStringKey, settings: Settings = .init()) {
+        self.title = title
+        self.settings = settings
+        leftButtons = EmptyView()
+        rightButtons = EmptyView()
+    }
 }
 
 extension NavigationBar where LeftButtons == EmptyView {
@@ -149,17 +158,21 @@ struct NavigationBar_Previews: PreviewProvider {
 				NavigationBar(title: "Hello, World!", backAction: {})
 				Spacer()
 			}.deviceForPreview(.iPhone11Pro)
-			VStack {
-				NavigationBar(title: "Hello, World!", rightButtons: {
-					Button(action: {},
-						   label: {
-							Image("verticalDots")
-								.foregroundColor(Color.tangemTapGrayDark6)
-								.frame(width: 44.0, height: 44.0, alignment: .center)
-						   })
-				})
-				Spacer()
-			}.deviceForPreview(.iPhone11ProMax)
+//			VStack {
+//				NavigationBar(title: "Hello, World!", rightButtons: {
+//					Button(action: {},
+//						   label: {
+//							Image("verticalDots")
+//								.foregroundColor(Color.tangemTapGrayDark6)
+//								.frame(width: 44.0, height: 44.0, alignment: .center)
+//						   })
+//				})
+//				Spacer()
+//			}.deviceForPreview(.iPhone11ProMax)
+            VStack {
+                NavigationBar(title: "Hello, World!")
+                Spacer()
+            }.deviceForPreview(.iPhone11ProMax)
 		}
 	}
 }
