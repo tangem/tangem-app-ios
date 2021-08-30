@@ -60,6 +60,8 @@ class CardOnboardingViewModel: ViewModel {
     @Published var content: Content
     @Published var toMain: Bool = false
     
+    private var resetSubscription: AnyCancellable?
+    
     init() {
         self.isFromMainScreen = false
         self.content = .notScanned
@@ -76,12 +78,43 @@ class CardOnboardingViewModel: ViewModel {
         self.input = input
     }
     
+    func bind() {
+        resetSubscription = navigation.$onboardingReset
+            .filter { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { shouldReset in
+//                guard shouldReset else { return }
+                self.navigation.onboardingReset = false
+                withAnimation {
+                    self.content = .notScanned
+                }
+            }
+    }
+    
     func reset() {
         guard isFromMainScreen else {
             return
         }
         
         content = .notScanned
+    }
+    
+    func processScannedCard(with input: CardOnboardingInput) {
+        self.input = input
+        let content: Content = .content(for: input.steps)
+        
+        switch content {
+        case .note:
+            assembly.makeNoteOnboardingViewModel(with: input)
+        case .twin:
+            assembly.makeTwinOnboardingViewModel(with: input)
+        default:
+            break
+        }
+        
+        withAnimation {
+            self.content = content
+        }
     }
     
 }
