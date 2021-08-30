@@ -137,6 +137,14 @@ enum TwinsOnboardingStep {
         [.intro(pairNumber: "0128"), .first, .second, .third, .topup, .confetti, .done]
     }
     
+    static var twinningProcessSteps: [TwinsOnboardingStep] {
+        [.first, .second, .third]
+    }
+    
+    static var topupSteps: [TwinsOnboardingStep] {
+        [.topup, .confetti, .done]
+    }
+    
     var title: LocalizedStringKey {
         switch self {
         case .intro: return "twins_onboarding_subtitle"
@@ -288,8 +296,14 @@ struct TwinsOnboardingView: View {
     @State var containerSize: CGSize = .zero
     @State var size: CGSize = .zero
     
+    var screenSize: CGSize {
+        UIScreen.main.bounds.size
+    }
+    
     var body: some View {
         ZStack {
+            navigationLinks
+            
             VStack(spacing: 0) {
                 NavigationBar(title: "Tangem Twin", settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear))
                 GeometryReader { geom in
@@ -300,13 +314,13 @@ struct TwinsOnboardingView: View {
                             backgroundFrameSize: backgroundFrame,
                             cornerSize: currentStep.backgroundCornerRadius(in: containerSize),
                             backgroundOffset: backgroundOffset,
-                            balance: "",
+                            balance: viewModel.cardBalance,
                             balanceUpdaterFrame: backgroundFrame,
                             balanceUpdaterOffset: backgroundOffset,
                             refreshAction: {
-                                
+                                viewModel.updateCardBalance()
                             },
-                            refreshButtonState: .refreshButton,
+                            refreshButtonState: viewModel.refreshButtonState,
                             refreshButtonSize: .medium,
                             refreshButtonOpacity: currentStep.backgroundOpacity
                         )
@@ -362,6 +376,14 @@ struct TwinsOnboardingView: View {
                 }
                 .padding(.horizontal, 40)
             }
+            BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
+                                     hideBottomSheetCallback: {
+                                        viewModel.isAddressQrBottomSheetPresented = false
+                                     }, content: {
+                                        AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
+                                                                    address: viewModel.walletAddress)
+                                     })
+                .frame(maxWidth: screenSize.width)
         }
         .navigationBarHidden(true)
     }

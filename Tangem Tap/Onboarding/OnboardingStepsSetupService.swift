@@ -86,7 +86,38 @@ class OnboardingStepsSetupService {
     }
     
     private func stepsForTwins(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        .justWithError(output: .twins([]))
+        guard let twinCardInfo = cardInfo.twinCardInfo else {
+            return .anyFail(error: "Twin card doesn't contain essential data (Twin card info)")
+        }
+        var steps = [TwinsOnboardingStep]()
+        
+        steps.append(.intro(pairNumber: TapTwinCardIdFormatter.format(cid: twinCardInfo.pairCid, cardNumber: twinCardInfo.series.pair.number)))
+        let walletModel = assembly.loadWallets(from: cardInfo)
+        if (walletModel.count == 0 || cardInfo.twinCardInfo?.pairPublicKey == nil) {
+            steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+            steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+            return .justWithError(output: .twins(steps))
+        } else {
+            let model = walletModel.first!
+            return Future { promise in
+                model.walletManager.update { [unowned self] result in
+                    switch result {
+                    case .success:
+                        if model.wallet.isEmpty {
+                            steps.append(.topup)
+                        } else if !self.userPrefs.noteCardsStartedActivation.contains(cardInfo.card.cardId) {
+                            return promise(.success(.twins([])))
+                        }
+                        steps.append(.confetti)
+                        steps.append(.done)
+                        promise(.success(.twins(steps)))
+                    case .failure(let error):
+                        promise(.failure(error))
+                    }
+                }
+            }
+            .eraseToAnyPublisher()
+        }
     }
     
     private func stepsForWallet(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
