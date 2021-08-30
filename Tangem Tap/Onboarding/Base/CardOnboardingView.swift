@@ -34,10 +34,10 @@ struct CardOnboardingView: View {
     var content: some View {
         switch viewModel.content {
         case .notScanned:
-            if !viewModel.isFromMainScreen {
+            if viewModel.isFromMainScreen {
                 defaultLaunchView
             } else {
-                notScannedContent
+                LetsStartOnboardingView(viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)))
             }
         case .note:
             defaultLaunchView
@@ -58,6 +58,9 @@ struct CardOnboardingView: View {
             .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
             .navigationBarHidden(true)
         }
+        .onAppear(perform: {
+            viewModel.bind()
+        })
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarHidden(true)
     }

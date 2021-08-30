@@ -78,6 +78,8 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: WalletConnectView
     @Published var walletConnectToQR = false
+    
+    @Published var onboardingReset = false
 
     func reset() {
         readToMain = false
