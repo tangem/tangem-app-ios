@@ -216,8 +216,8 @@ struct MainView: View {
             NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
                            isActive: $navigation.mainToTwinOnboarding)
             
-            NavigationLink(destination: CardOnboardingView(viewModel: viewModel.assembly.getCardOnboardingViewModel()),
-                           isActive: $navigation.mainToCardOnboarding)
+//            NavigationLink(destination: CardOnboardingView(viewModel: viewModel.assembly.getCardOnboardingViewModel()),
+//                           isActive: $navigation.mainToCardOnboarding)
         }
     }
     
@@ -404,6 +404,10 @@ struct MainView: View {
     var bottomButtons: some View {
         HStack(alignment: .center) {
             scanButton
+                .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
+                    CardOnboardingView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                        .environmentObject(navigation)
+                })
             
             if viewModel.canCreateWallet {
                 createWalletButton
