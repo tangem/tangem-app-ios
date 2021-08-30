@@ -16,7 +16,7 @@ struct CardOnboardingInput {
     let cardModel: CardViewModel
     let currentStepIndex: Int
     let cardImage: UIImage
-    let successCallback: (() -> Void)?
+    var successCallback: (() -> Void)?
 }
 
 class NoteOnboardingViewModel: ViewModel {
@@ -199,8 +199,8 @@ class NoteOnboardingViewModel: ViewModel {
                 self.processScannedCard(cardModel, isWithAnimation: true)
             case .failure(let error):
                 print(error)
+                self.executingRequestOnCard = false
             }
-            self.executingRequestOnCard = false
         }
     }
     
