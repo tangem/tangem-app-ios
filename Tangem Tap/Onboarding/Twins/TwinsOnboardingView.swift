@@ -303,6 +303,10 @@ struct TwinsOnboardingView: View {
     var body: some View {
         ZStack {
             navigationLinks
+            ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
+                .allowsHitTesting(false)
+                .frame(maxWidth: screenSize.width)
+                .zIndex(100)
             
             VStack(spacing: 0) {
                 NavigationBar(title: "Tangem Twin", settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear))
