@@ -165,7 +165,7 @@ class MainViewModel: ViewModel {
     }
 	
 	var cardNumber: Int? {
-		cardModel?.cardInfo.twinCardInfo?.series?.number
+		cardModel?.cardInfo.twinCardInfo?.series.number
 	}
 	
 	var isTwinCard: Bool {
