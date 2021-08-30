@@ -11,11 +11,11 @@ import TangemSdk
 import Combine
 
 enum OnboardingSteps {
-    case note([NoteOnboardingStep]), twins([TwinsOnboardingStep]), wallet, older([NoteOnboardingStep])
+    case singleWallet([NoteOnboardingStep]), twins([TwinsOnboardingStep]), wallet
     
     var needOnboarding: Bool {
         switch self {
-        case .note(let steps), .older(let steps):
+        case .singleWallet(let steps):
             return steps.count > 0
         case .twins(let steps):
             return steps.count > 0
@@ -51,7 +51,7 @@ class OnboardingStepsSetupService {
             steps.append(.createWallet)
         }
         
-        return steps.count > 1 ? .justWithError(output: .note(steps)) : .justWithError(output: .note([]))
+        return steps.count > 1 ? .justWithError(output: .singleWallet(steps)) : .justWithError(output: .singleWallet([]))
     }
     
     private func stepsForNote(_ card: Card) -> AnyPublisher<OnboardingSteps, Error> {
@@ -62,7 +62,7 @@ class OnboardingStepsSetupService {
             steps.append(.topup)
             steps.append(.confetti)
             steps.append(.goToMain)
-            return .justWithError(output: .note(steps))
+            return .justWithError(output: .singleWallet(steps))
         }
         
         let model = walletModel.first!
@@ -73,11 +73,11 @@ class OnboardingStepsSetupService {
                     if model.wallet.isEmpty {
                         steps.append(.topup)
                     } else if !self.userPrefs.noteCardsStartedActivation.contains(card.cardId) {
-                        return promise(.success(.note([])))
+                        return promise(.success(.singleWallet([])))
                     }
                     steps.append(.confetti)
                     steps.append(.goToMain)
-                    promise(.success(.note(steps)))
+                    promise(.success(.singleWallet(steps)))
                 case .failure(let error):
                     promise(.failure(error))
                 }
