@@ -95,7 +95,7 @@ class NoteOnboardingViewModel: ViewModel {
     }
     
     init(input: CardOnboardingInput) {
-        if case let .note(steps) = input.steps {
+        if case let .singleWallet(steps) = input.steps {
             self.steps = steps
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
@@ -270,7 +270,7 @@ class NoteOnboardingViewModel: ViewModel {
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
         stepsSetupService.steps(for: cardModel.cardInfo)
             .flatMap { onboardingSteps -> AnyPublisher<([NoteOnboardingStep], UIImage?), Error> in
-                guard case let .note(steps) = onboardingSteps else {
+                guard case let .singleWallet(steps) = onboardingSteps else {
                     return .anyFail(error: "Not valid steps")
                 }
                 
