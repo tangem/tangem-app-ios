@@ -237,6 +237,8 @@ struct OnboardingView: View {
                                                          }
                                                          ]),
                            isActive: $navigation.onboardingToBuyCrypto)
+            
+            NavigationLink(destination: EmptyView(), isActive: .constant(false))
         }
     }
     
