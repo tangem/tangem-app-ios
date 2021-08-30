@@ -38,14 +38,12 @@ class TwinsWalletCreationService {
     /// Determines is user start twin wallet creation from Twin card with first number
     var isStartedFromFirstNumber: Bool {
         guard let twin = twinInfo else { return true }
-        return twin.series?.number ?? 1 == 1
+        return twin.series.number == 1
     }
     
     var stepCardNumber: Int {
-        guard
-            let twin = twinInfo,
-            let series = twin.series
-        else { return 1 }
+        guard let twin = twinInfo else { return 1 }
+        let series = twin.series
         switch step.value {
         case .first, .third, .done:
             return series.number
@@ -79,7 +77,7 @@ class TwinsWalletCreationService {
         
         twinInfo = twin
         firstTwinCid = twin.cid
-        secondTwinCid = twin.pairCid ?? ""
+        secondTwinCid = twin.pairCid
     }
     
     func resetSteps() {
