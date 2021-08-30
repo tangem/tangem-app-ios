@@ -11,13 +11,17 @@ import SwiftUI
 struct CardOnboardingView: View {
     
     @ObservedObject var viewModel: CardOnboardingViewModel
+    @EnvironmentObject var navigation: NavigationCoordinator
     
     @ViewBuilder
     var navigationLinks: some View {
         if !viewModel.isFromMainScreen {
             NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
                            isActive: $viewModel.toMain)
+//                           isActive: $navigation.readToMain)
         }
+        
+        NavigationLink(destination: EmptyView(), isActive: .constant(false))
     }
     
     @ViewBuilder
@@ -39,7 +43,7 @@ struct CardOnboardingView: View {
             } else {
                 LetsStartOnboardingView(viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)))
             }
-        case .note:
+        case .singleCard:
             defaultLaunchView
         case .twin:
             TwinsOnboardingView(viewModel: viewModel.assembly.getTwinsOnboardingViewModel())
@@ -75,7 +79,7 @@ struct CardOnboardingView_Previews: PreviewProvider {
             viewModel: assembly.makeCardOnboardingViewModel(
                 with: assembly.previewNoteCardOnboardingInput)
         )
-        .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
+        .environmentObject(assembly.services.navigationCoordinator)
     }
 }
 
