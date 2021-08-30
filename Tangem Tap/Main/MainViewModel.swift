@@ -543,7 +543,7 @@ class MainViewModel: ViewModel {
         } receiveValue: { [weak self] (steps, image) in
             guard let self = self else { return }
             
-            if steps.isEmpty {
+            guard steps.needOnboarding else {
                 updateState()
                 return
             }

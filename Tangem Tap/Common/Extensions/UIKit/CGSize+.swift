@@ -16,6 +16,6 @@ public extension String.StringInterpolation {
 
 extension CGSize: CustomStringConvertible {
     public var description: String {
-        "w: \(width), h: \(height)"
+        "w: \(width.rounded()), h: \(height.rounded())"
     }
 }
