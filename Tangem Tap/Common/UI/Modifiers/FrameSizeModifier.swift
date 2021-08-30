@@ -13,7 +13,7 @@ struct FrameSizeModifier: ViewModifier {
     var alignment: Alignment
     
     func body(content: Content) -> some View {
-        content.frame(width: frameSize.width, height: frameSize.height, alignment: alignment)
+        content.frame(width: max(frameSize.width, 0), height: max(frameSize.height, 0), alignment: alignment)
     }
 }
 
