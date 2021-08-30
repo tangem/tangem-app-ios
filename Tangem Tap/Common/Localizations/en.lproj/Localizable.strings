@@ -593,14 +593,20 @@ Amount to pay: %@";
 "onboarding_create_title" = "Create a wallet";
 "onboarding_create_subtitle" = "Let’s generate all the keys on your card and create a secure wallet";
 
-"onboarding_button_topup" = "Top up";
-"onboarding_button_topup_qr" = "Top up with a QR-code";
+"onboarding_button_buy_crypto" = "Buy crypto";
+"onboarding_button_show_address_qr" = "Show the wallet’s address";
 "onboarding_topup_title" = "Activate a wallet";
 "onboarding_topup_subtitle" = "To get started, simply top up the wallet with any amount";
 
-"onboarding_button_confetti" = "Continue";
 "onboarding_confetti_title" = "Done!";
 "onboarding_confetti_subtitle" = "Your crypto card is activated and ready to be used";
 "onboarding_balance" = "BALANCE";
 
 "address_qr_code_message" = "Scan the QR code to top up your wallet";
+
+"onboarding_title_twin_first_card" = "Tap the #1 twin card";
+"onboarding_title_twin_second_card" = "Tap the #2 twin card";
+"onboarding_subtitle_intro %@" = "This one that you are holding in your hands  and the other one with number %@.";
+"onboarding_subtitle_reset_twin_warning" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
+"onboarding_button_tap_first_card" = "Tap the card #1";
+"onboarding_button_tap_second_card" = "Tap the card #2";
