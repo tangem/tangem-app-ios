@@ -119,66 +119,59 @@ extension Card {
     
     private static let twinCardJson =
         """
-                {
-                  "linkedTerminalStatus" : "none",
-                  "supportedCurves" : [
-                    "secp256k1"
-                  ],
-                  "cardPublicKey" : "0400D05BCAC34B58AA48BF998FB68667A3112262275200431EA235EC4616A15287B5D21F15E45740AB6B829F415950DBC7A68493DCF5FD270C8CAAB0E975E9A0D9",
-                  "settings" : {
-                    "isSettingPasscodeAllowed" : true,
-                    "maxWalletsCount" : 36,
-                    "isOverwritingIssuerExtraDataRestricted" : false,
-                    "isRemovingAccessCodeAllowed" : false,
-                    "isLinkedTerminalEnabled" : true,
-                    "securityDelay" : 3000,
-                    "isSettingAccessCodeAllowed" : false,
-                    "supportedEncryptionModes" : [
-                      "strong",
-                      "fast",
-                      "none"
-                    ],
-                    "isPermanentWallet" : true,
-                    "isSelectBlockchainAllowed" : true,
-                    "isIssuerDataProtectedAgainstReplay" : true
-                  },
-                  "issuer" : {
-                    "name" : "TANGEM AG",
-                    "publicKey" : "0456E7C3376329DFAE7388DF1695670386103C92486A87644FA9E512C9CF4E92FE970EFDFBB7A35446F2A937505E6C70D78E965533B31C252B607F3C6B3112B603"
-                  },
-                  "firmwareVersion" : {
-                    "minor" : 12,
-                    "patch" : 0,
-                    "major" : 4,
-                    "stringValue" : "4.12r",
-                    "type" : "r"
-                  },
-                  "batchId" : "0073",
-                  "attestation" : {
-                    "cardKeyAttestation" : "verified",
-                    "walletKeysAttestation" : "verified",
-                    "firmwareAttestation" : "skipped",
-                    "cardUniquenessAttestation" : "skipped"
-                  },
-                  "manufacturer" : {
-                    "name" : "TANGEM",
-                    "manufactureDate" : "2021-04-01",
-                    "signature" : "1671A9AB2D9D5B99177E841C8DC35842452A095088CD01B48D753631571AAB21EEAC0F96BC87142268C32EFB3AF8A8C80DB55BE6D1970FAFBC72E00F896F69EA"
-                  },
-                  "cardId" : "CB79000000018201",
-                  "wallets" : [
-                    {
-                      "publicKey" : "FA3F41EE40DAB4DB96B4AD5BEC697A552EEB1AACF2C6A10B1B37A9A724608533",
-                      "totalSignedHashes" : 1,
-                      "curve" : "ed25519",
-                      "settings" : {
-                        "isPermanent" : false
-                      },
-                      "index" : 0
-                    }
-                  ],
-                  "isPin2Default" : true
-                }
+        {
+          "cardId" : "CB62000000001263",
+          "issuer" : {
+            "name" : "TANGEM",
+            "publicKey" : "048196AA4B410AC44A3B9CCE18E7BE226AEA070ACC83A9CF67540FAC49AF25129F6A538A28AD6341358E3C4F9963064F7E365372A651D374E5C23CDD37FD099BF2"
+          },
+          "manufacturer" : {
+            "name" : "TANGEM",
+            "manufactureDate" : "2020-12-01",
+            "signature" : "DD6E0F1B8B1D981AD4968FB701598B4441F7F57471625BA396C4517897E0CA07DE60473284DCE5FB72875DAFB1D711781A324FFB6BC37761B087045ADAFC3A1E"
+          },
+          "linkedTerminalStatus" : "none",
+          "supportedCurves" : [
+            "secp256k1"
+          ],
+          "batchId" : "0074",
+          "firmwareVersion" : {
+            "minor" : 29,
+            "patch" : 0,
+            "major" : 3,
+            "stringValue" : "3.29r",
+            "type" : "r"
+          },
+          "wallets" : [
+           
+          ],
+          "attestation" : {
+            "cardKeyAttestation" : "verified",
+            "walletKeysAttestation" : "skipped",
+            "firmwareAttestation" : "skipped",
+            "cardUniquenessAttestation" : "skipped"
+          },
+          "cardPublicKey" : "0432BA381ABFB824658216BEB1C92E603CBCBA3171F3C1400C397D890A670FA84FC24ED388D7F608ECA7A6FA696806E20B341C4688DB361B4E2D4BE042B77B9FE9",
+          "settings" : {
+            "isPermanentWallet" : false,
+            "maxWalletsCount" : 1,
+            "isLinkedTerminalEnabled" : true,
+            "supportedEncryptionModes" : [
+              "strong",
+              "fast",
+              "none"
+            ],
+            "securityDelay" : 15000,
+            "isSettingAccessCodeAllowed" : true,
+            "isRemovingAccessCodeAllowed" : false,
+            "isSettingPasscodeAllowed" : true,
+            "isOverwritingIssuerExtraDataRestricted" : false,
+            "isIssuerDataProtectedAgainstReplay" : true,
+            "isSelectBlockchainAllowed" : true,
+          }
+        }
+
+
         """
     
     private static let v4CardJson =

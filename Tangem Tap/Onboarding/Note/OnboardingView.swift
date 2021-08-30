@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-enum OnboardingStep: Int, CaseIterable {
+enum NoteOnboardingStep: Int, CaseIterable {
     case read, createWallet, topup, backup, confetti, goToMain
     
     var hasProgressStep: Bool {
@@ -60,9 +60,9 @@ enum OnboardingStep: Int, CaseIterable {
         switch self {
         case .read: return "home_button_scan"
         case .createWallet: return "onboarding_button_create_wallet"
-        case .topup: return "onboarding_button_topup"
+        case .topup: return "onboarding_button_buy_crypto"
         case .backup: return ""
-        case .confetti: return "onboarding_button_confetti"
+        case .confetti: return "common_continue"
         case .goToMain: return ""
         }
     }
@@ -78,7 +78,7 @@ enum OnboardingStep: Int, CaseIterable {
         switch self {
         case .read: return "onboarding_button_shop"
         case .createWallet: return "onboarding_button_how_it_works"
-        case .topup: return "onboarding_button_topup_qr"
+        case .topup: return "onboarding_button_show_address_qr"
         case .confetti, .backup, .goToMain: return ""
         }
     }
@@ -135,16 +135,16 @@ enum CardLayout {
     
     private var cardHeightWidthRatio: CGFloat { 0.609 }
     
-    func frame(for step: OnboardingStep, containerSize: CGSize) -> CGSize {
+    func frame(for step: NoteOnboardingStep, containerSize: CGSize) -> CGSize {
         let height = containerSize.height * frameSizeRatio(for: step)
         let width = height / cardHeightWidthRatio
-        let maxWidth = containerSize.width - frameMinHorizontalPadding(for: step)
+        let maxWidth = containerSize.width - cardFrameMinHorizontalPadding(for: step)
         return width > maxWidth ?
             .init(width: maxWidth, height: maxWidth * cardHeightWidthRatio) :
             .init(width: height / cardHeightWidthRatio, height: height)
     }
     
-    func rotationAngle(at step: OnboardingStep) -> Angle {
+    func rotationAngle(at step: NoteOnboardingStep) -> Angle {
         switch (self, step) {
         case (.main, .read): return Angle(degrees: -2)
         case (.supplementary, .read): return Angle(degrees: -21)
@@ -152,7 +152,7 @@ enum CardLayout {
         }
     }
     
-    func offset(at step: OnboardingStep, containerSize: CGSize) -> CGSize {
+    func offset(at step: NoteOnboardingStep, containerSize: CGSize) -> CGSize {
         let containerHeight = max(containerSize.height, containerSize.width)
         switch (self, step) {
         case (.main, .read):
@@ -172,7 +172,7 @@ enum CardLayout {
         }
     }
     
-    func opacity(at step: OnboardingStep) -> Double {
+    func opacity(at step: NoteOnboardingStep) -> Double {
         guard self == .supplementary else {
             return 1
         }
@@ -184,7 +184,7 @@ enum CardLayout {
         return 0
     }
     
-    private func frameSizeRatio(for step: OnboardingStep) -> CGFloat {
+    private func frameSizeRatio(for step: NoteOnboardingStep) -> CGFloat {
         switch (self, step) {
         case (.main, .read): return 0.375
         case (.main, .createWallet): return 0.536
@@ -194,7 +194,7 @@ enum CardLayout {
         }
     }
     
-    private func frameMinHorizontalPadding(for step: OnboardingStep) -> CGFloat {
+    private func cardFrameMinHorizontalPadding(for step: NoteOnboardingStep) -> CGFloat {
         switch (self, step) {
         case (.main, .read): return 98
         case (.main, .createWallet): return 68
@@ -212,9 +212,9 @@ struct OnboardingView: View {
     private let horizontalPadding: CGFloat = 40
     private let screenSize: CGSize = UIScreen.main.bounds.size
     
-    @State private  var animationContainerSize: CGSize = .zero
+    @State private var animationContainerSize: CGSize = .zero
     
-    var currentStep: OnboardingStep { viewModel.currentStep }
+    var currentStep: NoteOnboardingStep { viewModel.currentStep }
     
     var isSmallScreenSize: Bool { animationContainerSize.height < 250 }
     
@@ -324,33 +324,44 @@ struct OnboardingView: View {
                             .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
                             .offset(CardLayout.main.offset(at: currentStep, containerSize: proxy.size))
                             .frame(size: CardLayout.main.frame(for: currentStep, containerSize: proxy.size))
-                        Group {
-                            VStack {
-                                Text("onboarding_balance")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .padding(.bottom, 8)
-                                Text(viewModel.cardBalance)
-//                                    .background(Color.orange)
-                                    .multilineTextAlignment(.center)
-                                    .truncationMode(.middle)
-                                    .lineLimit(2)
-                                    .minimumScaleFactor(0.3)
-                                    .font(.system(size: 28, weight: .bold))
-                                    .frame(maxWidth: backgroundFrame.width - 26, maxHeight: backgroundFrame.height * 0.155)
-                            }
-//                            .background(Color.green)
-                            .offset(backgroundOffset)
-                            
-                            OnboardingCircleButton(refreshAction: { viewModel.updateCardBalance() },
-                                                   state: viewModel.refreshButtonState,
-                                                   size: isSmallScreenSize ? .small : .default)
-                                .offset(x: 0, y: backgroundOffset.height + backgroundFrame.height / 2)
-                        }
+                        OnboardingTopupBalanceUpdater(
+                            balance: viewModel.cardBalance,
+                            frame: backgroundFrame,
+                            offset: backgroundOffset,
+                            refreshAction: {
+                                viewModel.updateCardBalance()
+                            },
+                            refreshButtonState: viewModel.refreshButtonState,
+                            refreshButtonSize: isSmallScreenSize ? .small : .default,
+                            opacity: currentStep.balanceStackOpacity
+                        )
+//                        Group {
+//                            VStack {
+//                                Text("onboarding_balance")
+//                                    .font(.system(size: 14, weight: .semibold))
+//                                    .padding(.bottom, 8)
+//                                Text(viewModel.cardBalance)
+////                                    .background(Color.orange)
+//                                    .multilineTextAlignment(.center)
+//                                    .truncationMode(.middle)
+//                                    .lineLimit(2)
+//                                    .minimumScaleFactor(0.3)
+//                                    .font(.system(size: 28, weight: .bold))
+//                                    .frame(maxWidth: backgroundFrame.width - 26, maxHeight: backgroundFrame.height * 0.155)
+//                            }
+////                            .background(Color.green)
+//                            .offset(backgroundOffset)
+//
+//                            OnboardingCircleButton(refreshAction: { viewModel.updateCardBalance() },
+//                                                   state: viewModel.refreshButtonState,
+//                                                   size: isSmallScreenSize ? .small : .default)
+//                                .offset(x: 0, y: backgroundOffset.height + backgroundFrame.height / 2)
+//                        }
                         
                         //                        }
 //                        .background(Color.red)
 //                        .offset(currentStep.cardBackgroundOffset(containerSize: proxy.size))
-                        .opacity(currentStep.balanceStackOpacity)
+//                        .opacity(currentStep.balanceStackOpacity)
                         
                     }
                     .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
@@ -387,12 +398,55 @@ struct OnboardingView: View {
     }
 }
 
+struct OnboardingTopupBalanceUpdater: View {
+    
+    let balance: String
+    let frame: CGSize
+    let offset:  CGSize
+    let refreshAction: () -> Void
+    let refreshButtonState: OnboardingCircleButton.State
+    let refreshButtonSize: OnboardingCircleButton.Size
+    let opacity: Double
+    
+    var body: some View {
+        Group {
+            VStack {
+                Text("onboarding_balance")
+                    .font(.system(size: 14, weight: .semibold))
+                    .padding(.bottom, 8)
+                Text(balance)
+//                                    .background(Color.orange)
+                    .multilineTextAlignment(.center)
+                    .truncationMode(.middle)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.3)
+                    .font(.system(size: 28, weight: .bold))
+                    .frame(maxWidth: frame.width - 26, maxHeight: frame.height * 0.155)
+            }
+//                            .background(Color.green)
+            .offset(offset)
+            
+            OnboardingCircleButton(refreshAction: refreshAction,
+                                   state: refreshButtonState,
+                                   size: refreshButtonSize)
+//                                   size: isSmallScreenSize ? .small : .default)
+                .offset(x: 0, y: offset.height + frame.height / 2)
+        }
+        
+        //                        }
+//                        .background(Color.red)
+//                        .offset(currentStep.cardBackgroundOffset(containerSize: proxy.size))
+        .opacity(opacity)
+    }
+    
+}
+
 struct OnboardingView_Previews: PreviewProvider {
     
     static var assembly: Assembly = {
         let assembly = Assembly.previewAssembly
         let previewModel = assembly.previewCardViewModel
-        assembly.makeOnboardingViewModel(with: assembly.previewNoteCardOnboardingInput)
+//        assembly.makeOnboardingViewModel(with: assembly.previewNoteCardOnboardingInput)
         return assembly
     }()
     
