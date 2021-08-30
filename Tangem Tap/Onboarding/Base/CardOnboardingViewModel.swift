@@ -12,25 +12,23 @@ import SwiftUI
 class CardOnboardingViewModel: ViewModel {
     
     enum Content {
-        case notScanned, note, twin, wallet, other
+        case notScanned, singleCard, twin, wallet
         
         static func content(for cardModel: CardViewModel) -> Content {
             let card = cardModel.cardInfo.card
             if card.isTwinCard {
                 return .twin
             }
-            if card.isTangemNote {
-                return .note
-            }
             if card.isTangemWallet {
                 return .wallet
             }
-            return .other
+            
+            return .singleCard
         }
         
         static func content(for steps: OnboardingSteps) -> Content {
             switch steps {
-            case .note, .older: return .note
+            case .singleWallet: return .singleCard
             case .twins: return .twin
             case .wallet: return .wallet
             }
@@ -39,10 +37,9 @@ class CardOnboardingViewModel: ViewModel {
         var navbarTitle: LocalizedStringKey {
             switch self {
             case .notScanned: return ""
-            case .note: return "Activating card"
+            case .singleCard: return "Activating card"
             case .twin: return "Tangem Twin"
             case .wallet: return "Tangem Wallet"
-            case .other: return "Tangem Card"
             }
         }
     }
@@ -58,7 +55,11 @@ class CardOnboardingViewModel: ViewModel {
     var isTermsOfServiceAccepted: Bool { userPrefsService.isTermsOfServiceAccepted }
     
     @Published var content: Content
-    @Published var toMain: Bool = false
+    @Published var toMain: Bool = false {
+        didSet {
+            print("‼️To main did updated to: \(toMain)")
+        }
+    }
     
     private var resetSubscription: AnyCancellable?
     
@@ -100,11 +101,21 @@ class CardOnboardingViewModel: ViewModel {
     }
     
     func processScannedCard(with input: CardOnboardingInput) {
+        guard input.steps.needOnboarding else {
+            if isFromMainScreen {
+                navigation.mainToCardOnboarding = false
+                return
+            }
+            navigation.readToMain = true
+            toMain = true
+            return
+        }
+        
         self.input = input
         let content: Content = .content(for: input.steps)
         
         switch content {
-        case .note:
+        case .singleCard:
             assembly.makeNoteOnboardingViewModel(with: input)
         case .twin:
             assembly.makeTwinOnboardingViewModel(with: input)
