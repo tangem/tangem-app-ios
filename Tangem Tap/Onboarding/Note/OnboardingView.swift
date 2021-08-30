@@ -295,7 +295,7 @@ struct OnboardingView: View {
             VStack(spacing: 0) {
                 navigationLinks
                 
-                if viewModel.steps.count > 1 && currentStep != .read {
+                if viewModel.steps.count > 2 && currentStep != .read {
                     OnboardingProgressCheckmarksView(numberOfSteps: viewModel.numberOfProgressBarSteps, currentStep: viewModel.$currentStepIndex)
                         .frame(maxWidth: .infinity, idealHeight: 42)
                         .padding(.top, isSmallScreenSize ? 0 : 26)
