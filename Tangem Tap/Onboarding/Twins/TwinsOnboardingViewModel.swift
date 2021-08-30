@@ -30,7 +30,7 @@ class TwinsOnboardingViewModel: ViewModel {
     @Published var isModelBusy: Bool = false
     @Published var isAddressQrBottomSheetPresented: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
-    @Published var cardBalance: String = "0.0 BTC"
+    @Published var cardBalance: String = "0.00 BTC"
     @Published var shouldFireConfetti: Bool = false
     
     var currentStep: TwinsOnboardingStep {
