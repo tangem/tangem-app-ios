@@ -28,6 +28,14 @@ class CardOnboardingViewModel: ViewModel {
             return .other
         }
         
+        static func content(for steps: OnboardingSteps) -> Content {
+            switch steps {
+            case .note, .older: return .note
+            case .twins: return .twin
+            case .wallet: return .wallet
+            }
+        }
+        
         var navbarTitle: LocalizedStringKey {
             switch self {
             case .notScanned: return ""
@@ -62,8 +70,9 @@ class CardOnboardingViewModel: ViewModel {
         content = .content(for: cardModel)
     }
     
-    convenience init(input: CardOnboardingInput) {
-        self.init(cardModel: input.cardModel)
+    init(input: CardOnboardingInput) {
+        isFromMainScreen = true
+        content = .content(for: input.steps)
         self.input = input
     }
     
