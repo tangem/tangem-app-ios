@@ -25,6 +25,20 @@ extension Assembly {
         return vm
     }
     
+    func getLetsStartOnboardingViewModel(with callback: @escaping (CardOnboardingInput) -> Void) -> LetsStartOnboardingViewModel {
+        if let restored: LetsStartOnboardingViewModel = get() {
+            restored.successCallback = callback
+            return restored
+        }
+        
+        let vm = LetsStartOnboardingViewModel(successCallback: callback)
+        initialize(vm)
+        vm.cardsRepository = services.cardsRepository
+        vm.imageLoaderService = services.imageLoaderService
+        vm.stepsSetupService = services.onboardingStepsSetupService
+        return vm
+    }
+    
     func getCardOnboardingViewModel() -> CardOnboardingViewModel {
         if let restored: CardOnboardingViewModel = get() {
             return restored
@@ -43,7 +57,7 @@ extension Assembly {
         case .note, .older:
             makeNoteOnboardingViewModel(with: input)
         case .twins:
-            makeCardTwinOnboardingViewModel(with: input)
+            makeTwinOnboardingViewModel(with: input)
         case .wallet:
             break
         }
@@ -80,11 +94,11 @@ extension Assembly {
             return restored
         }
         
-        return makeCardTwinOnboardingViewModel(with: previewTwinOnboardingInput)
+        return makeTwinOnboardingViewModel(with: previewTwinOnboardingInput)
     }
     
     @discardableResult
-    func makeCardTwinOnboardingViewModel(with input: CardOnboardingInput) -> TwinsOnboardingViewModel {
+    func makeTwinOnboardingViewModel(with input: CardOnboardingInput) -> TwinsOnboardingViewModel {
         let vm = TwinsOnboardingViewModel(imageLoaderService: services.imageLoaderService,
                                           twinsService: services.twinsWalletCreationService,
                                           input: input)
@@ -410,7 +424,7 @@ extension Assembly {
     func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
         let scanResult = services.cardsRepository.lastScanResult
         let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
-        let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series?.pair.number ?? 1)
+        let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series.pair.number ?? 1)
         return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
     }
     
