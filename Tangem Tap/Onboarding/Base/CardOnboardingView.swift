@@ -10,7 +10,7 @@ import SwiftUI
 
 struct CardOnboardingView: View {
     
-    @ObservedObject var viewModel: CardOnboardingViewModel 
+    @ObservedObject var viewModel: CardOnboardingViewModel
     
     @ViewBuilder
     var navigationLinks: some View {
@@ -41,19 +41,25 @@ struct CardOnboardingView: View {
             }
         case .note:
             defaultLaunchView
+        case .twin:
+            TwinsOnboardingView(viewModel: viewModel.assembly.getTwinsOnboardingViewModel())
         default:
             Text("Default case")
         }
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            navigationLinks
-            
-            content
+        NavigationView {
+            VStack(spacing: 0) {
+                navigationLinks
+                
+                content
+            }
+            .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
+            .navigationBarHidden(true)
         }
-        .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
-        .navigationBarHidden(!viewModel.isFromMainScreen)
+        .navigationBarTitle("", displayMode: .inline)
+        .navigationBarHidden(true)
     }
 }
 
@@ -62,13 +68,11 @@ struct CardOnboardingView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     
     static var previews: some View {
-        NavigationView {
-            CardOnboardingView(
-                viewModel: assembly.makeCardOnboardingViewModel(
-                    with: assembly.previewNoteCardOnboardingInput)
-            )
-            .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
-        }
+        CardOnboardingView(
+            viewModel: assembly.makeCardOnboardingViewModel(
+                with: assembly.previewNoteCardOnboardingInput)
+        )
+        .environmentObject(Assembly.previewAssembly.services.navigationCoordinator)
     }
 }
 
@@ -79,8 +83,10 @@ struct CardOnboardingMessagesView: View {
     let onTitleTapCallback: (() -> Void)?
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             Text(title)
+                .frame(maxWidth: .infinity)
+//                .background(Color.red)
                 .font(.system(size: 28, weight: .bold))
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
@@ -91,11 +97,15 @@ struct CardOnboardingMessagesView: View {
                     // [REDACTED_TODO_COMMENT]
                     onTitleTapCallback?()
                 }
+                .animation(nil)
             Text(subtitle)
+                .frame(maxWidth: .infinity)
+//                .background(Color.yellow)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 18, weight: .regular))
                 .foregroundColor(.tangemTapGrayDark6)
                 .frame(maxWidth: .infinity)
+                .animation(nil)
         }
     }
     
