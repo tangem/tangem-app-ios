@@ -111,7 +111,7 @@ class DetailsViewModel: ViewModel {
     var cardCid: String {
         let cardId = cardModel.cardInfo.card.cardId
         return isTwinCard ?
-            TapTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series?.number) :
+            TapTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series.number) :
             TapCardIdFormatter(cid: cardId).formatted()
     }
     
