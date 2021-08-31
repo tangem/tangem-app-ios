@@ -50,16 +50,12 @@ class CardOnboardingViewModel: ViewModel {
     
     let isFromMainScreen: Bool
     
-    var input: CardOnboardingInput?
+//    var input: CardOnboardingInput?
     
     var isTermsOfServiceAccepted: Bool { userPrefsService.isTermsOfServiceAccepted }
     
     @Published var content: Content
-    @Published var toMain: Bool = false {
-        didSet {
-            print("‼️To main did updated to: \(toMain)")
-        }
-    }
+    @Published var toMain: Bool = false
     
     private var resetSubscription: AnyCancellable?
     
@@ -76,7 +72,7 @@ class CardOnboardingViewModel: ViewModel {
     init(input: CardOnboardingInput) {
         isFromMainScreen = true
         content = .content(for: input.steps)
-        self.input = input
+//        self.input = input
     }
     
     func bind() {
@@ -102,16 +98,14 @@ class CardOnboardingViewModel: ViewModel {
     
     func processScannedCard(with input: CardOnboardingInput) {
         guard input.steps.needOnboarding else {
-            if isFromMainScreen {
-                navigation.mainToCardOnboarding = false
-                return
-            }
-            navigation.readToMain = true
-            toMain = true
+            processToMain()
             return
         }
         
-        self.input = input
+//        self.input = input
+//        self.input?.successCallback = processToMain
+        var input = input
+        input.successCallback = processToMain
         let content: Content = .content(for: input.steps)
         
         switch content {
@@ -126,6 +120,15 @@ class CardOnboardingViewModel: ViewModel {
         withAnimation {
             self.content = content
         }
+    }
+    
+    private func processToMain() {
+        if isFromMainScreen {
+            navigation.mainToCardOnboarding = false
+            return
+        }
+        navigation.readToMain = true
+        toMain = true
     }
     
 }
