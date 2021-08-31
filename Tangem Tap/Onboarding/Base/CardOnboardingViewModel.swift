@@ -110,6 +110,7 @@ class CardOnboardingViewModel: ViewModel {
         
         switch content {
         case .singleCard:
+            input.currentStepIndex = 1
             assembly.makeNoteOnboardingViewModel(with: input)
         case .twin:
             assembly.makeTwinOnboardingViewModel(with: input)
