@@ -180,6 +180,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var imageLoaderPublisher: AnyPublisher<UIImage, Error> {
         $cardInfo
+            .filter { $0.artwork != .notLoaded || $0.card.isTwinCard }
             .map { $0.imageLoadDTO }
             .removeDuplicates()
             .setFailureType(to: Error.self)
