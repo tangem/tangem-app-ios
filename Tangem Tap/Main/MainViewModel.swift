@@ -548,38 +548,36 @@ class MainViewModel: ViewModel {
         
         isProcessingNewCard = true
         
-        Publishers.Zip(
-            cardOnboardingStepSetupService.steps(for: cardModel.cardInfo),
-            cardModel.imageLoaderPublisher
-        )
-        .sink { completion in
-            switch completion {
-            case .failure(let error):
-                Analytics.log(error: error)
-                print("Failed to load image for new card")
+        cardOnboardingStepSetupService
+            .stepsWithCardImage(for: cardModel)
+            .sink { completion in
+                switch completion {
+                case .failure(let error):
+                    Analytics.log(error: error)
+                    print("Failed to load image for new card")
+                    self.isScanning = false
+                    self.error = error.alertBinder
+                case .finished:
+                    break
+                }
+            } receiveValue: { [weak self] (steps, image) in
+                guard let self = self else { return }
+                
+                guard steps.needOnboarding else {
+                    updateState()
+                    return
+                }
+                
+                let input = CardOnboardingInput(steps: steps,
+                                                cardModel: cardModel,
+                                                currentStepIndex: 1,
+                                                cardImage: image,
+                                                successCallback: updateState)
+                self.assembly.makeCardOnboardingViewModel(with: input)
+                self.navigation.mainToCardOnboarding = true
                 self.isScanning = false
-                self.error = error.alertBinder
-            case .finished:
-                break
             }
-        } receiveValue: { [weak self] (steps, image) in
-            guard let self = self else { return }
-            
-            guard steps.needOnboarding else {
-                updateState()
-                return
-            }
-            
-            let input = CardOnboardingInput(steps: steps,
-                                            cardModel: cardModel,
-                                            currentStepIndex: 1,
-                                            cardImage: image,
-                                            successCallback: updateState)
-            self.assembly.makeCardOnboardingViewModel(with: input)
-            self.navigation.mainToCardOnboarding = true
-            self.isScanning = false
-        }
-        .store(in: &bag)
+            .store(in: &bag)
     }
     
     private func checkPositiveBalance() {
