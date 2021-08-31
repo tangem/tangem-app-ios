@@ -65,8 +65,8 @@ extension Assembly {
         return vm
     }
     
-    func getOnboardingViewModel() -> NoteOnboardingViewModel {
-        if let restored: NoteOnboardingViewModel = get() {
+    func getOnboardingViewModel() -> SingleCardOnboardingViewModel {
+        if let restored: SingleCardOnboardingViewModel = get() {
             return restored
         }
         
@@ -74,8 +74,8 @@ extension Assembly {
     }
     
     @discardableResult
-    func makeNoteOnboardingViewModel(with input: CardOnboardingInput?) -> NoteOnboardingViewModel {
-        let vm = input == nil ? NoteOnboardingViewModel() : NoteOnboardingViewModel(input: input!)
+    func makeNoteOnboardingViewModel(with input: CardOnboardingInput?) -> SingleCardOnboardingViewModel {
+        let vm = input == nil ? SingleCardOnboardingViewModel() : SingleCardOnboardingViewModel(input: input!)
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.stepsSetupService = services.onboardingStepsSetupService
@@ -104,6 +104,7 @@ extension Assembly {
                                           input: input)
         initialize(vm, isResetable: false)
         vm.exchangeService = services.exchangeService
+        vm.userPrefsService = services.userPrefsService
         
         return vm
     }
