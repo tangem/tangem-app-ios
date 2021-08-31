@@ -70,9 +70,9 @@ class OnboardingStepsSetupService {
             model.walletManager.update { [unowned self] result in
                 switch result {
                 case .success:
-                    if model.wallet.isEmpty {
+                    if model.isEmptyIncludingPendingIncomingTxs {
                         steps.append(.topup)
-                    } else if !self.userPrefs.noteCardsStartedActivation.contains(card.cardId) {
+                    } else if !self.userPrefs.cardsStartedActivation.contains(card.cardId) {
                         return promise(.success(.singleWallet([])))
                     }
                     steps.append(.confetti)
@@ -103,9 +103,9 @@ class OnboardingStepsSetupService {
                 model.walletManager.update { [unowned self] result in
                     switch result {
                     case .success:
-                        if model.wallet.isEmpty {
+                        if model.isEmptyIncludingPendingIncomingTxs {
                             steps.append(.topup)
-                        } else if !self.userPrefs.noteCardsStartedActivation.contains(cardInfo.card.cardId) {
+                        } else if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
                             return promise(.success(.twins([])))
                         }
                         steps.append(.confetti)
