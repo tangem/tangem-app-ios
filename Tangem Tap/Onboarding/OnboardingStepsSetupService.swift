@@ -34,6 +34,14 @@ class OnboardingStepsSetupService {
         [.read, .createWallet, .topup, .confetti, .goToMain]
     }
     
+    func stepsWithCardImage(for cardModel: CardViewModel) -> AnyPublisher<(OnboardingSteps, UIImage), Error> {
+        Publishers.Zip(
+            steps(for: cardModel.cardInfo),
+            cardModel.imageLoaderPublisher
+        )
+        .eraseToAnyPublisher()
+    }
+    
     func steps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
         let card = cardInfo.card
         
@@ -91,7 +99,9 @@ class OnboardingStepsSetupService {
         }
         var steps = [TwinsOnboardingStep]()
         
-        steps.append(.intro(pairNumber: TapTwinCardIdFormatter.format(cid: twinCardInfo.pairCid, cardNumber: twinCardInfo.series.pair.number)))
+        if !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
+            steps.append(.intro(pairNumber: TapTwinCardIdFormatter.format(cid: twinCardInfo.pairCid, cardNumber: twinCardInfo.series.pair.number)))
+        }
         let walletModel = assembly.loadWallets(from: cardInfo)
         if (walletModel.count == 0 || cardInfo.twinCardInfo?.pairPublicKey == nil) {
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
