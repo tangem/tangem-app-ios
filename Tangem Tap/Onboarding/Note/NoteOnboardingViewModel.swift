@@ -14,7 +14,7 @@ import Combine
 struct CardOnboardingInput {
     let steps: OnboardingSteps
     let cardModel: CardViewModel
-    let currentStepIndex: Int
+    var currentStepIndex: Int
     let cardImage: UIImage
     var successCallback: (() -> Void)?
 }
@@ -147,6 +147,7 @@ class NoteOnboardingViewModel: ViewModel {
         walletModelUpdateCancellable = nil
         
         withAnimation {
+            navigation.onboardingReset = true
             scannedCardModel = nil
             currentStepIndex = 0
             steps = []
@@ -242,7 +243,7 @@ class NoteOnboardingViewModel: ViewModel {
                     print(message)
                     fallthrough
                 case .idle:
-                    if !walletModel.wallet.isEmpty || walletModel.wallet.pendingIncomingTransactions.count > 0 {
+                    if !walletModel.isEmptyIncludingPendingIncomingTxs {
                         self?.goToNextStep()
                         return
                     }
@@ -274,7 +275,7 @@ class NoteOnboardingViewModel: ViewModel {
                     return .anyFail(error: "Not valid steps")
                 }
                 
-                if steps.count > 2 && !self.assembly.isPreview {
+                if !self.assembly.isPreview {
                     return cardModel.$cardInfo
                         .filter {
                             $0.artwork != .notLoaded
