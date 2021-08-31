@@ -59,9 +59,9 @@ class LetsStartOnboardingViewModel: ViewModel {
                 }
                 
                 return cardModel.$cardInfo
-//                    .filter {
-//                        $0.artwork != .notLoaded
-//                    }
+                    .filter {
+                        $0.artwork != .notLoaded || $0.card.isTwinCard
+                    }
                     .map { $0.imageLoadDTO }
                     .removeDuplicates()
                     .setFailureType(to: Error.self)
