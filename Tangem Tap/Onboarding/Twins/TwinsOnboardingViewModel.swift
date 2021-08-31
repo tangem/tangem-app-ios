@@ -15,6 +15,7 @@ class TwinsOnboardingViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var exchangeService: ExchangeService!
+    weak var userPrefsService: UserPrefsService!
     
     unowned var twinsService: TwinsWalletCreationService
     unowned var imageLoaderService: CardImageLoaderService
@@ -98,7 +99,11 @@ class TwinsOnboardingViewModel: ViewModel {
     
     func executeStep() {
         switch currentStep {
-        case .intro, .confetti, .done:
+        case .intro:
+            userPrefsService.cardsStartedActivation.append(twinInfo.cid)
+            userPrefsService.cardsStartedActivation.append(twinInfo.pairCid)
+            fallthrough
+        case .confetti, .done:
             goToNextStep()
         case .first:
             if twinsService.step.value != .first {
