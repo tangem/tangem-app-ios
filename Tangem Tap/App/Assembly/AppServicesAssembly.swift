@@ -72,7 +72,7 @@ class AppServicesAssembly: ServicesAssembly {
     
     override func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
-        warningsService.setupWarnings(for: cardInfo)
+//        warningsService.setupWarnings(for: cardInfo)
         tokenItemsRepository.setCard(cardInfo.card.cardId)
         
         if !featuresService.linkedTerminal {
