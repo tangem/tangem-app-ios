@@ -71,6 +71,7 @@ class MainViewModel: ViewModel {
     
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
+    private var isProcessingNewCard = false
     
     public var canCreateWallet: Bool {
         if isTwinCard {
@@ -322,7 +323,7 @@ class MainViewModel: ViewModel {
             .store(in: &bag)
     }
     
-    // MARK: Scan
+    // MARK: - Scan
     func scan() {
         self.isScanning = true
         cardsRepository.scan { [weak self] scanResult in
@@ -348,6 +349,18 @@ class MainViewModel: ViewModel {
             }
             
         }
+    }
+    
+    func update(with scan: ScanResult) {
+        if isProcessingNewCard {
+            return
+        }
+        let restoredCid = state.card?.cardId ?? ""
+        let newCid = cardsRepository.lastScanResult.card?.cardId ?? ""
+        if restoredCid != newCid {
+            state = cardsRepository.lastScanResult
+        }
+
     }
     
     func fetchWarnings() {
@@ -516,8 +529,13 @@ class MainViewModel: ViewModel {
     private func processScannedCard(_ result: ScanResult) {
         func updateState() {
             state = result
+            if let model = result.cardModel {
+                assembly.services.warningsService.setupWarnings(for: model.cardInfo)
+            }
             isScanning = false
             navigation.mainToCardOnboarding = false
+            isProcessingNewCard = false
+            
         }
         
         guard
@@ -528,6 +546,8 @@ class MainViewModel: ViewModel {
             return
         }
         
+        isProcessingNewCard = true
+        
         Publishers.Zip(
             cardOnboardingStepSetupService.steps(for: cardModel.cardInfo),
             cardModel.imageLoaderPublisher
@@ -537,6 +557,8 @@ class MainViewModel: ViewModel {
             case .failure(let error):
                 Analytics.log(error: error)
                 print("Failed to load image for new card")
+                self.isScanning = false
+                self.error = error.alertBinder
             case .finished:
                 break
             }
