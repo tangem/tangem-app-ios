@@ -76,6 +76,10 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
+    var isEmptyIncludingPendingIncomingTxs: Bool {
+        wallet.isEmpty && incomingPendingTransactions.count == 0
+    }
+    
     let walletManager: WalletManager
     private let defaultToken: Token?
     private var bag = Set<AnyCancellable>()
