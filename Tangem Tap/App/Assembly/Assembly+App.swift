@@ -125,11 +125,7 @@ extension Assembly {
     // MARK: - Main view model
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
-            let restoredCid = restored.state.card?.cardId ?? ""
-            let newCid = services.cardsRepository.lastScanResult.card?.cardId ?? ""
-            if restoredCid != newCid {
-                restored.state = services.cardsRepository.lastScanResult
-            }
+            restored.update(with: services.cardsRepository.lastScanResult)
             return restored
         }
         let vm =  MainViewModel()
