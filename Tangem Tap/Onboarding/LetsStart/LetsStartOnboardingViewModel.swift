@@ -49,34 +49,7 @@ class LetsStartOnboardingViewModel: ViewModel {
     }
     
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        stepsSetupService.steps(for: cardModel.cardInfo)
-            .flatMap { steps -> AnyPublisher<(OnboardingSteps, UIImage), Error> in
-                guard
-                    steps.needOnboarding,
-                    !self.assembly.isPreview
-                else {
-                    return .justWithError(output: (steps, UIImage()))
-                }
-                
-                return cardModel.$cardInfo
-                    .filter {
-                        $0.artwork != .notLoaded || $0.card.isTwinCard
-                    }
-                    .map { $0.imageLoadDTO }
-                    .removeDuplicates()
-                    .setFailureType(to: Error.self)
-                    .flatMap { [unowned self] info -> AnyPublisher<UIImage, Error> in
-                        self.imageLoaderService
-                            .loadImage(cid: info.cardId,
-                                       cardPublicKey: info.cardPublicKey,
-                                       artworkInfo: info.artwotkInfo)
-                    }
-                    .replaceError(with: UIImage())
-                    .map { (steps, $0) }
-                    .setFailureType(to: Error.self)
-                    .eraseToAnyPublisher()
-            }
-            .receive(on: DispatchQueue.main)
+        stepsSetupService.stepsWithCardImage(for: cardModel)
             .sink { completion in
                 if case let .failure(error) = completion {
                     self.error = error.alertBinder
