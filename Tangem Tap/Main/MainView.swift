@@ -213,8 +213,8 @@ struct MainView: View {
                            isActive: $navigation.mainToSellCrypto)
             
             
-            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
-                           isActive: $navigation.mainToTwinOnboarding)
+//            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
+//                           isActive: $navigation.mainToTwinOnboarding)
             
 //            NavigationLink(destination: CardOnboardingView(viewModel: viewModel.assembly.getCardOnboardingViewModel()),
 //                           isActive: $navigation.mainToCardOnboarding)
@@ -223,9 +223,9 @@ struct MainView: View {
     
     //prevent navbar glitches
     var isNavBarHidden: Bool {
-        if navigation.mainToTwinsWalletWarning || navigation.mainToTwinOnboarding {
-            return true //hide navbar when navigate to onboarding/warning
-        }
+//        if navigation.mainToTwinsWalletWarning || navigation.mainToTwinOnboarding {
+//            return true //hide navbar when navigate to onboarding/warning
+//        }
         
         return false
     }
@@ -375,8 +375,6 @@ struct MainView: View {
                         && !navigation.mainToCreatePayID
                         && !navigation.mainToSendChoise
                         && !navigation.mainToBuyCrypto
-                        && !navigation.mainToTwinOnboarding
-                        && !navigation.mainToTwinsWalletWarning
                         && !navigation.mainToAddTokens
                         && !navigation.mainToTokenDetails
                         && !navigation.mainToSellCrypto
