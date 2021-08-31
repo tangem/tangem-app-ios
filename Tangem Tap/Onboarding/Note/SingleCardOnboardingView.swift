@@ -1,5 +1,5 @@
 //
-//  OnboardingView.swift
+//  SingleCardOnboardingView.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -204,10 +204,10 @@ enum CardLayout {
     }
 }
 
-struct OnboardingView: View {
+struct SingleCardOnboardingView: View {
     
     @EnvironmentObject var navigation: NavigationCoordinator
-    @ObservedObject var viewModel: NoteOnboardingViewModel
+    @ObservedObject var viewModel: SingleCardOnboardingViewModel
     
     private let horizontalPadding: CGFloat = 40
     private let screenSize: CGSize = UIScreen.main.bounds.size
@@ -454,7 +454,7 @@ struct OnboardingView_Previews: PreviewProvider {
     
     static var previews: some View {
         ContentView() {
-            OnboardingView(viewModel: assembly.getOnboardingViewModel())
+            SingleCardOnboardingView(viewModel: assembly.getOnboardingViewModel())
                 .environmentObject(assembly)
                 .environmentObject(assembly.services.navigationCoordinator)
         }
