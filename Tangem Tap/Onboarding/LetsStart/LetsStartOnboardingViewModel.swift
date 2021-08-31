@@ -18,6 +18,7 @@ class LetsStartOnboardingViewModel: ViewModel {
     weak var imageLoaderService: CardImageLoaderService!
     
     @Published var isScanningCard: Bool = false
+    @Published var error: AlertBinder?
     
     var shopURL: URL { Constants.shopURL }
     
@@ -49,7 +50,6 @@ class LetsStartOnboardingViewModel: ViewModel {
     
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
         stepsSetupService.steps(for: cardModel.cardInfo)
-            .print()
             .flatMap { steps -> AnyPublisher<(OnboardingSteps, UIImage), Error> in
                 guard
                     steps.needOnboarding,
@@ -79,7 +79,7 @@ class LetsStartOnboardingViewModel: ViewModel {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case let .failure(error) = completion {
-                    print(error)
+                    self.error = error.alertBinder
                 }
                 self.isScanningCard = false
             } receiveValue: { [unowned self] (steps, image) in
