@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class TwinsOnboardingViewModel: ViewModel {
     
@@ -116,15 +117,23 @@ class TwinsOnboardingViewModel: ViewModel {
     func goToNextStep() {
         var newIndex = currentStepIndex + 1
         if newIndex >= steps.count {
-            newIndex = 0
+            newIndex = assembly.isPreview ? 0 : steps.count - 1
         }
         
-        if case .done = steps[newIndex] {
-            newIndex = 0
+        if case .done = steps[newIndex], !assembly.isPreview {
+            DispatchQueue.main.async {
+                self.successCallback?()
+            }
+            return
         }
         
         withAnimation {
             currentStepIndex = newIndex
+            
+            if case .confetti = steps[newIndex] {
+                refreshButtonState = .doneCheckmark
+                shouldFireConfetti = true
+            }
         }
     }
     
@@ -151,42 +160,35 @@ class TwinsOnboardingViewModel: ViewModel {
             walletModelUpdateCancellable == nil
         else { return }
         
-//        if (assembly?.isPreview) ?? false {
-//            previewUpdateCounter += 1
-//
-//            if previewUpdateCounter >= 3 {
-//                scannedCardModel = Assembly.PreviewCard.scanResult(for: .cardanoNote, assembly: assembly).cardModel
-//            }
-//        }
-        
-//        scheduledUpdate?.cancel()
         refreshButtonState = .activityIndicator
         walletModelUpdateCancellable = walletModel.$state
             .receive(on: DispatchQueue.main)
             .dropFirst()
             .sink { [weak self] walletModelState in
-                self?.updateCardBalanceText(for: walletModel)
+                guard let self = self else { return }
+                
+                self.updateCardBalanceText(for: walletModel)
                 switch walletModelState {
                 case .noAccount(let message):
                     print(message)
                     fallthrough
                 case .idle:
-                    if !walletModel.wallet.isEmpty {
-                        self?.goToNextStep()
+                    if !walletModel.wallet.isEmpty || walletModel.wallet.pendingIncomingTransactions.count > 0 {
+                        self.goToNextStep()
                         return
                     }
                     withAnimation {
-                        self?.refreshButtonState = .refreshButton
+                        self.refreshButtonState = .refreshButton
                     }
                 case .failed(let error):
                     print(error)
                     withAnimation {
-                        self?.refreshButtonState = .refreshButton
+                        self.refreshButtonState = .refreshButton
                     }
                 case .loading, .created:
                     return
                 }
-                self?.walletModelUpdateCancellable = nil
+                self.walletModelUpdateCancellable = nil
             }
         walletModel.update(silent: false)
     }

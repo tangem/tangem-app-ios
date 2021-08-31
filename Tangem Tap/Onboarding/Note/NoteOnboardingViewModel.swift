@@ -242,7 +242,7 @@ class NoteOnboardingViewModel: ViewModel {
                     print(message)
                     fallthrough
                 case .idle:
-                    if !walletModel.wallet.isEmpty {
+                    if !walletModel.wallet.isEmpty || walletModel.wallet.pendingIncomingTransactions.count > 0 {
                         self?.goToNextStep()
                         return
                     }
