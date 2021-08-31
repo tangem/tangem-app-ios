@@ -173,7 +173,7 @@ class TwinsOnboardingViewModel: ViewModel {
                     print(message)
                     fallthrough
                 case .idle:
-                    if !walletModel.wallet.isEmpty || walletModel.wallet.pendingIncomingTransactions.count > 0 {
+                    if !walletModel.isEmptyIncludingPendingIncomingTxs {
                         self.goToNextStep()
                         return
                     }
