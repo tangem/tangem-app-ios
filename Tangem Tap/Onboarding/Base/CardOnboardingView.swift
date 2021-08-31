@@ -31,7 +31,7 @@ struct CardOnboardingView: View {
     
     @ViewBuilder
     var defaultLaunchView: some View {
-        OnboardingView(viewModel: viewModel.assembly.getOnboardingViewModel())
+        SingleCardOnboardingView(viewModel: viewModel.assembly.getOnboardingViewModel())
     }
     
     @ViewBuilder
