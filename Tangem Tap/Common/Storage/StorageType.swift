@@ -26,5 +26,5 @@ enum StorageType: String {
     case scannedNdefs = "tangem_tap_scanned_ndefs"
     case lastScannedNdef = "tangem_tap_last_scanned_ndef"
     case isMigratedToNewUserDefaults = "tangem_tap_migrate_to_new_defaults"
-    case tangemNoteCardsStartedActivation = "tangem_note_cards_started_activation"
+    case cardsStartedActivation = "tangem_cards_started_activation"
 }
