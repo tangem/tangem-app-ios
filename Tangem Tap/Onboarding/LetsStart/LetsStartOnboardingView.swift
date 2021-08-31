@@ -139,6 +139,9 @@ struct LetsStartOnboardingView: View {
                 }
             }
         }
+        .alert(item: $viewModel.error, content: { error in
+            error.alert
+        })
         .navigationBarHidden(true)
     }
 }
