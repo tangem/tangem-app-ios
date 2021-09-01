@@ -46,6 +46,7 @@ class MainViewModel: ViewModel {
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     @Published var txIndexToPush: Int? = nil
+    @Published var isOnboardingModal: Bool = false
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -523,6 +524,10 @@ class MainViewModel: ViewModel {
             break
         }
     }
+    
+    func onboardingDismissed() {
+        
+    }
 
     // MARK: - Private functions
     
@@ -535,7 +540,7 @@ class MainViewModel: ViewModel {
             isScanning = false
             navigation.mainToCardOnboarding = false
             isProcessingNewCard = false
-            
+            isOnboardingModal = false
         }
         
         guard
