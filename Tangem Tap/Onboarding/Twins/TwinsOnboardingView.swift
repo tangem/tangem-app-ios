@@ -145,6 +145,13 @@ enum TwinsOnboardingStep {
         [.topup, .confetti, .done]
     }
     
+    var isModal: Bool {
+        switch self {
+        case .second, .third: return true
+        default: return false
+        }
+    }
+    
     var title: LocalizedStringKey {
         switch self {
         case .intro: return "twins_onboarding_subtitle"
@@ -389,6 +396,7 @@ struct TwinsOnboardingView: View {
                                      })
                 .frame(maxWidth: screenSize.width)
         }
+        .preference(key: ModalSheetPreferenceKey.self, value: currentStep.isModal)
         .navigationBarHidden(true)
     }
     
