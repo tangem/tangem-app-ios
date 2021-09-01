@@ -133,8 +133,9 @@ struct LetsStartOnboardingView: View {
                         .frame(minHeight: 30, maxHeight: 66)
                     
                     buttons
-                        .sheet(isPresented: $navigation.readToDisclaimer, content: {
-                            DisclaimerView(style: .sheet)
+                        .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
+                            DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer))
+                                .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
                         })
                 }
             }
