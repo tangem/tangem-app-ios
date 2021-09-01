@@ -50,8 +50,6 @@ class CardOnboardingViewModel: ViewModel {
     
     let isFromMainScreen: Bool
     
-//    var input: CardOnboardingInput?
-    
     var isTermsOfServiceAccepted: Bool { userPrefsService.isTermsOfServiceAccepted }
     
     @Published var content: Content
@@ -102,8 +100,6 @@ class CardOnboardingViewModel: ViewModel {
             return
         }
         
-//        self.input = input
-//        self.input?.successCallback = processToMain
         var input = input
         input.successCallback = processToMain
         let content: Content = .content(for: input.steps)
