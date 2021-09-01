@@ -15,9 +15,11 @@ protocol NonDismissableHostingControllerDelegate: UIAdaptivePresentationControll
 class NonDismissableHostingController<Content: View>: UIHostingController<Content> {
     weak var delegate: NonDismissableHostingControllerDelegate?
     
+    var isModal: Bool = false
+    
     override func willMove(toParent parent: UIViewController?) {
         super.willMove(toParent: parent)
-        parent?.isModalInPresentation = true
+        parent?.isModalInPresentation = isModal
         parent?.presentationController?.delegate = delegate
     }
     
@@ -35,6 +37,7 @@ struct NonDismissableModalView<T: View>: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> UIHostingController<T> {
         let controller = NonDismissableHostingController(rootView: view)
+        controller.isModal = modal
         controller.delegate = context.coordinator
         return controller
     }
@@ -42,6 +45,7 @@ struct NonDismissableModalView<T: View>: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIHostingController<T>, context: Context) {
         context.coordinator.modalView = self
         uiViewController.rootView = view
+        uiViewController.isModalInPresentation = modal
     }
     
     func makeCoordinator() -> Coordinator {
@@ -57,6 +61,10 @@ struct NonDismissableModalView<T: View>: UIViewControllerRepresentable {
         
         func didDisappear() {
             modalView.onDismissed?()
+        }
+        
+        func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
+            !modalView.modal
         }
         
         func presentationControllerDidAttemptToDismiss(_ presentationController: UIPresentationController) {

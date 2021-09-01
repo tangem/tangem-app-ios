@@ -223,12 +223,6 @@ struct SingleCardOnboardingView: View {
             NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
                            isActive: $navigation.readToShop)
             
-//            if !navigation.mainToCardOnboarding {
-//                NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-//                               isActive: $navigation.readToMain)
-//                    .environmentObject(navigation)
-//            }
-            
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
                                                          title: "wallet_button_topup",
                                                          addLoadingIndicator: true,
@@ -337,34 +331,6 @@ struct SingleCardOnboardingView: View {
                             refreshButtonSize: isSmallScreenSize ? .small : .default,
                             opacity: currentStep.balanceStackOpacity
                         )
-//                        Group {
-//                            VStack {
-//                                Text("onboarding_balance")
-//                                    .font(.system(size: 14, weight: .semibold))
-//                                    .padding(.bottom, 8)
-//                                Text(viewModel.cardBalance)
-////                                    .background(Color.orange)
-//                                    .multilineTextAlignment(.center)
-//                                    .truncationMode(.middle)
-//                                    .lineLimit(2)
-//                                    .minimumScaleFactor(0.3)
-//                                    .font(.system(size: 28, weight: .bold))
-//                                    .frame(maxWidth: backgroundFrame.width - 26, maxHeight: backgroundFrame.height * 0.155)
-//                            }
-////                            .background(Color.green)
-//                            .offset(backgroundOffset)
-//
-//                            OnboardingCircleButton(refreshAction: { viewModel.updateCardBalance() },
-//                                                   state: viewModel.refreshButtonState,
-//                                                   size: isSmallScreenSize ? .small : .default)
-//                                .offset(x: 0, y: backgroundOffset.height + backgroundFrame.height / 2)
-//                        }
-                        
-                        //                        }
-//                        .background(Color.red)
-//                        .offset(currentStep.cardBackgroundOffset(containerSize: proxy.size))
-//                        .opacity(currentStep.balanceStackOpacity)
-                        
                     }
                     .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
 //                    .background(Color.yellow)
@@ -375,9 +341,6 @@ struct SingleCardOnboardingView: View {
                 }
                 messages
                 buttons
-                    .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
-                        DisclaimerView(style: .sheet)
-                    })
                 Spacer()
                     .frame(width: 1, height: 20)
             }

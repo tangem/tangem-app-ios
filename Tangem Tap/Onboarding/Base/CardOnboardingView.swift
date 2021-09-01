@@ -76,8 +76,7 @@ struct CardOnboardingView_Previews: PreviewProvider {
     
     static var previews: some View {
         CardOnboardingView(
-            viewModel: assembly.makeCardOnboardingViewModel(
-                with: assembly.previewNoteCardOnboardingInput)
+            viewModel: assembly.makeCardOnboardingViewModel(with: assembly.previewNoteCardOnboardingInput)
         )
         .environmentObject(assembly.services.navigationCoordinator)
     }
