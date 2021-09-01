@@ -12,6 +12,8 @@ import BlockchainSdk
 
 extension Assembly {
     
+    // MARK: - Onboarding
+    
     func getLaunchOnboardingViewModel() -> CardOnboardingViewModel {
         let key = "launch_onboarding_screen"
         if let restored: CardOnboardingViewModel = get(key: key) {
@@ -36,6 +38,7 @@ extension Assembly {
         vm.cardsRepository = services.cardsRepository
         vm.imageLoaderService = services.imageLoaderService
         vm.stepsSetupService = services.onboardingStepsSetupService
+        vm.userPrefsService = services.userPrefsService
         return vm
     }
     

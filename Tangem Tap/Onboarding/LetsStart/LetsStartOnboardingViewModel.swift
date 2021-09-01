@@ -16,6 +16,7 @@ class LetsStartOnboardingViewModel: ViewModel {
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
     weak var imageLoaderService: CardImageLoaderService!
+    weak var userPrefsService: UserPrefsService!
     
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
@@ -32,6 +33,11 @@ class LetsStartOnboardingViewModel: ViewModel {
     }
     
     func scanCard() {
+        guard userPrefsService.isTermsOfServiceAccepted else {
+            showDisclaimer()
+            return
+        }
+            
         isScanningCard = true
         cardsRepository.scan { [unowned self] result in
             switch result {
@@ -46,6 +52,19 @@ class LetsStartOnboardingViewModel: ViewModel {
                 self.isScanningCard = false
             }
         }
+    }
+    
+    func acceptDisclaimer() {
+        userPrefsService.isTermsOfServiceAccepted = true
+        navigation.onboardingToDisclaimer = false
+    }
+    
+    func onboardingDismissed() {
+        scanCard()
+    }
+    
+    private func showDisclaimer() {
+        navigation.onboardingToDisclaimer = true
     }
     
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
