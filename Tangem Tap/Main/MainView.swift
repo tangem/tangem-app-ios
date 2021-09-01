@@ -404,7 +404,11 @@ struct MainView: View {
             scanButton
                 .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
                     CardOnboardingView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                        .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
                         .environmentObject(navigation)
+                        .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                            viewModel.isOnboardingModal = value
+                        })
                 })
             
             if viewModel.canCreateWallet {
@@ -445,6 +449,8 @@ struct MainView: View {
     }
     
 }
+
+
 
 struct MainView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .stellar)
