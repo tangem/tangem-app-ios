@@ -63,7 +63,7 @@ struct AddressQrBottomSheetContent: View {
     
     private func showShareSheet() {
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
-        UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+        UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
     
 }
