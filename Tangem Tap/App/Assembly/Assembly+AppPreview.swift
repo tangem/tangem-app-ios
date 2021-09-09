@@ -15,16 +15,18 @@ extension Assembly {
     var previewNoteCardOnboardingInput: CardOnboardingInput {
         CardOnboardingInput(steps: .singleWallet([.read, .createWallet, .topup, .confetti, .goToMain]),
                             cardModel: previewCardViewModel,
-                            currentStepIndex: 1,
                             cardImage: UIImage(named: "card_btc")!,
+                            currentStepIndex: 1,
                             successCallback: nil)
     }
     
     var previewTwinOnboardingInput: CardOnboardingInput {
-        .init(steps: .twins([.intro(pairNumber: "0128"), .first, .second, .third, .topup, .confetti, .done]),
+        .init(steps: .twins([.intro(pairNumber: "0128"),
+//                             .first, .second, .third,
+                             .topup, .confetti, .done]),
               cardModel: .previewViewModel(for: .twin),
-              currentStepIndex: 0,
               cardImage: UIImage(named: "card_btc")!,
+              currentStepIndex: 0,
               successCallback: nil)
     }
     
