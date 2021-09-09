@@ -8,14 +8,14 @@
 
 import CoreGraphics
 
-public extension String.StringInterpolation {
-    mutating func appendInterpolation(_ value: CGSize) {
-        appendInterpolation(value.description)
-    }
-}
-
 extension CGSize: CustomStringConvertible {
     public var description: String {
         "w: \(width.rounded()), h: \(height.rounded())"
+    }
+}
+
+extension CGSize {
+    static func * (lhs: CGSize, rhs: CGFloat) -> CGSize {
+        .init(width: lhs.width * rhs, height: lhs.height * rhs)
     }
 }
