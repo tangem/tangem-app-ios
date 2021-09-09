@@ -14,8 +14,9 @@ import Combine
 struct CardOnboardingInput {
     let steps: OnboardingSteps
     let cardModel: CardViewModel
-    var currentStepIndex: Int
     let cardImage: UIImage
+    
+    var currentStepIndex: Int
     var successCallback: (() -> Void)?
 }
 
@@ -40,6 +41,9 @@ class SingleCardOnboardingViewModel: ViewModel {
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = "0.00001237893 ETH"
     @Published var isAddressQrBottomSheetPresented: Bool = false
+    @Published var cardAnimSettings: AnimatedViewSettings = AnimatedViewSettings(targetSettings: CardLayout.main.cardAnimSettings(for: .read, containerSize: .init(width: 375, height: 364), animated: false),
+                                                                                 intermediateSettings: nil)
+    private var containerSize: CGSize = .zero
     
     var numberOfProgressBarSteps: Int {
         steps.filter { $0.hasProgressStep }.count
@@ -106,6 +110,15 @@ class SingleCardOnboardingViewModel: ViewModel {
     }
         
     // MARK: Functions
+    
+    func setupContainer(with size: CGSize) {
+        let isInitialSetup = containerSize == .zero
+        containerSize = size
+        cardAnimSettings = .init(targetSettings: CardLayout.main.cardAnimSettings(for: currentStep,
+                                                                                  containerSize: size,
+                                                                                  animated: !isInitialSetup),
+                                 intermediateSettings: nil)
+    }
 
     func goToNextStep() {
         let nextStepIndex = currentStepIndex + 1
@@ -131,6 +144,10 @@ class SingleCardOnboardingViewModel: ViewModel {
             goToMain()
             return
         }
+        cardAnimSettings = .init(targetSettings: CardLayout.main.cardAnimSettings(for: steps[nextStepIndex],
+                                                                                  containerSize: containerSize,
+                                                                                  animated: true),
+                                 intermediateSettings: nil)
         withAnimation {
             self.currentStepIndex = nextStepIndex
         }
@@ -157,8 +174,9 @@ class SingleCardOnboardingViewModel: ViewModel {
     func executeStep() {
         switch currentStep {
         case .read:
-            if userPrefsService.isTermsOfServiceAccepted || assembly.isPreview {
-                
+            if assembly.isPreview {
+                executingRequestOnCard = true
+                readPreviewCard()
             } else {
                 showDisclaimer()
             }
@@ -298,6 +316,24 @@ class SingleCardOnboardingViewModel: ViewModel {
     
     private func topupNote() {
         
+    }
+    
+    private func readPreviewCard() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            let previewModel = Assembly.PreviewCard.scanResult(for: .ethEmptyNote, assembly: self.assembly).cardModel!
+            self.scannedCardModel = previewModel
+            self.stepsSetupService.steps(for: previewModel.cardInfo)
+                .sink { _ in }
+                    receiveValue: { steps in
+                        if case let .singleWallet(singleSteps) = steps {
+                            self.steps = singleSteps
+                        }
+                        self.goToNextStep()
+                        self.executingRequestOnCard = false
+                }
+                .store(in: &self.bag)
+
+        }
     }
     
 }
