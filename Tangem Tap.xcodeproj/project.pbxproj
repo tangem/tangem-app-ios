@@ -648,6 +648,7 @@
 		B0AA865226DC90E600287F80 /* LetsStartOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AA865126DC90E600287F80 /* LetsStartOnboardingView.swift */; };
 		B0AA865426DC90FF00287F80 /* LetsStartOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AA865326DC90FF00287F80 /* LetsStartOnboardingViewModel.swift */; };
 		B0B06972260CB2F100AE10B0 /* CoinMarketCapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */; };
+		B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B2DF5F26E1FD5400BC0934 /* AnimatedView.swift */; };
 		B0B34CC52611CDD600ACFAB3 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
 		B0B34CC62611CDD600ACFAB3 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
 		B0B34CC72611CDD600ACFAB3 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
@@ -656,6 +657,7 @@
 		B0B4556425E0E3F400D7572F /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
 		B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B4556825E0E63000D7572F /* FailedCardScanTracker.swift */; };
 		B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B8670226DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift */; };
+		B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B8670526DF60E7008DAA67 /* CardStackAnimator.swift */; };
 		B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B9E0B52629779500408726 /* AlertBinder.swift */; };
 		B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */; };
 		B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */; };
@@ -1394,8 +1396,10 @@
 		B0B0FFB42608EC09002B61CD /* CardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsRepository.swift; sourceTree = "<group>"; };
 		B0B0FFC32608EC44002B61CD /* TokenBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceViewModel.swift; sourceTree = "<group>"; };
 		B0B0FFD22608ECE9002B61CD /* TapScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapScanTask.swift; sourceTree = "<group>"; };
+		B0B2DF5F26E1FD5400BC0934 /* AnimatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedView.swift; sourceTree = "<group>"; };
 		B0B4556825E0E63000D7572F /* FailedCardScanTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailedCardScanTracker.swift; sourceTree = "<group>"; };
 		B0B8670226DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalSheetPreferenceKey.swift; sourceTree = "<group>"; };
+		B0B8670526DF60E7008DAA67 /* CardStackAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStackAnimator.swift; sourceTree = "<group>"; };
 		B0B9E0B52629779500408726 /* AlertBinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertBinder.swift; sourceTree = "<group>"; };
 		B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonDismissableModalView.swift; sourceTree = "<group>"; };
 		B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCircleButton.swift; sourceTree = "<group>"; };
@@ -3237,6 +3241,14 @@
 			path = PreferenceKeys;
 			sourceTree = "<group>";
 		};
+		B0B8670426DF60DC008DAA67 /* Animators */ = {
+			isa = PBXGroup;
+			children = (
+				B0B8670526DF60E7008DAA67 /* CardStackAnimator.swift */,
+			);
+			path = Animators;
+			sourceTree = "<group>";
+		};
 		B0C171CC264C171D00E4BA5C /* Modifiers */ = {
 			isa = PBXGroup;
 			children = (
@@ -3386,6 +3398,7 @@
 				B085154B26D7796200E1A836 /* Twins */,
 				B0E1565026B97F81005B33E4 /* Views */,
 				B0E1564E26B948B3005B33E4 /* OnboardingStepsSetupService.swift */,
+				B0B2DF5F26E1FD5400BC0934 /* AnimatedView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -3393,6 +3406,7 @@
 		B0E1565026B97F81005B33E4 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B0B8670426DF60DC008DAA67 /* Animators */,
 				B0C6B4C426CE686500FA990B /* ProgressBar */,
 				B031AAAF26C1435E00015003 /* Confetti */,
 				B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */,
@@ -3968,6 +3982,7 @@
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
+				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				5D09382D25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift in Sources */,
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				B0C6B4C326CE678900FA990B /* CGSize+.swift in Sources */,
@@ -4012,6 +4027,7 @@
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
+				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* KeysManager.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,

@@ -27,7 +27,6 @@ extension OnboardingCardFrameCalculator {
     }
 }
 
-
 enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     
     typealias Step = TwinsOnboardingStep
@@ -35,6 +34,26 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     case first, second
     
     var cardHeightWidthRatio: CGFloat { 0.519 }
+    
+    func animSettings(at step: TwinsOnboardingStep, containerSize: CGSize, stackCalculator: StackCalculator, animated: Bool) -> AnimatedViewSettings {
+        switch (step, self) {
+        case (.first, _), (.second, .second), (.third, .first):
+            return .init(targetSettings: stackCalculator.cardsSettings[stackIndex(at: step)],
+                         intermediateSettings: nil)
+        case (.second, .first), (.third, .second):
+            return .init(targetSettings: stackCalculator.cardsSettings[stackIndex(at: step)],
+                         intermediateSettings: stackCalculator.prehideAnimSettings)
+        default:
+            return .init(targetSettings: CardAnimSettings(frame: frame(for: step, containerSize: containerSize),
+                                                          offset: offset(at: step, in: containerSize),
+                                                          scale: 1.0,
+                                                          opacity: opacity(at: step),
+                                                          zIndex: zIndex(at: step),
+                                                          rotationAngle: rotationAngle(at: step),
+                                                          animType: animated ? .default : .noAnim),
+                         intermediateSettings: nil)
+        }
+    }
     
     func cardFrameMinHorizontalPadding(at step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
@@ -57,7 +76,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         }
     }
     
-    func offset(at step: TwinsOnboardingStep, in container: CGSize) -> CGSize {
+    private func offset(at step: TwinsOnboardingStep, in container: CGSize) -> CGSize {
         let containerLongestSize = container.height
         switch (step, self) {
         case (.intro, .first):
@@ -78,35 +97,15 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return .init(width: 0, height: backgroundOffset.height - backgroundSize.height / 2 + 8)
         }
     }
-
-//    func offset(at step: OnboardingStep, containerSize: CGSize) -> CGSize {
-//        let containerHeight = max(containerSize.height, containerSize.width)
-//        switch (self, step) {
-//        case (.main, .read):
-//            let heightOffset = containerHeight * 0.183
-//            return .init(width: -1, height: -heightOffset)
-//        case (.main, .createWallet):
-//            let offset = containerHeight * 0.02
-//            return .init(width: 0, height: -offset)
-//        case (.main, _):
-//            let backgroundSize = step.cardBackgroundFrame(containerSize: containerSize)
-//            let backgroundOffset = step.cardBackgroundOffset(containerSize: containerSize)
-//            return .init(width: 0, height: backgroundOffset.height - backgroundSize.height / 2 + 8)
-//        case (.supplementary, .read):
-//            let offset = containerHeight * 0.137
-//            return .init(width: 8, height: offset)
-//        case (.supplementary, _): return .zero
-//        }
-//    }
     
-    func rotationAngle(at step: TwinsOnboardingStep) -> Angle {
+    private func rotationAngle(at step: TwinsOnboardingStep) -> Angle {
         switch (step, self) {
         case (.intro, _): return Angle(degrees: -2)
         default: return .zero
         }
     }
     
-    func zIndex(at step: TwinsOnboardingStep) -> Double {
+    private func zIndex(at step: TwinsOnboardingStep) -> Double {
         let topCardIndex: Double = 10
         let lowerCardIndex: Double = 9
         switch (step, self) {
@@ -117,7 +116,18 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         }
     }
     
-    func opacity(at step: TwinsOnboardingStep) -> Double {
+    private func stackIndex(at step: TwinsOnboardingStep) -> Int {
+        let topCard = 0
+        let lowerCard = 1
+        switch (step, self) {
+        case (.second, .first): return lowerCard
+        case (.second, .second): return topCard
+        case (_, .first): return topCard
+        case (_, .second): return lowerCard
+        }
+    }
+    
+    private func opacity(at step: TwinsOnboardingStep) -> Double {
         switch (step, self) {
         case (.intro, _): return 1
         case (.first, .second), (.second, .first), (.third, .second):
@@ -134,7 +144,7 @@ enum TwinsOnboardingStep {
     case intro(pairNumber: String), first, second, third, topup, confetti, done
     
     static var previewCases: [TwinsOnboardingStep] {
-        [.intro(pairNumber: "0128"), .first, .second, .third, .topup, .confetti, .done]
+        [.intro(pairNumber: "0128"), .topup, .confetti, .done]
     }
     
     static var twinningProcessSteps: [TwinsOnboardingStep] {
@@ -143,6 +153,13 @@ enum TwinsOnboardingStep {
     
     static var topupSteps: [TwinsOnboardingStep] {
         [.topup, .confetti, .done]
+    }
+    
+    var topTwinCardIndex: Int {
+        switch self {
+        case .second: return 1
+        default: return 0
+        }
     }
     
     var isModal: Bool {
@@ -243,10 +260,72 @@ extension OnboardingTopupBalanceLayoutCalculator {
     }
 }
 
+struct StackCalculator {
+    
+    private(set) var prehideAnimSettings: CardAnimSettings = .zero
+    private(set) var cardsSettings: [CardAnimSettings] = []
+    
+    private let maxZIndex: Double = 100
+    
+    private var containerSize: CGSize = .zero
+    private var settings: CardsStackAnimatorSettings = .zero
+    
+    mutating func setup(for container: CGSize, with settings: CardsStackAnimatorSettings) {
+        containerSize = container
+        self.settings = settings
+        populateSettings()
+    }
+    
+    mutating private func populateSettings() {
+        prehideAnimSettings = .zero
+        cardsSettings = []
+        for i in 0..<settings.numberOfCards {
+            cardsSettings.append(cardInStackSettings(at: i))
+        }
+        prehideAnimSettings = calculatePrehideSettings(for: 0)
+    }
+    
+    private func calculatePrehideSettings(for index: Int) -> CardAnimSettings {
+        guard cardsSettings.count > 0 else { return .zero }
+        
+        let settings = cardsSettings[0]
+        let targetFrameHeight = settings.frame.height
+        
+        return .init(frame: settings.frame,
+                     offset: .init(width: 0, height: -(settings.frame.height / 2 + targetFrameHeight / 2) - 10),
+                     scale: 1.0,
+                     opacity: 1.0,
+                     zIndex: maxZIndex + 100,
+                     rotationAngle: Angle(degrees: 0),
+                     animType: .linear,
+                     animDuration: 0.15)
+    }
+    
+    private func cardInStackSettings(at index: Int) -> CardAnimSettings {
+        let floatIndex = CGFloat(index)
+        let doubleIndex = Double(index)
+        let offset: CGFloat = settings.cardsVerticalOffset * 2 * floatIndex
+        let scale: CGFloat = max(1 - settings.scaleStep * floatIndex, 0)
+        let opacity: Double = max(1 - settings.opacityStep * doubleIndex, 0)
+        let zIndex: Double = maxZIndex - Double(index)
+        
+        return .init(frame: settings.topCardSize,
+                     offset: .init(width: 0, height: offset),
+                     scale: scale,
+                     opacity: opacity,
+                     zIndex: zIndex,
+                     rotationAngle: .zero,
+                     animType: .linear,
+                     animDuration: 0.3)
+    }
+    
+}
+
 struct TwinsOnboardingView: View {
     
     @ObservedObject var viewModel: TwinsOnboardingViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
+//    [REDACTED_USERNAME] var calc: StackCalculator = .init()
     
     var currentStep: TwinsOnboardingStep { viewModel.currentStep }
     
@@ -263,22 +342,8 @@ struct TwinsOnboardingView: View {
     }
     
     @ViewBuilder
-    var firstCard: some View {
-        OnboardingCardView(baseCardName: "dark_card",
-                           backCardImage: viewModel.firstTwinImage,
-                           cardScanned: viewModel.firstTwinImage != nil)
-    }
-    
-//    [REDACTED_USERNAME]
-//    var secondCard: some View {
-//        OnboardingCardView(baseCardName: "light_card",
-//                           backCardImage: nil,
-//                           cardScanned: false)
-//    }
-    
-    @ViewBuilder
     var buttons: some View {
-        TangemButton(isLoading: false,
+        TangemButton(isLoading: viewModel.isModelBusy,
                      title: currentStep.mainButtonTitle,
                      size: .wide) {
             withAnimation {
@@ -301,7 +366,6 @@ struct TwinsOnboardingView: View {
     }
     
     @State var containerSize: CGSize = .zero
-    @State var size: CGSize = .zero
     
     var screenSize: CGSize {
         UIScreen.main.bounds.size
@@ -336,34 +400,22 @@ struct TwinsOnboardingView: View {
                             refreshButtonOpacity: currentStep.backgroundOpacity
                         )
                         
-                        secondCard(in: geom.size)
-                        
-                        
-                        let firstCardFrameSize = TwinOnboardingCardLayout.first.frame(for: currentStep,
-                                                                                      containerSize: containerSize)
-                        let firstCardOffset = TwinOnboardingCardLayout.first.offset(at: currentStep, in: containerSize)
-                        firstCard
-                            .rotationEffect(TwinOnboardingCardLayout.first.rotationAngle(at: currentStep))
-                            .offset(firstCardOffset)
-                            .frame(size: firstCardFrameSize)
-                            .opacity(TwinOnboardingCardLayout.first.opacity(at: currentStep))
-                            .zIndex(TwinOnboardingCardLayout.first.zIndex(at: currentStep))
-//                            .overlay(
-//                                Text("Frame: \(firstCardFrameSize.description)\nOffset \(firstCardOffset.description)")
-//                                    .font(.system(size: 14))
-//                                    .foregroundColor(.red)
-//                                    .offset(firstCardOffset)
-//                            )
+                        AnimatedView(settings: viewModel.$secondTwinSettings) {
+                            OnboardingCardView(baseCardName: "light_card",
+                                               backCardImage: viewModel.secondTwinImage,
+                                               cardScanned: viewModel.secondTwinImage != nil)
+                        }
+                        AnimatedView(settings: viewModel.$firstTwinSettings) {
+                            OnboardingCardView(baseCardName: "dark_card",
+                                               backCardImage: viewModel.firstTwinImage,
+                                               cardScanned: viewModel.firstTwinImage != nil)
+                        }
                     }
-//                    .overlay(
-//                        Text("Size: \(geom.size.description)")
-//                            .offset(x: -90, y: geom.size.height / 2 - 30)
-//                            .foregroundColor(.blue)
-//                    )
                     .position(x: geom.size.width / 2, y: geom.size.height / 2)
                 }
-                .readSize { containerSize in
-                    self.containerSize = containerSize
+                .readSize { size in
+                    containerSize = size
+                    viewModel.setupContainerSize(size)
                 }
                 Group {
                     CardOnboardingMessagesView(title: currentStep.title,
@@ -371,15 +423,6 @@ struct TwinsOnboardingView: View {
                         viewModel.reset()
                     }
                     .frame(minHeight: 116, alignment: .top)
-//                    .fixedSize(horizontal: false, vertical: true)
-//                    .background(Color.orange)
-//                    .overlay(
-//                        Text("Messages size: \(size.description)")
-//                            .offset(CGSize(width: 0, height: 100.0))
-//                    )
-                    .readSize { size in
-                        self.size = size
-                    }
                     Spacer()
                         .frame(minHeight: 30, maxHeight: 66)
                     buttons
@@ -398,27 +441,6 @@ struct TwinsOnboardingView: View {
         }
         .preference(key: ModalSheetPreferenceKey.self, value: currentStep.isModal)
         .navigationBarHidden(true)
-    }
-    
-    @ViewBuilder
-    func secondCard(in container: CGSize) -> some View {
-        let secondCardFrameSize = TwinOnboardingCardLayout.second.frame(for: currentStep,
-                                                                      containerSize: container)
-        let secondCardOffset = TwinOnboardingCardLayout.second.offset(at: currentStep, in: container)
-        OnboardingCardView(baseCardName: "light_card",
-                           backCardImage: viewModel.secondTwinImage,
-                           cardScanned: viewModel.secondTwinImage != nil)
-            .frame(size: secondCardFrameSize)
-            .offset(secondCardOffset)
-            .rotationEffect(TwinOnboardingCardLayout.second.rotationAngle(at: currentStep))
-            .opacity(TwinOnboardingCardLayout.second.opacity(at: currentStep))
-            .zIndex(TwinOnboardingCardLayout.second.zIndex(at: currentStep))
-//            .overlay(
-//                Text("Frame: \(secondCardFrameSize.description)\nOffset \(secondCardOffset.description)")
-//                    .font(.system(size: 14))
-//                    .foregroundColor(.purple)
-//                    .offset(secondCardOffset)
-//            )
     }
 }
 
@@ -471,6 +493,7 @@ struct TwinsOnboardingView_Previews: PreviewProvider {
     
     static var previews: some View {
         TwinsOnboardingView(viewModel: assembly.getTwinsOnboardingViewModel())
+            .environmentObject(assembly.services.navigationCoordinator)
 //            .previewGroup(devices: [.iPhoneX], withZoomed: false)
     }
 }
