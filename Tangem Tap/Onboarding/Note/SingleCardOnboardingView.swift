@@ -135,6 +135,16 @@ enum CardLayout {
     
     private var cardHeightWidthRatio: CGFloat { 0.609 }
     
+    func cardAnimSettings(for step: NoteOnboardingStep, containerSize: CGSize, animated: Bool) -> CardAnimSettings {
+        .init(frame: frame(for: step, containerSize: containerSize),
+              offset: offset(at: step, containerSize: containerSize),
+              scale: 1.0,
+              opacity: opacity(at: step),
+              zIndex: self == .main ? 100 : 10,
+              rotationAngle: rotationAngle(at: step),
+              animType: animated ? .default : .noAnim)
+    }
+    
     func frame(for step: NoteOnboardingStep, containerSize: CGSize) -> CGSize {
         let height = containerSize.height * frameSizeRatio(for: step)
         let width = height / cardHeightWidthRatio
@@ -314,12 +324,17 @@ struct SingleCardOnboardingView: View {
                             .rotationEffect(CardLayout.supplementary.rotationAngle(at: currentStep))
                             .offset(CardLayout.supplementary.offset(at: currentStep, containerSize: proxy.size))
                             .opacity(CardLayout.supplementary.opacity(at: currentStep))
-                        OnboardingCardView(baseCardName: "dark_card",
-                                           backCardImage: viewModel.cardImage,
-                                           cardScanned: currentStep != .read)
-                            .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
-                            .offset(CardLayout.main.offset(at: currentStep, containerSize: proxy.size))
-                            .frame(size: CardLayout.main.frame(for: currentStep, containerSize: proxy.size))
+                        AnimatedView(settings: viewModel.$cardAnimSettings) {
+                            OnboardingCardView(baseCardName: "dark_card",
+                                               backCardImage: viewModel.cardImage,
+                                               cardScanned: currentStep != .read)
+                        }
+//                        OnboardingCardView(baseCardName: "dark_card",
+//                                           backCardImage: viewModel.cardImage,
+//                                           cardScanned: currentStep != .read)
+//                            .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
+//                            .offset(CardLayout.main.offset(at: currentStep, containerSize: proxy.size))
+//                            .frame(size: CardLayout.main.frame(for: currentStep, containerSize: proxy.size))
                         OnboardingTopupBalanceUpdater(
                             balance: viewModel.cardBalance,
                             frame: backgroundFrame,
@@ -338,6 +353,7 @@ struct SingleCardOnboardingView: View {
 //                .frame(minHeight: 210)
                 .readSize { value in
                     animationContainerSize = value
+                    viewModel.setupContainer(with: value)
                 }
                 messages
                 buttons
