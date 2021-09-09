@@ -54,7 +54,16 @@ extension View {
     ///   - value: The value to observe for animations.
     ///   - completion: The completion callback to call once the animation completes.
     /// - Returns: A modified `View` instance with the observer attached.
-    func onAnimationCompleted<Value: VectorArithmetic>(for value: Value, completion: @escaping () -> Void) -> ModifiedContent<Self, AnimationCompletionObserverModifier<Value>> {
+    func onAnimationCompleted<Value: VectorArithmetic>(for value: Value, completion: @escaping () -> Void) -> some View {
         return modifier(AnimationCompletionObserverModifier(observedValue: value, completion: completion))
+    }
+    
+    @ViewBuilder
+    func onAnimationCompleted<Value: VectorArithmetic>(forOptional value: Value?, completion: @escaping () -> Void) -> some View {
+        if let value = value {
+            onAnimationCompleted(for: value, completion: completion)
+        } else {
+            self
+        }
     }
 }
