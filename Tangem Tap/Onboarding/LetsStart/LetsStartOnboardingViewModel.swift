@@ -77,8 +77,8 @@ class LetsStartOnboardingViewModel: ViewModel {
             } receiveValue: { [unowned self] (steps, image) in
                 let input = CardOnboardingInput(steps: steps,
                                                 cardModel: cardModel,
-                                                currentStepIndex: 0,
                                                 cardImage: image,
+                                                currentStepIndex: 0,
                                                 successCallback: nil)
                 
                 self.isScanningCard = false
