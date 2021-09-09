@@ -104,9 +104,9 @@ extension Assembly {
     func makeTwinOnboardingViewModel(with input: CardOnboardingInput) -> TwinsOnboardingViewModel {
         let vm = TwinsOnboardingViewModel(imageLoaderService: services.imageLoaderService,
                                           twinsService: services.twinsWalletCreationService,
+                                          exchangeService: services.exchangeService,
                                           input: input)
         initialize(vm, isResetable: false)
-        vm.exchangeService = services.exchangeService
         vm.userPrefsService = services.userPrefsService
         
         return vm
