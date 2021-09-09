@@ -10,30 +10,39 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
+
+
 class TwinsOnboardingViewModel: ViewModel {
     
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var exchangeService: ExchangeService!
     weak var userPrefsService: UserPrefsService!
     
+    unowned var exchangeService: ExchangeService
     unowned var twinsService: TwinsWalletCreationService
     unowned var imageLoaderService: CardImageLoaderService
     
     @Published var firstTwinImage: UIImage?
     @Published var secondTwinImage: UIImage?
     @Published var pairNumber: String
+    @Published var firstTwinSettings: AnimatedViewSettings = .zero
+    @Published var secondTwinSettings: AnimatedViewSettings = .zero
     
     @Published var steps: [TwinsOnboardingStep] =
 //        []
         TwinsOnboardingStep.previewCases
     
-    @Published var currentStepIndex: Int = 0
+    @Published var currentStepIndex: Int = 0 {
+        didSet {
+            currentCardIndex = currentStep.topTwinCardIndex
+        }
+    }
     @Published var isModelBusy: Bool = false
     @Published var isAddressQrBottomSheetPresented: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = "0.00 BTC"
     @Published var shouldFireConfetti: Bool = false
+    @Published var currentCardIndex: Int = 0
     
     var currentStep: TwinsOnboardingStep {
         guard currentStepIndex < steps.count else {
@@ -63,15 +72,19 @@ class TwinsOnboardingViewModel: ViewModel {
     
     private var bag: Set<AnyCancellable> = []
     private var isFromMain = false
+    private var containerSize: CGSize = .zero
+    private var stackCalculator: StackCalculator = .init()
+    
     private var successCallback: (() -> Void)?
     private var walletModelUpdateCancellable: AnyCancellable?
     
     private var cardModel: CardViewModel
     private var twinInfo: TwinCardInfo
     
-    init(imageLoaderService: CardImageLoaderService, twinsService: TwinsWalletCreationService, input: CardOnboardingInput) {
+    init(imageLoaderService: CardImageLoaderService, twinsService: TwinsWalletCreationService, exchangeService: ExchangeService, input: CardOnboardingInput) {
         self.imageLoaderService = imageLoaderService
         self.twinsService = twinsService
+        self.exchangeService = exchangeService
         successCallback = input.successCallback
         cardModel = input.cardModel
         if let twinInfo = input.cardModel.cardInfo.twinCardInfo {
@@ -97,6 +110,18 @@ class TwinsOnboardingViewModel: ViewModel {
         loadImages()
     }
     
+    func setupContainerSize(_ size: CGSize) {
+        let isInitialSetup = containerSize == .zero
+        containerSize = size
+        stackCalculator.setup(for: size, with: .init(topCardSize: TwinOnboardingCardLayout.first.frame(for: .first, containerSize: size),
+                                                     cardsVerticalOffset: 20,
+                                                     scaleStep: 0.14,
+                                                     opacityStep: 0.65,
+                                                     numberOfCards: 2,
+                                                     maxCardsInStack: 2))
+        setupCardsSettings(animated: !isInitialSetup)
+    }
+    
     func executeStep() {
         switch currentStep {
         case .intro:
@@ -112,7 +137,15 @@ class TwinsOnboardingViewModel: ViewModel {
             }
             fallthrough
         case .second, .third:
+            isModelBusy = true
             subscribeToStepUpdates()
+            if assembly.isPreview {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.isModelBusy = false
+                    self.goToNextStep()
+                }
+                return
+            }
             twinsService.executeCurrentStep()
         case .topup:
             navigation.onboardingToBuyCrypto = true
@@ -135,6 +168,7 @@ class TwinsOnboardingViewModel: ViewModel {
         withAnimation {
             currentStepIndex = newIndex
             
+            setupCardsSettings(animated: true)
             if case .confetti = steps[newIndex] {
                 refreshButtonState = .doneCheckmark
                 shouldFireConfetti = true
@@ -143,6 +177,15 @@ class TwinsOnboardingViewModel: ViewModel {
     }
     
     func reset() {
+        guard !assembly.isPreview else {
+            withAnimation {
+                currentStepIndex = 0
+                setupCardsSettings(animated: true)
+            }
+            
+            return
+        }
+        
         withAnimation {
             navigation.onboardingReset = true
         }
@@ -222,6 +265,7 @@ class TwinsOnboardingViewModel: ViewModel {
                 case (.first, .second), (.second, .third), (.third, .done):
                     withAnimation {
                         self.currentStepIndex += 1
+                        setupCardsSettings(animated: true)
                     }
                 default:
                     print("Wrong state while twinning cards")
@@ -252,6 +296,11 @@ class TwinsOnboardingViewModel: ViewModel {
         withAnimation {
             cardBalance = model.getBalance(for: .coin)
         }
+    }
+    
+    private func setupCardsSettings(animated: Bool) {
+        firstTwinSettings = TwinOnboardingCardLayout.first.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated)
+        secondTwinSettings = TwinOnboardingCardLayout.second.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated)
     }
     
 }
