@@ -65,7 +65,8 @@ class TwinsCreateWalletTask: CardSessionRunnable {
                     case .success:
                         let wallet = self.walletManager!.wallet
                         if wallet.hasPendingTx || !wallet.isEmpty {
-                            let err = "You have some funds on the card. Withdraw all your funds or it will be lost"
+                            let number = TapTwinCardIdFormatter.format(cid: card.cardId, cardNumber: TwinCardSeries.series(for: card.cardId)?.number)
+                            let err = "Your wallet on the card \(number) is not empty, please scan it and withdraw your funds before creating twin wallet or they will be lost."
                             completion(.failure(err.toTangemSdkError()))
                         } else {
                             self.eraseWallet(in: session, completion: completion)
