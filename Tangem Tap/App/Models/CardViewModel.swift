@@ -126,6 +126,18 @@ class CardViewModel: Identifiable, ObservableObject {
         
         return false
     }
+    
+    var isSuccesfullyLoaded: Bool {
+        if let walletModels = state.walletModels {
+            if walletModels.contains(where: { !$0.state.isSuccesfullyLoaded }) {
+                return false
+            }
+            
+            return true
+        }
+        
+        return false
+    }
 	
 	var isTwinCard: Bool {
 		cardInfo.card.isTwinCard
