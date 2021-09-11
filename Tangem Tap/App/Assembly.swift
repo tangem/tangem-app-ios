@@ -58,7 +58,8 @@ class ServicesAssembly {
     lazy var twinsWalletCreationService = {
         TwinsWalletCreationService(tangemSdk: tangemSdk,
                                    twinFileEncoder: TwinCardTlvFileEncoder(),
-                                   cardsRepository: cardsRepository)
+                                   cardsRepository: cardsRepository,
+                                   walletManagerFactory: walletManagerFactory)
     }()
     
     
@@ -294,6 +295,7 @@ class Assembly: ObservableObject {
         
     /// Try to load native walletmanager from card
     private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
+
         if let defaultBlockchain = cardInfo.defaultBlockchain,
            let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
             
@@ -499,10 +501,10 @@ class Assembly: ObservableObject {
     }
 	
     func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
-        let scanResult = services.cardsRepository.lastScanResult
-        let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
-        let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series?.pair.number ?? 1)
-		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
+       // let scanResult = services.cardsRepository.lastScanResult
+       // let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
+       // let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series?.pair.number ?? 1)
+		return makeTwinCardOnboardingViewModel(state: .onboarding(/*withPairCid: twinPairCid,*/ isFromMain: isFromMain))
 	}
 	
     func makeTwinCardWarningViewModel(isRecreating: Bool) -> TwinCardOnboardingViewModel {
@@ -573,7 +575,7 @@ class Assembly: ObservableObject {
         persistentKeys.append(String(describing: type(of: MainViewModel.self)))
         persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
         persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
-        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
+        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(/*withPairCid: "",*/ isFromMain: false).storageKey)
         
         let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
         indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
@@ -708,7 +710,7 @@ extension Assembly {
         
         private var twinInfo: TwinCardInfo? {
             switch self {
-            case .twin: return TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil)
+            case .twin: return TwinCardInfo(cid: "CB64000000006522", series: .cb64, /*pairCid: "CB65000000006521",*/ pairPublicKey: nil)
             default: return nil
             }
         }
