@@ -126,7 +126,7 @@ struct TwinCardOnboardingView: View {
         let button = TangemLongButton(isLoading: false, title: viewModel.state.buttonTitle, image: "arrow.right", action: { self.viewModel.buttonAction() })
         
         switch viewModel.state {
-        case let .onboarding(pairCid, _):
+        case let .onboarding(/*pairCid,*/ _):
             VStack {
                 Spacer()
                 VStack(alignment: .leading, spacing: 12) {
@@ -136,9 +136,9 @@ struct TwinCardOnboardingView: View {
                     Text("twins_onboarding_subtitle")
                         .font(.system(size: 15, weight: .medium))
                         .fixedSize(horizontal: false, vertical: true)
-                    Text(String(format: "twins_onboarding_description_format".localized, pairCid))
-                        .foregroundColor(.tangemTapGrayDark3)
-                        .fixedSize(horizontal: false, vertical: true)
+//                    Text(String(format: "twins_onboarding_description_format".localized, pairCid))
+//                        .foregroundColor(.tangemTapGrayDark3)
+//                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .font(.system(size: 13, weight: .regular))
                 .lineSpacing(4)
@@ -203,7 +203,7 @@ struct TwinCardOnboardingView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     
     static var previews: some View {
-        TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: "", isFromMain: false)))
+        TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(state: .onboarding(/*withPairCid: "",*/ isFromMain: false)))
             .environmentObject(assembly.services.navigationCoordinator)
             //.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
         
