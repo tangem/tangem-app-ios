@@ -71,6 +71,16 @@ class MainViewModel: ViewModel {
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     
+    public var canCreateTwinWallet: Bool {
+        if isTwinCard {
+            if let cm = cardModel, cm.isNotPairedTwin, !cm.canPurgeWallet {
+                return false
+            }
+        }
+        
+        return true
+    }
+    
     public var canCreateWallet: Bool {
         if isTwinCard {
             return cardModel?.canCreateTwinCard ?? false
@@ -366,9 +376,20 @@ class MainViewModel: ViewModel {
         guard let cardModel = cardModel else {
             return
         }
-		
+        
 		if cardModel.isTwinCard {
-			navigation.mainToTwinsWalletWarning = true
+            if cardModel.hasBalance {
+                error = AlertBinder(alert: Alert(title: Text("Attention!"),
+                                                 message: Text("You have some funds on the card. Withdraw all your funds or it will be lost"),
+                                                 primaryButton: .cancel(),
+                                                 secondaryButton: .destructive(Text("I understand, continue anyway")) { [weak self] in
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                                        self?.navigation.mainToTwinsWalletWarning = true
+                                                    }
+                                                 }))
+            } else {
+                navigation.mainToTwinsWalletWarning = true
+            }
 		} else {
 			self.isCreatingWallet = true
 			cardModel.createWallet() { [weak self] result in

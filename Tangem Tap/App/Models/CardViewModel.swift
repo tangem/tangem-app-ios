@@ -131,6 +131,16 @@ class CardViewModel: Identifiable, ObservableObject {
 		cardInfo.card.isTwinCard
 	}
     
+    var isNotPairedTwin: Bool {
+        isTwinCard && cardInfo.twinCardInfo?.pairPublicKey == nil
+    }
+    
+    var hasBalance: Bool {
+        let hasBalance = state.walletModels.map { $0.contains(where: { $0.hasBalance }) } ?? false
+        
+        return hasBalance
+    }
+    
     var canCreateTwinCard: Bool {
         guard
             isTwinCard,
@@ -138,20 +148,11 @@ class CardViewModel: Identifiable, ObservableObject {
             twinInfo.series != nil
         else { return false }
         
-        if case .empty = state {
-            
-            if cardInfo.card.wallets.count == 0 {
-                return true
-            }
-
-            if twinInfo.pairPublicKey != nil {
-                return false
-            }
-            
-            return true
-        } else {
+        if twinInfo.pairPublicKey != nil {
             return false
         }
+        
+        return true
     }
 	
 	var canRecreateTwinCard: Bool {
@@ -417,8 +418,9 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func updateState() {
         print("‼️ Updating Card view model state")
-        let hasWallets = cardInfo.card.wallets.count > 0
-        if !hasWallets {
+        let wallets = self.assembly.loadWallets(from: cardInfo)
+        
+        if wallets.count == 0 {
             self.state = .empty
         } else {
             print("⁉️ Recreating all wallet models for Card view model state")
