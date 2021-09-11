@@ -66,7 +66,7 @@ struct MainView: View {
                 return true
             default:
                 if cardModel.isTwinCard {
-                    if !cardModel.hasBalance {
+                    if cardModel.isNotPairedTwin && !cardModel.hasBalance {
                         return true
                     }
                 }
