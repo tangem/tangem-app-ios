@@ -7,6 +7,7 @@
 //
 
 import TangemSdk
+import BlockchainSdk
 
 struct TwinsCreateWalletTaskResponse: JSONStringConvertible {
     let createWalletResponse: CreateWalletResponse
@@ -24,12 +25,15 @@ class TwinsCreateWalletTask: CardSessionRunnable {
         print("Twins create wallet task deinited")
     }
     
-	private let targetCid: String
+	private let firstTwinCardId: String?
 	private var fileToWrite: Data?
-	
-	init(targetCid: String, fileToWrite: Data?) {
-		self.targetCid = targetCid
+    private let walletManagerFactory: WalletManagerFactory?
+    private var walletManager: WalletManager? = nil
+    
+	init(firstTwinCardId: String?, fileToWrite: Data?, walletManagerFactory: WalletManagerFactory?) {
+		self.firstTwinCardId = firstTwinCardId
 		self.fileToWrite = fileToWrite
+        self.walletManagerFactory = walletManagerFactory
 	}
 	
 	func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
@@ -39,10 +43,40 @@ class TwinsCreateWalletTask: CardSessionRunnable {
             return
         }
         
+        if let firstTwinCardId = self.firstTwinCardId {
+            guard let firstSeries = TwinCardSeries.series(for: firstTwinCardId),
+                  let secondSeries = TwinCardSeries.series(for: card.cardId),
+                  firstSeries.pair == secondSeries else {
+                completion(.failure(.wrongCardType))
+                return
+            }
+        }
+        
         if card.wallets.count == 0 {
             createWallet(in: session, completion: completion)
 		} else {
-			eraseWallet(in: session, completion: completion)
+            if let walletManagerFactory = self.walletManagerFactory,
+               let walletPublicKey = card.wallets.first?.publicKey {
+                self.walletManager = walletManagerFactory.makeWalletManager(from: card.cardId,
+                                                                walletPublicKey: walletPublicKey, blockchain: .bitcoin(testnet: false))
+                
+                walletManager?.update(completion: { result in         
+                    switch result {
+                    case .success:
+                        let wallet = self.walletManager!.wallet
+                        if wallet.hasPendingTx || !wallet.isEmpty {
+                            let err = "You have some funds on the card. Withdraw all your funds or it will be lost"
+                            completion(.failure(err.toTangemSdkError()))
+                        } else {
+                            self.eraseWallet(in: session, completion: completion)
+                        }
+                    case .failure(let error):
+                        completion(.failure(error.toTangemSdkError()))
+                    }
+                })
+            } else {
+                eraseWallet(in: session, completion: completion)
+            }
 		}
 	}
 	
