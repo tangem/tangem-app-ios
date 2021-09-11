@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemSdk
+import BlockchainSdk
 
 class TwinsWalletCreationService {
     
@@ -23,9 +24,10 @@ class TwinsWalletCreationService {
     private let tangemSdk: TangemSdk
     private let twinFileEncoder: TwinCardFileEncoder
     private let cardsRepository: CardsRepository
+    private let walletManagerFactory: WalletManagerFactory
     
     private var firstTwinCid: String = ""
-    private var secondTwinCid: String = ""
+    //private var secondTwinCid: String = ""
     private var twinInfo: TwinCardInfo?
     
     private var firstTwinPublicKey: Data?
@@ -54,10 +56,11 @@ class TwinsWalletCreationService {
         }
     }
     
-    init(tangemSdk: TangemSdk, twinFileEncoder: TwinCardFileEncoder, cardsRepository: CardsRepository) {
+    init(tangemSdk: TangemSdk, twinFileEncoder: TwinCardFileEncoder, cardsRepository: CardsRepository, walletManagerFactory: WalletManagerFactory) {
         self.tangemSdk = tangemSdk
         self.twinFileEncoder = twinFileEncoder
         self.cardsRepository = cardsRepository
+        self.walletManagerFactory = walletManagerFactory
     }
     
     func executeCurrentStep() {
@@ -75,11 +78,11 @@ class TwinsWalletCreationService {
     }
     
     func setupTwins(for twin: TwinCardInfo) {
-        if twin.cid == firstTwinCid, twin.pairCid == secondTwinCid { return }
+        if twin.cid == firstTwinCid/*, twin.pairCid == secondTwinCid */{ return }
         
         twinInfo = twin
         firstTwinCid = twin.cid
-        secondTwinCid = twin.pairCid ?? ""
+       // secondTwinCid = twin.pairCid ?? ""
     }
     
     func resetSteps() {
@@ -88,7 +91,7 @@ class TwinsWalletCreationService {
     }
     
     private func createWalletOnFirstCard() {
-        let task = TwinsCreateWalletTask(targetCid: firstTwinCid, fileToWrite: nil)
+        let task = TwinsCreateWalletTask(firstTwinCardId: nil, fileToWrite: nil, walletManagerFactory: nil)
         tangemSdk.startSession(with: task, cardId: firstTwinCid, initialMessage: initialMessage(for: firstTwinCid)) { (result) in
             switch result {
             case .success(let response):
@@ -112,8 +115,8 @@ class TwinsWalletCreationService {
         
         //		switch twinFileToWrite(publicKey: firstTwinKey) {
         //		case .success(let file):
-        let task = TwinsCreateWalletTask(targetCid: secondTwinCid, fileToWrite: firstTwinKey)
-        tangemSdk.startSession(with: task, cardId: secondTwinCid, initialMessage: initialMessage(for: secondTwinCid)) { (result) in
+        let task = TwinsCreateWalletTask(firstTwinCardId: firstTwinCid, fileToWrite: firstTwinKey, walletManagerFactory: walletManagerFactory)
+        tangemSdk.startSession(with: task, /*cardId: secondTwinCid,*/ initialMessage: Message(header: "Scan card #2") /*initialMessage(for: secondTwinCid)*/) { (result) in
             switch result {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
