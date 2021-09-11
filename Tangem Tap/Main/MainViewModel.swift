@@ -73,8 +73,13 @@ class MainViewModel: ViewModel {
     
     public var canCreateTwinWallet: Bool {
         if isTwinCard {
-            if let cm = cardModel, cm.isNotPairedTwin, !cm.isSuccesfullyLoaded {
-                return false
+            if let cm = cardModel, cm.isNotPairedTwin {
+                let wallets = cm.wallets?.count ?? 0
+                if wallets > 0 {
+                    return cm.isSuccesfullyLoaded
+                } else {
+                    return true
+                }
             }
         }
         
