@@ -37,6 +37,22 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.addresses.map { $0.localizedName }
     }
     
+    var hasBalance: Bool {
+        if !state.isSuccesfullyLoaded {
+            return false
+        }
+        
+        if wallet.hasPendingTx {
+            return true
+        }
+        
+        if !wallet.isEmpty {
+            return true
+        }
+        
+        return false
+    }
+    
     var canCreateOrPurgeWallet: Bool {
         if !wallet.isEmpty || wallet.hasPendingTx {
             return false
