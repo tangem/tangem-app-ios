@@ -38,7 +38,7 @@ struct TapScanTaskResponse {
     
         return TwinCardInfo(cid: response.card.cardId,
                             series: TwinCardSeries.series(for: card.cardId),
-                            pairCid: TwinCardsUtils.makePairCid(for: response.card.cardId),
+                           /* pairCid: TwinCardsUtils.makePairCid(for: response.card.cardId),*/
                             pairPublicKey: pairPublicKey)
     }
 }
