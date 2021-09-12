@@ -501,10 +501,10 @@ class Assembly: ObservableObject {
     }
 	
     func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
-       // let scanResult = services.cardsRepository.lastScanResult
-       // let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
-       // let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series?.pair.number ?? 1)
-		return makeTwinCardOnboardingViewModel(state: .onboarding(/*withPairCid: twinPairCid,*/ isFromMain: isFromMain))
+        let scanResult = services.cardsRepository.lastScanResult
+        let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
+        let twinPairCid = TapTwinCardIdFormatter.format(cid: /*twinInfo?.pairCid ??*/ "", cardNumber: twinInfo?.series?.pair.number ?? 1)
+		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
 	}
 	
     func makeTwinCardWarningViewModel(isRecreating: Bool) -> TwinCardOnboardingViewModel {
@@ -575,7 +575,7 @@ class Assembly: ObservableObject {
         persistentKeys.append(String(describing: type(of: MainViewModel.self)))
         persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
         persistentKeys.append(String(describing: DisclaimerViewModel.self) + "_\(DisclaimerViewModel.State.accept)")
-        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(/*withPairCid: "",*/ isFromMain: false).storageKey)
+        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
         
         let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
         indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
