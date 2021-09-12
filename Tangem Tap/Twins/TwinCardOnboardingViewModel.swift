@@ -12,7 +12,7 @@ import SwiftUI
 class TwinCardOnboardingViewModel: ViewModel {
 	
 	enum State: Equatable {
-        case onboarding(/*withPairCid: String,*/ isFromMain: Bool)
+        case onboarding(withPairCid: String, isFromMain: Bool)
         case warning(isRecreating: Bool)
 		
 		var backgroundName: String {
@@ -31,7 +31,7 @@ class TwinCardOnboardingViewModel: ViewModel {
 		
 		var storageKey: String {
 			switch self {
-			case let .onboarding(/*_,*/ isFromMain):
+			case let .onboarding(_, isFromMain):
 				return "onboarding_\(isFromMain)"
 			case .warning(let isRecreating):
 				return "onboarding_warning_\(isRecreating)"
@@ -65,7 +65,7 @@ class TwinCardOnboardingViewModel: ViewModel {
         
         var isFromMain: Bool {
             switch self {
-            case let .onboarding(/*_,*/ isFromMain):
+            case let .onboarding(_, isFromMain):
                 return isFromMain
             default:
                 return false
@@ -113,7 +113,7 @@ class TwinCardOnboardingViewModel: ViewModel {
 	
 	func buttonAction() {
 		switch state {
-		case .onboarding(/*_,*/ let isFromMain):
+		case .onboarding(_, let isFromMain):
 			if navigation.mainToTwinOnboarding {
 				navigation.mainToTwinOnboarding = false
 			} else if !isFromMain {
