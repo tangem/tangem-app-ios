@@ -109,7 +109,9 @@ struct MainView: View {
             }
         }
         
-        if viewModel.canBuyCrypto && !viewModel.canCreateWallet {
+        if viewModel.canBuyCrypto && !viewModel.canCreateWallet ||
+            ((viewModel.cardModel?.isNotPairedTwin ?? false)
+                && (viewModel.cardModel?.hasBalance ?? false)) {
             if  (viewModel.cardModel?.isMultiWallet ?? false) {
                 TangemButton(isLoading: viewModel.isScanning,
                              title: "wallet_button_scan",
