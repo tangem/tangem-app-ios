@@ -126,6 +126,18 @@ class CardViewModel: Identifiable, ObservableObject {
         
         return false
     }
+    
+    var isSuccesfullyLoaded: Bool {
+        if let walletModels = state.walletModels {
+            if walletModels.contains(where: { !$0.state.isSuccesfullyLoaded }) {
+                return false
+            }
+            
+            return true
+        }
+        
+        return false
+    }
 	
 	var isTwinCard: Bool {
 		cardInfo.card.isTwinCard
@@ -418,9 +430,9 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func updateState() {
         print("‼️ Updating Card view model state")
-        let wallets = self.assembly.loadWallets(from: cardInfo)
-        
-        if wallets.count == 0 {
+        let hasWallets = cardInfo.card.wallets.count > 0
+
+        if !hasWallets {
             self.state = .empty
         } else {
             print("⁉️ Recreating all wallet models for Card view model state")
