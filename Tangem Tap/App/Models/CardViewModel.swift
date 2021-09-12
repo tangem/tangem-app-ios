@@ -430,9 +430,9 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func updateState() {
         print("‼️ Updating Card view model state")
-        let wallets = self.assembly.loadWallets(from: cardInfo)
-        
-        if wallets.count == 0 {
+        let hasWallets = cardInfo.card.wallets.count > 0
+
+        if !hasWallets {
             self.state = .empty
         } else {
             print("⁉️ Recreating all wallet models for Card view model state")
