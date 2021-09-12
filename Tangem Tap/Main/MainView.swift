@@ -66,7 +66,7 @@ struct MainView: View {
                 return true
             default:
                 if cardModel.isTwinCard {
-                    if !cardModel.hasBalance {
+                    if cardModel.isNotPairedTwin && !cardModel.hasBalance {
                         return true
                     }
                 }
@@ -109,7 +109,9 @@ struct MainView: View {
             }
         }
         
-        if viewModel.canBuyCrypto && !viewModel.canCreateWallet {
+        if viewModel.canBuyCrypto && !viewModel.canCreateWallet ||
+            ((viewModel.cardModel?.isNotPairedTwin ?? false)
+                && (viewModel.cardModel?.hasBalance ?? false)) {
             if  (viewModel.cardModel?.isMultiWallet ?? false) {
                 TangemButton(isLoading: viewModel.isScanning,
                              title: "wallet_button_scan",
@@ -419,7 +421,7 @@ struct MainView: View {
                 createWalletButton
             }
             
-            if !viewModel.canCreateWallet && viewModel.canBuyCrypto  {
+            if !viewModel.canCreateWallet && viewModel.canBuyCrypto && !(viewModel.cardModel?.isMultiWallet ?? true)  {
                 exchangeCryptoButton
             }
             
