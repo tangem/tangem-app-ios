@@ -73,8 +73,13 @@ class MainViewModel: ViewModel {
     
     public var canCreateTwinWallet: Bool {
         if isTwinCard {
-            if let cm = cardModel, cm.isNotPairedTwin, !cm.canPurgeWallet {
-                return false
+            if let cm = cardModel, cm.isNotPairedTwin {
+                let wallets = cm.wallets?.count ?? 0
+                if wallets > 0 {
+                    return cm.isSuccesfullyLoaded
+                } else {
+                    return true
+                }
             }
         }
         
@@ -380,7 +385,7 @@ class MainViewModel: ViewModel {
 		if cardModel.isTwinCard {
             if cardModel.hasBalance {
                 error = AlertBinder(alert: Alert(title: Text("Attention!"),
-                                                 message: Text("You have some funds on the card. Withdraw all your funds or it will be lost"),
+                                                 message: Text("Your wallet is not empty, please withdraw your funds before creating twin wallet or they will be lost."),
                                                  primaryButton: .cancel(),
                                                  secondaryButton: .destructive(Text("I understand, continue anyway")) { [weak self] in
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
