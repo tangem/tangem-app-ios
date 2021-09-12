@@ -421,7 +421,7 @@ struct MainView: View {
                 createWalletButton
             }
             
-            if !viewModel.canCreateWallet && viewModel.canBuyCrypto  {
+            if !viewModel.canCreateWallet && viewModel.canBuyCrypto && !(viewModel.cardModel?.isMultiWallet ?? true)  {
                 exchangeCryptoButton
             }
             
