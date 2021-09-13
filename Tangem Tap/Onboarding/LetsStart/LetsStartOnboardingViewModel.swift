@@ -20,16 +20,30 @@ class LetsStartOnboardingViewModel: ViewModel {
     
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
+    @Published var darkCardSettings: AnimatedViewSettings = .zero
+    @Published var lightCardSettings: AnimatedViewSettings = .zero
     
     var shopURL: URL { Constants.shopURL }
     
+    var currentStep: WelcomeStep {
+        .welcome
+    }
+    
     private var bag: Set<AnyCancellable> = []
     private var cardImage: UIImage?
+    
+    private var container: CGSize = .zero
     
     var successCallback: (CardOnboardingInput) -> Void
     
     init(successCallback: @escaping (CardOnboardingInput) -> Void) {
         self.successCallback = successCallback
+    }
+    
+    func setupContainer(_ size: CGSize) {
+        let isInitialSetup = container == .zero
+        container = size
+        setupCards(animated: !isInitialSetup)
     }
     
     func scanCard() {
@@ -78,6 +92,8 @@ class LetsStartOnboardingViewModel: ViewModel {
                 let input = CardOnboardingInput(steps: steps,
                                                 cardModel: cardModel,
                                                 cardImage: image,
+                                                cardsPosition: (darkCardSettings, lightCardSettings),
+                                                welcomeStep: .welcome,
                                                 currentStepIndex: 0,
                                                 successCallback: nil)
                 
@@ -86,7 +102,11 @@ class LetsStartOnboardingViewModel: ViewModel {
                 self.bag.removeAll()
             }
             .store(in: &bag)
-
+    }
+    
+    private func setupCards(animated: Bool) {
+        darkCardSettings = WelcomeCardLayout.main.cardSettings(at: currentStep, in: container, animated: animated)
+        lightCardSettings = WelcomeCardLayout.supplementary.cardSettings(at: currentStep, in: container, animated: animated)
     }
     
 }
