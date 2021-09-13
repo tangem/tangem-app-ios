@@ -15,6 +15,8 @@ struct CardOnboardingInput {
     let steps: OnboardingSteps
     let cardModel: CardViewModel
     let cardImage: UIImage
+    let cardsPosition: (dark: AnimatedViewSettings, light: AnimatedViewSettings)?
+    let welcomeStep: WelcomeStep?
     
     var currentStepIndex: Int
     var successCallback: (() -> Void)?
@@ -31,19 +33,21 @@ class SingleCardOnboardingViewModel: ViewModel {
     weak var exchangeService: ExchangeService!
     weak var imageLoaderService: CardImageLoaderService!
     
+    let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
+    
     @Published var steps: [NoteOnboardingStep] =
         []
 //        [.read, .createWallet, .topup, .confetti]
     @Published var executingRequestOnCard = false
     @Published var currentStepIndex: Int = 0
-    @Published var cardImage: UIImage? = UIImage(named: "card_btc")
+    @Published var cardImage: UIImage?
     @Published var shouldFireConfetti: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = "0.00001237893 ETH"
     @Published var isAddressQrBottomSheetPresented: Bool = false
-    @Published var cardAnimSettings: AnimatedViewSettings = AnimatedViewSettings(targetSettings: CardLayout.main.cardAnimSettings(for: .read, containerSize: .init(width: 375, height: 364), animated: false),
-                                                                                 intermediateSettings: nil)
-    private var containerSize: CGSize = .zero
+    @Published var cardAnimSettings: AnimatedViewSettings = .zero
+    @Published var lightCardAnimSettings: AnimatedViewSettings = .zero
+    @Published private(set) var isInitialAnimPlayed = false
     
     var numberOfProgressBarSteps: Int {
         steps.filter { $0.hasProgressStep }.count
@@ -57,6 +61,38 @@ class SingleCardOnboardingViewModel: ViewModel {
         }
         
         return steps[currentStepIndex]
+    }
+    
+    var title: LocalizedStringKey {
+        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
+            return welcomeStep.title
+        }
+        
+        return currentStep.title
+    }
+    
+    var subtitle: LocalizedStringKey {
+        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
+            return welcomteStep.subtitle
+        }
+        
+        return currentStep.subtitle
+    }
+    
+    var mainButtonTitle: LocalizedStringKey {
+        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
+            return welcomeStep.mainButtonTitle
+        }
+        
+        return currentStep.primaryButtonTitle
+    }
+    
+    var supplementButtonTitle: LocalizedStringKey {
+        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
+            return welcomteStep.supplementButtonTitle
+        }
+        
+        return currentStep.secondaryButtonTitle
     }
     
     var shareAddress: String {
@@ -79,8 +115,11 @@ class SingleCardOnboardingViewModel: ViewModel {
     
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
     
+    private let input: CardOnboardingInput
+    
     private var bag: Set<AnyCancellable> = []
     private var previewUpdateCounter: Int = 0
+    private var containerSize: CGSize = .zero
     
     private var isFromMain: Bool = false
     private var walletCreatedWhileOnboarding: Bool = false
@@ -91,9 +130,6 @@ class SingleCardOnboardingViewModel: ViewModel {
     
     private var successCallback: (() -> Void)?
     
-    
-    init() {}
-    
     init(input: CardOnboardingInput) {
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps
@@ -101,11 +137,19 @@ class SingleCardOnboardingViewModel: ViewModel {
             fatalError("Wrong onboarding steps passed to initializer")
         }
         
+        self.input = input
         scannedCardModel = input.cardModel
         currentStepIndex = input.currentStepIndex
         cardImage = input.cardImage
         successCallback = input.successCallback
-        isFromMain = true
+        if let cardsPos = input.cardsPosition {
+            cardAnimSettings = cardsPos.dark
+            lightCardAnimSettings = cardsPos.light
+            isFromMain = false
+        } else {
+            isFromMain = true
+        }
+        
         updateCardBalance()
     }
         
@@ -114,10 +158,25 @@ class SingleCardOnboardingViewModel: ViewModel {
     func setupContainer(with size: CGSize) {
         let isInitialSetup = containerSize == .zero
         containerSize = size
-        cardAnimSettings = .init(targetSettings: CardLayout.main.cardAnimSettings(for: currentStep,
-                                                                                  containerSize: size,
-                                                                                  animated: !isInitialSetup),
-                                 intermediateSettings: nil)
+        if input.welcomeStep != nil, isInitialAnimPlayed {
+            setupCard(animated: !isInitialSetup)
+//            cardAnimSettings = .init(targetSettings: CardLayout.main.cardAnimSettings(for: currentStep,
+//                                                                                      containerSize: size,
+//                                                                                      animated: !isInitialSetup),
+//                                     intermediateSettings: nil)
+        }
+        
+    }
+    
+    func playInitialAnim() {
+        let animated = !isFromMain
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(animated ? .default : nil) {
+                self.isInitialAnimPlayed = true
+                self.setupCard(animated: animated)
+            }
+        }
+        
     }
 
     func goToNextStep() {
@@ -144,12 +203,9 @@ class SingleCardOnboardingViewModel: ViewModel {
             goToMain()
             return
         }
-        cardAnimSettings = .init(targetSettings: CardLayout.main.cardAnimSettings(for: steps[nextStepIndex],
-                                                                                  containerSize: containerSize,
-                                                                                  animated: true),
-                                 intermediateSettings: nil)
         withAnimation {
             self.currentStepIndex = nextStepIndex
+            setupCard(animated: true)
         }
         
         stepUpdate()
@@ -163,6 +219,7 @@ class SingleCardOnboardingViewModel: ViewModel {
             navigation.onboardingReset = true
             scannedCardModel = nil
             currentStepIndex = 0
+            setupCard(animated: true)
             steps = []
             executingRequestOnCard = false
             refreshButtonState = .refreshButton
@@ -334,6 +391,14 @@ class SingleCardOnboardingViewModel: ViewModel {
                 .store(in: &self.bag)
 
         }
+    }
+    
+    private func setupCard(animated: Bool) {
+        cardAnimSettings = .init(targetSettings: CardLayout.main.cardAnimSettings(for: currentStep,
+                                                                                  containerSize: containerSize,
+                                                                                  animated: animated),
+                                 intermediateSettings: nil)
+        lightCardAnimSettings = .init(targetSettings: CardLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
     }
     
 }
