@@ -37,17 +37,23 @@ class SingleCardOnboardingViewModel: ViewModel {
     
     @Published var steps: [NoteOnboardingStep] =
         []
-//        [.read, .createWallet, .topup, .confetti]
+//        [.createWallet, .topup, .confetti]
     @Published var executingRequestOnCard = false
     @Published var currentStepIndex: Int = 0
     @Published var cardImage: UIImage?
     @Published var shouldFireConfetti: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
-    @Published var cardBalance: String = "0.00001237893 ETH"
+    @Published var cardBalance: String = "0.0"
     @Published var isAddressQrBottomSheetPresented: Bool = false
     @Published var cardAnimSettings: AnimatedViewSettings = .zero
     @Published var lightCardAnimSettings: AnimatedViewSettings = .zero
     @Published private(set) var isInitialAnimPlayed = false
+    
+    private(set) var numberOfSteps: Int
+    
+    var currentProgress: CGFloat {
+        CGFloat(currentStep.rawValue) / CGFloat(numberOfSteps)
+    }
     
     var numberOfProgressBarSteps: Int {
         steps.filter { $0.hasProgressStep }.count
@@ -57,7 +63,7 @@ class SingleCardOnboardingViewModel: ViewModel {
     
     var currentStep: NoteOnboardingStep {
         guard currentStepIndex < steps.count else {
-            return .read
+            return .topup
         }
         
         return steps[currentStepIndex]
@@ -142,6 +148,7 @@ class SingleCardOnboardingViewModel: ViewModel {
         currentStepIndex = input.currentStepIndex
         cardImage = input.cardImage
         successCallback = input.successCallback
+        numberOfSteps = NoteOnboardingStep.maxNumberOfSteps(isNote: input.cardModel.cardInfo.card.isTangemNote)
         if let cardsPos = input.cardsPosition {
             cardAnimSettings = cardsPos.dark
             lightCardAnimSettings = cardsPos.light
@@ -150,6 +157,9 @@ class SingleCardOnboardingViewModel: ViewModel {
             isFromMain = true
         }
         
+        if let walletModel = input.cardModel.walletModels?.first {
+            updateCardBalanceText(for: walletModel)
+        }
         updateCardBalance()
     }
         
@@ -160,10 +170,6 @@ class SingleCardOnboardingViewModel: ViewModel {
         containerSize = size
         if input.welcomeStep != nil, isInitialAnimPlayed {
             setupCard(animated: !isInitialSetup)
-//            cardAnimSettings = .init(targetSettings: CardLayout.main.cardAnimSettings(for: currentStep,
-//                                                                                      containerSize: size,
-//                                                                                      animated: !isInitialSetup),
-//                                     intermediateSettings: nil)
         }
         
     }
@@ -230,13 +236,6 @@ class SingleCardOnboardingViewModel: ViewModel {
     
     func executeStep() {
         switch currentStep {
-        case .read:
-            if assembly.isPreview {
-                executingRequestOnCard = true
-                readPreviewCard()
-            } else {
-                showDisclaimer()
-            }
         case .createWallet:
             сreateWallet()
         case .topup:
@@ -248,20 +247,6 @@ class SingleCardOnboardingViewModel: ViewModel {
         default:
             break
         }
-    }
-    
-    
-    func showDisclaimer() {
-        navigation.onboardingToDisclaimer = true
-    }
-    
-    func acceptDisclaimer() {
-        userPrefsService.isTermsOfServiceAccepted = true
-        navigation.onboardingToDisclaimer = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            
-        }
-        
     }
     
     func updateCardBalance() {
@@ -366,13 +351,7 @@ class SingleCardOnboardingViewModel: ViewModel {
     }
     
     private func updateCardBalanceText(for model: WalletModel) {
-        withAnimation {
-            cardBalance = model.getBalance(for: .coin)
-        }
-    }
-    
-    private func topupNote() {
-        
+        cardBalance = model.getBalance(for: .coin)
     }
     
     private func readPreviewCard() {
