@@ -386,18 +386,6 @@ struct TwinsOnboardingView: View {
                         }
                     }
                 )
-//                VStack(spacing: 0) {
-//                    CardOnboardingMessagesView(title: currentStep.title,
-//                                               subtitle: currentStep.subtitle) {
-//                        viewModel.reset()
-//                    }
-//                    .frame(alignment: .top)
-//                    Spacer()
-//                    buttons
-//                        .frame(height: 122)
-//                        .padding(.bottom, 16)
-//
-//                }
                 .padding(.horizontal, 40)
             }
             BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,

@@ -44,7 +44,11 @@ struct OnboardingProgressCircle: View {
     var body: some View {
         ZStack {
             Rectangle()
-                .modifier(AnimatableGradient(gradientStop: gradientStop))
+                .modifier(AnimatableGradient(
+                            backgroundColor: .tangemTapGreen2,
+                            progressColor: .tangemTapGreen,
+                            gradientStop: gradientStop)
+                )
                 .frame(width: circleDiameter, height: circleDiameter)
                 .cornerRadius(circleDiameter / 2)
             Rectangle()
