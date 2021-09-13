@@ -114,9 +114,9 @@ class CardOnboardingViewModel: ViewModel {
             break
         }
         
-        withAnimation {
+//        withAnimation(.linear(duration: 0.0001)) {
             self.content = content
-        }
+//        }
     }
     
     private func processToMain() {
