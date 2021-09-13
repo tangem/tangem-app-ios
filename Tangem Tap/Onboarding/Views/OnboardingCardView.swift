@@ -18,7 +18,7 @@ struct OnboardingCardView: View {
     private let cardRotationAnimDuration: TimeInterval = 0.2
     
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .center) {
             if let image = backCardImage {
                 Image(uiImage: image)
                     .resizable()
@@ -31,11 +31,6 @@ struct OnboardingCardView: View {
                 .aspectRatio(contentMode: .fit)
 //                .background(Color.pink.opacity(0.6))
                 .opacity(cardScanned ? 0.0 : 1.0)
-            if let number = cardNumber {
-                Text("\(number)")
-                    .font(.system(size: 25, weight: .bold, design: .monospaced))
-                    .foregroundColor(.red)
-            }
         }
     }
     

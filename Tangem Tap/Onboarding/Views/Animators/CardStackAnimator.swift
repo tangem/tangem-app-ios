@@ -10,6 +10,7 @@ import SwiftUI
 
 struct CardsStackAnimatorSettings {
     let topCardSize: CGSize
+    let topCardOffset: CGSize
     let cardsVerticalOffset: CGFloat
     let scaleStep: CGFloat
     let opacityStep: Double
@@ -18,6 +19,7 @@ struct CardsStackAnimatorSettings {
     
     static var zero: CardsStackAnimatorSettings {
         .init(topCardSize: .zero,
+              topCardOffset: .zero,
               cardsVerticalOffset: 0,
               scaleStep: 0,
               opacityStep: 0,
@@ -218,6 +220,7 @@ struct CardStackAnimatorPreview: View {
     
     var animatorSettings: CardsStackAnimatorSettings {
         .init(topCardSize: .init(width: 315, height: 184),
+              topCardOffset: .zero,
               cardsVerticalOffset: 17,
               scaleStep: 0.1,
               opacityStep: 0.2,
