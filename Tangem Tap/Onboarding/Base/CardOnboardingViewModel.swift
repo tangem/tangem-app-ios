@@ -37,7 +37,7 @@ class CardOnboardingViewModel: ViewModel {
         var navbarTitle: LocalizedStringKey {
             switch self {
             case .notScanned: return ""
-            case .singleCard: return "Activating card"
+            case .singleCard: return "onboarding_navbar_activating_card"
             case .twin: return "Tangem Twin"
             case .wallet: return "Tangem Wallet"
             }
@@ -106,7 +106,6 @@ class CardOnboardingViewModel: ViewModel {
         
         switch content {
         case .singleCard:
-            input.currentStepIndex = 1
             assembly.makeNoteOnboardingViewModel(with: input)
         case .twin:
             assembly.makeTwinOnboardingViewModel(with: input)
