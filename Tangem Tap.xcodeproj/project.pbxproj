@@ -197,6 +197,7 @@
 		B01983CD2660C88500107390 /* RskAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01983CC2660C88500107390 /* RskAddressService.swift */; };
 		B01983CF2660CC7E00107390 /* EthereumJsonRpcProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01983CE2660CC7E00107390 /* EthereumJsonRpcProvider.swift */; };
 		B01983D12660CD2F00107390 /* EthereumResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01983D02660CD2F00107390 /* EthereumResponse.swift */; };
+		B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01EB9C326E9F18A0060E2FB /* StackCalculator.swift */; };
 		B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFB325DE7F9300EF422C /* DataCollectors.swift */; };
 		B020FFBE25DE895E00EF422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* Logger.swift */; };
 		B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */; };
@@ -948,6 +949,7 @@
 		B01983CC2660C88500107390 /* RskAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RskAddressService.swift; sourceTree = "<group>"; };
 		B01983CE2660CC7E00107390 /* EthereumJsonRpcProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumJsonRpcProvider.swift; sourceTree = "<group>"; };
 		B01983D02660CD2F00107390 /* EthereumResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumResponse.swift; sourceTree = "<group>"; };
+		B01EB9C326E9F18A0060E2FB /* StackCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackCalculator.swift; sourceTree = "<group>"; };
 		B020FFB325DE7F9300EF422C /* DataCollectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollectors.swift; sourceTree = "<group>"; };
 		B020FFBD25DE895E00EF422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		B022D30F253746C900D934D7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -3245,6 +3247,7 @@
 			isa = PBXGroup;
 			children = (
 				B0B8670526DF60E7008DAA67 /* CardStackAnimator.swift */,
+				B01EB9C326E9F18A0060E2FB /* StackCalculator.swift */,
 			);
 			path = Animators;
 			sourceTree = "<group>";
@@ -3264,6 +3267,7 @@
 		B0C6B4C426CE686500FA990B /* ProgressBar */ = {
 			isa = PBXGroup;
 			children = (
+				B0F16D6F26EF253000687C47 /* Simple */,
 				B0C6B4C626CE696800FA990B /* Checkmarks */,
 				B0C6B4C526CE687200FA990B /* Icons */,
 			);
@@ -3437,6 +3441,13 @@
 				B0E92C9626D38A7E004F0855 /* BottomSheetView.swift */,
 			);
 			path = BottomSheets;
+			sourceTree = "<group>";
+		};
+		B0F16D6F26EF253000687C47 /* Simple */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Simple;
 			sourceTree = "<group>";
 		};
 		B0FAD00826BA78E400F45E88 /* CardTypes */ = {
@@ -4009,6 +4020,7 @@
 				5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */,
 				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
 				B099614D26D52C22000E3779 /* CardOnboardingView.swift in Sources */,
+				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
