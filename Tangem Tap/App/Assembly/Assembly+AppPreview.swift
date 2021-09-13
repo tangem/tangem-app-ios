@@ -13,7 +13,7 @@ import BlockchainSdk
 extension Assembly {
     
     var previewNoteCardOnboardingInput: CardOnboardingInput {
-        CardOnboardingInput(steps: .singleWallet([.read, .createWallet, .topup, .confetti, .goToMain]),
+        CardOnboardingInput(steps: .singleWallet([.createWallet, .topup, .confetti, .goToMain]),
                             cardModel: previewCardViewModel,
                             cardImage: UIImage(named: "card_btc")!,
                             cardsPosition: nil,
