@@ -588,6 +588,7 @@ Amount to pay: %@";
 "onboarding_read_title" = "Welcome to Tangem";
 "onboarding_read_subtitle" = "The safest way to buy, use and store cryptocurrency";
 
+"onboarding_navbar_activating_card" = "Activating card";
 "onboarding_button_create_wallet" = "Create wallet";
 "onboarding_button_how_it_works" = "How it works?";
 "onboarding_create_title" = "Create a wallet";
@@ -606,7 +607,7 @@ Amount to pay: %@";
 
 "onboarding_title_twin_first_card" = "Tap the #1 twin card";
 "onboarding_title_twin_second_card" = "Tap the #2 twin card";
-"onboarding_subtitle_intro %@" = "This one that you are holding in your hands  and the other one with number %@.";
+"onboarding_subtitle_intro %@" = "This one that you are holding in your hands and the other one with number %@.";
 "onboarding_subtitle_reset_twin_warning" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
 "onboarding_button_tap_first_card" = "Tap the card #1";
 "onboarding_button_tap_second_card" = "Tap the card #2";
