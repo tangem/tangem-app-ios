@@ -9,59 +9,57 @@
 import SwiftUI
 
 enum NoteOnboardingStep: Int, CaseIterable {
-    case read, createWallet, topup, backup, confetti, goToMain
+    case createWallet = 2, topup, confetti, goToMain
+    
+    static func maxNumberOfSteps(isNote: Bool) -> Int {
+        isNote ?
+            self.allCases.count :
+            2   // Old cards has 2 steps - read card and create wallet.
+    }
     
     var hasProgressStep: Bool {
         switch self {
-        case .read, .createWallet, .topup, .backup: return true
+        case .createWallet, .topup: return true
         case .confetti, .goToMain: return false
         }
     }
     
     var icon: Image? {
         switch self {
-        case .read: return Image("onboarding.nfc")
         case .createWallet: return Image("onboarding.create.wallet")
         case .topup: return Image("onboarding.topup")
-        case .backup, .confetti, .goToMain: return nil
+        case .confetti, .goToMain: return nil
         }
     }
     
     var iconFont: Font {
         switch self {
-        case .read: return .system(size: 20, weight: .bold)
         default: return .system(size: 20, weight: .regular)
         }
     }
     
     var title: LocalizedStringKey {
         switch self {
-        case .read: return "onboarding_read_title"
         case .goToMain: return ""
         case .createWallet: return "onboarding_create_title"
         case .topup: return "onboarding_topup_title"
-        case .backup: return "Backup wallet"
         case .confetti: return "onboarding_confetti_title"
         }
     }
     
     var subtitle: LocalizedStringKey {
         switch self {
-        case .read: return "onboarding_read_subtitle"
         case .goToMain: return ""
         case .createWallet: return "onboarding_create_subtitle"
         case .topup: return "onboarding_topup_subtitle"
-        case .backup: return ""
         case .confetti: return "onboarding_confetti_subtitle"
         }
     }
     
     var primaryButtonTitle: LocalizedStringKey {
         switch self {
-        case .read: return "home_button_scan"
         case .createWallet: return "onboarding_button_create_wallet"
         case .topup: return "onboarding_button_buy_crypto"
-        case .backup: return ""
         case .confetti: return "common_continue"
         case .goToMain: return ""
         }
@@ -69,23 +67,21 @@ enum NoteOnboardingStep: Int, CaseIterable {
     
     var withSecondaryButton: Bool {
         switch self {
-        case .read, .createWallet, .topup: return true
-        case .confetti, .backup, .goToMain: return false
+        case .createWallet, .topup: return true
+        case .confetti, .goToMain: return false
         }
     }
     
     var secondaryButtonTitle: LocalizedStringKey {
         switch self {
-        case .read: return "onboarding_button_shop"
         case .createWallet: return "onboarding_button_how_it_works"
         case .topup: return "onboarding_button_show_address_qr"
-        case .confetti, .backup, .goToMain: return ""
+        case .confetti, .goToMain: return ""
         }
     }
     
     var bigCircleBackgroundScale: CGFloat {
         switch self {
-        case .read: return 1.0
         default: return 0.0
         }
     }
@@ -94,7 +90,7 @@ enum NoteOnboardingStep: Int, CaseIterable {
         switch self {
         case .createWallet:
             return .init(width: 0, height: containerSize.height * 0.103)
-        case .topup, .confetti, .backup:
+        case .topup, .confetti:
             return defaultBackgroundOffset(in: containerSize)
 //            let height = 0.112 * containerSize.height
 //            return .init(width: 0, height: height)
@@ -105,18 +101,18 @@ enum NoteOnboardingStep: Int, CaseIterable {
     
     var balanceStackOpacity: Double {
         switch self {
-        case .read, .createWallet, .goToMain, .backup: return 0
+        case .createWallet, .goToMain: return 0
         case .topup, .confetti: return 1
         }
     }
     
     func cardBackgroundFrame(containerSize: CGSize) -> CGSize {
         switch self {
-        case .read, .goToMain: return .zero
+        case .goToMain: return .zero
         case .createWallet:
             let diameter = CardLayout.main.frame(for: self, containerSize: containerSize).height * 1.317
             return .init(width: diameter, height: diameter)
-        case .topup, .confetti, .backup:
+        case .topup, .confetti:
             return defaultBackgroundFrameSize(in: containerSize)
 //            let height = 0.61 * containerSize.height
 //            return .init(width: containerSize.width * 0.787, height: height)
@@ -125,9 +121,9 @@ enum NoteOnboardingStep: Int, CaseIterable {
     
     func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
         switch self {
-        case .read, .goToMain: return 0
+        case .goToMain: return 0
         case .createWallet: return cardBackgroundFrame(containerSize: containerSize).height / 2
-        case .topup, .confetti, .backup: return 8
+        case .topup, .confetti: return 8
         }
     }
 }
@@ -150,28 +146,17 @@ enum CardLayout: OnboardingCardFrameCalculator {
     }
     
     func rotationAngle(at step: NoteOnboardingStep) -> Angle {
-        switch (self, step) {
-        case (.main, .read): return Angle(degrees: -2)
-        case (.supplementary, .read): return Angle(degrees: -21)
-        default: return .zero
-        }
+        .zero
     }
     
     func offset(at step: NoteOnboardingStep, containerSize: CGSize) -> CGSize {
-        let containerHeight = max(containerSize.height, containerSize.width)
         switch (self, step) {
-        case (.main, .read):
-            let heightOffset = containerHeight * 0.183
-            return .init(width: -1, height: -heightOffset)
         case (.main, .createWallet):
             return step.cardBackgroundOffset(containerSize: containerSize)
         case (.main, _):
             let backgroundSize = step.cardBackgroundFrame(containerSize: containerSize)
             let backgroundOffset = step.cardBackgroundOffset(containerSize: containerSize)
             return .init(width: 0, height: backgroundOffset.height - backgroundSize.height / 2 + 8)
-        case (.supplementary, .read):
-            let offset = containerHeight * 0.137
-            return .init(width: 8, height: offset)
         case (.supplementary, _): return .zero
         }
     }
@@ -181,26 +166,19 @@ enum CardLayout: OnboardingCardFrameCalculator {
             return 1
         }
         
-        if step == .read {
-            return 1
-        }
-        
         return 0
     }
     
     func frameSizeRatio(for step: NoteOnboardingStep) -> CGFloat {
         switch (self, step) {
-        case (.main, .read): return 0.375
         case (.main, .createWallet): return 0.536
         case (.main, _): return 0.246
-        case (.supplementary, .read): return 0.32
         case (.supplementary, _): return 0.18
         }
     }
     
     func cardFrameMinHorizontalPadding(at step: NoteOnboardingStep) -> CGFloat {
         switch (self, step) {
-        case (.main, .read): return 98
         case (.main, .createWallet): return 80
         case (.main, _): return 234
         case (.supplementary, _): return 106
@@ -219,6 +197,10 @@ struct SingleCardOnboardingView: View {
     @State private var animationContainerSize: CGSize = .zero
     
     var currentStep: NoteOnboardingStep { viewModel.currentStep }
+    
+    var progress: CGFloat {
+        CGFloat(viewModel.currentStepIndex + 2) / CGFloat(viewModel.numberOfProgressBarSteps)
+    }
     
     var isSmallScreenSize: Bool { animationContainerSize.height < 300 }
     
@@ -269,8 +251,6 @@ struct SingleCardOnboardingView: View {
                      size: .customWidth(animationContainerSize.width - horizontalPadding * 2)) {
 //            viewModel.reset()
             switch currentStep {
-            case .read:
-                navigation.readToShop = true
             case .topup:
                 viewModel.isAddressQrBottomSheetPresented = true
             default:
@@ -285,7 +265,7 @@ struct SingleCardOnboardingView: View {
     }
     
     private var isTopItemsVisible: Bool {
-        currentStep != .read && viewModel.isInitialAnimPlayed
+        viewModel.isInitialAnimPlayed
     }
     
     var body: some View {
@@ -297,10 +277,6 @@ struct SingleCardOnboardingView: View {
             VStack(spacing: 0) {
                 navigationLinks
                 
-                if viewModel.steps.count > 2 && currentStep != .read {
-                    
-                }
-                
                 GeometryReader { proxy in
                     ZStack(alignment: .center) {
                         let size = proxy.size
@@ -311,9 +287,8 @@ struct SingleCardOnboardingView: View {
                             .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
                             .opacity(isTopItemsVisible ? 1.0 : 0.0)
                         
-                        OnboardingProgressCheckmarksView(numberOfSteps: viewModel.numberOfProgressBarSteps, currentStep: viewModel.$currentStepIndex)
-                            .frame(maxWidth: .infinity, maxHeight: 5)
-                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + 5 : 0))
+                        ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
+                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + 10 : 0))
                             .opacity(isTopItemsVisible ? 1.0 : 0.0)
                             .padding(.horizontal, horizontalPadding)
                         
@@ -380,8 +355,6 @@ struct SingleCardOnboardingView: View {
                         supplementSize: .wide,
                         supplementAction: {
                             switch currentStep {
-                            case .read:
-                                navigation.readToShop = true
                             case .topup:
                                 viewModel.isAddressQrBottomSheetPresented = true
                             default:
