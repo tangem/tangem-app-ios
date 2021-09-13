@@ -576,6 +576,8 @@ class MainViewModel: ViewModel {
                 let input = CardOnboardingInput(steps: steps,
                                                 cardModel: cardModel,
                                                 cardImage: image,
+                                                cardsPosition: nil,
+                                                welcomeStep: nil,
                                                 currentStepIndex: 1,
                                                 successCallback: updateState)
                 self.assembly.makeCardOnboardingViewModel(with: input)
