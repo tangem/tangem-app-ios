@@ -46,7 +46,11 @@ struct OnboardingProgressCheckmarksView: View {
                         }
                     }
                 Rectangle()
-                    .modifier(AnimatableGradient(gradientStop: currentProgress))
+                    .modifier(AnimatableGradient(
+                                backgroundColor: .tangemTapGreen2,
+                                progressColor: .tangemTapGreen,
+                                gradientStop: currentProgress)
+                    )
                     .frame(width: containerSize.width, height: 3)
                 ForEach(0..<numberOfSteps) { stepIndex in
                     OnboardingProgressCircle(index: stepIndex, selectedIndex: animatedSelectedIndex)
