@@ -93,10 +93,11 @@ enum NoteOnboardingStep: Int, CaseIterable {
     func cardBackgroundOffset(containerSize: CGSize) -> CGSize {
         switch self {
         case .createWallet:
-            return .init(width: 0, height: -7)
+            return .init(width: 0, height: containerSize.height * 0.103)
         case .topup, .confetti, .backup:
-            let height = 0.021 * containerSize.height
-            return .init(width: 0, height: -height)
+            return defaultBackgroundOffset(in: containerSize)
+//            let height = 0.112 * containerSize.height
+//            return .init(width: 0, height: height)
         default:
             return .zero
         }
@@ -113,11 +114,12 @@ enum NoteOnboardingStep: Int, CaseIterable {
         switch self {
         case .read, .goToMain: return .zero
         case .createWallet:
-            let diameter = CardLayout.main.frame(for: self, containerSize: containerSize).height * 1.316
+            let diameter = CardLayout.main.frame(for: self, containerSize: containerSize).height * 1.317
             return .init(width: diameter, height: diameter)
         case .topup, .confetti, .backup:
-            let height = 0.61 * containerSize.height
-            return .init(width: containerSize.width * 0.787, height: height)
+            return defaultBackgroundFrameSize(in: containerSize)
+//            let height = 0.61 * containerSize.height
+//            return .init(width: containerSize.width * 0.787, height: height)
         }
     }
     
@@ -130,10 +132,12 @@ enum NoteOnboardingStep: Int, CaseIterable {
     }
 }
 
-enum CardLayout {
+extension NoteOnboardingStep: OnboardingTopupBalanceLayoutCalculator { }
+
+enum CardLayout: OnboardingCardFrameCalculator {
     case main, supplementary
     
-    private var cardHeightWidthRatio: CGFloat { 0.609 }
+    var cardHeightWidthRatio: CGFloat { 0.609 }
     
     func cardAnimSettings(for step: NoteOnboardingStep, containerSize: CGSize, animated: Bool) -> CardAnimSettings {
         .init(frame: frame(for: step, containerSize: containerSize),
@@ -143,15 +147,6 @@ enum CardLayout {
               zIndex: self == .main ? 100 : 10,
               rotationAngle: rotationAngle(at: step),
               animType: animated ? .default : .noAnim)
-    }
-    
-    func frame(for step: NoteOnboardingStep, containerSize: CGSize) -> CGSize {
-        let height = containerSize.height * frameSizeRatio(for: step)
-        let width = height / cardHeightWidthRatio
-        let maxWidth = containerSize.width - cardFrameMinHorizontalPadding(for: step)
-        return width > maxWidth ?
-            .init(width: maxWidth, height: maxWidth * cardHeightWidthRatio) :
-            .init(width: height / cardHeightWidthRatio, height: height)
     }
     
     func rotationAngle(at step: NoteOnboardingStep) -> Angle {
@@ -169,8 +164,7 @@ enum CardLayout {
             let heightOffset = containerHeight * 0.183
             return .init(width: -1, height: -heightOffset)
         case (.main, .createWallet):
-            let offset = containerHeight * 0.02
-            return .init(width: 0, height: -offset)
+            return step.cardBackgroundOffset(containerSize: containerSize)
         case (.main, _):
             let backgroundSize = step.cardBackgroundFrame(containerSize: containerSize)
             let backgroundOffset = step.cardBackgroundOffset(containerSize: containerSize)
@@ -194,7 +188,7 @@ enum CardLayout {
         return 0
     }
     
-    private func frameSizeRatio(for step: NoteOnboardingStep) -> CGFloat {
+    func frameSizeRatio(for step: NoteOnboardingStep) -> CGFloat {
         switch (self, step) {
         case (.main, .read): return 0.375
         case (.main, .createWallet): return 0.536
@@ -204,10 +198,10 @@ enum CardLayout {
         }
     }
     
-    private func cardFrameMinHorizontalPadding(for step: NoteOnboardingStep) -> CGFloat {
+    func cardFrameMinHorizontalPadding(at step: NoteOnboardingStep) -> CGFloat {
         switch (self, step) {
         case (.main, .read): return 98
-        case (.main, .createWallet): return 68
+        case (.main, .createWallet): return 80
         case (.main, _): return 234
         case (.supplementary, _): return 106
         }
@@ -226,7 +220,7 @@ struct SingleCardOnboardingView: View {
     
     var currentStep: NoteOnboardingStep { viewModel.currentStep }
     
-    var isSmallScreenSize: Bool { animationContainerSize.height < 250 }
+    var isSmallScreenSize: Bool { animationContainerSize.height < 300 }
     
     var navigationLinks: some View {
         VStack(spacing: 0) {
@@ -290,6 +284,10 @@ struct SingleCardOnboardingView: View {
                                        isDisabled: false))
     }
     
+    private var isTopItemsVisible: Bool {
+        currentStep != .read && viewModel.isInitialAnimPlayed
+    }
+    
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
@@ -300,52 +298,65 @@ struct SingleCardOnboardingView: View {
                 navigationLinks
                 
                 if viewModel.steps.count > 2 && currentStep != .read {
-                    OnboardingProgressCheckmarksView(numberOfSteps: viewModel.numberOfProgressBarSteps, currentStep: viewModel.$currentStepIndex)
-                        .frame(maxWidth: .infinity, idealHeight: 42)
-                        .padding(.top, isSmallScreenSize ? 0 : 26)
-                        .padding(.horizontal, horizontalPadding)
+                    
                 }
                 
                 GeometryReader { proxy in
                     ZStack(alignment: .center) {
-                        let backgroundFrame = currentStep.cardBackgroundFrame(containerSize: proxy.size)
-                        let backgroundOffset = currentStep.cardBackgroundOffset(containerSize: proxy.size)
-                        Rectangle()
-                            .frame(size: backgroundFrame)
-                            .cornerRadius(currentStep.cardBackgroundCornerRadius(containerSize: proxy.size))
-                            .foregroundColor(Color.tangemTapBgGray)
-                            .opacity(0.8)
-                            .offset(backgroundOffset)
+                        let size = proxy.size
                         
-                        Image("light_card")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(size: CardLayout.supplementary.frame(for: currentStep, containerSize: proxy.size))
-                            .rotationEffect(CardLayout.supplementary.rotationAngle(at: currentStep))
-                            .offset(CardLayout.supplementary.offset(at: currentStep, containerSize: proxy.size))
-                            .opacity(CardLayout.supplementary.opacity(at: currentStep))
+                        NavigationBar(title: "onboarding_navbar_activating_card",
+                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear))
+                            .frame(size: viewModel.navbarSize)
+                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
+                            .opacity(isTopItemsVisible ? 1.0 : 0.0)
+                        
+                        OnboardingProgressCheckmarksView(numberOfSteps: viewModel.numberOfProgressBarSteps, currentStep: viewModel.$currentStepIndex)
+                            .frame(maxWidth: .infinity, maxHeight: 5)
+                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + 5 : 0))
+                            .opacity(isTopItemsVisible ? 1.0 : 0.0)
+                            .padding(.horizontal, horizontalPadding)
+                        
+                        let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
+                        let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundOffset(containerSize: size) : .zero
+                        
+                        AnimatedView(settings: viewModel.$lightCardAnimSettings) {
+                            Image("light_card")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        }
                         AnimatedView(settings: viewModel.$cardAnimSettings) {
                             OnboardingCardView(baseCardName: "dark_card",
                                                backCardImage: viewModel.cardImage,
-                                               cardScanned: currentStep != .read)
+                                               cardScanned: viewModel.isInitialAnimPlayed && viewModel.cardImage != nil)
                         }
-//                        OnboardingCardView(baseCardName: "dark_card",
-//                                           backCardImage: viewModel.cardImage,
-//                                           cardScanned: currentStep != .read)
-//                            .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
-//                            .offset(CardLayout.main.offset(at: currentStep, containerSize: proxy.size))
-//                            .frame(size: CardLayout.main.frame(for: currentStep, containerSize: proxy.size))
-                        OnboardingTopupBalanceUpdater(
+                        
+                        OnboardingTopupBalanceView(
+                            backgroundFrameSize: backgroundFrame,
+                            cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
+                            backgroundOffset: backgroundOffset,
                             balance: viewModel.cardBalance,
-                            frame: backgroundFrame,
-                            offset: backgroundOffset,
+                            balanceUpdaterFrame: backgroundFrame,
+                            balanceUpdaterOffset: backgroundOffset,
                             refreshAction: {
                                 viewModel.updateCardBalance()
                             },
                             refreshButtonState: viewModel.refreshButtonState,
-                            refreshButtonSize: isSmallScreenSize ? .small : .default,
-                            opacity: currentStep.balanceStackOpacity
+                            refreshButtonSize: .medium,
+                            refreshButtonOpacity: currentStep.balanceStackOpacity
                         )
+
+//                        OnboardingTopupBalanceUpdater(
+//                            balance: viewModel.cardBalance,
+//                            frame: backgroundFrame,
+//                            offset: backgroundOffset,
+//                            refreshAction: {
+//                                viewModel.updateCardBalance()
+//                            },
+//                            refreshButtonState: viewModel.refreshButtonState,
+//                            refreshButtonSize: isSmallScreenSize ? .small : .default,
+//                            opacity: currentStep.balanceStackOpacity
+//                        )
                     }
                     .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
 //                    .background(Color.yellow)
@@ -355,10 +366,38 @@ struct SingleCardOnboardingView: View {
                     animationContainerSize = value
                     viewModel.setupContainer(with: value)
                 }
-                messages
-                buttons
-                Spacer()
-                    .frame(width: 1, height: 20)
+                OnboardingTextButtonView(
+                    title: viewModel.title,
+                    subtitle: viewModel.subtitle,
+                    buttonsSettings: .init(
+                        mainTitle: viewModel.mainButtonTitle,
+                        mainSize: .wide,
+                        mainAction: {
+                            viewModel.executeStep()
+                        },
+                        mainIsBusy: viewModel.executingRequestOnCard,
+                        supplementTitle: viewModel.supplementButtonTitle,
+                        supplementSize: .wide,
+                        supplementAction: {
+                            switch currentStep {
+                            case .read:
+                                navigation.readToShop = true
+                            case .topup:
+                                viewModel.isAddressQrBottomSheetPresented = true
+                            default:
+                                viewModel.reset()
+                            }
+                        },
+                        isVisible: currentStep.withSecondaryButton,
+                        containSupplementButton: true)
+                ) {
+                    viewModel.reset()
+                }
+                .padding(.horizontal, 40)
+//                messages
+//                buttons
+//                Spacer()
+//                    .frame(width: 1, height: 20)
             }
             .frame(maxWidth: screenSize.width, maxHeight: screenSize.height)
             BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
@@ -373,9 +412,10 @@ struct SingleCardOnboardingView: View {
         .frame(maxWidth: screenSize.width, maxHeight: screenSize.height)
 //        .background(Color.pink)
 //        .background(Color.gray.edgesIgnoringSafeArea(.all))
-        
-        
         .navigationBarHidden(true)
+        .onAppear(perform: {
+            viewModel.playInitialAnim()
+        })
     }
 }
 
@@ -437,7 +477,7 @@ struct OnboardingView_Previews: PreviewProvider {
                 .environmentObject(assembly)
                 .environmentObject(assembly.services.navigationCoordinator)
         }
-        .previewGroup(devices: [.iPhoneX], withZoomed: false)
+//        .previewGroup(devices: [.iPhoneX], withZoomed: false)
 //        .previewGroup()
     }
 }
