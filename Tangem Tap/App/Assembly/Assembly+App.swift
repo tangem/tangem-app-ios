@@ -73,12 +73,12 @@ extension Assembly {
             return restored
         }
         
-        return makeNoteOnboardingViewModel(with: nil)
+        return makeNoteOnboardingViewModel(with: previewNoteCardOnboardingInput)
     }
     
     @discardableResult
-    func makeNoteOnboardingViewModel(with input: CardOnboardingInput?) -> SingleCardOnboardingViewModel {
-        let vm = input == nil ? SingleCardOnboardingViewModel() : SingleCardOnboardingViewModel(input: input!)
+    func makeNoteOnboardingViewModel(with input: CardOnboardingInput) -> SingleCardOnboardingViewModel {
+        let vm = SingleCardOnboardingViewModel(input: input)
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.stepsSetupService = services.onboardingStepsSetupService
@@ -86,9 +86,6 @@ extension Assembly {
         vm.exchangeService = services.exchangeService
         vm.imageLoaderService = services.imageLoaderService
         
-        if input == nil {
-            print("Nil input passed to creating note onboarding view model")
-        }
         return vm
     }
     
