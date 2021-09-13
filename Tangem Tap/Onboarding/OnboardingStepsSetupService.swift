@@ -31,7 +31,7 @@ class OnboardingStepsSetupService {
     weak var assembly: Assembly!
     
     static var previewSteps: [NoteOnboardingStep] {
-        [.read, .createWallet, .topup, .confetti, .goToMain]
+        [.createWallet, .topup, .confetti, .goToMain]
     }
     
     func stepsWithCardImage(for cardModel: CardViewModel) -> AnyPublisher<(OnboardingSteps, UIImage), Error> {
@@ -53,7 +53,7 @@ class OnboardingStepsSetupService {
             return stepsForTwins(cardInfo)
         }
         
-        var steps: [NoteOnboardingStep] = [.read]
+        var steps: [NoteOnboardingStep] = []
         
         if card.wallets.count == 0 {
             steps.append(.createWallet)
@@ -64,7 +64,7 @@ class OnboardingStepsSetupService {
     
     private func stepsForNote(_ card: Card) -> AnyPublisher<OnboardingSteps, Error> {
         let walletModel = assembly.loadWallets(from: CardInfo(card: card))
-        var steps: [NoteOnboardingStep] = [.read]
+        var steps: [NoteOnboardingStep] = []
         guard walletModel.count == 1 else {
             steps.append(.createWallet)
             steps.append(.topup)
