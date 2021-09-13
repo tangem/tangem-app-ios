@@ -8,6 +8,19 @@
 
 import SwiftUI
 
+struct NoOpTransition: AnimatableModifier {
+    var animatableData: CGFloat = 0
+    init(_ x: CGFloat) {
+        animatableData = x
+    }
+    func body(content: Content) -> some View {
+        return content
+    }
+}
+extension AnyTransition {
+    static let noOp: AnyTransition = .modifier(active: NoOpTransition(1), identity: NoOpTransition(0))
+}
+
 struct CardOnboardingView: View {
     
     @ObservedObject var viewModel: CardOnboardingViewModel
@@ -40,13 +53,17 @@ struct CardOnboardingView: View {
         case .notScanned:
             if viewModel.isFromMainScreen {
                 defaultLaunchView
+                    .transition(.noOp)
             } else {
                 LetsStartOnboardingView(viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)))
+                    .transition(.noOp)
             }
         case .singleCard:
             defaultLaunchView
+                .transition(.noOp)
         case .twin:
             TwinsOnboardingView(viewModel: viewModel.assembly.getTwinsOnboardingViewModel())
+                .transition(.noOp)
         default:
             Text("Default case")
         }
@@ -60,7 +77,10 @@ struct CardOnboardingView: View {
                 content
             }
             .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
-            .navigationBarHidden(true)
+//            .navigationBarHidden(
+//                !navigation.onboardingToBuyCrypto &&
+//                    !navigation.readToShop
+//            )
         }
         .onAppear(perform: {
             viewModel.bind()
@@ -76,7 +96,8 @@ struct CardOnboardingView_Previews: PreviewProvider {
     
     static var previews: some View {
         CardOnboardingView(
-            viewModel: assembly.makeCardOnboardingViewModel(with: assembly.previewNoteCardOnboardingInput)
+//            viewModel: assembly.makeCardOnboardingViewModel(with: assembly.previewTwinOnboardingInput)
+            viewModel: assembly.getLaunchOnboardingViewModel()
         )
         .environmentObject(assembly.services.navigationCoordinator)
     }
@@ -96,7 +117,7 @@ struct CardOnboardingMessagesView: View {
                 .font(.system(size: 28, weight: .bold))
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.6)
                 .foregroundColor(.tangemTapGrayDark6)
                 .padding(.bottom, 14)
                 .onTapGesture {
@@ -108,6 +129,7 @@ struct CardOnboardingMessagesView: View {
                 .frame(maxWidth: .infinity)
 //                .background(Color.yellow)
                 .multilineTextAlignment(.center)
+                .minimumScaleFactor(0.8)
                 .font(.system(size: 18, weight: .regular))
                 .foregroundColor(.tangemTapGrayDark6)
                 .frame(maxWidth: .infinity)

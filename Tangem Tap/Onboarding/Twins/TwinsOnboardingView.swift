@@ -77,20 +77,22 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     }
     
     private func offset(at step: TwinsOnboardingStep, in container: CGSize) -> CGSize {
-        let containerLongestSize = container.height
+        let containerHeight = container.height
         switch (step, self) {
         case (.intro, .first):
-            let heightOffset = containerLongestSize * 0.234
+            let heightOffset = containerHeight * 0.114
             let widthOffset = container.width * 0.131
             return .init(width: -widthOffset, height: -heightOffset)
         case (.intro, .second):
-            let heightOffset = containerLongestSize * 0.118
+            let heightOffset = containerHeight * 0.183
             let widthOffset = container.width * 0.131
             return .init(width: widthOffset, height: heightOffset)
         case (.first, .first), (.second, .second), (.third, .first):
-            return .init(width: 0, height: -containerLongestSize * 0.128)
+//            return .init(width: 0, height: -containerHeight * 0.128)
+            fallthrough
         case (.first, .second), (.second, .first), (.third, .second):
-            return .init(width: 0, height: -containerLongestSize * 0.039)
+//            return .init(width: 0, height: containerHeight * 0.095)
+            return .zero
         case (.topup, _), (.confetti, _), (.done, _):
             let backgroundSize = step.backgroundFrame(in: container)
             let backgroundOffset = step.backgroundOffset(in: container)
@@ -249,83 +251,28 @@ protocol OnboardingTopupBalanceLayoutCalculator {}
 extension OnboardingTopupBalanceLayoutCalculator {
     var defaultBackgroundCornerRadius: CGFloat { 8 }
     
-    func defaultBackgroundFrameSize(in container: CGSize) -> CGSize {
-        let height = 0.61 * container.height
-        return .init(width: container.width * 0.787, height: height)
-    }
-    
-    func defaultBackgroundOffset(in container: CGSize) -> CGSize {
-        let height = 0.021 * container.height
-        return .init(width: 0, height: -height)
-    }
-}
-
-struct StackCalculator {
-    
-    private(set) var prehideAnimSettings: CardAnimSettings = .zero
-    private(set) var cardsSettings: [CardAnimSettings] = []
-    
-    private let maxZIndex: Double = 100
-    
-    private var containerSize: CGSize = .zero
-    private var settings: CardsStackAnimatorSettings = .zero
-    
-    mutating func setup(for container: CGSize, with settings: CardsStackAnimatorSettings) {
-        containerSize = container
-        self.settings = settings
-        populateSettings()
-    }
-    
-    mutating private func populateSettings() {
-        prehideAnimSettings = .zero
-        cardsSettings = []
-        for i in 0..<settings.numberOfCards {
-            cardsSettings.append(cardInStackSettings(at: i))
+    func defaultBackgroundFrameSize(in container: CGSize, isWithNavbar: Bool = true) -> CGSize {
+        guard isWithNavbar else {
+            return .init(width: container.width * 0.787, height: 0.61 * container.height)
         }
-        prehideAnimSettings = calculatePrehideSettings(for: 0)
+        
+        return .init(width: container.width * 0.787, height: 0.487 * container.height)
     }
     
-    private func calculatePrehideSettings(for index: Int) -> CardAnimSettings {
-        guard cardsSettings.count > 0 else { return .zero }
+    func defaultBackgroundOffset(in container: CGSize, isWithNavbar: Bool = true) -> CGSize {
+        guard isWithNavbar else {
+            let height = 0.021 * container.height
+            return .init(width: 0, height: -height)
+        }
         
-        let settings = cardsSettings[0]
-        let targetFrameHeight = settings.frame.height
-        
-        return .init(frame: settings.frame,
-                     offset: .init(width: 0, height: -(settings.frame.height / 2 + targetFrameHeight / 2) - 10),
-                     scale: 1.0,
-                     opacity: 1.0,
-                     zIndex: maxZIndex + 100,
-                     rotationAngle: Angle(degrees: 0),
-                     animType: .linear,
-                     animDuration: 0.15)
+        return .init(width: 0, height: 0.112 * container.height)
     }
-    
-    private func cardInStackSettings(at index: Int) -> CardAnimSettings {
-        let floatIndex = CGFloat(index)
-        let doubleIndex = Double(index)
-        let offset: CGFloat = settings.cardsVerticalOffset * 2 * floatIndex
-        let scale: CGFloat = max(1 - settings.scaleStep * floatIndex, 0)
-        let opacity: Double = max(1 - settings.opacityStep * doubleIndex, 0)
-        let zIndex: Double = maxZIndex - Double(index)
-        
-        return .init(frame: settings.topCardSize,
-                     offset: .init(width: 0, height: offset),
-                     scale: scale,
-                     opacity: opacity,
-                     zIndex: zIndex,
-                     rotationAngle: .zero,
-                     animType: .linear,
-                     animDuration: 0.3)
-    }
-    
 }
 
 struct TwinsOnboardingView: View {
     
     @ObservedObject var viewModel: TwinsOnboardingViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
-//    [REDACTED_USERNAME] var calc: StackCalculator = .init()
     
     var currentStep: TwinsOnboardingStep { viewModel.currentStep }
     
@@ -341,34 +288,19 @@ struct TwinsOnboardingView: View {
                        isActive: $navigation.onboardingToBuyCrypto)
     }
     
-    @ViewBuilder
-    var buttons: some View {
-        TangemButton(isLoading: viewModel.isModelBusy,
-                     title: currentStep.mainButtonTitle,
-                     size: .wide) {
-            withAnimation {
-                viewModel.executeStep()
-            }
-        }
-        .buttonStyle(TangemButtonStyle(color: .green,
-                                       font: .system(size: 17, weight: .semibold),
-                                       isDisabled: false))
-        TangemButton(isLoading: false,
-                     title: currentStep.supplementButtonTitle,
-                     size: .wide) {
-            viewModel.supplementButtonAction()
-        }
-        .allowsHitTesting(currentStep.isSupplementButtonActive)
-        .buttonStyle(TangemButtonStyle(color: .transparentWhite,
-                                       font: .system(size: 17, weight: .semibold),
-                                       isDisabled: false))
-        .padding(.top, 10)
-    }
-    
     @State var containerSize: CGSize = .zero
+    @State var welcomeDisplayed: Bool = false
     
     var screenSize: CGSize {
         UIScreen.main.bounds.size
+    }
+    
+    var isNavbarVisible: Bool {
+        viewModel.isInitialAnimPlayed
+    }
+    
+    private var navbarSize: CGSize {
+        .init(width: screenSize.width, height: 44)
     }
     
     var body: some View {
@@ -377,12 +309,19 @@ struct TwinsOnboardingView: View {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
                 .frame(maxWidth: screenSize.width)
-                .zIndex(100)
+                .zIndex(110)
             
             VStack(spacing: 0) {
-                NavigationBar(title: "Tangem Twin", settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear))
                 GeometryReader { geom in
                     ZStack(alignment: .center) {
+                        
+                        // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
+                        // and cards jumps instead of smooth transition
+                        NavigationBar(title: "Tangem Twin",
+                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear))
+                            .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? navbarSize.height / 2 : 0))
+                            .opacity(isNavbarVisible ? 1.0 : 0.0)
+                        
                         let backgroundFrame = currentStep.backgroundFrame(in: containerSize)
                         let backgroundOffset = currentStep.backgroundOffset(in: containerSize)
                         OnboardingTopupBalanceView(
@@ -411,23 +350,54 @@ struct TwinsOnboardingView: View {
                                                cardScanned: viewModel.firstTwinImage != nil)
                         }
                     }
-                    .position(x: geom.size.width / 2, y: geom.size.height / 2)
+                    .frame(size: geom.size)
                 }
                 .readSize { size in
-                    containerSize = size
-                    viewModel.setupContainerSize(size)
-                }
-                Group {
-                    CardOnboardingMessagesView(title: currentStep.title,
-                                               subtitle: currentStep.subtitle) {
-                        viewModel.reset()
+                    withAnimation {
+                        containerSize = size
+                        viewModel.setupContainerSize(size)
                     }
-                    .frame(minHeight: 116, alignment: .top)
-                    Spacer()
-                        .frame(minHeight: 30, maxHeight: 66)
-                    buttons
-                        .padding(.bottom, 16)
                 }
+                
+                OnboardingTextButtonView(
+                    title: viewModel.title,
+                    subtitle: viewModel.subtitle,
+                    buttonsSettings: .init(
+                        mainTitle: viewModel.mainButtonTitle,
+                        mainSize: .wide,
+                        mainAction: {
+                            withAnimation {
+                                
+                            }
+                            viewModel.executeStep()
+                        },
+                        mainIsBusy: viewModel.isModelBusy,
+                        supplementTitle: viewModel.supplementButtonTitle,
+                        supplementSize: .wide,
+                        supplementAction: {
+                            viewModel.supplementButtonAction()
+                        },
+                        isVisible: currentStep.isSupplementButtonActive,
+                        containSupplementButton: true),
+                    titleAction: {
+                        viewModel.reset()
+                        withAnimation {
+                            
+                        }
+                    }
+                )
+//                VStack(spacing: 0) {
+//                    CardOnboardingMessagesView(title: currentStep.title,
+//                                               subtitle: currentStep.subtitle) {
+//                        viewModel.reset()
+//                    }
+//                    .frame(alignment: .top)
+//                    Spacer()
+//                    buttons
+//                        .frame(height: 122)
+//                        .padding(.bottom, 16)
+//
+//                }
                 .padding(.horizontal, 40)
             }
             BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
@@ -441,7 +411,84 @@ struct TwinsOnboardingView: View {
         }
         .preference(key: ModalSheetPreferenceKey.self, value: currentStep.isModal)
         .navigationBarHidden(true)
+        .onAppear(perform: {
+            if viewModel.isInitialAnimPlayed {
+                return
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.viewModel.playInitialAnim()
+            }
+            
+        })
     }
+}
+
+struct ButtonsSettings {
+    let mainTitle: LocalizedStringKey
+    let mainSize: ButtonSize
+    let mainAction: (() -> Void)?
+    let mainIsBusy: Bool
+    
+    let supplementTitle: LocalizedStringKey
+    let supplementSize: ButtonSize
+    let supplementAction: (() -> Void)?
+    let isVisible: Bool
+    let containSupplementButton: Bool
+}
+
+struct OnboardingTextButtonView: View {
+    
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+    let buttonsSettings: ButtonsSettings
+    
+    let titleAction: (() -> Void)?
+    
+    @ViewBuilder
+    var buttons: some View {
+        VStack(spacing: 10) {
+            TangemButton(isLoading: buttonsSettings.mainIsBusy,
+                         title: buttonsSettings.mainTitle,
+                         size: buttonsSettings.mainSize) {
+                withAnimation {
+                    buttonsSettings.mainAction?()
+                }
+            }
+            .buttonStyle(TangemButtonStyle(color: .green,
+                                           font: .system(size: 17, weight: .semibold),
+                                           isDisabled: false))
+            
+            if buttonsSettings.containSupplementButton {
+                TangemButton(isLoading: false,
+                             title: buttonsSettings.supplementTitle,
+                             size: buttonsSettings.supplementSize) {
+                    buttonsSettings.supplementAction?()
+                }
+                .opacity(buttonsSettings.isVisible ? 1.0 : 0.0)
+                .allowsHitTesting(buttonsSettings.isVisible)
+                .buttonStyle(TangemButtonStyle(color: .transparentWhite,
+                                               font: .system(size: 17, weight: .semibold),
+                                               isDisabled: false))
+            }
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            CardOnboardingMessagesView(title: title,
+                                       subtitle: subtitle) {
+                titleAction?()
+            }
+            .frame(alignment: .top)
+            Spacer()
+            buttons
+                .padding(.bottom, 16)
+                
+        }
+        .frame(maxHeight: 304)
+    }
+    
 }
 
 struct OnboardingTopupBalanceView: View {
@@ -494,6 +541,8 @@ struct TwinsOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
         TwinsOnboardingView(viewModel: assembly.getTwinsOnboardingViewModel())
             .environmentObject(assembly.services.navigationCoordinator)
-//            .previewGroup(devices: [.iPhoneX], withZoomed: false)
+        // don't know why, preview group doesn't display layout properly. If you want to try live preview,
+        // you should select launch device to the right of target selection
+//            .previewGroup(devices: [.iPhone7], withZoomed: true)
     }
 }

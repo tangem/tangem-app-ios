@@ -8,18 +8,120 @@
 
 import SwiftUI
 
-struct LetsStartOnboardingView: View {
+enum WelcomeStep {
+    case welcome, letsStart
     
-    enum LetsStartStep {
-        case welcome, letsStart
+    var title: LocalizedStringKey {
+        switch self {
+        case .welcome: return "onboarding_read_title"
+        case .letsStart: return "onboarding_read_title"
+        }
     }
+    
+    var subtitle: LocalizedStringKey {
+        switch self {
+        case .welcome: return "onboarding_read_subtitle"
+        case .letsStart: return "onboarding_read_subtitle"
+        }
+    }
+    
+    var mainButtonTitle: LocalizedStringKey {
+        switch self {
+        case .welcome: return "home_button_scan"
+        case .letsStart: return "home_button_scan"
+        }
+    }
+    
+    var supplementButtonTitle: LocalizedStringKey {
+        switch self {
+        case .welcome: return "onboarding_button_shop"
+        case .letsStart: return "onboarding_button_shop"
+        }
+    }
+}
+
+enum WelcomeCardLayout: OnboardingCardFrameCalculator {
+    case main, supplementary
+    
+    var cardHeightWidthRatio: CGFloat { 0.609 }
+    
+    var zIndex: Double {
+        switch self {
+        case .main: return 100
+        case .supplementary: return 90
+        }
+    }
+    
+    func cardSettings(at step: WelcomeStep, in container: CGSize, animated: Bool) -> AnimatedViewSettings {
+        .init(
+            targetSettings: .init(
+                frame: frame(for: step, containerSize: container),
+                offset: offset(at: step, containerSize: container),
+                scale: 1.0,
+                opacity: opacity(at: step),
+                zIndex: zIndex,
+                rotationAngle: rotationAngle(at: step),
+                animType: animated ? .default : .noAnim
+            ),
+            intermediateSettings: nil
+        )
+    }
+    
+    func rotationAngle(at step: WelcomeStep) -> Angle {
+        switch (self, step) {
+        case (.main, .welcome): return Angle(degrees: -2)
+        case (.supplementary, .welcome): return Angle(degrees: -21)
+        default: return .zero
+        }
+    }
+    
+    func offset(at step: WelcomeStep, containerSize: CGSize) -> CGSize {
+        let containerHeight = max(containerSize.height, containerSize.width)
+        switch (self, step) {
+        case (.main, _):
+            let heightOffset = containerHeight * 0.183
+            return .init(width: -1, height: -heightOffset)
+        case (.supplementary, _):
+            let offset = containerHeight * 0.137
+            return .init(width: 8, height: offset)
+        }
+    }
+    
+    func opacity(at step: WelcomeStep) -> Double {
+        guard self == .supplementary else {
+            return 1
+        }
+        
+        if step == .welcome {
+            return 1
+        }
+        
+        return 0
+    }
+    
+    func frameSizeRatio(for step: WelcomeStep) -> CGFloat {
+        switch (self, step) {
+        case (.main, _): return 0.375
+        case (.supplementary, _): return 0.32
+        }
+    }
+    
+    func cardFrameMinHorizontalPadding(at step: WelcomeStep) -> CGFloat {
+        switch (self, step) {
+        case (.main, _): return 98
+        case (.supplementary, _): return 106
+        }
+    }
+}
+
+struct LetsStartOnboardingView: View {
     
     enum CardLayout: OnboardingCardFrameCalculator {
         case main, supplementary
         
         var cardHeightWidthRatio: CGFloat { 0.609 }
         
-        func rotationAngle(at step: LetsStartStep) -> Angle {
+        func rotationAngle(at step: WelcomeStep) -> Angle {
             switch (self, step) {
             case (.main, .welcome): return Angle(degrees: -2)
             case (.supplementary, .welcome): return Angle(degrees: -21)
@@ -27,7 +129,7 @@ struct LetsStartOnboardingView: View {
             }
         }
         
-        func offset(at step: LetsStartStep, containerSize: CGSize) -> CGSize {
+        func offset(at step: WelcomeStep, containerSize: CGSize) -> CGSize {
             let containerHeight = max(containerSize.height, containerSize.width)
             switch (self, step) {
             case (.main, _):
@@ -39,7 +141,7 @@ struct LetsStartOnboardingView: View {
             }
         }
         
-        func opacity(at step: LetsStartStep) -> Double {
+        func opacity(at step: WelcomeStep) -> Double {
             guard self == .supplementary else {
                 return 1
             }
@@ -51,14 +153,14 @@ struct LetsStartOnboardingView: View {
             return 0
         }
         
-        func frameSizeRatio(for step: LetsStartStep) -> CGFloat {
+        func frameSizeRatio(for step: WelcomeStep) -> CGFloat {
             switch (self, step) {
             case (.main, _): return 0.375
             case (.supplementary, _): return 0.32
             }
         }
         
-        func cardFrameMinHorizontalPadding(at step: LetsStartStep) -> CGFloat {
+        func cardFrameMinHorizontalPadding(at step: WelcomeStep) -> CGFloat {
             switch (self, step) {
             case (.main, _): return 98
             case (.supplementary, _): return 106
@@ -71,31 +173,12 @@ struct LetsStartOnboardingView: View {
     
     @State var containerSize: CGSize = .zero
     
-    var currentStep: LetsStartStep { .welcome }
+    var currentStep: WelcomeStep { .welcome }
     
     @ViewBuilder
     var navigationLinks: some View {
         NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
                        isActive: $navigation.readToShop)
-    }
-    
-    @ViewBuilder
-    var buttons: some View {
-        TangemButton(isLoading: viewModel.isScanningCard,
-                     title: "home_button_scan",
-                     size: .wide) {
-            viewModel.scanCard()
-        }
-        .buttonStyle(TangemButtonStyle(color: .green, font: .system(size: 18, weight: .semibold)))
-        .padding(.bottom, 10)
-        
-        TangemButton(isLoading: false,
-                     title: "onboarding_button_shop",
-                     size: .wide) {
-            navigation.readToShop = true
-        }
-        .buttonStyle(TangemButtonStyle(color: .transparentWhite, font: .system(size: 18, weight: .semibold)))
-        .padding(.bottom, 16)
     }
     
     var body: some View {
@@ -104,40 +187,57 @@ struct LetsStartOnboardingView: View {
                 navigationLinks
                 
                 ZStack {
-                    Image("light_card")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(size: CardLayout.supplementary.frame(for: currentStep, containerSize: containerSize))
-                        .rotationEffect(CardLayout.supplementary.rotationAngle(at: currentStep))
-                        .offset(CardLayout.supplementary.offset(at: currentStep, containerSize: containerSize))
-                        .opacity(CardLayout.supplementary.opacity(at: currentStep))
-                    OnboardingCardView(baseCardName: "dark_card",
-                                       backCardImage: nil,
-                                       cardScanned: false)
-                        .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
-                        .offset(CardLayout.main.offset(at: currentStep, containerSize: containerSize))
-                        .frame(size: CardLayout.main.frame(for: currentStep, containerSize: containerSize))
+                    AnimatedView(settings: viewModel.$lightCardSettings) {
+                        Image("light_card")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    }
+//                        .frame(size: CardLayout.supplementary.frame(for: currentStep, containerSize: containerSize))
+//                        .rotationEffect(CardLayout.supplementary.rotationAngle(at: currentStep))
+//                        .offset(CardLayout.supplementary.offset(at: currentStep, containerSize: containerSize))
+//                        .opacity(CardLayout.supplementary.opacity(at: currentStep))
+                    AnimatedView(settings: viewModel.$darkCardSettings) {
+                        OnboardingCardView(baseCardName: "dark_card",
+                                           backCardImage: nil,
+                                           cardScanned: false)
+                    }
+//
+//                        .rotationEffect(CardLayout.main.rotationAngle(at: currentStep))
+//                        .offset(CardLayout.main.offset(at: currentStep, containerSize: containerSize))
+//                        .frame(size: CardLayout.main.frame(for: currentStep, containerSize: containerSize))
                 }
                 .position(x: containerSize.width / 2, y: containerSize.height / 2)
 //                .background(Color.red)
                 .readSize { size in
                     containerSize = size
+                    viewModel.setupContainer(size)
                 }
-                Group {
-                    CardOnboardingMessagesView(title: "onboarding_read_title",
-                                               subtitle: "onboarding_read_subtitle") {
-                        
-                    }
+                
+                OnboardingTextButtonView(
+                    title: currentStep.title,
+                    subtitle: currentStep.subtitle,
+                    buttonsSettings: ButtonsSettings.init(
+                        mainTitle: currentStep.mainButtonTitle,
+                        mainSize: .wide,
+                        mainAction: {
+                            viewModel.scanCard()
+                        },
+                        mainIsBusy: viewModel.isScanningCard,
+                        supplementTitle: currentStep.supplementButtonTitle,
+                        supplementSize: .wide,
+                        supplementAction: {
+                            navigation.readToShop = true
+                        },
+                        isVisible: true,
+                        containSupplementButton: true
+                    )) {
                     
-                    Spacer()
-                        .frame(minHeight: 30, maxHeight: 66)
-                    
-                    buttons
-                        .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
-                            DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer))
-                                .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
-                        })
                 }
+                .padding(.horizontal, 40)
+                .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
+                    DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer))
+                        .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
+                })
             }
         }
         .alert(item: $viewModel.error, content: { error in
