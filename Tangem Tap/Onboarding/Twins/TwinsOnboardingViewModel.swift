@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 import BlockchainSdk
-
+import TangemSdk
 
 
 class TwinsOnboardingViewModel: ViewModel {
@@ -43,6 +43,9 @@ class TwinsOnboardingViewModel: ViewModel {
     @Published var cardBalance: String = "0.00 BTC"
     @Published var shouldFireConfetti: Bool = false
     @Published var currentCardIndex: Int = 0
+    @Published private(set) var isInitialAnimPlayed = false
+    
+    let tangemSdk = TangemSdk()
     
     var currentStep: TwinsOnboardingStep {
         guard currentStepIndex < steps.count else {
@@ -50,6 +53,38 @@ class TwinsOnboardingViewModel: ViewModel {
         }
         
         return steps[currentStepIndex]
+    }
+    
+    var title: LocalizedStringKey {
+        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
+            return welcomeStep.title
+        }
+        
+        return currentStep.title
+    }
+    
+    var subtitle: LocalizedStringKey {
+        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
+            return welcomteStep.subtitle
+        }
+        
+        return currentStep.subtitle
+    }
+    
+    var mainButtonTitle: LocalizedStringKey {
+        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
+            return welcomeStep.mainButtonTitle
+        }
+        
+        return currentStep.mainButtonTitle
+    }
+    
+    var supplementButtonTitle: LocalizedStringKey {
+        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
+            return welcomteStep.supplementButtonTitle
+        }
+        
+        return currentStep.supplementButtonTitle
     }
     
     var buyCryptoURL: URL? {
@@ -70,8 +105,12 @@ class TwinsOnboardingViewModel: ViewModel {
         cardModel.walletModels?.first?.displayAddress(for: 0) ?? ""
     }
     
+    private(set) var isFromMain = false
+    
+    private let input: CardOnboardingInput
+    
     private var bag: Set<AnyCancellable> = []
-    private var isFromMain = false
+    
     private var containerSize: CGSize = .zero
     private var stackCalculator: StackCalculator = .init()
     
@@ -85,6 +124,7 @@ class TwinsOnboardingViewModel: ViewModel {
         self.imageLoaderService = imageLoaderService
         self.twinsService = twinsService
         self.exchangeService = exchangeService
+        self.input = input
         successCallback = input.successCallback
         cardModel = input.cardModel
         if let twinInfo = input.cardModel.cardInfo.twinCardInfo {
@@ -103,7 +143,16 @@ class TwinsOnboardingViewModel: ViewModel {
         if case let .twins(steps) = input.steps {
             self.steps = steps
         }
-        isFromMain = true
+        
+        if let cardsSettings = input.cardsPosition {
+            firstTwinSettings = cardsSettings.dark
+            secondTwinSettings = cardsSettings.light
+            isInitialAnimPlayed = false
+        } else {
+            isFromMain = true
+            isInitialAnimPlayed = true
+        }
+        
         
         twinsService.setupTwins(for: twinInfo)
         bind()
@@ -114,12 +163,22 @@ class TwinsOnboardingViewModel: ViewModel {
         let isInitialSetup = containerSize == .zero
         containerSize = size
         stackCalculator.setup(for: size, with: .init(topCardSize: TwinOnboardingCardLayout.first.frame(for: .first, containerSize: size),
+                                                     topCardOffset: .init(width: 0, height: 0.06 * size.height),
                                                      cardsVerticalOffset: 20,
                                                      scaleStep: 0.14,
                                                      opacityStep: 0.65,
                                                      numberOfCards: 2,
                                                      maxCardsInStack: 2))
-        setupCardsSettings(animated: !isInitialSetup)
+        if firstTwinSettings == .zero, secondTwinSettings == .zero {
+            setupCardsSettings(animated: !isInitialSetup)
+        }
+    }
+    
+    func playInitialAnim() {
+        withAnimation {
+            isInitialAnimPlayed = true
+            setupCardsSettings(animated: true)
+        }
     }
     
     func executeStep() {
@@ -286,8 +345,10 @@ class TwinsOnboardingViewModel: ViewModel {
         } receiveValue: { [weak self] (first, second) in
             guard let self = self else { return }
             
-            self.firstTwinImage = first
-            self.secondTwinImage = second
+            withAnimation {
+                self.firstTwinImage = first
+                self.secondTwinImage = second
+            }
         }
         .store(in: &bag)
     }
