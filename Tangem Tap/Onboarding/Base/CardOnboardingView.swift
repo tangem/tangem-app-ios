@@ -55,7 +55,7 @@ struct CardOnboardingView: View {
                 defaultLaunchView
                     .transition(.noOp)
             } else {
-                LetsStartOnboardingView(viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)))
+                WelcomeOnboardingView(viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)))
                     .transition(.noOp)
             }
         case .singleCard:
