@@ -403,7 +403,7 @@ struct MainView: View {
         HStack(alignment: .center) {
             scanButton
                 .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
-                    CardOnboardingView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
                         .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
                         .environmentObject(navigation)
                         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
