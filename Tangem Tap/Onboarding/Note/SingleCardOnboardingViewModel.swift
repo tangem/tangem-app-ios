@@ -35,7 +35,7 @@ class SingleCardOnboardingViewModel: ViewModel {
     
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     
-    @Published var steps: [NoteOnboardingStep] =
+    @Published var steps: [SingleCardOnboardingStep] =
         []
 //        [.createWallet, .topup, .confetti]
     @Published var executingRequestOnCard = false
@@ -52,7 +52,7 @@ class SingleCardOnboardingViewModel: ViewModel {
     private(set) var numberOfSteps: Int
     
     var currentProgress: CGFloat {
-        CGFloat(currentStep.rawValue) / CGFloat(numberOfSteps)
+        CGFloat(currentStep.progressStep) / CGFloat(numberOfSteps)
     }
     
     var numberOfProgressBarSteps: Int {
@@ -61,7 +61,7 @@ class SingleCardOnboardingViewModel: ViewModel {
     
     var shopURL: URL { Constants.shopURL }
     
-    var currentStep: NoteOnboardingStep {
+    var currentStep: SingleCardOnboardingStep {
         guard currentStepIndex < steps.count else {
             return .topup
         }
@@ -148,7 +148,7 @@ class SingleCardOnboardingViewModel: ViewModel {
         currentStepIndex = input.currentStepIndex
         cardImage = input.cardImage
         successCallback = input.successCallback
-        numberOfSteps = NoteOnboardingStep.maxNumberOfSteps(isNote: input.cardModel.cardInfo.card.isTangemNote)
+        numberOfSteps = SingleCardOnboardingStep.maxNumberOfSteps(isNote: input.cardModel.cardInfo.card.isTangemNote)
         if let cardsPos = input.cardsPosition {
             cardAnimSettings = cardsPos.dark
             lightCardAnimSettings = cardsPos.light
@@ -373,11 +373,11 @@ class SingleCardOnboardingViewModel: ViewModel {
     }
     
     private func setupCard(animated: Bool) {
-        cardAnimSettings = .init(targetSettings: CardLayout.main.cardAnimSettings(for: currentStep,
+        cardAnimSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: currentStep,
                                                                                   containerSize: containerSize,
                                                                                   animated: animated),
                                  intermediateSettings: nil)
-        lightCardAnimSettings = .init(targetSettings: CardLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
+        lightCardAnimSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
     }
     
 }
