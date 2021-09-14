@@ -1,5 +1,5 @@
 //
-//  CardOnboardingViewModel.swift
+//  OnboardingBaseViewModel.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Combine
 import SwiftUI
 
-class CardOnboardingViewModel: ViewModel {
+class OnboardingBaseViewModel: ViewModel {
     
     enum Content {
         case notScanned, singleCard, twin, wallet
@@ -70,7 +70,6 @@ class CardOnboardingViewModel: ViewModel {
     init(input: CardOnboardingInput) {
         isFromMainScreen = true
         content = .content(for: input.steps)
-//        self.input = input
     }
     
     func bind() {
