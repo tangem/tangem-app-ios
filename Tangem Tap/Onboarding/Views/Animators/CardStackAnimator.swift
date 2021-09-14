@@ -234,11 +234,11 @@ struct CardStackAnimatorPreview: View {
         case .twins:
             CardStackAnimator(
                 cards: [
-                    OnboardingCardView(baseCardName: "twin1",
-                                       backCardImage: nil,
+                    OnboardingCardView(placeholderCardType: .dark,
+                                       cardImage: nil,
                                        cardScanned: false),
-                    OnboardingCardView(baseCardName: "twin2",
-                                       backCardImage: nil,
+                    OnboardingCardView(placeholderCardType: .light,
+                                       cardImage: nil,
                                        cardScanned: false)
                 ], namespace: ns,
                 settings: animatorSettings,
@@ -248,10 +248,9 @@ struct CardStackAnimatorPreview: View {
             CardStackAnimator(
                 cards: (0..<numberOfCards)
                     .map { index in
-                        OnboardingCardView(baseCardName: "tangem_wallet",
-                                           backCardImage: nil,
-                                           cardScanned: false,
-                                           cardNumber: index + 1)
+                        OnboardingCardView(placeholderCardType: .dark,
+                                           cardImage: nil,
+                                           cardScanned: false)
                     }, namespace: ns,
                 settings: animatorSettings,
                 currentCardIndexPublisher: viewModel.$currentCardIndex
@@ -263,8 +262,8 @@ struct CardStackAnimatorPreview: View {
         VStack(spacing: 0) {
             animator
             
-            CardOnboardingMessagesView(title: "Testing animator",
-                                       subtitle: "This is preview screen and must not be used in production. \nSelect card number:") {
+            OnboardingMessagesView(title: "Testing animator",
+                                   subtitle: "This is preview screen and must not be used in production. \nSelect card number:") {
                 
             }
             .padding(.bottom, 50)
