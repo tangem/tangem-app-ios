@@ -108,7 +108,7 @@ struct TwinsOnboardingView: View {
                         mainAction: {
                             viewModel.executeStep()
                         },
-                        mainIsBusy: viewModel.isModelBusy,
+                        mainIsBusy: viewModel.isMainButtonBusy,
                         supplementTitle: viewModel.supplementButtonTitle,
                         supplementSize: .wide,
                         supplementAction: {
