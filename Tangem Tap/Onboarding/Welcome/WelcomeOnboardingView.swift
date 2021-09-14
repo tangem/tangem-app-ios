@@ -30,14 +30,14 @@ struct WelcomeOnboardingView: View {
                 
                 ZStack {
                     AnimatedView(settings: viewModel.$lightCardSettings) {
-                        Image("light_card")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
+                        OnboardingCardView(placeholderCardType: .light,
+                                           cardImage: nil,
+                                           cardScanned: false)
                     }
                     
                     AnimatedView(settings: viewModel.$darkCardSettings) {
-                        OnboardingCardView(baseCardName: "dark_card",
-                                           backCardImage: nil,
+                        OnboardingCardView(placeholderCardType: .dark,
+                                           cardImage: nil,
                                            cardScanned: false)
                     }
 
@@ -71,7 +71,7 @@ struct WelcomeOnboardingView: View {
                 .padding(.horizontal, 40)
                 .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
                     DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer))
-                        .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
+                        .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.disclaimerDismissed)
                 })
             }
         }
