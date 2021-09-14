@@ -10,7 +10,7 @@ import SwiftUI
 
 struct OnboardingProgressIconView: View {
     
-    var steps: [NoteOnboardingStep]
+    var steps: [SingleCardOnboardingStep]
     var currentStep: Int
     
     private let animDuration: TimeInterval = 0.3
