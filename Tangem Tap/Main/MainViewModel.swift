@@ -578,7 +578,7 @@ class MainViewModel: ViewModel {
                                                 cardImage: image,
                                                 cardsPosition: nil,
                                                 welcomeStep: nil,
-                                                currentStepIndex: 1,
+                                                currentStepIndex: 0,
                                                 successCallback: updateState)
                 self.assembly.makeCardOnboardingViewModel(with: input)
                 self.navigation.mainToCardOnboarding = true

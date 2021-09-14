@@ -65,7 +65,7 @@ class MoonPayService {
         "BTC", "ETH", "BCH"
     ]
     
-    private(set) var canBuyCrypto = false
+    private(set) var canBuyCrypto = true
     private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
 	
@@ -98,7 +98,7 @@ class MoonPayService {
             var stateCode: String = ""
             do {
                 let decodedResponse = try decoder.decode(IpCheckResponse.self, from: ipOutput.data)
-//                self.canBuyCrypto = decodedResponse.isBuyAllowed
+                self.canBuyCrypto = decodedResponse.isBuyAllowed
                 self.canSellCrypto = decodedResponse.isSellAllowed
                 countryCode = decodedResponse.countryCode
                 stateCode = decodedResponse.stateCode
