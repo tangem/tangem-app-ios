@@ -27,13 +27,13 @@ extension Assembly {
         return vm
     }
     
-    func getLetsStartOnboardingViewModel(with callback: @escaping (CardOnboardingInput) -> Void) -> LetsStartOnboardingViewModel {
-        if let restored: LetsStartOnboardingViewModel = get() {
+    func getLetsStartOnboardingViewModel(with callback: @escaping (CardOnboardingInput) -> Void) -> WelcomeOnboardingViewModel {
+        if let restored: WelcomeOnboardingViewModel = get() {
             restored.successCallback = callback
             return restored
         }
         
-        let vm = LetsStartOnboardingViewModel(successCallback: callback)
+        let vm = WelcomeOnboardingViewModel(successCallback: callback)
         initialize(vm)
         vm.cardsRepository = services.cardsRepository
         vm.imageLoaderService = services.imageLoaderService
