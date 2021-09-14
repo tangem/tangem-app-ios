@@ -60,8 +60,8 @@ struct OnboardingTextButtonView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CardOnboardingMessagesView(title: title,
-                                       subtitle: subtitle) {
+            OnboardingMessagesView(title: title,
+                                   subtitle: subtitle) {
                 titleAction?()
             }
             .frame(alignment: .top)
