@@ -223,6 +223,9 @@
 		B0462F9C26B0069F00FB44B7 /* UIViewController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */; };
 		B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046EE172578D38E00EA38A5 /* SceneDelegate.swift */; };
 		B046FC3626BC1DB600A7EECE /* OnboardingProgressIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046FC3526BC1DB600A7EECE /* OnboardingProgressIndicator.swift */; };
+		B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04BA23026F07ECE0036784C /* OnboardingTextButtonView.swift */; };
+		B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04BA23326F0837C0036784C /* OnboardingTopupLayoutCalculator.swift */; };
+		B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04BA23526F083C30036784C /* OnboardingTopupBalanceView.swift */; };
 		B04FBC3A26CB98F000B397CE /* View+SizeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04FBC3926CB98F000B397CE /* View+SizeReader.swift */; };
 		B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1AF262192A300809FD2 /* WalletConnectModels.swift */; };
 		B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */; };
@@ -646,8 +649,8 @@
 		B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */; };
 		B0A9E939259213E7007B6D36 /* WarningsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9E938259213E7007B6D36 /* WarningsService.swift */; };
 		B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A9E93E25921D21007B6D36 /* WarningView.swift */; };
-		B0AA865226DC90E600287F80 /* LetsStartOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AA865126DC90E600287F80 /* LetsStartOnboardingView.swift */; };
-		B0AA865426DC90FF00287F80 /* LetsStartOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AA865326DC90FF00287F80 /* LetsStartOnboardingViewModel.swift */; };
+		B0AA865226DC90E600287F80 /* WelcomeOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AA865126DC90E600287F80 /* WelcomeOnboardingView.swift */; };
+		B0AA865426DC90FF00287F80 /* WelcomeOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AA865326DC90FF00287F80 /* WelcomeOnboardingViewModel.swift */; };
 		B0B06972260CB2F100AE10B0 /* CoinMarketCapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */; };
 		B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B2DF5F26E1FD5400BC0934 /* AnimatedView.swift */; };
 		B0B34CC52611CDD600ACFAB3 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
@@ -671,6 +674,14 @@
 		B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05209BD261F1FF3000DD204 /* RoundedCorner.swift */; };
 		B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */; };
 		B0C4A1D32671F3FC00DCB921 /* TestnetBuyCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */; };
+		B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */; };
+		B0C4F76D26F089850086D815 /* SingleCardOnboardingSetp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76C26F089850086D815 /* SingleCardOnboardingSetp.swift */; };
+		B0C4F76F26F08AB40086D815 /* TwinsOnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76E26F08AB40086D815 /* TwinsOnboardingStep.swift */; };
+		B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F77026F08C4D0086D815 /* TwinsOnboardingCardLayout.swift */; };
+		B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F77226F08CB50086D815 /* OnboardingCardFrameCalculator.swift */; };
+		B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F77426F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift */; };
+		B0C4F77726F0924B0086D815 /* WelcomeStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F77626F0924B0086D815 /* WelcomeStep.swift */; };
+		B0C4F77926F092640086D815 /* WelcomeCardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F77826F092640086D815 /* WelcomeCardLayout.swift */; };
 		B0C6B4C326CE678900FA990B /* CGSize+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C6B4C226CE678900FA990B /* CGSize+.swift */; };
 		B0C6B4C826CE6B5400FA990B /* OnboardingProgressCheckmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C6B4C726CE6B5400FA990B /* OnboardingProgressCheckmarksView.swift */; };
 		B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */; };
@@ -972,6 +983,9 @@
 		B0453671264D4B730005B23E /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		B046EE172578D38E00EA38A5 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B046FC3526BC1DB600A7EECE /* OnboardingProgressIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressIndicator.swift; sourceTree = "<group>"; };
+		B04BA23026F07ECE0036784C /* OnboardingTextButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTextButtonView.swift; sourceTree = "<group>"; };
+		B04BA23326F0837C0036784C /* OnboardingTopupLayoutCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupLayoutCalculator.swift; sourceTree = "<group>"; };
+		B04BA23526F083C30036784C /* OnboardingTopupBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupBalanceView.swift; sourceTree = "<group>"; };
 		B04FBC3926CB98F000B397CE /* View+SizeReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+SizeReader.swift"; sourceTree = "<group>"; };
 		B051A1AF262192A300809FD2 /* WalletConnectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectModels.swift; sourceTree = "<group>"; };
 		B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBusyButton.swift; sourceTree = "<group>"; };
@@ -1394,8 +1408,8 @@
 		B0A9435F2565010900A7958E /* TwinsWalletCreationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsWalletCreationService.swift; sourceTree = "<group>"; };
 		B0A9E938259213E7007B6D36 /* WarningsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningsService.swift; sourceTree = "<group>"; };
 		B0A9E93E25921D21007B6D36 /* WarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningView.swift; sourceTree = "<group>"; };
-		B0AA865126DC90E600287F80 /* LetsStartOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetsStartOnboardingView.swift; sourceTree = "<group>"; };
-		B0AA865326DC90FF00287F80 /* LetsStartOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetsStartOnboardingViewModel.swift; sourceTree = "<group>"; };
+		B0AA865126DC90E600287F80 /* WelcomeOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingView.swift; sourceTree = "<group>"; };
+		B0AA865326DC90FF00287F80 /* WelcomeOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0B0FFB42608EC09002B61CD /* CardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsRepository.swift; sourceTree = "<group>"; };
 		B0B0FFC32608EC44002B61CD /* TokenBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceViewModel.swift; sourceTree = "<group>"; };
 		B0B0FFD22608ECE9002B61CD /* TapScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapScanTask.swift; sourceTree = "<group>"; };
@@ -1414,6 +1428,14 @@
 		B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceSmartChainTokens.json; sourceTree = "<group>"; };
 		B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ethereumTokens_testnet.json; sourceTree = "<group>"; };
 		B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetBuyCryptoService.swift; sourceTree = "<group>"; };
+		B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingCardsLayout.swift; sourceTree = "<group>"; };
+		B0C4F76C26F089850086D815 /* SingleCardOnboardingSetp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingSetp.swift; sourceTree = "<group>"; };
+		B0C4F76E26F08AB40086D815 /* TwinsOnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingStep.swift; sourceTree = "<group>"; };
+		B0C4F77026F08C4D0086D815 /* TwinsOnboardingCardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingCardLayout.swift; sourceTree = "<group>"; };
+		B0C4F77226F08CB50086D815 /* OnboardingCardFrameCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCardFrameCalculator.swift; sourceTree = "<group>"; };
+		B0C4F77426F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressStateIndicatable.swift; sourceTree = "<group>"; };
+		B0C4F77626F0924B0086D815 /* WelcomeStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStep.swift; sourceTree = "<group>"; };
+		B0C4F77826F092640086D815 /* WelcomeCardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCardLayout.swift; sourceTree = "<group>"; };
 		B0C6B4C226CE678900FA990B /* CGSize+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGSize+.swift"; sourceTree = "<group>"; };
 		B0C6B4C726CE6B5400FA990B /* OnboardingProgressCheckmarksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressCheckmarksView.swift; sourceTree = "<group>"; };
 		B0C807222620549F00F7DADE /* WalletConnectSessionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionItemView.swift; sourceTree = "<group>"; };
@@ -2045,6 +2067,16 @@
 				B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */,
 			);
 			path = Email;
+			sourceTree = "<group>";
+		};
+		B04BA23226F083670036784C /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				B04BA23326F0837C0036784C /* OnboardingTopupLayoutCalculator.swift */,
+				B0C4F77226F08CB50086D815 /* OnboardingCardFrameCalculator.swift */,
+				B0C4F77426F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		B066AFC6262D679300EB85A5 /* SDKs */ = {
@@ -3107,6 +3139,8 @@
 			children = (
 				B085154C26D7797400E1A836 /* TwinsOnboardingView.swift */,
 				B085154E26D77C2400E1A836 /* TwinsOnboardingViewModel.swift */,
+				B0C4F76E26F08AB40086D815 /* TwinsOnboardingStep.swift */,
+				B0C4F77026F08C4D0086D815 /* TwinsOnboardingCardLayout.swift */,
 			);
 			path = Twins;
 			sourceTree = "<group>";
@@ -3125,6 +3159,8 @@
 			children = (
 				B0E1564A26B941A4005B33E4 /* SingleCardOnboardingView.swift */,
 				B0E1564C26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift */,
+				B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */,
+				B0C4F76C26F089850086D815 /* SingleCardOnboardingSetp.swift */,
 			);
 			path = Note;
 			sourceTree = "<group>";
@@ -3191,8 +3227,10 @@
 		B0AA865026DC90D600287F80 /* LetsStart */ = {
 			isa = PBXGroup;
 			children = (
-				B0AA865126DC90E600287F80 /* LetsStartOnboardingView.swift */,
-				B0AA865326DC90FF00287F80 /* LetsStartOnboardingViewModel.swift */,
+				B0AA865126DC90E600287F80 /* WelcomeOnboardingView.swift */,
+				B0AA865326DC90FF00287F80 /* WelcomeOnboardingViewModel.swift */,
+				B0C4F77626F0924B0086D815 /* WelcomeStep.swift */,
+				B0C4F77826F092640086D815 /* WelcomeCardLayout.swift */,
 			);
 			path = LetsStart;
 			sourceTree = "<group>";
@@ -3403,8 +3441,8 @@
 				B099614626D5189C000E3779 /* Note */,
 				B085154B26D7796200E1A836 /* Twins */,
 				B0E1565026B97F81005B33E4 /* Views */,
+				B04BA23226F083670036784C /* Utils */,
 				B0E1564E26B948B3005B33E4 /* OnboardingStepsSetupService.swift */,
-				B0B2DF5F26E1FD5400BC0934 /* AnimatedView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -3415,10 +3453,13 @@
 				B0B8670426DF60DC008DAA67 /* Animators */,
 				B0C6B4C426CE686500FA990B /* ProgressBar */,
 				B031AAAF26C1435E00015003 /* Confetti */,
+				B0B2DF5F26E1FD5400BC0934 /* AnimatedView.swift */,
 				B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */,
 				B0FAD00D26BAC51F00F45E88 /* CircledCheckmarkView.swift */,
 				B0BA7BC626C4F9A300D7066F /* OnboardingCircleButton.swift */,
 				B053759026CA3EFA0090FCFC /* CheckmarkSwitch.swift */,
+				B04BA23026F07ECE0036784C /* OnboardingTextButtonView.swift */,
+				B04BA23526F083C30036784C /* OnboardingTopupBalanceView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3874,6 +3915,7 @@
 				5D9DCB01255191380059799C /* DisclamerViewModel.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
+				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
 				B0E1D17D257DE79000A3AB98 /* FeaturesConfigManager.swift in Sources */,
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
@@ -3928,24 +3970,28 @@
 				5D5D013C25CC1F3900DA8616 /* TransparentModal.swift in Sources */,
 				B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */,
 				5D6784C325EB8EF000149995 /* TokenItemsRepository.swift in Sources */,
+				B0C4F76F26F08AB40086D815 /* TwinsOnboardingStep.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
 				5D00FC902615FA9D004626DE /* CardDelegate.swift in Sources */,
 				5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */,
 				B085154F26D77C2400E1A836 /* TwinsOnboardingViewModel.swift in Sources */,
-				B0AA865426DC90FF00287F80 /* LetsStartOnboardingViewModel.swift in Sources */,
+				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
+				B0AA865426DC90FF00287F80 /* WelcomeOnboardingViewModel.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B0FB98A52598D24300B769A3 /* Card+.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
+				B0C4F77926F092640086D815 /* WelcomeCardLayout.swift in Sources */,
 				B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */,
 				5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				B020FFBE25DE895E00EF422C /* Logger.swift in Sources */,
 				5DFCCB7624C381A70014A293 /* SendViewModel.swift in Sources */,
+				B0C4F77726F0924B0086D815 /* WelcomeStep.swift in Sources */,
 				5DF2522724F914E30015B429 /* TapScanTask.swift in Sources */,
 				5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
@@ -3970,6 +4016,7 @@
 				5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */,
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
 				5D9DCB06255193C30059799C /* UserPrefsService.swift in Sources */,
+				B0C4F76D26F089850086D815 /* SingleCardOnboardingSetp.swift in Sources */,
 				B099614B26D51C37000E3779 /* CardOnboardingViewModel.swift in Sources */,
 				B0453672264D4B730005B23E /* Constants.swift in Sources */,
 				B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */,
@@ -3991,6 +4038,7 @@
 				5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */,
 				B09BB862259A075600B92000 /* NavigationButton.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
+				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
 				B094B31026B2FC2000791AEC /* TangemNote.swift in Sources */,
 				5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */,
 				B0FACFFC26BA64E700F45E88 /* Assembly+Preview.swift in Sources */,
@@ -3999,6 +4047,7 @@
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				5D09382D25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift in Sources */,
+				B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */,
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				B0C6B4C326CE678900FA990B /* CGSize+.swift in Sources */,
 				5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */,
@@ -4011,7 +4060,7 @@
 				B08B8CEB26D6276000D4BB7B /* Assembly+AppPreview.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletAndReadResponse.swift in Sources */,
-				B0AA865226DC90E600287F80 /* LetsStartOnboardingView.swift in Sources */,
+				B0AA865226DC90E600287F80 /* WelcomeOnboardingView.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
@@ -4053,10 +4102,13 @@
 				B037A9C92652AEF000A2D394 /* WalletConnectTransactionHandler.swift in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */,
+				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
 				B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */,
 				B0E1564B26B941A4005B33E4 /* SingleCardOnboardingView.swift in Sources */,
+				B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */,
 				B0CC670C26455C44007D227A /* WalletConnectCardScanner.swift in Sources */,
 				5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */,
+				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
 				5D1BCFB8259CDCCA00EDA274 /* ContentView.swift in Sources */,
 				5D9DCAEB25517FB50059799C /* CardsRepository.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
