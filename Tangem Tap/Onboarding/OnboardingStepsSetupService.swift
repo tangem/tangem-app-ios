@@ -11,7 +11,7 @@ import TangemSdk
 import Combine
 
 enum OnboardingSteps {
-    case singleWallet([NoteOnboardingStep]), twins([TwinsOnboardingStep]), wallet
+    case singleWallet([SingleCardOnboardingStep]), twins([TwinsOnboardingStep]), wallet
     
     var needOnboarding: Bool {
         switch self {
@@ -30,7 +30,7 @@ class OnboardingStepsSetupService {
     weak var userPrefs: UserPrefsService!
     weak var assembly: Assembly!
     
-    static var previewSteps: [NoteOnboardingStep] {
+    static var previewSteps: [SingleCardOnboardingStep] {
         [.createWallet, .topup, .confetti, .goToMain]
     }
     
@@ -53,7 +53,7 @@ class OnboardingStepsSetupService {
             return stepsForTwins(cardInfo)
         }
         
-        var steps: [NoteOnboardingStep] = []
+        var steps: [SingleCardOnboardingStep] = []
         
         if card.wallets.count == 0 {
             steps.append(.createWallet)
@@ -64,7 +64,7 @@ class OnboardingStepsSetupService {
     
     private func stepsForNote(_ card: Card) -> AnyPublisher<OnboardingSteps, Error> {
         let walletModel = assembly.loadWallets(from: CardInfo(card: card))
-        var steps: [NoteOnboardingStep] = []
+        var steps: [SingleCardOnboardingStep] = []
         guard walletModel.count == 1 else {
             steps.append(.createWallet)
             steps.append(.topup)
