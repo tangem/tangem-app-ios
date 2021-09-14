@@ -73,7 +73,7 @@ class WelcomeOnboardingViewModel: ViewModel {
         navigation.onboardingToDisclaimer = false
     }
     
-    func onboardingDismissed() {
+    func disclaimerDismissed() {
         scanCard()
     }
     
