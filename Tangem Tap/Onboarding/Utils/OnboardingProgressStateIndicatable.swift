@@ -11,4 +11,5 @@ import Foundation
 protocol OnboardingProgressStepIndicatable {
     static var maxNumberOfSteps: Int { get }
     var progressStep: Int { get }
+    var isOnboardingFinished: Bool { get }
 }
