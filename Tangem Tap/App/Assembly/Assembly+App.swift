@@ -14,13 +14,13 @@ extension Assembly {
     
     // MARK: - Onboarding
     
-    func getLaunchOnboardingViewModel() -> CardOnboardingViewModel {
+    func getLaunchOnboardingViewModel() -> OnboardingBaseViewModel {
         let key = "launch_onboarding_screen"
-        if let restored: CardOnboardingViewModel = get(key: key) {
+        if let restored: OnboardingBaseViewModel = get(key: key) {
             return restored
         }
         
-        let vm = CardOnboardingViewModel()
+        let vm = OnboardingBaseViewModel()
         initialize(vm, with: key, isResetable: false)
         vm.userPrefsService = services.userPrefsService
         
@@ -42,8 +42,8 @@ extension Assembly {
         return vm
     }
     
-    func getCardOnboardingViewModel() -> CardOnboardingViewModel {
-        if let restored: CardOnboardingViewModel = get() {
+    func getCardOnboardingViewModel() -> OnboardingBaseViewModel {
+        if let restored: OnboardingBaseViewModel = get() {
             return restored
         }
         
@@ -52,8 +52,8 @@ extension Assembly {
     
     
     @discardableResult
-    func makeCardOnboardingViewModel(with input: CardOnboardingInput) -> CardOnboardingViewModel {
-        let vm = CardOnboardingViewModel(input: input)
+    func makeCardOnboardingViewModel(with input: CardOnboardingInput) -> OnboardingBaseViewModel {
+        let vm = OnboardingBaseViewModel(input: input)
         initialize(vm, isResetable: false)
         
         switch input.steps {
