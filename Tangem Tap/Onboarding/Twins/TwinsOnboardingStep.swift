@@ -37,53 +37,6 @@ enum TwinsOnboardingStep {
         }
     }
     
-    var title: LocalizedStringKey {
-        switch self {
-        case .intro: return "twins_onboarding_subtitle"
-        case .first: return "onboarding_title_twin_first_card"
-        case .second: return "onboarding_title_twin_second_card"
-        case .third: return "onboarding_title_twin_first_card"
-        case .topup: return "onboarding_topup_title"
-        case .confetti: return "onboarding_confetti_title"
-        case .done: return ""
-        }
-    }
-    
-    var subtitle: LocalizedStringKey {
-        switch self {
-        case .intro(let pairNumber): return "onboarding_subtitle_intro \(pairNumber)"
-        case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
-        case .topup: return "onboarding_topup_subtitle"
-        case .confetti: return "Your crypto card is activated and ready to be used"
-        case .done: return ""
-        }
-    }
-    
-    var mainButtonTitle: LocalizedStringKey {
-        switch self {
-        case .intro: return "common_continue"
-        case .first, .third: return "onboarding_button_tap_first_card"
-        case .second: return "onboarding_button_tap_second_card"
-        case .topup: return "onboarding_button_buy_crypto"
-        case .confetti: return "common_continue"
-        case .done: return "common_continue"
-        }
-    }
-    
-    var supplementButtonTitle: LocalizedStringKey {
-        switch self {
-        case .topup: return "onboarding_button_show_address_qr"
-        default: return ""
-        }
-    }
-    
-    var isSupplementButtonActive: Bool {
-        switch self {
-        case .topup: return true
-        default: return false
-        }
-    }
-    
     func backgroundFrame(in container: CGSize) -> CGSize {
         switch self {
         case .topup, .confetti, .done:
@@ -112,6 +65,14 @@ enum TwinsOnboardingStep {
 }
 
 extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
+    var isOnboardingFinished: Bool {
+        if case .done = self {
+            return true
+        }
+        
+        return false
+    }
+    
     static var maxNumberOfSteps: Int { 6 }
     
     var progressStep: Int {
@@ -128,3 +89,56 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
 
 
 extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
+
+extension TwinsOnboardingStep: OnboardingMessagesProvider {
+    var title: LocalizedStringKey {
+        switch self {
+        case .intro: return "twins_onboarding_subtitle"
+        case .first: return "onboarding_title_twin_first_card"
+        case .second: return "onboarding_title_twin_second_card"
+        case .third: return "onboarding_title_twin_first_card"
+        case .topup: return "onboarding_topup_title"
+        case .confetti: return "onboarding_confetti_title"
+        case .done: return ""
+        }
+    }
+    
+    var subtitle: LocalizedStringKey {
+        switch self {
+        case .intro(let pairNumber): return "onboarding_subtitle_intro \(pairNumber)"
+        case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
+        case .topup: return "onboarding_topup_subtitle"
+        case .confetti: return "Your crypto card is activated and ready to be used"
+        case .done: return ""
+        }
+    }
+}
+
+extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
+    var mainButtonTitle: LocalizedStringKey {
+        switch self {
+        case .intro: return "common_continue"
+        case .first, .third: return "onboarding_button_tap_first_card"
+        case .second: return "onboarding_button_tap_second_card"
+        case .topup: return "onboarding_button_buy_crypto"
+        case .confetti: return "common_continue"
+        case .done: return "common_continue"
+        }
+    }
+    
+    var supplementButtonTitle: LocalizedStringKey {
+        switch self {
+        case .topup: return "onboarding_button_show_address_qr"
+        default: return ""
+        }
+    }
+    
+    var isSupplementButtonVisible: Bool {
+        switch self {
+        case .topup: return true
+        default: return false
+        }
+    }
+    
+    var isContainSupplementButton: Bool { true }
+}

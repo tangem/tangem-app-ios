@@ -10,21 +10,6 @@ import Foundation
 import TangemSdk
 import Combine
 
-enum OnboardingSteps {
-    case singleWallet([SingleCardOnboardingStep]), twins([TwinsOnboardingStep]), wallet
-    
-    var needOnboarding: Bool {
-        switch self {
-        case .singleWallet(let steps):
-            return steps.count > 0
-        case .twins(let steps):
-            return steps.count > 0
-        case .wallet:
-             return false
-        }
-    }
-}
-
 class OnboardingStepsSetupService {
     
     weak var userPrefs: UserPrefsService!
