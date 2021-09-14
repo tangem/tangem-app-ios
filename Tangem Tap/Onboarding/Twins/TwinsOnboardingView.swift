@@ -83,13 +83,13 @@ struct TwinsOnboardingView: View {
                         )
                         
                         AnimatedView(settings: viewModel.$secondTwinSettings) {
-                            OnboardingCardView(baseCardName: "light_card",
-                                               backCardImage: viewModel.secondTwinImage,
+                            OnboardingCardView(placeholderCardType: .light,
+                                               cardImage: viewModel.secondTwinImage,
                                                cardScanned: viewModel.secondTwinImage != nil)
                         }
                         AnimatedView(settings: viewModel.$firstTwinSettings) {
-                            OnboardingCardView(baseCardName: "dark_card",
-                                               backCardImage: viewModel.firstTwinImage,
+                            OnboardingCardView(placeholderCardType: .dark,
+                                               cardImage: viewModel.firstTwinImage,
                                                cardScanned: viewModel.firstTwinImage != nil)
                         }
                     }
