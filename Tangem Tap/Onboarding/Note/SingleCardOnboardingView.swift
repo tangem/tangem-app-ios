@@ -68,13 +68,13 @@ struct SingleCardOnboardingView: View {
                         let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundOffset(containerSize: size) : .zero
                         
                         AnimatedView(settings: viewModel.$lightCardAnimSettings) {
-                            Image("light_card")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
+                            OnboardingCardView(placeholderCardType: .light,
+                                               cardImage: nil,
+                                               cardScanned: false)
                         }
                         AnimatedView(settings: viewModel.$cardAnimSettings) {
-                            OnboardingCardView(baseCardName: "dark_card",
-                                               backCardImage: viewModel.cardImage,
+                            OnboardingCardView(placeholderCardType: .dark,
+                                               cardImage: viewModel.cardImage,
                                                cardScanned: viewModel.isInitialAnimPlayed && viewModel.cardImage != nil)
                         }
                         
