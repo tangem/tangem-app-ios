@@ -46,6 +46,11 @@ class TwinsOnboardingViewModel: ViewModel {
     @Published private(set) var isInitialAnimPlayed = false
     
     let tangemSdk = TangemSdk()
+    let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
+    
+    var currentProgress: CGFloat {
+        CGFloat(currentStep.progressStep) / CGFloat(TwinsOnboardingStep.maxNumberOfSteps)
+    }
     
     var currentStep: TwinsOnboardingStep {
         guard currentStepIndex < steps.count else {
@@ -76,6 +81,10 @@ class TwinsOnboardingViewModel: ViewModel {
             return welcomeStep.mainButtonTitle
         }
         
+        if case .topup = currentStep, !exchangeService.canBuyCrypto {
+            return currentStep.supplementButtonTitle
+        }
+        
         return currentStep.mainButtonTitle
     }
     
@@ -85,6 +94,15 @@ class TwinsOnboardingViewModel: ViewModel {
         }
         
         return currentStep.supplementButtonTitle
+    }
+    
+    var isSupplementButtonVisible: Bool {
+        switch currentStep {
+        case .topup:
+            return currentStep.isSupplementButtonActive && exchangeService.canBuyCrypto
+        default:
+            return currentStep.isSupplementButtonActive
+        }
     }
     
     var buyCryptoURL: URL? {
@@ -119,6 +137,7 @@ class TwinsOnboardingViewModel: ViewModel {
     
     private var cardModel: CardViewModel
     private var twinInfo: TwinCardInfo
+    private var previewUpdates: Int = 0
     
     init(imageLoaderService: CardImageLoaderService, twinsService: TwinsWalletCreationService, exchangeService: ExchangeService, input: CardOnboardingInput) {
         self.imageLoaderService = imageLoaderService
@@ -207,7 +226,11 @@ class TwinsOnboardingViewModel: ViewModel {
             }
             twinsService.executeCurrentStep()
         case .topup:
-            navigation.onboardingToBuyCrypto = true
+            if exchangeService.canBuyCrypto {
+                navigation.onboardingToBuyCrypto = true
+            } else {
+                supplementButtonAction()
+            }
         }
     }
     
@@ -262,10 +285,20 @@ class TwinsOnboardingViewModel: ViewModel {
     }
     
     func updateCardBalance() {
+        if assembly.isPreview {
+            previewUpdates += 1
+            
+            if self.previewUpdates >= 3 {
+                self.cardModel = Assembly.PreviewCard.scanResult(for: .cardanoNote, assembly: assembly).cardModel!
+                self.previewUpdates = 0
+            }
+        }
+        
         guard
             let walletModel = cardModel.walletModels?.first,
             walletModelUpdateCancellable == nil
         else { return }
+        
         
         refreshButtonState = .activityIndicator
         walletModelUpdateCancellable = walletModel.$state
