@@ -68,7 +68,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
             walletModelUpdateCancellable == nil
         else { return }
         
-        
         refreshButtonState = .activityIndicator
         walletModelUpdateCancellable = walletModel.$state
             .receive(on: DispatchQueue.main)
@@ -103,9 +102,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     func updateCardBalanceText(for model: WalletModel) {
-        withAnimation {
-            cardBalance = model.getBalance(for: .coin)
-        }
+        cardBalance = model.getBalance(for: .coin)
     }
     
 }
