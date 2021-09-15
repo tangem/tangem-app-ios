@@ -41,7 +41,8 @@ class AppServicesAssembly: ServicesAssembly {
     lazy var twinsWalletCreationService = {
         TwinsWalletCreationService(tangemSdk: tangemSdk,
                                    twinFileEncoder: TwinCardTlvFileEncoder(),
-                                   cardsRepository: cardsRepository)
+                                   cardsRepository: cardsRepository,
+                                   walletManagerFactory: walletManagerFactory)
     }()
     
     
