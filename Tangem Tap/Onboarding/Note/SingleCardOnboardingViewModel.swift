@@ -155,6 +155,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             case .failure(let error):
                 print(error)
             }
+            self.updateCardBalance()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.isMainButtonBusy = false
                 self.goToNextStep()
