@@ -67,7 +67,7 @@ class OnboardingBaseViewModel: ViewModel {
         content = .content(for: cardModel)
     }
     
-    init(input: CardOnboardingInput) {
+    init(input: OnboardingInput) {
         isFromMainScreen = true
         content = .content(for: input.steps)
     }
@@ -93,7 +93,7 @@ class OnboardingBaseViewModel: ViewModel {
         content = .notScanned
     }
     
-    func processScannedCard(with input: CardOnboardingInput) {
+    func processScannedCard(with input: OnboardingInput) {
         guard input.steps.needOnboarding else {
             processToMain()
             return
