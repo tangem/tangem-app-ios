@@ -12,8 +12,8 @@ import BlockchainSdk
 
 extension Assembly {
     
-    var previewNoteCardOnboardingInput: CardOnboardingInput {
-        CardOnboardingInput(steps: .singleWallet([.createWallet, .topup, .confetti, .goToMain]),
+    var previewNoteCardOnboardingInput: OnboardingInput {
+        OnboardingInput(steps: .singleWallet([.createWallet, .topup, .confetti, .goToMain]),
                             cardModel: previewCardViewModel,
                             cardImage: UIImage(named: "card_btc")!,
                             cardsPosition: nil,
@@ -22,7 +22,7 @@ extension Assembly {
                             successCallback: nil)
     }
     
-    var previewTwinOnboardingInput: CardOnboardingInput {
+    var previewTwinOnboardingInput: OnboardingInput {
         .init(steps: .twins([.intro(pairNumber: "0128"),
                              .first, .second, .third,
                              .topup, .confetti, .done]),
