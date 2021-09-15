@@ -34,9 +34,9 @@ class WelcomeOnboardingViewModel: ViewModel {
     
     private var container: CGSize = .zero
     
-    var successCallback: (CardOnboardingInput) -> Void
+    var successCallback: (OnboardingInput) -> Void
     
-    init(successCallback: @escaping (CardOnboardingInput) -> Void) {
+    init(successCallback: @escaping (OnboardingInput) -> Void) {
         self.successCallback = successCallback
     }
     
@@ -89,7 +89,7 @@ class WelcomeOnboardingViewModel: ViewModel {
                 }
                 self.isScanningCard = false
             } receiveValue: { [unowned self] (steps, image) in
-                let input = CardOnboardingInput(steps: steps,
+                let input = OnboardingInput(steps: steps,
                                                 cardModel: cardModel,
                                                 cardImage: image,
                                                 cardsPosition: (darkCardSettings, lightCardSettings),

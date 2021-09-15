@@ -67,12 +67,12 @@ struct SingleCardOnboardingView: View {
                         let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
                         let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundOffset(containerSize: size) : .zero
                         
-                        AnimatedView(settings: viewModel.$lightCardAnimSettings) {
+                        AnimatedView(settings: viewModel.$supplementCardSettings) {
                             OnboardingCardView(placeholderCardType: .light,
                                                cardImage: nil,
                                                cardScanned: false)
                         }
-                        AnimatedView(settings: viewModel.$cardAnimSettings) {
+                        AnimatedView(settings: viewModel.$mainCardSettings) {
                             OnboardingCardView(placeholderCardType: .dark,
                                                cardImage: viewModel.cardImage,
                                                cardScanned: viewModel.isInitialAnimPlayed && viewModel.cardImage != nil)
@@ -107,7 +107,7 @@ struct SingleCardOnboardingView: View {
                         mainAction: {
                             viewModel.executeStep()
                         },
-                        mainIsBusy: viewModel.executingRequestOnCard,
+                        mainIsBusy: viewModel.isMainButtonBusy,
                         supplementTitle: viewModel.supplementButtonTitle,
                         supplementSize: .wide,
                         supplementAction: {
@@ -118,7 +118,7 @@ struct SingleCardOnboardingView: View {
                                 viewModel.reset()
                             }
                         },
-                        isVisible: currentStep.withSecondaryButton,
+                        isVisible: currentStep.isSupplementButtonVisible,
                         containSupplementButton: true)
                 ) {
                     viewModel.reset()
