@@ -85,7 +85,7 @@ class OnboardingStepsSetupService {
         var steps = [TwinsOnboardingStep]()
         
         if !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-            steps.append(.intro(pairNumber: TapTwinCardIdFormatter.format(cid: twinCardInfo.pairCid, cardNumber: twinCardInfo.series.pair.number)))
+            steps.append(.intro(pairNumber: "\(twinCardInfo.series.pair.number)"))
         }
         let walletModel = assembly.loadWallets(from: cardInfo)
         if (walletModel.count == 0 || cardInfo.twinCardInfo?.pairPublicKey == nil) {
