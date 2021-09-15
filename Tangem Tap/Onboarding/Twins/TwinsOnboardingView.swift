@@ -82,12 +82,12 @@ struct TwinsOnboardingView: View {
                             refreshButtonOpacity: currentStep.backgroundOpacity
                         )
                         
-                        AnimatedView(settings: viewModel.$secondTwinSettings) {
+                        AnimatedView(settings: viewModel.$supplementCardSettings) {
                             OnboardingCardView(placeholderCardType: .light,
                                                cardImage: viewModel.secondTwinImage,
                                                cardScanned: viewModel.secondTwinImage != nil)
                         }
-                        AnimatedView(settings: viewModel.$firstTwinSettings) {
+                        AnimatedView(settings: viewModel.$mainCardSettings) {
                             OnboardingCardView(placeholderCardType: .dark,
                                                cardImage: viewModel.firstTwinImage,
                                                cardScanned: viewModel.firstTwinImage != nil)
@@ -96,7 +96,7 @@ struct TwinsOnboardingView: View {
                     .frame(size: geom.size)
                 }
                 .readSize { size in
-                    viewModel.setupContainerSize(size)
+                    viewModel.setupContainer(with: size)
                 }
                 
                 OnboardingTextButtonView(
