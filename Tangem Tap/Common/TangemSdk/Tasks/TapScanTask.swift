@@ -76,7 +76,7 @@ final class TapScanTask: CardSessionRunnable {
     private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         let card = session.environment.card!
         
-        if card.firmwareVersion >= .multiwalletAvailable {
+        if card.firmwareVersion >= .multiwalletAvailable, !card.isTangemNote {
             let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
             let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
             let missingCurves = mandatoryСurves.subtracting(existingCurves)
