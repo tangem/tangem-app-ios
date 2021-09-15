@@ -231,6 +231,7 @@ extension Assembly {
     
     /// Try to load native walletmanager from card
     private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
+
         if let defaultBlockchain = cardInfo.defaultBlockchain,
            let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
             
@@ -421,10 +422,10 @@ extension Assembly {
     func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
         let scanResult = services.cardsRepository.lastScanResult
         let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
-        let twinPairCid = TapTwinCardIdFormatter.format(cid: twinInfo?.pairCid ?? "", cardNumber: twinInfo?.series.pair.number ?? 1)
-        return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
-    }
-    
+        let twinPairCid = TapTwinCardIdFormatter.format(cid: /*twinInfo?.pairCid ??*/ "", cardNumber: twinInfo?.series?.pair.number ?? 1)
+		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
+	}
+	
     func makeTwinCardWarningViewModel(isRecreating: Bool) -> TwinCardOnboardingViewModel {
         makeTwinCardOnboardingViewModel(state: .warning(isRecreating: isRecreating))
     }
@@ -508,5 +509,4 @@ extension Assembly {
         vm.featuresService = services.featuresService
         vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
     }
-    
 }

@@ -24,8 +24,7 @@ struct TapScanTaskResponse {
     private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
         guard
             card.isTwinCard,
-            let series: TwinCardSeries = .series(for: card.cardId),
-            let pairCid: String = TwinCardsUtils.makePairCid(for: card.cardId)
+            let series: TwinCardSeries = .series(for: card.cardId)
         else {
             return nil
         }
@@ -42,7 +41,6 @@ struct TapScanTaskResponse {
     
         return TwinCardInfo(cid: response.card.cardId,
                             series: series,
-                            pairCid: pairCid,
                             pairPublicKey: pairPublicKey)
     }
 }
