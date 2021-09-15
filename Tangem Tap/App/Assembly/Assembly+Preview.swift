@@ -52,7 +52,7 @@ extension Assembly {
         
         private var twinInfo: TwinCardInfo? {
             switch self {
-            case .twin: return TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairCid: "CB65000000006521", pairPublicKey: nil)
+            case .twin: return TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairPublicKey: nil)
             default: return nil
             }
         }
