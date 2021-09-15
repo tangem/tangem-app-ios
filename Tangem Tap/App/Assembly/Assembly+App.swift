@@ -27,7 +27,7 @@ extension Assembly {
         return vm
     }
     
-    func getLetsStartOnboardingViewModel(with callback: @escaping (CardOnboardingInput) -> Void) -> WelcomeOnboardingViewModel {
+    func getLetsStartOnboardingViewModel(with callback: @escaping (OnboardingInput) -> Void) -> WelcomeOnboardingViewModel {
         if let restored: WelcomeOnboardingViewModel = get() {
             restored.successCallback = callback
             return restored
@@ -52,7 +52,7 @@ extension Assembly {
     
     
     @discardableResult
-    func makeCardOnboardingViewModel(with input: CardOnboardingInput) -> OnboardingBaseViewModel {
+    func makeCardOnboardingViewModel(with input: OnboardingInput) -> OnboardingBaseViewModel {
         let vm = OnboardingBaseViewModel(input: input)
         initialize(vm, isResetable: false)
         
@@ -77,8 +77,8 @@ extension Assembly {
     }
     
     @discardableResult
-    func makeNoteOnboardingViewModel(with input: CardOnboardingInput) -> SingleCardOnboardingViewModel {
-        let vm = SingleCardOnboardingViewModel(input: input)
+    func makeNoteOnboardingViewModel(with input: OnboardingInput) -> SingleCardOnboardingViewModel {
+        let vm = SingleCardOnboardingViewModel(exchangeService: services.exchangeService, input: input)
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.stepsSetupService = services.onboardingStepsSetupService
@@ -98,7 +98,7 @@ extension Assembly {
     }
     
     @discardableResult
-    func makeTwinOnboardingViewModel(with input: CardOnboardingInput) -> TwinsOnboardingViewModel {
+    func makeTwinOnboardingViewModel(with input: OnboardingInput) -> TwinsOnboardingViewModel {
         let vm = TwinsOnboardingViewModel(imageLoaderService: services.imageLoaderService,
                                           twinsService: services.twinsWalletCreationService,
                                           exchangeService: services.exchangeService,
