@@ -573,7 +573,7 @@ class MainViewModel: ViewModel {
                     return
                 }
                 
-                let input = CardOnboardingInput(steps: steps,
+                let input = OnboardingInput(steps: steps,
                                                 cardModel: cardModel,
                                                 cardImage: image,
                                                 cardsPosition: nil,
