@@ -45,7 +45,9 @@ class TwinsWalletCreationService {
     
     var stepCardNumber: Int {
         guard let twin = twinInfo else { return 1 }
+        
         let series = twin.series
+        
         switch step.value {
         case .first, .third, .done:
             return series.number
