@@ -34,7 +34,6 @@ enum TwinCardSeries: String, CaseIterable {
 
 struct TwinCardInfo {
 	let cid: String
-	let series: TwinCardSeries
-	let pairCid: String
+	let series: TwinCardSeries?
 	var pairPublicKey: Data?
 }
