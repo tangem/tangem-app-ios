@@ -8,269 +8,27 @@
 
 import SwiftUI
 import Combine
-import BlockchainSdk
-import TangemSdk
-
-class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    
-    let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
-    
-    @Published var steps: [Step] = []
-    @Published var currentStepIndex: Int = 0
-    @Published var isMainButtonBusy: Bool = false
-    @Published var shouldFireConfetti: Bool = false
-    @Published var isInitialAnimPlayed = false
-    
-    var currentStep: Step { steps[currentStepIndex] }
-    
-    var currentProgress: CGFloat {
-        CGFloat(currentStep.progressStep) / CGFloat(Step.maxNumberOfSteps)
-    }
-    
-    var title: LocalizedStringKey {
-        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-            return welcomeStep.title
-        }
-        
-        return currentStep.title
-    }
-    
-    var subtitle: LocalizedStringKey {
-        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-            return welcomteStep.subtitle
-        }
-        
-        return currentStep.subtitle
-    }
-    
-    var mainButtonTitle: LocalizedStringKey {
-        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-            return welcomeStep.mainButtonTitle
-        }
-        
-        return currentStep.mainButtonTitle
-    }
-    
-    var supplementButtonTitle: LocalizedStringKey {
-        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-            return welcomteStep.supplementButtonTitle
-        }
-        
-        return currentStep.supplementButtonTitle
-    }
-    
-    var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
-    
-    let successCallback: (() -> Void)?
-    let input: CardOnboardingInput
-    
-    init(input: CardOnboardingInput) {
-        self.input = input
-        successCallback = input.successCallback
-    }
-    
-    func playInitialAnim() {
-        withAnimation {
-            isInitialAnimPlayed = true
-            setupCardsSettings(animated: true)
-        }
-    }
-    
-    func goToNextStep() {
-        var newIndex = currentStepIndex + 1
-        if newIndex >= steps.count {
-            newIndex = assembly.isPreview ? 0 : steps.count - 1
-        }
-        
-        if steps[newIndex].isOnboardingFinished, !assembly.isPreview {
-            DispatchQueue.main.async {
-                self.successCallback?()
-            }
-            return
-        }
-        
-        withAnimation {
-            currentStepIndex = newIndex
-            
-            setupCardsSettings(animated: true)
-        }
-    }
-    
-    func executeStep() {
-        fatalError("Not implemented")
-    }
-    
-    func setupCardsSettings(animated: Bool) {
-        fatalError("Not implemented")
-    }
-    
-}
-
-class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> {
-    unowned var exchangeService: ExchangeService
-    
-    @Published var isAddressQrBottomSheetPresented: Bool = false
-    @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
-    @Published var cardBalance: String = "0.00"
-    @Published var currentCardIndex: Int = 0
-    
-    var previewUpdates: Int = 0
-    var walletModelUpdateCancellable: AnyCancellable?
-    
-    var cardModel: CardViewModel
-    
-    var canBuyCrypto: Bool { exchangeService.canBuyCrypto }
-    
-    var buyCryptoURL: URL? {
-        if let wallet = cardModel.wallets?.first {
-            return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                             walletAddress: wallet.address)
-        }
-        return nil
-    }
-    
-    var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
-    
-    var shareAddress: String {
-        cardModel.walletModels?.first?.shareAddressString(for: 0) ?? ""
-    }
-    
-    var walletAddress: String {
-        cardModel.walletModels?.first?.displayAddress(for: 0) ?? ""
-    }
-    
-    init(exchangeService: ExchangeService, input: CardOnboardingInput) {
-        self.exchangeService = exchangeService
-        self.cardModel = input.cardModel
-        super.init(input: input)
-    }
-    
-    func updateCardBalance() {
-        if assembly.isPreview {
-            previewUpdates += 1
-            
-            if self.previewUpdates >= 3 {
-                self.cardModel = Assembly.PreviewCard.scanResult(for: .cardanoNote, assembly: assembly).cardModel!
-                self.previewUpdates = 0
-            }
-        }
-        
-        guard
-            let walletModel = cardModel.walletModels?.first,
-            walletModelUpdateCancellable == nil
-        else { return }
-        
-        
-        refreshButtonState = .activityIndicator
-        walletModelUpdateCancellable = walletModel.$state
-            .receive(on: DispatchQueue.main)
-            .dropFirst()
-            .sink { [weak self] walletModelState in
-                guard let self = self else { return }
-                
-                self.updateCardBalanceText(for: walletModel)
-                switch walletModelState {
-                case .noAccount(let message):
-                    print(message)
-                    fallthrough
-                case .idle:
-                    if !walletModel.isEmptyIncludingPendingIncomingTxs {
-                        self.goToNextStep()
-                        return
-                    }
-                    withAnimation {
-                        self.refreshButtonState = .refreshButton
-                    }
-                case .failed(let error):
-                    print(error)
-                    withAnimation {
-                        self.refreshButtonState = .refreshButton
-                    }
-                case .loading, .created:
-                    return
-                }
-                self.walletModelUpdateCancellable = nil
-            }
-        walletModel.update(silent: false)
-    }
-    
-    func updateCardBalanceText(for model: WalletModel) {
-        withAnimation {
-            cardBalance = model.getBalance(for: .coin)
-        }
-    }
-    
-}
-
-class TwinsTwinsTwins: OnboardingTopupViewModel<TwinsOnboardingStep> {
-    
-}
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
     
-//    weak var assembly: Assembly!
-//    weak var navigation: NavigationCoordinator!
     weak var userPrefsService: UserPrefsService!
     
-//    unowned var exchangeService: ExchangeService
     unowned var twinsService: TwinsWalletCreationService
     unowned var imageLoaderService: CardImageLoaderService
     
     @Published var firstTwinImage: UIImage?
     @Published var secondTwinImage: UIImage?
     @Published var pairNumber: String
-    @Published var firstTwinSettings: AnimatedViewSettings = .zero
-    @Published var secondTwinSettings: AnimatedViewSettings = .zero
+    @Published var currentCardIndex: Int = 0
     
-//    [REDACTED_USERNAME] var steps: [TwinsOnboardingStep] =
-//        []
-//        TwinsOnboardingStep.previewCases
-    
-//    [REDACTED_USERNAME] var currentStepIndex: Int = 0 {
-//        didSet {
-//            currentCardIndex = currentStep.topTwinCardIndex
-//        }
-//    }
-//    [REDACTED_USERNAME] var isModelBusy: Bool = false
-//    [REDACTED_USERNAME] var isAddressQrBottomSheetPresented: Bool = false
-//    [REDACTED_USERNAME] var refreshButtonState: OnboardingCircleButton.State = .refreshButton
-//    [REDACTED_USERNAME] var cardBalance: String = "0.00 BTC"
-//    [REDACTED_USERNAME] var shouldFireConfetti: Bool = false
-//    [REDACTED_USERNAME] var currentCardIndex: Int = 0
-//    [REDACTED_USERNAME] private(set) var isInitialAnimPlayed = false
-    
-//    let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
-    
-//    var currentProgress: CGFloat {
-//        CGFloat(currentStep.progressStep) / CGFloat(TwinsOnboardingStep.maxNumberOfSteps)
-//    }
-    
-//    var currentStep: TwinsOnboardingStep {
-//        guard currentStepIndex < steps.count else {
-//            return .intro(pairNumber: pairNumber)
-//        }
-//
-//        return steps[currentStepIndex]
-//    }
-    
-//    var title: LocalizedStringKey {
-//        if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
-//            return welcomeStep.title
-//        }
-//
-//        return currentStep.title
-//    }
-//
-//    var subtitle: LocalizedStringKey {
-//        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-//            return welcomteStep.subtitle
-//        }
-//
-//        return currentStep.subtitle
-//    }
-    
+    override var currentStep: TwinsOnboardingStep {
+        guard currentStepIndex < steps.count else {
+            return .intro(pairNumber: pairNumber)
+        }
+
+        return steps[currentStepIndex]
+    }
+        
     override var mainButtonTitle: LocalizedStringKey {
         if !isInitialAnimPlayed {
             return super.mainButtonTitle
@@ -283,14 +41,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         return super.mainButtonTitle
     }
     
-//    var supplementButtonTitle: LocalizedStringKey {
-//        if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
-//            return welcomteStep.supplementButtonTitle
-//        }
-//
-//        return currentStep.supplementButtonTitle
-//    }
-    
     override var isSupplementButtonVisible: Bool {
         switch currentStep {
         case .topup:
@@ -300,48 +50,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         }
     }
     
-//    var buyCryptoURL: URL? {
-//        if let wallet = cardModel.wallets?.first {
-//            return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-//                                             walletAddress: wallet.address)
-//        }
-//        return nil
-//    }
-//
-//    var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
-//
-//    var shareAddress: String {
-//        cardModel.walletModels?.first?.shareAddressString(for: 0) ?? ""
-//    }
-//
-//    var walletAddress: String {
-//        cardModel.walletModels?.first?.displayAddress(for: 0) ?? ""
-//    }
-    
-    private(set) var isFromMain = false
-    
-//    private let input: CardOnboardingInput
-    
     private var bag: Set<AnyCancellable> = []
-    
-    private var containerSize: CGSize = .zero
     private var stackCalculator: StackCalculator = .init()
-    
-//    private var successCallback: (() -> Void)?
-//    private var walletModelUpdateCancellable: AnyCancellable?
-    
-//    private var cardModel: CardViewModel
     private var twinInfo: TwinCardInfo
     private var stepUpdatesSubscription: AnyCancellable?
-//    private var previewUpdates: Int = 0
     
-    init(imageLoaderService: CardImageLoaderService, twinsService: TwinsWalletCreationService, exchangeService: ExchangeService, input: CardOnboardingInput) {
+    init(imageLoaderService: CardImageLoaderService, twinsService: TwinsWalletCreationService, exchangeService: ExchangeService, input: OnboardingInput) {
         self.imageLoaderService = imageLoaderService
         self.twinsService = twinsService
-//        self.exchangeService = exchangeService
-//        self.input = input
-//        successCallback = input.successCallback
-//        cardModel = input.cardModel
         if let twinInfo = input.cardModel.cardInfo.twinCardInfo {
             pairNumber = TapTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
             if twinInfo.series.number != 1 {
@@ -361,23 +77,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             self.steps = steps
         }
         
-        if let cardsSettings = input.cardsPosition {
-            firstTwinSettings = cardsSettings.dark
-            secondTwinSettings = cardsSettings.light
-            isInitialAnimPlayed = false
-        } else {
-            isFromMain = true
-            isInitialAnimPlayed = true
-        }
-        
         twinsService.setupTwins(for: twinInfo)
         bind()
         loadImages()
     }
     
-    func setupContainerSize(_ size: CGSize) {
-        let isInitialSetup = containerSize == .zero
-        containerSize = size
+    override func setupContainer(with size: CGSize) {
         stackCalculator.setup(for: size, with: .init(topCardSize: TwinOnboardingCardLayout.first.frame(for: .first, containerSize: size),
                                                      topCardOffset: .init(width: 0, height: 0.06 * size.height),
                                                      cardsVerticalOffset: 20,
@@ -385,17 +90,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
                                                      opacityStep: 0.65,
                                                      numberOfCards: 2,
                                                      maxCardsInStack: 2))
-        if firstTwinSettings == .zero, secondTwinSettings == .zero {
-            setupCardsSettings(animated: !isInitialSetup)
-        }
+        super.setupContainer(with: size)
     }
-    
-//    func playInitialAnim() {
-//        withAnimation {
-//            isInitialAnimPlayed = true
-//            setupCardsSettings(animated: true)
-//        }
-//    }
     
     override func executeStep() {
         switch currentStep {
@@ -432,25 +128,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
     }
     
     override func goToNextStep() {
-//        var newIndex = currentStepIndex + 1
-//        if newIndex >= steps.count {
-//            newIndex = assembly.isPreview ? 0 : steps.count - 1
-//        }
-//
-//        if case .done = steps[newIndex], !assembly.isPreview {
-//            DispatchQueue.main.async {
-//                self.successCallback?()
-//            }
-//            return
-//        }
-//
-//        withAnimation {
-//            currentStepIndex = newIndex
-//
-//            setupCardsSettings(animated: true)
-        super.goToNextStep()
-        withAnimation {
-            if case .confetti = currentStep {
+       super.goToNextStep()
+        if case .confetti = currentStep {
+            withAnimation {
                 refreshButtonState = .doneCheckmark
                 shouldFireConfetti = true
             }
@@ -467,12 +147,13 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             return
         }
         
+        // Remove reset logic
         withAnimation {
             navigation.onboardingReset = true
         }
     }
     
-    func supplementButtonAction() {
+    override func supplementButtonAction() {
         switch currentStep {
         case .topup:
             withAnimation {
@@ -483,54 +164,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         }
     }
     
-//    func updateCardBalance() {
-//        if assembly.isPreview {
-//            previewUpdates += 1
-//
-//            if self.previewUpdates >= 3 {
-//                self.cardModel = Assembly.PreviewCard.scanResult(for: .cardanoNote, assembly: assembly).cardModel!
-//                self.previewUpdates = 0
-//            }
-//        }
-//
-//        guard
-//            let walletModel = cardModel.walletModels?.first,
-//            walletModelUpdateCancellable == nil
-//        else { return }
-//
-//
-//        refreshButtonState = .activityIndicator
-//        walletModelUpdateCancellable = walletModel.$state
-//            .receive(on: DispatchQueue.main)
-//            .dropFirst()
-//            .sink { [weak self] walletModelState in
-//                guard let self = self else { return }
-//
-//                self.updateCardBalanceText(for: walletModel)
-//                switch walletModelState {
-//                case .noAccount(let message):
-//                    print(message)
-//                    fallthrough
-//                case .idle:
-//                    if !walletModel.isEmptyIncludingPendingIncomingTxs {
-//                        self.goToNextStep()
-//                        return
-//                    }
-//                    withAnimation {
-//                        self.refreshButtonState = .refreshButton
-//                    }
-//                case .failed(let error):
-//                    print(error)
-//                    withAnimation {
-//                        self.refreshButtonState = .refreshButton
-//                    }
-//                case .loading, .created:
-//                    return
-//                }
-//                self.walletModelUpdateCancellable = nil
-//            }
-//        walletModel.update(silent: false)
-//    }
+    override func setupCardsSettings(animated: Bool) {
+        mainCardSettings = TwinOnboardingCardLayout.first.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated)
+        supplementCardSettings = TwinOnboardingCardLayout.second.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated)
+    }
     
     private func bind() {
         twinsService
@@ -554,6 +191,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
                 case (.first, .second), (.second, .third), (.third, .done):
                     withAnimation {
                         self.currentStepIndex += 1
+                        self.currentCardIndex = self.currentStep.topTwinCardIndex
                         setupCardsSettings(animated: true)
                     }
                 default:
@@ -581,17 +219,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             }
         }
         .store(in: &bag)
-    }
-    
-//    private func updateCardBalanceText(for model: WalletModel) {
-//        withAnimation {
-//            cardBalance = model.getBalance(for: .coin)
-//        }
-//    }
-    
-    override func setupCardsSettings(animated: Bool) {
-        firstTwinSettings = TwinOnboardingCardLayout.first.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated)
-        secondTwinSettings = TwinOnboardingCardLayout.second.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated)
     }
     
 }
