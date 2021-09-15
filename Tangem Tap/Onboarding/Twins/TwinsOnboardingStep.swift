@@ -12,7 +12,7 @@ enum TwinsOnboardingStep {
     case intro(pairNumber: String), first, second, third, topup, confetti, done
     
     static var previewCases: [TwinsOnboardingStep] {
-        [.intro(pairNumber: "0128"), .topup, .confetti, .done]
+        [.intro(pairNumber: "2"), .topup, .confetti, .done]
     }
     
     static var twinningProcessSteps: [TwinsOnboardingStep] {

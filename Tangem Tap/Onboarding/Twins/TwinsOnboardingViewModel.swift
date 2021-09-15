@@ -28,10 +28,36 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
 
         return steps[currentStepIndex]
     }
+    
+    override var title: LocalizedStringKey {
+        if twinInfo.series.number != 1 {
+            switch currentStep {
+            case .first, .third:
+                return TwinsOnboardingStep.second.title
+            case .second:
+                return TwinsOnboardingStep.first.title
+            default:
+                break
+            }
+        }
+        
+        return super.title
+    }
         
     override var mainButtonTitle: LocalizedStringKey {
         if !isInitialAnimPlayed {
             return super.mainButtonTitle
+        }
+        
+        if twinInfo.series.number != 1 {
+            switch currentStep {
+            case .first, .third:
+                return TwinsOnboardingStep.second.mainButtonTitle
+            case .second:
+                return TwinsOnboardingStep.first.mainButtonTitle
+            default:
+                break
+            }
         }
         
         if case .topup = currentStep, !exchangeService.canBuyCrypto {
@@ -59,15 +85,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         self.imageLoaderService = imageLoaderService
         self.twinsService = twinsService
         if let twinInfo = input.cardModel.cardInfo.twinCardInfo {
-            pairNumber = TapTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
-            if twinInfo.series.number != 1 {
-                self.twinInfo = .init(cid: twinInfo.pairCid,
-                                      series: twinInfo.series.pair,
-                                      pairCid: twinInfo.cid,
-                                      pairPublicKey: nil)
-            } else {
+//            pairNumber = TapTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
+            pairNumber = "\(twinInfo.series.pair.number)"
+//            if twinInfo.series.number != 1 {
+//                self.twinInfo = .init(cid: "",
+//                                      series: twinInfo.series.pair,
+//                                      pairPublicKey: nil)
+//            } else {
                 self.twinInfo = twinInfo
-            }
+//            }
         } else {
             fatalError("Wrong card model passed to Twins onboarding view model")
         }
@@ -97,7 +123,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         switch currentStep {
         case .intro:
             userPrefsService.cardsStartedActivation.append(twinInfo.cid)
-            userPrefsService.cardsStartedActivation.append(twinInfo.pairCid)
+//            userPrefsService.cardsStartedActivation.append(twinInfo.pairCid)
             fallthrough
         case .confetti, .done:
             goToNextStep()
@@ -189,6 +215,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             .sink(receiveValue: { [unowned self] newStep in
                 switch (self.currentStep, newStep) {
                 case (.first, .second), (.second, .third), (.third, .done):
+                    if newStep == .done {
+                        self.updateCardBalance()
+                    }
                     withAnimation {
                         self.currentStepIndex += 1
                         self.currentCardIndex = self.currentStep.topTwinCardIndex
@@ -214,8 +243,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             guard let self = self else { return }
             
             withAnimation {
-                self.firstTwinImage = first
-                self.secondTwinImage = second
+                self.firstTwinImage = self.twinInfo.series.number == 1 ? first : second
+                self.secondTwinImage = self.twinInfo.series.number == 1 ? second : first
             }
         }
         .store(in: &bag)
