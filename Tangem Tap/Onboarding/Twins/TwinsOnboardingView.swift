@@ -117,6 +117,8 @@ struct TwinsOnboardingView: View {
                         isVisible: viewModel.isSupplementButtonVisible,
                         containSupplementButton: true),
                     titleAction: {
+//                        guard viewModel.assembly.isPreview else { return }
+                        
                         withAnimation {
                             viewModel.reset()
                         }
