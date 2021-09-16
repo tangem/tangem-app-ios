@@ -10,6 +10,9 @@ import SwiftUI
 
 struct ConfettiView: UIViewRepresentable {
     var shouldFireConfetti: Binding<Bool>
+    var position: ConfettiGeneratorPosition = .aboveTop
+    var confettiLifetime: Float = 4
+    var generationDuration: Double = 0.3
     
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
@@ -34,10 +37,10 @@ struct ConfettiView: UIViewRepresentable {
         let confettiLayers = ConfettiGenerator.shared
             .generateConfettiLayers(
                 with:
-                    ConfettiGeneratorSettings(generatorPosition: .aboveTop,
+                    ConfettiGeneratorSettings(generatorPosition: position,
                                               generatorSize: CGSize(width: 100, height: 120),
-                                              confettiLifetime: 4.5,
-                                              generationDuration: 1)
+                                              confettiLifetime: confettiLifetime,
+                                              generationDuration: generationDuration)
         )
         for layer in confettiLayers {
             view.layer.addSublayer(layer)
@@ -49,3 +52,37 @@ struct ConfettiView: UIViewRepresentable {
     }
 }
 
+struct ConfettiViewPreview: View {
+    
+    @State var shouldFireConfetti: Bool = false
+    
+    var body: some View {
+        ZStack {
+            ConfettiView(
+                shouldFireConfetti: $shouldFireConfetti,
+                position: .aboveTop,
+                confettiLifetime: 4,
+                generationDuration: 0.3
+            )
+            VStack {
+                Spacer()
+                Button(action: {
+                    shouldFireConfetti = true
+                }, label: {
+                    Text("FIRE!!!!")
+                        .padding()
+                })
+                .padding(.bottom, 40)
+            }
+        }
+    }
+    
+}
+
+struct ConfettiView_Previews: PreviewProvider {
+    static var previews: some View {
+        ZStack {
+            ConfettiViewPreview()
+        }
+    }
+}
