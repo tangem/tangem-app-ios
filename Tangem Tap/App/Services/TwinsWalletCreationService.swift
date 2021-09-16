@@ -106,7 +106,10 @@ class TwinsWalletCreationService {
     }
     
     private func createWalletOnSecondCard() {
-        guard let firstTwinKey = firstTwinPublicKey else {
+        guard
+            let firstTwinKey = firstTwinPublicKey,
+            let series = TwinCardSeries.series(for: firstTwinCid)
+        else {
             step.send(.first)
             occuredError.send(TangemSdkError.missingIssuerPublicKey)
             return
@@ -115,7 +118,7 @@ class TwinsWalletCreationService {
         //		switch twinFileToWrite(publicKey: firstTwinKey) {
         //		case .success(let file):
         let task = TwinsCreateWalletTask(firstTwinCardId: firstTwinCid, fileToWrite: firstTwinKey, walletManagerFactory: walletManagerFactory)
-        tangemSdk.startSession(with: task, /*cardId: secondTwinCid,*/ initialMessage: Message(header: "Scan card #2") /*initialMessage(for: secondTwinCid)*/) { (result) in
+        tangemSdk.startSession(with: task, /*cardId: secondTwinCid,*/ initialMessage: Message(header: "Scan card #\(series.pair.number)") /*initialMessage(for: secondTwinCid)*/) { (result) in
             switch result {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
