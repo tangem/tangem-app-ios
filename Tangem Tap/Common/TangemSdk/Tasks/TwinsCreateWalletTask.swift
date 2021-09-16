@@ -44,10 +44,19 @@ class TwinsCreateWalletTask: CardSessionRunnable {
         }
         
         if let firstTwinCardId = self.firstTwinCardId {
-            guard let firstSeries = TwinCardSeries.series(for: firstTwinCardId),
-                  let secondSeries = TwinCardSeries.series(for: card.cardId),
+            guard let firstSeries = TwinCardSeries.series(for: firstTwinCardId) else {
+                completion(.failure(.underlying(error: "twin_error_not_a_twin_card".localized)))
+                return
+            }
+            
+            guard firstTwinCardId != card.cardId else {
+                completion(.failure(.underlying(error: String(format: "twin_error_same_card".localized, firstSeries.pair.number))))
+                return
+            }
+            
+            guard let secondSeries = TwinCardSeries.series(for: card.cardId),
                   firstSeries.pair == secondSeries else {
-                completion(.failure(.wrongCardType))
+                completion(.failure(.underlying(error: "twin_error_wrong_twin".localized)))
                 return
             }
         }
