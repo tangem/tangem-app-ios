@@ -41,6 +41,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         cardModel.walletModels?.first?.displayAddress(for: 0) ?? ""
     }
     
+    private var refreshButtonDispatchWork: DispatchWorkItem?
+    
     init(exchangeService: ExchangeService, input: OnboardingInput) {
         self.exchangeService = exchangeService
         self.cardModel = input.cardModel
@@ -85,14 +87,10 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
                         self.goToNextStep()
                         return
                     }
-                    withAnimation {
-                        self.refreshButtonState = .refreshButton
-                    }
+                    self.resetRefreshButtonState()
                 case .failed(let error):
                     print(error)
-                    withAnimation {
-                        self.refreshButtonState = .refreshButton
-                    }
+                    self.resetRefreshButtonState()
                 case .loading, .created:
                     return
                 }
@@ -103,6 +101,19 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     
     func updateCardBalanceText(for model: WalletModel) {
         cardBalance = model.getBalance(for: .coin)
+    }
+    
+    private func resetRefreshButtonState() {
+        guard refreshButtonDispatchWork == nil else { return }
+        
+        refreshButtonDispatchWork = DispatchWorkItem(block: {
+            withAnimation {
+                self.refreshButtonState = .refreshButton
+            }
+            self.refreshButtonDispatchWork = nil
+        })
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: refreshButtonDispatchWork!)
     }
     
 }
