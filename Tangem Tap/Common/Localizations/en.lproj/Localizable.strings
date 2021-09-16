@@ -611,3 +611,7 @@ Amount to pay: %@";
 "onboarding_subtitle_reset_twin_warning" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
 "onboarding_button_tap_first_card" = "Tap the card #1";
 "onboarding_button_tap_second_card" = "Tap the card #2";
+
+"twin_error_same_card" = "You've tapped same card. To create twin wallet you need to tap card with number %d";
+"twin_error_not_a_twin_card" = "You've tapped not a twin card. To create twin wallet you need to tap a Tangem Twin card";
+"twin_error_wrong_twin" = "You've tapped wrong twin card. Please try another one";
