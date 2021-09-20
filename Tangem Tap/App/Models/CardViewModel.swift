@@ -83,7 +83,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canSetPasscode: Bool {
         return cardInfo.card.settings.isSettingPasscodeAllowed
-            && !cardInfo.card.settings.isRemovingAccessCodeAllowed
+            && cardInfo.card.settings.isRemovingAccessCodeAllowed
             && (featuresService.canSetPasscode || isPairedTwin)
     }
     
