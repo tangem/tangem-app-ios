@@ -38,6 +38,24 @@ class CardViewModel: Identifiable, ObservableObject {
     
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     
+    var availableSecOptions: [SecurityManagementOption] {
+        var options = [SecurityManagementOption.longTap]
+        
+        if canSetAccessCode {
+            options.append(.accessCode)
+        }
+        
+        if canSetPasscode {
+            options.append(.passCode)
+        }
+        
+        if currentSecOption != .longTap && !options.contains(currentSecOption) {
+            options.append(currentSecOption)
+        }
+        
+        return options
+    }
+    
     var walletModels: [WalletModel]? {
         return state.walletModels
     }
@@ -66,7 +84,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var canSetPasscode: Bool {
         return cardInfo.card.settings.isSettingPasscodeAllowed
             && !cardInfo.card.settings.isRemovingAccessCodeAllowed
-            && featuresService.canSetPasscode
+            && (featuresService.canSetPasscode || isPairedTwin)
     }
     
     var canSetLongTap: Bool {
@@ -145,6 +163,10 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var isNotPairedTwin: Bool {
         isTwinCard && cardInfo.twinCardInfo?.pairPublicKey == nil
+    }
+    
+    var isPairedTwin: Bool {
+        isTwinCard && cardInfo.twinCardInfo?.pairPublicKey != nil
     }
     
     var hasBalance: Bool {
