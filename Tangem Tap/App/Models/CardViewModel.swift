@@ -41,16 +41,12 @@ class CardViewModel: Identifiable, ObservableObject {
     var availableSecOptions: [SecurityManagementOption] {
         var options = [SecurityManagementOption.longTap]
         
-        if featuresService.canSetAccessCode {
+        if featuresService.canSetAccessCode || currentSecOption == .accessCode {
             options.append(.accessCode)
         }
         
-        if featuresService.canSetPasscode || isTwinCard {
+        if featuresService.canSetPasscode || isTwinCard || currentSecOption == .passCode {
             options.append(.passCode)
-        }
-        
-        if currentSecOption != .longTap && !options.contains(currentSecOption) {
-            options.append(currentSecOption)
         }
         
         return options
@@ -359,8 +355,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardPinSettings?.isPin1Default = false
-                    self.cardPinSettings?.isPin2Default = true
+                    self.cardPinSettings?.isPin1Default = true
+                    self.cardPinSettings?.isPin2Default = false
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
