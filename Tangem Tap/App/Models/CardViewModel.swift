@@ -41,11 +41,11 @@ class CardViewModel: Identifiable, ObservableObject {
     var availableSecOptions: [SecurityManagementOption] {
         var options = [SecurityManagementOption.longTap]
         
-        if canSetAccessCode {
+        if featuresService.canSetAccessCode {
             options.append(.accessCode)
         }
         
-        if canSetPasscode {
+        if featuresService.canSetPasscode || isTwinCard {
             options.append(.passCode)
         }
         
