@@ -20,7 +20,11 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
                          intermediateSettings: nil)
         case (.second, .first), (.third, .second):
             return .init(targetSettings: stackCalculator.cardsSettings[stackIndex(at: step)],
-                         intermediateSettings: stackCalculator.prehideAnimSettings)
+                         intermediateSettings: animated ? stackCalculator.prehideAnimSettings : nil)
+        case (.welcome, .first):
+            return WelcomeCardLayout.main.cardSettings(at: .welcome, in: containerSize, animated: animated)
+        case (.welcome, .second):
+            return WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: containerSize, animated: animated)
         default:
             return .init(targetSettings: CardAnimSettings(frame: frame(for: step, containerSize: containerSize),
                                                           offset: offset(at: step, in: containerSize),
@@ -35,6 +39,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     
     func cardFrameMinHorizontalPadding(at step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
+        case (.welcome, _): return 0
         case (.intro, _): return 75
         case (.first, .first), (.second, .second), (.third, .first): return 80
         case (.first, .second), (.second, .first), (.third, .second): return 120
@@ -44,6 +49,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     
     func frameSizeRatio(for step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
+        case (.welcome, _): return 0
         case (.intro, _): return 0.431
         case (.first, .first), (.second, .second), (.third, .first):
             return 0.454
@@ -57,6 +63,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     private func offset(at step: TwinsOnboardingStep, in container: CGSize) -> CGSize {
         let containerHeight = container.height
         switch (step, self) {
+        case (.welcome, _): return .zero
         case (.intro, .first):
             let heightOffset = containerHeight * 0.114
             let widthOffset = container.width * 0.131

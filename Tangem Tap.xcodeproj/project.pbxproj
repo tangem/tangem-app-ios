@@ -678,7 +678,7 @@
 		B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */; };
 		B0C4A1D32671F3FC00DCB921 /* TestnetBuyCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */; };
 		B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */; };
-		B0C4F76D26F089850086D815 /* SingleCardOnboardingSetp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76C26F089850086D815 /* SingleCardOnboardingSetp.swift */; };
+		B0C4F76D26F089850086D815 /* SingleCardOnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76C26F089850086D815 /* SingleCardOnboardingStep.swift */; };
 		B0C4F76F26F08AB40086D815 /* TwinsOnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76E26F08AB40086D815 /* TwinsOnboardingStep.swift */; };
 		B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F77026F08C4D0086D815 /* TwinsOnboardingCardLayout.swift */; };
 		B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F77226F08CB50086D815 /* OnboardingCardFrameCalculator.swift */; };
@@ -1439,7 +1439,7 @@
 		B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ethereumTokens_testnet.json; sourceTree = "<group>"; };
 		B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetBuyCryptoService.swift; sourceTree = "<group>"; };
 		B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingCardsLayout.swift; sourceTree = "<group>"; };
-		B0C4F76C26F089850086D815 /* SingleCardOnboardingSetp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingSetp.swift; sourceTree = "<group>"; };
+		B0C4F76C26F089850086D815 /* SingleCardOnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingStep.swift; sourceTree = "<group>"; };
 		B0C4F76E26F08AB40086D815 /* TwinsOnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingStep.swift; sourceTree = "<group>"; };
 		B0C4F77026F08C4D0086D815 /* TwinsOnboardingCardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingCardLayout.swift; sourceTree = "<group>"; };
 		B0C4F77226F08CB50086D815 /* OnboardingCardFrameCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCardFrameCalculator.swift; sourceTree = "<group>"; };
@@ -3183,7 +3183,7 @@
 				B0E1564A26B941A4005B33E4 /* SingleCardOnboardingView.swift */,
 				B0E1564C26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift */,
 				B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */,
-				B0C4F76C26F089850086D815 /* SingleCardOnboardingSetp.swift */,
+				B0C4F76C26F089850086D815 /* SingleCardOnboardingStep.swift */,
 			);
 			path = Note;
 			sourceTree = "<group>";
@@ -4049,7 +4049,7 @@
 				5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */,
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
 				5D9DCB06255193C30059799C /* UserPrefsService.swift in Sources */,
-				B0C4F76D26F089850086D815 /* SingleCardOnboardingSetp.swift in Sources */,
+				B0C4F76D26F089850086D815 /* SingleCardOnboardingStep.swift in Sources */,
 				B099614B26D51C37000E3779 /* OnboardingBaseViewModel.swift in Sources */,
 				B0453672264D4B730005B23E /* Constants.swift in Sources */,
 				B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */,

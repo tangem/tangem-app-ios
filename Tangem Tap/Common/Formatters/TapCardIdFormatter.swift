@@ -26,7 +26,6 @@ struct TapCardIdFormatter {
 
 struct TapTwinCardIdFormatter {
     static func format(cid: String, cardNumber: Int?) -> String {
-        let formatter = CardIdFormatter()
-        return formatter.crop(cid: cid, with: 4) + (cardNumber != nil ? " #\(cardNumber!)" : "")
+        String(cid.dropLast().suffix(4)) + (cardNumber != nil ? " #\(cardNumber!)" : "")
     }
 }

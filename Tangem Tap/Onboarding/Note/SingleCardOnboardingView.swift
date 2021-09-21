@@ -19,7 +19,7 @@ struct SingleCardOnboardingView: View {
     var currentStep: SingleCardOnboardingStep { viewModel.currentStep }
     
     private var isTopItemsVisible: Bool {
-        viewModel.isInitialAnimPlayed
+        viewModel.isNavBarVisible
     }
     
     var navigationLinks: some View {
@@ -54,7 +54,14 @@ struct SingleCardOnboardingView: View {
                         let size = proxy.size
                         
                         NavigationBar(title: "onboarding_navbar_activating_card",
-                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear))
+                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
+                                      leftButtons: {
+                                        BackButton(height: viewModel.navbarSize.height,
+                                                   isVisible: viewModel.isBackButtonVisible,
+                                                   isEnabled: viewModel.isBackButtonEnabled) {
+                                            viewModel.reset()
+                                        }
+                                      })
                             .frame(size: viewModel.navbarSize)
                             .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
                             .opacity(isTopItemsVisible ? 1.0 : 0.0)
@@ -75,7 +82,7 @@ struct SingleCardOnboardingView: View {
                         AnimatedView(settings: viewModel.$mainCardSettings) {
                             OnboardingCardView(placeholderCardType: .dark,
                                                cardImage: viewModel.cardImage,
-                                               cardScanned: viewModel.isInitialAnimPlayed && viewModel.cardImage != nil)
+                                               cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
                         }
                         
                         OnboardingTopupBalanceView(
@@ -105,7 +112,7 @@ struct SingleCardOnboardingView: View {
                         mainTitle: viewModel.mainButtonTitle,
                         mainSize: .wide,
                         mainAction: {
-                            viewModel.executeStep()
+                            viewModel.mainButtonAction()
                         },
                         mainIsBusy: viewModel.isMainButtonBusy,
                         supplementTitle: viewModel.supplementButtonTitle,

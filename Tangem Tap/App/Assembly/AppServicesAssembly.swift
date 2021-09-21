@@ -81,7 +81,7 @@ class AppServicesAssembly: ServicesAssembly {
         }
         
         if cardInfo.card.isTwinCard {
-            tangemSdk.config.cardIdDisplayedNumbersCount = 4
+            tangemSdk.config.cardIdDisplayFormat = .last(4)
         }
     }
 }
