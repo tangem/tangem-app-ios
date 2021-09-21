@@ -10,23 +10,46 @@ import SwiftUI
 
 struct OnboardingCardView: View {
     
-    var placeholderCardType: BlankCard.CardType
+    enum CardType {
+        case dark, light
+        
+        var imageName: String {
+            switch self {
+            case .dark: return "dark_card"
+            case .light: return "light_card"
+            }
+        }
+        
+        var blankCardType: BlankCard.CardType {
+            switch self {
+            case .dark: return .dark
+            case .light: return .light
+            }
+        }
+    }
+    
+    var placeholderCardType: CardType
     var cardImage: UIImage?
     var cardScanned: Bool
     
-    private let cardRotationAnimDuration: TimeInterval = 0.2
-    
     var body: some View {
-        ZStack(alignment: .center) {
+        GeometryReader { geom in
             if let image = cardImage {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(size: geom.size)
                     .opacity(cardScanned ? 1.0 : 0.0)
             }
-            BlankCard(cardType: placeholderCardType)
+            Image(placeholderCardType.imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(size: geom.size)
                 .opacity(cardScanned ? 0.0 : 1.0)
         }
+//            BlankCard(cardType: placeholderCardType)
+//                .opacity(cardScanned ? 0.0 : 1.0)
+//        }
     }
     
 }
