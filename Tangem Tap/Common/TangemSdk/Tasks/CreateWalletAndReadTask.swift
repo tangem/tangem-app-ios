@@ -46,7 +46,7 @@ class CreateWalletAndReadTask: CardSessionRunnable {
             return
         }
         
-        let createWalletCommand = CreateWalletCommand(curve: supportedCurve, isPermanent: card.isPermanentLegacyWallet)
+        let createWalletCommand = CreateWalletCommand(curve: supportedCurve /*, isPermanent: card.isPermanentLegacyWallet*/)
         createWalletCommand.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
             case .failure(let error):
@@ -69,7 +69,7 @@ class CreateWalletAndReadTask: CardSessionRunnable {
             return
         }
         
-        let createWalletCommand = CreateWalletCommand(curve: targetBlockchain.curve, isPermanent: false)
+        let createWalletCommand = CreateWalletCommand(curve: targetBlockchain.curve /*, isPermanent: false*/)
         createWalletCommand.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
             case .failure(let error):
