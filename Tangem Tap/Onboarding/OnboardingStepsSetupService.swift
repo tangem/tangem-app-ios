@@ -44,7 +44,7 @@ class OnboardingStepsSetupService {
             steps.append(.createWallet)
         }
         
-        return steps.count > 1 ? .justWithError(output: .singleWallet(steps)) : .justWithError(output: .singleWallet([]))
+        return steps.count > 0 ? .justWithError(output: .singleWallet(steps)) : .justWithError(output: .singleWallet([]))
     }
     
     private func stepsForNote(_ card: Card) -> AnyPublisher<OnboardingSteps, Error> {
