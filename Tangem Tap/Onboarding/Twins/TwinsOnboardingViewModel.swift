@@ -20,16 +20,25 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
     @Published var secondTwinImage: UIImage?
     @Published var pairNumber: String
     @Published var currentCardIndex: Int = 0
+    @Published var displayTwinImages: Bool = false
     
     override var currentStep: TwinsOnboardingStep {
         guard currentStepIndex < steps.count else {
-            return .intro(pairNumber: pairNumber)
+            return assembly.isPreview ? .intro(pairNumber: pairNumber) : .welcome
+        }
+        
+        guard isInitialAnimPlayed else {
+            return .welcome
         }
 
         return steps[currentStepIndex]
     }
     
     override var title: LocalizedStringKey {
+        if !isInitialAnimPlayed {
+            return super.title
+        }
+        
         if twinInfo.series.number != 1 {
             switch currentStep {
             case .first, .third:
@@ -76,6 +85,13 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         }
     }
     
+    override var isBackButtonEnabled: Bool {
+        switch currentStep {
+        case .second, .third: return false
+        default: return true
+        }
+    }
+    
     private var bag: Set<AnyCancellable> = []
     private var stackCalculator: StackCalculator = .init()
     private var twinInfo: TwinCardInfo
@@ -102,6 +118,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         if case let .twins(steps) = input.steps {
             self.steps = steps
         }
+        if isFromMain {
+            displayTwinImages = true
+        }
         
         twinsService.setupTwins(for: twinInfo)
         bind()
@@ -119,8 +138,18 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         super.setupContainer(with: size)
     }
     
-    override func executeStep() {
+    override func playInitialAnim(includeInInitialAnim: (() -> Void)? = nil) {
+        super.playInitialAnim {
+            self.displayTwinImages = true
+        }
+    }
+    
+    override func mainButtonAction() {
         switch currentStep {
+        case .welcome:
+            if assembly.isPreview {
+                goToNextStep()
+            }
         case .intro:
             userPrefsService.cardsStartedActivation.append(twinInfo.cid)
 //            userPrefsService.cardsStartedActivation.append(twinInfo.pairCid)
@@ -154,7 +183,13 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
     }
     
     override func goToNextStep() {
-       super.goToNextStep()
+        super.goToNextStep()
+        if case .intro = currentStep, assembly.isPreview {
+            withAnimation {
+                isNavBarVisible = true
+                displayTwinImages = true
+            }
+        }
         if case .confetti = currentStep {
             withAnimation {
                 refreshButtonState = .doneCheckmark
@@ -163,19 +198,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         }
     }
     
-    func reset() {
-        guard !assembly.isPreview else {
-            withAnimation {
-                currentStepIndex = 0
-                setupCardsSettings(animated: true)
-            }
-            
-            return
-        }
-        
-        // Remove reset logic
-        withAnimation {
-            navigation.onboardingReset = true
+    override func reset(includeInResetAnim: (() -> Void)? = nil) {
+        super.reset {
+            self.displayTwinImages = false
         }
     }
     
@@ -190,41 +215,41 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         }
     }
     
-    override func setupCardsSettings(animated: Bool) {
-        mainCardSettings = TwinOnboardingCardLayout.first.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated)
-        supplementCardSettings = TwinOnboardingCardLayout.second.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated)
+    override func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
+        // this condition is needed to prevent animating stack when user is trying to dismiss modal sheet
+        mainCardSettings = TwinOnboardingCardLayout.first.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated && !isContainerSetup)
+        supplementCardSettings = TwinOnboardingCardLayout.second.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated && !isContainerSetup)
     }
     
     private func bind() {
         twinsService
             .isServiceBusy
             .receive(on: DispatchQueue.main)
-            .sink { isServiceBudy in
-                self.isMainButtonBusy = isServiceBudy
+            .sink { [weak self] isServiceBudy in
+                self?.isMainButtonBusy = isServiceBudy
             }
             .store(in: &bag)
     }
     
     private func subscribeToStepUpdates() {
-        guard stepUpdatesSubscription == nil else {
-            return
-        }
-        
         stepUpdatesSubscription = twinsService.step
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [unowned self] newStep in
+            .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).removeDuplicates())
+            .sink(receiveValue: { [unowned self] (newStep, _) in
                 switch (self.currentStep, newStep) {
                 case (.first, .second), (.second, .third), (.third, .done):
                     if newStep == .done {
                         self.updateCardBalance()
                     }
-                    withAnimation {
-                        self.currentStepIndex += 1
-                        self.currentCardIndex = self.currentStep.topTwinCardIndex
-                        setupCardsSettings(animated: true)
+                    DispatchQueue.main.async {
+                        withAnimation(.easeOut(duration: 0.5)) {
+                            self.currentStepIndex += 1
+                            self.currentCardIndex = self.currentStep.topTwinCardIndex
+                            self.setupCardsSettings(animated: true, isContainerSetup: false)
+                        }
                     }
                 default:
-                    print("Wrong state while twinning cards")
+                    print("Wrong state while twinning cards: current - \(self.currentStep), new - \(newStep)")
                 }
             })
     }
@@ -242,10 +267,11 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         } receiveValue: { [weak self] (first, second) in
             guard let self = self else { return }
             
-            withAnimation {
-                self.firstTwinImage = self.twinInfo.series.number == 1 ? first : second
-                self.secondTwinImage = self.twinInfo.series.number == 1 ? second : first
-            }
+            self.firstTwinImage = self.twinInfo.series.number == 1 ? first : second
+            self.secondTwinImage = self.twinInfo.series.number == 1 ? second : first
+//            withAnimation {
+//                self.displayTwinImages = true
+//            }
         }
         .store(in: &bag)
     }
