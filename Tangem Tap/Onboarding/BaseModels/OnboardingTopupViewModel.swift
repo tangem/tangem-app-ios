@@ -15,6 +15,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     @Published var isAddressQrBottomSheetPresented: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = "0.00"
+    @Published var isBalanceRefresherVisible: Bool = false
     
     var previewUpdates: Int = 0
     var walletModelUpdateCancellable: AnyCancellable?
@@ -100,7 +101,22 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     func updateCardBalanceText(for model: WalletModel) {
-        cardBalance = model.getBalance(for: .coin)
+        if model.wallet.amounts.count == 0 {
+            cardBalance = "0.00 " + model.wallet.blockchain.currencySymbol
+        } else {
+            cardBalance = model.getBalance(for: .coin)
+        }
+    }
+    
+    override func reset(includeInResetAnim: (() -> Void)? = nil) {
+        walletModelUpdateCancellable = nil
+        
+        super.reset {
+            self.previewUpdates = 0
+            self.refreshButtonState = .refreshButton
+            self.isBalanceRefresherVisible = false
+            includeInResetAnim?()
+        }
     }
     
     private func resetRefreshButtonState() {
