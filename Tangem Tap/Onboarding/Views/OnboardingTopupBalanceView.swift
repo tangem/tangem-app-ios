@@ -20,17 +20,22 @@ struct OnboardingTopupBalanceUpdater: View {
     
     var body: some View {
         Group {
-            VStack {
+            VStack(spacing: 0) {
                 Text("onboarding_balance")
                     .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.tangemTapGrayDark)
                     .padding(.bottom, 8)
+                    .transition(.opacity)
                 Text(balance)
                     .multilineTextAlignment(.center)
                     .truncationMode(.middle)
                     .lineLimit(2)
                     .minimumScaleFactor(0.3)
                     .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(Color.tangemTapGrayDark6)
                     .frame(maxWidth: frame.width - 26, maxHeight: frame.height * 0.155)
+                    .transition(.opacity)
+                    .id("onboarding_balance_\(balance)")
             }
             .offset(offset)
             
