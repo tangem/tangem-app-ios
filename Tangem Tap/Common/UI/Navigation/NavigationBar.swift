@@ -24,7 +24,30 @@ struct ArrowBack: View {
 	}
 }
 
-
+struct BackButton: View {
+    
+    let height: CGFloat
+    let isVisible: Bool
+    let isEnabled: Bool
+    let color: Color = .tangemTapGrayDark6
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action, label: {
+            HStack(spacing: 5) {
+                Image(systemName: "chevron.left")
+                Text("common_back")
+                    .font(.system(size: 17, weight: .regular))
+            }
+        })
+        .allowsHitTesting(isEnabled)
+        .opacity(isVisible ? 1.0 : 0.0)
+        .frame(height: height)
+        .foregroundColor(isEnabled ? color : color.opacity(0.5))
+        .padding(.horizontal, 16)
+    }
+    
+}
 
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 	

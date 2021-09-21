@@ -27,7 +27,8 @@ struct TangemButton: View {
                     ActivityIndicatorView()
                 } else {
                     Text(title)
-                        .animation(nil)
+                        .transition(.opacity)
+                        .id("tangem_button_\(title)")
 					if !image.isEmpty {
 						Image(image)
 					}
