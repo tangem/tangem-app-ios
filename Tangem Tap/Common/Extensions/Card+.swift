@@ -74,7 +74,7 @@ extension Card {
     
     var isPermanentLegacyWallet: Bool {
         if firmwareVersion < .multiwalletAvailable {
-            return settings.isPermanentWallet
+            return wallets.first?.settings.isPermanent ?? false
         }
         
         return false
