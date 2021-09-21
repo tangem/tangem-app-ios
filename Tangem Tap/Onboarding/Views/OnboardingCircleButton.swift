@@ -27,8 +27,8 @@ struct OnboardingCircleButton: View {
         
         var activityIndicatorStyle: UIActivityIndicatorView.Style {
             switch self {
-            case .default, .medium: return .large
-            case .small: return .medium
+            case .default: return .large
+            case .medium, .small: return .medium
             }
         }
         
@@ -103,7 +103,7 @@ struct OnboardingCircleButton: View {
     
     var body: some View {
         Circle()
-            .strokeBorder(style: StrokeStyle(lineWidth: 2))
+            .strokeBorder(style: StrokeStyle(lineWidth: 1))
             .foregroundColor(state == .doneCheckmark ? .tangemTapGreen : .tangemTapGrayLight4)
             .background(backgroundView)
             .frame(size: buttonSize)
