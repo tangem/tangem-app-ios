@@ -1,5 +1,5 @@
 //
-//  SingleCardOnboardingSetp.swift
+//  SingleCardOnboardingStep.swift
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,12 +9,12 @@
 import SwiftUI
 
 enum SingleCardOnboardingStep: CaseIterable {
-    case createWallet, topup, confetti, goToMain
+    case welcome, createWallet, topup, confetti, goToMain
     
     var hasProgressStep: Bool {
         switch self {
         case .createWallet, .topup: return true
-        case .confetti, .goToMain: return false
+        case .welcome, .confetti, .goToMain: return false
         }
     }
     
@@ -22,7 +22,7 @@ enum SingleCardOnboardingStep: CaseIterable {
         switch self {
         case .createWallet: return Image("onboarding.create.wallet")
         case .topup: return Image("onboarding.topup")
-        case .confetti, .goToMain: return nil
+        case .welcome, .confetti, .goToMain: return nil
         }
     }
     
@@ -51,16 +51,26 @@ enum SingleCardOnboardingStep: CaseIterable {
         }
     }
     
+    func balanceTextOffset(containerSize: CGSize) -> CGSize {
+        switch self {
+        case .topup, .confetti:
+            let backgroundOffset = cardBackgroundFrame(containerSize: containerSize)
+            return .init(width: backgroundOffset.width, height: backgroundOffset.height + 12)
+        default:
+            return cardBackgroundOffset(containerSize: containerSize)
+        }
+    }
+    
     var balanceStackOpacity: Double {
         switch self {
-        case .createWallet, .goToMain: return 0
+        case .welcome, .createWallet, .goToMain: return 0
         case .topup, .confetti: return 1
         }
     }
     
     func cardBackgroundFrame(containerSize: CGSize) -> CGSize {
         switch self {
-        case .goToMain: return .zero
+        case .welcome, .goToMain: return .zero
         case .createWallet:
             let diameter = SingleCardOnboardingCardsLayout.main.frame(for: self, containerSize: containerSize).height * 1.317
             return .init(width: diameter, height: diameter)
@@ -73,7 +83,7 @@ enum SingleCardOnboardingStep: CaseIterable {
     
     func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
         switch self {
-        case .goToMain: return 0
+        case .welcome, .goToMain: return 0
         case .createWallet: return cardBackgroundFrame(containerSize: containerSize).height / 2
         case .topup, .confetti: return 8
         }
@@ -83,6 +93,7 @@ enum SingleCardOnboardingStep: CaseIterable {
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: LocalizedStringKey {
         switch self {
+        case .welcome: return WelcomeStep.welcome.title
         case .goToMain: return ""
         case .createWallet: return "onboarding_create_title"
         case .topup: return "onboarding_topup_title"
@@ -92,6 +103,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     
     var subtitle: LocalizedStringKey {
         switch self {
+        case .welcome: return WelcomeStep.welcome.subtitle
         case .goToMain: return ""
         case .createWallet: return "onboarding_create_subtitle"
         case .topup: return "onboarding_topup_subtitle"
@@ -107,18 +119,20 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         case .topup: return "onboarding_button_buy_crypto"
         case .confetti: return "common_continue"
         case .goToMain: return ""
+        case .welcome: return WelcomeStep.welcome.mainButtonTitle
         }
     }
     
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .createWallet, .topup: return true
+        case .welcome, .createWallet, .topup: return true
         case .confetti, .goToMain: return false
         }
     }
     
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
+        case .welcome: return WelcomeStep.welcome.supplementButtonTitle
         case .createWallet: return "onboarding_button_how_it_works"
         case .topup: return "onboarding_button_show_address_qr"
         case .confetti, .goToMain: return ""
@@ -144,6 +158,7 @@ extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
     /// Use this steps for progress bar. First step is always Read card.
     var progressStep: Int {
         switch self {
+        case .welcome: return 1
         case .createWallet: return 2
         case .topup: return 3
         case .confetti: return 4
@@ -154,6 +169,10 @@ extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
     var isOnboardingFinished: Bool {
         self == .goToMain
     }
+}
+
+extension SingleCardOnboardingStep: OnboardingInitialStepInfo {
+    static var initialStep: SingleCardOnboardingStep { .welcome }
 }
 
 extension SingleCardOnboardingStep: OnboardingTopupBalanceLayoutCalculator { }

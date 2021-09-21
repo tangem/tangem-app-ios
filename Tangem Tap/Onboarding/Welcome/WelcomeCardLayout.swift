@@ -20,6 +20,11 @@ enum WelcomeCardLayout: OnboardingCardFrameCalculator {
         }
     }
     
+    static func defaultSettings(in container: CGSize, animated: Bool) -> (main: AnimatedViewSettings, supplement: AnimatedViewSettings) {
+        (main: WelcomeCardLayout.main.cardSettings(at: .welcome, in: container, animated: animated),
+         supplement: WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: container, animated: animated))
+    }
+    
     func cardSettings(at step: WelcomeStep, in container: CGSize, animated: Bool) -> AnimatedViewSettings {
         .init(
             targetSettings: .init(
