@@ -11,8 +11,6 @@ import SwiftUI
 import TangemSdk
 import Combine
 
-
-
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep> {
     
     weak var cardsRepository: CardsRepository!
@@ -21,6 +19,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     weak var imageLoaderService: CardImageLoaderService!
     
     @Published var cardImage: UIImage?
+    @Published var isCardScanned: Bool = true
 
     override var currentProgress: CGFloat {
         CGFloat(currentStep.progressStep) / CGFloat(numberOfSteps)
@@ -30,7 +29,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     override var currentStep: SingleCardOnboardingStep {
         guard currentStepIndex < steps.count else {
-            return .topup
+            return assembly.isPreview ? .createWallet : .welcome
         }
 
         return steps[currentStepIndex]
@@ -83,30 +82,57 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
         withAnimation {
             self.currentStepIndex = nextStepIndex
-            setupCardsSettings(animated: true)
+            setupCardsSettings(animated: true, isContainerSetup: false)
         }
         
         stepUpdate()
     }
     
-    func reset() {
-        // [REDACTED_TODO_COMMENT]
-        walletModelUpdateCancellable = nil
-
-        withAnimation {
-            navigation.onboardingReset = true
-            currentStepIndex = 0
-            setupCardsSettings(animated: true)
-            steps = []
-            isMainButtonBusy = false
-            refreshButtonState = .refreshButton
-            cardBalance = ""
-            previewUpdateCounter = 0
+    override func reset(includeInResetAnim: (() -> Void)? = nil) {
+        super.reset {
+            self.isCardScanned = false
         }
     }
     
-    override func executeStep() {
+//    func reset() {
+//        // [REDACTED_TODO_COMMENT]
+//        walletModelUpdateCancellable = nil
+//
+//        let defaultSettings = WelcomeCardLayout.defaultSettings(in: containerSize, animated: true)
+//        let animDuration = 0.3
+//        withAnimation(.easeIn(duration: animDuration)) {
+//            mainCardSettings = defaultSettings.main
+//            supplementCardSettings = defaultSettings.supplement
+//            currentStepIndex = 0
+//            steps = []
+//            isMainButtonBusy = false
+//            refreshButtonState = .refreshButton
+//        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + animDuration) {
+//            self.navigation.onboardingReset = true
+//        }
+////        withAnimation {
+////            navigation.onboardingReset = true
+////            currentStepIndex = 0
+////            setupCardsSettings(animated: true)
+////            steps = []
+////            isMainButtonBusy = false
+////            refreshButtonState = .refreshButton
+////            cardBalance = ""
+////            previewUpdateCounter = 0
+////        }
+//    }
+    
+    override func mainButtonAction() {
         switch currentStep {
+        case .welcome:
+            if assembly.isPreview {
+                goToNextStep()
+                withAnimation {
+                    isNavBarVisible = true
+                    isCardScanned = true
+                }
+            }
         case .createWallet:
             сreateWallet()
         case .topup:
@@ -120,7 +146,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
-    override func setupCardsSettings(animated: Bool) {
+    override func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         mainCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: currentStep,
                                                                                                        containerSize: containerSize,
                                                                                                        animated: animated),
@@ -143,24 +169,38 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         
         let card = cardModel.cardInfo.card
         
-        cardModel.createWallet { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .success:
-                self.walletCreatedWhileOnboarding = true
-                if card.isTangemNote {
-                    self.userPrefsService.cardsStartedActivation.append(card.cardId)
+        Deferred {
+            Future { (promise: @escaping Future<Void, Error>.Promise) in
+                self.cardModel.createWallet { [weak self] result in
+                    switch result {
+                    case .success:
+                        self?.updateCardBalance()
+                        promise(.success(()))
+                    case .failure(let error):
+                        promise(.failure(error))
+                    }
                 }
-            case .failure(let error):
-                print(error)
             }
-            self.updateCardBalance()
+        }
+        .receive(on: DispatchQueue.main)
+        .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).setFailureType(to: Error.self))
+        .sink { completion in
+            if case let .failure(error) = completion {
+                print("Failed to create wallet. \(error)")
+            }
+        } receiveValue: { (_, _) in
+            self.walletCreatedWhileOnboarding = true
+            if card.isTangemNote {
+                self.userPrefsService.cardsStartedActivation.append(card.cardId)
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.isMainButtonBusy = false
                 self.goToNextStep()
             }
         }
+        .store(in: &bag)
+
+        
     }
     
     private func stepUpdate() {
@@ -170,6 +210,9 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 return
             }
             
+            withAnimation {
+                isBalanceRefresherVisible = true
+            }
             updateCardBalance()
         case .confetti:
             withAnimation {
