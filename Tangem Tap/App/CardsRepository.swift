@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import struct TangemSdk.Card
 import struct TangemSdk.WalletData
 import struct TangemSdk.ArtworkInfo
@@ -151,6 +152,22 @@ class CardsRepository {
 				completion(.success(processScan(response.getCardInfo())))
             }
         }
+    }
+    
+    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<ScanResult, Error>  {
+        Deferred {
+            Future { [weak self] promise in
+                self?.scan(with: batch) { result in
+                    switch result {
+                    case .success(let scanResult):
+                        promise(.success(scanResult))
+                    case .failure(let error):
+                        promise(.failure(error))
+                    }
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
