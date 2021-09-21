@@ -29,7 +29,8 @@ struct OnboardingMessagesView: View {
                     // [REDACTED_TODO_COMMENT]
                     onTitleTapCallback?()
                 }
-                .animation(nil)
+                .transition(.opacity)
+                .id("onboarding_title_\(title)")
             Text(subtitle)
                 .frame(maxWidth: .infinity)
 //                .background(Color.yellow)
@@ -38,7 +39,8 @@ struct OnboardingMessagesView: View {
                 .font(.system(size: 18, weight: .regular))
                 .foregroundColor(.tangemTapGrayDark6)
                 .frame(maxWidth: .infinity)
-                .animation(nil)
+                .transition(.opacity)
+                .id("onboarding_subtitle_\(subtitle)")
         }
     }
     

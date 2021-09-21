@@ -53,19 +53,23 @@ class WelcomeOnboardingViewModel: ViewModel {
         }
             
         isScanningCard = true
-        cardsRepository.scan { [unowned self] result in
-            switch result {
-            case .success(let scanResult):
-                guard let cardModel = scanResult.cardModel else {
-                    break
+        cardsRepository.scanPublisher()
+            .receive(on: DispatchQueue.main)
+            .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).setFailureType(to: Error.self))
+            .sink { completion in
+                if case let .failure(error) = completion {
+                    print("Failed to scan card: \(error)")
+                    self.isScanningCard = false
                 }
                 
-                processScannedCard(cardModel, isWithAnimation: true)
-            case .failure(let error):
-                print("Failed to scan card. Reason: \(error)")
-                self.isScanningCard = false
+            } receiveValue: { [weak self] (result, _) in
+                guard let cardModel = result.cardModel else {
+                    return
+                }
+                
+                self?.processScannedCard(cardModel, isWithAnimation: true)
             }
-        }
+            .store(in: &bag)
     }
     
     func acceptDisclaimer() {
