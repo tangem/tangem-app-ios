@@ -16,11 +16,19 @@ struct TwinsOnboardingView: View {
     private let screenSize: CGSize = UIScreen.main.bounds.size
     
     var isNavbarVisible: Bool {
-        viewModel.isInitialAnimPlayed
+        viewModel.isNavBarVisible
     }
     
     var isProgressBarVisible: Bool {
         if case .intro = currentStep {
+            return false
+        }
+        
+        if case .welcome = currentStep {
+            return false
+        }
+        
+        if !viewModel.isInitialAnimPlayed {
             return false
         }
         
@@ -55,8 +63,15 @@ struct TwinsOnboardingView: View {
                         let size = geom.size
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
-                        NavigationBar(title: "Tangem Twin",
-                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear))
+                        NavigationBar(title: "twins_onboarding_title",
+                                      settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
+                                      leftButtons: {
+                                        BackButton(height: viewModel.navbarSize.height,
+                                                   isVisible: viewModel.isBackButtonVisible,
+                                                   isEnabled: viewModel.isBackButtonEnabled) {
+                                            viewModel.reset()
+                                        }
+                                      })
                             .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
                             .opacity(isNavbarVisible ? 1.0 : 0.0)
                         
@@ -85,12 +100,12 @@ struct TwinsOnboardingView: View {
                         AnimatedView(settings: viewModel.$supplementCardSettings) {
                             OnboardingCardView(placeholderCardType: .light,
                                                cardImage: viewModel.secondTwinImage,
-                                               cardScanned: viewModel.secondTwinImage != nil)
+                                               cardScanned: viewModel.displayTwinImages)
                         }
                         AnimatedView(settings: viewModel.$mainCardSettings) {
                             OnboardingCardView(placeholderCardType: .dark,
                                                cardImage: viewModel.firstTwinImage,
-                                               cardScanned: viewModel.firstTwinImage != nil)
+                                               cardScanned: viewModel.displayTwinImages)
                         }
                     }
                     .frame(size: geom.size)
@@ -106,7 +121,7 @@ struct TwinsOnboardingView: View {
                         mainTitle: viewModel.mainButtonTitle,
                         mainSize: .wide,
                         mainAction: {
-                            viewModel.executeStep()
+                            viewModel.mainButtonAction()
                         },
                         mainIsBusy: viewModel.isMainButtonBusy,
                         supplementTitle: viewModel.supplementButtonTitle,
