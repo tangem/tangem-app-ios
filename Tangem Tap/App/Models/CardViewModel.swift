@@ -66,7 +66,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canSetPasscode: Bool {
         return cardInfo.card.settings.isSettingPasscodeAllowed
-            && !cardInfo.card.settings.isRemovingAccessCodeAllowed
+            && !cardInfo.card.settings.isResettingUserCodesAllowed
             && featuresService.canSetPasscode
     }
     
@@ -87,7 +87,8 @@ class CardViewModel: Identifiable, ObservableObject {
             return nil
         }
         
-        if cardInfo.card.settings.isPermanentWallet || cardInfo.card.firmwareVersion >= .multiwalletAvailable {
+        if (cardInfo.card.wallets.first?.settings.isPermanent ?? false) ||
+            cardInfo.card.firmwareVersion >= .multiwalletAvailable {
             return TangemSdkError.purgeWalletProhibited.localizedDescription
         }
         
@@ -113,7 +114,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         
-        if cardInfo.card.settings.isPermanentWallet {
+        if cardInfo.card.wallets.first?.settings.isPermanent ?? false {
             return false
         }
         
@@ -157,8 +158,8 @@ class CardViewModel: Identifiable, ObservableObject {
     var canCreateTwinCard: Bool {
         guard
             isTwinCard,
-            let twinInfo = cardInfo.twinCardInfo,
-            twinInfo.series != nil
+            let twinInfo = cardInfo.twinCardInfo
+//            twinInfo.series != nil
         else { return false }
         
         if twinInfo.pairPublicKey != nil {
@@ -175,7 +176,7 @@ class CardViewModel: Identifiable, ObservableObject {
 			return false
 		}
         
-        if cardInfo.card.settings.isPermanentWallet {
+        if cardInfo.card.wallets.first?.settings.isPermanent ?? false {
             return false
         }
         

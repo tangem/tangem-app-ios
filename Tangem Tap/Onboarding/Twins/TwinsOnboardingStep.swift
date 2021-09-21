@@ -9,7 +9,7 @@
 import SwiftUI
 
 enum TwinsOnboardingStep {
-    case intro(pairNumber: String), first, second, third, topup, confetti, done
+    case welcome, intro(pairNumber: String), first, second, third, topup, confetti, done
     
     static var previewCases: [TwinsOnboardingStep] {
         [.intro(pairNumber: "2"), .topup, .confetti, .done]
@@ -41,6 +41,8 @@ enum TwinsOnboardingStep {
         switch self {
         case .topup, .confetti, .done:
             return defaultBackgroundFrameSize(in: container)
+        case .welcome:
+            return .zero
         default: return .init(width: 10, height: 10)
         }
     }
@@ -48,6 +50,7 @@ enum TwinsOnboardingStep {
     func backgroundCornerRadius(in container: CGSize) -> CGFloat {
         switch self {
         case .topup, .confetti, .done: return defaultBackgroundCornerRadius
+        case .welcome: return 0
         default: return backgroundFrame(in: container).height / 2
         }
     }
@@ -77,6 +80,7 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
     
     var progressStep: Int {
         switch self {
+        case .welcome: return 1
         case .intro, .first: return 2
         case .second: return 3
         case .third: return 4
@@ -93,6 +97,7 @@ extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
     var title: LocalizedStringKey {
         switch self {
+        case .welcome: return WelcomeStep.welcome.title
         case .intro: return "twins_onboarding_subtitle"
         case .first: return "onboarding_title_twin_first_card"
         case .second: return "onboarding_title_twin_second_card"
@@ -105,6 +110,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
     
     var subtitle: LocalizedStringKey {
         switch self {
+        case .welcome: return WelcomeStep.welcome.subtitle
         case .intro(let pairNumber): return "onboarding_subtitle_intro \(pairNumber)"
         case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
         case .topup: return "onboarding_topup_subtitle"
@@ -117,6 +123,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
 extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: LocalizedStringKey {
         switch self {
+        case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .intro: return "common_continue"
         case .first, .third: return "onboarding_button_tap_first_card"
         case .second: return "onboarding_button_tap_second_card"
@@ -128,6 +135,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
+        case .welcome: return WelcomeStep.welcome.supplementButtonTitle
         case .topup: return "onboarding_button_show_address_qr"
         default: return ""
         }
@@ -135,10 +143,15 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .topup: return true
+        case .topup, .welcome: return true
         default: return false
         }
     }
     
     var isContainSupplementButton: Bool { true }
+}
+
+extension TwinsOnboardingStep: OnboardingInitialStepInfo {
+    static var initialStep: TwinsOnboardingStep { .welcome }
+    static var finalStep: TwinsOnboardingStep { .done }
 }
