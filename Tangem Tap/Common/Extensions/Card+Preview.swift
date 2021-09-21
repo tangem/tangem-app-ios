@@ -41,6 +41,7 @@ extension Card {
     private static func fromJson(_ json: String) -> Card {
         let jsonData = json.data(using: .utf8)!
         let decoder = JSONDecoder.tangemSdkDecoder
+        decoder.keyDecodingStrategy = .useDefaultKeys
         do {
             let card = try decoder.decode(Card.self, from: jsonData)
             return card
@@ -78,6 +79,7 @@ extension Card {
                     "isRemovingAccessCodeAllowed" : false,
                     "isLinkedTerminalEnabled" : true,
                     "securityDelay" : 3000,
+                    "isHDWalletsAllowed" : false,
                     "isSettingAccessCodeAllowed" : false,
                     "supportedEncryptionModes" : [
                       "strong",
@@ -164,6 +166,7 @@ extension Card {
             "securityDelay" : 15000,
             "isSettingAccessCodeAllowed" : true,
             "isRemovingAccessCodeAllowed" : false,
+            "isHDWalletsAllowed" : false,
             "isSettingPasscodeAllowed" : true,
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isIssuerDataProtectedAgainstReplay" : true,
@@ -190,6 +193,7 @@ extension Card {
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isRemovingAccessCodeAllowed" : false,
             "isLinkedTerminalEnabled" : true,
+            "isHDWalletsAllowed" : false,
             "securityDelay" : 3000,
             "isSettingAccessCodeAllowed" : false,
             "supportedEncryptionModes" : [
@@ -281,6 +285,7 @@ extension Card {
             "isSettingAccessCodeAllowed" : true,
             "isRemovingAccessCodeAllowed" : false,
             "isSettingPasscodeAllowed" : true,
+            "isHDWalletsAllowed" : false,
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isIssuerDataProtectedAgainstReplay" : true,
             "isSelectBlockchainAllowed" : true
@@ -364,7 +369,8 @@ extension Card {
             "securityDelay" : 5000,
             "isSettingAccessCodeAllowed" : true,
             "isRemovingAccessCodeAllowed" : false,
-            "isSettingPasscodeAllowed" : true,
+            "isSettingPasscodeAllowed" : true,            
+            "isHDWalletsAllowed" : false,
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isIssuerDataProtectedAgainstReplay" : true,
             "isSelectBlockchainAllowed" : true
@@ -449,6 +455,7 @@ extension Card {
         "isSettingAccessCodeAllowed" : true,
         "isRemovingAccessCodeAllowed" : false,
         "isSettingPasscodeAllowed" : true,
+            "isHDWalletsAllowed" : false,
         "isOverwritingIssuerExtraDataRestricted" : false,
         "isIssuerDataProtectedAgainstReplay" : true,
         "isSelectBlockchainAllowed" : true
@@ -507,6 +514,7 @@ extension Card {
             "isSettingAccessCodeAllowed" : true,
             "isRemovingAccessCodeAllowed" : false,
             "isSettingPasscodeAllowed" : true,
+            "isHDWalletsAllowed" : true,
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isIssuerDataProtectedAgainstReplay" : true,
             "isSelectBlockchainAllowed" : true
