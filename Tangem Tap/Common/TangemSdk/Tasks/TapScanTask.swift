@@ -34,7 +34,7 @@ struct TapScanTaskResponse {
         if let walletPubKey = card.wallets.first?.publicKey, let fullData = twinIssuerData, fullData.count == 129 {
             let pairPubKey = fullData[0..<65]
             let signature = fullData[65..<fullData.count]
-            if Secp256k1Utils.verify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
+            if let _ = try? Secp256k1Utils.verify(publicKey: walletPubKey, message: pairPubKey, signature: signature) {
                pairPublicKey = pairPubKey
             }
         }
@@ -166,6 +166,10 @@ final class TapScanTask: CardSessionRunnable {
         case .failed, .skipped:
             let isDevelopmentCard = session.environment.card!.firmwareVersion.type == .sdk
             
+//            if isDevelopmentCard {
+//                self.complete(session, completion)
+//                return
+//            }
             //Possible production sample or development card
             if isDevelopmentCard || session.environment.config.allowUntrustedCards {
                 session.viewDelegate.attestationDidFail(isDevelopmentCard: isDevelopmentCard) {

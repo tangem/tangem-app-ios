@@ -14,6 +14,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     weak var navigation: NavigationCoordinator!
     
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
+    let resetAnimDuration: Double = 0.3
     
     @Published var steps: [Step] = []
     @Published var currentStepIndex: Int = 0
@@ -22,7 +23,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     @Published var isInitialAnimPlayed = false
     @Published var mainCardSettings: AnimatedViewSettings = .zero
     @Published var supplementCardSettings: AnimatedViewSettings = .zero
-    
+    @Published var isNavBarVisible: Bool = false
     
     var currentStep: Step { steps[currentStepIndex] }
     
@@ -62,6 +63,22 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         return currentStep.supplementButtonTitle
     }
     
+    var isBackButtonVisible: Bool {
+        if !isInitialAnimPlayed || isFromMain {
+            return false
+        }
+        
+        if currentStep.isOnboardingFinished {
+            return false
+        }
+        
+        return true
+    }
+    
+    var isBackButtonEnabled: Bool {
+        true
+    }
+    
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
     
     let successCallback: (() -> Void)?
@@ -80,23 +97,27 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         } else {
             isFromMain = true
             isInitialAnimPlayed = true
+            isNavBarVisible = true
         }
     }
     
     func setupContainer(with size: CGSize) {
         let isInitialSetup = containerSize == .zero
         containerSize = size
-        if input.welcomeStep != nil, isInitialAnimPlayed {
-            setupCardsSettings(animated: !isInitialSetup)
+        if isFromMain,
+           isInitialAnimPlayed {
+            setupCardsSettings(animated: !isInitialSetup, isContainerSetup: true)
         }
     }
     
-    func playInitialAnim() {
+    func playInitialAnim(includeInInitialAnim: (() -> Void)? = nil) {
         let animated = !isFromMain
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation(animated ? .default : nil) {
                 self.isInitialAnimPlayed = true
-                self.setupCardsSettings(animated: animated)
+                self.isNavBarVisible = true
+                self.setupCardsSettings(animated: animated, isContainerSetup: false)
+                includeInInitialAnim?()
             }
         }
     }
@@ -117,11 +138,31 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         withAnimation {
             currentStepIndex = newIndex
             
-            setupCardsSettings(animated: true)
+            setupCardsSettings(animated: true, isContainerSetup: false)
         }
     }
     
-    func executeStep() {
+    func reset(includeInResetAnim: (() -> Void)? = nil) {
+        let defaultSettings = WelcomeCardLayout.defaultSettings(in: containerSize, animated: true)
+        var newSteps = [Step.initialStep]
+        if assembly.isPreview {
+            newSteps.append(contentsOf: steps)
+        }
+        withAnimation(.easeIn(duration: resetAnimDuration)) {
+            mainCardSettings = defaultSettings.main
+            supplementCardSettings = defaultSettings.supplement
+            isNavBarVisible = false
+            currentStepIndex = 0
+            steps = newSteps
+            isMainButtonBusy = false
+            includeInResetAnim?()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + resetAnimDuration) {
+            self.navigation.onboardingReset = true
+        }
+    }
+    
+    func mainButtonAction() {
         fatalError("Not implemented")
     }
     
@@ -129,7 +170,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         fatalError("Not implemented")
     }
     
-    func setupCardsSettings(animated: Bool) {
+    func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
     }
     
