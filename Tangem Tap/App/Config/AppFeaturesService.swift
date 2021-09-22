@@ -51,6 +51,12 @@ class AppFeaturesService {
 			features.remove(.topup)
 		}
         
+        if !configFeatures.isTopUpEnabled {
+            features.remove(.topup)
+        }
+        
+        features.remove(.pins)
+        
         return features
     }
 	
