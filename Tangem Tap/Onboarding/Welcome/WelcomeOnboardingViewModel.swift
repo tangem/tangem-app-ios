@@ -56,10 +56,10 @@ class WelcomeOnboardingViewModel: ViewModel {
         cardsRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
             .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).setFailureType(to: Error.self))
-            .sink { completion in
+            .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to scan card: \(error)")
-                    self.isScanningCard = false
+                    self?.isScanningCard = false
                 }
                 
             } receiveValue: { [weak self] (result, _) in
@@ -87,11 +87,11 @@ class WelcomeOnboardingViewModel: ViewModel {
     
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
         stepsSetupService.stepsWithCardImage(for: cardModel)
-            .sink { completion in
+            .sink { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self.error = error.alertBinder
+                    self?.error = error.alertBinder
                 }
-                self.isScanningCard = false
+                self?.isScanningCard = false
             } receiveValue: { [unowned self] (steps, image) in
                 let input = OnboardingInput(steps: steps,
                                                 cardModel: cardModel,
