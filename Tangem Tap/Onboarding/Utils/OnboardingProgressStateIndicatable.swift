@@ -12,4 +12,6 @@ protocol OnboardingProgressStepIndicatable {
     static var maxNumberOfSteps: Int { get }
     var progressStep: Int { get }
     var isOnboardingFinished: Bool { get }
+    var successCircleOpacity: Double { get }
+    var successCircleState: OnboardingCircleButton.State { get }
 }
