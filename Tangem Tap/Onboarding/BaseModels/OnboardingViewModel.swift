@@ -123,16 +123,16 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     }
     
     func goToNextStep() {
-        var newIndex = currentStepIndex + 1
-        if newIndex >= steps.count {
-            newIndex = assembly.isPreview ? 0 : steps.count - 1
-        }
-        
-        if steps[newIndex].isOnboardingFinished, !assembly.isPreview {
+        if currentStep.isOnboardingFinished, !assembly.isPreview {
             DispatchQueue.main.async {
                 self.successCallback?()
             }
             return
+        }
+        
+        var newIndex = currentStepIndex + 1
+        if newIndex >= steps.count {
+            newIndex = assembly.isPreview ? 0 : steps.count - 1
         }
         
         withAnimation {

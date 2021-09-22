@@ -40,6 +40,10 @@ enum SingleCardOnboardingCardsLayout: OnboardingCardFrameCalculator {
     }
     
     func opacity(at step: SingleCardOnboardingStep) -> Double {
+        if step == .success {
+            return 0
+        }
+        
         guard self == .supplementary else {
             return 1
         }

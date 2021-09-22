@@ -22,13 +22,16 @@ struct OnboardingProgressIconView: View {
                 let state = stepState(for: stepIndex)
                 HStack {
                     if let icon = step.icon {
+                        let isFilled: Bool = state == .current || state == .passed
                         if stepIndex > 0 {
-                            ProgressIndicatorGroupView(filled: state == .current || state == .passed, animDuration: animDuration)
+                            ProgressIndicatorGroupView(filled: isFilled, animDuration: animDuration)
                         }
                         OnboardingStepIconView(image: icon,
                                                state: state,
                                                imageFont: step.iconFont,
                                                circleSize: .init(width: 50, height: 50))
+                    } else {
+                        EmptyView()
                     }
                 }
             }
