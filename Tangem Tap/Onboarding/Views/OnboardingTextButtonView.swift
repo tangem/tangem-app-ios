@@ -25,6 +25,7 @@ struct OnboardingTextButtonView: View {
     
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
+    var textOffset: CGSize = .zero
     let buttonsSettings: ButtonsSettings
     
     let titleAction: (() -> Void)?
@@ -65,9 +66,10 @@ struct OnboardingTextButtonView: View {
                 titleAction?()
             }
             .frame(alignment: .top)
+            .offset(textOffset)
             Spacer()
             buttons
-                .padding(.bottom, 16)
+                .padding(.bottom, buttonsSettings.containSupplementButton ? 16 : 20)
                 
         }
         .frame(maxHeight: 304)
@@ -80,6 +82,7 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
         OnboardingTextButtonView(
             title: "Create a wallet",
             subtitle: "Let’s generate all the keys on your card and create a secure wallet",
+            textOffset: .init(width: 0, height: -100),
             buttonsSettings: .init(
                 mainTitle: "Create wallet",
                 mainSize: .wide,
@@ -93,7 +96,7 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
                     
                 },
                 isVisible: true,
-                containSupplementButton: true),
+                containSupplementButton: false),
             titleAction: { }
         )
         .padding(.horizontal, 40)

@@ -99,6 +99,12 @@ struct SingleCardOnboardingView: View {
                             refreshButtonSize: .medium,
                             refreshButtonOpacity: currentStep.balanceStackOpacity
                         )
+                        
+                        OnboardingCircleButton(refreshAction: {},
+                                               state: currentStep.successCircleState,
+                                               size: .huge)
+                            .offset(y: 8)
+                            .opacity(currentStep.successCircleOpacity)
                     }
                     .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
                 }
@@ -108,6 +114,7 @@ struct SingleCardOnboardingView: View {
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
+                    textOffset: currentStep.messagesOffset,
                     buttonsSettings: .init(
                         mainTitle: viewModel.mainButtonTitle,
                         mainSize: .wide,
@@ -122,11 +129,11 @@ struct SingleCardOnboardingView: View {
                             case .topup:
                                 viewModel.isAddressQrBottomSheetPresented = true
                             default:
-                                viewModel.reset()
+                                break
                             }
                         },
                         isVisible: currentStep.isSupplementButtonVisible,
-                        containSupplementButton: true)
+                        containSupplementButton: currentStep.isContainSupplementButton)
                 ) {
                     viewModel.reset()
                 }
