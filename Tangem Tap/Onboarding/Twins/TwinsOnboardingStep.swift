@@ -8,6 +8,20 @@
 
 import SwiftUI
 
+protocol SuccessStep {
+    var successTitle: LocalizedStringKey { get }
+    var successButtonTitle: LocalizedStringKey { get }
+    var successMessagesOffset: CGSize { get }
+}
+
+extension SuccessStep {
+    var successTitle: LocalizedStringKey { "onboarding_success" }
+    var successButtonTitle: LocalizedStringKey { "common_continue" }
+    var successMessagesOffset: CGSize {
+        .init(width: 0, height: -UIScreen.main.bounds.size.height * 0.115)
+    }
+}
+
 enum TwinsOnboardingStep {
     case welcome, intro(pairNumber: String), first, second, third, topup, confetti, done
     
@@ -89,6 +103,18 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
         case .done: return 6
         }
     }
+    
+    var successCircleOpacity: Double {
+        switch self {
+        default: return 0
+        }
+    }
+    
+    var successCircleState: OnboardingCircleButton.State {
+        switch self {
+        default: return .blank
+        }
+    }
 }
 
 
@@ -116,6 +142,12 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .topup: return "onboarding_topup_subtitle"
         case .confetti: return "Your crypto card is activated and ready to be used"
         case .done: return ""
+        }
+    }
+    
+    var messagesOffset: CGSize {
+        switch self {
+        default: return .zero
         }
     }
 }
