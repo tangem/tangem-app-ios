@@ -71,10 +71,33 @@ struct DetailsView: View {
                 )
                 
                 if viewModel.isTwinCard {
-                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
-                                   isActive: $navigation.detailsToTwinsRecreateWarning){
-                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
-                    }
+                    Button(action: {
+                        viewModel.prepareTwinOnboarding()
+                    }, label: {
+                        Text("details_row_title_twins_recreate")
+                            .font(.system(size: 16, weight: .regular, design: .default))
+                            .foregroundColor(.tangemTapGrayDark6)
+                    })
+                    .sheet(isPresented: $navigation.detailsToTwinsRecreateWarning, content: {
+                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: nil, onDismissed: nil)
+                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                                viewModel.isTwinRecreationModel = value
+                            })
+                            .environmentObject(navigation)
+                    })
+//                    .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
+//                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+//                            .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
+//                            .environmentObject(navigation)
+//                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+//                                viewModel.isOnboardingModal = value
+//                            })
+//                    })
+//                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
+//                                   isActive: $navigation.detailsToTwinsRecreateWarning){
+//                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
+//                    }
                     .disabled(!viewModel.cardModel.canRecreateTwinCard)
                     
                 } else {
