@@ -28,6 +28,7 @@ typealias OnboardingStep = OnboardingProgressStepIndicatable & OnboardingMessage
 protocol OnboardingMessagesProvider {
     var title: LocalizedStringKey { get }
     var subtitle: LocalizedStringKey { get }
+    var messagesOffset: CGSize { get }
 }
 
 protocol OnboardingButtonsInfoProvider {
