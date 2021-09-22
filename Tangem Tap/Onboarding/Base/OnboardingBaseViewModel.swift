@@ -76,11 +76,11 @@ class OnboardingBaseViewModel: ViewModel {
         resetSubscription = navigation.$onboardingReset
             .filter { $0 }
             .receive(on: DispatchQueue.main)
-            .sink { shouldReset in
+            .sink { [weak self] shouldReset in
 //                guard shouldReset else { return }
-                self.navigation.onboardingReset = false
+                self?.navigation.onboardingReset = false
                 withAnimation {
-                    self.content = .notScanned
+                    self?.content = .notScanned
                 }
             }
     }
