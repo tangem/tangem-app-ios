@@ -16,7 +16,7 @@ class OnboardingStepsSetupService {
     weak var assembly: Assembly!
     
     static var previewSteps: [SingleCardOnboardingStep] {
-        [.createWallet, .topup, .confetti, .goToMain]
+        [.createWallet, .topup, .successTopup]
     }
     
     func stepsWithCardImage(for cardModel: CardViewModel) -> AnyPublisher<(OnboardingSteps, UIImage), Error> {
@@ -42,9 +42,15 @@ class OnboardingStepsSetupService {
         
         if card.wallets.count == 0 {
             steps.append(.createWallet)
+            steps.append(.success)
         }
         
         return steps.count > 0 ? .justWithError(output: .singleWallet(steps)) : .justWithError(output: .singleWallet([]))
+    }
+    
+    func twinRecreationSteps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
+//        let steps = TwinsOnboardingStep
+        .anyFail(error: "")
     }
     
     private func stepsForNote(_ card: Card) -> AnyPublisher<OnboardingSteps, Error> {
@@ -53,8 +59,7 @@ class OnboardingStepsSetupService {
         guard walletModel.count == 1 else {
             steps.append(.createWallet)
             steps.append(.topup)
-            steps.append(.confetti)
-            steps.append(.goToMain)
+            steps.append(.successTopup)
             return .justWithError(output: .singleWallet(steps))
         }
         
@@ -68,8 +73,7 @@ class OnboardingStepsSetupService {
                     } else if !self.userPrefs.cardsStartedActivation.contains(card.cardId) {
                         return promise(.success(.singleWallet([])))
                     }
-                    steps.append(.confetti)
-                    steps.append(.goToMain)
+                    steps.append(.successTopup)
                     promise(.success(.singleWallet(steps)))
                 case .failure(let error):
                     promise(.failure(error))
