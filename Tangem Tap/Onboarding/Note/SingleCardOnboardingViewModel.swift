@@ -57,34 +57,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     // MARK: Functions
 
     override func goToNextStep() {
-        let nextStepIndex = currentStepIndex + 1
-        
-        func goToMain() {
-            if isFromMain {
-                successCallback?()
-            } else if !assembly.isPreview {
-                assembly.getCardOnboardingViewModel().toMain = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.userPrefsService.isTermsOfServiceAccepted = true
-                self.reset()
-            }
-        }
-        
-        guard !steps.isEmpty, nextStepIndex < steps.count else {
-            goToMain()
-            return
-        }
-        
-        if steps[nextStepIndex] == .goToMain  {
-            goToMain()
-            return
-        }
-        withAnimation {
-            self.currentStepIndex = nextStepIndex
-            setupCardsSettings(animated: true, isContainerSetup: false)
-        }
-        
+        super.goToNextStep()
         stepUpdate()
     }
     
@@ -93,35 +66,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             self.isCardScanned = false
         }
     }
-    
-//    func reset() {
-//        // [REDACTED_TODO_COMMENT]
-//        walletModelUpdateCancellable = nil
-//
-//        let defaultSettings = WelcomeCardLayout.defaultSettings(in: containerSize, animated: true)
-//        let animDuration = 0.3
-//        withAnimation(.easeIn(duration: animDuration)) {
-//            mainCardSettings = defaultSettings.main
-//            supplementCardSettings = defaultSettings.supplement
-//            currentStepIndex = 0
-//            steps = []
-//            isMainButtonBusy = false
-//            refreshButtonState = .refreshButton
-//        }
-//        DispatchQueue.main.asyncAfter(deadline: .now() + animDuration) {
-//            self.navigation.onboardingReset = true
-//        }
-////        withAnimation {
-////            navigation.onboardingReset = true
-////            currentStepIndex = 0
-////            setupCardsSettings(animated: true)
-////            steps = []
-////            isMainButtonBusy = false
-////            refreshButtonState = .refreshButton
-////            cardBalance = ""
-////            previewUpdateCounter = 0
-////        }
-//    }
     
     override func mainButtonAction() {
         switch currentStep {
@@ -137,10 +81,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             сreateWallet()
         case .topup:
             navigation.onboardingToBuyCrypto = true
-        case .confetti:
+        case .successTopup:
             if assembly.isPreview {
                 reset()
             }
+        case .success:
+            goToNextStep()
         default:
             break
         }
@@ -188,14 +134,14 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             if case let .failure(error) = completion {
                 print("Failed to create wallet. \(error)")
             }
-        } receiveValue: { (_, _) in
-            self.walletCreatedWhileOnboarding = true
+        } receiveValue: { [weak self] (_, _) in
+            self?.walletCreatedWhileOnboarding = true
             if card.isTangemNote {
-                self.userPrefsService.cardsStartedActivation.append(card.cardId)
+                self?.userPrefsService.cardsStartedActivation.append(card.cardId)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.isMainButtonBusy = false
-                self.goToNextStep()
+                self?.isMainButtonBusy = false
+                self?.goToNextStep()
             }
         }
         .store(in: &bag)
@@ -214,10 +160,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 isBalanceRefresherVisible = true
             }
             updateCardBalance()
-        case .confetti:
+        case .successTopup:
             withAnimation {
                 refreshButtonState = .doneCheckmark
             }
+            fallthrough
+        case .success:
             shouldFireConfetti = true
         default:
             break
@@ -230,12 +178,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             self.cardModel = previewModel
             self.stepsSetupService.steps(for: previewModel.cardInfo)
                 .sink { _ in }
-                    receiveValue: { steps in
+                    receiveValue: { [weak self] steps in
                         if case let .singleWallet(singleSteps) = steps {
-                            self.steps = singleSteps
+                            self?.steps = singleSteps
                         }
-                        self.goToNextStep()
-                        self.isMainButtonBusy = false
+                        self?.goToNextStep()
+                        self?.isMainButtonBusy = false
                 }
                 .store(in: &self.bag)
 
