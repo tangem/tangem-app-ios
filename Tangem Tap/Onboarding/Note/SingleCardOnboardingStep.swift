@@ -9,12 +9,12 @@
 import SwiftUI
 
 enum SingleCardOnboardingStep: CaseIterable {
-    case welcome, createWallet, topup, confetti, goToMain
+    case welcome, createWallet, topup, successTopup, success
     
     var hasProgressStep: Bool {
         switch self {
         case .createWallet, .topup: return true
-        case .welcome, .confetti, .goToMain: return false
+        case .welcome, .successTopup, .success: return false
         }
     }
     
@@ -22,7 +22,7 @@ enum SingleCardOnboardingStep: CaseIterable {
         switch self {
         case .createWallet: return Image("onboarding.create.wallet")
         case .topup: return Image("onboarding.topup")
-        case .welcome, .confetti, .goToMain: return nil
+        case .welcome, .successTopup, .success: return nil
         }
     }
     
@@ -42,7 +42,7 @@ enum SingleCardOnboardingStep: CaseIterable {
         switch self {
         case .createWallet:
             return .init(width: 0, height: containerSize.height * 0.103)
-        case .topup, .confetti:
+        case .topup, .successTopup:
             return defaultBackgroundOffset(in: containerSize)
 //            let height = 0.112 * containerSize.height
 //            return .init(width: 0, height: height)
@@ -53,7 +53,7 @@ enum SingleCardOnboardingStep: CaseIterable {
     
     func balanceTextOffset(containerSize: CGSize) -> CGSize {
         switch self {
-        case .topup, .confetti:
+        case .topup, .successTopup:
             let backgroundOffset = cardBackgroundFrame(containerSize: containerSize)
             return .init(width: backgroundOffset.width, height: backgroundOffset.height + 12)
         default:
@@ -63,18 +63,18 @@ enum SingleCardOnboardingStep: CaseIterable {
     
     var balanceStackOpacity: Double {
         switch self {
-        case .welcome, .createWallet, .goToMain: return 0
-        case .topup, .confetti: return 1
+        case .welcome, .createWallet, .success: return 0
+        case .topup, .successTopup: return 1
         }
     }
     
     func cardBackgroundFrame(containerSize: CGSize) -> CGSize {
         switch self {
-        case .welcome, .goToMain: return .zero
+        case .welcome, .success: return .zero
         case .createWallet:
             let diameter = SingleCardOnboardingCardsLayout.main.frame(for: self, containerSize: containerSize).height * 1.317
             return .init(width: diameter, height: diameter)
-        case .topup, .confetti:
+        case .topup, .successTopup:
             return defaultBackgroundFrameSize(in: containerSize)
 //            let height = 0.61 * containerSize.height
 //            return .init(width: containerSize.width * 0.787, height: height)
@@ -83,31 +83,40 @@ enum SingleCardOnboardingStep: CaseIterable {
     
     func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
         switch self {
-        case .welcome, .goToMain: return 0
+        case .welcome, .success: return 0
         case .createWallet: return cardBackgroundFrame(containerSize: containerSize).height / 2
-        case .topup, .confetti: return 8
+        case .topup, .successTopup: return 8
         }
     }
 }
+
+extension SingleCardOnboardingStep: SuccessStep { }
 
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
-        case .goToMain: return ""
         case .createWallet: return "onboarding_create_title"
         case .topup: return "onboarding_topup_title"
-        case .confetti: return "onboarding_confetti_title"
+        case .successTopup: return "onboarding_confetti_title"
+        case .success: return successTitle
         }
     }
     
     var subtitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .goToMain: return ""
         case .createWallet: return "onboarding_create_subtitle"
         case .topup: return "onboarding_topup_subtitle"
-        case .confetti: return "onboarding_confetti_subtitle"
+        case .successTopup: return "onboarding_confetti_subtitle"
+        case .success: return "onboarding_confetti_subtitle"
+        }
+    }
+    
+    var messagesOffset: CGSize {
+        switch self {
+        case .success: return successMessagesOffset
+        default: return .zero
         }
     }
 }
@@ -117,16 +126,16 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         switch self {
         case .createWallet: return "onboarding_button_create_wallet"
         case .topup: return "onboarding_button_buy_crypto"
-        case .confetti: return "common_continue"
-        case .goToMain: return ""
+        case .successTopup: return "common_continue"
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
+        case .success: return successButtonTitle
         }
     }
     
     var isSupplementButtonVisible: Bool {
         switch self {
         case .welcome, .createWallet, .topup: return true
-        case .confetti, .goToMain: return false
+        case .successTopup, .success: return false
         }
     }
     
@@ -135,12 +144,15 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
         case .createWallet: return "onboarding_button_how_it_works"
         case .topup: return "onboarding_button_show_address_qr"
-        case .confetti, .goToMain: return ""
+        case .successTopup, .success: return ""
         }
     }
     
     var isContainSupplementButton: Bool {
-        true
+        switch self {
+        case .success: return false
+        default: return true
+        }
     }
 }
 
@@ -161,13 +173,27 @@ extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
         case .welcome: return 1
         case .createWallet: return 2
         case .topup: return 3
-        case .confetti: return 4
-        case .goToMain: return 5
+        case .successTopup: return 4
+        case .success: return 5
         }
     }
     
     var isOnboardingFinished: Bool {
-        self == .goToMain
+        switch self {
+        case .success, .successTopup: return true
+        default: return false
+        }
+    }
+    
+    var successCircleOpacity: Double {
+        self == .success ? 1.0 : 0.0
+    }
+    
+    var successCircleState: OnboardingCircleButton.State {
+        switch self {
+        case .success: return .doneCheckmark
+        default: return .blank
+        }
     }
 }
 
