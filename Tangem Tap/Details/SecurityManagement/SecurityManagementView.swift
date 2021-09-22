@@ -66,7 +66,7 @@ struct SecurityManagementView: View {
     
     var body: some View {
         VStack {
-            List(viewModel.secOptions) { option in
+            List(viewModel.cardViewModel.availableSecOptions) { option in
                 SecurityManagementRowView(selectedOption: self.$viewModel.selectedOption,
                                           option: option)
                     .environmentObject(self.viewModel.cardViewModel)
