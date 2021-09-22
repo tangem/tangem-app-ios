@@ -341,6 +341,7 @@ extension Assembly {
         }
         vm.cardsRepository = services.cardsRepository
         vm.ratesService = services.ratesService
+        vm.onboardingStepsSetupService = services.onboardingStepsSetupService
         return vm
     }
     

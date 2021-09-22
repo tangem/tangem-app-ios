@@ -16,6 +16,7 @@ class DetailsViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
+    weak var onboardingStepsSetupService: OnboardingStepsSetupService!
 
     weak var ratesService: CoinMarketCapService! {
         didSet {
@@ -40,6 +41,7 @@ class DetailsViewModel: ViewModel {
                 .store(in: &bag)
         }
     }
+    @Published var isTwinRecreationModel: Bool = false
     
     var dataCollector: DetailsFeedbackDataCollector!
 	
@@ -138,5 +140,10 @@ class DetailsViewModel: ViewModel {
                 completion(.failure(error))
             }
         }
+    }
+    
+    func prepareTwinOnboarding() {
+        onboardingStepsSetupService
+            .stepsWithCardImage(for: cardModel)
     }
 }
