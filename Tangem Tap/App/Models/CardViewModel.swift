@@ -38,6 +38,20 @@ class CardViewModel: Identifiable, ObservableObject {
     
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     
+    var availableSecOptions: [SecurityManagementOption] {
+        var options = [SecurityManagementOption.longTap]
+        
+        if featuresService.canSetAccessCode || currentSecOption == .accessCode {
+            options.append(.accessCode)
+        }
+        
+        if featuresService.canSetPasscode || isTwinCard || currentSecOption == .passCode {
+            options.append(.passCode)
+        }
+        
+        return options
+    }
+    
     var walletModels: [WalletModel]? {
         return state.walletModels
     }
@@ -65,8 +79,8 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var canSetPasscode: Bool {
         return cardInfo.card.settings.isSettingPasscodeAllowed
-            && !cardInfo.card.settings.isRemovingAccessCodeAllowed
-            && featuresService.canSetPasscode
+            /*&& cardInfo.card.settings.isRemovingAccessCodeAllowed*/ //Disable temporary because of sdk inverted mapping bug
+            && (featuresService.canSetPasscode || isPairedTwin)
     }
     
     var canSetLongTap: Bool {
@@ -145,6 +159,10 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var isNotPairedTwin: Bool {
         isTwinCard && cardInfo.twinCardInfo?.pairPublicKey == nil
+    }
+    
+    var isPairedTwin: Bool {
+        isTwinCard && cardInfo.twinCardInfo?.pairPublicKey != nil
     }
     
     var hasBalance: Bool {
@@ -337,8 +355,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardPinSettings?.isPin1Default = false
-                    self.cardPinSettings?.isPin2Default = true
+                    self.cardPinSettings?.isPin1Default = true
+                    self.cardPinSettings?.isPin2Default = false
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
