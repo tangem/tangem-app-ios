@@ -51,7 +51,8 @@ struct OnboardingBaseView: View {
             TwinsOnboardingView(viewModel: viewModel.assembly.getTwinsOnboardingViewModel())
                 .transition(.withoutOpcaity)
         case .wallet:
-            Text("Gorgous Tangem Wallet")
+            WalletOnboardingView(viewModel: viewModel.assembly.getWalletOnboardingViewModel())
+                .transition(.withoutOpcaity)
         }
     }
     
