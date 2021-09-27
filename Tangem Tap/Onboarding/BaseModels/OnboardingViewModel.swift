@@ -24,8 +24,15 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     @Published var mainCardSettings: AnimatedViewSettings = .zero
     @Published var supplementCardSettings: AnimatedViewSettings = .zero
     @Published var isNavBarVisible: Bool = false
+    @Published var alert: AlertBinder?
     
-    var currentStep: Step { steps[currentStepIndex] }
+    var currentStep: Step {
+        if currentStepIndex >= steps.count {
+            return Step.initialStep
+        }
+        
+        return steps[currentStepIndex]
+    }
     
     var currentProgress: CGFloat {
         CGFloat(currentStep.progressStep) / CGFloat(Step.maxNumberOfSteps)
@@ -47,12 +54,36 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         return currentStep.subtitle
     }
     
+    var mainButtonSettings: TangemButtonSettings {
+        .init(
+            title: mainButtonTitle,
+            size: .wide,
+            action: mainButtonAction,
+            isBusy: isMainButtonBusy,
+            isEnabled: true,
+            isVisible: true,
+            color: .green
+        )
+    }
+    
     var mainButtonTitle: LocalizedStringKey {
         if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
             return welcomeStep.mainButtonTitle
         }
         
         return currentStep.mainButtonTitle
+    }
+    
+    var supplementButtonSettings: TangemButtonSettings? {
+        .init(
+            title: supplementButtonTitle,
+            size: .wide,
+            action: supplementButtonAction,
+            isBusy: false,
+            isEnabled: true,
+            isVisible: isSupplementButtonVisible,
+            color: .transparentWhite
+        )
     }
     
     var supplementButtonTitle: LocalizedStringKey {
