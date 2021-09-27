@@ -12,13 +12,13 @@ protocol OnboardingCardFrameCalculator {
     associatedtype Step
     var cardHeightWidthRatio: CGFloat { get }
     func frame(for step: Step, containerSize: CGSize) -> CGSize
-    func frameSizeRatio(for step: Step) -> CGFloat
+    func cardHeightToContainerHeightRatio(for step: Step) -> CGFloat
     func cardFrameMinHorizontalPadding(at step: Step) -> CGFloat
 }
 
 extension OnboardingCardFrameCalculator {
     func frame(for step: Step, containerSize: CGSize) -> CGSize {
-        let height = containerSize.height * frameSizeRatio(for: step)
+        let height = containerSize.height * cardHeightToContainerHeightRatio(for: step)
         let width = height / cardHeightWidthRatio
         let maxWidth = containerSize.width - cardFrameMinHorizontalPadding(at: step)
         return width > maxWidth ?
