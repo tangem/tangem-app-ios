@@ -120,7 +120,21 @@ class OnboardingStepsSetupService {
     }
     
     private func stepsForWallet(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        .justWithError(output: .wallet)
+        if let backupStatus = cardInfo.card.backupStatus, backupStatus.isActive {
+            return .justWithError(output: .wallet([]))
+        }
+        
+        var steps = [WalletOnboardingStep]()
+        if cardInfo.card.wallets.count == 0 {
+            steps.append(.createWallet)
+            steps.append(.backupIntro)
+        } else {
+            steps.append(.backupIntro)
+            steps.append(.scanOriginCard)
+        }
+        
+        steps.append(contentsOf: [.selectBackupCards, .backupCards, .success])
+        return .justWithError(output: .wallet(steps))
     }
     
 }

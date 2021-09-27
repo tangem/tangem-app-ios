@@ -51,21 +51,28 @@ struct WelcomeOnboardingView: View {
                 OnboardingTextButtonView(
                     title: currentStep.title,
                     subtitle: currentStep.subtitle,
-                    buttonsSettings: ButtonsSettings.init(
-                        mainTitle: currentStep.mainButtonTitle,
-                        mainSize: .wide,
-                        mainAction: {
-                            viewModel.scanCard()
-                        },
-                        mainIsBusy: viewModel.isScanningCard,
-                        supplementTitle: currentStep.supplementButtonTitle,
-                        supplementSize: .wide,
-                        supplementAction: {
-                            navigation.readToShop = true
-                        },
-                        isVisible: true,
-                        containSupplementButton: true
-                    )) {
+                    buttonsSettings:
+                        .init(main: TangemButtonSettings(
+                            title: currentStep.mainButtonTitle,
+                            size: .wide,
+                            action: {
+                                viewModel.scanCard()
+                            },
+                            isBusy: viewModel.isScanningCard,
+                            isEnabled: true,
+                            isVisible: true
+                            ),
+                        supplement: TangemButtonSettings(
+                            title: currentStep.supplementButtonTitle,
+                            size: .wide,
+                            action: {
+                                navigation.readToShop = true
+                            },
+                            isBusy: false,
+                            isEnabled: true,
+                            isVisible: true,
+                            color: .transparentWhite))
+                    ) {
                     
                 }
                 .padding(.horizontal, 40)

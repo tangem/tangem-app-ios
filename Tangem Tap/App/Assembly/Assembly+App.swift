@@ -109,6 +109,26 @@ extension Assembly {
         return vm
     }
     
+    func getWalletOnboardingViewModel() -> WalletOnboardingViewModel {
+        if let restored: WalletOnboardingViewModel = get() {
+            return restored
+        }
+        
+        return makeWalletOnboardingViewModel(with: previewWalletOnboardingInput)
+    }
+    
+    @discardableResult
+    func makeWalletOnboardingViewModel(with input: OnboardingInput) -> WalletOnboardingViewModel {
+        let sdk = services.tangemSdk
+        let vm = WalletOnboardingViewModel(input: input,
+                                           backupService: BackupService(sdk: sdk),
+                                           tangemSdk: sdk)
+        
+        initialize(vm, isResetable: false)
+        
+        return vm
+    }
+    
     
     func makeReadViewModel() -> ReadViewModel {
         if let restored: ReadViewModel = get() {

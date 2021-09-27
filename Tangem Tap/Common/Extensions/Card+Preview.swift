@@ -34,8 +34,8 @@ extension Card {
         fromJson(ethEmptyNoteJson)
     }()
     
-    static var tangemWallet: Card = {
-        fromJson(tangemWalletJson)
+    static var emptyTangemWallet: Card = {
+        fromJson(emptyTangemWalletJson)
     }()
     
     private static func fromJson(_ json: String) -> Card {
@@ -80,6 +80,7 @@ extension Card {
                     "isLinkedTerminalEnabled" : true,
                     "securityDelay" : 3000,
                     "isHDWalletsAllowed" : false,
+                    "isBackupAllowed" : false,
                     "isSettingAccessCodeAllowed" : false,
                     "supportedEncryptionModes" : [
                       "strong",
@@ -167,6 +168,7 @@ extension Card {
             "isSettingAccessCodeAllowed" : true,
             "isResettingUserCodesAllowed" : false,
             "isHDWalletsAllowed" : false,
+            "isBackupAllowed" : false,
             "isSettingPasscodeAllowed" : true,
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isIssuerDataProtectedAgainstReplay" : true,
@@ -194,6 +196,7 @@ extension Card {
             "isResettingUserCodesAllowed" : false,
             "isLinkedTerminalEnabled" : true,
             "isHDWalletsAllowed" : false,
+            "isBackupAllowed" : false,
             "securityDelay" : 3000,
             "isSettingAccessCodeAllowed" : false,
             "supportedEncryptionModes" : [
@@ -237,6 +240,7 @@ extension Card {
               "settings" : {
                 "isPermanent" : false
               },
+              "hasBackup": false,
               "index" : 0
             },
             {
@@ -286,6 +290,7 @@ extension Card {
             "isResettingUserCodesAllowed" : false,
             "isSettingPasscodeAllowed" : true,
             "isHDWalletsAllowed" : false,
+            "isBackupAllowed" : false,
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isIssuerDataProtectedAgainstReplay" : true,
             "isSelectBlockchainAllowed" : true
@@ -323,6 +328,7 @@ extension Card {
               "settings" : {
                 "isPermanent" : false
               },
+              "hasBackup": false,
               "index" : 0
             },
             {
@@ -332,6 +338,7 @@ extension Card {
               "settings" : {
                 "isPermanent" : false
               },
+              "hasBackup": false,
               "index" : 1
             },
             {
@@ -341,6 +348,7 @@ extension Card {
               "settings" : {
                 "isPermanent" : false
               },
+              "hasBackup": false,
               "index" : 2
             }
           ]
@@ -371,6 +379,7 @@ extension Card {
             "isResettingUserCodesAllowed" : false,
             "isSettingPasscodeAllowed" : true,            
             "isHDWalletsAllowed" : false,
+            "isBackupAllowed" : false,
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isIssuerDataProtectedAgainstReplay" : true,
             "isSelectBlockchainAllowed" : true
@@ -408,6 +417,7 @@ extension Card {
               "settings" : {
                 "isPermanent" : false
               },
+              "hasBackup": false,
               "index" : 0
             },
             {
@@ -417,6 +427,7 @@ extension Card {
               "settings" : {
                 "isPermanent" : false
               },
+              "hasBackup": false,
               "index" : 1
             },
             {
@@ -426,6 +437,7 @@ extension Card {
               "settings" : {
                 "isPermanent" : false
               },
+              "hasBackup": false,
               "index" : 2
             }
           ]
@@ -456,6 +468,7 @@ extension Card {
         "isResettingUserCodesAllowed" : false,
         "isSettingPasscodeAllowed" : true,
             "isHDWalletsAllowed" : false,
+            "isBackupAllowed" : false,
         "isOverwritingIssuerExtraDataRestricted" : false,
         "isIssuerDataProtectedAgainstReplay" : true,
         "isSelectBlockchainAllowed" : true
@@ -491,7 +504,7 @@ extension Card {
     }
     """
     
-    private static let tangemWalletJson =
+    private static let emptyTangemWalletJson =
     """
         {
           "linkedTerminalStatus" : "none",
@@ -515,6 +528,7 @@ extension Card {
             "isResettingUserCodesAllowed" : false,
             "isSettingPasscodeAllowed" : true,
             "isHDWalletsAllowed" : true,
+            "isBackupAllowed" : true,
             "isOverwritingIssuerExtraDataRestricted" : false,
             "isIssuerDataProtectedAgainstReplay" : true,
             "isSelectBlockchainAllowed" : true

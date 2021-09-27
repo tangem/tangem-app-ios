@@ -15,10 +15,10 @@ extension Assembly {
     var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(steps: .singleWallet([.createWallet, .success]),
                             cardModel: previewCardViewModel,
-                            cardImage: UIImage(named: "card_btc")!,
+                            cardImage: UIImage(named: "note_btc")!,
                             cardsPosition: nil,
                             welcomeStep: nil,
-                            currentStepIndex: 1,
+                            currentStepIndex: 0,
                             successCallback: nil)
     }
     
@@ -28,6 +28,16 @@ extension Assembly {
                              .topup, .confetti, .done]),
               cardModel: .previewViewModel(for: .twin),
               cardImage: UIImage(named: "card_btc")!,
+              cardsPosition: nil,
+              welcomeStep: nil,
+              currentStepIndex: 0,
+              successCallback: nil)
+    }
+    
+    var previewWalletOnboardingInput: OnboardingInput {
+        .init(steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
+              cardModel: previewCardViewModel,
+              cardImage: UIImage(named: "wallet_card")!,
               cardsPosition: nil,
               welcomeStep: nil,
               currentStepIndex: 0,

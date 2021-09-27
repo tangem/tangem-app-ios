@@ -47,7 +47,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         }
     }
     
-    func frameSizeRatio(for step: TwinsOnboardingStep) -> CGFloat {
+    func cardHeightToContainerHeightRatio(for step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
         case (.welcome, _): return 0
         case (.intro, _): return 0.431
