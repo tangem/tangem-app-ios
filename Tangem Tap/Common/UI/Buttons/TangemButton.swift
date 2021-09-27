@@ -10,11 +10,28 @@ import Foundation
 import SwiftUI
 
 struct TangemButton: View {
+    enum IconPosition {
+        case leading, trailing
+    }
+    
     let isLoading: Bool    
     let title: LocalizedStringKey
     var image: String = ""
+    var systemImage: String = ""
     var size: ButtonSize = .small
+    var iconPosition: IconPosition = .trailing
     let action: () -> Void
+    
+    @ViewBuilder
+    var icon: some View {
+        if !image.isEmpty {
+            Image(image)
+        } else if !systemImage.isEmpty {
+            Image(systemName: systemImage)
+        } else {
+            EmptyView()
+        }
+    }
     
     var body: some View {
         Button(action: {
@@ -26,12 +43,15 @@ struct TangemButton: View {
                 if isLoading {
                     ActivityIndicatorView()
                 } else {
+                    if iconPosition == .leading {
+                        icon
+                    }
                     Text(title)
                         .transition(.opacity)
                         .id("tangem_button_\(title)")
-					if !image.isEmpty {
-						Image(image)
-					}
+                    if iconPosition == .trailing {
+                        icon
+                    }
                 }
             }
             .padding(.horizontal, 16)

@@ -104,7 +104,7 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 				.foregroundColor(settings.titleColor)
 		}
 		.padding(.horizontal, settings.horizontalPadding)
-        .frame(minWidth: UIScreen.main.bounds.width, minHeight: settings.height, maxHeight: settings.height)
+        .frame(width: UIScreen.main.bounds.size.width, height: settings.height)
 		.background(settings.backgroundColor.edgesIgnoringSafeArea(.all))
 	}
 }
