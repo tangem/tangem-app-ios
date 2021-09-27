@@ -51,7 +51,7 @@ enum SingleCardOnboardingCardsLayout: OnboardingCardFrameCalculator {
         return 0
     }
     
-    func frameSizeRatio(for step: SingleCardOnboardingStep) -> CGFloat {
+    func cardHeightToContainerHeightRatio(for step: SingleCardOnboardingStep) -> CGFloat {
         switch (self, step) {
         case (.main, .createWallet): return 0.536
         case (.main, _): return 0.246
