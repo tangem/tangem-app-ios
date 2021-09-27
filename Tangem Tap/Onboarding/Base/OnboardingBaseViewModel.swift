@@ -108,6 +108,8 @@ class OnboardingBaseViewModel: ViewModel {
             assembly.makeNoteOnboardingViewModel(with: input)
         case .twin:
             assembly.makeTwinOnboardingViewModel(with: input)
+        case .wallet:
+            assembly.makeWalletOnboardingViewModel(with: input)
         default:
             break
         }
