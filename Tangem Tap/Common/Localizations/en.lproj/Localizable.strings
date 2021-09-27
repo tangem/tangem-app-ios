@@ -617,3 +617,30 @@ Amount to pay: %@";
 "twin_error_wrong_twin" = "You've tapped wrong twin card. Please try another one";
 
 "onboarding_success" = "Success!";
+"onboarding_getting_started" = "Getting started";
+
+"onboarding_button_backup_now" = "Backup now";
+"onboarding_button_get_backup_card" = "Get a backup card";
+"onboarding_button_skip_backup" = "Skip for later";
+"onboarding_button_finalize_backup" = "Finalize the backup process";
+"onboarding_button_add_backup_card" = "Add backup card";
+"onboarding_button_max_backup_cards_added" = "You hit the maximum";
+"onboarding_button_backup_card %@" = "Tap the card #%@";
+"onboarding_button_scan_origin_card" = "Scan origin card";
+"onboarding_button_buy_more_cards" = "Buy more cards";
+
+"onboarding_title_backup_card" = "Backup your card";
+"onboarding_title_no_backup_cards" = "No backup cards";
+"onboarding_title_scan_origin_card" = "Prepare your card";
+"onboarding_title_one_backup_card" = "One backup card added";
+"onboarding_title_two_backup_cards" = "Two backup cards added";
+"onboarding_title_backup_card %@" = "Prepare the #%@ backup card";
+
+"onboarding_subtitle_backup_card" = "You can backup your keys up to 2 other blank wallet cards";
+"onboarding_subtitle_no_backup_cards" = "To start the backup process add up to 2 cards";
+"onboarding_subtitle_scan_origin_card" = "Scan the origin card to start the backup process";
+"onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
+"onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process";
+"onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way, you’ll have to start over";
+
+"onboarding_alert_message_not_max_backup_cards_added" = "You've added one backup card. When backup process is finished you can't add more backup cards. If you have one more card, you can add it to backup, otherwise you can buy it in shop. Do you like to continue backup process?";
