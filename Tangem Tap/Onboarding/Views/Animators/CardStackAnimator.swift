@@ -55,12 +55,12 @@ enum AnimType: Equatable {
 }
 
 struct CardAnimSettings: Equatable {
-    let frame: CGSize
-    let offset: CGSize
-    let scale: CGFloat
-    let opacity: Double
-    let zIndex: Double
-    let rotationAngle: Angle
+    var frame: CGSize
+    var offset: CGSize
+    var scale: CGFloat
+    var opacity: Double
+    var zIndex: Double
+    var rotationAngle: Angle
     
     var animType: AnimType = .default
     var animDuration: Double = 0.3
