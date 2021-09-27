@@ -91,6 +91,7 @@ struct TangemButtonStyle: ButtonStyle {
                 )
             .cornerRadius(8)
             .overlay( !isDisabled ? Color.clear : Color.white.opacity(0.4))
+            .allowsHitTesting(!isDisabled)
     }
 }
 
