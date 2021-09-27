@@ -24,7 +24,7 @@ struct SingleCardOnboardingView: View {
     
     var navigationLinks: some View {
         VStack(spacing: 0) {
-            NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
+            NavigationLink(destination: WebViewContainer.shopView,
                            isActive: $navigation.readToShop)
             
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
@@ -50,8 +50,8 @@ struct SingleCardOnboardingView: View {
                 navigationLinks
                 
                 GeometryReader { proxy in
+                    let size = proxy.size
                     ZStack(alignment: .center) {
-                        let size = proxy.size
                         
                         NavigationBar(title: "onboarding_navbar_activating_card",
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
@@ -106,7 +106,7 @@ struct SingleCardOnboardingView: View {
                             .offset(y: 8)
                             .opacity(currentStep.successCircleOpacity)
                     }
-                    .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                    .position(x: size.width / 2, y: size.height / 2)
                 }
                 .readSize { value in
                     viewModel.setupContainer(with: value)
@@ -115,31 +115,13 @@ struct SingleCardOnboardingView: View {
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
                     textOffset: currentStep.messagesOffset,
-                    buttonsSettings: .init(
-                        mainTitle: viewModel.mainButtonTitle,
-                        mainSize: .wide,
-                        mainAction: {
-                            viewModel.mainButtonAction()
-                        },
-                        mainIsBusy: viewModel.isMainButtonBusy,
-                        supplementTitle: viewModel.supplementButtonTitle,
-                        supplementSize: .wide,
-                        supplementAction: {
-                            switch currentStep {
-                            case .topup:
-                                viewModel.isAddressQrBottomSheetPresented = true
-                            default:
-                                break
-                            }
-                        },
-                        isVisible: currentStep.isSupplementButtonVisible,
-                        containSupplementButton: currentStep.isContainSupplementButton)
+                    buttonsSettings: .init(main: viewModel.mainButtonSettings,
+                                           supplement: viewModel.supplementButtonSettings)
                 ) {
                     viewModel.reset()
                 }
                 .padding(.horizontal, 40)
             }
-            .frame(maxWidth: screenSize.width, maxHeight: screenSize.height)
             BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
                                      hideBottomSheetCallback: {
                                         viewModel.isAddressQrBottomSheetPresented = false
@@ -149,7 +131,6 @@ struct SingleCardOnboardingView: View {
                                      })
                 .frame(maxWidth: screenSize.width)
         }
-        .frame(maxWidth: screenSize.width, maxHeight: screenSize.height)
         .navigationBarHidden(true)
         .onAppear(perform: {
             viewModel.playInitialAnim()

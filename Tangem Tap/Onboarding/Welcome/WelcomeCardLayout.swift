@@ -72,7 +72,7 @@ enum WelcomeCardLayout: OnboardingCardFrameCalculator {
         return 0
     }
     
-    func frameSizeRatio(for step: WelcomeStep) -> CGFloat {
+    func cardHeightToContainerHeightRatio(for step: WelcomeStep) -> CGFloat {
         switch (self, step) {
         case (.main, _): return 0.375
         case (.supplementary, _): return 0.32

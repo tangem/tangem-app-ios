@@ -117,20 +117,8 @@ struct TwinsOnboardingView: View {
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
-                    buttonsSettings: .init(
-                        mainTitle: viewModel.mainButtonTitle,
-                        mainSize: .wide,
-                        mainAction: {
-                            viewModel.mainButtonAction()
-                        },
-                        mainIsBusy: viewModel.isMainButtonBusy,
-                        supplementTitle: viewModel.supplementButtonTitle,
-                        supplementSize: .wide,
-                        supplementAction: {
-                            viewModel.supplementButtonAction()
-                        },
-                        isVisible: viewModel.isSupplementButtonVisible,
-                        containSupplementButton: true),
+                    buttonsSettings: .init(main: viewModel.mainButtonSettings,
+                                           supplement: viewModel.supplementButtonSettings),
                     titleAction: {
 //                        guard viewModel.assembly.isPreview else { return }
                         
