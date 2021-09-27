@@ -35,7 +35,7 @@ extension Assembly {
             case .cardanoNote: return .cardanoNote
             case .cardanoNoteEmptyWallet: return .cardanoNoteEmptyWallet
             case .ethEmptyNote: return .ethEmptyNote
-            case .tangemWalletEmpty: return .tangemWallet
+            case .tangemWalletEmpty: return .emptyTangemWallet
             }
         }
         
