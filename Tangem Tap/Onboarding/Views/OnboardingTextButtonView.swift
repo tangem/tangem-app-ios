@@ -8,15 +8,40 @@
 
 import SwiftUI
 
+struct TangemButtonSettings {
+    let title: LocalizedStringKey
+    let size: ButtonSize
+    let action: (() -> Void)?
+    let isBusy: Bool
+    let isEnabled: Bool
+    let isVisible: Bool
+    
+    var color: ButtonColorStyle = .green
+    var customIconName: String = ""
+    var systemIconName: String = ""
+    var iconPosition: TangemButton.IconPosition = .trailing
+    
+}
+
+struct OnboardingBottomButtonsSettings {
+    let main: TangemButtonSettings
+    
+    var supplement: TangemButtonSettings? = nil
+}
+
 struct ButtonsSettings {
     let mainTitle: LocalizedStringKey
     let mainSize: ButtonSize
     let mainAction: (() -> Void)?
     let mainIsBusy: Bool
+    var mainColor: ButtonColorStyle = .green
+    var mainButtonSystemIconName: String = ""
+    let isMainEnabled: Bool
     
     let supplementTitle: LocalizedStringKey
     let supplementSize: ButtonSize
     let supplementAction: (() -> Void)?
+    var supplementColor: ButtonColorStyle = .transparentWhite
     let isVisible: Bool
     let containSupplementButton: Bool
 }
@@ -26,35 +51,38 @@ struct OnboardingTextButtonView: View {
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
     var textOffset: CGSize = .zero
-    let buttonsSettings: ButtonsSettings
+//    let buttonsSettings: ButtonsSettings
+    let buttonsSettings: OnboardingBottomButtonsSettings
     
     let titleAction: (() -> Void)?
     
     @ViewBuilder
     var buttons: some View {
         VStack(spacing: 10) {
-            TangemButton(isLoading: buttonsSettings.mainIsBusy,
-                         title: buttonsSettings.mainTitle,
-                         size: buttonsSettings.mainSize) {
+            let mainSettings = buttonsSettings.main
+            TangemButton(isLoading: mainSettings.isBusy,
+                         title: mainSettings.title,
+                         systemImage: mainSettings.systemIconName,
+                         size: mainSettings.size) {
                 withAnimation {
-                    buttonsSettings.mainAction?()
+                    mainSettings.action?()
                 }
             }
-            .buttonStyle(TangemButtonStyle(color: .green,
+            .buttonStyle(TangemButtonStyle(color: mainSettings.color,
                                            font: .system(size: 17, weight: .semibold),
-                                           isDisabled: false))
+                                           isDisabled: !mainSettings.isEnabled))
             
-            if buttonsSettings.containSupplementButton {
+            if let settings = buttonsSettings.supplement {
+//            if buttonsSettings.containSupplementButton {
                 TangemButton(isLoading: false,
-                             title: buttonsSettings.supplementTitle,
-                             size: buttonsSettings.supplementSize) {
-                    buttonsSettings.supplementAction?()
+                             title: settings.title,
+                             size: settings.size) {
+                    settings.action?()
                 }
-                .opacity(buttonsSettings.isVisible ? 1.0 : 0.0)
-                .allowsHitTesting(buttonsSettings.isVisible)
-                .buttonStyle(TangemButtonStyle(color: .transparentWhite,
+                .opacity(settings.isVisible ? 1.0 : 0.0)
+                .buttonStyle(TangemButtonStyle(color: settings.color,
                                                font: .system(size: 17, weight: .semibold),
-                                               isDisabled: false))
+                                               isDisabled: !settings.isEnabled))
             }
         }
     }
@@ -69,7 +97,7 @@ struct OnboardingTextButtonView: View {
             .offset(textOffset)
             Spacer()
             buttons
-                .padding(.bottom, buttonsSettings.containSupplementButton ? 16 : 20)
+                .padding(.bottom, buttonsSettings.supplement != nil ? 16 : 20)
                 
         }
         .frame(maxHeight: 304)
@@ -83,21 +111,43 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
             title: "Create a wallet",
             subtitle: "Let’s generate all the keys on your card and create a secure wallet",
             textOffset: .init(width: 0, height: -100),
-            buttonsSettings: .init(
-                mainTitle: "Create wallet",
-                mainSize: .wide,
-                mainAction: {
-                    
-                },
-                mainIsBusy: false,
-                supplementTitle: "What does it mean?",
-                supplementSize: .wide,
-                supplementAction: {
-                    
-                },
-                isVisible: true,
-                containSupplementButton: false),
+            buttonsSettings:
+                .init(main: TangemButtonSettings(
+                        title: "Create wallet",
+                        size: .wide,
+                        action: {},
+                        isBusy: false,
+                        isEnabled: true,
+                        isVisible: true),
+                      supplement: TangemButtonSettings(
+                        title: "What does it mean?",
+                        size: .wide,
+                        action: {},
+                        isBusy: false,
+                        isEnabled: false,
+                        isVisible: true,
+                        color: .grayAlt,
+                        systemIconName: "plus",
+                        iconPosition: .leading
+                      )
+                ),
             titleAction: { }
+//                .init(
+//                mainTitle: "Create wallet",
+//                mainSize: .wide,
+//                mainAction: {
+//
+//                },
+//                mainIsBusy: false,
+//                isMainEnabled: true,
+//                supplementTitle: "What does it mean?",
+//                supplementSize: .wide,
+//                supplementAction: {
+//
+//                },
+//                isVisible: true,
+//                containSupplementButton: false),
+//            titleAction: { }
         )
         .padding(.horizontal, 40)
     }

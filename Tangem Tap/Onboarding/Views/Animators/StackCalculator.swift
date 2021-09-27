@@ -8,9 +8,11 @@
 
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 struct StackCalculator {
     
     private(set) var prehideAnimSettings: CardAnimSettings = .zero
+    // [REDACTED_TODO_COMMENT]
     private(set) var cardsSettings: [CardAnimSettings] = []
     
     private let maxZIndex: Double = 100

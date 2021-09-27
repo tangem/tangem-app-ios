@@ -87,6 +87,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
         case .success:
             goToNextStep()
+        }
+    }
+    
+    override func supplementButtonAction() {
+        switch currentStep {
+        case .topup:
+            isAddressQrBottomSheetPresented = true
         default:
             break
         }
