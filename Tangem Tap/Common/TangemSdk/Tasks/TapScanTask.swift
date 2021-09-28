@@ -52,6 +52,7 @@ final class TapScanTask: CardSessionRunnable {
     
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
+    private var noteWalletData: WalletData? = nil
     
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
@@ -89,7 +90,7 @@ final class TapScanTask: CardSessionRunnable {
             }
         }
         
-        readTwinIssuerDataIfNeeded(card, session: session, completion: completion)
+        readExtra(card, session: session, completion: completion)
     }
     
     
@@ -111,17 +112,57 @@ final class TapScanTask: CardSessionRunnable {
             case .failure(let error):
                 completion(.failure(error))
             case .success(let card):
-                self.readTwinIssuerDataIfNeeded(card, session: session, completion: completion)
+                self.readExtra(card, session: session, completion: completion)
             }
         }
     }
     
-    private func readTwinIssuerDataIfNeeded(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard card.isTwinCard else {
-            runAttestation(session, completion)
+    private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        if card.isTwinCard {
+            readTwin(card, session: session, completion: completion)
             return
         }
         
+        if card.isTangemNote {
+            readNote(card, session: session, completion: completion)
+            return
+        }
+        
+        
+        runAttestation(session, completion)
+    }
+    
+    private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+       // self.noteWalletData = WalletData(blockchain: "BTC") //for test without file
+       // self.runAttestation(session, completion)
+       // return
+        
+        let readFileCommand = ReadFilesTask(fileName: "blockchainInfo", walletPublicKey: nil)
+        readFileCommand.run(in: session) { (result) in
+            switch result {
+            case .success(let response):
+                guard let file = response.first else {
+                    completion(.failure(.underlying(error: "Failed to read note file")))
+                    return
+                }
+                
+                guard let namedFile = try? NamedFile(tlvData: file.fileData),
+                      let tlv = Tlv.deserialize(namedFile.payload),
+                      let walletData = try? WalletDataDeserializer().deserialize(decoder: TlvDecoder(tlv: tlv)) else {
+                    completion(.failure(.underlying(error: "Failed to parse note file")))
+                    return
+                }
+                
+                self.noteWalletData = walletData
+                
+                self.runAttestation(session, completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func readTwin(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
         guard let issuerPubKey = SignerUtils.signerKeys(for: card.issuer.name)?.publicKey else {
             completion(.failure(TangemSdkError.unknownError))
             return
@@ -211,7 +252,7 @@ final class TapScanTask: CardSessionRunnable {
     
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<TapScanTaskResponse>) {
         completion(.success(TapScanTaskResponse(card: session.environment.card!,
-                                                walletData: session.environment.walletData,
+                                                walletData: noteWalletData ?? session.environment.walletData,
                                                 twinIssuerData: twinIssuerData)))
     }
 }
