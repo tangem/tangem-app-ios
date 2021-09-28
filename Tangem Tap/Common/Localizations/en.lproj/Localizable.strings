@@ -625,7 +625,7 @@ Amount to pay: %@";
 "onboarding_button_finalize_backup" = "Finalize the backup process";
 "onboarding_button_add_backup_card" = "Add backup card";
 "onboarding_button_max_backup_cards_added" = "You hit the maximum";
-"onboarding_button_backup_card %@" = "Tap the card #%@";
+"onboarding_button_backup_card %lld" = "Tap the card #%lld";
 "onboarding_button_scan_origin_card" = "Scan origin card";
 "onboarding_button_buy_more_cards" = "Buy more cards";
 
@@ -634,7 +634,7 @@ Amount to pay: %@";
 "onboarding_title_scan_origin_card" = "Prepare your card";
 "onboarding_title_one_backup_card" = "One backup card added";
 "onboarding_title_two_backup_cards" = "Two backup cards added";
-"onboarding_title_backup_card %@" = "Prepare the #%@ backup card";
+"onboarding_title_backup_card %lld" = "Prepare the #%lld backup card";
 
 "onboarding_subtitle_backup_card" = "You can backup your keys up to 2 other blank wallet cards";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to 2 cards";
@@ -662,3 +662,8 @@ Amount to pay: %@";
 
 "common_create" = "Create";
 "common_submit" = "Submit";
+"common_finalize" = "Finalize";
+
+"onboarding_subtitle_success_backup" = "You have created 2 backup cards, and now these cards are ready for use.";
+"onboarding_navbar_title_creating_backup" = "Creating a backup";
+"onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
