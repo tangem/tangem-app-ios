@@ -27,15 +27,21 @@ enum WalletOnboardingCardLayout {
         }
     }
     
-    func animSettings(at step: WalletOnboardingStep, in container: CGSize, fanStackCalculator: FanStackCalculator, stackCalculator: StackCalculator, animated: Bool) -> AnimatedViewSettings {
+    func animSettings(at step: WalletOnboardingStep, in container: CGSize, fanStackCalculator: FanStackCalculator, animated: Bool) -> AnimatedViewSettings {
         switch (self, step) {
         case (.origin, .welcome):
             return WelcomeCardLayout.main.cardSettings(at: .welcome, in: container, animated: animated)
-        case (.firstBackup, .welcome), (.secondBackup, .welcome):
+        case (.firstBackup, .welcome):
             return WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: container, animated: animated)
+        case (.secondBackup, .welcome):
+            var settings = WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: container, animated: animated)
+            settings.targetSettings.opacity = 0
+            return settings
         case (_, .selectBackupCards):
             return .init(targetSettings: fanStackCalculator.settingsForCard(at: cardFanStackIndex),
                          intermediateSettings: nil)
+        case (_, .success):
+            return .zero
         case (.origin, _), (.firstBackup, _), (.secondBackup, _):
             return .init(targetSettings: CardAnimSettings(frame: frame(for: step, containerSize: container),
                                                           offset: offset(at: step, in: container),
@@ -48,12 +54,12 @@ enum WalletOnboardingCardLayout {
     }
     
     func offset(at step: WalletOnboardingStep, in container: CGSize) -> CGSize {
-        switch (self, step) {
-        case (_, .createWallet):
+//        switch (self, step) {
+//        case (_, .createWallet):
             return .init(width: 0, height: container.height * 0.089)
-        default:
-            return .zero
-        }
+//        default:
+//            return .zero
+//        }
     }
     
     func scale(at step: WalletOnboardingStep, in container: CGSize) -> CGFloat {
@@ -62,7 +68,7 @@ enum WalletOnboardingCardLayout {
     
     func opacity(at step: WalletOnboardingStep, in container: CGSize) -> Double {
         switch (self, step) {
-        case (.secondBackup, .createWallet), (.secondBackup, .welcome): return 0
+        case (.secondBackup, .createWallet), (.secondBackup, .welcome), (_, .success): return 0
         default:
             return 1
         }
@@ -71,7 +77,6 @@ enum WalletOnboardingCardLayout {
     func rotation(at step: WalletOnboardingStep, in container: CGSize) -> Angle {
         .zero
     }
-    
 }
 
 extension WalletOnboardingCardLayout: OnboardingCardFrameCalculator {
@@ -82,10 +87,10 @@ extension WalletOnboardingCardLayout: OnboardingCardFrameCalculator {
     }
     
     func cardHeightToContainerHeightRatio(for step: WalletOnboardingStep) -> CGFloat {
-        switch (self, step) {
-        case (_, .createWallet):
+        switch step {
+        case .createWallet, .scanOriginCard, .backupIntro:
             return 0.453
-        case (_, .selectBackupCards):
+        case .selectBackupCards:
             return 0.318
         default:
             return 0.5
@@ -94,10 +99,9 @@ extension WalletOnboardingCardLayout: OnboardingCardFrameCalculator {
     
     func cardFrameMinHorizontalPadding(at step: WalletOnboardingStep) -> CGFloat {
         switch (self, step) {
-        case (_, .createWallet): return 60
+        case (_, .createWallet), (_, .scanOriginCard), (_, .backupIntro): return 60
         case (_, .selectBackupCards): return 143
-        default:
-            return 0
+        default: return 0
         }
     }
 }

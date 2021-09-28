@@ -9,8 +9,8 @@
 import SwiftUI
 
 struct AnimatedViewSettings: Equatable {
-    let targetSettings: CardAnimSettings
-    let intermediateSettings: CardAnimSettings?
+    var targetSettings: CardAnimSettings
+    var intermediateSettings: CardAnimSettings?
     
     static var zero: AnimatedViewSettings {
         .init(targetSettings: .zero,
