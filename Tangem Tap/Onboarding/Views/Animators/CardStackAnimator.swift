@@ -14,8 +14,8 @@ struct CardsStackAnimatorSettings {
     let cardsVerticalOffset: CGFloat
     let scaleStep: CGFloat
     let opacityStep: Double
-    let numberOfCards: Int
-    let maxCardsInStack: Int
+    var numberOfCards: Int
+    var maxCardsInStack: Int
     
     static var zero: CardsStackAnimatorSettings {
         .init(topCardSize: .zero,
