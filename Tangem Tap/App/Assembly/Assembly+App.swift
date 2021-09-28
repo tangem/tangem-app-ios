@@ -62,7 +62,7 @@ extension Assembly {
         case .twins:
             makeTwinOnboardingViewModel(with: input)
         case .wallet:
-            break
+            makeWalletOnboardingViewModel(with: input)
         }
         
         return vm
