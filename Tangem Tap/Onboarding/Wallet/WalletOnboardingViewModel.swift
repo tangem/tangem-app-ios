@@ -22,12 +22,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
     private var bag: Set<AnyCancellable> = []
     private var stepPublisher: AnyCancellable?
     
-    override var isBackButtonVisible: Bool {
-        switch currentStep {
-        case .success: return false
-        default: return true
-        }
-    }
+//    override var isBackButtonVisible: Bool {
+//        switch currentStep {
+//        case .success: return false
+//        default: return super.isBackButtonVisible
+//        }
+//    }
     
     override var navbarTitle: LocalizedStringKey {
         currentStep.navbarTitle
@@ -153,6 +153,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         return backupService.addedBackupCardsCount
     }
     
+    var isModal: Bool {
+        switch (currentStep, backupServiceState) {
+        case (.backupCards, .needWriteBackupCard): return true
+        default: return false
+        }
+    }
+    
     private var originCardStackIndex: Int {
         switch backupServiceState {
         case .needWriteBackupCard(let index):
@@ -258,6 +265,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         case .backupIntro:
             withAnimation {
                 currentStepIndex = steps.count - 1
+                setupCardsSettings(animated: true, isContainerSetup: false)
+                shouldFireConfetti = true
             }
         case .selectBackupCards:
             if backupCardsAddedCount < 2 {
@@ -284,6 +293,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
     }
     
     override func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
+        let animated = animated && !isContainerSetup
         switch currentStep {
         case .selectBackupCards:
             mainCardSettings = .init(targetSettings: fanStackCalculator.settingsForCard(at: 0), intermediateSettings: nil)
@@ -298,13 +308,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         case .backupCards:
             let prehideSettings: CardAnimSettings? = backupServiceState == .needWriteOriginCard ? nil : stackCalculator.prehideAnimSettings
             mainCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: originCardStackIndex),
-                                     intermediateSettings: (originCardStackIndex == backupCardsAddedCount ? prehideSettings : nil))
+                                     intermediateSettings: ((originCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
             
             supplementCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: firstBackupCardStackIndex),
-                                           intermediateSettings: (firstBackupCardStackIndex == backupCardsAddedCount ? prehideSettings : nil))
+                                           intermediateSettings: ((firstBackupCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
             
-            thirdCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: secondBackupCardStackIndex),
-                                      intermediateSettings: ((backupCardsAddedCount > 1 && secondBackupCardStackIndex == backupCardsAddedCount) ? prehideSettings : nil))
+            var settings = stackCalculator.cardSettings(at: secondBackupCardStackIndex)
+            settings.opacity = backupCardsAddedCount > 1 ? 1.0 : 0.0
+            thirdCardSettings = .init(targetSettings: settings,
+                                      intermediateSettings: ((backupCardsAddedCount > 1 && secondBackupCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
         default:
             mainCardSettings = WalletOnboardingCardLayout.origin.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
             supplementCardSettings = WalletOnboardingCardLayout.firstBackup.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
