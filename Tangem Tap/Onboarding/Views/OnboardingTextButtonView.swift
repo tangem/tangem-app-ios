@@ -63,7 +63,8 @@ struct OnboardingTextButtonView: View {
             TangemButton(isLoading: mainSettings.isBusy,
                          title: mainSettings.title,
                          systemImage: mainSettings.systemIconName,
-                         size: mainSettings.size) {
+                         size: mainSettings.size,
+                         iconPosition: mainSettings.iconPosition) {
                 withAnimation {
                     mainSettings.action?()
                 }
