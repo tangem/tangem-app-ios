@@ -38,4 +38,10 @@ enum AlertBuilder {
         alert.addAction(UIAlertAction(title: okButtonTitle, style: .default, handler: { _ in okAction?() }))
         return alert
     }
+    
+    static func makeOkGotItAlert(message: String, okAction: (() -> Void)? = nil) -> Alert {
+        Alert(title: Text("common_warning"),
+              message: Text(message),
+              dismissButton: .default(Text("warning_button_ok"), action: okAction))
+    }
 }
