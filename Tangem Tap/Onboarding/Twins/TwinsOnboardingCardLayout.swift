@@ -16,10 +16,10 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     func animSettings(at step: TwinsOnboardingStep, containerSize: CGSize, stackCalculator: StackCalculator, animated: Bool) -> AnimatedViewSettings {
         switch (step, self) {
         case (.first, _), (.second, .second), (.third, .first):
-            return .init(targetSettings: stackCalculator.cardsSettings[stackIndex(at: step)],
+            return .init(targetSettings: stackCalculator.cardSettings(at: stackIndex(at: step)),
                          intermediateSettings: nil)
         case (.second, .first), (.third, .second):
-            return .init(targetSettings: stackCalculator.cardsSettings[stackIndex(at: step)],
+            return .init(targetSettings: stackCalculator.cardSettings(at: stackIndex(at: step)),
                          intermediateSettings: animated ? stackCalculator.prehideAnimSettings : nil)
         case (.welcome, .first):
             return WelcomeCardLayout.main.cardSettings(at: .welcome, in: containerSize, animated: animated)
