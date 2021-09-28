@@ -11,25 +11,37 @@ import SwiftUI
 enum WalletOnboardingStep {
     case welcome, createWallet, scanOriginCard, backupIntro, selectBackupCards, backupCards, success
     
+    var navbarTitle: LocalizedStringKey {
+        switch self {
+        case .welcome: return ""
+        case .createWallet, .backupIntro: return "onboarding_getting_started"
+        case .scanOriginCard, .selectBackupCards: return "onboarding_navbar_title_creating_backup"
+        case .backupCards: return "common_finalize"
+        case .success: return "common_done"
+        }
+    }
+    
     func backgroundFrameSize(in container: CGSize) -> CGSize {
         switch self {
-        case .createWallet:
+        case .welcome, .success, .backupCards:
+            return .zero
+//        case .backupIntro:
+//            return .init(width: 816, height: 816)
+        default:
             let cardFrame = WalletOnboardingCardLayout.origin.frame(for: self, containerSize: container)
             let diameter = cardFrame.height * 1.242
             return .init(width: diameter, height: diameter)
-        case .backupIntro:
-            return .init(width: 816, height: 816)
-        default:
-            return .zero
         }
     }
     
     func backgroundOffset(in container: CGSize) -> CGSize {
         switch self {
-        case .backupIntro:
-            return .init(width: 0, height: -container.height * 0.572)
+//        case .backupIntro:
+//            return .init(width: 0, height: -container.height * 0.572)
         default:
-            return .init(width: 0, height: container.height * 0.089)
+            let cardOffset = WalletOnboardingCardLayout.origin.offset(at: .createWallet, in: container)
+            return cardOffset
+//            return .init(width: 0, height: container.height * 0.089)
         }
     }
     
@@ -44,7 +56,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
         case .backupCards: return "onboarding_title_backup_card \(1)"
-        case .success: return "onboarding_success"
+        case .success: return successTitle
         }
         
     }
@@ -57,7 +69,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
         case .backupCards: return "onboarding_subtitle_backup_warning"
-        case .success: return successTitle
+        case .success: return "onboarding_subtitle_success_backup"
         }
         
     }
@@ -95,16 +107,13 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .scanOriginCard: return false
+        case .scanOriginCard, .backupCards, .success: return false
         default: return true
         }
     }
     
     var isContainSupplementButton: Bool {
-        switch self {
-        case .backupCards, .success: return false
-        default: return true
-        }
+        true
     }
     
     
@@ -120,18 +129,18 @@ extension WalletOnboardingStep: OnboardingInitialStepInfo {
 
 extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
     static var maxNumberOfSteps: Int {
-        5
+        6
     }
     
     var progressStep: Int {
         switch self {
         case .welcome: return 0
         case .createWallet: return 1
-        case .scanOriginCard: return 1
+        case .scanOriginCard: return 3
         case .backupIntro: return 2
-        case .selectBackupCards: return 3
-        case .backupCards: return 4
-        case .success: return 5
+        case .selectBackupCards: return 4
+        case .backupCards: return 5
+        case .success: return 6
         }
     }
     
