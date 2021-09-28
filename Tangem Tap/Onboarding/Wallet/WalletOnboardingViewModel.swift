@@ -23,7 +23,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
     private var stepPublisher: AnyCancellable?
     
     override var isBackButtonVisible: Bool {
-        true
+        switch currentStep {
+        case .success: return false
+        default: return true
+        }
+    }
+    
+    override var navbarTitle: LocalizedStringKey {
+        currentStep.navbarTitle
     }
     
     override var title: LocalizedStringKey {
@@ -34,8 +41,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             case 1: return "onboarding_title_one_backup_card"
             default: return "onboarding_title_two_backup_cards"
             }
-        default: return super.title
+        case .backupCards:
+            switch backupServiceState {
+            case .needWriteOriginCard: return "onboarding_title_backup_card \(1)"
+            case .needWriteBackupCard(let index): return "onboarding_title_backup_card \(1 + index)"
+            default: break
+            }
+        default: break
         }
+        return super.title
     }
     
     override var subtitle: LocalizedStringKey {
@@ -70,8 +84,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             return canAddBackupCards ?
                 "onboarding_button_add_backup_card" :
                 "onboarding_button_max_backup_cards_added"
-        default: return super.mainButtonTitle
+        case .backupCards:
+            switch backupServiceState {
+            case .needWriteOriginCard: return "onboarding_button_backup_card \(1)"
+            case .needWriteBackupCard(let index): return "onboarding_button_backup_card \(1 + index)"
+            default: break
+            }
+        default: break
         }
+        return super.mainButtonTitle
     }
     
     var mainButtonColor: ButtonColorStyle {
@@ -132,6 +153,34 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         return backupService.addedBackupCardsCount
     }
     
+    private var originCardStackIndex: Int {
+        switch backupServiceState {
+        case .needWriteBackupCard(let index):
+            return backupCardsAddedCount - index + 1
+        default: return 0
+        }
+    }
+    
+    private var firstBackupCardStackIndex: Int {
+        switch backupServiceState {
+        case .needWriteBackupCard(let index):
+            switch index {
+            case 1: return 0
+            case 2: return 2
+            default: return 1
+            }
+        default: return 1
+        }
+    }
+    
+    private var secondBackupCardStackIndex: Int {
+        switch backupServiceState {
+        case .needWriteBackupCard(let index):
+            return backupCardsAddedCount - index
+        default: return 2
+        }
+    }
+    
     private var canAddBackupCards: Bool {
         if assembly?.isPreview ?? false {
             return previewBackupCardsAdded < 2
@@ -140,7 +189,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         return backupService.canAddBackupCards
     }
     
+    private var backupServiceState: BackupService.State {
+        if assembly?.isPreview ?? false {
+            return previewBackupState
+        }
+        
+        return backupService.currentState
+    }
+    
     @Published private var previewBackupCardsAdded: Int = 0
+    @Published private var previewBackupState: BackupService.State = .needWriteOriginCard
     
     private let tangemSdk: TangemSdk
     
@@ -161,7 +219,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
     
     override func setupContainer(with size: CGSize) {
         stackCalculator.setup(for: size,
-                              with: CardsStackAnimatorSettings(topCardSize: WalletOnboardingCardLayout.origin.frame(for: .backupCards, containerSize: size),
+                              with: CardsStackAnimatorSettings(topCardSize: WalletOnboardingCardLayout.origin.frame(for: .createWallet, containerSize: size),
                                                                topCardOffset: .init(width: 0, height: 1),
                                                                cardsVerticalOffset: 17,
                                                                scaleStep: 0.11,
@@ -238,18 +296,40 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             
             thirdCardSettings = .init(targetSettings: backupCardSettings, intermediateSettings: nil)
         case .backupCards:
-            break
+            let prehideSettings: CardAnimSettings? = backupServiceState == .needWriteOriginCard ? nil : stackCalculator.prehideAnimSettings
+            mainCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: originCardStackIndex),
+                                     intermediateSettings: (originCardStackIndex == backupCardsAddedCount ? prehideSettings : nil))
+            
+            supplementCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: firstBackupCardStackIndex),
+                                           intermediateSettings: (firstBackupCardStackIndex == backupCardsAddedCount ? prehideSettings : nil))
+            
+            thirdCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: secondBackupCardStackIndex),
+                                      intermediateSettings: ((backupCardsAddedCount > 1 && secondBackupCardStackIndex == backupCardsAddedCount) ? prehideSettings : nil))
         default:
-            mainCardSettings = WalletOnboardingCardLayout.origin.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, stackCalculator: stackCalculator, animated: animated)
-            supplementCardSettings = WalletOnboardingCardLayout.firstBackup.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, stackCalculator: stackCalculator, animated: animated)
-            thirdCardSettings = WalletOnboardingCardLayout.secondBackup.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, stackCalculator: stackCalculator, animated: animated)
+            mainCardSettings = WalletOnboardingCardLayout.origin.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
+            supplementCardSettings = WalletOnboardingCardLayout.firstBackup.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
+            thirdCardSettings = WalletOnboardingCardLayout.secondBackup.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
         }
     }
     
     override func reset(includeInResetAnim: (() -> Void)? = nil) {
         super.reset {
             self.previewBackupCardsAdded = 0
+            self.previewBackupState = .needWriteOriginCard
             self.thirdCardSettings = WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: self.containerSize, animated: true)
+        }
+    }
+    
+    func backButtonAction() {
+        switch currentStep {
+        case .backupCards:
+            if backupServiceState == .needWriteOriginCard {
+                fallthrough
+            }
+            
+            alert = AlertBinder(alert: AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized))
+        default:
+            reset()
         }
     }
     
@@ -257,6 +337,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         navigation.onboardingWalletToAccessCode = false
         do {
             try backupService.setAccessCode(code)
+            stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 self.goToNextStep()
             }
@@ -269,6 +350,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         switch currentStep {
         case .selectBackupCards:
             setupCardsSettings(animated: true, isContainerSetup: false)
+        case .backupCards:
+            if backupServiceState == .finished {
+                shouldFireConfetti = true
+                self.goToNextStep()
+            } else {
+                setupCardsSettings(animated: true, isContainerSetup: false)
+            }
         default:
             break
         }
@@ -375,8 +463,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                 }
             }
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
-            .sink(receiveCompletion: { completion in
-                
+            .sink(receiveCompletion: { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Failed to add backup card. Reason: \(error)")
+                    self?.isMainButtonBusy = false
+                }
             }, receiveValue: { [weak self] (_: Void, _: Notification) in
                 self?.updateStep()
                 withAnimation {
@@ -385,18 +476,62 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             })
     }
     
-    private func validateAccessCode() {
-        isMainButtonBusy = true
-        if assembly.isPreview {
-            previewGoToNextStepDelayed()
-        }
-    }
-    
     private func backupCard() {
         isMainButtonBusy = true
         if assembly.isPreview {
-            previewGoToNextStepDelayed()
+            let newPreviewState: BackupService.State
+            switch backupServiceState {
+            case .needWriteOriginCard:
+                newPreviewState = .needWriteBackupCard(index: 0)
+            case .needWriteBackupCard(let index):
+                switch index {
+                case 0:
+                    if backupCardsAddedCount == 2 {
+                        newPreviewState = .needWriteBackupCard(index: 1)
+                    } else {
+                        newPreviewState = .finished
+                    }
+                default:
+                    newPreviewState = .finished
+                }
+            default: newPreviewState = .needWriteOriginCard
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation {
+                    self.previewBackupState = newPreviewState
+                    self.updateStep()
+                    self.isMainButtonBusy = false
+                }
+            }
+            return
+//            previewGoToNextStepDelayed()
         }
+        
+        stepPublisher =
+            Deferred {
+                Future { [unowned self] promise in
+                    self.backupService.proceedBackup { result in
+                        switch result {
+                        case .success:
+                            promise(.success(()))
+                        case .failure(let error):
+                            promise(.failure(error))
+                        }
+                    }
+                }
+            }
+            .combineLatest(NotificationCenter.didBecomeActivePublisher)
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Failed to proceed backup. Reason: \(error)")
+                    self?.isMainButtonBusy = false
+                }
+            } receiveValue: { [weak self] (_: Void, _: Notification) in
+                self?.updateStep()
+                withAnimation {
+                    self?.isMainButtonBusy = false
+                }
+            }
     }
     
     private func previewGoToNextStepDelayed(_ delay: TimeInterval = 2) {
