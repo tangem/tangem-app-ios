@@ -207,6 +207,7 @@
 		B02275D72701D9FB004C752B /* CreateWalletAndReadOriginCardTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02275D62701D9FB004C752B /* CreateWalletAndReadOriginCardTask.swift */; };
 		B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */; };
 		B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B026178C26FCAB7900B5107F /* FanStackCalculator.swift */; };
+		B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */; };
 		B02D4267262EA93F00BCA3D9 /* BinanceChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4266262EA93F00BCA3D9 /* BinanceChain.swift */; };
 		B02D4271262EAA3A00BCA3D9 /* BinanceParsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4270262EAA3A00BCA3D9 /* BinanceParsers.swift */; };
 		B02D4277262EAA8400BCA3D9 /* BinanceAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */; };
@@ -986,6 +987,7 @@
 		B022D30F253746C900D934D7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiGenerator.swift; sourceTree = "<group>"; };
 		B026178C26FCAB7900B5107F /* FanStackCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanStackCalculator.swift; sourceTree = "<group>"; };
+		B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAccessCodeView.swift; sourceTree = "<group>"; };
 		B02D4266262EA93F00BCA3D9 /* BinanceChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceChain.swift; sourceTree = "<group>"; };
 		B02D4270262EAA3A00BCA3D9 /* BinanceParsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceParsers.swift; sourceTree = "<group>"; };
 		B02D4276262EAA8400BCA3D9 /* BinanceAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceAccount.swift; sourceTree = "<group>"; };
@@ -2075,6 +2077,14 @@
 				B02275D62701D9FB004C752B /* CreateWalletAndReadOriginCardTask.swift */,
 			);
 			path = Tasks;
+			sourceTree = "<group>";
+		};
+		B029C1DA270229350017C848 /* AccessCode */ = {
+			isa = PBXGroup;
+			children = (
+				B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */,
+			);
+			path = AccessCode;
 			sourceTree = "<group>";
 		};
 		B02D4265262EA8FE00BCA3D9 /* BinanceChain */ = {
@@ -3514,6 +3524,7 @@
 		B0E1565026B97F81005B33E4 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B029C1DA270229350017C848 /* AccessCode */,
 				B0B8670426DF60DC008DAA67 /* Animators */,
 				B0C6B4C426CE686500FA990B /* ProgressBar */,
 				B031AAAF26C1435E00015003 /* Confetti */,
@@ -4142,6 +4153,7 @@
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
 				B0A0A2DC25825E8A005FC94D /* TwinOnboardingBackground.swift in Sources */,
 				B02275D72701D9FB004C752B /* CreateWalletAndReadOriginCardTask.swift in Sources */,
+				B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
 				B0A0911026D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift in Sources */,
