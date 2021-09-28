@@ -62,7 +62,7 @@ struct WalletOnboardingView: View {
                         
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
-                        NavigationBar(title: "onboarding_getting_started",
+                        NavigationBar(title: viewModel.navbarTitle,
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                                       leftButtons: {
                                         BackButton(height: viewModel.navbarSize.height,
@@ -96,6 +96,12 @@ struct WalletOnboardingView: View {
                                                cardImage: viewModel.mainCardImage,
                                                cardScanned: viewModel.isInitialAnimPlayed && currentStep != .welcome)
                         }
+                        
+                        OnboardingCircleButton(refreshAction: {},
+                                               state: currentStep.successCircleState,
+                                               size: .huge)
+                            .offset(y: 8)
+                            .opacity(currentStep.successCircleOpacity)
                     }
                     .position(x: size.width / 2, y: size.height / 2)
 //                    .overlay(Color.red.opacity(0.3))
