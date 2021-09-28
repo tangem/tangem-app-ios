@@ -13,7 +13,7 @@ struct SingleCardOnboardingView: View {
     @EnvironmentObject var navigation: NavigationCoordinator
     @ObservedObject var viewModel: SingleCardOnboardingViewModel
 
-    private let horizontalPadding: CGFloat = 40
+    private let horizontalPadding: CGFloat = 16
     private let screenSize: CGSize = UIScreen.main.bounds.size
     
     var currentStep: SingleCardOnboardingStep { viewModel.currentStep }
@@ -58,7 +58,8 @@ struct SingleCardOnboardingView: View {
                                       leftButtons: {
                                         BackButton(height: viewModel.navbarSize.height,
                                                    isVisible: viewModel.isBackButtonVisible,
-                                                   isEnabled: viewModel.isBackButtonEnabled) {
+                                                   isEnabled: viewModel.isBackButtonEnabled,
+                                                   hPadding: horizontalPadding) {
                                             viewModel.reset()
                                         }
                                       })
