@@ -68,7 +68,7 @@ struct WalletOnboardingView: View {
                                         BackButton(height: viewModel.navbarSize.height,
                                                    isVisible: viewModel.isBackButtonVisible,
                                                    isEnabled: viewModel.isBackButtonEnabled) {
-                                            viewModel.reset()
+                                            viewModel.backButtonAction()
                                         }
                                       })
                             .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
@@ -131,6 +131,7 @@ struct WalletOnboardingView: View {
                 viewModel.saveAccessCode(accessCode)
             }
         })
+        .preference(key: ModalSheetPreferenceKey.self, value: viewModel.isModal)
         .navigationBarHidden(true)
         .onAppear(perform: {
             if viewModel.isInitialAnimPlayed {
