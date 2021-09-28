@@ -12,11 +12,10 @@ import SwiftUI
 struct StackCalculator {
     
     private(set) var prehideAnimSettings: CardAnimSettings = .zero
-    // [REDACTED_TODO_COMMENT]
-    private(set) var cardsSettings: [CardAnimSettings] = []
     
     private let maxZIndex: Double = 100
     
+    private var cardsSettings: [CardAnimSettings] = []
     private var containerSize: CGSize = .zero
     private var settings: CardsStackAnimatorSettings = .zero
     
@@ -24,6 +23,19 @@ struct StackCalculator {
         containerSize = container
         self.settings = settings
         populateSettings()
+    }
+    
+    mutating func setupNumberOfCards(_ newCount: Int) {
+        settings.numberOfCards = newCount
+        populateSettings()
+    }
+    
+    func cardSettings(at index: Int) -> CardAnimSettings {
+        guard index >= 0, index < cardsSettings.count else {
+            return .zero
+        }
+        
+        return cardsSettings[index]
     }
     
     mutating private func populateSettings() {
