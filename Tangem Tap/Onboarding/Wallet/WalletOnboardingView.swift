@@ -120,6 +120,11 @@ struct WalletOnboardingView: View {
         .alert(item: $viewModel.alert, content: { alertBinder in
             alertBinder.alert
         })
+        .sheet(isPresented: $navigation.onboardingWalletToAccessCode, content: {
+            OnboardingAccessCodeView { accessCode in
+                viewModel.saveAccessCode(accessCode)
+            }
+        })
         .navigationBarHidden(true)
         .onAppear(perform: {
             if viewModel.isInitialAnimPlayed {

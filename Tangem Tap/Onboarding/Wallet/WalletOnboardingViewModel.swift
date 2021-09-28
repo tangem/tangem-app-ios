@@ -206,7 +206,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                 let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
                 controller.addAction(UIAlertAction(title: "common_continue".localized, style: .default, handler: { [weak self] _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        self?.goToNextStep()
+                        self?.navigation.onboardingWalletToAccessCode = true
                     }
                 }))
                 controller.addAction(UIAlertAction(title: "onboarding_button_buy_more_cards".localized, style: .default, handler: { [weak self] _ in
@@ -217,7 +217,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                 controller.addAction(UIAlertAction(title: "common_cancel".localized, style: .cancel, handler: { _ in }))
                 UIApplication.topViewController?.present(controller, animated: true, completion: nil)
             } else {
-                goToNextStep()
+                navigation.onboardingWalletToAccessCode = true
             }
             
         default:
@@ -250,6 +250,18 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         super.reset {
             self.previewBackupCardsAdded = 0
             self.thirdCardSettings = WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: self.containerSize, animated: true)
+        }
+    }
+    
+    func saveAccessCode(_ code: String) {
+        navigation.onboardingWalletToAccessCode = false
+        do {
+            try backupService.setAccessCode(code)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                self.goToNextStep()
+            }
+        } catch {
+            print("Failed to set access code to backup service. Reason: \(error)")
         }
     }
     
