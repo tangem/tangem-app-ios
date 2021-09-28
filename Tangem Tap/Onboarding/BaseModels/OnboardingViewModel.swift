@@ -38,6 +38,10 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         CGFloat(currentStep.progressStep) / CGFloat(Step.maxNumberOfSteps)
     }
     
+    var navbarTitle: LocalizedStringKey {
+        "onboarding_getting_started"
+    }
+    
     var title: LocalizedStringKey {
         if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
             return welcomeStep.title
