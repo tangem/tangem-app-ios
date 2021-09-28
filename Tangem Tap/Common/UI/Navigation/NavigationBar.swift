@@ -29,13 +29,15 @@ struct BackButton: View {
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
-    let color: Color = .tangemTapGrayDark6
+    var color: Color = .tangemTapGrayDark6
+    var hPadding: CGFloat = 16
     let action: () -> Void
     
     var body: some View {
         Button(action: action, label: {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left")
+                    .padding(-1) //remove default? extra padding
                 Text("common_back")
                     .font(.system(size: 17, weight: .regular))
             }
@@ -44,7 +46,7 @@ struct BackButton: View {
         .opacity(isVisible ? 1.0 : 0.0)
         .frame(height: height)
         .foregroundColor(isEnabled ? color : color.opacity(0.5))
-        .padding(.horizontal, 16)
+        .padding(.horizontal, hPadding)
     }
     
 }
@@ -194,6 +196,11 @@ struct NavigationBar_Previews: PreviewProvider {
 //			}.deviceForPreview(.iPhone11ProMax)
             VStack {
                 NavigationBar(title: "Hello, World!")
+                Spacer()
+            }.deviceForPreview(.iPhone11ProMax)
+            
+            HStack {
+                BackButton(height: 44, isVisible: true, isEnabled: true) { }
                 Spacer()
             }.deviceForPreview(.iPhone11ProMax)
 		}
