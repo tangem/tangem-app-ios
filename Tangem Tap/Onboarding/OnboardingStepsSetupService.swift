@@ -86,14 +86,15 @@ class OnboardingStepsSetupService {
         guard let twinCardInfo = cardInfo.twinCardInfo else {
             return .anyFail(error: "Twin card doesn't contain essential data (Twin card info)")
         }
+        
         var steps = [TwinsOnboardingStep]()
         
-        if userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-            return Just(OnboardingSteps.twins(steps))
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
-        } else {
-            steps.append(.intro(pairNumber: "\(twinCardInfo.series.pair.number)"))
+        if !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
+            if twinCardInfo.pairPublicKey != nil && cardInfo.card.wallets.first != nil {
+                return .justWithError(output: .twins([]))
+            } else {
+                steps.append(.intro(pairNumber: "\(twinCardInfo.series.pair.number)"))
+            }
         }
         
         let walletModel = assembly.loadWallets(from: cardInfo)
