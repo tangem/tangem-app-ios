@@ -92,7 +92,7 @@ class OnboardingStepsSetupService {
             return Just(OnboardingSteps.twins(steps))
                 .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
-        } else {
+        } else {
             steps.append(.intro(pairNumber: "\(twinCardInfo.series.pair.number)"))
         }
         
