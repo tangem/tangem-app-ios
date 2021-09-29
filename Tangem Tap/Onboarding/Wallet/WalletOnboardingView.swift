@@ -14,6 +14,7 @@ struct WalletOnboardingView: View {
     @EnvironmentObject var navigation: NavigationCoordinator
     
     private let screenSize: CGSize = UIScreen.main.bounds.size
+    private let infoPagerHeight: CGFloat = 146
     
     var currentStep: WalletOnboardingStep {
         viewModel.currentStep
@@ -33,6 +34,13 @@ struct WalletOnboardingView: View {
         }
         
         return true
+    }
+    
+    var secondCardPlaceholder: OnboardingCardView.CardType {
+        switch currentStep {
+        case .welcome, .backupIntro, .createWallet, .scanOriginCard: return .light
+        default: return .dark
+        }
     }
     
     var navigationLinks: some View {
@@ -80,15 +88,15 @@ struct WalletOnboardingView: View {
                             .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
                         
                         AnimatedView(settings: viewModel.$thirdCardSettings) {
-                            OnboardingCardView(placeholderCardType: .dark,
+                            OnboardingCardView(placeholderCardType: secondCardPlaceholder,
                                                cardImage: viewModel.mainCardImage,
-                                               cardScanned: viewModel.backupCardsAddedCount >= 2)
+                                               cardScanned: (viewModel.backupCardsAddedCount >= 2 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                         }
                         
                         AnimatedView(settings: viewModel.$supplementCardSettings) {
-                            OnboardingCardView(placeholderCardType: (currentStep == .welcome || !viewModel.isInitialAnimPlayed) ? .light : .dark,
+                            OnboardingCardView(placeholderCardType: secondCardPlaceholder,
                                                cardImage: viewModel.mainCardImage,
-                                               cardScanned: viewModel.backupCardsAddedCount >= 1)
+                                               cardScanned: (viewModel.backupCardsAddedCount >= 1 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                         }
                         
                         AnimatedView(settings: viewModel.$mainCardSettings) {
@@ -102,6 +110,14 @@ struct WalletOnboardingView: View {
                                                size: .huge)
                             .offset(y: 8)
                             .opacity(currentStep.successCircleOpacity)
+                        
+                        if viewModel.isInfoPagerVisible {
+                            OnboardingWalletInfoPager(animated: viewModel.isInfoPagerVisible)
+                                .offset(.init(width: 0, height: size.height / 2 + infoPagerHeight / 2))
+                                .frame(height: infoPagerHeight)
+                                .zIndex(150)
+                                .transition(.opacity)
+                        }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
 //                    .overlay(Color.red.opacity(0.3))
