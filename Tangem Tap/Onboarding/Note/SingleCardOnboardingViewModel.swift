@@ -15,7 +15,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
-    weak var userPrefsService: UserPrefsService!
     weak var imageLoaderService: CardImageLoaderService!
     
     @Published var cardImage: UIImage?
@@ -144,7 +143,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } receiveValue: { [weak self] (_, _) in
             self?.walletCreatedWhileOnboarding = true
             if card.isTangemNote {
-                self?.userPrefsService.cardsStartedActivation.append(card.cardId)
+                self?.userPrefsService?.cardsStartedActivation.append(card.cardId)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self?.isMainButtonBusy = false
