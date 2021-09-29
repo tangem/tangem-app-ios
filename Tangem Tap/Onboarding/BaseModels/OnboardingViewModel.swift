@@ -12,6 +12,7 @@ import Combine
 class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
+    weak var userPrefsService: UserPrefsService?
     
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
@@ -162,6 +163,12 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             DispatchQueue.main.async {
                 self.successCallback?()
             }
+            
+            let cardId = input.cardModel.cardInfo.card.cardId
+            if let existingIndex = userPrefsService?.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
+                userPrefsService?.cardsStartedActivation.remove(at: existingIndex)
+            }
+            
             return
         }
         
