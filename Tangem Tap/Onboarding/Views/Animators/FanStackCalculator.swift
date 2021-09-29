@@ -14,14 +14,16 @@ struct FanStackCalculatorSettings {
     let cardRotationStep: Double
     let topCardOffset: CGSize
     let cardOffsetStep: CGSize
+    let scaleStep: CGFloat
     let numberOfCards: Int
     
     static var defaultSettings: FanStackCalculatorSettings {
-        .init(cardsSize: .init(width: 228, height: 139),
-              topCardRotation: -2,
+        .init(cardsSize: .init(width: 315, height: 198),
+              topCardRotation: 3,
               cardRotationStep: -10,
-              topCardOffset: .init(width: 16, height: 49),
-              cardOffsetStep: .init(width: -10, height: -25),
+              topCardOffset: .init(width: 0, height: 45),
+              cardOffsetStep: .init(width: 2, height: -28),
+              scaleStep: 0.07,
               numberOfCards: 3)
     }
 }
@@ -59,13 +61,14 @@ struct FanStackCalculator {
         let floatIndex = CGFloat(index)
         let doubleIndex = Double(index)
         let heightOffset: CGFloat = settings.cardOffsetStep.height * floatIndex + settings.topCardOffset.height
-        let widthOffset: CGFloat = settings.cardOffsetStep.width * floatIndex + settings.topCardOffset.width + (floatIndex > 0 ? settings.cardOffsetStep.width * (floatIndex - 1) : 0)
+        let widthOffset: CGFloat = settings.cardOffsetStep.width * floatIndex + settings.topCardOffset.width
         let rotation: Double = settings.topCardRotation + settings.cardRotationStep * doubleIndex
+        let scale = settings.scaleStep * floatIndex
         let zIndex: Double = maxZIndex - doubleIndex
         
         return .init(frame: settings.cardsSize,
                      offset: .init(width: widthOffset, height: heightOffset),
-                     scale: 1.0,
+                     scale: 1.0 - scale,
                      opacity: 1.0,
                      zIndex: zIndex,
                      rotationAngle: .init(degrees: rotation),
