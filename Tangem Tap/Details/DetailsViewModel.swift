@@ -17,7 +17,7 @@ class DetailsViewModel: ViewModel {
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
     weak var onboardingStepsSetupService: OnboardingStepsSetupService!
-
+    
     weak var ratesService: CoinMarketCapService! {
         didSet {
             ratesService
@@ -30,7 +30,7 @@ class DetailsViewModel: ViewModel {
         }
     }
     
-
+    
     @Published var cardModel: CardViewModel! {
         didSet {
             cardModel.objectWillChange
@@ -42,9 +42,10 @@ class DetailsViewModel: ViewModel {
         }
     }
     @Published var isTwinRecreationModel: Bool = false
+    @Published var error: AlertBinder?
     
     var dataCollector: DetailsFeedbackDataCollector!
-	
+    
     var hasWallet: Bool {
         cardModel.hasWallet
     }
@@ -54,9 +55,9 @@ class DetailsViewModel: ViewModel {
             && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
     }
     
-	var isTwinCard: Bool {
-		cardModel.isTwinCard
-	}
+    var isTwinCard: Bool {
+        cardModel.isTwinCard
+    }
     
     var cardTouURL: URL? {
         guard cardModel.isStart2CoinCard else { //is this card is S2C
@@ -143,7 +144,33 @@ class DetailsViewModel: ViewModel {
     }
     
     func prepareTwinOnboarding() {
-        onboardingStepsSetupService
-            .stepsWithCardImage(for: cardModel)
+        Publishers.Zip(
+            onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo),
+            cardModel.imageLoaderPublisher
+        ).sink { completion in
+            switch completion {
+            case .failure(let error):
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+                self.error = error.alertBinder
+            case .finished:
+                break
+            }
+        } receiveValue: { [weak self] (steps, image) in
+            guard let self = self else { return }
+            
+            let input = OnboardingInput(steps: steps,
+                                        cardModel: self.cardModel,
+                                        cardImage: image,
+                                        cardsPosition: nil,
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0,
+                                        successCallback: { [weak self] in
+                                            self?.navigation.detailsToTwinsRecreateWarning = false
+                                        })
+            self.assembly.makeCardOnboardingViewModel(with: input)
+            self.navigation.detailsToTwinsRecreateWarning = true
+        }
+        .store(in: &bag)
     }
 }
