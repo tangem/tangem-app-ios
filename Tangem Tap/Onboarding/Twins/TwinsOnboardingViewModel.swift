@@ -10,9 +10,6 @@ import SwiftUI
 import Combine
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
-    
-    weak var userPrefsService: UserPrefsService!
-    
     unowned var twinsService: TwinsWalletCreationService
     unowned var imageLoaderService: CardImageLoaderService
     
@@ -151,7 +148,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
                 goToNextStep()
             }
         case .intro:
-            userPrefsService.cardsStartedActivation.append(twinInfo.cid)
+            userPrefsService?.cardsStartedActivation.append(twinInfo.cid)
 //            userPrefsService.cardsStartedActivation.append(twinInfo.pairCid)
             fallthrough
         case .confetti, .done:
