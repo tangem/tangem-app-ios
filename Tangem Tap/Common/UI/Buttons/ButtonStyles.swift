@@ -37,7 +37,9 @@ enum ButtonSize {
         }
     }
     
-    private var defaultHeight: CGFloat { 56 }
+    private var defaultHeight: CGFloat {
+        Constants.isSmallScreen ? 44 : 56
+    }
 }
 
 enum ButtonColorStyle {
