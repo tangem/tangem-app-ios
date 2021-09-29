@@ -23,7 +23,7 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
             return
         }
         
-        guard let issuerKeys = SignerUtils.signerKeys(for: card.issuer.name) else {
+        guard let issuerKeys = SignerUtils.signerKeys(for: card.issuer.publicKey) else {
             completion(.failure(TangemSdkError.unknownError))
             return
         }
