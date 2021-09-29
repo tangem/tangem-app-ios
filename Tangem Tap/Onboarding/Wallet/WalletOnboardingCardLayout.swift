@@ -11,14 +11,6 @@ import SwiftUI
 enum WalletOnboardingCardLayout {
     case origin, firstBackup, secondBackup
     
-    var zIndex: Double {
-        switch self {
-        case .origin: return 100
-        case .firstBackup: return 99
-        case .secondBackup: return 98
-        }
-    }
-    
     var cardFanStackIndex: Int {
         switch self {
         case .origin: return 0
@@ -47,23 +39,38 @@ enum WalletOnboardingCardLayout {
                                                           offset: offset(at: step, in: container),
                                                           scale: scale(at: step, in: container),
                                                           opacity: opacity(at: step, in: container),
-                                                          zIndex: zIndex,
+                                                          zIndex: zIndex(at: step),
                                                           rotationAngle: rotation(at: step, in: container)),
                          intermediateSettings: nil)
         }
     }
     
     func offset(at step: WalletOnboardingStep, in container: CGSize) -> CGSize {
-//        switch (self, step) {
-//        case (_, .createWallet):
+        switch (self, step) {
+        case (_, .createWallet), (_, .scanOriginCard):
             return .init(width: 0, height: container.height * 0.089)
-//        default:
-//            return .zero
-//        }
+        case (.origin, .backupIntro):
+            return .init(width: 1, height: container.height * 0.034)
+        case (.firstBackup, .backupIntro):
+            return .init(width: container.width * 0.413, height: container.height * 0.128)
+        case (.secondBackup, .backupIntro):
+            return .init(width: -container.width * 0.384, height: container.height * 0.025)
+        default:
+            return .zero
+        }
     }
     
     func scale(at step: WalletOnboardingStep, in container: CGSize) -> CGFloat {
         1
+    }
+    
+    func zIndex(at step: WalletOnboardingStep) -> Double {
+        switch (self, step) {
+        case (.origin, _): return 100
+        case (.firstBackup, .backupIntro): return 101
+        case (.secondBackup, _): return 98
+        case (.firstBackup, _): return 99
+        }
     }
     
     func opacity(at step: WalletOnboardingStep, in container: CGSize) -> Double {
@@ -75,7 +82,13 @@ enum WalletOnboardingCardLayout {
     }
     
     func rotation(at step: WalletOnboardingStep, in container: CGSize) -> Angle {
-        .zero
+        switch (self, step) {
+        case (.origin, .backupIntro):
+            return Angle(degrees: 105)
+        case (.firstBackup, .backupIntro), (.secondBackup, .backupIntro):
+            return Angle(degrees: 73)
+        default: return .zero
+        }
     }
 }
 
@@ -88,19 +101,22 @@ extension WalletOnboardingCardLayout: OnboardingCardFrameCalculator {
     
     func cardHeightToContainerHeightRatio(for step: WalletOnboardingStep) -> CGFloat {
         switch step {
-        case .createWallet, .scanOriginCard, .backupIntro:
+        case .createWallet, .scanOriginCard:
             return 0.453
         case .selectBackupCards:
             return 0.318
+        case .backupIntro:
+            return 0.371
         default:
             return 0.5
         }
     }
     
     func cardFrameMinHorizontalPadding(at step: WalletOnboardingStep) -> CGFloat {
-        switch (self, step) {
-        case (_, .createWallet), (_, .scanOriginCard), (_, .backupIntro): return 60
-        case (_, .selectBackupCards): return 143
+        switch step {
+        case .createWallet, .scanOriginCard: return 60
+        case .backupIntro: return 146
+        case .selectBackupCards: return 143
         default: return 0
         }
     }
