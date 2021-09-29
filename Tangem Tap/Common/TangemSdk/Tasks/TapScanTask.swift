@@ -163,12 +163,7 @@ final class TapScanTask: CardSessionRunnable {
     }
     
     private func readTwin(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard let issuerPubKey = SignerUtils.signerKeys(for: card.issuer.name)?.publicKey else {
-            completion(.failure(TangemSdkError.unknownError))
-            return
-        }
-        
-        let readIssuerDataCommand = ReadIssuerDataCommand(issuerPublicKey: issuerPubKey)
+        let readIssuerDataCommand = ReadIssuerDataCommand()
         readIssuerDataCommand.run(in: session) { (result) in
             switch result {
             case .success(let response):
