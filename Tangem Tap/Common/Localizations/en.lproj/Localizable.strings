@@ -667,3 +667,13 @@ Amount to pay: %@";
 "onboarding_subtitle_success_backup" = "You have created 2 backup cards, and now these cards are ready for use.";
 "onboarding_navbar_title_creating_backup" = "Creating a backup";
 "onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
+
+"onboarding_wallet_info_title_first" = "Backup your card";
+"onboarding_wallet_info_title_second" = "Identical cards";
+"onboarding_wallet_info_title_third" = "Access code";
+"onboarding_wallet_info_title_fourth" = "Access code restore";
+
+"onboarding_wallet_info_subtitle_first" = "You can backup your keys up to 2 other blank Tangem Wallet cards.";
+"onboarding_wallet_info_subtitle_second" = "All the backup cards can be used as full-functoinal wallets with the identical keys.";
+"onboarding_wallet_info_subtitle_third" = "You will be able to set an access code to protect your wallets.";
+"onboarding_wallet_info_subtitle_fourth" = "Access code can be restored with one of backup cards.";

@@ -16,6 +16,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
     
     @Published var mainCardImage: UIImage
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
+    @Published var canDisplayCardImage: Bool = false
     
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
@@ -41,6 +42,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             case 1: return "onboarding_title_one_backup_card"
             default: return "onboarding_title_two_backup_cards"
             }
+        case .backupIntro:
+            return ""
         case .backupCards:
             switch backupServiceState {
             case .needWriteOriginCard: return "onboarding_title_backup_card \(1)"
@@ -60,6 +63,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             case 1: return "onboarding_subtitle_one_backup_card"
             default: return "onboarding_subtitle_two_backup_cards"
             }
+        case .backupIntro:
+            return ""
         default: return super.subtitle
         }
     }
@@ -160,6 +165,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         }
     }
     
+    var isInfoPagerVisible: Bool {
+        switch currentStep {
+        case .backupIntro: return true
+        default: return false
+        }
+    }
+    
     private var originCardStackIndex: Int {
         switch backupServiceState {
         case .needWriteBackupCard(let index):
@@ -221,7 +233,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             self.steps = steps
         }
         
-        
+        if isFromMain {
+            canDisplayCardImage = true
+        }
     }
     
     override func setupContainer(with size: CGSize) {
@@ -236,6 +250,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         fanStackCalculator.setup(for: size,
                                  with: FanStackCalculatorSettings.defaultSettings)
         super.setupContainer(with: size)
+    }
+    
+    override func playInitialAnim(includeInInitialAnim: (() -> Void)? = nil) {
+        super.playInitialAnim {
+            self.canDisplayCardImage = true
+        }
     }
     
     override func mainButtonAction() {
