@@ -530,7 +530,7 @@
 		B066B46D262D6EFA00EB85A5 /* PageResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B3DB262D6EFA00EB85A5 /* PageResponse.swift */; };
 		B066B46E262D6EFA00EB85A5 /* PagingLinksResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B3DC262D6EFA00EB85A5 /* PagingLinksResponse.swift */; };
 		B066B46F262D6EFA00EB85A5 /* LinkResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B3DD262D6EFA00EB85A5 /* LinkResponse.swift */; };
-		B066B470262D6EFA00EB85A5 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B3E0262D6EFA00EB85A5 /* Constants.swift */; };
+		B066B470262D6EFA00EB85A5 /* StellarConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B3E0262D6EFA00EB85A5 /* StellarConstants.swift */; };
 		B066B471262D6EFA00EB85A5 /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B3E1262D6EFA00EB85A5 /* Order.swift */; };
 		B066B472262D6EFA00EB85A5 /* EventSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B3E2262D6EFA00EB85A5 /* EventSource.swift */; };
 		B066B473262D6EFA00EB85A5 /* StellarSDKLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B3E3262D6EFA00EB85A5 /* StellarSDKLog.swift */; };
@@ -601,6 +601,8 @@
 		B066B5D7262DB48000EB85A5 /* IScriptConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B5D6262DB48000EB85A5 /* IScriptConverter.swift */; };
 		B066B5E5262DB7DB00EB85A5 /* BitcoinCoreErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066B5E4262DB7DB00EB85A5 /* BitcoinCoreErrors.swift */; };
 		B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */; };
+		B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06917DF270444CE0000E6C1 /* OnboardingWalletInfoPager.swift */; };
+		B06917E127044A640000E6C1 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0453671264D4B730005B23E /* Constants.swift */; };
 		B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06997CF2692EC5E0014A676 /* ExchangeService.swift */; };
 		B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069B6DA268AFEBA004E7928 /* BnbSignHandler.swift */; };
 		B069F36F2631AD3C00ACFD19 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F36E2631AD3C00ACFD19 /* ImageLoader.swift */; };
@@ -1307,7 +1309,7 @@
 		B066B3DB262D6EFA00EB85A5 /* PageResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageResponse.swift; sourceTree = "<group>"; };
 		B066B3DC262D6EFA00EB85A5 /* PagingLinksResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PagingLinksResponse.swift; sourceTree = "<group>"; };
 		B066B3DD262D6EFA00EB85A5 /* LinkResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkResponse.swift; sourceTree = "<group>"; };
-		B066B3E0262D6EFA00EB85A5 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		B066B3E0262D6EFA00EB85A5 /* StellarConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StellarConstants.swift; sourceTree = "<group>"; };
 		B066B3E1262D6EFA00EB85A5 /* Order.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
 		B066B3E2262D6EFA00EB85A5 /* EventSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventSource.swift; sourceTree = "<group>"; };
 		B066B3E3262D6EFA00EB85A5 /* StellarSDKLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StellarSDKLog.swift; sourceTree = "<group>"; };
@@ -1386,6 +1388,7 @@
 		B066B5D6262DB48000EB85A5 /* IScriptConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IScriptConverter.swift; sourceTree = "<group>"; };
 		B066B5E4262DB7DB00EB85A5 /* BitcoinCoreErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinCoreErrors.swift; sourceTree = "<group>"; };
 		B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardsUtils.swift; sourceTree = "<group>"; };
+		B06917DF270444CE0000E6C1 /* OnboardingWalletInfoPager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWalletInfoPager.swift; sourceTree = "<group>"; };
 		B06997CF2692EC5E0014A676 /* ExchangeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeService.swift; sourceTree = "<group>"; };
 		B069B6DA268AFEBA004E7928 /* BnbSignHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnbSignHandler.swift; sourceTree = "<group>"; };
 		B069F36E2631AD3C00ACFD19 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
@@ -2924,7 +2927,7 @@
 		B066B3DF262D6EFA00EB85A5 /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				B066B3E0262D6EFA00EB85A5 /* Constants.swift */,
+				B066B3E0262D6EFA00EB85A5 /* StellarConstants.swift */,
 				B066B3E1262D6EFA00EB85A5 /* Order.swift */,
 				B066B3E2262D6EFA00EB85A5 /* EventSource.swift */,
 				B066B3E3262D6EFA00EB85A5 /* StellarSDKLog.swift */,
@@ -3537,6 +3540,7 @@
 				B04BA23526F083C30036784C /* OnboardingTopupBalanceView.swift */,
 				B0C4F77A26F0A05C0086D815 /* BlankCard.swift */,
 				B0C4F77C26F0BFF90086D815 /* OnboardingMessagesView.swift */,
+				B06917DF270444CE0000E6C1 /* OnboardingWalletInfoPager.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3966,6 +3970,7 @@
 				5D17FB8925ED766500C98A7F /* ValidatedCardsService.swift in Sources */,
 				B0FAD01026BAF19E00F45E88 /* OnboardingStepIconView.swift in Sources */,
 				5DB862B8252396CD00566AA0 /* DefaultSigner.swift in Sources */,
+				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
 				5DD966F925499E8B006070F3 /* WebView.swift in Sources */,
 				B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */,
 				B09BB861259A075600B92000 /* NavigationBar.swift in Sources */,
@@ -4279,6 +4284,7 @@
 				5D549FCB2698A5DD00CE763A /* Card+Preview.swift in Sources */,
 				B066B45E262D6EFA00EB85A5 /* VersionByte.swift in Sources */,
 				B066B1D6262D6B1100EB85A5 /* OP_NOP.swift in Sources */,
+				B06917E127044A640000E6C1 /* Constants.swift in Sources */,
 				B066B457262D6EFA00EB85A5 /* Array+Foundation.swift in Sources */,
 				B066B1CF262D6B1100EB85A5 /* OP_N.swift in Sources */,
 				B066B5A9262DACD200EB85A5 /* IAddressConverter.swift in Sources */,
@@ -4404,7 +4410,7 @@
 				B066B127262D6B1100EB85A5 /* HTTP.swift in Sources */,
 				B066B477262D6EFA00EB85A5 /* XDREncoder.swift in Sources */,
 				B02D4267262EA93F00BCA3D9 /* BinanceChain.swift in Sources */,
-				B066B470262D6EFA00EB85A5 /* Constants.swift in Sources */,
+				B066B470262D6EFA00EB85A5 /* StellarConstants.swift in Sources */,
 				B0F735B825F7943A00DD348F /* StorageType.swift in Sources */,
 				B01983CD2660C88500107390 /* RskAddressService.swift in Sources */,
 				B066B11F262D6B1100EB85A5 /* BitcoinCashWalletManager.swift in Sources */,
