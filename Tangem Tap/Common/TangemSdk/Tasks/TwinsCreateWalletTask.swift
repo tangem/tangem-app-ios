@@ -134,7 +134,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	private func writePublicKeyFile(fileToWrite: Data, walletResponse: CreateWalletResponse, in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
 //		let writeFileCommand = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: fileToWrite))
         
-        guard let issuerKeys = SignerUtils.signerKeys(for: session.environment.card!.issuer.name) else {
+        guard let issuerKeys = SignerUtils.signerKeys(for: session.environment.card!.issuer.publicKey) else {
             completion(.failure(TangemSdkError.unknownError))
             return
         }
