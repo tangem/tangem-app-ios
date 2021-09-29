@@ -63,7 +63,8 @@ struct DetailsView: View {
                 })
                 .background(
                     NavigationLink(
-                        destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
+                        destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel))
+                            .environmentObject(navigation),
                         tag: NavigationTag.securityManagement,
                         selection: $selection,
                         label: { EmptyView() })
@@ -86,6 +87,7 @@ struct DetailsView: View {
                             })
                             .environmentObject(navigation)
                     })
+                    .alert(item: $viewModel.error) { $0.alert }
 //                    .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
 //                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
 //                            .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
