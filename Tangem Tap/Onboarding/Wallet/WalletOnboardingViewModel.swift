@@ -247,8 +247,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                                                                opacityStep: 0.25,
                                                                numberOfCards: 3,
                                                                maxCardsInStack: 3))
+        
+        let cardSize = WalletOnboardingCardLayout.origin.frame(for: .createWallet, containerSize: size)
         fanStackCalculator.setup(for: size,
-                                 with: FanStackCalculatorSettings.defaultSettings)
+                                 with: .init(cardsSize: cardSize,
+                                             topCardRotation: 3,
+                                             cardRotationStep: -10,
+                                             topCardOffset: .init(width: 0, height: 0.103 * size.height),
+                                             cardOffsetStep: .init(width: 2, height: -cardSize.height * 0.141),
+                                             scaleStep: 0.07,
+                                             numberOfCards: 3))
         super.setupContainer(with: size)
     }
     
