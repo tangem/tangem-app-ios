@@ -81,6 +81,7 @@ struct OnboardingAccessCodeView: View {
         case .intro:
             Spacer()
             Image("input_with_lock")
+                .scaleEffect(Constants.isSmallScreen ? 0.7 : 1)
             Spacer()
             ForEach(0..<ViewState.featuresDescription.count) { index in
                 let feature = ViewState.featuresDescription[index]
@@ -93,11 +94,12 @@ struct OnboardingAccessCodeView: View {
                         Text(feature.description)
                             .font(.system(size: 16, weight: .regular))
                             .foregroundColor(.tangemTapGrayDark2)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, Constants.isSmallScreen ? 0 :10)
         case .inputCode, .repeatCode:
             inputContent
         }
@@ -120,11 +122,13 @@ struct OnboardingAccessCodeView: View {
     var body: some View {
         VStack {
             Text(state.title)
+                .minimumScaleFactor(0.3)
                 .font(.system(size: 32, weight: .bold))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 10)
                 .foregroundColor(.tangemTapGrayDark6)
-                .padding(.top, 72)
+                .padding(.top, Constants.isSmallScreen ? 20 : 72)
+                .lineLimit(2)
                 .id("title_\(state.rawValue)")
                 .onTapGesture {
                     withAnimation {
