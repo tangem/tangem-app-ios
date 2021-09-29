@@ -172,6 +172,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         }
     }
     
+    var isShopButtonVisible: Bool {
+        switch currentStep {
+        case .selectBackupCards: return true
+        default: return false
+        }
+    }
+    
     private var originCardStackIndex: Int {
         switch backupServiceState {
         case .needWriteBackupCard(let index):
