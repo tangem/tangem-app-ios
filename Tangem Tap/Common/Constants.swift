@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum Constants {
     static var tangemDomain: String { tangemDomainUrl.absoluteString }
@@ -16,4 +17,7 @@ enum Constants {
 //        0 // for testing RBF
     }
     static var shopURL: URL { URL(string: "https://shop.tangem.com/?afmc=1i&utm_campaign=1i&utm_source=leaddyno&utm_medium=affiliate")! }
+    static var isSmallScreen: Bool {
+        UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
+    }
 }
