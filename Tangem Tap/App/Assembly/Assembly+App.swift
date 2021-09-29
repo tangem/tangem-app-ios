@@ -428,7 +428,7 @@ extension Assembly {
         return vm
     }
     
-    func makePushViewModel(for tx: Transaction, blockchain: Blockchain, card: CardViewModel) -> PushTxViewModel {
+    func makePushViewModel(for tx: BlockchainSdk.Transaction, blockchain: Blockchain, card: CardViewModel) -> PushTxViewModel {
         if let restored: PushTxViewModel = get() {
             restored.transaction = tx
             return restored
