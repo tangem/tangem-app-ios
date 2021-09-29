@@ -142,6 +142,7 @@ struct OnboardingAccessCodeView: View {
             
             Text(error.description)
                 .id("error_\(error.rawValue)")
+                .multilineTextAlignment(.center)
                 .font(.system(size: 15, weight: .regular))
                 .opacity(error.errorOpacity)
                 .foregroundColor(.tangemTapCritical)
