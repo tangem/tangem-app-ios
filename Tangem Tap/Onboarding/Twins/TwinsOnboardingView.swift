@@ -69,7 +69,7 @@ struct TwinsOnboardingView: View {
                                         BackButton(height: viewModel.navbarSize.height,
                                                    isVisible: viewModel.isBackButtonVisible,
                                                    isEnabled: viewModel.isBackButtonEnabled) {
-                                            viewModel.reset()
+                                            viewModel.backButtonAction()
                                         }
                                       })
                             .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
@@ -78,7 +78,7 @@ struct TwinsOnboardingView: View {
                         ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
                             .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
                             .opacity(isProgressBarVisible ? 1.0 : 0.0)
-                            .padding(.horizontal, 40)
+                            .padding(.horizontal, 16)
                         
                         let backgroundFrame = currentStep.backgroundFrame(in: size)
                         let backgroundOffset = currentStep.backgroundOffset(in: size)
