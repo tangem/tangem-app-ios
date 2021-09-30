@@ -65,8 +65,8 @@ struct WalletOnboardingView: View {
                     ZStack(alignment: .center) {
                         Circle()
                             .foregroundColor(.tangemTapBgGray)
-                            .frame(size: currentStep.backgroundFrameSize(in: size))
-                            .offset(currentStep.backgroundOffset(in: size))
+                            .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
+                            .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
                         
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
@@ -109,9 +109,22 @@ struct WalletOnboardingView: View {
                         }
                         
                         AnimatedView(settings: viewModel.$mainCardSettings) {
-                            OnboardingCardView(placeholderCardType: .dark,
-                                               cardImage: viewModel.mainCardImage,
-                                               cardScanned: viewModel.isInitialAnimPlayed && currentStep != .welcome)
+                            ZStack(alignment: .topTrailing) {
+                                OnboardingCardView(placeholderCardType: .dark,
+                                                   cardImage: viewModel.mainCardImage,
+                                                   cardScanned: viewModel.isInitialAnimPlayed && currentStep != .welcome)
+                                Text("common_origin_card")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 5)
+                                    .background(Color.white.opacity(0.25))
+                                    .cornerRadius(50)
+                                    .zIndex(251)
+                                    .padding(12)
+                                    .opacity(currentStep == .backupCards ? 1.0 : 0.0)
+                            }
+                            
                         }
                         
                         OnboardingCircleButton(refreshAction: {},
