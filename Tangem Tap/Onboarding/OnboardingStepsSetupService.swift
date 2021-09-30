@@ -133,9 +133,11 @@ class OnboardingStepsSetupService {
         if cardInfo.card.wallets.count == 0 {
             steps.append(.createWallet)
             steps.append(.backupIntro)
-        } else {
+        } else if userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
             steps.append(.backupIntro)
             steps.append(.scanOriginCard)
+        } else {
+            return .justWithError(output: .wallet([]))
         }
         
         steps.append(contentsOf: [.selectBackupCards, .backupCards, .success])
