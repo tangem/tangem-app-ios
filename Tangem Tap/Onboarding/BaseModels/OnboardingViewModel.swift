@@ -199,6 +199,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             isMainButtonBusy = false
             includeInResetAnim?()
         }
+        // [REDACTED_TODO_COMMENT]
         DispatchQueue.main.asyncAfter(deadline: .now() + resetAnimDuration) {
             self.navigation.onboardingReset = true
         }
