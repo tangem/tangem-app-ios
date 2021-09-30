@@ -80,10 +80,19 @@ struct WelcomeOnboardingView: View {
                     DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer))
                         .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.disclaimerDismissed)
                 })
+                ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
+                    self.viewModel.scanCard()
+                } requestSupportAction: {
+                    self.viewModel.failedCardScanTracker.resetCounter()
+                    self.navigation.readToSendEmail = true
+                }
             }
         }
         .alert(item: $viewModel.error, content: { error in
             error.alert
+        })
+        .sheet(isPresented: $navigation.readToSendEmail, content: {
+            MailView(dataCollector: viewModel.failedCardScanTracker, support: .tangem, emailType: .failedToScanCard)
         })
         .navigationBarHidden(true)
     }
