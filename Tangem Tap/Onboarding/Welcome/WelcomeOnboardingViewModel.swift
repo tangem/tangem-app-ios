@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemSdk
 
 class WelcomeOnboardingViewModel: ViewModel {
     
@@ -17,6 +18,8 @@ class WelcomeOnboardingViewModel: ViewModel {
     weak var stepsSetupService: OnboardingStepsSetupService!
     weak var imageLoaderService: CardImageLoaderService!
     weak var userPrefsService: UserPrefsService!
+    
+    weak var failedCardScanTracker: FailedCardScanTracker!
     
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
@@ -59,8 +62,19 @@ class WelcomeOnboardingViewModel: ViewModel {
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to scan card: \(error)")
-                    self?.error = error.alertBinder
                     self?.isScanningCard = false
+                    self?.failedCardScanTracker.recordFailure()
+                    
+                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
+                        self?.navigation.readToTroubleshootingScan = true
+                    } else {
+                        switch error.toTangemSdkError() {
+                        case .unknownError, .cardVerificationFailed:
+                            self?.error = error.alertBinder
+                        default:
+                            break
+                        }
+                    }
                 }
                 
             } receiveValue: { [weak self] (result, _) in
