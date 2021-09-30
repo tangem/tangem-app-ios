@@ -65,6 +65,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             }
         case .backupIntro:
             return ""
+        case .success:
+            switch backupCardsAddedCount {
+            case 0: return "onboarding_subtitle_success_tangem_wallet_onboarding"
+            case 1: return "onboarding_subtitle_success_backup_one_card"
+            default: return "onboarding_subtitle_success_backup"
+            }
         default: return super.subtitle
         }
     }
@@ -289,6 +295,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         case .backupCards:
             backupCard()
         case .success:
+            if assembly.isPreview {
+                reset()
+                return
+            }
+            
             goToNextStep()
         }
     }
@@ -349,7 +360,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                                            intermediateSettings: ((firstBackupCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
             
             var settings = stackCalculator.cardSettings(at: secondBackupCardStackIndex)
-            settings.opacity = backupCardsAddedCount > 1 ? 1.0 : 0.0
+            settings.opacity = backupCardsAddedCount > 1 ? settings.opacity : 0.0
             thirdCardSettings = .init(targetSettings: settings,
                                       intermediateSettings: ((backupCardsAddedCount > 1 && secondBackupCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
         default:
@@ -385,8 +396,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         do {
             try backupService.setAccessCode(code)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 self.goToNextStep()
+                if self.assembly.isPreview {
+                    withAnimation {
+                        self.previewBackupState = .needWriteOriginCard
+                    }
+                }
             }
         } catch {
             print("Failed to set access code to backup service. Reason: \(error)")
@@ -416,6 +433,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             return
         }
         
+        userPrefsService?.cardsStartedActivation.append(input.cardModel.cardInfo.card.cardId)
         stepPublisher = createWalletAndReadOriginCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .sink(receiveCompletion: { completion in
@@ -529,12 +547,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             let newPreviewState: BackupService.State
             switch backupServiceState {
             case .needWriteOriginCard:
-                newPreviewState = .needWriteBackupCard(index: 0)
+                newPreviewState = .needWriteBackupCard(index: 1)
             case .needWriteBackupCard(let index):
                 switch index {
-                case 0:
+                case 1:
                     if backupCardsAddedCount == 2 {
-                        newPreviewState = .needWriteBackupCard(index: 1)
+                        newPreviewState = .needWriteBackupCard(index: 2)
                     } else {
                         newPreviewState = .finished
                     }
@@ -551,7 +569,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                 }
             }
             return
-//            previewGoToNextStepDelayed()
         }
         
         stepPublisher =
