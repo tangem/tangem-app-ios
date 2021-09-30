@@ -59,6 +59,7 @@ class WelcomeOnboardingViewModel: ViewModel {
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to scan card: \(error)")
+                    self?.error = error.alertBinder
                     self?.isScanningCard = false
                 }
                 
