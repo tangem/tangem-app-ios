@@ -35,13 +35,19 @@ enum WalletOnboardingCardLayout {
         case (_, .success):
             return .zero
         case (.origin, _), (.firstBackup, _), (.secondBackup, _):
-            return .init(targetSettings: CardAnimSettings(frame: frame(for: step, containerSize: container),
-                                                          offset: offset(at: step, in: container),
-                                                          scale: scale(at: step, in: container),
-                                                          opacity: opacity(at: step, in: container),
-                                                          zIndex: zIndex(at: step),
-                                                          rotationAngle: rotation(at: step, in: container)),
-                         intermediateSettings: nil)
+            let targetSettings = CardAnimSettings(frame: frame(for: step, containerSize: container),
+                                                  offset: offset(at: step, in: container),
+                                                  scale: scale(at: step, in: container),
+                                                  opacity: opacity(at: step, in: container),
+                                                  zIndex: zIndex(at: step),
+                                                  rotationAngle: rotation(at: step, in: container))
+            var intermediateSettings: CardAnimSettings? = nil
+            if self == .firstBackup, step == .backupIntro {
+                intermediateSettings = targetSettings
+                intermediateSettings?.zIndex = zIndex(at: .createWallet)
+            }
+            return .init(targetSettings: targetSettings,
+                         intermediateSettings: intermediateSettings)
         }
     }
     
