@@ -436,8 +436,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         userPrefsService?.cardsStartedActivation.append(input.cardModel.cardInfo.card.cardId)
         stepPublisher = createWalletAndReadOriginCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
+                    self?.alert = error.alertBinder
+                    self?.isMainButtonBusy = false
                     print(error)
                 }
             }, receiveValue: processOriginCardScan)
@@ -453,9 +455,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         stepPublisher = readOriginCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .sink(
-                receiveCompletion: { completion in
+                receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
+                        self?.alert = error.alertBinder
                         print("Failed to read origin card: \(error)")
+                        self?.isMainButtonBusy = false
                     }
                 },
                 receiveValue: processOriginCardScan)
@@ -534,6 +538,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to add backup card. Reason: \(error)")
+                    self?.alert = error.alertBinder
                     self?.isMainButtonBusy = false
                 }
             }, receiveValue: { [weak self] (_: Void, _: Notification) in
@@ -591,6 +596,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to proceed backup. Reason: \(error)")
+                    self?.alert = error.alertBinder
                     self?.isMainButtonBusy = false
                 }
             } receiveValue: { [weak self] (_: Void, _: Notification) in
