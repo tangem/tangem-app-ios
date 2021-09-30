@@ -136,8 +136,10 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
         .receive(on: DispatchQueue.main)
         .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).setFailureType(to: Error.self))
-        .sink { completion in
+        .sink { [weak self] completion in
             if case let .failure(error) = completion {
+                self?.alert = error.alertBinder
+                self?.isMainButtonBusy = false
                 print("Failed to create wallet. \(error)")
             }
         } receiveValue: { [weak self] (_, _) in
@@ -151,8 +153,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
         }
         .store(in: &bag)
-
-        
     }
     
     private func stepUpdate() {
