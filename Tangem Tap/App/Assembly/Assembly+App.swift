@@ -39,6 +39,7 @@ extension Assembly {
         vm.imageLoaderService = services.imageLoaderService
         vm.stepsSetupService = services.onboardingStepsSetupService
         vm.userPrefsService = services.userPrefsService
+        vm.failedCardScanTracker = services.failedCardScanTracker
         return vm
     }
     
