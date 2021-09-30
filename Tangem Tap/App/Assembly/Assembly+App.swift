@@ -125,6 +125,7 @@ extension Assembly {
                                            tangemSdk: sdk)
         
         initialize(vm, isResetable: false)
+        vm.userPrefsService = services.userPrefsService
         
         return vm
     }
