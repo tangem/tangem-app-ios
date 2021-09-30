@@ -138,7 +138,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).setFailureType(to: Error.self))
         .sink { [weak self] completion in
             if case let .failure(error) = completion {
-                self?.alert = error.alertBinder
+                self?.processSdkError(error)
                 self?.isMainButtonBusy = false
                 print("Failed to create wallet. \(error)")
             }
