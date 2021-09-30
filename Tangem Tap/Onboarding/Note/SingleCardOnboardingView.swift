@@ -132,6 +132,9 @@ struct SingleCardOnboardingView: View {
                                      })
                 .frame(maxWidth: screenSize.width)
         }
+        .alert(item: $viewModel.alert, content: { binder in
+            binder.alert
+        })
         .navigationBarHidden(true)
         .onAppear(perform: {
             viewModel.playInitialAnim()
