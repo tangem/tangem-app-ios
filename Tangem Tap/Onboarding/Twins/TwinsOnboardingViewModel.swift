@@ -82,13 +82,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         }
     }
     
-    override var isBackButtonEnabled: Bool {
-        switch currentStep {
-        case .second, .third: return false
-        default: return true
-        }
-    }
-    
     private var bag: Set<AnyCancellable> = []
     private var stackCalculator: StackCalculator = .init()
     private var twinInfo: TwinCardInfo
@@ -216,6 +209,20 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         // this condition is needed to prevent animating stack when user is trying to dismiss modal sheet
         mainCardSettings = TwinOnboardingCardLayout.first.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated && !isContainerSetup)
         supplementCardSettings = TwinOnboardingCardLayout.second.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated && !isContainerSetup)
+    }
+    
+    func backButtonAction() {
+        switch currentStep {
+        case .second, .third:
+            alert = AlertBinder(alert: Alert(title: Text("twins_creation_warning_title"),
+                                             message: Text("twins_creation_warning_message"),
+                                             primaryButton: Alert.Button.destructive(Text("common_ok"), action: { [weak self] in
+                                                self?.reset()
+                                             }),
+                                             secondaryButton: Alert.Button.default(Text("common_cancel"))))
+        default:
+            reset()
+        }
     }
     
     private func bind() {
