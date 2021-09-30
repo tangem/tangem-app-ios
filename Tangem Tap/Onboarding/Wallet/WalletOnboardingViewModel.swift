@@ -467,8 +467,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
             Future { [weak self] promise in
                 self?.tangemSdk.startSession(with: CreateWalletAndReadOriginCardTask(), cardId: cardId, completion: { result in
                     switch result {
-                    case .success(let originCard):
-                        self?.backupService.setOriginCard(originCard)
+                    case .success(let resultTuplet):
+                        self?.backupService.setOriginCard(resultTuplet.0)
+                        self?.input.cardModel.update(with: resultTuplet.1)
                         promise(.success(()))
                     case .failure(let error):
                         promise(.failure(error))
