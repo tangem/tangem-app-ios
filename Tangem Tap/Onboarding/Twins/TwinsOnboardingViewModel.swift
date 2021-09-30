@@ -257,8 +257,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             imageLoaderService.backedLoadImage(.twinCardTwo)
         )
         .receive(on: DispatchQueue.main)
-        .sink { completion in
+        .sink { [weak self] completion in
             if case let .failure(error) = completion {
+                self?.alert = error.alertBinder
                 print("Failed to load twin cards images. Reason: \(error)")
             }
         } receiveValue: { [weak self] (first, second) in
