@@ -138,6 +138,9 @@ struct TwinsOnboardingView: View {
                                      })
                 .frame(maxWidth: screenSize.width)
         }
+        .alert(item: $viewModel.alert, content: { binder in
+            binder.alert
+        })
         .preference(key: ModalSheetPreferenceKey.self, value: currentStep.isModal)
         .navigationBarHidden(true)
         .onAppear(perform: {
