@@ -470,6 +470,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                     case .success(let resultTuplet):
                         self?.backupService.setOriginCard(resultTuplet.0)
                         self?.input.cardModel.update(with: resultTuplet.1)
+                        self?.input.cardModel.addBlockchain(.bitcoin(testnet: false))
+                        self?.input.cardModel.addBlockchain(.ethereum(testnet: false))
                         promise(.success(()))
                     case .failure(let error):
                         promise(.failure(error))
