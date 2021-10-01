@@ -509,7 +509,7 @@ class MainViewModel: ViewModel {
         
         guard
             cardInfo.isTestnet,
-            !cardInfo.card.isMultiWallet,
+            !cardInfo.isMultiWallet,
             let walletModel = cardModel?.walletModels?.first,
             let token = walletModel.tokenItemViewModels.first?.amountType.token,
             case .ethereum(testnet: true) = token.blockchain
@@ -622,16 +622,17 @@ class MainViewModel: ViewModel {
     }
 	
 	private func validateHashesCount() {
-        guard let card = state.card else { return }
+        guard let cardInfo = state.cardModel?.cardInfo else { return }
         
+        let card = cardInfo.card
         guard cardModel?.hasWallet ?? false else {
-            card.isMultiWallet ? warningsManager.hideWarning(for: .multiWalletSignedHashes) : warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
+            cardInfo.isMultiWallet ? warningsManager.hideWarning(for: .multiWalletSignedHashes) : warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
             return
         }
         
         if isHashesCounted { return }
         
-		if card.isTwinCard { return }
+        if card.isTwinCard { return }
 
         if validatedSignedHashesCards.contains(card.cardId) { return }
         
