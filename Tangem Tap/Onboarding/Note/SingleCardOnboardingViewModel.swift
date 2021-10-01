@@ -43,7 +43,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     override init(exchangeService: ExchangeService, input: OnboardingInput) {
         cardImage = input.cardImage
-        numberOfSteps = SingleCardOnboardingStep.maxNumberOfSteps(isNote: input.cardModel.cardInfo.card.isTangemNote)
+        numberOfSteps = SingleCardOnboardingStep.maxNumberOfSteps(isNote: input.cardModel.cardInfo.isTangemNote)
         super.init(exchangeService: exchangeService, input: input)
         
         if case let .singleWallet(steps) = input.steps {
@@ -119,7 +119,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             return
         }
         
-        let card = cardModel.cardInfo.card
+        let cardInfo = cardModel.cardInfo
         
         Deferred {
             Future { (promise: @escaping Future<Void, Error>.Promise) in
@@ -144,8 +144,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
         } receiveValue: { [weak self] (_, _) in
             self?.walletCreatedWhileOnboarding = true
-            if card.isTangemNote {
-                self?.userPrefsService?.cardsStartedActivation.append(card.cardId)
+            if cardInfo.isTangemNote {
+                self?.userPrefsService?.cardsStartedActivation.append(cardInfo.card.cardId)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self?.isMainButtonBusy = false
