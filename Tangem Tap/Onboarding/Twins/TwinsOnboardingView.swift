@@ -128,9 +128,9 @@ struct TwinsOnboardingView: View {
                     titleAction: {
 //                        guard viewModel.assembly.isPreview else { return }
                         
-                        withAnimation {
-                            viewModel.reset()
-                        }
+//                        withAnimation { //reset for testing
+//                            viewModel.reset()
+//                        }
                     }
                 )
                 .padding(.horizontal, 40)
