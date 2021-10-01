@@ -48,7 +48,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var isMultiWallet: Bool {
-        return cardInfo.card.isMultiWallet
+        return cardInfo.isMultiWallet
     }
     
     var emailSupport: EmailSupport {
@@ -374,10 +374,8 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
     
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
-        let cid = cardInfo.card.cardId
-
-        tangemSdk.startSession(with: CreateWalletAndReadTask(),
-                               cardId: cid,
+        tangemSdk.startSession(with: CreateWalletAndReadTask(with: cardInfo.defaultBlockchain?.curve),
+                               cardId: cardInfo.card.cardId,
                                initialMessage: Message(header: nil,
                                                        body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
             switch result {
@@ -489,7 +487,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func searchBlockchains() {
-        guard cardInfo.card.isMultiWallet else {
+        guard cardInfo.isMultiWallet else {
             return
         }
         
@@ -520,7 +518,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func searchTokens() {
-        guard cardInfo.card.isMultiWallet,
+        guard cardInfo.isMultiWallet,
             !userPrefsService.searchedCards.contains(cardInfo.card.cardId) else {
             return
         }
