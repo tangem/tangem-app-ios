@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import enum TangemSdk.EllipticCurve
 import struct TangemSdk.Card
 import struct TangemSdk.WalletData
 import struct TangemSdk.ArtworkInfo
@@ -23,6 +24,7 @@ struct CardInfo {
     var walletData: WalletData?
     var artwork: CardArtwork = .notLoaded
     var twinCardInfo: TwinCardInfo?
+    var isTangemNote: Bool
     
     var imageLoadDTO: ImageLoadDTO {
         ImageLoadDTO(cardId: card.cardId,
@@ -39,7 +41,11 @@ struct CardInfo {
     }
     
     var defaultBlockchain: Blockchain? {
-        guard let walletData = walletData, let curve = card.supportedCurves.first else { return nil }
+        guard let walletData = walletData else { return nil }
+        
+        guard let curve = isTangemNote ? EllipticCurve.secp256k1 : card.supportedCurves.first else {
+            return nil
+        }
         
         return Blockchain.from(blockchainName: walletData.blockchain, curve: curve)
     }
@@ -59,6 +65,27 @@ struct CardInfo {
         case .notLoaded, .noArtwork: return nil
         case .artwork(let artwork): return artwork
         }
+    }
+    
+    var isMultiWallet: Bool {
+        if isTangemNote {
+            return false
+        }
+        
+        if card.isTwinCard {
+            return false
+        }
+        
+        if card.isStart2Coin {
+            return false
+        }
+        
+        if card.firmwareVersion.major < 4,
+           !card.supportedCurves.contains(.secp256k1) {
+            return false
+        }
+        
+        return true
     }
 }
 
