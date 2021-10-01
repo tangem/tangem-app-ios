@@ -13,12 +13,14 @@ struct TapScanTaskResponse {
     let card: Card
     let walletData: WalletData?
     let twinIssuerData: Data?
+    let isTangemNote: Bool
     
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         walletData: walletData,
 //                        artworkInfo: nil,
-                        twinCardInfo: decodeTwinFile(from: self))
+                        twinCardInfo: decodeTwinFile(from: self),
+                        isTangemNote: isTangemNote)
     }
     
     private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
@@ -58,12 +60,14 @@ final class TapScanTask: CardSessionRunnable {
         self.targetBatch = targetBatch
     }
     
-    /// read -> appendWallets(createwallets+ scan)  -> readTwinData
+    /// read ->  readTwinData or note Data -> appendWallets(createwallets+ scan)  -> attestation
     public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard let currentBatch = session.environment.card?.batchId.lowercased() else {
+        guard let card = session.environment.card else {
             completion(.failure(TangemSdkError.missingPreflightRead))
             return
         }
+        
+        let currentBatch = card.batchId.lowercased()
         
         if let targetBatch = self.targetBatch?.lowercased(),
            targetBatch != currentBatch {
@@ -71,50 +75,7 @@ final class TapScanTask: CardSessionRunnable {
             return
         }
         
-        self.appendWalletsIfNeeded(session: session, completion: completion)
-    }
-    
-    private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        let card = session.environment.card!
-        
-        if card.firmwareVersion >= .multiwalletAvailable, !card.isTangemNote {
-            let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
-            let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
-            let missingCurves = mandatoryСurves.subtracting(existingCurves)
-            
-            if existingCurves.count > 0, // not empty card
-               missingCurves.count > 0 //not enough curves
-            {
-                appendWallets(Array(missingCurves), session: session, completion: completion)
-                return
-            }
-        }
-        
-        readExtra(card, session: session, completion: completion)
-    }
-    
-    
-    private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        CreateMultiWalletTask(curves: curves).run(in: session) { result in
-            switch result {
-            case .success:
-                self.scanCard(session: session, completion: completion)
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-    
-    private func scanCard(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        let scanTask = PreflightReadTask(readMode: .fullCardRead, cardId: nil)
-        scanTask.run(in: session) { scanCompletion in
-            switch scanCompletion {
-            case .failure(let error):
-                completion(.failure(error))
-            case .success(let card):
-                self.readExtra(card, session: session, completion: completion)
-            }
-        }
+        self.readExtra(card, session: session, completion: completion)
     }
     
     private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
@@ -123,11 +84,10 @@ final class TapScanTask: CardSessionRunnable {
             return
         }
         
-        if card.isTangemNote {
+        if card.firmwareVersion >= .multiwalletAvailable {
             readNote(card, session: session, completion: completion)
             return
         }
-        
         
         runAttestation(session, completion)
     }
@@ -154,10 +114,14 @@ final class TapScanTask: CardSessionRunnable {
                 }
                 
                 self.noteWalletData = walletData
-                
                 self.runAttestation(session, completion)
             case .failure(let error):
-                completion(.failure(error))
+                if case TangemSdkError.fileNotFound = error {
+                    self.noteWalletData = nil
+                    self.appendWalletsIfNeeded(session: session, completion: completion)
+                } else {
+                    completion(.failure(error))
+                }
             }
         }
     }
@@ -174,6 +138,34 @@ final class TapScanTask: CardSessionRunnable {
                     return
                 }
                 
+                self.runAttestation(session, completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        let card = session.environment.card!
+        
+        let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
+        let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
+        let missingCurves = mandatoryСurves.subtracting(existingCurves)
+        
+        if existingCurves.count > 0, // not empty card
+           missingCurves.count > 0 //not enough curves
+        {
+            appendWallets(Array(missingCurves), session: session, completion: completion)
+            return
+        }
+        
+        runAttestation(session, completion)
+    }
+    
+    private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        CreateMultiWalletTask(curves: curves).run(in: session) { result in
+            switch result {
+            case .success:
                 self.runAttestation(session, completion)
             case .failure(let error):
                 completion(.failure(error))
@@ -248,6 +240,7 @@ final class TapScanTask: CardSessionRunnable {
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<TapScanTaskResponse>) {
         completion(.success(TapScanTaskResponse(card: session.environment.card!,
                                                 walletData: noteWalletData ?? session.environment.walletData,
-                                                twinIssuerData: twinIssuerData)))
+                                                twinIssuerData: twinIssuerData,
+                                                isTangemNote: noteWalletData != nil)))
     }
 }
