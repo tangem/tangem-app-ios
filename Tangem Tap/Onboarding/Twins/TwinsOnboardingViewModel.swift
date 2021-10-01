@@ -144,7 +144,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             userPrefsService?.cardsStartedActivation.append(twinInfo.cid)
 //            userPrefsService.cardsStartedActivation.append(twinInfo.pairCid)
             fallthrough
-        case .confetti, .done:
+        case .confetti, .done, .success:
             goToNextStep()
         case .first:
             if twinsService.step.value != .first {
