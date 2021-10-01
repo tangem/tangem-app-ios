@@ -33,14 +33,18 @@ extension Assembly {
     
     // MARK: Wallets
     func makeWalletModels(from info: CardInfo) -> AnyPublisher<[WalletModel], Never> {
-        if let note = TangemNote(rawValue: info.card.batchId),
-           let wallet = info.card.wallets.first(where: { $0.curve == note.curve }),
-           let wm = services.walletManagerFactory.makeWalletManager(from: info.card.cardId, wallet: wallet, blockchain: note.blockchain) {
-            
-            let model = WalletModel(cardWallet: wallet, walletManager: wm)
-            model.ratesService = services.ratesService
-            return Just([model])
-                .eraseToAnyPublisher()
+        if info.isTangemNote {
+            if let wallet = info.card.wallets.first,
+               let blockchain = info.defaultBlockchain,
+               let wm =  services.walletManagerFactory.makeWalletManager(from: info.card.cardId,
+                                                                         wallet: wallet,
+                                                                         blockchain: blockchain) {
+                let model = WalletModel(cardWallet: wallet, walletManager: wm)
+                model.ratesService = services.ratesService
+                return Just([model]).eraseToAnyPublisher()
+            } else {
+                return Just([]).eraseToAnyPublisher()
+            }
         } else {
             return info.card.wallets.publisher
                 .removeDuplicates(by: { $0.curve == $1.curve })
