@@ -32,8 +32,8 @@ class OnboardingStepsSetupService {
         
         if card.isTangemWallet {
             return stepsForWallet(cardInfo)
-        } else if card.isTangemNote {
-            return stepsForNote(card)
+        } else if cardInfo.isTangemNote {
+            return stepsForNote(cardInfo)
         } else if card.isTwinCard {
             return stepsForTwins(cardInfo)
         }
@@ -52,8 +52,8 @@ class OnboardingStepsSetupService {
         .justWithError(output: .twins(TwinsOnboardingStep.twinningProcessSteps + [.success]))
     }
     
-    private func stepsForNote(_ card: Card) -> AnyPublisher<OnboardingSteps, Error> {
-        let walletModel = assembly.loadWallets(from: CardInfo(card: card))
+    private func stepsForNote(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
+        let walletModel = assembly.loadWallets(from: cardInfo)
         var steps: [SingleCardOnboardingStep] = []
         guard walletModel.count == 1 else {
             steps.append(.createWallet)
@@ -69,7 +69,7 @@ class OnboardingStepsSetupService {
                 case .success:
                     if model.isEmptyIncludingPendingIncomingTxs {
                         steps.append(.topup)
-                    } else if !self.userPrefs.cardsStartedActivation.contains(card.cardId) {
+                    } else if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
                         return promise(.success(.singleWallet([])))
                     }
                     steps.append(.successTopup)
