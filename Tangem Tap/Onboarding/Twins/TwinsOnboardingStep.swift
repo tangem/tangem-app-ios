@@ -23,7 +23,7 @@ extension SuccessStep {
 }
 
 enum TwinsOnboardingStep {
-    case welcome, intro(pairNumber: String), first, second, third, topup, confetti, done
+    case welcome, intro(pairNumber: String), first, second, third, topup, confetti, done, success
     
     static var previewCases: [TwinsOnboardingStep] {
         [.intro(pairNumber: "2"), .topup, .confetti, .done]
@@ -83,11 +83,12 @@ enum TwinsOnboardingStep {
 
 extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
     var isOnboardingFinished: Bool {
-        if case .done = self {
+        switch self {
+        case .success, .done:
             return true
+        default:
+            return false
         }
-        
-        return false
     }
     
     static var maxNumberOfSteps: Int { 6 }
@@ -100,18 +101,20 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
         case .third: return 4
         case .topup: return 5
         case .confetti: return 6
-        case .done: return 6
+        case .done, .success: return 6
         }
     }
     
     var successCircleOpacity: Double {
         switch self {
+        case .success: return 1
         default: return 0
         }
     }
     
     var successCircleState: OnboardingCircleButton.State {
         switch self {
+        case .success: return .doneCheckmark
         default: return .blank
         }
     }
@@ -119,6 +122,8 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
 
 
 extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
+
+extension TwinsOnboardingStep: SuccessStep {}
 
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
     var title: LocalizedStringKey {
@@ -131,6 +136,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .topup: return "onboarding_topup_title"
         case .confetti: return "onboarding_confetti_title"
         case .done: return ""
+        case .success: return successTitle
         }
     }
     
@@ -142,6 +148,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .topup: return "onboarding_topup_subtitle"
         case .confetti: return "Your crypto card is activated and ready to be used"
         case .done: return ""
+        case .success: return ""
         }
     }
     
@@ -162,6 +169,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         case .topup: return "onboarding_button_buy_crypto"
         case .confetti: return "common_continue"
         case .done: return "common_continue"
+        case .success: return successButtonTitle
         }
     }
     
