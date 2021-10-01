@@ -29,22 +29,4 @@ enum TangemNote: String, CaseIterable {
     static func isNoteBatch(_ batch: String) -> Bool {
         TangemNote(rawValue: batch) != nil
     }
-    
-    var curve: EllipticCurve {
-        switch self {
-        case .ada: return .ed25519
-        default: return .secp256k1
-        }
-    }
-    
-    var blockchain: Blockchain {
-        switch self {
-        case .btc: return .bitcoin(testnet: false)
-        case .eth: return .ethereum(testnet: false)
-        case .ada: return .cardano(shelley: true)
-        case .dogecoin: return .dogecoin
-        case .bnb: return .binance(testnet: false)
-        case .xrp: return .xrp(curve: curve)
-        }
-    }
 }

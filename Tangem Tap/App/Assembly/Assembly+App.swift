@@ -210,13 +210,9 @@ extension Assembly {
                                                                                        pairKey: savedPairKey,
                                                                                        isTestnet: false) {  //[REDACTED_TODO_COMMENT]
             walletManagers.append(twinWalletManager)
-        } else if let note = TangemNote(rawValue: cardInfo.card.batchId),
-                  let wallet = cardInfo.card.wallets.first(where: { $0.curve == note.curve }),
-                  let wm = services.walletManagerFactory.makeWalletManager(from: cardInfo.card.cardId, walletPublicKey: wallet.publicKey, blockchain: note.blockchain) {
-            walletManagers.append(wm)
         } else {
             //If this card supports multiwallet feature, load all saved tokens from persistent storage
-            if cardInfo.card.isMultiWallet, services.tokenItemsRepository.items.count > 0 {
+            if cardInfo.isMultiWallet, services.tokenItemsRepository.items.count > 0 {
                 
                 //Load erc20 tokens if exists
                 let tokens = services.tokenItemsRepository.items.compactMap { $0.token }
@@ -253,7 +249,6 @@ extension Assembly {
     
     /// Try to load native walletmanager from card
     private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
-
         if let defaultBlockchain = cardInfo.defaultBlockchain,
            let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
             
