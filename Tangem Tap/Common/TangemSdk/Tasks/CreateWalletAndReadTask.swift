@@ -11,20 +11,22 @@ import TangemSdk
 import BlockchainSdk
 
 class CreateWalletAndReadTask: CardSessionRunnable {
+    private let curve: EllipticCurve?
+    
+    init(with curve: EllipticCurve?) {
+        self.curve = curve
+    }
+    
     func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
         }
         
-        if card.firmwareVersion.major < 4 {
-            createLegacyWallet(in: session, on: card, completion: completion)
+        if let curve = self.curve {
+            createLegacyWallet(in: session, curve: curve, on: card, completion: completion)
         } else {
-            if card.isTangemNote {
-                createNoteWallet(in: session, on: card, completion: completion)
-            } else {
-                createMultiWallet(in: session, completion: completion)
-            }
+            createMultiWallet(in: session, completion: completion)
         }
     }
 
@@ -40,36 +42,8 @@ class CreateWalletAndReadTask: CardSessionRunnable {
         }
     }
 
-    private func createLegacyWallet(in session: CardSession, on card: Card, completion: @escaping CompletionResult<Card>) {
-        guard let supportedCurve = card.supportedCurves.first else {
-            completion(.failure(.cardError))
-            return
-        }
-        
-        let createWalletCommand = CreateWalletCommand(curve: supportedCurve /*, isPermanent: card.isPermanentLegacyWallet*/)
-        createWalletCommand.run(in: session) { createWalletCompletion in
-            switch createWalletCompletion {
-            case .failure(let error):
-                completion(.failure(error))
-            case .success:
-                completion(.success(session.environment.card!))
-            }
-        }
-    }
-    
-    private func createNoteWallet(in session: CardSession, on card: Card, completion: @escaping CompletionResult<Card>) {
-        guard let targetBlockchain = TangemNote(rawValue: card.batchId)?.blockchain else {
-            // [REDACTED_TODO_COMMENT]
-            completion(.failure(.underlying(error: "Unknown card batch")))
-            return
-        }
-        
-        guard card.supportedCurves.contains(targetBlockchain.curve) else {
-            completion(.failure(.underlying(error: "Card doesn't support required curve")))
-            return
-        }
-        
-        let createWalletCommand = CreateWalletCommand(curve: targetBlockchain.curve /*, isPermanent: false*/)
+    private func createLegacyWallet(in session: CardSession, curve: EllipticCurve, on card: Card, completion: @escaping CompletionResult<Card>) {
+        let createWalletCommand = CreateWalletCommand(curve: curve)
         createWalletCommand.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
             case .failure(let error):
