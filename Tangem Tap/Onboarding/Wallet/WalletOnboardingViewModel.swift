@@ -436,12 +436,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         userPrefsService?.cardsStartedActivation.append(input.cardModel.cardInfo.card.cardId)
         stepPublisher = createWalletAndReadOriginCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
+            .first()
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.processSdkError(error)
                     self?.isMainButtonBusy = false
                     print(error)
                 }
+                self?.stepPublisher = nil
             }, receiveValue: processOriginCardScan)
     }
     
@@ -454,6 +456,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
         
         stepPublisher = readOriginCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
+            .first()
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
@@ -461,6 +464,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                         print("Failed to read origin card: \(error)")
                         self?.isMainButtonBusy = false
                     }
+                    self?.stepPublisher = nil
                 },
                 receiveValue: processOriginCardScan)
     }
@@ -535,12 +539,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                 }
             }
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
+            .first()
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to add backup card. Reason: \(error)")
                     self?.processSdkError(error)
                     self?.isMainButtonBusy = false
                 }
+                self?.stepPublisher = nil
             }, receiveValue: { [weak self] (_: Void, _: Notification) in
                 self?.updateStep()
                 withAnimation {
@@ -593,12 +599,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
                 }
             }
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
+            .first()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to proceed backup. Reason: \(error)")
                     self?.processSdkError(error)
                     self?.isMainButtonBusy = false
                 }
+                self?.stepPublisher = nil
             } receiveValue: { [weak self] (_: Void, _: Notification) in
                 self?.updateStep()
                 withAnimation {
@@ -617,7 +625,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
 }
 
 extension NotificationCenter {
-    static var didBecomeActivePublisher: AnyPublisher<Notification, Error> {
+     static var didBecomeActivePublisher: AnyPublisher<Notification, Error> {
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
