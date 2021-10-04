@@ -238,7 +238,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
     private func subscribeToStepUpdates() {
         stepUpdatesSubscription = twinsService.step
             .receive(on: DispatchQueue.main)
-            .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).removeDuplicates())
+            .zip(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification))
             .sink(receiveValue: { [unowned self] (newStep, _) in
                 switch (self.currentStep, newStep) {
                 case (.first, .second), (.second, .third), (.third, .done):
