@@ -56,9 +56,14 @@ class WelcomeOnboardingViewModel: ViewModel {
         }
             
         isScanningCard = true
-        cardsRepository.scanPublisher()
+        
+        
+        var subscription: AnyCancellable? = nil
+        
+        subscription = cardsRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
-            .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).setFailureType(to: Error.self))
+            .combineLatest(NotificationCenter.didBecomeActivePublisher)
+            .first()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to scan card: \(error)")
@@ -76,7 +81,7 @@ class WelcomeOnboardingViewModel: ViewModel {
                         }
                     }
                 }
-                
+                subscription.map { _ = self?.bag.remove($0) }
             } receiveValue: { [weak self] (result, _) in
                 guard let cardModel = result.cardModel else {
                     return
@@ -84,7 +89,8 @@ class WelcomeOnboardingViewModel: ViewModel {
                 
                 self?.processScannedCard(cardModel, isWithAnimation: true)
             }
-            .store(in: &bag)
+        
+        subscription?.store(in: &bag)
     }
     
     func acceptDisclaimer() {
