@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import Combine
+import BlockchainSdk
 
 class OnboardingStepsSetupService {
     
@@ -75,6 +76,12 @@ class OnboardingStepsSetupService {
                     steps.append(.successTopup)
                     promise(.success(.singleWallet(steps)))
                 case .failure(let error):
+                    if case WalletError.noAccount = error {
+                        steps.append(.topup)
+                        steps.append(.successTopup)
+                        promise(.success(.singleWallet(steps)))
+                        return
+                    }
                     promise(.failure(error))
                 }
             }
