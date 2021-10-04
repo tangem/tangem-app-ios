@@ -84,6 +84,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             if assembly.isPreview {
                 reset()
             }
+            fallthrough
         case .success:
             goToNextStep()
         }
@@ -121,12 +122,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         
         let cardInfo = cardModel.cardInfo
         
-        Deferred {
+        var subscription: AnyCancellable? = nil
+        
+        subscription = Deferred {
             Future { (promise: @escaping Future<Void, Error>.Promise) in
-                self.cardModel.createWallet { [weak self] result in
+                self.cardModel.createWallet { result in
                     switch result {
                     case .success:
-                        self?.updateCardBalance()
                         promise(.success(()))
                     case .failure(let error):
                         promise(.failure(error))
@@ -135,14 +137,17 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
         }
         .receive(on: DispatchQueue.main)
-        .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification).setFailureType(to: Error.self))
+        .combineLatest(NotificationCenter.didBecomeActivePublisher)
+        .first()
         .sink { [weak self] completion in
             if case let .failure(error) = completion {
                 self?.processSdkError(error)
                 self?.isMainButtonBusy = false
                 print("Failed to create wallet. \(error)")
             }
+            subscription.map { _ = self?.bag.remove($0) }
         } receiveValue: { [weak self] (_, _) in
+            self?.updateCardBalance()
             self?.walletCreatedWhileOnboarding = true
             if cardInfo.isTangemNote {
                 self?.userPrefsService?.cardsStartedActivation.append(cardInfo.card.cardId)
@@ -152,7 +157,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 self?.goToNextStep()
             }
         }
-        .store(in: &bag)
+        
+        subscription?.store(in: &bag)
     }
     
     private func stepUpdate() {
