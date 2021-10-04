@@ -27,7 +27,7 @@ struct OnboardingMessagesView: View {
                 .padding(.bottom, 14)
                 .onTapGesture {
                     // [REDACTED_TODO_COMMENT]
-                    onTitleTapCallback?()
+                    //onTitleTapCallback?()
                 }
                 .transition(.opacity)
                 .id("onboarding_title_\(title)")
