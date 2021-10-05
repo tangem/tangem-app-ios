@@ -25,6 +25,11 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return WelcomeCardLayout.main.cardSettings(at: .welcome, in: containerSize, animated: animated)
         case (.welcome, .second):
             return WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: containerSize, animated: animated)
+        case (.done, _), (.topup, _), (.confetti, _):
+            var settings = stackCalculator.cardSettings(at: stackIndex(at: step))
+            settings.scale *= 0.5
+            settings.offset += offset(at: step, in: containerSize)
+            return .init(targetSettings: settings, intermediateSettings: nil)
         default:
             return .init(targetSettings: CardAnimSettings(frame: frame(for: step, containerSize: containerSize),
                                                           offset: offset(at: step, in: containerSize),
@@ -43,7 +48,8 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.intro, _): return 75
         case (.first, .first), (.second, .second), (.third, .first): return 80
         case (.first, .second), (.second, .first), (.third, .second): return 120
-        case (.topup, _), (.confetti, _), (.done, _): return 220
+        case (.done, _), (.topup, _), (.confetti, _):
+            return 220
         }
     }
     
@@ -55,7 +61,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return 0.454
         case (.first, .second), (.second, .first), (.third, .second):
             return 0.395
-        case (.topup, _), (.confetti, _), (.done, _):
+        case (.done, _), (.topup, _), (.confetti, _):
             return 0.246
         }
     }
@@ -78,10 +84,10 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.first, .second), (.second, .first), (.third, .second):
 //            return .init(width: 0, height: containerHeight * 0.095)
             return .zero
-        case (.topup, _), (.confetti, _), (.done, _):
-            let backgroundSize = step.backgroundFrame(in: container)
-            let backgroundOffset = step.backgroundOffset(in: container)
-            return .init(width: 0, height: backgroundOffset.height - backgroundSize.height / 2 + 8)
+        case (.done, .first), (.topup, .first), (.confetti, .first):
+            return .init(width: 0, height: -containerHeight * 0.18)
+        case (.done, .second), (.topup, .second), (.confetti, .second):
+            return .init(width: 0, height: -containerHeight * 0.215)
         }
     }
     
@@ -124,5 +130,4 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (_, .first): return 1
         }
     }
-    
 }
