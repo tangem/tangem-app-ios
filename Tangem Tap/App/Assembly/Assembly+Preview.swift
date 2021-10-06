@@ -19,7 +19,7 @@ extension Assembly {
                               walletData: preview.walletData,
 //                              artworkInfo: nil,
                               twinCardInfo: preview.twinInfo,
-                              isTangemNote: false)
+                              isTangemNote: preview.isNote)
             let vm = assembly.makeCardModel(from: ci)
             let scanResult = ScanResult.card(model: vm)
             assembly.services.cardsRepository.cards[card.cardId] = scanResult
@@ -46,8 +46,23 @@ extension Assembly {
                 return WalletData(blockchain: "ETH", token: nil)
             case .stellar:
                 return WalletData(blockchain: "XLM", token: nil)
+            case .cardanoNote:
+                return WalletData(blockchain: "ADA", token: nil)
+            case .ethEmptyNote:
+                return WalletData(blockchain: "ETH", token: nil)
+            case .cardanoNoteEmptyWallet:
+                return WalletData(blockchain: "ADA", token: nil)
             default:
                 return nil
+            }
+        }
+        
+        var isNote: Bool {
+            switch self {
+            case .cardanoNote, .ethEmptyNote, .cardanoNoteEmptyWallet:
+                return true
+            default:
+                return false
             }
         }
         
