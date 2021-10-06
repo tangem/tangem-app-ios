@@ -34,6 +34,15 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return steps[currentStepIndex]
     }
     
+    override var subtitle: LocalizedStringKey {
+        if currentStep == .topup, cardModel.cardInfo.walletData?.blockchain.lowercased() == "xrp",
+           let state = cardModel.walletModels?.first?.state, case .noAccount = state {
+             return "onboarding_topup_subtitle_xrp"
+        } else {
+            return super.subtitle
+        }
+    }
+    
     private(set) var numberOfSteps: Int
     
     private var bag: Set<AnyCancellable> = []
@@ -152,7 +161,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             if cardInfo.isTangemNote {
                 self?.userPrefsService?.cardsStartedActivation.append(cardInfo.card.cardId)
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self?.isMainButtonBusy = false
                 self?.goToNextStep()
             }
