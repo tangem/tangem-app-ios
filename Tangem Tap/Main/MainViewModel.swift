@@ -46,7 +46,7 @@ class MainViewModel: ViewModel {
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     @Published var txIndexToPush: Int? = nil
-    @Published var isOnboardingModal: Bool = false
+    @Published var isOnboardingModal: Bool = true
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
