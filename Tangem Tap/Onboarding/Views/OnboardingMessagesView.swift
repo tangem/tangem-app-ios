@@ -33,6 +33,7 @@ struct OnboardingMessagesView: View {
                 .id("onboarding_title_\(title)")
             Text(subtitle)
                 .frame(maxWidth: .infinity)
+                .fixedSize(horizontal: false, vertical: true)
 //                .background(Color.yellow)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.8)
