@@ -307,9 +307,9 @@ class MainViewModel: ViewModel {
                 self.selectedAddressIndex = 0
                 self.isHashesCounted = false
                 self.assembly.reset()
-                if !self.showTwinCardOnboardingIfNeeded() {
+//                if !self.showTwinCardOnboardingIfNeeded() {
                     self.showUntrustedDisclaimerIfNeeded()
-                }
+//                }
             }
             .store(in: &bag)
         
@@ -396,11 +396,11 @@ class MainViewModel: ViewModel {
                                                  primaryButton: .cancel(),
                                                  secondaryButton: .destructive(Text("I understand, continue anyway")) { [weak self] in
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                        self?.navigation.mainToTwinsWalletWarning = true
+                                                        self?.navigation.mainToCardOnboarding = true
                                                     }
                                                  }))
             } else {
-                navigation.mainToTwinsWalletWarning = true
+                navigation.mainToCardOnboarding = true
             }
 		} else {
 			self.isCreatingWallet = true
@@ -684,14 +684,14 @@ class MainViewModel: ViewModel {
             .store(in: &bag)
 	}
 		
-	private func showTwinCardOnboardingIfNeeded() -> Bool {
-		guard let model = cardModel, model.isTwinCard else { return false }
-		
-		if userPrefsService.isTwinCardOnboardingWasDisplayed { return false }
-		
-		navigation.mainToTwinOnboarding = true
-		return true
-	}
+//	private func showTwinCardOnboardingIfNeeded() -> Bool {
+//		guard let model = cardModel, model.isTwinCard else { return false }
+//
+//		if userPrefsService.isTwinCardOnboardingWasDisplayed { return false }
+//
+//		navigation.mainToTwinOnboarding = true
+//		return true
+//	}
     
     private func setError(_ error: AlertBinder?)  {
         if self.error != nil {

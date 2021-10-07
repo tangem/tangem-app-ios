@@ -595,7 +595,7 @@ Amount to pay: %@";
 "onboarding_create_subtitle" = "Let’s generate all the keys on your card and create a secure wallet";
 
 "onboarding_button_buy_crypto" = "Buy crypto";
-"" = "Show the wallet’s address";
+"onboarding_button_show_address_qr" = "Show the wallet’s address";
 "onboarding_topup_title" = "Activate a wallet";
 "onboarding_topup_subtitle" = "To get started, simply top up the wallet with any amount";
 "onboarding_topup_subtitle_xrp" = "To get started, simply top up the wallet with 10+ XRP";
