@@ -1,7 +1,6 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '13.0'
 project 'Tangem Tap.xcodeproj'
-       # pod 'SwiftyJSON'
 
 def common_pods
    pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'backup-beta-4'
@@ -44,7 +43,7 @@ target 'Tangem Tap' do
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
   pod 'Kingfisher'
-
+  pod 'stellar-ios-mac-sdk', '2.0.0' #tmp
   target 'Tangem TapTests' do
     inherit! :search_paths
     # Pods for testing
