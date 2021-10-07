@@ -44,6 +44,13 @@ enum TwinsOnboardingStep {
         }
     }
     
+    var isBackgroundVisible: Bool {
+        switch self {
+        case .intro: return true
+        default: return false
+        }
+    }
+    
     var isModal: Bool {
         switch self {
         case .second, .third: return true
