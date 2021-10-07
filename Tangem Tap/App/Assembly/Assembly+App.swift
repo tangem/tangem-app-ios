@@ -437,45 +437,45 @@ extension Assembly {
         return vm
     }
     
-    func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
-        let scanResult = services.cardsRepository.lastScanResult
-        let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
-        let twinPairCid = TapTwinCardIdFormatter.format(cid: /*twinInfo?.pairCid ??*/ "", cardNumber: twinInfo?.series.pair.number ?? 1)
-		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
-	}
-	
-    func makeTwinCardWarningViewModel(isRecreating: Bool) -> TwinCardOnboardingViewModel {
-        makeTwinCardOnboardingViewModel(state: .warning(isRecreating: isRecreating))
-    }
-    
-    func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
-        let key = String(describing: TwinCardOnboardingViewModel.self) + "_" + state.storageKey
-        if let vm: TwinCardOnboardingViewModel = get(key: key) {
-            vm.state = state
-            return vm
-        }
-        
-        let vm = TwinCardOnboardingViewModel(state: state, imageLoader: services.imageLoaderService)
-        initialize(vm, with: key, isResetable: false)
-        vm.userPrefsService = services.userPrefsService
-        return vm
-    }
-    
-    func makeTwinsWalletCreationViewModel(isRecreating: Bool) -> TwinsWalletCreationViewModel {
-        if let twinInfo = services.cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo {
-            services.twinsWalletCreationService.setupTwins(for: twinInfo)
-        }
-        if let vm: TwinsWalletCreationViewModel = get() {
-            vm.walletCreationService = services.twinsWalletCreationService
-            return vm
-        }
-        
-        let vm = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating,
-                                              walletCreationService: services.twinsWalletCreationService,
-                                              imageLoaderService: services.imageLoaderService)
-        initialize(vm)
-        return vm
-    }
+//    func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
+//        let scanResult = services.cardsRepository.lastScanResult
+//        let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
+//        let twinPairCid = TapTwinCardIdFormatter.format(cid: /*twinInfo?.pairCid ??*/ "", cardNumber: twinInfo?.series.pair.number ?? 1)
+//		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
+//	}
+//
+//    func makeTwinCardWarningViewModel(isRecreating: Bool) -> TwinCardOnboardingViewModel {
+//        makeTwinCardOnboardingViewModel(state: .warning(isRecreating: isRecreating))
+//    }
+//
+//    func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
+//        let key = String(describing: TwinCardOnboardingViewModel.self) + "_" + state.storageKey
+//        if let vm: TwinCardOnboardingViewModel = get(key: key) {
+//            vm.state = state
+//            return vm
+//        }
+//
+//        let vm = TwinCardOnboardingViewModel(state: state, imageLoader: services.imageLoaderService)
+//        initialize(vm, with: key, isResetable: false)
+//        vm.userPrefsService = services.userPrefsService
+//        return vm
+//    }
+//
+//    func makeTwinsWalletCreationViewModel(isRecreating: Bool) -> TwinsWalletCreationViewModel {
+//        if let twinInfo = services.cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo {
+//            services.twinsWalletCreationService.setupTwins(for: twinInfo)
+//        }
+//        if let vm: TwinsWalletCreationViewModel = get() {
+//            vm.walletCreationService = services.twinsWalletCreationService
+//            return vm
+//        }
+//
+//        let vm = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating,
+//                                              walletCreationService: services.twinsWalletCreationService,
+//                                              imageLoaderService: services.imageLoaderService)
+//        initialize(vm)
+//        return vm
+//    }
     
     func makeWalletConnectViewModel(cardModel: CardViewModel) -> WalletConnectViewModel {
         let vm = WalletConnectViewModel(cardModel: cardModel)
