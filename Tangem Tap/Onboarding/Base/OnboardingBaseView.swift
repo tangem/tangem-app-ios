@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct OnboardingBaseView: View {
-    
     @ObservedObject var viewModel: OnboardingBaseViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
