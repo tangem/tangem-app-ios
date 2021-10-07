@@ -27,6 +27,6 @@ enum TangemNote: String, CaseIterable {
     case xrp = "AB06"
     
     static func isNoteBatch(_ batch: String) -> Bool {
-        TangemNote(rawValue: batch) != nil
+        TangemNote(rawValue: batch.uppercased()) != nil
     }
 }
