@@ -154,6 +154,11 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         default: return true
         }
     }
+    
+    var checkmarkText: LocalizedStringKey? {
+        return nil
+    }
+    
 }
 
 extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
