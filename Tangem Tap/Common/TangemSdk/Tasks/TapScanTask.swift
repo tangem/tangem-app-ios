@@ -68,7 +68,7 @@ final class TapScanTask: CardSessionRunnable {
             return
         }
         
-        if currentBatch == "ac01" { //temporary restrict new multiwallet cards
+        if currentBatch == "ac01" || TangemNote.isNoteBatch(currentBatch) { //temporary restrict new wallet and notes
             completion(.failure(TangemSdkError.underlying(error: "error_old_app_need_update".localized)))
             return
         }
