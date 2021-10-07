@@ -67,12 +67,18 @@ struct TwinsOnboardingView: View {
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: "twins_onboarding_title",
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftButtons: {
+                                      leftItems: {
                                         BackButton(height: viewModel.navbarSize.height,
                                                    isVisible: viewModel.isBackButtonVisible,
                                                    isEnabled: viewModel.isBackButtonEnabled) {
                                             viewModel.backButtonAction()
                                         }
+                                      },
+                                      rightItems: {
+                                          Button("common_cancel", action: viewModel.backButtonAction)
+                                            .padding(.horizontal, 16)
+                                            .opacity(viewModel.isFromMain ? 1.0 : 0.0)
+
                                       })
                             .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
                             .opacity(isNavbarVisible ? 1.0 : 0.0)
