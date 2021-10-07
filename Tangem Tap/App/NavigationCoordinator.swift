@@ -41,8 +41,6 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToSendChoise = false
     @Published var mainToCreatePayID = false
     @Published var mainToBuyCrypto = false
-    @Published var mainToTwinOnboarding = false
-    @Published var mainToTwinsWalletWarning = false
     @Published var mainToQR = false
     @Published var mainToTokenDetails = false
     @Published var mainToAddTokens: Bool = false
@@ -104,8 +102,6 @@ class NavigationCoordinator: ObservableObject {
         mainToSendChoise = false
         mainToCreatePayID = false
         mainToBuyCrypto = false
-        mainToTwinOnboarding = false
-        mainToTwinsWalletWarning = false
         mainToQR = false
         mainToTokenDetails = false
         mainToAddTokens = false
