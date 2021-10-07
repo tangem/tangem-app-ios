@@ -416,7 +416,7 @@ struct MainView: View {
             scanButton
                 .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
                     OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                        .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
+                        .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: {}, onDismissed: viewModel.onboardingDismissed)
                         .environmentObject(navigation)
                         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                             viewModel.isOnboardingModal = value
