@@ -77,6 +77,7 @@
 		5D7CA0FB2589F9A300B12C25 /* MoonPayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39514C2556CDDF002CC452 /* MoonPayService.swift */; };
 		5D80ED422550172A0008DEF0 /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED412550172A0008DEF0 /* UIApplication+.swift */; };
 		5D80ED472550186A0008DEF0 /* View+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D80ED462550186A0008DEF0 /* View+.swift */; };
+		5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84DBEC270E26B90013A813 /* WelcomeBackgroundView.swift */; };
 		5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E324FA79F700E90939 /* ViewStateHandler.swift */; };
 		5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */; };
 		5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
@@ -899,6 +900,7 @@
 		5D80ED412550172A0008DEF0 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
 		5D80ED462550186A0008DEF0 /* View+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+.swift"; sourceTree = "<group>"; };
 		5D84352725B84E8C0085C9D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		5D84DBEC270E26B90013A813 /* WelcomeBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeBackgroundView.swift; sourceTree = "<group>"; };
 		5D9004E324FA79F700E90939 /* ViewStateHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewStateHandler.swift; sourceTree = "<group>"; };
 		5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePayIdView.swift; sourceTree = "<group>"; };
 		5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Medium.ttf"; sourceTree = "<group>"; };
@@ -3541,6 +3543,7 @@
 				B0C4F77A26F0A05C0086D815 /* BlankCard.swift */,
 				B0C4F77C26F0BFF90086D815 /* OnboardingMessagesView.swift */,
 				B06917DF270444CE0000E6C1 /* OnboardingWalletInfoPager.swift */,
+				5D84DBEC270E26B90013A813 /* WelcomeBackgroundView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3982,6 +3985,7 @@
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				B04FBC3A26CB98F000B397CE /* View+SizeReader.swift in Sources */,
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
+				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
 				5D011A242530778200758010 /* DeprecatedDisclaimerView.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
 				B069F36F2631AD3C00ACFD19 /* ImageLoader.swift in Sources */,
