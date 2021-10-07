@@ -29,6 +29,13 @@ struct WelcomeOnboardingView: View {
                 navigationLinks
                 
                 ZStack {
+                    let bgSize = containerSize * 1.5
+                    
+                    WelcomeBackgroundView()
+                        .frame(size: bgSize)
+                        .offset(x: bgSize.width/3,
+                                y: (containerSize.height - bgSize.height) * 0.2)
+                      
                     AnimatedView(settings: viewModel.$lightCardSettings) {
                         OnboardingCardView(placeholderCardType: .light,
                                            cardImage: nil,
