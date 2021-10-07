@@ -18,6 +18,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
     @Published var pairNumber: String
     @Published var currentCardIndex: Int = 0
     @Published var displayTwinImages: Bool = false
+    @Published var alertAccepted: Bool = false
     
     override var currentStep: TwinsOnboardingStep {
         guard currentStepIndex < steps.count else {
@@ -82,6 +83,18 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
         }
     }
     
+    override var mainButtonSettings: TangemButtonSettings {
+        var settings = super.mainButtonSettings
+        
+        switch currentStep {
+        case .alert:
+            settings.isEnabled = alertAccepted
+        default: break
+        }
+        
+        return settings
+    }
+    
     private var bag: Set<AnyCancellable> = []
     private var stackCalculator: StackCalculator = .init()
     private var twinInfo: TwinCardInfo
@@ -144,7 +157,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             userPrefsService?.cardsStartedActivation.append(twinInfo.cid)
 //            userPrefsService.cardsStartedActivation.append(twinInfo.pairCid)
             fallthrough
-        case .confetti, .done, .success:
+        case .confetti, .done, .success, .alert:
             goToNextStep()
         case .first:
             if twinsService.step.value != .first {
