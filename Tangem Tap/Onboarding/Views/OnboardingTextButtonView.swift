@@ -13,7 +13,7 @@ struct TangemButtonSettings {
     let size: ButtonSize
     let action: (() -> Void)?
     let isBusy: Bool
-    let isEnabled: Bool
+    var isEnabled: Bool
     let isVisible: Bool
     
     var color: ButtonColorStyle = .green
@@ -53,8 +53,9 @@ struct OnboardingTextButtonView: View {
     var textOffset: CGSize = .zero
 //    let buttonsSettings: ButtonsSettings
     let buttonsSettings: OnboardingBottomButtonsSettings
-    
     let titleAction: (() -> Void)?
+    var checkmarkText: LocalizedStringKey? = nil
+    var isCheckmarkChecked: Binding<Bool> = .constant(false)
     
     @ViewBuilder
     var buttons: some View {
@@ -96,7 +97,20 @@ struct OnboardingTextButtonView: View {
             }
             .frame(alignment: .top)
             .offset(textOffset)
+            
             Spacer()
+            
+            if let checkmarkText = self.checkmarkText {
+                HStack {
+                    CheckmarkSwitch(isChecked: isCheckmarkChecked,
+                                    settings: .defaultRoundedRect())
+                        .frame(size: .init(width: 26, height: 26))
+                    Text(checkmarkText).bold()
+                }
+                
+                Spacer()
+            }
+            
             buttons
                 .padding(.bottom, buttonsSettings.supplement != nil ? 16 : 20)
                 

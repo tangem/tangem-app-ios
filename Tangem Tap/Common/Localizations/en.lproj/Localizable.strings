@@ -595,7 +595,7 @@ Amount to pay: %@";
 "onboarding_create_subtitle" = "Let’s generate all the keys on your card and create a secure wallet";
 
 "onboarding_button_buy_crypto" = "Buy crypto";
-"onboarding_button_show_address_qr" = "Show the wallet’s address";
+"" = "Show the wallet’s address";
 "onboarding_topup_title" = "Activate a wallet";
 "onboarding_topup_subtitle" = "To get started, simply top up the wallet with any amount";
 "onboarding_topup_subtitle_xrp" = "To get started, simply top up the wallet with 10+ XRP";
@@ -683,3 +683,7 @@ Amount to pay: %@";
 "onboarding_subtitle_success_backup_one_card" = "You have created 1 backup card, and now your Tangem Wallet cards are ready for use.";
 
 "common_origin_card" = "Origin Card";
+
+"onboarding_alert_i_understand" = "I understand";
+
+"onboarding_alert_twins_recreate_subtitle" = "This action is irreversible. You will not have access to the old wallet.";
