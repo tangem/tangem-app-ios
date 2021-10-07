@@ -122,6 +122,8 @@ struct TwinsOnboardingView: View {
                     viewModel.setupContainer(with: size)
                 }
                 
+                //alert
+                
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
@@ -133,7 +135,9 @@ struct TwinsOnboardingView: View {
 //                        withAnimation { //reset for testing
 //                            viewModel.reset()
 //                        }
-                    }
+                    },
+                    checkmarkText: currentStep.checkmarkText,
+                    isCheckmarkChecked: $viewModel.alertAccepted
                 )
                 .padding(.horizontal, 40)
             }
