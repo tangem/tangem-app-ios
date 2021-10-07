@@ -75,12 +75,6 @@ struct ReadView: View {
                             MainView(viewModel: viewModel.assembly.makeMainViewModel()),
                            isActive: $navigation.readToMain)
             
-            NavigationLink(destination: DeprecatedDisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .accept)),
-                           isActive: $navigation.readToDisclaimer)
-            
-            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
-                           isActive: $navigation.readToTwinOnboarding)
-            
             NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
                            isActive: $navigation.readToShop)
         }
