@@ -23,7 +23,7 @@ extension SuccessStep {
 }
 
 enum TwinsOnboardingStep {
-    case welcome, intro(pairNumber: String), first, second, third, topup, confetti, done, success
+    case welcome, intro(pairNumber: String), first, second, third, topup, confetti, done, success, alert
     
     static var previewCases: [TwinsOnboardingStep] {
         [.intro(pairNumber: "2"), .topup, .confetti, .done]
@@ -102,7 +102,7 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
     
     var progressStep: Int {
         switch self {
-        case .welcome: return 1
+        case .welcome, .alert: return 1
         case .intro, .first: return 2
         case .second: return 3
         case .third: return 4
@@ -144,6 +144,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .confetti: return "onboarding_confetti_title"
         case .done: return ""
         case .success: return successTitle
+        case .alert: return "common_warning"
         }
     }
     
@@ -156,6 +157,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .confetti: return "Your crypto card is activated and ready to be used"
         case .done: return ""
         case .success: return ""
+        case .alert: return "onboarding_alert_twins_recreate_subtitle"
         }
     }
     
@@ -177,6 +179,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         case .confetti: return "common_continue"
         case .done: return "common_continue"
         case .success: return successButtonTitle
+        case .alert: return "common_continue"
         }
     }
     
@@ -196,6 +199,15 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     }
     
     var isContainSupplementButton: Bool { true }
+    
+    var checkmarkText: LocalizedStringKey? {
+        switch self {
+        case .alert:
+            return "onboarding_alert_i_understand"
+        default:
+            return nil
+        }
+    }
 }
 
 extension TwinsOnboardingStep: OnboardingInitialStepInfo {

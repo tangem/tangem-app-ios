@@ -116,7 +116,9 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         true
     }
     
-    
+    var checkmarkText: LocalizedStringKey? {
+        return nil
+    }
 }
 
 extension WalletOnboardingStep: OnboardingInitialStepInfo {
