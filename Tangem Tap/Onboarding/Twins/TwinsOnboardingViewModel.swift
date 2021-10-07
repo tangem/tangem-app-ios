@@ -230,10 +230,18 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
             alert = AlertBinder(alert: Alert(title: Text("twins_creation_warning_title"),
                                              message: Text("twins_creation_warning_message"),
                                              primaryButton: Alert.Button.destructive(Text("common_ok"), action: { [weak self] in
-                                                self?.reset()
+                                                self?.back()
                                              }),
                                              secondaryButton: Alert.Button.default(Text("common_cancel"))))
         default:
+            back()
+        }
+    }
+    
+    private func back() {
+        if isFromMain {
+            input.successCallback?()
+        } else {
             reset()
         }
     }
