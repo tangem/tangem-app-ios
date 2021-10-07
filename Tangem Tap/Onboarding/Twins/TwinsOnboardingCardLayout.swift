@@ -45,7 +45,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     func cardFrameMinHorizontalPadding(at step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
         case (.welcome, _), (.success, _): return 0
-        case (.intro, _): return 75
+        case (.intro, _), (.alert, _): return 75
         case (.first, .first), (.second, .second), (.third, .first): return 80
         case (.first, .second), (.second, .first), (.third, .second): return 120
         case (.done, _), (.topup, _), (.confetti, _):
@@ -56,7 +56,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     func cardHeightToContainerHeightRatio(for step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
         case (.welcome, _), (.success, _): return 0
-        case (.intro, _): return 0.431
+        case (.intro, _), (.alert, _): return 0.431
         case (.first, .first), (.second, .second), (.third, .first):
             return 0.454
         case (.first, .second), (.second, .first), (.third, .second):
@@ -70,11 +70,11 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         let containerHeight = container.height
         switch (step, self) {
         case (.welcome, _), (.success, _): return .zero
-        case (.intro, .first):
+        case (.intro, .first), (.alert, .first):
             let heightOffset = containerHeight * 0.114
             let widthOffset = container.width * 0.131
             return .init(width: -widthOffset, height: -heightOffset)
-        case (.intro, .second):
+        case (.intro, .second), (.alert, .second):
             let heightOffset = containerHeight * 0.183
             let widthOffset = container.width * 0.131
             return .init(width: widthOffset, height: heightOffset)
@@ -93,7 +93,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     
     private func rotationAngle(at step: TwinsOnboardingStep) -> Angle {
         switch (step, self) {
-        case (.intro, _): return Angle(degrees: -2)
+        case (.intro, _), (.alert, _): return Angle(degrees: -2)
         default: return .zero
         }
     }
@@ -122,7 +122,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     
     private func opacity(at step: TwinsOnboardingStep) -> Double {
         switch (step, self) {
-        case (.intro, _): return 1
+        case (.intro, _), (.alert, _): return 1
         case (.first, .second), (.second, .first), (.third, .second):
             return 0.9
         case (.second, .second): return 1
