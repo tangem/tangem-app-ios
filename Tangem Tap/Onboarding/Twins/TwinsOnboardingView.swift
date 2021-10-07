@@ -52,6 +52,7 @@ struct TwinsOnboardingView: View {
     var body: some View {
         ZStack {
             navigationLinks
+            
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
                 .frame(maxWidth: screenSize.width)
@@ -61,6 +62,7 @@ struct TwinsOnboardingView: View {
                 GeometryReader { geom in
                     ZStack(alignment: .center) {
                         let size = geom.size
+                        
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: "twins_onboarding_title",
@@ -144,6 +146,12 @@ struct TwinsOnboardingView: View {
                                      })
                 .frame(maxWidth: screenSize.width)
         }
+        .background(
+            TwinIntroBackgroundView(size: CGSize(width: screenSize.height * 1.2 * 1.2,
+                                                 height: screenSize.height * 1.2))
+                .offset(x: -screenSize.width/2, y: -screenSize.height/2)
+                .opacity(currentStep.isBackgroundVisible ? 1 : 0)
+        )
         .alert(item: $viewModel.alert, content: { binder in
             binder.alert
         })
