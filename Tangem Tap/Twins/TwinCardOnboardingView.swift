@@ -210,5 +210,8 @@ struct TwinCardOnboardingView_Previews: PreviewProvider {
         TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(state: .warning(isRecreating: false)))
             .environmentObject(assembly.services.navigationCoordinator)
             //.previewGroup(devices: [.iPhone7, .iPhone8Plus, .iPhone12Pro, .iPhone12ProMax])
+        
+        TwinCardOnboardingView(viewModel: assembly.makeTwinCardOnboardingViewModel(state: .warning(isRecreating: true)))
+            .environmentObject(assembly.services.navigationCoordinator)
     }
 }
