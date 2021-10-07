@@ -197,9 +197,6 @@ struct MainView: View {
                                                                                                                  amountType: viewModel.selectedWallet.amountType)),
                            isActive: $navigation.mainToTokenDetails)
             
-            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: false)),
-                           isActive: $navigation.mainToTwinsWalletWarning)
-            
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
                                                          title: "wallet_button_topup",
                                                          addLoadingIndicator: true,
