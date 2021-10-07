@@ -50,7 +50,11 @@ class OnboardingStepsSetupService {
     }
     
     func twinRecreationSteps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        .justWithError(output: .twins(TwinsOnboardingStep.twinningProcessSteps + [.success]))
+        var steps: [TwinsOnboardingStep] = []
+        steps.append(.alert)
+        steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+        steps.append(.success)
+        return .justWithError(output: .twins(steps))
     }
     
     private func stepsForNote(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
