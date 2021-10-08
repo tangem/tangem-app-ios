@@ -108,6 +108,10 @@ class OnboardingStepsSetupService {
         }
         
         let walletModel = assembly.loadWallets(from: cardInfo)
+        if walletModel.count > 0 && cardInfo.twinCardInfo?.pairPublicKey == nil { //bugged case, go to main
+            return .justWithError(output: .twins([]))
+        }
+        
         if (walletModel.count == 0 || cardInfo.twinCardInfo?.pairPublicKey == nil) {
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
             steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
