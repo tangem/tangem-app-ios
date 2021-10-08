@@ -390,6 +390,7 @@ struct MainView: View {
                         && !navigation.mainToAddTokens
                         && !navigation.mainToTokenDetails
                         && !navigation.mainToSellCrypto
+                        && !navigation.mainToCardOnboarding
                     }
                     .delay(for: 0.5, scheduler: DispatchQueue.global())
                     .receive(on: DispatchQueue.main)) { _ in
