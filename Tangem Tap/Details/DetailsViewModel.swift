@@ -144,10 +144,8 @@ class DetailsViewModel: ViewModel {
     }
     
     func prepareTwinOnboarding() {
-        Publishers.Zip(
-            onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo),
-            cardModel.imageLoaderPublisher
-        ).sink { completion in
+        onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo)
+            .sink { completion in
             switch completion {
             case .failure(let error):
                 Analytics.log(error: error)
@@ -156,12 +154,12 @@ class DetailsViewModel: ViewModel {
             case .finished:
                 break
             }
-        } receiveValue: { [weak self] (steps, image) in
+        } receiveValue: { [weak self] steps in
             guard let self = self else { return }
             
             let input = OnboardingInput(steps: steps,
                                         cardModel: self.cardModel,
-                                        cardImage: image,
+                                        cardImage: nil,
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
