@@ -16,6 +16,8 @@ struct AddressQrBottomSheetContent: View {
     var shareAddress: String
     var address: String
     
+    @State private var showCheckmark = false
+    
     var body: some View {
         VStack(spacing: 0) {
             Image(uiImage: QrCodeGenerator.generateQRCode(from: shareAddress))
@@ -30,16 +32,35 @@ struct AddressQrBottomSheetContent: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.tangemTapGrayDark)
             HStack(spacing: 10) {
-                Button(action: { UIPasteboard.general.string = address }, label: {
-                    HStack {
+                Button(action: {
+                        showCheckmark = true
+                    UIPasteboard.general.string = address
+                    
+                    let notificationGenerator = UINotificationFeedbackGenerator()
+                    notificationGenerator.notificationOccurred(.success)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                            showCheckmark = false
+                    }
+                    
+                }, label: {
+                    HStack{
                         Text(address)
                             .lineLimit(1)
                             .truncationMode(.middle)
                             .frame(maxWidth: 100)
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.tangemTapGrayDark6)
-                        Image(systemName: "doc.on.clipboard")
-                            .foregroundColor(.tangemTapGreen)
+                        
+                        Group {
+                        showCheckmark ?
+                            Image(systemName: "checkmark.square")
+                            .id("1")
+                            : Image(systemName: "doc.on.clipboard")
+                            .id("2")
+                        }
+                        .frame(width: 18, height: 18)
+                        .foregroundColor(.tangemTapGreen)
                     }
                     .frame(height: 40)
                     .padding(.horizontal, 16)
@@ -99,6 +120,9 @@ struct AddressQrBottomSheet_Previews: PreviewProvider {
     static var previews: some View {
         AddressQrBottomSheetPreviewView(model: BottomSheetPreviewProvider())
             .previewGroup(devices: [.iPhoneX], withZoomed: false)
+        
+        AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
+                                    address: "0x01232483902f903678a098bce")
     }
     
 }
