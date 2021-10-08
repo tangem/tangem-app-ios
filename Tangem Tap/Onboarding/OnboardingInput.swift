@@ -11,7 +11,7 @@ import UIKit
 struct OnboardingInput {
     let steps: OnboardingSteps
     let cardModel: CardViewModel
-    let cardImage: UIImage
+    let cardImage: UIImage?
     let cardsPosition: (dark: AnimatedViewSettings, light: AnimatedViewSettings)?
     let welcomeStep: WelcomeStep?
     

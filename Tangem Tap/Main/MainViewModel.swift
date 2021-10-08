@@ -396,11 +396,11 @@ class MainViewModel: ViewModel {
                                                  primaryButton: .cancel(),
                                                  secondaryButton: .destructive(Text("I understand, continue anyway")) { [weak self] in
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                        self?.navigation.mainToCardOnboarding = true
+                                                        self?.prepareTwinOnboarding()
                                                     }
                                                  }))
             } else {
-                navigation.mainToCardOnboarding = true
+                prepareTwinOnboarding()
             }
 		} else {
 			self.isCreatingWallet = true
@@ -553,6 +553,37 @@ class MainViewModel: ViewModel {
     
     func onboardingDismissed() {
         
+    }
+    
+    func prepareTwinOnboarding() {
+        guard let cardModel = self.cardModel else { return }
+        
+        cardOnboardingStepSetupService!.twinRecreationSteps(for: cardModel.cardInfo)
+            .sink { completion in
+            switch completion {
+            case .failure(let error):
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+                self.error = error.alertBinder
+            case .finished:
+                break
+            }
+        } receiveValue: { [weak self] steps in
+            guard let self = self else { return }
+            
+            let input = OnboardingInput(steps: steps,
+                                        cardModel: cardModel,
+                                        cardImage:  self.image,
+                                        cardsPosition: nil,
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0,
+                                        successCallback: { [weak self] in
+                                            self?.navigation.mainToCardOnboarding = false
+                                        })
+            self.assembly.makeCardOnboardingViewModel(with: input)
+            self.navigation.mainToCardOnboarding = true
+        }
+        .store(in: &bag)
     }
 
     // MARK: - Private functions
