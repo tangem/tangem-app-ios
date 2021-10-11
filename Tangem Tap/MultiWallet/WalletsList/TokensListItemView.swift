@@ -31,12 +31,6 @@ struct TokensListItemView: View {
         return item.rate
     }
     
-    var image: String {
-        item.state.errorDescription == nil
-            && !item.hasTransactionInProgress
-            && !item.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
-    }
-    
     var accentColor: Color {
         if item.state.errorDescription == nil
             && !item.hasTransactionInProgress
@@ -73,7 +67,7 @@ struct TokensListItemView: View {
                     
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                         if item.state.errorDescription != nil  || item.hasTransactionInProgress {
-                            Image("exclamationmark.circle" )
+                            Image(systemName: "exclamationmark.circle" )
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 10.0, height: 10.0)
