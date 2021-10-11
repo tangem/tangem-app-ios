@@ -103,6 +103,11 @@ struct OnboardingTextButtonView: View {
                                     settings: .defaultRoundedRect())
                         .frame(size: .init(width: 26, height: 26))
                     Text(checkmarkText).bold()
+                        .onTapGesture {
+                            withAnimation {
+                                isCheckmarkChecked.wrappedValue.toggle()
+                            }
+                        }
                 }
                 
                 Spacer()
@@ -118,6 +123,8 @@ struct OnboardingTextButtonView: View {
 }
 
 struct OnboardingTextButtonView_Previews: PreviewProvider {
+    @State static var isChecked: Bool = false
+    
     static var previews: some View {
         OnboardingTextButtonView(
             title: "Create a wallet",
@@ -143,7 +150,9 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
                         iconPosition: .leading
                       )
                 ),
-            titleAction: { }
+            titleAction: { },
+            checkmarkText: "I understand",
+            isCheckmarkChecked: $isChecked
 //                .init(
 //                mainTitle: "Create wallet",
 //                mainSize: .wide,
