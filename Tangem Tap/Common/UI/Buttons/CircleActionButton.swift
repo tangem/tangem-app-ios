@@ -41,7 +41,7 @@ struct CircleActionButton: View {
 					.foregroundColor(isVerify ? Color.tangemTapGreen : backgroundColor)
 				Group {
                     if isVerify {
-                        Image("checkmark")
+                        Image(systemName: "checkmark")
                     } else {
                         image
                     }
@@ -74,7 +74,7 @@ struct CircleActionButton_Previews: PreviewProvider {
 		CircleActionButton(diameter: 40,
 						   backgroundColor: .tangemTapBgGray,
 						   imageName: "doc.on.clipboard",
-						   isSystemImage: false,
+						   isSystemImage: true,
 						   imageColor: .tangemTapGrayDark6)
     }
 }
