@@ -114,17 +114,16 @@ struct ReadView: View {
             HStack(spacing: 8.0) {
                 if viewModel.state == .welcome ||
                     viewModel.state == .welcomeBack {
-                    TangemButton(isLoading: false,
-                                 title: blackButtonTitleKey,
+                    TangemButton(title: blackButtonTitleKey,
                                  image: "shopBag" ) {
                         navigation.readToShop = true
-                    }.buttonStyle(TangemButtonStyle(color: .black))
+                    }.buttonStyle(TangemButtonStyle(colorStyle: .black))
                 } else {
-                    Color.clear.frame(width: ButtonSize.small.value.width, height: ButtonSize.small.value.height)
+                    //todo: remove it
+                    Color.clear.frame(width: ButtonLayout.small.size!.width, height: ButtonLayout.small.size!.height)
                 }
-                TangemLongButton(isLoading: self.viewModel.isLoading,
-                                 title: greenButtonTitleKey,
-                                 image: "arrow.right") {
+                TangemButton(title: greenButtonTitleKey,
+                             systemImage: "arrow.right") {
                     withAnimation {
                         self.viewModel.nextState()
                     }
@@ -135,7 +134,8 @@ struct ReadView: View {
                         break
                     }
                 }
-                .buttonStyle(TangemButtonStyle(color: .green))
+                .buttonStyle(TangemButtonStyle(layout: .big,
+                                               isLoading: self.viewModel.isLoading))
                 .sheet(isPresented: $navigation.readToSendEmail, content: {
                     MailView(dataCollector: viewModel.failedCardScanTracker, support: .tangem, emailType: .failedToScanCard)
                 })

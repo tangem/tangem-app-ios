@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-enum ButtonSize {
+enum ButtonLayout {
     case small
     case big
     case smallVertical
@@ -17,8 +17,9 @@ enum ButtonSize {
     case wide
     case customWidth(CGFloat)
     case custom(size: CGSize)
+    case flexible
     
-    var value: CGSize {
+    var size: CGSize? {
         switch self {
         case .small:
             return CGSize(width: 95.0, height: defaultHeight)
@@ -34,11 +35,29 @@ enum ButtonSize {
             return .init(width: width, height: defaultHeight)
         case .custom(let size):
             return size
+        case .flexible:
+            return nil
+        }
+    }
+    
+    var alignment: Alignment {
+        switch self {
+        case .smallVertical:
+            return .vertical
+        default:
+            return .horizontal
         }
     }
     
     private var defaultHeight: CGFloat {
         Constants.isSmallScreen ? 44 : 56
+    }
+}
+
+extension ButtonLayout {
+    enum Alignment {
+        case vertical
+        case horizontal
     }
 }
 
@@ -49,7 +68,7 @@ enum ButtonColorStyle {
     case transparentWhite
     case grayAlt
     
-    var defaultColor: Color {
+    var bgColor: Color {
         switch self {
         case .green: return .tangemTapGreen
         case .black: return .tangemTapGrayDark6
@@ -59,16 +78,23 @@ enum ButtonColorStyle {
         }
     }
     
-    var pressedColor: Color {
+    var bgPressedColor: Color {
         switch self {
         case .green: return .tangemTapGreen1
-        case .black: return .tangemTapGrayDark6
+        case .black: return .tangemTapGrayDark5
         case .gray, .grayAlt: return .tangemTapGrayDark
         case .transparentWhite: return .tangemTapGrayLight4
         }
     }
     
-    var titleColor: Color {
+    var fgColor: Color {
+        switch self {
+        case .transparentWhite, .grayAlt: return .tangemTapGrayDark6
+        default: return .white
+        }
+    }
+    
+    var indicatorColor: UIColor {
         switch self {
         case .transparentWhite, .grayAlt: return .tangemTapGrayDark6
         default: return .white
@@ -77,62 +103,108 @@ enum ButtonColorStyle {
 }
 
 struct TangemButtonStyle: ButtonStyle {
-    var color: ButtonColorStyle = .green
+    var colorStyle: ButtonColorStyle = .green
+    var layout: ButtonLayout = .small
     var font: Font = Font.custom("SairaSemiCondensed-Bold", size: 15.0)
     var isDisabled: Bool = false
+    var isLoading: Bool = false
+
+    @ViewBuilder private var loadingOverlay: some View {
+        if isLoading  {
+            ZStack {
+                colorStyle.bgColor
+                ActivityIndicatorView(color: colorStyle.indicatorColor)
+            }
+        } else {
+            Color.clear
+        }
+    }
+    
+    @ViewBuilder private var disabledOverlay: some View {
+        if isDisabled  {
+            Color.white.opacity(0.4)
+        } else {
+            Color.clear
+        }
+    }
+    
+    @ViewBuilder private func label(for configuration: Configuration) -> some View {
+        if layout.alignment == .vertical {
+            VStack(alignment: .center, spacing: 0) {
+                configuration.label
+            }
+            .padding(16)
+        } else {
+            HStack(alignment: .center, spacing: 0) {
+                configuration.label
+            }
+            .padding(.horizontal, 16)
+        }
+    }
     
     func makeBody(configuration: Configuration) -> some View {
-        configuration
-            .label
+        label(for: configuration)
             .font(font)
-            .foregroundColor(color.titleColor)
-            .background(
-                configuration.isPressed ?
-                    color.pressedColor :
-                    color.defaultColor
-                )
+            .foregroundColor(colorStyle.fgColor)
+            .frame(width: layout.size?.width, height: layout.size?.height)
+            .fixedSize()
+            .background(configuration.isPressed ? colorStyle.bgPressedColor : colorStyle.bgColor)
+            .overlay(loadingOverlay)
+            .overlay(disabledOverlay)
             .cornerRadius(8)
-            .overlay( !isDisabled ? Color.clear : Color.white.opacity(0.4))
-            .allowsHitTesting(!isDisabled)
+            .allowsHitTesting(!isDisabled && !isLoading)
     }
 }
+
+//Wait for swift 5.5
+//extension ButtonStyle where Self == TangemButtonStyle {
+//    static var tangemStyle: TangemButtonStyle { .init() }
+//}
+
 
 struct ButtonStyles_Previews: PreviewProvider {
     static var previews: some View {
         VStack(alignment: .center, spacing: 16.0) {
-            TangemButton(isLoading: false,
-                         title: "Tangem Wide button",
-                         size: .wide,
-                         action: {})
-                .buttonStyle(TangemButtonStyle(color: .green, font: .system(size: 18), isDisabled: false))
-            TangemButton(isLoading: false,
-                         title: "Tangem custom button",
-                         size: .custom(size: CGSize(width: 175, height: 44)),
-                         action: {})
-                .buttonStyle(TangemButtonStyle(color: .green, font: .system(size: 18), isDisabled: false))
-            TangemButton(isLoading: false,
-                         title: "Tangem custom button",
-                         size: .customWidth(234),
-                         action: {})
-                .buttonStyle(TangemButtonStyle(color: .green, font: .system(size: 18), isDisabled: false))
-            Button(action:{}){
-                Text("Tap in!")}
-                .buttonStyle(TangemButtonStyle(color: .green))
+            TangemButton(title: "Tangem Wide button", action: {})
+                .buttonStyle(TangemButtonStyle(layout: .wide))
+
+            TangemButton(title: "Tangem custom button", action: {})
+                .buttonStyle(TangemButtonStyle(layout: .custom(size: CGSize(width: 175,
+                                                                            height: 44)),
+                                               font: .system(size: 18)))
+            
+            TangemButton(title: "Tangem custom button", action: {})
+                .buttonStyle(TangemButtonStyle(layout: .customWidth(234),
+                                               font: .system(size: 18)))
+            
+            
+            Button(action:{}){ Text("Tap in!") }
+                .buttonStyle(TangemButtonStyle())
 
             Button(action: {}) { Text("Tap in!") }
-                .buttonStyle(TangemButtonStyle(color: .black))
-            
+                .buttonStyle(TangemButtonStyle(colorStyle: .black))
+
             Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: true))
-            
+                .buttonStyle(TangemButtonStyle(colorStyle: .green,
+                                               layout: .big,
+                                               isDisabled: true))
+
             Button(action: {}) { Text("No. Go to shop") }
-                .buttonStyle(TangemButtonStyle(color: .black, isDisabled: true))
+                .buttonStyle(TangemButtonStyle(colorStyle: .black, isDisabled: true))
+            
             Button(action: {}) { Text("Go to shop") }
-                .buttonStyle(TangemButtonStyle(color: .transparentWhite, isDisabled: false))
+                .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
+                                               layout: .flexible))
+            
             Button(action: {}) { Text("Go to shop") }
-                .buttonStyle(TangemButtonStyle(color: .transparentWhite, isDisabled: true))
+                .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
+                                               layout: .flexible,
+                                               isDisabled: true))
+            
             Button(action: {}) { Text("Go to shop") }
-                .buttonStyle(TangemButtonStyle(color: .grayAlt, font: .system(size: 18), isDisabled: false))
+                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt,
+                                               layout: .flexible,
+                                               font: .system(size: 18)))
         }
     }
 }
