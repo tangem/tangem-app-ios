@@ -93,13 +93,13 @@ struct WelcomeOnboardingView: View {
                     self.viewModel.failedCardScanTracker.resetCounter()
                     self.navigation.readToSendEmail = true
                 }
+                .sheet(isPresented: $navigation.readToSendEmail, content: {
+                    MailView(dataCollector: viewModel.failedCardScanTracker, support: .tangem, emailType: .failedToScanCard)
+                })
             }
         }
         .alert(item: $viewModel.error, content: { error in
             error.alert
-        })
-        .sheet(isPresented: $navigation.readToSendEmail, content: {
-            MailView(dataCollector: viewModel.failedCardScanTracker, support: .tangem, emailType: .failedToScanCard)
         })
         .navigationBarHidden(true)
     }
