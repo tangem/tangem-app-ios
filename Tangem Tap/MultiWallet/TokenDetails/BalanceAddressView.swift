@@ -89,7 +89,7 @@ struct BalanceAddressView: View {
                             .foregroundColor(Color.tangemTapGrayDark)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                        Image(systemImage: image)
+                        Image(systemName: image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .foregroundColor(accentColor)
