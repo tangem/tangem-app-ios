@@ -91,7 +91,7 @@ struct DisclaimerView: View {
                     acceptCallback()
                 }
             }
-            .buttonStyle(TangemButtonStyle(font: .system(size: 18, weight: .semibold)))
+            .buttonStyle(TangemButtonStyle())
             .background(
                 LinearGradient(
                     gradient: Gradient(stops: [
