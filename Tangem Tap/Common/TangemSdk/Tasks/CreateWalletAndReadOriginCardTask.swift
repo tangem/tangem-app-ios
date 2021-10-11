@@ -9,6 +9,7 @@
 import TangemSdk
 
 class CreateWalletAndReadOriginCardTask: CardSessionRunnable {
+    private var linkingCommand: StartOriginCardLinkingCommand? = nil
     
     func run(in session: CardSession, completion: @escaping CompletionResult<(OriginCard, Card)>) {
         let createWalletsTask = CreateMultiWalletTask(curves: [.secp256k1, .ed25519, .secp256r1])
@@ -23,8 +24,8 @@ class CreateWalletAndReadOriginCardTask: CardSessionRunnable {
     }
     
     private func readOriginCard(in session: CardSession, completion: @escaping CompletionResult<(OriginCard, Card)>) {
-        let linkingCommand = StartOriginCardLinkingCommand()
-        linkingCommand.run(in: session) { result in
+        linkingCommand = StartOriginCardLinkingCommand()
+        linkingCommand!.run(in: session) { result in
             switch result {
             case .success(let originCard):
                 guard let card = session.environment.card else {
