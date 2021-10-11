@@ -22,7 +22,7 @@ struct CardOperationView: View {
     var body: some View {
         VStack(spacing: 24.0) {
             Spacer()
-            Image("exclamationmark.circle")
+            Image(systemName: "exclamationmark.circle")
                 .font(.system(size: 120.0, weight: .regular, design: .default))
                 .foregroundColor(.tangemTapWarning)
             Text("common_warning".localized.uppercased())
@@ -36,9 +36,7 @@ struct CardOperationView: View {
             Spacer()
             HStack(alignment: .center, spacing: 8.0) {
                 Spacer()
-                TangemLongButton(isLoading: self.isLoading,
-                             title: buttonTitle,
-                             image: "save") {
+                TangemButton(title: buttonTitle, image: "save") {
                                 self.isLoading = true
                                 self.actionButtonPressed {result in
                                     DispatchQueue.main.async {
@@ -55,8 +53,9 @@ struct CardOperationView: View {
                                         }
                                     }
                                 }
-                }.buttonStyle(TangemButtonStyle(color: .black,
-                                                isDisabled: false))
+                }.buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                                layout: .big,
+                                                isLoading: self.isLoading))
                     .alert(item: self.$error) { $0.alert }
             }
             .padding(.horizontal, 16.0)
