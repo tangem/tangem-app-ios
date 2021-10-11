@@ -125,6 +125,12 @@ class OnboardingStepsSetupService {
                         }
                         
                         if model.isEmptyIncludingPendingIncomingTxs {
+                            if cardInfo.twinCardInfo?.pairPublicKey == nil { //It's safe to twin
+                                steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+                                steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+                                return promise(.success(.twins(steps)))
+                            }
+                            
                             steps.append(.topup)
                         } else if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
                             return promise(.success(.twins([])))
