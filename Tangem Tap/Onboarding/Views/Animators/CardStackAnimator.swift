@@ -277,7 +277,7 @@ struct CardStackAnimatorPreview: View {
                         Text("\(index + 1)")
                             .frame(size: .init(width: 50, height: 50))
                     })
-                    .buttonStyle(TangemButtonStyle(colorStyle: .green, font: .system(size: 20, weight: .bold)))
+                    .buttonStyle(TangemButtonStyle())
                 }
                 Button(action: {
                     var newIndex = viewModel.currentCardIndex + 1
