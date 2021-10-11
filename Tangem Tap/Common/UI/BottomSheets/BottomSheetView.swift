@@ -74,9 +74,7 @@ struct BottomSheetView<Content: View>: View {
                     TangemButton(title: "common_close") {
                         hideBottomSheet(with: defaultAnimDuration)
                     }
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt,
-                                                   layout: .wide,
-                                                   font: .system(size: 18, weight: .semibold), isDisabled: false))
+                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .wide))
                     .padding(.bottom, 16 + proxy.safeAreaInsets.bottom)
                 }
                 .frame(maxWidth: .infinity)
