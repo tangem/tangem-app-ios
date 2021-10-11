@@ -13,6 +13,8 @@ import BlockchainSdk
 class CreateWalletAndReadTask: CardSessionRunnable {
     private let curve: EllipticCurve?
     
+    private var command: Any? = nil
+    
     init(with curve: EllipticCurve?) {
         self.curve = curve
     }
@@ -32,6 +34,7 @@ class CreateWalletAndReadTask: CardSessionRunnable {
 
     private func createMultiWallet(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         let createWalletCommand = CreateMultiWalletTask()
+        self.command = createWalletCommand
         createWalletCommand.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
             case .failure(let error):
@@ -44,6 +47,8 @@ class CreateWalletAndReadTask: CardSessionRunnable {
 
     private func createLegacyWallet(in session: CardSession, curve: EllipticCurve, on card: Card, completion: @escaping CompletionResult<Card>) {
         let createWalletCommand = CreateWalletCommand(curve: curve)
+        self.command = createWalletCommand
+        
         createWalletCommand.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
             case .failure(let error):
