@@ -20,6 +20,21 @@ fileprivate struct TokenView: View {
     var addAction: () -> Void
     var removeAction: () -> Void
     
+    private var buttonTitle: LocalizedStringKey {
+        isAdded ? "common_added" : "common_add"
+    }
+    
+    private var buttonAction: () -> Void {
+        isAdded ? removeAction : addAction
+    }
+    
+    private var buttonStyle: TangemButtonStyle {
+        TangemButtonStyle(colorStyle: isAdded ? .gray : .green,
+                          layout: isAdded ? .thinHorizontal : .small,
+                          isDisabled: isAdded,
+                          isLoading: isLoading)
+    }
+    
     var body: some View {
         HStack {
             TokenIconView(token: tokenItem)
@@ -35,15 +50,11 @@ fileprivate struct TokenView: View {
                     .foregroundColor(.tangemTapGrayDark)
             }
             Spacer()
-            TangemButton(isLoading: isLoading, title: isAdded ? "common_added" : "common_add", image: "", size: .thinHorizontal, action: isAdded ? removeAction : addAction)
-                .buttonStyle(isAdded ?
-                                TangemButtonStyle(color: .gray, isDisabled: true) :
-                                TangemButtonStyle(color: .green, isDisabled: false))
-                .disabled(isAdded)
+            TangemButton(title: buttonTitle, action: buttonAction)
+                .buttonStyle(buttonStyle)
         }
         .padding(.vertical, 8)
     }
-    
 }
 
 struct AddNewTokensView: View {
