@@ -12,7 +12,8 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
 	
 	private let fileToWrite: Data
 	var requiresPin2: Bool { true }
-	
+    private var scanCommand: TapScanTask? = nil
+    
     init(fileToWrite: Data) {
 		self.fileToWrite = fileToWrite
 	}
@@ -49,8 +50,8 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
 	}
 	
 	func readCard(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        let task = TapScanTask()
-		task.run(in: session, completion: completion)
+        scanCommand = TapScanTask()
+        scanCommand!.run(in: session, completion: completion)
 	}
 	
 }

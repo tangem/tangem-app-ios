@@ -13,14 +13,15 @@ class PurgeWalletAndReadTask: CardSessionRunnable {
     public var preflightReadMode: PreflightReadMode { .readWallet(publicKey: publicKey) }
     
     let publicKey: Data
+    private var purgeWalletCommand: PurgeWalletCommand? = nil
     
     init(publicKey: Data) {
         self.publicKey = publicKey
     }
     
     func run(in session: CardSession, completion: @escaping CompletionResult<Card>) {
-        let purgeWalletCommand = PurgeWalletCommand(publicKey: publicKey)
-        purgeWalletCommand.run(in: session) { purgeWalletCompletion in
+        purgeWalletCommand = PurgeWalletCommand(publicKey: publicKey)
+        purgeWalletCommand!.run(in: session) { purgeWalletCompletion in
             switch purgeWalletCompletion {
             case .failure(let error):
                 completion(.failure(error))
