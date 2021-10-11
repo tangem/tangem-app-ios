@@ -70,7 +70,6 @@ struct OnboardingTextButtonView: View {
             }
             .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
                                            layout: mainSettings.size,
-                                           font: .system(size: 17, weight: .semibold),
                                            isDisabled: !mainSettings.isEnabled,
                                            isLoading: mainSettings.isBusy))
             
@@ -82,7 +81,6 @@ struct OnboardingTextButtonView: View {
                 .opacity(settings.isVisible ? 1.0 : 0.0)
                 .buttonStyle(TangemButtonStyle(colorStyle: settings.color,
                                                layout: settings.size,
-                                               font: .system(size: 17, weight: .semibold),
                                                isDisabled: !settings.isEnabled))
             }
         }
