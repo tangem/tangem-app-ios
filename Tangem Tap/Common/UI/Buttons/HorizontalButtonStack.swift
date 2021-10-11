@@ -79,7 +79,7 @@ struct HorizontalButtonStack: View {
             .frame(width: geo.size.width, height: height)
             
         }
-        .font(Font.custom("SairaSemiCondensed-Bold", size: 15.0))
+        .font(.system(size: 17))
         .foregroundColor(Color.white)
         .frame(height: height)
         .background(Color.tangemTapGreen)
