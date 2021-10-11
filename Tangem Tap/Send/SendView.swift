@@ -43,7 +43,7 @@ struct SendView: View {
                                         CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
                                                            backgroundColor: .tangemTapBgGray,
                                                            imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
-                                                           isSystemImage: false,
+                                                           isSystemImage: true,
                                                            imageColor: .tangemTapGrayDark6,
                                                            isDisabled: self.viewModel.validatedClipboard == nil)
                                             .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
@@ -58,7 +58,7 @@ struct SendView: View {
                                             },
                                             backgroundColor: .tangemTapBgGray,
                                             imageName: "qrcode.viewfinder",
-                                            isSystemImage: false,
+                                            isSystemImage: true,
                                             imageColor: .tangemTapGrayDark6
                                         )
                                         .accessibility(label: Text("voice_over_scan_qr_with_address"))
@@ -119,7 +119,7 @@ struct SendView: View {
                                     .foregroundColor(!viewModel.isSellingCrypto ?
                                                         Color.tangemTapBlue : Color.tangemTapGrayDark6.opacity(0.5))
                                 if !viewModel.isSellingCrypto {
-                                    Image("arrow.up.arrow.down")
+                                    Image(systemName: "arrow.up.arrow.down")
                                         .font(Font.system(size: 17.0, weight: .regular, design: .default))
                                         .foregroundColor(Color.tangemTapBlue)
                                 }
@@ -155,7 +155,7 @@ struct SendView: View {
                                     }
                                 }) {
                                     if !viewModel.isSellingCrypto {
-                                        Image(self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
+                                        Image(systemName: self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
                                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                             .foregroundColor(Color.tangemTapGrayDark6)
                                             .padding()
@@ -245,9 +245,8 @@ struct SendView: View {
                     .padding(.vertical, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        TangemLongButton(isLoading: false,
-                                         title: "wallet_button_send",
-                                         image: "arrow.right") {
+                        TangemButton(title: "wallet_button_send",
+                                     systemImage: "arrow.right") {
                             self.viewModel.send() {
                                 DispatchQueue.main.async {
                                     let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
@@ -257,9 +256,8 @@ struct SendView: View {
                                     self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
                                 }
                             }
-                        }.buttonStyle(TangemButtonStyle(color: .green,
+                        }.buttonStyle(TangemButtonStyle(layout: .big,
                                                         isDisabled: !self.viewModel.isSendEnabled))
-                        .disabled(!self.viewModel.isSendEnabled)
                         .sheet(isPresented: $navigation.sendToSendEmail, content: {
                             MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
                         })
