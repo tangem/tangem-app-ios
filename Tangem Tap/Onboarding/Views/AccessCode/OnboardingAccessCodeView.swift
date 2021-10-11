@@ -147,9 +147,7 @@ struct OnboardingAccessCodeView: View {
                 .opacity(error.errorOpacity)
                 .foregroundColor(.tangemTapCritical)
             Spacer()
-            TangemButton(isLoading: false,
-                         title: state.buttonTitle,
-                         size: .wide) {
+            TangemButton(title: state.buttonTitle) {
                 let nextState: ViewState
                 switch state {
                 case .intro:
@@ -173,7 +171,8 @@ struct OnboardingAccessCodeView: View {
                     state = nextState
                 }
             }
-            .buttonStyle(TangemButtonStyle(color: .green,
+            .buttonStyle(TangemButtonStyle(colorStyle: .green,
+                                           layout: .wide,
                                            font: .system(size: 17, weight: .semibold),
                                            isDisabled: false))
             .padding(.bottom, 16)
