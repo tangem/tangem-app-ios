@@ -108,11 +108,8 @@ class OnboardingStepsSetupService {
         }
         
         let walletModel = assembly.loadWallets(from: cardInfo)
-        if walletModel.count > 0 && cardInfo.twinCardInfo?.pairPublicKey == nil { //bugged case, go to main
-            return .justWithError(output: .twins([]))
-        }
         
-        if (walletModel.count == 0 || cardInfo.twinCardInfo?.pairPublicKey == nil) {
+        if (walletModel.count == 0 && cardInfo.twinCardInfo?.pairPublicKey == nil) {
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
             steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
             return .justWithError(output: .twins(steps))
@@ -122,6 +119,11 @@ class OnboardingStepsSetupService {
                 model.walletManager.update { [unowned self] result in
                     switch result {
                     case .success:
+                        if !model.isEmptyIncludingPendingIncomingTxs
+                            && cardInfo.twinCardInfo?.pairPublicKey == nil { //bugged case, has balance go to main
+                            return promise(.success(.twins([])))
+                        }
+                        
                         if model.isEmptyIncludingPendingIncomingTxs {
                             steps.append(.topup)
                         } else if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
