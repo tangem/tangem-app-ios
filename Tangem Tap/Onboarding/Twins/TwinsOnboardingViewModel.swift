@@ -227,12 +227,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
     func backButtonAction() {
         switch currentStep {
         case .second, .third:
-            alert = AlertBinder(alert: Alert(title: Text("twins_creation_warning_title"),
-                                             message: Text("twins_creation_warning_message"),
-                                             primaryButton: Alert.Button.destructive(Text("common_ok"), action: { [weak self] in
-                                                self?.back()
-                                             }),
-                                             secondaryButton: Alert.Button.default(Text("common_cancel"))))
+            alert = AlertBinder(alert: AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized))
         default:
             back()
         }
@@ -259,7 +254,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
     private func subscribeToStepUpdates() {
         stepUpdatesSubscription = twinsService.step
             .receive(on: DispatchQueue.main)
-            .zip(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification))
+            .combineLatest(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification))
             .sink(receiveValue: { [unowned self] (newStep, _) in
                 switch (self.currentStep, newStep) {
                 case (.first, .second), (.second, .third), (.third, .done):

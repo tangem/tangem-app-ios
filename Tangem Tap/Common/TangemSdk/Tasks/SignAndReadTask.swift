@@ -12,6 +12,7 @@ import TangemSdk
 class SignAndReadTask: CardSessionRunnable {
     let hashes: [Data]
     let walletPublicKey: Data
+    private var signCommand: SignHashesCommand? = nil
     
     init(hashes: [Data], walletPublicKey: Data) {
         self.hashes = hashes
@@ -19,8 +20,8 @@ class SignAndReadTask: CardSessionRunnable {
     }
     
     func run(in session: CardSession, completion: @escaping CompletionResult<SignAndReadTaskResponse>) {
-        let signCommand = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey)
-        signCommand.run(in: session) { signResult in
+        signCommand = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey)
+        signCommand!.run(in: session) { signResult in
             switch signResult {
             case .success(let signResponse):
                 completion(.success(SignAndReadTaskResponse(signatures: signResponse.signatures, card: session.environment.card!)))
