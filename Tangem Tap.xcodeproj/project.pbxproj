@@ -81,21 +81,6 @@
 		5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84DBEE270EEADA0013A813 /* TwinIntroBackgroundView.swift */; };
 		5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E324FA79F700E90939 /* ViewStateHandler.swift */; };
 		5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */; };
-		5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
-		5D9141E024D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
-		5D9141E124D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
-		5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */; };
-		5D9141E324D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */; };
-		5D9141E424D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */; };
-		5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
-		5D9141E624D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
-		5D9141E724D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
-		5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */; };
-		5D9141E924D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */; };
-		5D9141EA24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */; };
-		5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
-		5D9141EC24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
-		5D9141ED24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
 		5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */; };
 		5D9DCAD3255172520059799C /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAD2255172520059799C /* NavigationCoordinator.swift */; };
 		5D9DCADE2551744F0059799C /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCADD2551744F0059799C /* ViewModel.swift */; };
@@ -668,11 +653,6 @@
 		B0AA865426DC90FF00287F80 /* WelcomeOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AA865326DC90FF00287F80 /* WelcomeOnboardingViewModel.swift */; };
 		B0B06972260CB2F100AE10B0 /* CoinMarketCapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */; };
 		B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B2DF5F26E1FD5400BC0934 /* AnimatedView.swift */; };
-		B0B34CC52611CDD600ACFAB3 /* SairaSemiCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */; };
-		B0B34CC62611CDD600ACFAB3 /* SairaSemiCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */; };
-		B0B34CC72611CDD600ACFAB3 /* SairaSemiCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */; };
-		B0B34CC82611CDD600ACFAB3 /* SairaSemiCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */; };
-		B0B34CC92611CDD600ACFAB3 /* SairaSemiCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */; };
 		B0B4556425E0E3F400D7572F /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
 		B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B4556825E0E63000D7572F /* FailedCardScanTracker.swift */; };
 		B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B8670226DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift */; };
@@ -905,11 +885,6 @@
 		5D84DBEE270EEADA0013A813 /* TwinIntroBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinIntroBackgroundView.swift; sourceTree = "<group>"; };
 		5D9004E324FA79F700E90939 /* ViewStateHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewStateHandler.swift; sourceTree = "<group>"; };
 		5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePayIdView.swift; sourceTree = "<group>"; };
-		5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Medium.ttf"; sourceTree = "<group>"; };
-		5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-SemiBold.ttf"; sourceTree = "<group>"; };
-		5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Bold.ttf"; sourceTree = "<group>"; };
-		5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Regular.ttf"; sourceTree = "<group>"; };
-		5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SairaSemiCondensed-Light.ttf"; sourceTree = "<group>"; };
 		5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
 		5D9DCAD2255172520059799C /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		5D9DCADD2551744F0059799C /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
@@ -1801,18 +1776,6 @@
 			path = MultiWallet;
 			sourceTree = "<group>";
 		};
-		5D9141C524D8A42600EB52C0 /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				5D9141DC24D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf */,
-				5D9141DE24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf */,
-				5D9141DA24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf */,
-				5D9141DD24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf */,
-				5D9141DB24D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf */,
-			);
-			path = Fonts;
-			sourceTree = "<group>";
-		};
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
@@ -1950,7 +1913,6 @@
 				5DF2522524F914C90015B429 /* TangemSdk */,
 				5D958E1224F513C1006BD932 /* UI */,
 				5D383E3C24D95B6B00C9BFF6 /* Localizations */,
-				5D9141C524D8A42600EB52C0 /* Fonts */,
 				5DBBAB0924D853A000E78F1C /* Extensions */,
 				B082E91E255A8E7800A0CEA9 /* Storage */,
 				5D119E84256BF1E50046CAD2 /* Option.swift */,
@@ -3752,16 +3714,12 @@
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
-				5D9141E224D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
 				B087636026830795000A35F9 /* binanceTokens.json in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
-				5D9141E524D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
 				B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */,
-				5D9141E824D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
-				5D9141EB24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
 				B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */,
 				B087635F26830795000A35F9 /* binanceTokens_testnet.json in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
@@ -3771,7 +3729,6 @@
 				B08ACD9425D2E056007387BD /* ethereumTokens.json in Resources */,
 				B0A359EE2589117200E25B34 /* features_prod.json in Resources */,
 				5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */,
-				5D9141DF24D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3779,11 +3736,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D9141E024D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
-				5D9141EC24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
-				5D9141E324D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
-				5D9141E624D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
-				5D9141E924D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3791,11 +3743,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D9141E124D8A50200EB52C0 /* SairaSemiCondensed-Medium.ttf in Resources */,
-				5D9141ED24D8A50200EB52C0 /* SairaSemiCondensed-Light.ttf in Resources */,
-				5D9141E424D8A50200EB52C0 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
-				5D9141E724D8A50200EB52C0 /* SairaSemiCondensed-Bold.ttf in Resources */,
-				5D9141EA24D8A50200EB52C0 /* SairaSemiCondensed-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3806,12 +3753,7 @@
 				B0D3601025F26C7600929564 /* LaunchScreen.storyboard in Resources */,
 				B066AFB9262D5F3800EB85A5 /* config_dev.json in Resources */,
 				B066AFBD262D5F3800EB85A5 /* config_prod.json in Resources */,
-				B0B34CC82611CDD600ACFAB3 /* SairaSemiCondensed-Regular.ttf in Resources */,
-				B0B34CC72611CDD600ACFAB3 /* SairaSemiCondensed-Medium.ttf in Resources */,
-				B0B34CC92611CDD600ACFAB3 /* SairaSemiCondensed-SemiBold.ttf in Resources */,
 				B0FC4A822630245F000444D7 /* Localizable.strings in Resources */,
-				B0B34CC52611CDD600ACFAB3 /* SairaSemiCondensed-Bold.ttf in Resources */,
-				B0B34CC62611CDD600ACFAB3 /* SairaSemiCondensed-Light.ttf in Resources */,
 				B00BC599260B1A2600F0647D /* Tokens.xcassets in Resources */,
 				B0F735BD25F79CCD00DD348F /* Colors.xcassets in Resources */,
 				B0D3600A25F26C7600929564 /* Assets.xcassets in Resources */,
