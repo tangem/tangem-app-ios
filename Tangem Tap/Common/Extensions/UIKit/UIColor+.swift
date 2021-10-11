@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 extension UIColor {
     convenience init(red: Int, green: Int, blue: Int) {
