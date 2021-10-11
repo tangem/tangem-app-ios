@@ -687,3 +687,4 @@ Amount to pay: %@";
 "onboarding_alert_i_understand" = "I understand";
 
 "onboarding_alert_twins_recreate_subtitle" = "This action is irreversible. You will not have access to the old wallet.";
+"onboarding_twin_exit_warning" = "The twinning process is partly complete. You can’t exit it now.";
