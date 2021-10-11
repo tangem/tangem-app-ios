@@ -113,59 +113,58 @@ struct MainView: View {
             ((viewModel.cardModel?.isNotPairedTwin ?? false)
                 && (viewModel.cardModel?.hasBalance ?? false)) {
             if  (viewModel.cardModel?.isMultiWallet ?? false) {
-                TangemButton(isLoading: viewModel.isScanning,
-                             title: "wallet_button_scan",
-                             image: "scan") {scanAction()}
-                    .buttonStyle(TangemButtonStyle(color: .black))
+                TangemButton(title: "wallet_button_scan",
+                             image: "scan",
+                             action: scanAction)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                                   isLoading: viewModel.isScanning))
             } else {
-                TangemVerticalButton(isLoading: viewModel.isScanning,
-                                     title: "wallet_button_scan",
-                                     image: "scan") { scanAction()}
-                    .buttonStyle(TangemButtonStyle(color: .black))
+                TangemButton.vertical(title: "wallet_button_scan",
+                                     image: "scan",
+                                     action: scanAction)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                                   isLoading: viewModel.isScanning))
             }
         } else {
-            TangemButton(isLoading: viewModel.isScanning,
-                         title: "wallet_button_scan",
-                         image: "scan") {scanAction()}
-                .buttonStyle(TangemButtonStyle(color: .black))
+            TangemButton(title: "wallet_button_scan",
+                         image: "scan",
+                         action: scanAction)
+                .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                               isLoading: viewModel.isScanning))
         }
     }
     
     var createWalletButton: some View {
-        TangemLongButton(isLoading: viewModel.isCreatingWallet,
-                         title: viewModel.isTwinCard ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
-                         image: "arrow.right") { viewModel.createWallet()  }
-            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet))
-            .disabled(!viewModel.canCreateWallet || !viewModel.canCreateTwinWallet)
+        TangemButton(title: viewModel.isTwinCard ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
+                     systemImage: "arrow.right") { viewModel.createWallet()  }
+            .buttonStyle(TangemButtonStyle(layout: .big,
+                                           isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet,
+                                           isLoading: viewModel.isCreatingWallet))
     }
     
     @ViewBuilder var sendButton: some View {
         let action = { viewModel.sendTapped() }
         
         if viewModel.canBuyCrypto {
-            TangemVerticalButton(isLoading: false,
-                                 title: "wallet_button_send",
-                                 image: "arrow.right") { action() }
-                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
-                .disabled(!viewModel.canSend)
+            TangemButton.vertical(title: "wallet_button_send",
+                                  systemImage: "arrow.right",
+                                  action: action)
+                .buttonStyle(TangemButtonStyle(isDisabled: !viewModel.canSend))
         } else {
-            TangemLongButton(isLoading: false,
-                             title: "wallet_button_send",
-                             image: "arrow.right") { action() }
-                .buttonStyle(TangemButtonStyle(color: .green, isDisabled: !viewModel.canSend))
-                .disabled(!viewModel.canSend)
+            TangemButton(title: "wallet_button_send",
+                         systemImage: "arrow.right") { action() }
+                .buttonStyle(TangemButtonStyle(layout: .big, isDisabled: !viewModel.canSend))
         }
     }
     
     @ViewBuilder
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto {
-            TangemVerticalButton(isLoading: false,
-                                 title: "wallet_button_trade",
-                                 image: "arrow.up.down.wide") {
+            TangemButton.vertical(title: "wallet_button_trade",
+                                 systemImage: "arrow.up.down.wide") {
                 navigation.mainToTradeSheet = true
             }
-            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
+            .buttonStyle(TangemButtonStyle())
             .actionSheet(isPresented: $navigation.mainToTradeSheet, content: {
                 ActionSheet(title: Text("action_sheet_trade_hint"),
                             buttons: [
@@ -179,12 +178,10 @@ struct MainView: View {
                             ])
             })
         } else {
-            TangemVerticalButton(isLoading: false,
-                                 title: "wallet_button_topup",
-                                 image: "arrow.up") {
-                viewModel.buyCryptoAction()
-            }
-            .buttonStyle(TangemButtonStyle(color: .green, isDisabled: false))
+            TangemButton.vertical(title: "wallet_button_topup",
+                                 systemImage: "arrow.up",
+                                 action: viewModel.buyCryptoAction)
+            .buttonStyle(TangemButtonStyle())
         }
     }
     

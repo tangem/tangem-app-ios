@@ -33,7 +33,7 @@ struct HorizontalButtonStack: View {
                             Button(action: button.action) {
                                 HStack {
                                     Text(button.title)
-                                    Image(button.imageName)
+                                    Image(systemName: button.imageName)
                                 }
                             }
                             .disabled(button.isDisabled)

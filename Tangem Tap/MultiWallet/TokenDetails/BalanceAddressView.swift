@@ -89,7 +89,7 @@ struct BalanceAddressView: View {
                             .foregroundColor(Color.tangemTapGrayDark)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                        Image(image)
+                        Image(systemImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .foregroundColor(accentColor)
@@ -139,7 +139,7 @@ struct BalanceAddressView: View {
                                 Text("wallet_address_button_explore")
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(1)
-                                Image ("chevron.right")
+                                Image (systemName: "chevron.right")
                             }
                             .font(Font.system(size: 14.0, weight: .bold, design: .default))
                             .foregroundColor(Color.tangemTapGrayDark6)
@@ -149,13 +149,13 @@ struct BalanceAddressView: View {
                         HStack {
                             RoundedRectButton(action: {
                                                 UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
-                                              imageName: "doc.on.clipboard",
+                                              systemImageName: "doc.on.clipboard",
                                               title: "common_copy".localized,
                                               withVerification: true)
                                 .accessibility(label: Text("voice_over_copy_address"))
                             
                             RoundedRectButton(action: { showShareSheet() },
-                                              imageName: "square.and.arrow.up",
+                                              systemImageName: "square.and.arrow.up",
                                               title: "common_share".localized)
                                 .accessibility(label: Text("voice_over_share_address"))
                         }
