@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TangemButtonSettings {
     let title: LocalizedStringKey
-    let size: ButtonSize
+    let size: ButtonLayout
     let action: (() -> Void)?
     let isBusy: Bool
     var isEnabled: Bool
@@ -31,7 +31,7 @@ struct OnboardingBottomButtonsSettings {
 
 struct ButtonsSettings {
     let mainTitle: LocalizedStringKey
-    let mainSize: ButtonSize
+    let mainSize: ButtonLayout
     let mainAction: (() -> Void)?
     let mainIsBusy: Bool
     var mainColor: ButtonColorStyle = .green
@@ -39,7 +39,7 @@ struct ButtonsSettings {
     let isMainEnabled: Bool
     
     let supplementTitle: LocalizedStringKey
-    let supplementSize: ButtonSize
+    let supplementSize: ButtonLayout
     let supplementAction: (() -> Void)?
     var supplementColor: ButtonColorStyle = .transparentWhite
     let isVisible: Bool
@@ -61,28 +61,27 @@ struct OnboardingTextButtonView: View {
     var buttons: some View {
         VStack(spacing: 10) {
             let mainSettings = buttonsSettings.main
-            TangemButton(isLoading: mainSettings.isBusy,
-                         title: mainSettings.title,
+            TangemButton(title: mainSettings.title,
                          systemImage: mainSettings.systemIconName,
-                         size: mainSettings.size,
                          iconPosition: mainSettings.iconPosition) {
                 withAnimation {
                     mainSettings.action?()
                 }
             }
-            .buttonStyle(TangemButtonStyle(color: mainSettings.color,
+            .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
+                                           layout: mainSettings.size,
                                            font: .system(size: 17, weight: .semibold),
-                                           isDisabled: !mainSettings.isEnabled))
+                                           isDisabled: !mainSettings.isEnabled,
+                                           isLoading: mainSettings.isBusy))
             
             if let settings = buttonsSettings.supplement {
 //            if buttonsSettings.containSupplementButton {
-                TangemButton(isLoading: false,
-                             title: settings.title,
-                             size: settings.size) {
+                TangemButton(title: settings.title) {
                     settings.action?()
                 }
                 .opacity(settings.isVisible ? 1.0 : 0.0)
-                .buttonStyle(TangemButtonStyle(color: settings.color,
+                .buttonStyle(TangemButtonStyle(colorStyle: settings.color,
+                                               layout: settings.size,
                                                font: .system(size: 17, weight: .semibold),
                                                isDisabled: !settings.isEnabled))
             }
