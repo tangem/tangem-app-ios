@@ -85,14 +85,13 @@ struct DisclaimerView: View {
                 }
                 .clipped()
             }
-            TangemButton(isLoading: false,
-                         title: "common_accept",
-                         size: .wide) {
+            
+            TangemButton(title: "common_accept") {
                 if case let .sheet(acceptCallback) = style {
                     acceptCallback()
                 }
             }
-            .buttonStyle(TangemButtonStyle(color: .green, font: .system(size: 18, weight: .semibold), isDisabled: false))
+            .buttonStyle(TangemButtonStyle(font: .system(size: 18, weight: .semibold)))
             .background(
                 LinearGradient(
                     gradient: Gradient(stops: [
