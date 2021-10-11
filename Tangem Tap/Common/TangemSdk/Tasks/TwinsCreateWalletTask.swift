@@ -29,6 +29,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	private var fileToWrite: Data?
     private let walletManagerFactory: WalletManagerFactory?
     private var walletManager: WalletManager? = nil
+    private var scanCommand: TapScanTask? = nil
     
 	init(firstTwinCardId: String?, fileToWrite: Data?, walletManagerFactory: WalletManagerFactory?) {
 		self.firstTwinCardId = firstTwinCardId
@@ -160,8 +161,8 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
     
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
-        let scanTask = TapScanTask()
-        scanTask.run(in: session) { scanCompletion in
+        self.scanCommand =  TapScanTask()
+        scanCommand!.run(in: session) { scanCompletion in
             switch scanCompletion {
             case .failure(let error):
                 completion(.failure(error))
