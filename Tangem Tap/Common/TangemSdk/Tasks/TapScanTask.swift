@@ -102,14 +102,16 @@ final class TapScanTask: CardSessionRunnable {
             switch result {
             case .success(let response):
                 guard let file = response.first else {
-                    completion(.failure(.underlying(error: "Failed to read note file")))
+                    self.noteWalletData = nil
+                    self.appendWalletsIfNeeded(session: session, completion: completion)
                     return
                 }
                 
                 guard let namedFile = try? NamedFile(tlvData: file.fileData),
                       let tlv = Tlv.deserialize(namedFile.payload),
                       let walletData = try? WalletDataDeserializer().deserialize(decoder: TlvDecoder(tlv: tlv)) else {
-                    completion(.failure(.underlying(error: "Failed to parse note file")))
+                    self.noteWalletData = nil
+                    self.appendWalletsIfNeeded(session: session, completion: completion)
                     return
                 }
                 
