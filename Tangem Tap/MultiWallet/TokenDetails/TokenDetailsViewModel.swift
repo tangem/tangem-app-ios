@@ -250,8 +250,8 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         $isRefreshing
             .removeDuplicates()
             .filter { $0 }
-            .sink{ [unowned self] _ in
-                self.walletModel?.update()
+            .sink{ [weak self] _ in
+                self?.walletModel?.update()
             }
             .store(in: &bag)
         
@@ -262,10 +262,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             .map{ $0.isLoading }
             .filter { !$0 }
             .receive(on: RunLoop.main)
-            .sink {[unowned self] _ in
+            .sink {[weak self] _ in
                 print("♻️ Token wallet model loading state changed")
                 withAnimation {
-                    self.isRefreshing = false
+                    self?.isRefreshing = false
                 }
             }
             .store(in: &bag)
