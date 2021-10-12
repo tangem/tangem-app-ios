@@ -103,7 +103,8 @@ class OnboardingStepsSetupService {
             if twinCardInfo.pairPublicKey != nil && cardInfo.card.wallets.first != nil {
                 return .justWithError(output: .twins([]))
             } else {
-                steps.append(.intro(pairNumber: "\(twinCardInfo.series.pair.number)"))
+                let twinPairCid = TapTwinCardIdFormatter.format(cid:"", cardNumber: twinCardInfo.series.pair.number)
+                steps.append(.intro(pairNumber: "\(twinPairCid)"))
             }
         }
         
