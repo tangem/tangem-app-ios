@@ -12,7 +12,7 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
-class DetailsViewModel: ViewModel {
+class DetailsViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
