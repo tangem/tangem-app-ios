@@ -173,7 +173,7 @@ PODS:
   - SwiftDate (6.0.3)
   - SwiftProtobuf (1.17.0)
   - SwiftyJSON (5.0.1)
-  - TangemSdk (3.1.0)
+  - TangemSdk (3.1.1)
   - WalletConnectSwift (1.3.1):
     - CryptoSwift (~> 1.4)
     - Starscream (~> 3.1)
@@ -208,7 +208,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk (= 2.0.0)
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `backup-beta-6`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `backup-beta-7`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.4.0`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
@@ -263,7 +263,7 @@ EXTERNAL SOURCES:
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-6
+    :tag: backup-beta-7
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -286,7 +286,7 @@ CHECKOUT OPTIONS:
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-6
+    :tag: backup-beta-7
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -331,11 +331,11 @@ SPEC CHECKSUMS:
   SwiftDate: 8d4f14bf1ef68e95094511504856547bf9e3e1a6
   SwiftProtobuf: 9c85136c6ba74b0a1b84279dbf0f6db8efb714e0
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
-  TangemSdk: 1d84c9088994f712e94afec6f41a41ae690ebb50
+  TangemSdk: fd937f6b6eed1f3fa87fc7d446f017c960b7f22b
   WalletConnectSwift: 4024c247b7035c0c155958208fecdb3d1a682f59
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: ae4cd9903f637520d697394948d6fc881d6dbab3
+PODFILE CHECKSUM: 7ac446ea8259146375de0cdd13d795f49caaefaf
 
 COCOAPODS: 1.11.2
