@@ -11,7 +11,7 @@ import SwiftUI
 import TangemSdk
 import Combine
 
-class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep> {
+class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep>, ObservableObject {
     
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
