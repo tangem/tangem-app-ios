@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class AddNewTokensViewModel: ViewModel {
+class AddNewTokensViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var tokenItemsRepository: TokenItemsRepository!

@@ -12,7 +12,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemSdk
 
-class MainViewModel: ViewModel {
+class MainViewModel: ViewModel, ObservableObject {
     // MARK: Dependencies -
     weak var imageLoaderService: CardImageLoaderService!
     weak var exchangeService: ExchangeService!
