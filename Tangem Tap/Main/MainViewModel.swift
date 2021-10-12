@@ -371,11 +371,11 @@ class MainViewModel: ViewModel, ObservableObject {
         if isProcessingNewCard {
             return
         }
-        let restoredCid = state.card?.cardId ?? ""
-        let newCid = cardsRepository.lastScanResult.card?.cardId ?? ""
-        if restoredCid != newCid {
+        //let restoredCid = state.card?.cardId ?? ""
+        //let newCid = cardsRepository.lastScanResult.card?.cardId ?? ""
+        //if restoredCid != newCid {
             state = cardsRepository.lastScanResult
-        }
+        //}
 
     }
     
