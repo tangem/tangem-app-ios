@@ -19,7 +19,7 @@ struct TextHint {
     let message: String
 }
 
-class SendViewModel: ViewModel {
+class SendViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!

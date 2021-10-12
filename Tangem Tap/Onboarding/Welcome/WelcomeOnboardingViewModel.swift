@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 import TangemSdk
 
-class WelcomeOnboardingViewModel: ViewModel {
+class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
