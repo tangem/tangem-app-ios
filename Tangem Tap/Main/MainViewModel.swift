@@ -277,11 +277,10 @@ class MainViewModel: ViewModel, ObservableObject {
         
         $state
             .compactMap { $0.cardModel }
-            .flatMap { $0.$state }
             .receive(on: RunLoop.main)
-            .sink { [unowned self] state in
-                print("🌀 Card model state updated")
-                self.fetchWarnings()
+            .sink { [unowned self] model in
+                print("🌀 Card model updated")
+                assembly.services.warningsService.setupWarnings(for: model.cardInfo)
             }
             .store(in: &bag)
         
