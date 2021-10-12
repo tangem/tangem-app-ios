@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep> {
+class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, ObservableObject {
     unowned var twinsService: TwinsWalletCreationService
     unowned var imageLoaderService: CardImageLoaderService
     
