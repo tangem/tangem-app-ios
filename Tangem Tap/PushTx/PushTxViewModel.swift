@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import Combine
 
-class PushTxViewModel: ViewModel {
+class PushTxViewModel: ViewModel, ObservableObject {
     
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!

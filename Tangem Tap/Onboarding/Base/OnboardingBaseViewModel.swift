@@ -9,7 +9,7 @@
 import Combine
 import SwiftUI
 
-class OnboardingBaseViewModel: ViewModel {
+class OnboardingBaseViewModel: ViewModel, ObservableObject {
     
     enum Content {
         case notScanned, singleCard, twin, wallet
