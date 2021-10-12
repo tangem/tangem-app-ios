@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 
-class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep> {
+class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, ObservableObject {
     
     let backupService: BackupService
     
