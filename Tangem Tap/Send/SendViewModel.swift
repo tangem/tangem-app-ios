@@ -225,7 +225,7 @@ class SendViewModel: ViewModel, ObservableObject {
             .map {[unowned self] newRates -> Bool in
                 return newRates[self.amountToSend.currencySymbol] != nil
             }
-            .assign(to: \.canFiatCalculation, on: self)
+            .weakAssign(to: \.canFiatCalculation, on: self)
             .store(in: &bag)
         
         $destination //destination validation

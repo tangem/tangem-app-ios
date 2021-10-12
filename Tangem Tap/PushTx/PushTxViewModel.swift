@@ -161,7 +161,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
             .map {[unowned self] newRates -> Bool in
                 return newRates[self.amountToSend.currencySymbol] != nil
             }
-            .assign(to: \.canFiatCalculation, on: self)
+            .weakAssign(to: \.canFiatCalculation, on: self)
             .store(in: &bag)
         
         $isFiatCalculation
@@ -181,7 +181,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
                 let fee = self.fees[feeLevel]
                 return fee
             }
-            .assign(to: \.selectedFee, on: self)
+            .weakAssign(to: \.selectedFee, on: self)
             .store(in: &bag)
         
         $fees
@@ -191,7 +191,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
                 
                 return $0[self.selectedFeeLevel]
             }
-            .assign(to: \.selectedFee, on: self)
+            .weakAssign(to: \.selectedFee, on: self)
             .store(in: &bag)
 
         $isFeeIncluded
