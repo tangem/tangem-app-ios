@@ -9,7 +9,7 @@ import SwiftUI
 import BlockchainSdk
 import Combine
 
-class TokenDetailsViewModel: ViewModel {
+class TokenDetailsViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var exchangeService: ExchangeService!
