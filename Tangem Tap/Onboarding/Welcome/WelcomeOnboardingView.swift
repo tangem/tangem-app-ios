@@ -24,79 +24,76 @@ struct WelcomeOnboardingView: View {
     }
     
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                navigationLinks
+        VStack(spacing: 0) {
+            navigationLinks
+            
+            ZStack {
+                let bgSize = containerSize * 1.5
                 
-                ZStack {
-                    let bgSize = containerSize * 1.5
-                    
-                    WelcomeBackgroundView()
-                        .frame(size: bgSize)
-                        .offset(x: bgSize.width/3,
-                                y: (containerSize.height - bgSize.height) * 0.2)
-                      
-                    AnimatedView(settings: viewModel.$lightCardSettings) {
-                        OnboardingCardView(placeholderCardType: .light,
-                                           cardImage: nil,
-                                           cardScanned: false)
-                    }
-                    
-                    AnimatedView(settings: viewModel.$darkCardSettings) {
-                        OnboardingCardView(placeholderCardType: .dark,
-                                           cardImage: nil,
-                                           cardScanned: false)
-                    }
-
-                }
-                .position(x: containerSize.width / 2, y: containerSize.height / 2)
-                .readSize { size in
-                    containerSize = size
-                    viewModel.setupContainer(size)
+                WelcomeBackgroundView()
+                    .frame(size: bgSize)
+                    .offset(x: bgSize.width/3,
+                            y: (containerSize.height - bgSize.height) * 0.2)
+                
+                AnimatedView(settings: viewModel.$lightCardSettings) {
+                    OnboardingCardView(placeholderCardType: .light,
+                                       cardImage: nil,
+                                       cardScanned: false)
                 }
                 
-                OnboardingTextButtonView(
-                    title: currentStep.title,
-                    subtitle: currentStep.subtitle,
-                    buttonsSettings:
-                        .init(main: TangemButtonSettings(
-                            title: currentStep.mainButtonTitle,
-                            size: .wide,
-                            action: {
-                                viewModel.scanCard()
-                            },
-                            isBusy: viewModel.isScanningCard,
-                            isEnabled: true,
-                            isVisible: true
-                            ),
-                        supplement: TangemButtonSettings(
-                            title: currentStep.supplementButtonTitle,
-                            size: .wide,
-                            action: {
-                                navigation.readToShop = true
-                            },
-                            isBusy: false,
-                            isEnabled: true,
-                            isVisible: true,
-                            color: .transparentWhite))
-                    ) {
-                    
+                AnimatedView(settings: viewModel.$darkCardSettings) {
+                    OnboardingCardView(placeholderCardType: .dark,
+                                       cardImage: nil,
+                                       cardScanned: false)
                 }
-                .padding(.horizontal, 40)
-                .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
-                    DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer))
-                        .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.disclaimerDismissed)
-                })
-                ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
-                    self.viewModel.scanCard()
-                } requestSupportAction: {
-                    self.viewModel.failedCardScanTracker.resetCounter()
-                    self.navigation.readToSendEmail = true
-                }
-                .sheet(isPresented: $navigation.readToSendEmail, content: {
-                    MailView(dataCollector: viewModel.failedCardScanTracker, support: .tangem, emailType: .failedToScanCard)
-                })
             }
+            .position(x: containerSize.width / 2, y: containerSize.height / 2)
+            .readSize { size in
+                containerSize = size
+                viewModel.setupContainer(size)
+            }
+            
+            OnboardingTextButtonView(
+                title: currentStep.title,
+                subtitle: currentStep.subtitle,
+                buttonsSettings:
+                    .init(main: TangemButtonSettings(
+                        title: currentStep.mainButtonTitle,
+                        size: .wide,
+                        action: {
+                            viewModel.scanCard()
+                        },
+                        isBusy: viewModel.isScanningCard,
+                        isEnabled: true,
+                        isVisible: true
+                    ),
+                    supplement: TangemButtonSettings(
+                        title: currentStep.supplementButtonTitle,
+                        size: .wide,
+                        action: {
+                            navigation.readToShop = true
+                        },
+                        isBusy: false,
+                        isEnabled: true,
+                        isVisible: true,
+                        color: .transparentWhite))
+            ) {
+                
+            }
+            .padding(.horizontal, 40)
+            .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
+                DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer))
+                    .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.disclaimerDismissed)
+            })
+            ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
+                self.viewModel.scanCard()
+            } requestSupportAction: {
+                self.viewModel.failedCardScanTracker.resetCounter()
+                self.navigation.readToSendEmail = true
+            }
+            .sheet(isPresented: $navigation.readToSendEmail, content: {
+                MailView(dataCollector: viewModel.failedCardScanTracker, support: .tangem, emailType: .failedToScanCard)
+            })
         }
         .alert(item: $viewModel.error, content: { error in
             error.alert
