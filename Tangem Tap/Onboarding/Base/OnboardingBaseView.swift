@@ -56,17 +56,17 @@ struct OnboardingBaseView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                navigationLinks
-                
+        ZStack {
+            navigationLinks
+            
+            //NavigationView {
                 content
-            }
-            .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
-//            .navigationBarHidden(
-//                !navigation.onboardingToBuyCrypto &&
-//                    !navigation.readToShop
-//            )
+                    .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
+                //            .navigationBarHidden(
+                //                !navigation.onboardingToBuyCrypto &&
+                //                    !navigation.readToShop
+                //            )
+            //}
         }
         .onAppear(perform: {
             viewModel.bind()
