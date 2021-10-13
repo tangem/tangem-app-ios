@@ -152,7 +152,7 @@ struct TwinsOnboardingView: View {
                                         viewModel.isAddressQrBottomSheetPresented = false
                                      }, content: {
                                         AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
-                                                                    address: viewModel.walletAddress)
+                                                                    address: viewModel.walletAddress, currencyName: "Bitcoins (BTC)")
                                      })
                 .frame(maxWidth: screenSize.width)
         }
