@@ -604,7 +604,7 @@ Amount to pay: %@";
 "onboarding_confetti_subtitle" = "Your crypto card is activated and ready to be used";
 "onboarding_balance" = "BALANCE";
 
-"address_qr_code_message" = "Scan the QR code to top up your wallet";
+"address_qr_code_message_format" = "Send only %@ to this address. Sending any other currency will result in its irreversible loss.";
 
 "onboarding_title_twin_first_card" = "Tap the #1 twin card";
 "onboarding_title_twin_second_card" = "Tap the #2 twin card";
