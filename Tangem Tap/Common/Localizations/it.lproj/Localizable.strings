@@ -583,3 +583,109 @@ Amount to pay: %@";
 "action_sheet_trade_hint" = "Do you want to buy or sell crypto?";
 
 "error_old_app_need_update" = "Oops, the current version of the application is not ready to work with this card, please check for updates.";
+
+"onboarding_button_read_card" = "Read card";
+"onboarding_button_shop" = "Get a new card";
+"onboarding_read_title" = "Welcome to Tangem";
+"onboarding_read_subtitle" = "The safest way to buy, use and store cryptocurrency";
+
+"onboarding_navbar_activating_card" = "Activating card";
+"onboarding_button_create_wallet" = "Create wallet";
+"onboarding_button_how_it_works" = "How it works?";
+"onboarding_create_title" = "Create a wallet";
+"onboarding_create_subtitle" = "Let’s generate all the keys on your card and create a secure wallet";
+
+"onboarding_button_buy_crypto" = "Buy crypto";
+"onboarding_button_show_address_qr" = "Show the wallet’s address";
+"onboarding_topup_title" = "Activate a wallet";
+"onboarding_topup_subtitle" = "To get started, simply top up the wallet with any amount";
+"onboarding_topup_subtitle_xrp" = "To get started, simply top up the wallet with 10+ XRP";
+
+"onboarding_confetti_title" = "Done!";
+"onboarding_confetti_subtitle" = "Your crypto card is activated and ready to be used";
+"onboarding_balance" = "BALANCE";
+
+"address_qr_code_message_format" = "Send only %@ to this address. Sending any other currency will result in its irreversible loss.";
+
+"onboarding_title_twin_first_card" = "Tap the #1 twin card";
+"onboarding_title_twin_second_card" = "Tap the #2 twin card";
+"onboarding_subtitle_intro %@" = "This one that you are holding in your hands and the other one with number %@.";
+"onboarding_subtitle_reset_twin_warning" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
+"onboarding_button_tap_first_card" = "Tap the card #1";
+"onboarding_button_tap_second_card" = "Tap the card #2";
+
+"twin_error_same_card" = "You've tapped same card. To create twin wallet you need to tap card with number %d";
+"twin_error_not_a_twin_card" = "You've tapped not a twin card. To create twin wallet you need to tap a Tangem Twin card";
+"twin_error_wrong_twin" = "You've tapped wrong twin card. Please try another one";
+
+"onboarding_success" = "Success!";
+"onboarding_getting_started" = "Getting started";
+
+"onboarding_button_backup_now" = "Backup now";
+"onboarding_button_get_backup_card" = "Get a backup card";
+"onboarding_button_skip_backup" = "Skip for later";
+"onboarding_button_finalize_backup" = "Finalize the backup process";
+"onboarding_button_add_backup_card" = "Add backup card";
+"onboarding_button_max_backup_cards_added" = "You hit the maximum";
+"onboarding_button_backup_card %lld" = "Tap the card #%lld";
+"onboarding_button_scan_origin_card" = "Scan origin card";
+"onboarding_button_buy_more_cards" = "Buy more cards";
+
+"onboarding_title_backup_card" = "Backup your card";
+"onboarding_title_no_backup_cards" = "No backup cards";
+"onboarding_title_scan_origin_card" = "Prepare your card";
+"onboarding_title_one_backup_card" = "One backup card added";
+"onboarding_title_two_backup_cards" = "Two backup cards added";
+"onboarding_title_backup_card %lld" = "Prepare the #%lld backup card";
+
+"onboarding_subtitle_backup_card" = "You can backup your keys up to 2 other blank wallet cards";
+"onboarding_subtitle_no_backup_cards" = "To start the backup process add up to 2 cards";
+"onboarding_subtitle_scan_origin_card" = "Scan the origin card to start the backup process";
+"onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
+"onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process";
+"onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way, you’ll have to start over";
+
+"onboarding_alert_message_not_max_backup_cards_added" = "You've added one backup card. When backup process is finished you can't add more backup cards. If you have one more card, you can add it to backup, otherwise you can buy it in shop. Do you like to continue backup process?";
+
+"onboarding_access_code_intro_title" = "Create Access Code";
+"onboarding_access_code_repeat_code_title" = "Re-enter your Access Code";
+
+"onboarding_access_code_feature_1_title" = "Protect";
+"onboarding_access_code_feature_2_title" = "Personalize";
+"onboarding_access_code_feature_3_title" = "Restore";
+
+"onboarding_access_code_feature_1_description" = "You have to setup a single access code to protect all yor wallets.";
+"onboarding_access_code_feature_2_description" = "You can set an individual access code on each card later.";
+"onboarding_access_code_feature_3_description" = "The access code can be restored with a linked card, don’t keep all cards at one place.";
+
+"onboarding_access_code_hint" = "Choose any word, phrase, or number you want as your access code.";
+"onboarding_access_code_too_short" = "Access code must be at least 4 characters long";
+"onboarding_access_codes_doesnt_match" = "Entered access code didn't match initial access code";
+
+"common_create" = "Create";
+"common_submit" = "Submit";
+"common_finalize" = "Finalize";
+
+"onboarding_subtitle_success_backup" = "You have created 2 backup cards, and now these cards are ready for use.";
+"onboarding_navbar_title_creating_backup" = "Creating a backup";
+"onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
+
+"onboarding_wallet_info_title_first" = "Backup your card";
+"onboarding_wallet_info_title_second" = "Identical cards";
+"onboarding_wallet_info_title_third" = "Access code";
+"onboarding_wallet_info_title_fourth" = "Access code restore";
+
+"onboarding_wallet_info_subtitle_first" = "You can backup your keys up to 2 other blank Tangem Wallet cards.";
+"onboarding_wallet_info_subtitle_second" = "All the backup cards can be used as full-functoinal wallets with the identical keys.";
+"onboarding_wallet_info_subtitle_third" = "You will be able to set an access code to protect your wallets.";
+"onboarding_wallet_info_subtitle_fourth" = "Access code can be restored with one of backup cards.";
+
+"onboarding_subtitle_success_tangem_wallet_onboarding" = "Your Tangem Wallet card is configured and ready for use.";
+"onboarding_subtitle_success_backup_one_card" = "You have created 1 backup card, and now your Tangem Wallet cards are ready for use.";
+
+"common_origin_card" = "Origin Card";
+
+"onboarding_alert_i_understand" = "I understand";
+
+"onboarding_alert_twins_recreate_subtitle" = "This action is irreversible. You will not have access to the old wallet.";
+"onboarding_twin_exit_warning" = "The twinning process is partly complete. You can’t exit it now.";
