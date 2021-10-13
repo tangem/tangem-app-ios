@@ -18,7 +18,8 @@ class TwinsWalletCreationService {
     }
     
     static let twinFileName = "TwinPublicKey"
-    
+
+    var twinPairCardId: String? = nil
     private let scanMessageKey = "twins_scan_twin_with_number"
     
     private let tangemSdk: TangemSdk
@@ -122,6 +123,7 @@ class TwinsWalletCreationService {
             switch result {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
+                self.twinPairCardId = response.createWalletResponse.cardId
                 self.step.send(.third)
             case .failure(let error):
                 self.occuredError.send(error)
