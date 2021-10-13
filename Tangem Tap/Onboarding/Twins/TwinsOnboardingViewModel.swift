@@ -74,6 +74,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         return super.mainButtonTitle
     }
     
+    override var isOnboardingFinished: Bool {
+        if case .intro = currentStep, steps.count == 1 {
+            return true
+        }
+        
+        return false
+    }
+    
     override var isSupplementButtonVisible: Bool {
         switch currentStep {
         case .topup:
@@ -94,6 +102,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         
         return settings
     }
+    
     
     private var bag: Set<AnyCancellable> = []
     private var stackCalculator: StackCalculator = .init()
