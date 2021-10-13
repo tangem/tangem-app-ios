@@ -84,7 +84,7 @@ final class TapScanTask: CardSessionRunnable {
             return
         }
         
-        if card.firmwareVersion >= .multiwalletAvailable {
+        if card.firmwareVersion >= .multiwalletAvailable && card.settings.isFilesAllowed {
             readNote(card, session: session, completion: completion)
             return
         }
